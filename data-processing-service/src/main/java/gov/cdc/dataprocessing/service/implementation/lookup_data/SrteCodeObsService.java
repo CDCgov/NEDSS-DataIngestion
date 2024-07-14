@@ -15,7 +15,6 @@ import java.util.*;
 
 @Service
 public class SrteCodeObsService implements ISrteCodeObsService {
-    private boolean programAreaDerivationExcludeFlag = false; //NOSONAR
     private final ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
     private final SnomedConditionRepository snomedConditionRepository;
     private final LOINCCodeRepository loincCodeRepository;
@@ -25,6 +24,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     private final LabResultSnomedRepository labResultSnomedRepository;
     private final SnomedCodeRepository snomedCodeRepository;
     private final ConditionCodeRepository conditionCodeRepository;
+    private boolean programAreaDerivationExcludeFlag = false; //NOSONAR
 
 
     public SrteCodeObsService(ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository,
@@ -62,10 +62,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     public String getConditionForLoincCode(String loinCd) {
         var result = loincCodeRepository.findConditionForLoincCode(loinCd);
-        if(result.isPresent()) {
+        if (result.isPresent()) {
             return result.get().get(0);
-        }
-        else {
+        } else {
             return "";
         }
     }
@@ -74,8 +73,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = labResultRepository.findDefaultConditionCdByLabResultCdAndLaboratoryId(labResultCd, laboratoryId);
         if (result.isPresent()) {
             return result.get().get(0);
-        }
-        else {
+        } else {
             return "";
         }
     }
@@ -84,8 +82,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = labTestRepository.findDefaultConditionForLabTest(labTestCd, laboratoryId);
         if (result.isPresent()) {
             return result.get().get(0);
-        }
-        else {
+        } else {
             return "";
         }
     }
@@ -102,12 +99,10 @@ public class SrteCodeObsService implements ISrteCodeObsService {
          * will not be set on the OT and RT.
          *
          */
-        if (labClia == null && obsVO.getTheObservationDto().getCdSystemCd().equals(NEDSSConstant.DEFAULT))
-        {
-            labClia = NEDSSConstant.DEFAULT ;
+        if (labClia == null && obsVO.getTheObservationDto().getCdSystemCd().equals(NEDSSConstant.DEFAULT)) {
+            labClia = NEDSSConstant.DEFAULT;
         }
-        if (labClia == null )
-        {
+        if (labClia == null) {
             return obsVO;
         }
         doLoincCdLookupForObservationDT(obsVO.getTheObservationDto(), labClia);
@@ -135,8 +130,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     }
 
     private void doSnomedCdLookupForObsValueCodedDTs(Collection<ObsValueCodedDto> obsValueCodedDtos, String labClia) {
-        if (obsValueCodedDtos == null || obsValueCodedDtos.isEmpty())
-        {
+        if (obsValueCodedDtos == null || obsValueCodedDtos.isEmpty()) {
             return;
         }
         for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtos) {
@@ -168,8 +162,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                                                   Collection<ObservationContainer> observationContainerCollection,
                                                   String electronicInd) throws DataProcessingException {
         HashMap<Object, Object> returnMap = new HashMap<>();
-        if (reportingLabCLIA == null)
-        {
+        if (reportingLabCLIA == null) {
             returnMap.put(NEDSSConstant.ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
             return returnMap;
         }
@@ -178,8 +171,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         Hashtable<Object, Object> paHTBL = new Hashtable<>();
 
         //iterator through each resultTest
-        while (obsIt.hasNext())
-        {
+        while (obsIt.hasNext()) {
             ObservationContainer obsVO = obsIt.next();
             ObservationDto obsDt = obsVO.getTheObservationDto();
 
@@ -191,50 +183,39 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             programAreaDerivationExcludeFlag = false;
 
             // make sure you are dealing with a resulted test here.
-            if ( (obsDomainCdSt1 != null)
+            if ((obsDomainCdSt1 != null)
                     && obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT)
                     && (obsDTCode != null)
                     && (!obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD))
-            )
-            {
+            ) {
                 // Retrieve PAs using Lab Result --> SNOMED code mapping
                 // If ELR, use actual CLIA - if manual use "DEFAULT" as CLIA
                 String progAreaCd;
-                if ( electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR) )
-                {
+                if (electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
                     progAreaCd = getPAFromSNOMEDCodes(reportingLabCLIA, obsVO.getTheObsValueCodedDtoCollection());
-                }
-                else
-                {
+                } else {
                     progAreaCd = getPAFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsVO.getTheObsValueCodedDtoCollection());
                 }
 
 
                 // If PA returned, check to see if it is the same one as before.
-                if (progAreaCd != null)
-                {
+                if (progAreaCd != null) {
                     paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                    if (paHTBL.size() != 1)
-                    {
+                    if (paHTBL.size() != 1) {
                         break;
                     }
 
                 }
 
-               ///adawfaf
+                ///adawfaf
             }
         } //end of while
 
-        if(paHTBL.size() == 0)
-        {
+        if (paHTBL.size() == 0) {
             returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_2);
-        }
-        else if (paHTBL.size() == 1)
-        {
+        } else if (paHTBL.size() == 1) {
             returnMap.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, paHTBL.keys().nextElement().toString());
-        }
-        else
-        {
+        } else {
             returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_1);
         }
         return returnMap;
@@ -243,14 +224,14 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     /**
      * Returns a collection of Snomed codes to be used to resolve the program area code.
      * If more than one type of snomed is resolved, return null.
+     *
      * @param reportingLabCLIA : String
      * @return Vector
      */
     // AK - 7/25/04
     public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
         Vector<Object> snomedVector = new Vector<>();
-        if (reportingLabCLIA == null)
-        {
+        if (reportingLabCLIA == null) {
             return null;
         }
 
@@ -288,8 +269,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                  *  check if ObsValueCodedDto.codeSystemCd="SNM", use ObsValueCodedDto.code for Snomed
                  *  Need to check SNOMED codes for Program Area Derivation Exclusion flag - don't include codes with this set
                  */
-                else if (codeSystemCd.equals("SNM"))
-                {
+                else if (codeSystemCd.equals("SNM")) {
                     // If snomed code and it is not excluded from PA Derivation, add it to the SNOMED Vector
                     if (!removePADerivationExcludedSnomedCodes(obsCode)) {
                         snomedVector.addElement(obsCode);
@@ -302,8 +282,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
 
             // Now that we have resolved all the SNOMED codes, try to derive the PA
-            if (snomedVector.size() == obsValueCodedDtoColl.size())
-            {
+            if (snomedVector.size() == obsValueCodedDtoColl.size()) {
                 return getProgAreaCd(snomedVector, reportingLabCLIA, "NEXT", ELRConstant.ELR_SNOMED_CD);
             }
 
@@ -315,7 +294,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     private boolean removePADerivationExcludedSnomedCodes(String snomedCd) {
         var result = snomedCodeRepository.findSnomedProgramAreaExclusion(snomedCd);
         if (result.isPresent()) {
-            for(var item: result.get()) {
+            for (var item : result.get()) {
                 if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES)) {
                     return true;
                 }
@@ -329,11 +308,11 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * Description: Find whether if record with Observation value and CLIA exist in LabResult table or not.
      * If exist then check for ExcludeCode. Return True if value is Yes. Otherwise return False.
      * Program Area use this as indicator to check for SNOMED code when method return false
-     * */
+     */
     private boolean removePADerivationExcludedLabResultCodes(String labResultCd, String reportingLabCLIA) {
         var result = labResultRepository.findLabResultProgramAreaExclusion(labResultCd, reportingLabCLIA);
         if (result.isPresent()) {
-            for(var item : result.get()) {
+            for (var item : result.get()) {
                 if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES)) {
                     return true;
                 }
@@ -345,18 +324,17 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     /**
      * Goes to the database to obtain the Program Area Codes based on the specified parameters.
-     * @param codeVector : Vector
-     * @param reportingLabCLIA : String
-     * @param nextLookUp : String
-     * @param type : String - LN for Loinc, SNM for Snomed, LT for Local Test and LR for local result.
-     * @return String
      *
+     * @param codeVector       : Vector
+     * @param reportingLabCLIA : String
+     * @param nextLookUp       : String
+     * @param type             : String - LN for Loinc, SNM for Snomed, LT for Local Test and LR for local result.
+     * @return String
      */
     // AK 7/25/04
     @SuppressWarnings("java:S1149")
     protected String getProgAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookUp, String type) {
-        if (codeVector == null || codeVector.size() == 0)
-        {
+        if (codeVector == null || codeVector.size() == 0) {
             return null;
         }
 
@@ -366,7 +344,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
         try {
             for (int k = 0; k < codeVector.size(); k++) {
-                progAreaCdList = progAreaSnomeCodeStoredProcRepository.getProgAreaCd( (String) codeVector.elementAt(k), type, reportingLabCLIA);
+                progAreaCdList = progAreaSnomeCodeStoredProcRepository.getProgAreaCd((String) codeVector.elementAt(k), type, reportingLabCLIA);
 
                 // The above method returns the count of PAs found at
                 // index 1 and program area at index 0
@@ -377,13 +355,11 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 String currentPAcode = (String) progAreaCdList.get("PROGRAM");
 
                 // Compare with previously retrieved PA and return null if they are different.
-                if (lastPACode == null)
-                {
+                if (lastPACode == null) {
                     lastPACode = currentPAcode;
                 }
             } //end of for
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null; //break out
         } //end of catch
         return lastPACode;
@@ -392,6 +368,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     /**
      * Attempts to resolve a ProgramAreaCd based on Loinc.
+     *
      * @param reportingLabCLIA : String
      * @return loincVector : Vector
      */
@@ -399,38 +376,32 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getPAFromLOINCCode(String reportingLabCLIA, ObservationContainer resultTestVO) throws DataProcessingException {
 
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
-        if (obsDt == null || reportingLabCLIA == null)
-        {
+        if (obsDt == null || reportingLabCLIA == null) {
             return null;
         }
 
         String cdSystemCd = obsDt.getCdSystemCd();
-        if (cdSystemCd == null || cdSystemCd.trim().equals(""))
-        {
+        if (cdSystemCd == null || cdSystemCd.trim().equals("")) {
             return null;
         }
 
         String obsCode = obsDt.getCd();
-        if (obsCode == null || obsCode.trim().equals(""))
-        {
+        if (obsCode == null || obsCode.trim().equals("")) {
             return null;
         }
 
         Vector<Object> loincVector = new Vector<>();
 
-        if(cdSystemCd.equals(ELRConstant.ELR_OBSERVATION_LOINC))
-        {
+        if (cdSystemCd.equals(ELRConstant.ELR_OBSERVATION_LOINC)) {
             //Check if this loinc code should be excluded from Program Area derivation
             //If so, set exclude flag so we won't fail this resulted test if no PA is derived for it
-            if (removePADerivationExcludedLoincCodes(obsCode)){
+            if (removePADerivationExcludedLoincCodes(obsCode)) {
                 programAreaDerivationExcludeFlag = true;
                 return null;
             }
 
             loincVector.addElement(obsCode);
-        }
-        else
-        {
+        } else {
             //Check if this local test code should be excluded from Program Area derivation
             //If so, set exclude flag so we won't fail this resulted test if no PA is derived for it
             if (removePADerivationExcludedLabTestCodes(obsCode, reportingLabCLIA)) {
@@ -438,9 +409,8 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 return null;
             }
 
-            Map<String, Object> loincList =  progAreaSnomeCodeStoredProcRepository.getSnomed(obsCode, "LT", reportingLabCLIA);
-            if ( loincList.containsKey ("COUNT") && (Integer) loincList.get("COUNT") == 1)
-            {
+            Map<String, Object> loincList = progAreaSnomeCodeStoredProcRepository.getSnomed(obsCode, "LT", reportingLabCLIA);
+            if (loincList.containsKey("COUNT") && (Integer) loincList.get("COUNT") == 1) {
                 loincVector.addElement(loincList.get("LOINC"));
             }
         }
@@ -450,9 +420,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     } //end of getLoincColl(...)
 
     private boolean removePADerivationExcludedLabTestCodes(String labTestCd, String reportingLabCLIA) {
-        var result =  labTestRepository.findLabTestForExclusion(labTestCd, reportingLabCLIA);
-        if(result.isPresent()) {
-            for(var item : result.get()) {
+        var result = labTestRepository.findLabTestForExclusion(labTestCd, reportingLabCLIA);
+        if (result.isPresent()) {
+            for (var item : result.get()) {
                 if (item.getPaDerivationExcludeCd() != null && item.getPaDerivationExcludeCd().equals(NEDSSConstant.YES)) {
                     return true;
                 }
@@ -462,9 +432,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     }
 
     private boolean removePADerivationExcludedLoincCodes(String loincCd) {
-        var result =  loincCodeRepository.findLoinCCodeExclusion(loincCd);
-        if(result.isPresent()) {
-            for(var item : result.get()) {
+        var result = loincCodeRepository.findLoinCCodeExclusion(loincCd);
+        if (result.isPresent()) {
+            for (var item : result.get()) {
                 if (item.getPaDerivationExcludeCode() != null && item.getPaDerivationExcludeCode().equals(NEDSSConstant.YES)) {
                     return true;
                 }
@@ -475,6 +445,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     /**
      * Attempts to resolve a program area cd based on Local Result code.
+     *
      * @param reportingLabCLIA : String
      * @return progrAreaCd : String
      */
@@ -483,8 +454,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         String lastProgAreaCd = null;
         String progAreaCd;
 
-        if (obsValueCodedDtoColl == null || reportingLabCLIA == null)
-        {
+        if (obsValueCodedDtoColl == null || reportingLabCLIA == null) {
             return null;
         }
 
@@ -511,9 +481,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
             if (lastProgAreaCd == null) {
                 lastProgAreaCd = progAreaCd;
-            }
-            else
-            {
+            } else {
                 if (!lastProgAreaCd.equals(progAreaCd)) {
                     return null;
                 }
@@ -538,18 +506,14 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 if (defaultPACColl.size() == 1) {
                     String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
-                    if (lastPACode == null)
-                    {
+                    if (lastPACode == null) {
                         lastPACode = currentPACode;
-                    }
-                    else if (!currentPACode.equals(lastPACode))
-                    {
+                    } else if (!currentPACode.equals(lastPACode)) {
                         return null;
                     }
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
@@ -571,18 +535,14 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 if (defaultPACColl.size() == 1) {
                     String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
-                    if (lastPACode == null)
-                    {
+                    if (lastPACode == null) {
                         lastPACode = currentPACode;
-                    }
-                    else if (!currentPACode.equals(lastPACode))
-                    {
+                    } else if (!currentPACode.equals(lastPACode)) {
                         return null;
                     }
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
@@ -592,6 +552,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     /**
      * Attempts to resolve a program area cd based on LocalTestDefault cd.
+     *
      * @param reportingLabCLIA : String
      * @return progAreaCd : String
      */
@@ -602,14 +563,12 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
         String code = getLocalTestCode(obsDt);
 
-        if (reportingLabCLIA == null || code == null || code.trim().equals(""))
-        {
+        if (reportingLabCLIA == null || code == null || code.trim().equals("")) {
             return null;
         }
 
         //Check if this code should be excluded from Program Area derivation
-        if (removePADerivationExcludedLabTestCodes(code, reportingLabCLIA))
-        {
+        if (removePADerivationExcludedLabTestCodes(code, reportingLabCLIA)) {
             return null;
         }
 
@@ -644,18 +603,14 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 if (defaultPACColl.size() == 1) {
                     String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
-                    if (lastPACode == null)
-                    {
+                    if (lastPACode == null) {
                         lastPACode = currentPACode;
-                    }
-                    else if (!currentPACode.equals(lastPACode))
-                    {
+                    } else if (!currentPACode.equals(lastPACode)) {
                         return null;
                     }
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
@@ -679,18 +634,14 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 if (defaultPACColl.size() == 1) {
                     String currentPACode = defaultPACColl.iterator().next();
                     // Compare with previously retrieved PA and return null if they are different.
-                    if (lastPACode == null)
-                    {
+                    if (lastPACode == null) {
                         lastPACode = currentPACode;
-                    }
-                    else if (!currentPACode.equals(lastPACode))
-                    {
+                    } else if (!currentPACode.equals(lastPACode)) {
                         return null;
                     }
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
@@ -699,19 +650,16 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     /**
      * Returns the code that will be used to help resolve the program area cd
+     *
      * @param obsDt : ObservationDto
      * @return code : String
      */
-    private String getLocalTestCode(ObservationDto obsDt)
-    {
+    private String getLocalTestCode(ObservationDto obsDt) {
         String code = null;
-        if (obsDt != null)
-        {
-            if (obsDt.getCdSystemCd() != null)
-            {
+        if (obsDt != null) {
+            if (obsDt.getCdSystemCd() != null) {
                 if (obsDt.getCd() != null && !obsDt.getCd().equals("") &&
-                        !obsDt.getCd().equals(" "))
-                {
+                        !obsDt.getCd().equals(" ")) {
                     code = obsDt.getCd();
                 }
             } //end of if

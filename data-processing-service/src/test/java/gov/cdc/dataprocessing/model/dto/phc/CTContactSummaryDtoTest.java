@@ -72,7 +72,7 @@ class CTContactSummaryDtoTest {
         assertEquals(2L, dto.getContactMprUid());
         assertEquals(3L, dto.getSubjectMprUid());
         assertNotNull(dto.getNamedOnDate());
-        assertNull( dto.getLocalId());
+        assertNull(dto.getLocalId());
         assertEquals(4L, dto.getSubjectEntityUid());
         assertEquals(5L, dto.getContactEntityUid());
         assertEquals("NamedBy", dto.getNamedBy());
@@ -114,7 +114,7 @@ class CTContactSummaryDtoTest {
         assertEquals("SourceCurrentSexCd", dto.getSourceCurrentSexCd());
         assertEquals("SourceInterviewStatusCd", dto.getSourceInterviewStatusCd());
         assertEquals("SourceConditionCd", dto.getSourceConditionCd());
-        assertNull( dto.getProgAreaCd());
+        assertNull(dto.getProgAreaCd());
         assertNotNull(dto.getInterviewDate());
         assertEquals(associatedMap, dto.getAssociatedMap());
     }

@@ -20,8 +20,8 @@ public class ActLocatorParticipationRepositoryUtil {
         var res = actLocatorParticipationRepository.findRecordsById(actUid);
         Collection<ActivityLocatorParticipationDto> dtoCollection = new ArrayList<>();
         if (!res.isEmpty()) {
-            for(var item : res) {
-                var dto  = new ActivityLocatorParticipationDto(item);
+            for (var item : res) {
+                var dto = new ActivityLocatorParticipationDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
                 dtoCollection.add(dto);
@@ -32,7 +32,7 @@ public class ActLocatorParticipationRepositoryUtil {
 
 
     public void insertActLocatorParticipationCollection(Long uid, Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection) {
-        for(var item : activityLocatorParticipationDtoCollection) {
+        for (var item : activityLocatorParticipationDtoCollection) {
             ActLocatorParticipation data = new ActLocatorParticipation(item);
             data.setActUid(uid);
             actLocatorParticipationRepository.save(data);

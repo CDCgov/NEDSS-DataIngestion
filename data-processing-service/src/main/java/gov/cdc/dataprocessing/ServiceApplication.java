@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
- *  Report service application.
+ * Report service application.
  */
 @SpringBootApplication
 @EnableCaching
@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class ServiceApplication {
     /**
      * Main method for spring boot application.
+     *
      * @param args
      */
     public static void main(final String[] args) {

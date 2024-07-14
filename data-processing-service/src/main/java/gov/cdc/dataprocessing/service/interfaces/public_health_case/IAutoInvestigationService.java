@@ -14,8 +14,9 @@ public interface IAutoInvestigationService {
     /**
      * Description: this method create either pageAct or pam; for object to Become PAM investigation type must be INV_FORM_VAR or INV_FORM_RVCT.
      * This investigation type is ultimately coming from WDS Algo
-     * */
+     */
     Object autoCreateInvestigation(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException;
+
     Object transferValuesTOActProxyVO(PageActProxyContainer pageActProxyContainer, PamProxyContainer pamActProxyVO,
                                       Collection<PersonContainer> personVOCollection,
                                       ObservationContainer rootObservationVO,

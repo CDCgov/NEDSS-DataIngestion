@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NbsCaseAnswerDtoTest {
 
@@ -22,7 +21,7 @@ public class NbsCaseAnswerDtoTest {
         assertNull(dto.getValue());
         assertNull(dto.getType());
         assertNull(dto.getOtherType());
-        assertEquals(false, dto.isUpdateNbsQuestionUid());
+        assertFalse(dto.isUpdateNbsQuestionUid());
     }
 
     @Test

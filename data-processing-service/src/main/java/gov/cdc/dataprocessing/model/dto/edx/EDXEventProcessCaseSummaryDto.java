@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public  class EDXEventProcessCaseSummaryDto extends EDXEventProcessDto {
+public class EDXEventProcessCaseSummaryDto extends EDXEventProcessDto {
     private static final long serialVersionUID = 1L;
 
     private String conditionCd;

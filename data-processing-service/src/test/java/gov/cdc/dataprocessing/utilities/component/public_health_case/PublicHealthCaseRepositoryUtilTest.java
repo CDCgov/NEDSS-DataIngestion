@@ -43,6 +43,8 @@ import static org.mockito.Mockito.*;
 
 class PublicHealthCaseRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private PublicHealthCaseRepository publicHealthCaseRepository;
     @Mock
     private EntityGroupRepository entityGroupRepository;
@@ -86,8 +88,6 @@ class PublicHealthCaseRepositoryUtilTest {
     private NbsActEntityRepository actEntityRepository;
     @InjectMocks
     private PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -98,7 +98,7 @@ class PublicHealthCaseRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -160,7 +160,7 @@ class PublicHealthCaseRepositoryUtilTest {
     }
 
     @Test
-    void create_Test()  {
+    void create_Test() {
         PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
         phc.getThePublicHealthCaseDto().setPublicHealthCaseUid(10L);
         var confirmCol = new ArrayList<ConfirmationMethodDto>();
@@ -261,7 +261,7 @@ class PublicHealthCaseRepositoryUtilTest {
     }
 
     @Test
-    void loadObject_Test_2()   {
+    void loadObject_Test_2() {
         Long phcUid = 10L;
 
         when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.empty());
@@ -274,7 +274,7 @@ class PublicHealthCaseRepositoryUtilTest {
     }
 
     @Test
-    void loadObject_Test_3()   {
+    void loadObject_Test_3() {
         Long phcUid = 10L;
 
         when(publicHealthCaseRepository.findById(phcUid)).thenThrow(new RuntimeException("TEST"));
@@ -299,7 +299,7 @@ class PublicHealthCaseRepositoryUtilTest {
 
 
     @Test
-    void getPublicHealthCaseContainer_Test_2()  {
+    void getPublicHealthCaseContainer_Test_2() {
         long phcUid = 10L;
         when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.empty());
 
@@ -348,18 +348,17 @@ class PublicHealthCaseRepositoryUtilTest {
         when(actEntityRepository.getNbsActEntitiesByActUid(phcUid)).thenReturn(Optional.of(actCol));
 
 
-        var res= publicHealthCaseRepositoryUtil.getPamVO(phcUid);
+        var res = publicHealthCaseRepositoryUtil.getPamVO(phcUid);
 
         assertNotNull(res);
     }
-
 
 
     @Test
     void getPlace_Test() {
         var uid = 10L;
         when(placeRepository.findById(uid)).thenReturn(Optional.of(new Place()));
-        var res= publicHealthCaseRepositoryUtil.getPlace(uid);
+        var res = publicHealthCaseRepositoryUtil.getPlace(uid);
         assertNotNull(res);
     }
 
@@ -367,7 +366,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getPlace_Test_2() {
         var uid = 10L;
         when(placeRepository.findById(uid)).thenReturn(Optional.empty());
-        var res= publicHealthCaseRepositoryUtil.getPlace(uid);
+        var res = publicHealthCaseRepositoryUtil.getPlace(uid);
         assertNull(res);
     }
 
@@ -375,7 +374,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getNonPersonLivingSubject_Test() {
         var uid = 10L;
         when(nonPersonLivingSubjectRepository.findById(uid)).thenReturn(Optional.of(new NonPersonLivingSubject()));
-        var res= publicHealthCaseRepositoryUtil.getNonPersonLivingSubject(uid);
+        var res = publicHealthCaseRepositoryUtil.getNonPersonLivingSubject(uid);
         assertNotNull(res);
     }
 
@@ -383,7 +382,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getNonPersonLivingSubject_Test_2() {
         var uid = 10L;
         when(nonPersonLivingSubjectRepository.findById(uid)).thenReturn(Optional.empty());
-        var res= publicHealthCaseRepositoryUtil.getNonPersonLivingSubject(uid);
+        var res = publicHealthCaseRepositoryUtil.getNonPersonLivingSubject(uid);
         assertNull(res);
     }
 
@@ -391,7 +390,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getClinicalDocument_Test() {
         var uid = 10L;
         when(clinicalDocumentRepository.findById(uid)).thenReturn(Optional.of(new ClinicalDocument()));
-        var res= publicHealthCaseRepositoryUtil.getClinicalDocument(uid);
+        var res = publicHealthCaseRepositoryUtil.getClinicalDocument(uid);
         assertNotNull(res);
     }
 
@@ -399,7 +398,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getClinicalDocument_Test_2() {
         var uid = 10L;
         when(clinicalDocumentRepository.findById(uid)).thenReturn(Optional.empty());
-        var res= publicHealthCaseRepositoryUtil.getClinicalDocument(uid);
+        var res = publicHealthCaseRepositoryUtil.getClinicalDocument(uid);
         assertNull(res);
     }
 
@@ -407,7 +406,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getReferral_Test() {
         var uid = 10L;
         when(referralRepository.findById(uid)).thenReturn(Optional.of(new Referral()));
-        var res= publicHealthCaseRepositoryUtil.getReferral(uid);
+        var res = publicHealthCaseRepositoryUtil.getReferral(uid);
         assertNotNull(res);
     }
 
@@ -415,7 +414,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getReferral_Test_2() {
         var uid = 10L;
         when(referralRepository.findById(uid)).thenReturn(Optional.empty());
-        var res= publicHealthCaseRepositoryUtil.getReferral(uid);
+        var res = publicHealthCaseRepositoryUtil.getReferral(uid);
         assertNull(res);
     }
 
@@ -423,7 +422,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getPatientEncounter_Test() {
         var uid = 10L;
         when(patientEncounterRepository.findById(uid)).thenReturn(Optional.of(new PatientEncounter()));
-        var res= publicHealthCaseRepositoryUtil.getPatientEncounter(uid);
+        var res = publicHealthCaseRepositoryUtil.getPatientEncounter(uid);
         assertNotNull(res);
     }
 
@@ -431,7 +430,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getPatientEncounter_Test_2() {
         var uid = 10L;
         when(patientEncounterRepository.findById(uid)).thenReturn(Optional.empty());
-        var res= publicHealthCaseRepositoryUtil.getPatientEncounter(uid);
+        var res = publicHealthCaseRepositoryUtil.getPatientEncounter(uid);
         assertNull(res);
     }
 

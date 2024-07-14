@@ -32,18 +32,17 @@ public interface ConditionCodeRepository extends JpaRepository<BaseConditionCode
 
 
     /**
-     *    public static final String PROGRAMAREACONDITIONSSQL =
-     *        "SELECT c.condition_cd \"conditionCd\", " +
-     *        " c.condition_short_nm \"conditionShortNm\",
-     *        c.prog_area_cd \"stateProgAreaCode\", " +
-     *        "p.prog_area_desc_txt \"stateProgAreaCdDesc\",
-     *        c. investigation_form_cd \"investigationFormCd\"
-     *        FROM " +
-     *        NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Condition_code c INNER JOIN " +
-     *        NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Program_area_code p ON c.prog_area_cd = p.prog_area_cd " +
-     *        " and c.indent_level_nbr = ? and c.prog_area_cd IN ";
-     *
-     * */
+     * public static final String PROGRAMAREACONDITIONSSQL =
+     * "SELECT c.condition_cd \"conditionCd\", " +
+     * " c.condition_short_nm \"conditionShortNm\",
+     * c.prog_area_cd \"stateProgAreaCode\", " +
+     * "p.prog_area_desc_txt \"stateProgAreaCdDesc\",
+     * c. investigation_form_cd \"investigationFormCd\"
+     * FROM " +
+     * NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Condition_code c INNER JOIN " +
+     * NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Program_area_code p ON c.prog_area_cd = p.prog_area_cd " +
+     * " and c.indent_level_nbr = ? and c.prog_area_cd IN ";
+     */
     @Query(value = "SELECT c.*, " +
             "c.prog_area_cd AS stateProgAreaCode, " +
             "p.prog_area_desc_txt AS stateProgAreaCdDesc " +
@@ -55,14 +54,13 @@ public interface ConditionCodeRepository extends JpaRepository<BaseConditionCode
     Optional<List<ConditionCodeWithPA>> findProgramAreaConditionCode(@Param("indentLevel") Integer indentLevel, @Param("progAreaCodes") List<String> progAreaCodes);
 
 
-
     /**
-     *    public static final String PROGRAMAREACONDITIONSSQLWOINDENT =
-     *        "SELECT c.condition_cd \"conditionCd\", " + " c.condition_short_nm \"conditionShortNm\", c.prog_area_cd \"stateProgAreaCode\", " + "p.prog_area_desc_txt \"stateProgAreaCdDesc\", c. investigation_form_cd \"investigationFormCd\" FROM " +
-     *        NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Condition_code c INNER JOIN " +
-     *        NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Program_area_code p ON c.prog_area_cd = p.prog_area_cd " +
-     *        " and c.condition_cd = ?";
-     * */
+     * public static final String PROGRAMAREACONDITIONSSQLWOINDENT =
+     * "SELECT c.condition_cd \"conditionCd\", " + " c.condition_short_nm \"conditionShortNm\", c.prog_area_cd \"stateProgAreaCode\", " + "p.prog_area_desc_txt \"stateProgAreaCdDesc\", c. investigation_form_cd \"investigationFormCd\" FROM " +
+     * NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Condition_code c INNER JOIN " +
+     * NEDSSConstants.SYSTEM_REFERENCE_TABLE + "..Program_area_code p ON c.prog_area_cd = p.prog_area_cd " +
+     * " and c.condition_cd = ?";
+     */
     @Query(value = "SELECT c.*, " +
             "c.prog_area_cd AS stateProgAreaCode, " +
             "p.prog_area_desc_txt AS stateProgAreaCdDesc " +

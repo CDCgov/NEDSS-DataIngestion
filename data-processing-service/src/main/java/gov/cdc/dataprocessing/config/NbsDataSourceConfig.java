@@ -59,7 +59,7 @@ public class NbsDataSourceConfig {
     @Bean(name = "nbsEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
             EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
-            @Qualifier("nbsDataSource") DataSource nbsDataSource ) {
+            @Qualifier("nbsDataSource") DataSource nbsDataSource) {
         return nbsEntityManagerFactoryBuilder
                 .dataSource(nbsDataSource)
                 .packages("gov.cdc.dataprocessing.repository.nbs.msgoute.model")
@@ -69,7 +69,7 @@ public class NbsDataSourceConfig {
 
     @Bean(name = "nbsTransactionManager")
     public PlatformTransactionManager nbsTransactionManager(
-            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
+            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory) {
         return new JpaTransactionManager(nbsEntityManagerFactory);
     }
 }

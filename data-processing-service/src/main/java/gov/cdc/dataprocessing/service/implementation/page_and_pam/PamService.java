@@ -88,20 +88,20 @@ public class PamService implements IPamService {
     }
 
     public void insertPamVO(BasePamContainer pamVO, PublicHealthCaseContainer publichHealthCaseVO)
-            throws DataProcessingException{
-        Collection<Object>  pamDTCollection  =new ArrayList<> ();
-        Collection<Object>  repeatingAnswerDTCollection  =new ArrayList<> ();
-        if(pamVO.getPamAnswerDTMap()!=null){
-            pamDTCollection= pamVO.getPamAnswerDTMap().values();
+            throws DataProcessingException {
+        Collection<Object> pamDTCollection = new ArrayList<>();
+        Collection<Object> repeatingAnswerDTCollection = new ArrayList<>();
+        if (pamVO.getPamAnswerDTMap() != null) {
+            pamDTCollection = pamVO.getPamAnswerDTMap().values();
         }
 
         //NOTE: PAM IS EMPTY IN RELEVANT FLOW
         //storePamAnswerDTCollection(pamDTCollection, publichHealthCaseVO);
-        if(pamVO.getPageRepeatingAnswerDTMap()!=null){
-            repeatingAnswerDTCollection= pamVO.getPageRepeatingAnswerDTMap().values();
+        if (pamVO.getPageRepeatingAnswerDTMap() != null) {
+            repeatingAnswerDTCollection = pamVO.getPageRepeatingAnswerDTMap().values();
         }
         //NOTE: PAM IS EMPTY IN RELEVANT FLOW
-        answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDto());
+        answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(), publichHealthCaseVO.getThePublicHealthCaseDto());
     }
 
 
@@ -124,22 +124,18 @@ public class PamService implements IPamService {
         }
 
 
-        if(pamProxyVO.isItDirty()){
+        if (pamProxyVO.isItDirty()) {
             try {
                 //update auto resend notifications
                 investigationService.updateAutoResendNotificationsAsync(pamProxyVO);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
                 String phcLocalId = pamProxyVO.getPublicHealthCaseContainer().
                         getThePublicHealthCaseDto().getLocalId();
                 nndActivityLogDT.setErrorMessageTxt(e.toString());
-                if (phcLocalId != null)
-                {
+                if (phcLocalId != null) {
                     nndActivityLogDT.setLocalId(phcLocalId);
-                }
-                else
-                {
+                } else {
                     nndActivityLogDT.setLocalId("N/A");
                 }
                 //catch & store auto resend notifications exceptions in NNDActivityLog table
@@ -193,25 +189,21 @@ public class PamService implements IPamService {
         try {
 
 
-
             Long falseUid;
             Long realUid = null;
 
-            Iterator<PersonContainer>  anIteratorPerson;
+            Iterator<PersonContainer> anIteratorPerson;
             if (pamProxyVO.getThePersonVOCollection() != null) {
                 for (anIteratorPerson = pamProxyVO.getThePersonVOCollection()
-                        .iterator(); anIteratorPerson.hasNext();) {
-                    personVO =  anIteratorPerson.next();
-                    if (personVO.isItNew())
-                    {
+                        .iterator(); anIteratorPerson.hasNext(); ) {
+                    personVO = anIteratorPerson.next();
+                    if (personVO.isItNew()) {
                         if (personVO.getThePersonDto().getCd().equals(
                                 NEDSSConstant.PAT)) { // Patient
                             String businessTriggerCd = NEDSSConstant.PAT_CR;
                             realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                        }
-                        else if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PRV))
-                        { // Provider
+                        } else if (personVO.getThePersonDto().getCd().equals(
+                                NEDSSConstant.PRV)) { // Provider
                             String businessTriggerCd = NEDSSConstant.PRV_CR;
                             var data = patientRepositoryUtil.createPerson(personVO);
                             realUid = data.getPersonParentUid();
@@ -220,20 +212,15 @@ public class PamService implements IPamService {
                         falseUid = personVO.getThePersonDto().getPersonUid();
                         // replace the falseId with the realId
                         if (falseUid.intValue() < 0) {
-                           uidService.setFalseToNewForPam(pamProxyVO, falseUid, realUid);
+                            uidService.setFalseToNewForPam(pamProxyVO, falseUid, realUid);
                         }
-                    }
-                    else if (personVO.isItDirty())
-                    {
+                    } else if (personVO.isItDirty()) {
                         if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PAT))
-                        {
+                                NEDSSConstant.PAT)) {
                             String businessTriggerCd = NEDSSConstant.PAT_EDIT;
                             realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                        }
-                        else if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PRV))
-                        { // Provider
+                        } else if (personVO.getThePersonDto().getCd().equals(
+                                NEDSSConstant.PRV)) { // Provider
                             String businessTriggerCd = NEDSSConstant.PRV_EDIT;
                             var data = patientRepositoryUtil.createPerson(personVO);
                             realUid = data.getPersonParentUid();
@@ -259,7 +246,7 @@ public class PamService implements IPamService {
                 String tableName = "PUBLIC_HEALTH_CASE";
                 String moduleCd = "BASE";
                 publicHealthCaseDto = (PublicHealthCaseDto) prepareAssocModelHelper.prepareVO(rootDTInterface, businessObjLookupName,
-                                businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
+                        businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
                 publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCaseDto);
 
                 falsePublicHealthCaseUid = publicHealthCaseContainer
@@ -277,13 +264,13 @@ public class PamService implements IPamService {
                 logger.debug("falsePublicHealthCaseUid.intValue() = "
                         + falsePublicHealthCaseUid.intValue());
             }
-            if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && pamProxyVO.getNbsNoteDTColl().size()>0){
+            if (pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl() != null && pamProxyVO.getNbsNoteDTColl().size() > 0) {
                 nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());
 
             }
             // this collection should only be populated in edit scenario, xz defect 11861 (10/01/04)
             if (pamProxyVO.getTheNotificationSummaryVOCollection() != null) {
-                Collection<Object>  notSumVOColl = pamProxyVO.getTheNotificationSummaryVOCollection();
+                Collection<Object> notSumVOColl = pamProxyVO.getTheNotificationSummaryVOCollection();
                 for (Object o : notSumVOColl) {
                     NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer) o;
                     // Only handles notifications that are not history and not in auto-resend status.
@@ -324,15 +311,14 @@ public class PamService implements IPamService {
             Long docUid = null;
             if (pamProxyVO.getPublicHealthCaseContainer() != null && pamProxyVO.getPublicHealthCaseContainer()
                     .getTheActRelationshipDTCollection() != null) {
-                Iterator<ActRelationshipDto>  anIteratorAct = null;
+                Iterator<ActRelationshipDto> anIteratorAct = null;
                 for (anIteratorAct = pamProxyVO.getPublicHealthCaseContainer()
                         .getTheActRelationshipDTCollection().iterator(); anIteratorAct
-                             .hasNext();) {
+                             .hasNext(); ) {
                     ActRelationshipDto actRelationshipDT = anIteratorAct
                             .next();
-                    if(actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC))
-                    {
-                        docUid  = actRelationshipDT.getSourceActUid();
+                    if (actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC)) {
+                        docUid = actRelationshipDT.getSourceActUid();
                     }
                     if (actRelationshipDT.isItDelete()) {
                         actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
@@ -345,19 +331,19 @@ public class PamService implements IPamService {
              * Updating the Document table
              */
             //Getting the DocumentEJB reference
-            if(docUid != null){
-                try{
+            if (docUid != null) {
+                try {
 
                     //TODO: NBS DOCUMENT, not relevant for ELR
-                }catch(Exception e){
-                    throw new DataProcessingException(e.getMessage(),e);
+                } catch (Exception e) {
+                    throw new DataProcessingException(e.getMessage(), e);
                 }
             }
 
-            Iterator<ParticipationDto>  anIteratorPat;
+            Iterator<ParticipationDto> anIteratorPat;
             if (pamProxyVO.getTheParticipationDTCollection() != null) {
                 for (anIteratorPat = pamProxyVO.getTheParticipationDTCollection().iterator(); anIteratorPat
-                        .hasNext();) {
+                        .hasNext(); ) {
                     ParticipationDto participationDT = anIteratorPat
                             .next();
                     if (participationDT.isItDelete()) {
@@ -380,12 +366,10 @@ public class PamService implements IPamService {
 //            logger.debug("the actual Uid for PamProxy Publichealthcase is "
 //                    + actualUid);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(),e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return actualUid;
     }
-
-
 
 
 }

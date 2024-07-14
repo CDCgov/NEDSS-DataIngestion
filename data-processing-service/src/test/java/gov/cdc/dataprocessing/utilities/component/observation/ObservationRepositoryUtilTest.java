@@ -44,6 +44,8 @@ import static org.mockito.Mockito.*;
 
 class ObservationRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ObservationRepository observationRepository;
     @Mock
     private ObservationReasonRepository observationReasonRepository;
@@ -73,11 +75,8 @@ class ObservationRepositoryUtilTest {
     private ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
     @Mock
     private ActRepository actRepository;
-
     @InjectMocks
     private ObservationRepositoryUtil observationRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -88,7 +87,7 @@ class ObservationRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -160,7 +159,7 @@ class ObservationRepositoryUtilTest {
         when(participationRepository.findByActUid(obUid)).thenReturn(Optional.of(patCol));
 
 
-        var res =  observationRepositoryUtil.loadObject(obUid);
+        var res = observationRepositoryUtil.loadObject(obUid);
         assertNotNull(res);
 
     }
@@ -230,7 +229,6 @@ class ObservationRepositoryUtilTest {
         localId.setUidPrefixCd("TEST");
         localId.setUidSuffixCd("TEST");
         when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.OBSERVATION)).thenReturn(localId);
-
 
 
         var res = observationRepositoryUtil.saveObservation(observationContainer);
@@ -351,7 +349,7 @@ class ObservationRepositoryUtilTest {
 
 
     @Test
-    void setObservationInfo_Test()  {
+    void setObservationInfo_Test() {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setObservationUid(10L);
 
@@ -364,7 +362,7 @@ class ObservationRepositoryUtilTest {
     }
 
     @Test
-    void setObservationInfo_Test_2()  {
+    void setObservationInfo_Test_2() {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setObservationUid(null);
 
@@ -377,7 +375,7 @@ class ObservationRepositoryUtilTest {
     }
 
     @Test
-    void setObservationInfo_Test_3()  {
+    void setObservationInfo_Test_3() {
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             observationRepositoryUtil.setObservationInfo(null);

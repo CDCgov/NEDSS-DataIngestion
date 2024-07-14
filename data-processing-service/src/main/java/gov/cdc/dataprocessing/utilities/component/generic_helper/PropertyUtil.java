@@ -13,21 +13,21 @@ public class PropertyUtil {
     private String hivProgArea = "";
 
     public boolean isHIVProgramArea(String pa) {
-        if(!hivProgArea.isEmpty() && PropertyUtilCache.cachedHivList.isEmpty()){
+        if (!hivProgArea.isEmpty() && PropertyUtilCache.cachedHivList.isEmpty()) {
             cachedHivProgramArea();
         }
 
-        if(pa==null){
+        if (pa == null) {
             return false;
-        }
-        else return !PropertyUtilCache.cachedHivList.isEmpty() && PropertyUtilCache.cachedHivList.contains(pa.toUpperCase());
+        } else
+            return !PropertyUtilCache.cachedHivList.isEmpty() && PropertyUtilCache.cachedHivList.contains(pa.toUpperCase());
     }
 
 
-    private void cachedHivProgramArea(){
+    private void cachedHivProgramArea() {
         try {
-            String delim=",";
-            String line= hivProgArea;
+            String delim = ",";
+            String line = hivProgArea;
             StringTokenizer tokens = new StringTokenizer(line, delim, true);
             while (tokens.hasMoreTokens()) {
                 String token = tokens.nextToken();

@@ -526,7 +526,6 @@ class LabReportSummaryContainerTest {
     }
 
 
-
     @Test
     void testGetIsAssociated() {
         LabReportSummaryContainer container = new LabReportSummaryContainer();

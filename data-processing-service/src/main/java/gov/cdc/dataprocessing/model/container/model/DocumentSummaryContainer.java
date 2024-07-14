@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
+
 @Getter
 @Setter
 @SuppressWarnings("all")
@@ -158,13 +159,13 @@ public class DocumentSummaryContainer extends BaseContainer implements RootDtoIn
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        this.addTime = aAddTime;
+    public Timestamp getAddTime() {
+        return addTime;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return addTime;
+    public void setAddTime(Timestamp aAddTime) {
+        this.addTime = aAddTime;
     }
 
     @Override

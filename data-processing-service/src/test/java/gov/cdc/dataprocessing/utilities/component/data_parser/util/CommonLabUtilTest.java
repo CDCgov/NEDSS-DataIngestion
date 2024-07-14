@@ -23,12 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CommonLabUtilTest {
 
 
-    @InjectMocks
-    private CommonLabUtil commonLabUtil;
-
-    private PersonContainer personContainer;
     @Mock
     AuthUtil authUtil;
+    @InjectMocks
+    private CommonLabUtil commonLabUtil;
+    private PersonContainer personContainer;
 
     @BeforeEach
     void setUp() {
@@ -39,7 +38,7 @@ class CommonLabUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         var perDt = new PersonDto();
         personContainer = new PersonContainer();
@@ -53,7 +52,7 @@ class CommonLabUtilTest {
 
 
     @Test
-    void getXMLElementNameForOBR_TEST()  {
+    void getXMLElementNameForOBR_TEST() {
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             commonLabUtil.getXMLElementNameForOBR(null);
@@ -64,7 +63,7 @@ class CommonLabUtilTest {
     }
 
     @Test
-    void getXMLElementNameForOBX_TEST()  {
+    void getXMLElementNameForOBX_TEST() {
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             commonLabUtil.getXMLElementNameForOBX(null);
@@ -79,7 +78,7 @@ class CommonLabUtilTest {
 
         HL7OBRType hl7OBRType = new HL7OBRType();
 
-        var res =  commonLabUtil.getXMLElementNameForOBR(hl7OBRType);
+        var res = commonLabUtil.getXMLElementNameForOBR(hl7OBRType);
 
         assertNotNull(res);
     }

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public interface IManagerService {
     void processDistribution(String eventType, String data) throws DataProcessingConsumerException;
+
     void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data) throws DataProcessingException;
-    void initiatingLabProcessing(PublicHealthCaseFlowContainer data)  throws DataProcessingConsumerException;
+
+    void initiatingLabProcessing(PublicHealthCaseFlowContainer data) throws DataProcessingConsumerException;
 }

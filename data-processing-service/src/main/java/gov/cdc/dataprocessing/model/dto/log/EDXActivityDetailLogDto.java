@@ -23,7 +23,6 @@ public class EDXActivityDetailLogDto extends BaseContainer implements Serializab
     private String commentHtml;
 
 
-
     private Long lastChgUserId;
     private Timestamp lastChgTime;
     private Long addUserId;

@@ -32,14 +32,13 @@ import static org.mockito.Mockito.*;
 
 class ORCHandlerTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private NBSObjectConverter nbsObjectConverter;
     @InjectMocks
     private ORCHandler orcHandler;
-
     private PersonContainer personContainer;
     private HL7ORCType commonOrder;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() throws JAXBException {
@@ -50,7 +49,7 @@ class ORCHandlerTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         var perDt = new PersonDto();
         personContainer = new PersonContainer();
@@ -78,7 +77,7 @@ class ORCHandlerTest {
         edxLabInformationDto.setUserId(10L);
         edxLabInformationDto.setRootObserbationUid(10L);
 
-        when(nbsObjectConverter.orgTelePhoneType(any(), any(),any())).thenReturn(new EntityLocatorParticipationDto());
+        when(nbsObjectConverter.orgTelePhoneType(any(), any(), any())).thenReturn(new EntityLocatorParticipationDto());
 
         commonOrder.setOrderEffectiveDateTime(new HL7TSType());
 
@@ -100,13 +99,11 @@ class ORCHandlerTest {
         edxLabInformationDto.setUserId(10L);
         edxLabInformationDto.setRootObserbationUid(10L);
 
-        when(nbsObjectConverter.orgTelePhoneType(any(), any(),any())).thenReturn(new EntityLocatorParticipationDto());
+        when(nbsObjectConverter.orgTelePhoneType(any(), any(), any())).thenReturn(new EntityLocatorParticipationDto());
 
         commonOrder.setOrderEffectiveDateTime(new HL7TSType());
 
         when(nbsObjectConverter.processHL7TSType(any(), any())).thenThrow(new RuntimeException("TEST"));
-
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -117,7 +114,7 @@ class ORCHandlerTest {
     }
 
     @Test
-    void getORCProcessing_Test_exp_2()  {
+    void getORCProcessing_Test_exp_2() {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
 
@@ -126,10 +123,9 @@ class ORCHandlerTest {
         edxLabInformationDto.setUserId(10L);
         edxLabInformationDto.setRootObserbationUid(10L);
 
-        when(nbsObjectConverter.orgTelePhoneType(any(), any(),any())).thenThrow(new RuntimeException("TEST"));
+        when(nbsObjectConverter.orgTelePhoneType(any(), any(), any())).thenThrow(new RuntimeException("TEST"));
 
         commonOrder.setOrderEffectiveDateTime(new HL7TSType());
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -149,13 +145,12 @@ class ORCHandlerTest {
         edxLabInformationDto.setUserId(10L);
         edxLabInformationDto.setRootObserbationUid(10L);
 
-        when(nbsObjectConverter.orgTelePhoneType(any(), any(),any())).thenReturn(new EntityLocatorParticipationDto());
-        when(nbsObjectConverter.personAddressType(any(), any(),any())).thenThrow(new RuntimeException("TEST"));
+        when(nbsObjectConverter.orgTelePhoneType(any(), any(), any())).thenReturn(new EntityLocatorParticipationDto());
+        when(nbsObjectConverter.personAddressType(any(), any(), any())).thenThrow(new RuntimeException("TEST"));
 
         commonOrder.setOrderEffectiveDateTime(new HL7TSType());
 
         when(nbsObjectConverter.processHL7TSType(any(), any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -163,7 +158,6 @@ class ORCHandlerTest {
         });
         assertNotNull(thrown);
     }
-
 
 
 }

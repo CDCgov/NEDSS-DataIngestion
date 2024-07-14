@@ -17,7 +17,7 @@ public class AdvancedCriteria {
     public Map<String, Object> getAdvancedInvCriteriaMap(Algorithm algorithmDocument) throws DataProcessingException {
 
         Map<String, Object> advanceInvCriteriaMap = new HashMap<>();
-        try{
+        try {
             InvCriteriaType advanceInvCriteriaType = algorithmDocument.getElrAdvancedCriteria().getInvCriteria();
             /* Create the advanced Criteria map to compare against matched PHCs */
             if (advanceInvCriteriaType != null) {
@@ -60,8 +60,8 @@ public class AdvancedCriteria {
                     }
                 }
             }
-        }catch(Exception ex){
-            throw new DataProcessingException ("Exception while creating advanced Investigation Criteria Map: ", ex);
+        } catch (Exception ex) {
+            throw new DataProcessingException("Exception while creating advanced Investigation Criteria Map: ", ex);
         }
         return advanceInvCriteriaMap;
     }

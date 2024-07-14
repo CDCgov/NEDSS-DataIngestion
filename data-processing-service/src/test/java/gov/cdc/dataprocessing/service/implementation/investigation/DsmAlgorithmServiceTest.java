@@ -22,11 +22,11 @@ import static org.mockito.Mockito.when;
 
 class DsmAlgorithmServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private DsmAlgorithmRepository dsmAlgorithmRepository;
     @InjectMocks
     private DsmAlgorithmService dsmAlgorithmService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -37,12 +37,12 @@ class DsmAlgorithmServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(dsmAlgorithmRepository , authUtil);
+        Mockito.reset(dsmAlgorithmRepository, authUtil);
     }
 
     @Test

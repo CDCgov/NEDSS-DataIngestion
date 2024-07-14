@@ -29,6 +29,7 @@ public class EdxPatientMatch {
     public EdxPatientMatch() {
 
     }
+
     public EdxPatientMatch(EdxPatientMatchDto dto) {
         this.patientUid = dto.getPatientUid();
         this.matchString = dto.getMatchString();

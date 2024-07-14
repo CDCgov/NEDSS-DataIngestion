@@ -9,8 +9,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class DynamicBeanBinding {
-    private static Map<Object, Object> beanMethodMap = new HashMap<>();
-
+    private static final Map<Object, Object> beanMethodMap = new HashMap<>();
 
 
     /**
@@ -28,15 +27,15 @@ public class DynamicBeanBinding {
             Map<Object, Object> methodMap = getMethods(bean.getClass());
 
             Method method = (Method) methodMap.get(methodName);
-            if(method==null){
+            if (method == null) {
                 return;
             }
             Object[] parmTypes = method.getParameterTypes();
             String pType = ((Class<?>) parmTypes[0]).getName();
-            Object[] arg = { "" };
+            Object[] arg = {""};
             Object[] nullArg = null;
 
-            if (colVal!=null && !colVal.equals("")) {
+            if (colVal != null && !colVal.equals("")) {
                 if (pType.equalsIgnoreCase("java.sql.Timestamp")) {
 
                     Timestamp ts = new Timestamp(new SimpleDateFormat("MM/dd/yyyy")
@@ -59,14 +58,14 @@ public class DynamicBeanBinding {
                 } else if (pType.equalsIgnoreCase("boolean")) {
                     arg[0] = colVal;
                 }
-            }else {
+            } else {
                 arg[0] = nullArg;
             }
             try {
-                if(colVal==null) {
-                    Object[] nullargs = { null };
+                if (colVal == null) {
+                    Object[] nullargs = {null};
                     method.invoke(bean, nullargs);
-                }else
+                } else
                     method.invoke(bean, arg);
 //                logger.debug("Successfully called methodName for bean " + bean
 //                        + " with value " + colVal);
@@ -103,7 +102,7 @@ public class DynamicBeanBinding {
                 Method[] gettingMethods = beanClass.getMethods();
                 Map<Object, Object> resultMap = new HashMap<>();
                 for (Method gettingMethod : gettingMethods) {
-                    Method method =  gettingMethod;
+                    Method method = gettingMethod;
                     String methodName = method.getName();
                     Object[] parmTypes = method.getParameterTypes();
                     if (methodName.startsWith("set") && parmTypes.length == 1)

@@ -17,7 +17,7 @@ public class NbsNoteRepositoryUtil {
     }
 
     public void storeNotes(Long phcUid, Collection<NbsNoteDto> coll) {
-        for(var item: coll) {
+        for (var item : coll) {
             NbsNote data = new NbsNote(item);
             data.setNoteParentUid(phcUid);
             nbsNoteRepository.save(data);

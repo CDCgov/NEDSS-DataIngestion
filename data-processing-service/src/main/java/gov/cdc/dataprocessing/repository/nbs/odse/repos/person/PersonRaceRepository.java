@@ -20,11 +20,11 @@ public interface PersonRaceRepository extends JpaRepository<PersonRace, PersonRa
     @Transactional
     @Modifying
     @Query("DELETE FROM PersonRace pn WHERE pn.personUid = :personUid AND pn.raceCd = :raceCd")
-    void deletePersonRaceByUidAndCode (@Param("personUid") Long personUid, @Param("raceCd") String raceCd);
+    void deletePersonRaceByUidAndCode(@Param("personUid") Long personUid, @Param("raceCd") String raceCd);
 
 
     @Transactional
     @Modifying
     @Query("DELETE FROM PersonRace pn WHERE pn.personUid = :personUid AND pn.raceCd NOT IN :raceCds")
-    void deletePersonRaceByUid (@Param("personUid") Long personUid,@Param("raceCds") List<String> raceCds);
+    void deletePersonRaceByUid(@Param("personUid") Long personUid, @Param("raceCds") List<String> raceCds);
 }

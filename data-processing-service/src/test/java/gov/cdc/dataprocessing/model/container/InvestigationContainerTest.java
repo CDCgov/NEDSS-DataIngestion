@@ -55,7 +55,6 @@ class InvestigationContainerTest {
         NotificationContainer notificationContainer = new NotificationContainer();
 
 
-
         container.setTheNotificationContainer(notificationContainer);
         NotificationContainer retrievedContainer = container.getTheNotificationContainer();
 

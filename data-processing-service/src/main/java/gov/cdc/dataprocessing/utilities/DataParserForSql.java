@@ -7,7 +7,7 @@ import java.util.List;
 @SuppressWarnings("java:S1118")
 public class DataParserForSql {
 
-    public static  <T> T parseValue(Object value, Class<T> type) {
+    public static <T> T parseValue(Object value, Class<T> type) {
         if (value == null) {
             return null;
         }
@@ -32,6 +32,6 @@ public class DataParserForSql {
     }
 
     public static boolean resultValidCheck(List<Object[]> results) {
-       return results != null && !results.isEmpty();
+        return results != null && !results.isEmpty();
     }
 }

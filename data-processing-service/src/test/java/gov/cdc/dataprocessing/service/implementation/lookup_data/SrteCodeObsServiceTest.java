@@ -32,6 +32,8 @@ import static org.mockito.Mockito.when;
 
 class SrteCodeObsServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
     @Mock
     private SnomedConditionRepository snomedConditionRepository;
@@ -49,11 +51,8 @@ class SrteCodeObsServiceTest {
     private SnomedCodeRepository snomedCodeRepository;
     @Mock
     private ConditionCodeRepository conditionCodeRepository;
-
     @InjectMocks
     private SrteCodeObsService srteCodeObsService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -64,7 +63,7 @@ class SrteCodeObsServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -136,7 +135,7 @@ class SrteCodeObsServiceTest {
         String snomedCd = "code";
         var lst = new ArrayList<String>();
         lst.add("TEST");
-        when(labResultRepository.findDefaultConditionCdByLabResultCdAndLaboratoryId(snomedCd , "TEST")).thenReturn(Optional.of(lst));
+        when(labResultRepository.findDefaultConditionCdByLabResultCdAndLaboratoryId(snomedCd, "TEST")).thenReturn(Optional.of(lst));
         var res = srteCodeObsService.getDefaultConditionForLocalResultCode(snomedCd, "TEST");
         assertNotNull(res);
         assertEquals("TEST", res);
@@ -156,7 +155,7 @@ class SrteCodeObsServiceTest {
         String snomedCd = "code";
         var lst = new ArrayList<String>();
         lst.add("TEST");
-        when(labTestRepository.findDefaultConditionForLabTest(snomedCd , "TEST")).thenReturn(Optional.of(lst));
+        when(labTestRepository.findDefaultConditionForLabTest(snomedCd, "TEST")).thenReturn(Optional.of(lst));
         var res = srteCodeObsService.getDefaultConditionForLabTest(snomedCd, "TEST");
         assertNotNull(res);
         assertEquals("TEST", res);
@@ -179,7 +178,7 @@ class SrteCodeObsServiceTest {
         observationContainer.setTheObservationDto(obsDt);
         String labClia = null;
 
-        var res = srteCodeObsService.labLoincSnomedLookup(observationContainer,labClia);
+        var res = srteCodeObsService.labLoincSnomedLookup(observationContainer, labClia);
 
         assertNotNull(res);
     }
@@ -192,7 +191,7 @@ class SrteCodeObsServiceTest {
         observationContainer.setTheObservationDto(obsDt);
         String labClia = null;
 
-        var res = srteCodeObsService.labLoincSnomedLookup(observationContainer,labClia);
+        var res = srteCodeObsService.labLoincSnomedLookup(observationContainer, labClia);
 
         assertNotNull(res);
     }
@@ -220,14 +219,13 @@ class SrteCodeObsServiceTest {
         observationContainer.setTheObservationDto(obsDt);
 
 
-
         var lst = new ArrayList<String>();
         lst.add("TEST");
         when(labTestLoincRepository.findLoincCds(labClia, "CODE")).thenReturn(Optional.of(lst));
 
         when(labResultSnomedRepository.findSnomedCds(labClia, "CODE")).thenReturn(Optional.of(lst));
 
-        var res = srteCodeObsService.labLoincSnomedLookup(observationContainer,labClia);
+        var res = srteCodeObsService.labLoincSnomedLookup(observationContainer, labClia);
 
         assertNotNull(res);
         assertEquals(2, res.getTheObsValueCodedDtoCollection().size());
@@ -272,7 +270,7 @@ class SrteCodeObsServiceTest {
         snomedMap.put("COUNT", 1);
         snomedMap.put("LOINC", "TEST");
 
-        when(progAreaSnomeCodeStoredProcRepository.getSnomed("CODE", "LR" ,"CLIA"))
+        when(progAreaSnomeCodeStoredProcRepository.getSnomed("CODE", "LR", "CLIA"))
                 .thenReturn(snomedMap);
 
 
@@ -336,7 +334,7 @@ class SrteCodeObsServiceTest {
         snomedMap.put("NULL", 1);
         snomedMap.put("LOINC", "TEST");
 
-        when(progAreaSnomeCodeStoredProcRepository.getSnomed("CODE", "LR" ,"CLIA"))
+        when(progAreaSnomeCodeStoredProcRepository.getSnomed("CODE", "LR", "CLIA"))
                 .thenReturn(snomedMap);
 
 
@@ -574,7 +572,6 @@ class SrteCodeObsServiceTest {
     }
 
 
-
     @Test
     void getPAFromLOINCCode_Null_9() throws DataProcessingException {
         String reportingLabCLIA = "CLIA";
@@ -629,7 +626,6 @@ class SrteCodeObsServiceTest {
         var res = srteCodeObsService.getPAFromLocalResultCode(reportingLabCLIA, obsValueCodedDtoColl);
         assertNull(res);
     }
-
 
 
     @Test
@@ -755,7 +751,7 @@ class SrteCodeObsServiceTest {
 
         var res = srteCodeObsService.getPAFromLocalTestCode(reportingLabCLIA, resultTestVO);
 
-        assertEquals("TEST",res);
+        assertEquals("TEST", res);
     }
 
     @Test
@@ -785,9 +781,8 @@ class SrteCodeObsServiceTest {
 
         var res = srteCodeObsService.getPAFromLocalTestCode(reportingLabCLIA, resultTestVO);
 
-        assertEquals("TEST",res);
+        assertEquals("TEST", res);
     }
-
 
 
     @Test
@@ -803,8 +798,6 @@ class SrteCodeObsServiceTest {
 
         assertNull(res);
     }
-
-
 
 
 }

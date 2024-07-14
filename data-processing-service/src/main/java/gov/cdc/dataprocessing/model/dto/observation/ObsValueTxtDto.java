@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ObsValueTxtDto extends BaseContainer
-{
+public class ObsValueTxtDto extends BaseContainer {
 
     private Long observationUid;
 
@@ -32,7 +31,6 @@ public class ObsValueTxtDto extends BaseContainer
     private Long programJurisdictionOid = null;
 
     private String sharedInd = null;
-
 
 
     public ObsValueTxtDto() {

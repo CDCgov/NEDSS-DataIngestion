@@ -20,11 +20,12 @@ import java.sql.Timestamp;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+
 class CdaPhcProcessorTest {
-    @InjectMocks
-    private CdaPhcProcessor cdaPhcProcessor;
     @Mock
     AuthUtil authUtil;
+    @InjectMocks
+    private CdaPhcProcessor cdaPhcProcessor;
     @Mock
     private PublicHealthCaseDto phcDT;
 
@@ -41,13 +42,14 @@ class CdaPhcProcessorTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(authUtil);
     }
+
     @Test
     void testSetStandardNBSCaseAnswerVals_Success() throws DataProcessingException {
         // Arrange

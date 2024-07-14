@@ -82,7 +82,7 @@ public class QuestionMetadata {
             this.lastChgTime = Timestamp.valueOf((String) data[7]);
         }
         if (data.length >= 9) {
-            this.lastChgUserId =  ((Double) data[8]).longValue();
+            this.lastChgUserId = ((Double) data[8]).longValue();
         }
         if (data.length >= 10) {
             this.questionLabel = (String) data[9];
@@ -190,6 +190,7 @@ public class QuestionMetadata {
             this.questionUnitIdentifier = (String) data[43];
         }
     }
+
     public QuestionMetadata() {
 
     }

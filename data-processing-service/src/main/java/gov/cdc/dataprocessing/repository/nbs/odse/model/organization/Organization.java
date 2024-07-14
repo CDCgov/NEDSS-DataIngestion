@@ -127,6 +127,7 @@ public class Organization {
 
     public Organization() {
     }
+
     public Organization(OrganizationDto organizationDto) {
         this.organizationUid = organizationDto.getOrganizationUid();
         this.addReasonCode = organizationDto.getAddReasonCd();

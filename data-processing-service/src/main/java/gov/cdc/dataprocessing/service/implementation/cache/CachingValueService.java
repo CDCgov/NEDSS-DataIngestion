@@ -26,7 +26,7 @@ public class CachingValueService implements ICatchingValueService {
     private final JurisdictionCodeRepository jurisdictionCodeRepository;
     private final CodeValueGeneralRepository codeValueGeneralRepository;
     private final ElrXrefRepository elrXrefRepository;
-    private  final RaceCodeRepository raceCodeRepository;
+    private final RaceCodeRepository raceCodeRepository;
     private final StateCountyCodeValueRepository stateCountyCodeValueRepository;
     private final StateCodeRepository stateCodeRepository;
     private final LOINCCodeRepository loincCodeRepository;
@@ -84,7 +84,7 @@ public class CachingValueService implements ICatchingValueService {
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'labResulDescWithOrgnismName'")
@@ -100,9 +100,8 @@ public class CachingValueService implements ICatchingValueService {
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
-
 
 
     @Cacheable(cacheNames = "srte", key = "'snomedCodeByDesc'")
@@ -118,9 +117,8 @@ public class CachingValueService implements ICatchingValueService {
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
-
 
 
     // getCodedResultDesc
@@ -131,24 +129,24 @@ public class CachingValueService implements ICatchingValueService {
             var result = labResultRepository.findLabResultByDefaultLabAndOrgNameN();
             if (result.isPresent()) {
                 var data = result.get();
-                for (LabResult obj :data) {
+                for (LabResult obj : data) {
                     map.put(obj.getLabResultCd(), obj.getLabResultDescTxt());
                 }
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
 
     @Cacheable(cacheNames = "srte", key = "'loincCodes'")
-    public TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
+    public TreeMap<String, String> getAOELOINCCodes() throws DataProcessingException {
         TreeMap<String, String> map = new TreeMap<>();
         try {
             var result = loincCodeRepository.findLoincCodes();
             if (result.isPresent()) {
-                for (LOINCCode obj :result.get()) {
+                for (LOINCCode obj : result.get()) {
                     map.put(obj.getLoincCode(), obj.getLoincCode());
                 }
             }
@@ -165,14 +163,14 @@ public class CachingValueService implements ICatchingValueService {
             var result = raceCodeRepository.findAllActiveRaceCodes();
             if (result.isPresent()) {
                 var raceCode = result.get();
-                for (RaceCode obj :raceCode) {
+                for (RaceCode obj : raceCode) {
                     map.put(obj.getCode(), obj.getCodeShortDescTxt());
                 }
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'programAreaCodes'")
@@ -180,14 +178,14 @@ public class CachingValueService implements ICatchingValueService {
         TreeMap<String, String> map = new TreeMap<>();
         try {
             var result = programAreaService.getAllProgramAreaCode();
-            for (ProgramAreaCode obj :result) {
+            for (ProgramAreaCode obj : result) {
                 map.put(obj.getProgAreaCd(), obj.getProgAreaDescTxt());
             }
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'programAreaCodesWithNbsUid'")
@@ -195,14 +193,14 @@ public class CachingValueService implements ICatchingValueService {
         TreeMap<String, Integer> map = new TreeMap<>();
         try {
             var result = programAreaService.getAllProgramAreaCode();
-            for (ProgramAreaCode obj :result) {
+            for (ProgramAreaCode obj : result) {
                 map.put(obj.getProgAreaCd(), obj.getNbsUid());
             }
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCode'")
@@ -210,14 +208,14 @@ public class CachingValueService implements ICatchingValueService {
         TreeMap<String, String> map = new TreeMap<>();
         try {
             var result = jurisdictionService.getJurisdictionCode();
-            for (JurisdictionCode obj :result) {
+            for (JurisdictionCode obj : result) {
                 map.put(obj.getCode(), obj.getCodeDescTxt());
             }
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCodeWithNbsUid'")
@@ -225,14 +223,14 @@ public class CachingValueService implements ICatchingValueService {
         TreeMap<String, Integer> map = new TreeMap<>();
         try {
             var result = jurisdictionService.getJurisdictionCode();
-            for (JurisdictionCode obj :result) {
+            for (JurisdictionCode obj : result) {
                 map.put(obj.getCode(), obj.getNbsUid());
             }
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'elrXref'")
@@ -251,7 +249,7 @@ public class CachingValueService implements ICatchingValueService {
         try {
             var result = conditionCodeRepository.findCoInfectionConditionCode();
             if (result.isPresent()) {
-                for (ConditionCode obj :result.get()) {
+                for (ConditionCode obj : result.get()) {
                     map.put(obj.getConditionCd(), obj.getCoinfectionGrpCd());
                 }
 
@@ -260,7 +258,7 @@ public class CachingValueService implements ICatchingValueService {
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  map;
+        return map;
     }
 
     @Cacheable(cacheNames = "srte", key = "'conditionCode'")
@@ -274,12 +272,12 @@ public class CachingValueService implements ICatchingValueService {
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
-        return  new ArrayList<>();
+        return new ArrayList<>();
     }
 
     /**
      * Retrieve value from Cache
-     * */
+     */
     public TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -292,9 +290,9 @@ public class CachingValueService implements ICatchingValueService {
                 }
             }
         }
-        if ( cache != null && (
+        if (cache != null && (
                 (SrteCache.codedValuesMap.get(key) != null && SrteCache.codedValuesMap.get(key).isEmpty())
-                    || SrteCache.codedValuesMap.get(key) == null)
+                        || SrteCache.codedValuesMap.get(key) == null)
         ) {
             SrteCache.codedValuesMap.putAll(getCodedValuesCallRepos(pType));
             cache.put("codedValues", SrteCache.codedValuesMap);
@@ -306,8 +304,8 @@ public class CachingValueService implements ICatchingValueService {
 
     /**
      * Retrieve value from Cache
-     * */
-    public  String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
+     */
+    public String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
             Cache.ValueWrapper valueWrapper;
@@ -321,8 +319,8 @@ public class CachingValueService implements ICatchingValueService {
         }
         if (
                 cache != null && (
-                (SrteCache.codeDescTxtMap.get(code) != null && SrteCache.codeDescTxtMap.get(code).isEmpty())
-                        || SrteCache.codeDescTxtMap.get(code) == null)
+                        (SrteCache.codeDescTxtMap.get(code) != null && SrteCache.codeDescTxtMap.get(code).isEmpty())
+                                || SrteCache.codeDescTxtMap.get(code) == null)
         ) {
             SrteCache.codeDescTxtMap.putAll(getCodedValuesCallRepos(codeSetNm));
             cache.put("codeDescTxt", SrteCache.codeDescTxtMap);
@@ -336,8 +334,7 @@ public class CachingValueService implements ICatchingValueService {
             var result = elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm);
             if (result.isPresent()) {
                 return result.get().getToCode();
-            }
-            else {
+            } else {
                 return "";
             }
         } catch (Exception e) {
@@ -349,7 +346,7 @@ public class CachingValueService implements ICatchingValueService {
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
 
         if (county == null || stateCd == null) {
-          return null;
+            return null;
         }
         String cnty = county.toUpperCase();
         if (!cnty.endsWith("COUNTY")) {
@@ -368,9 +365,9 @@ public class CachingValueService implements ICatchingValueService {
             }
         }
 
-        if ( cache != null &&
+        if (cache != null &&
                 ((SrteCache.countyCodeByDescMap.get(cnty) != null && SrteCache.countyCodeByDescMap.get(cnty).isEmpty())
-                || SrteCache.countyCodeByDescMap.get(cnty) == null)
+                        || SrteCache.countyCodeByDescMap.get(cnty) == null)
         ) {
             SrteCache.countyCodeByDescMap.putAll(getCountyCdByDescCallRepos(stateCd));
             cache.put("countyCodeByDesc", SrteCache.countyCodeByDescMap);
@@ -410,15 +407,14 @@ public class CachingValueService implements ICatchingValueService {
         try {
             List<CodeValueGeneral> codeValueGeneralList;
             if (code.equals(ELRConstant.ELR_LOG_PROCESS)) {
-                 var result = codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code);
-                 if (result.isPresent()) {
-                     codeValueGeneralList = result.get();
-                     for (CodeValueGeneral obj : codeValueGeneralList) {
-                         map.put(obj.getCode(), obj.getCodeDescTxt());
-                     }
-                 }
-            }
-            else {
+                var result = codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code);
+                if (result.isPresent()) {
+                    codeValueGeneralList = result.get();
+                    for (CodeValueGeneral obj : codeValueGeneralList) {
+                        map.put(obj.getCode(), obj.getCodeDescTxt());
+                    }
+                }
+            } else {
                 var result = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
                 if (result.isPresent()) {
                     codeValueGeneralList = result.get();
@@ -429,7 +425,7 @@ public class CachingValueService implements ICatchingValueService {
             }
 
         } catch (Exception e) {
-            throw  new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage());
         }
         return map;
     }
@@ -445,7 +441,7 @@ public class CachingValueService implements ICatchingValueService {
                 }
             }
         } catch (Exception e) {
-            throw  new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage());
         }
         return map;
     }
@@ -454,14 +450,14 @@ public class CachingValueService implements ICatchingValueService {
         TreeMap<String, String> codeMap = new TreeMap<>();
         try {
             Optional<List<StateCountyCodeValue>> result;
-            if( stateCd==null || stateCd.trim().equals("")) {
+            if (stateCd == null || stateCd.trim().equals("")) {
                 result = stateCountyCodeValueRepository.findByIndentLevelNbr();
             } else {
                 result = stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd);
             }
 
             if (result.isPresent()) {
-                var res  = result.get();
+                var res = result.get();
                 for (StateCountyCodeValue obj : res) {
                     codeMap.put(obj.getCode() + " COUNTY", obj.getAssigningAuthorityDescTxt());
                 }
@@ -472,8 +468,6 @@ public class CachingValueService implements ICatchingValueService {
         }
 
     }
-
-
 
 
 }

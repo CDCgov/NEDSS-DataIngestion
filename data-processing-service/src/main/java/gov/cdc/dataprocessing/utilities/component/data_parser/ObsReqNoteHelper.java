@@ -23,8 +23,7 @@ public class ObsReqNoteHelper {
                         obsValueTxtDto.setTxtTypeCd(EdxELRConstant.ELR_OBX_COMMENT_TYPE);
 
                         obsValueTxtDto.setValueTxt(note);
-                        if (observationContainer.getTheObsValueTxtDtoCollection() == null)
-                        {
+                        if (observationContainer.getTheObsValueTxtDtoCollection() == null) {
                             observationContainer.setTheObsValueTxtDtoCollection(new ArrayList<>());
                         }
                         int seq = observationContainer.getTheObsValueTxtDtoCollection().size();
@@ -49,7 +48,7 @@ public class ObsReqNoteHelper {
 
             }
         } catch (Exception e) {
-            throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObsReqNotes:"+ e.getMessage());
+            throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObsReqNotes:" + e.getMessage());
 
         }
         return observationContainer;

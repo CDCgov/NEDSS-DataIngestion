@@ -32,12 +32,11 @@ import static org.mockito.Mockito.*;
 
 class EntityIdUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ICatchingValueService catchingValueService;
     @InjectMocks
     private EntityIdUtil entityIdUtil;
-
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +47,7 @@ class EntityIdUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -201,7 +200,7 @@ class EntityIdUtilTest {
         hl7CXType.setHL7EffectiveDate(time);
         hl7CXType.setHL7ExpirationDate(time);
 
-        when(catchingValueService.getCodeDescTxtForCd(any(),any())).thenReturn("CODE");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("CODE");
 
 
         var res = entityIdUtil.processEntityData(hl7CXType, personContainer, indicator, index);
@@ -234,7 +233,7 @@ class EntityIdUtilTest {
         hl7CXType.setHL7EffectiveDate(time);
         hl7CXType.setHL7ExpirationDate(time);
 
-        when(catchingValueService.getCodeDescTxtForCd(any(),any())).thenReturn("");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("");
 
 
         var res = entityIdUtil.processEntityData(hl7CXType, personContainer, indicator, index);
@@ -244,7 +243,7 @@ class EntityIdUtilTest {
 
 
     @Test
-    void processEntityData_Test_Exp_1()  {
+    void processEntityData_Test_Exp_1() {
         HL7CXType hl7CXType = new HL7CXType();
         PersonContainer personContainer = new PersonContainer();
         String indicator = EdxELRConstant.ELR_PATIENT_ALTERNATE_IND;
@@ -293,7 +292,7 @@ class EntityIdUtilTest {
     }
 
     @Test
-    void isDateNotOkForDatabase_Test_1(){
+    void isDateNotOkForDatabase_Test_1() {
         Timestamp timestamp = null;
         var res = entityIdUtil.isDateNotOkForDatabase(timestamp);
 
@@ -319,7 +318,6 @@ class EntityIdUtilTest {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         SimpleDateFormat mockDateFormat = spy(new SimpleDateFormat("yyyy-MM-dd"));
         doThrow(new RuntimeException("Test Exception")).when(mockDateFormat).parse(anyString());
-
 
 
         // Act

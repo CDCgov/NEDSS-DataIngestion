@@ -25,11 +25,11 @@ import static org.mockito.Mockito.*;
 
 class EdxDocumentServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private EdxDocumentRepository edxDocumentRepository;
     @InjectMocks
     private EdxDocumentService edxDocumentService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -40,7 +40,7 @@ class EdxDocumentServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

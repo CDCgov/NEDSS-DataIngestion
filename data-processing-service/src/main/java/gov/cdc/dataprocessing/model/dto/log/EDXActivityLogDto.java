@@ -37,7 +37,7 @@ public class EDXActivityLogDto extends BaseContainer implements Serializable {
     private Collection<EDXActivityDetailLogDto> EDXActivityLogDTWithVocabDetails;
     private Collection<Object> EDXActivityLogDTWithQuesDetails;
     private Collection<EDXActivityDetailLogDto> EDXActivityLogDTDetails = new ArrayList();
-    private Map<Object,Object> newaddedCodeSets = new HashMap<Object,Object>();
+    private Map<Object, Object> newaddedCodeSets = new HashMap<Object, Object>();
     private boolean logDetailAllStatus = false;
     private String algorithmAction;
     private String actionId;

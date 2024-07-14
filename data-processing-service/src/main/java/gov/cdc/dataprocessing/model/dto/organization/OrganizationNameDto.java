@@ -26,6 +26,21 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
 
+    public OrganizationNameDto() {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+    }
+
+    public OrganizationNameDto(OrganizationName organizationName) {
+        this.organizationUid = organizationName.getOrganizationUid();
+        this.organizationNameSeq = organizationName.getOrganizationNameSeq();
+        this.nmTxt = organizationName.getNameText();
+        this.nmUseCd = organizationName.getNameUseCode();
+        this.recordStatusCd = organizationName.getRecordStatusCode();
+        this.defaultNmInd = organizationName.getDefaultNameIndicator();
+    }
+
     @Override
     public Long getLastChgUserId() {
         return organizationUid;
@@ -118,32 +133,17 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        // No operation needed for setAddTime()
-    }
-
-    @Override
     public Timestamp getAddTime() {
         return null;
     }
 
     @Override
+    public void setAddTime(Timestamp aAddTime) {
+        // No operation needed for setAddTime()
+    }
+
+    @Override
     public Integer getVersionCtrlNbr() {
         return null;
-    }
-
-    public OrganizationNameDto() {
-        itDirty = false;
-        itNew = true;
-        itDelete = false;
-    }
-
-    public OrganizationNameDto(OrganizationName organizationName) {
-        this.organizationUid = organizationName.getOrganizationUid();
-        this.organizationNameSeq = organizationName.getOrganizationNameSeq();
-        this.nmTxt = organizationName.getNameText();
-        this.nmUseCd = organizationName.getNameUseCode();
-        this.recordStatusCd = organizationName.getRecordStatusCode();
-        this.defaultNmInd = organizationName.getDefaultNameIndicator();
     }
 }

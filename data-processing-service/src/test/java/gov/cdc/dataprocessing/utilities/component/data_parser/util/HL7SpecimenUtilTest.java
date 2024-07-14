@@ -29,12 +29,11 @@ import static org.mockito.Mockito.*;
 
 class HL7SpecimenUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private NBSObjectConverter nbsObjectConverter;
     @InjectMocks
     private HL7SpecimenUtil hl7SpecimenUtil;
-
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -45,7 +44,7 @@ class HL7SpecimenUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

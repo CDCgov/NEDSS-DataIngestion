@@ -17,6 +17,6 @@ public class BasePamContainer implements Serializable {
     private Map<Object, Object> pamAnswerDTMap;
     private Collection<NbsActEntityDto> actEntityDTCollection;
     private Map<Object, Object> pageRepeatingAnswerDTMap;
-    private Map<Object, NbsAnswerDto>  answerDTMap;
+    private Map<Object, NbsAnswerDto> answerDTMap;
 
 }

@@ -64,11 +64,10 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                 // Try to get the matching with the match string
                 //	(was hash code but hash code had dups on rare occasions)
                 edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd, localId);
-                if (edxPatientMatchFoundDT != null && edxPatientMatchFoundDT.isMultipleMatch()){
+                if (edxPatientMatchFoundDT != null && edxPatientMatchFoundDT.isMultipleMatch()) {
                     multipleMatchFound = true;
                     matchFound = false;
-                }
-                else if (edxPatientMatchFoundDT != null && edxPatientMatchFoundDT.getPatientUid() != null) {
+                } else if (edxPatientMatchFoundDT != null && edxPatientMatchFoundDT.getPatientUid() != null) {
                     matchFound = true;
                 }
             } catch (Exception ex) {
@@ -136,14 +135,10 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                             edxPatientFoundDT.setMatchStringHashCode((long) namesdobcursexStrhshCd);
                         }
                         edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd, namesdobcursexStr);
-                        if (edxPatientMatchFoundDT.isMultipleMatch()){
+                        if (edxPatientMatchFoundDT.isMultipleMatch()) {
                             multipleMatchFound = true;
                             matchFound = false;
-                        } else if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
-                            matchFound = false;
-                        } else {
-                            matchFound = true;
-                        }
+                        } else matchFound = edxPatientMatchFoundDT.getPatientUid() != null && (edxPatientMatchFoundDT.getPatientUid() == null || edxPatientMatchFoundDT.getPatientUid() > 0);
                     } catch (Exception ex) {
                         logger.error("Error in geting the  matching Patient");
                         throw new DataProcessingException("Error in geting the  matching Patient" + ex.getMessage(), ex);
@@ -178,8 +173,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                     throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
                 }
                 personContainer.setPatientMatchedFound(false);
-            }
-            else {
+            } else {
                 personContainer.setPatientMatchedFound(true);
             }
 
@@ -239,13 +233,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
     @Transactional
     public Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException {
-        return updateExistingPerson(personContainer,businessTriggerCd, personContainer.getThePersonDto().getPersonParentUid()).getPersonId();
+        return updateExistingPerson(personContainer, businessTriggerCd, personContainer.getThePersonDto().getPersonParentUid()).getPersonId();
     }
-
-
-
-
-
 
 
 }

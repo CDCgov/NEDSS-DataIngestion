@@ -15,10 +15,10 @@ public class WdsObjectChecker {
     public boolean checkNbsObject(EdxRuleManageDto edxRuleManageDT, Object object, NbsQuestionMetadata metaData) {
         String dataLocation = metaData.getDataLocation();
         String setMethodName = dataLocation.replaceAll("_", "");
-        setMethodName = "SET" + setMethodName.substring(setMethodName.indexOf(".") + 1, setMethodName.length());
+        setMethodName = "SET" + setMethodName.substring(setMethodName.indexOf(".") + 1);
 
         String getMethodName = dataLocation.replaceAll("_", "");
-        getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1, getMethodName.length());
+        getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1);
 
         Class<?> phcClass = object.getClass();
         try {
@@ -96,9 +96,7 @@ public class WdsObjectChecker {
                         } else {
                             if (ob != null) {
                                 sourceValue = Long.parseLong(ob.toString());
-                            }
-                            else
-                            {
+                            } else {
                                 sourceValue = 0L;
                             }
                             if (edxRuleManageDT.getValue() != null)

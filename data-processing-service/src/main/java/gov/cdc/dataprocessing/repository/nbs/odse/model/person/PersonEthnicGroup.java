@@ -57,6 +57,7 @@ public class PersonEthnicGroup {
     public PersonEthnicGroup() {
 
     }
+
     public PersonEthnicGroup(PersonEthnicGroupDto personEthnicGroupDto) {
         LocalDateTime currentTime = LocalDateTime.now();
         Timestamp currentTimestamp = Timestamp.valueOf(currentTime);
@@ -72,10 +73,10 @@ public class PersonEthnicGroup {
         this.addTime = currentTimestamp;
         this.ethnicGroupDescTxt = personEthnicGroupDto.getEthnicGroupDescTxt();
         this.lastChgReasonCd = personEthnicGroupDto.getLastChgReasonCd();
-        this.lastChgTime =  currentTimestamp;
+        this.lastChgTime = currentTimestamp;
         this.lastChgUserId = personEthnicGroupDto.getLastChgUserId();
         this.recordStatusCd = personEthnicGroupDto.getRecordStatusCd();
-        this.recordStatusTime =  currentTimestamp;
+        this.recordStatusTime = currentTimestamp;
         this.userAffiliationTxt = personEthnicGroupDto.getUserAffiliationTxt();
     }
 

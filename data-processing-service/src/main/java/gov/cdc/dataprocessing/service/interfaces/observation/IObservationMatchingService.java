@@ -9,6 +9,7 @@ public interface IObservationMatchingService {
     void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
                                LabResultProxyContainer matchedlabResultProxyVO,
                                EdxLabInformationDto edxLabInformationDT);
+
     ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException;
 
 }

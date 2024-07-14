@@ -146,13 +146,13 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        this.addTime = aAddTime;
+    public Timestamp getAddTime() {
+        return this.addTime;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return this.addTime;
+    public void setAddTime(Timestamp aAddTime) {
+        this.addTime = aAddTime;
     }
 
     @Override

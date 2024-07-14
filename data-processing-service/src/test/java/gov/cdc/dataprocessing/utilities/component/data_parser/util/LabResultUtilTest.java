@@ -18,11 +18,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 class LabResultUtilTest {
-    @InjectMocks
-    private LabResultUtil labResultUtil;
-
     @Mock
     AuthUtil authUtil;
+    @InjectMocks
+    private LabResultUtil labResultUtil;
 
     @BeforeEach
     void setUp() {
@@ -33,7 +32,7 @@ class LabResultUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

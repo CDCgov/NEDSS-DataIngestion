@@ -36,7 +36,7 @@ public class OrganizationName {
 
     public OrganizationName(OrganizationNameDto organizationNameDto) {
         this.organizationUid = organizationNameDto.getOrganizationUid();
-        if(organizationNameDto.getOrganizationNameSeq()!=null){
+        if (organizationNameDto.getOrganizationNameSeq() != null) {
             this.organizationNameSeq = organizationNameDto.getOrganizationNameSeq();
         }
         this.nameText = organizationNameDto.getNmTxt();

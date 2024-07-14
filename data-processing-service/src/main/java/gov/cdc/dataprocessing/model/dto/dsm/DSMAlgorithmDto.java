@@ -32,6 +32,7 @@ public class DSMAlgorithmDto extends BaseContainer {
     public DSMAlgorithmDto() {
 
     }
+
     public DSMAlgorithmDto(DsmAlgorithm dsmAlgorithm) {
         this.dsmAlgorithmUid = dsmAlgorithm.getDsmAlgorithmUid();
         this.algorithmNm = dsmAlgorithm.getAlgorithmNm();

@@ -20,60 +20,55 @@ import java.util.Map;
 @Setter
 @SuppressWarnings("all")
 public class PageActProxyContainer extends BaseContainer {
-    private static final long         serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    public String                     pageProxyTypeCd  = "";
+    public String pageProxyTypeCd = "";
+    protected Collection<ParticipationDto> theParticipationDtoCollection;
+    protected Collection<OrganizationContainer> theOrganizationContainerCollection;
     // page business type INV, IXS, etc.
     private PublicHealthCaseContainer publicHealthCaseContainer;
     private InterviewContainer interviewContainer;
     private NotificationContainer theNotificationContainer;
     private InterventionContainer interventionContainer;
-
-    private Long                      patientUid;
-    private String                    currentInvestigator;
-    private String                    fieldSupervisor;
-    private String                    caseSupervisor;
-    private boolean                   isSTDProgramArea = false;
-    private Collection<PersonContainer> thePersonContainerCollection;
-
-    private BasePamContainer pageVO;
+    private Long patientUid;
+    private String currentInvestigator;
+    private String fieldSupervisor;
+    private String caseSupervisor;
+    private boolean isSTDProgramArea = false;
     // contains answer maps
-
-    private Collection<Object>        theVaccinationSummaryVOCollection;
-    private Collection<Object>        theNotificationSummaryVOCollection;
-    private Collection<Object>        theTreatmentSummaryVOCollection;
-    private Collection<Object>        theLabReportSummaryVOCollection;
-    private Collection<Object>        theMorbReportSummaryVOCollection;
-    protected Collection<ParticipationDto> theParticipationDtoCollection;
-
+    private Collection<PersonContainer> thePersonContainerCollection;
+    private BasePamContainer pageVO;
+    private Collection<Object> theVaccinationSummaryVOCollection;
+    private Collection<Object> theNotificationSummaryVOCollection;
+    private Collection<Object> theTreatmentSummaryVOCollection;
+    private Collection<Object> theLabReportSummaryVOCollection;
+    private Collection<Object> theMorbReportSummaryVOCollection;
     private Collection<ActRelationshipDto> theActRelationshipDtoCollection;
-    private Collection<Object>        theInvestigationAuditLogSummaryVOCollection;
-    protected Collection<OrganizationContainer> theOrganizationContainerCollection;
-    private Collection<Object>        theCTContactSummaryDTCollection;
-    private Collection<Object>        theInterviewSummaryDTCollection;
-    private Collection<Object>        theNotificationVOCollection;
-    private Collection<Object>        theCSSummaryVOCollection;
-    private Collection<Object>        nbsAttachmentDTColl;
-    private Collection<NbsNoteDto>        nbsNoteDTColl;
-    private Collection<Object>        theDocumentSummaryVOCollection;
-    private boolean                   isOOSystemInd;
-    private boolean                   isOOSystemPendInd;
-    private boolean                   associatedNotificationsInd;
-    private boolean                   isUnsavedNote;
-    private boolean                   isMergeCase;
+    private Collection<Object> theInvestigationAuditLogSummaryVOCollection;
+    private Collection<Object> theCTContactSummaryDTCollection;
+    private Collection<Object> theInterviewSummaryDTCollection;
+    private Collection<Object> theNotificationVOCollection;
+    private Collection<Object> theCSSummaryVOCollection;
+    private Collection<Object> nbsAttachmentDTColl;
+    private Collection<NbsNoteDto> nbsNoteDTColl;
+    private Collection<Object> theDocumentSummaryVOCollection;
+    private boolean isOOSystemInd;
+    private boolean isOOSystemPendInd;
+    private boolean associatedNotificationsInd;
+    private boolean isUnsavedNote;
+    private boolean isMergeCase;
 
 
     private Collection<Object> theEDXDocumentDTCollection;
 
 
-    private boolean                   isRenterant;
-    private boolean					  isConversionHasModified;
+    private boolean isRenterant;
+    private boolean isConversionHasModified;
 
     private ExportReceivingFacilityDto exportReceivingFacilityDto;
-    private Map<String, MessageLogDto> messageLogDTMap  = new HashMap<String, MessageLogDto>();
+    private Map<String, MessageLogDto> messageLogDTMap = new HashMap<String, MessageLogDto>();
 
-    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException
-    {
+    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(this);
@@ -81,6 +76,6 @@ public class PageActProxyContainer extends BaseContainer {
         ObjectInputStream ois = new ObjectInputStream(bais);
         Object deepCopy = ois.readObject();
 
-        return  deepCopy;
+        return deepCopy;
     }
 }

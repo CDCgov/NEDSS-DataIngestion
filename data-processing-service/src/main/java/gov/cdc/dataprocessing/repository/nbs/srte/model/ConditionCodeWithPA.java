@@ -19,6 +19,6 @@ public class ConditionCodeWithPA extends BaseConditionCode implements Serializab
 
     @Override
     public int compareTo(Object o) {
-        return getConditionShortNm().compareTo( ((ProgramAreaContainer) o).getConditionShortNm() );
+        return getConditionShortNm().compareTo(((ProgramAreaContainer) o).getConditionShortNm());
     }
 }

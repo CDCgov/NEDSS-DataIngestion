@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class User  extends BaseContainer
-{
+public class User extends BaseContainer {
     private static final long serialVersionUID = 1L;
 
     private String userID;

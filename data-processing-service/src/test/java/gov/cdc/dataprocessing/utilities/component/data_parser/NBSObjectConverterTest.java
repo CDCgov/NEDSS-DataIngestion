@@ -39,15 +39,14 @@ import static org.mockito.Mockito.when;
 
 class NBSObjectConverterTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ICatchingValueService checkingValueService;
     @Mock
     private EntityIdUtil entityIdUtil;
     @InjectMocks
     private NBSObjectConverter nbsObjectConverter;
-
     private PersonContainer perContainer;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +57,7 @@ class NBSObjectConverterTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         var perDt = new PersonDto();
         perContainer = new PersonContainer();
@@ -101,13 +100,14 @@ class NBSObjectConverterTest {
         mothderIden.setHL7AssigningAuthority(auth);
         xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier().add(mothderIden);
 
-        var hl7CXType =   xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
+        var hl7CXType = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
 
 
         var res = nbsObjectConverter.processEntityData(hl7CXType.get(0), personContainer, EdxELRConstant.ELR_PATIENT_ALTERNATE_IND, 1);
         assertNotNull(res);
 
     }
+
     @Test
     void processEntityData_Test_2() throws JAXBException, DataProcessingException {
         PersonContainer personContainer = new PersonContainer();
@@ -123,7 +123,7 @@ class NBSObjectConverterTest {
         mothderIden.setHL7AssigningAuthority(auth);
         xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier().add(mothderIden);
 
-        var hl7CXType =   xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
+        var hl7CXType = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
 
 
         var res = nbsObjectConverter.processEntityData(hl7CXType.get(0), personContainer, EdxELRConstant.ELR_MOTHER_IDENTIFIER, 1);
@@ -146,7 +146,7 @@ class NBSObjectConverterTest {
         mothderIden.setHL7AssigningAuthority(auth);
         xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier().add(mothderIden);
 
-        var hl7CXType =   xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
+        var hl7CXType = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
 
 
         var res = nbsObjectConverter.processEntityData(hl7CXType.get(0), personContainer, EdxELRConstant.ELR_ACCOUNT_IDENTIFIER, 1);
@@ -169,9 +169,9 @@ class NBSObjectConverterTest {
         mothderIden.setHL7AssigningAuthority(auth);
         xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier().add(mothderIden);
         xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier().get(0).setHL7IdentifierTypeCode(null);
-        var hl7CXType =   xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
+        var hl7CXType = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getMothersIdentifier();
 
-        when(checkingValueService.getCodeDescTxtForCd(any(),eq(EdxELRConstant.EI_TYPE))).thenReturn("CODE");
+        when(checkingValueService.getCodeDescTxtForCd(any(), eq(EdxELRConstant.EI_TYPE))).thenReturn("CODE");
 
         var res = nbsObjectConverter.processEntityData(hl7CXType.get(0), personContainer, "BLAH", 1);
         assertNotNull(res);
@@ -189,7 +189,7 @@ class NBSObjectConverterTest {
 
         HL7XADType address = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getPatientAddress().get(0);
 
-        var res = nbsObjectConverter.personAddressType(address,EdxELRConstant.ELR_OP_CD, personContainer);
+        var res = nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
         assertNotNull(res);
     }
 
@@ -209,11 +209,10 @@ class NBSObjectConverterTest {
         var stateCode = new StateCode();
         stateCode.setStateCd("ME");
         when(checkingValueService.findStateCodeByStateNm("ME")).thenReturn(stateCode);
-        when(checkingValueService.getCountyCdByDesc("COUNTY","ME")).thenReturn("COUNTY");
+        when(checkingValueService.getCountyCdByDesc("COUNTY", "ME")).thenReturn("COUNTY");
 
 
-
-        var res = nbsObjectConverter.personAddressType(address,EdxELRConstant.ELR_OP_CD, personContainer);
+        var res = nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
         assertNotNull(res);
 
     }
@@ -234,14 +233,14 @@ class NBSObjectConverterTest {
         var stateCode = new StateCode();
         stateCode.setStateCd("ME");
         when(checkingValueService.findStateCodeByStateNm("ME")).thenReturn(stateCode);
-        when(checkingValueService.getCountyCdByDesc("COUNTY","ME")).thenReturn("COUNTY");
+        when(checkingValueService.getCountyCdByDesc("COUNTY", "ME")).thenReturn("COUNTY");
 
 
-
-        var res = nbsObjectConverter.personAddressType(address,EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);
+        var res = nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);
         assertNotNull(res);
 
     }
+
     @Test
     void personAddressType_Test_4() throws JAXBException, DataProcessingException {
         PersonContainer personContainer = new PersonContainer();
@@ -258,11 +257,10 @@ class NBSObjectConverterTest {
         var stateCode = new StateCode();
         stateCode.setStateCd("ME");
         when(checkingValueService.findStateCodeByStateNm("ME")).thenReturn(stateCode);
-        when(checkingValueService.getCountyCdByDesc("COUNTY","ME")).thenReturn("COUNTY");
+        when(checkingValueService.getCountyCdByDesc("COUNTY", "ME")).thenReturn("COUNTY");
 
 
-
-        var res = nbsObjectConverter.personAddressType(address,"BLAH", personContainer);
+        var res = nbsObjectConverter.personAddressType(address, "BLAH", personContainer);
         assertNotNull(res);
 
     }
@@ -283,11 +281,10 @@ class NBSObjectConverterTest {
         var stateCode = new StateCode();
         stateCode.setStateCd("ME");
         when(checkingValueService.findStateCodeByStateNm("ME")).thenReturn(stateCode);
-        when(checkingValueService.getCountyCdByDesc("COUNTY","ME")).thenReturn("COUNTY");
+        when(checkingValueService.getCountyCdByDesc("COUNTY", "ME")).thenReturn("COUNTY");
 
 
-
-        var res = nbsObjectConverter.organizationAddressType(address,EdxELRConstant.ELR_OP_CD, personContainer);
+        var res = nbsObjectConverter.organizationAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
         assertNotNull(res);
 
     }
@@ -303,10 +300,9 @@ class NBSObjectConverterTest {
 
         HL7XADType address = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getPATIENT().getPatientIdentification().getPatientAddress().get(0);
 
-        var res = nbsObjectConverter.organizationAddressType(address,EdxELRConstant.ELR_OP_CD, personContainer);
+        var res = nbsObjectConverter.organizationAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
         assertNotNull(res);
     }
-
 
 
     @SuppressWarnings("java:S5976")
@@ -357,7 +353,7 @@ class NBSObjectConverterTest {
     }
 
     @Test
-    void processHL7TSTypeForDOBWithoutTime_Test_Exp()  {
+    void processHL7TSTypeForDOBWithoutTime_Test_Exp() {
         HL7TSType time = new HL7TSType();
         time.setYear(BigInteger.valueOf(2000));
         time.setMonth(BigInteger.valueOf(12));
@@ -387,7 +383,6 @@ class NBSObjectConverterTest {
         });
         assertNotNull(thrown);
     }
-
 
 
     @Test
@@ -435,7 +430,7 @@ class NBSObjectConverterTest {
     }
 
     @Test
-    void processHL7TSType_Test_Exp_1()  {
+    void processHL7TSType_Test_Exp_1() {
         HL7TSType time = new HL7TSType();
         String itemDescription = "TEST";
 
@@ -457,7 +452,7 @@ class NBSObjectConverterTest {
 
 
     @Test
-    void processHL7TSType_Test_Exp_2()  {
+    void processHL7TSType_Test_Exp_2() {
         HL7TSType time = new HL7TSType();
         String itemDescription = "TEST";
 
@@ -607,7 +602,7 @@ class NBSObjectConverterTest {
 
     @Test
     void processCNNPersonName_Test() {
-        HL7CNNType hl7CNNType =  Mockito.mock(HL7CNNType.class);
+        HL7CNNType hl7CNNType = Mockito.mock(HL7CNNType.class);
         when(hl7CNNType.getHL7FamilyName()).thenReturn("TEST");
         when(hl7CNNType.getHL7GivenName()).thenReturn("TEST");
         when(hl7CNNType.getHL7SecondAndFurtherGivenNamesOrInitialsThereof()).thenReturn("TEST");

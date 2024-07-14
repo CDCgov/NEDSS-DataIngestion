@@ -13,10 +13,9 @@ public class MPRUpdateContainer {
     private Collection<PersonContainer> personVOs = null;
 
     /**
-     This is the constructor for the class.
+     * This is the constructor for the class.
      */
-    public MPRUpdateContainer(PersonContainer mpr, Collection<PersonContainer>  personVOs)
-    {
+    public MPRUpdateContainer(PersonContainer mpr, Collection<PersonContainer> personVOs) {
         this.mpr = mpr;
         this.personVOs = personVOs;
     }

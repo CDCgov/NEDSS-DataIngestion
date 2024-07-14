@@ -26,11 +26,11 @@ import static org.mockito.Mockito.*;
 
 class ActRelationshipServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ActRelationshipRepository actRelationshipRepository;
     @InjectMocks
     private ActRelationshipService actRelationshipService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -41,7 +41,7 @@ class ActRelationshipServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -54,7 +54,7 @@ class ActRelationshipServiceTest {
         long uid = 10L;
         String type = "type";
 
-        var actCol =  new ArrayList<ActRelationship>();
+        var actCol = new ArrayList<ActRelationship>();
         var act = new ActRelationship();
         actCol.add(act);
         when(actRelationshipRepository.loadActRelationshipBySrcIdAndTypeCode(10L, type))
@@ -98,7 +98,6 @@ class ActRelationshipServiceTest {
 
         verify(actRelationshipRepository, times(0)).save(any());
     }
-
 
 
     @Test
@@ -204,9 +203,8 @@ class ActRelationshipServiceTest {
     }
 
     @Test
-    void saveActRelationship_Exception()  {
+    void saveActRelationship_Exception() {
         ActRelationshipDto dto = null;
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {

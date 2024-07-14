@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class NokMatchingService  extends NokMatchingBaseService implements INokMatchingService {
+public class NokMatchingService extends NokMatchingBaseService implements INokMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(NokMatchingService.class);
 
     public NokMatchingService(
@@ -65,11 +65,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                         }
                         // Try to get the Next of Kin matching with the match string
                         edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameAddStrSt1);
-                        if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
-                            matchFound = false;
-                        } else {
-                            matchFound = true;
-                        }
+                        matchFound = edxPatientMatchFoundDT.getPatientUid() != null && (edxPatientMatchFoundDT.getPatientUid() == null || edxPatientMatchFoundDT.getPatientUid() > 0);
                     } catch (Exception ex) {
                         logger.error("Error in geting the  matching Next of Kin");
                         throw new DataProcessingException("Error in geting the  matching Next of Kin" + ex.getMessage(), ex);
@@ -96,11 +92,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                             edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
                             // Try to get the matching with the match string
                             edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
-                            if (edxPatientMatchFoundDT.getPatientUid() == null || edxPatientMatchFoundDT.getPatientUid() <= 0) {
-                                matchFound = false;
-                            } else {
-                                matchFound = true;
-                            }
+                            matchFound = edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() > 0;
                         } catch (Exception ex) {
                             logger.error("Error in geting the  matching Patient");
                             throw new DataProcessingException("Error in geting the  matching Patient" + ex.getMessage(), ex);
@@ -123,7 +115,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                 personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
             }
             try {
-                if (personContainer.getThePersonDto().getCd()!=null && personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
+                if (personContainer.getThePersonDto().getCd() != null && personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
                     patientPersonUid = setAndCreateNewPerson(personContainer);
                     personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
                     personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
@@ -137,8 +129,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                 throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
             }
             personContainer.setPatientMatchedFound(false);
-        }
-        else {
+        } else {
             personContainer.setPatientMatchedFound(true);
         }
 

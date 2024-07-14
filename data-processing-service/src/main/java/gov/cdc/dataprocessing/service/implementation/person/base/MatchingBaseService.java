@@ -23,7 +23,7 @@ import java.util.*;
 
 @Getter
 @Service
-public class MatchingBaseService  {
+public class MatchingBaseService {
     private static final Logger logger = LoggerFactory.getLogger(MatchingBaseService.class);
 
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
@@ -58,11 +58,10 @@ public class MatchingBaseService  {
         String carrot = "^";
         List<String> returnList;
         List<String> identifierList = new ArrayList<>();
-        String identifier ;
-        try{
+        String identifier;
+        try {
             if (personContainer.getTheEntityIdDtoCollection() != null
-                    && !personContainer.getTheEntityIdDtoCollection().isEmpty())
-            {
+                    && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto idDto : entityIdDtoColl) {
                     identifier = null;
@@ -125,9 +124,8 @@ public class MatchingBaseService  {
                 }
             }
             HashSet<String> hashSet = new HashSet<>(identifierList);
-            returnList = new ArrayList<>(hashSet) ;
-        }
-        catch (Exception ex) {
+            returnList = new ArrayList<>(hashSet);
+        } catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for patient entity IDs . ";
             logger.debug(ex.getMessage() + errorMessage);
             throw new DataProcessingException(errorMessage, ex);
@@ -137,34 +135,27 @@ public class MatchingBaseService  {
 
     protected String getNamesStr(PersonContainer personContainer) {
         String namesStr = null;
-        if (personContainer.getThePersonDto() != null)
-        {
+        if (personContainer.getThePersonDto() != null) {
             PersonDto personDto = personContainer.getThePersonDto();
             if (personDto.getCd() != null
-                    && personDto.getCd().equals(NEDSSConstant.PAT))
-            {
+                    && personDto.getCd().equals(NEDSSConstant.PAT)) {
                 if (personContainer.getThePersonNameDtoCollection() != null
-                        && !personContainer.getThePersonNameDtoCollection().isEmpty())
-                {
+                        && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
                     Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
                     Iterator<PersonNameDto> personNameIterator = personNameDtoColl.iterator();
                     Timestamp asofDate = null;
-                    while (personNameIterator.hasNext())
-                    {
+                    while (personNameIterator.hasNext()) {
                         PersonNameDto personNameDto = personNameIterator.next();
                         if (personNameDto.getNmUseCd() != null
                                 && personNameDto.getNmUseCd().equalsIgnoreCase("L")
                                 && personNameDto.getRecordStatusCd() != null
-                                && personNameDto.getRecordStatusCd().equals(NEDSSConstant.RECORD_STATUS_ACTIVE))
-                        {
+                                && personNameDto.getRecordStatusCd().equals(NEDSSConstant.RECORD_STATUS_ACTIVE)) {
                             // These condition check was how it originally designed in legacy
                             // The way I see it is the second conditional check would never be reached
                             if (asofDate == null || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) // NOSONAR
                             {
                                 namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
-                            }
-                            else if (asofDate.before(personNameDto.getAsOfDate()))
-                            {
+                            } else if (asofDate.before(personNameDto.getAsOfDate())) {
                                 namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
                             }
                         }
@@ -183,8 +174,7 @@ public class MatchingBaseService  {
         if ((personNameDto.getLastNm() != null)
                 && (!personNameDto.getLastNm().trim().equals(""))
                 && (personNameDto.getFirstNm() != null)
-                && (!personNameDto.getFirstNm().trim().equals("")))
-        {
+                && (!personNameDto.getFirstNm().trim().equals(""))) {
             namesStr = personNameDto.getLastNm() + caret + personNameDto.getFirstNm();
             asofDate = personNameDto.getAsOfDate(); // NOSONAR
         }

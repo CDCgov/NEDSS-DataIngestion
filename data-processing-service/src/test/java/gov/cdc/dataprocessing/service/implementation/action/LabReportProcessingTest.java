@@ -23,11 +23,11 @@ import static org.mockito.Mockito.*;
 
 class LabReportProcessingTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private IObservationService observationService;
     @InjectMocks
     private LabReportProcessing labReportProcessing;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +38,7 @@ class LabReportProcessingTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

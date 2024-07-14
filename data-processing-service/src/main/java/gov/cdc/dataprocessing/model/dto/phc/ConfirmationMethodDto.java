@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ConfirmationMethodDto extends BaseContainer
-{
+public class ConfirmationMethodDto extends BaseContainer {
     private static final long serialVersionUID = 1L;
 
     private Long publicHealthCaseUid;

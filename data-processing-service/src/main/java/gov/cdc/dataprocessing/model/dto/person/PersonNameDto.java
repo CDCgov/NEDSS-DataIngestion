@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+
 @Getter
 @Setter
 @SuppressWarnings("all")
@@ -53,21 +54,12 @@ public class PersonNameDto
     private Integer versionCtrlNbr;
     private String localId;
 
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return personUid;
-    }
-
     public PersonNameDto() {
         itDirty = false;
         itNew = true;
         itDelete = false;
     }
+
     public PersonNameDto(PersonName personName) {
         this.personUid = personName.getPersonUid();
         this.personNameSeq = personName.getPersonNameSeq();
@@ -100,5 +92,15 @@ public class PersonNameDto
         this.toTime = personName.getToTime();
         this.userAffiliationTxt = personName.getUserAffiliationTxt();
         this.asOfDate = personName.getAsOfDate();
+    }
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return personUid;
     }
 }

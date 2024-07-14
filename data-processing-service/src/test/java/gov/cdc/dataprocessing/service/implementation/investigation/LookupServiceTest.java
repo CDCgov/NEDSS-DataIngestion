@@ -36,6 +36,8 @@ import static org.mockito.Mockito.*;
 class LookupServiceTest {
 
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private LookupMappingRepository lookupMappingRepository;
     @Mock
     private NbsUiMetaDataRepository nbsUiMetaDataRepository;
@@ -45,8 +47,6 @@ class LookupServiceTest {
     private ICatchingValueService catchingValueService;
     @InjectMocks
     private LookupService lookupService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +57,7 @@ class LookupServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
         OdseCache.toPrePopFormMapping.clear();
         OdseCache.fromPrePopFormMapping.clear();
 
@@ -106,9 +106,9 @@ class LookupServiceTest {
         lookQLst.add(lookQ);
         when(lookupMappingRepository.getLookupMappings()).thenReturn(Optional.of(lookQLst));
 
-       var res =  lookupService.getToPrePopFormMapping(formCd);
+        var res = lookupService.getToPrePopFormMapping(formCd);
 
-       assertEquals(2, res.size());
+        assertEquals(2, res.size());
 
     }
 
@@ -124,7 +124,7 @@ class LookupServiceTest {
 
         var questCol = new ArrayList<>();
         var nbs = new NbsQuestionMetadata();
-        nbs.setInvestigationFormCd( NBSConstantUtil.INV_FORM_RVCT);
+        nbs.setInvestigationFormCd(NBSConstantUtil.INV_FORM_RVCT);
         nbs.setQuestionIdentifier("IDENTIFIER");
         questCol.add(nbs);
         when(nbsUiMetaDataRepository.findPamQuestionMetaData()).thenReturn(Optional.of(questCol));

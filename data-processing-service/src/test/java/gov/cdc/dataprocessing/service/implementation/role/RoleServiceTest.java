@@ -113,13 +113,14 @@ class RoleServiceTest {
         roleService.saveRole(roleDto);
         verify(roleRepositoryMock).save(data);
     }
+
     @Test
     void saveRole_forDelete() {
         RoleDto roleDto = getRoleDto();
         roleDto.setItDelete(true);
-        doNothing().when(roleRepositoryMock).deleteRoleByPk(1234L,"SF",1L);
+        doNothing().when(roleRepositoryMock).deleteRoleByPk(1234L, "SF", 1L);
         roleService.saveRole(roleDto);
-        verify(roleRepositoryMock).deleteRoleByPk(1234L,"SF",1L);
+        verify(roleRepositoryMock).deleteRoleByPk(1234L, "SF", 1L);
     }
 
     @Test
@@ -138,8 +139,8 @@ class RoleServiceTest {
         roleDto.setSubjectEntityUid(123L);
         roleDto.setCd("TEST");
         roleDto.setScopingEntityUid(234L);
-        when(roleRepositoryMock.loadCountBySubjectScpingCdComb(123L, "TEST",234L)).thenReturn(Optional.of(1));
-        Integer countResult= roleService.loadCountBySubjectScpingCdComb(roleDto);
+        when(roleRepositoryMock.loadCountBySubjectScpingCdComb(123L, "TEST", 234L)).thenReturn(Optional.of(1));
+        Integer countResult = roleService.loadCountBySubjectScpingCdComb(roleDto);
         assertEquals(1, countResult);
     }
 

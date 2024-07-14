@@ -39,6 +39,8 @@ import static org.mockito.Mockito.when;
 
 class InvestigationNotificationServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private IInvestigationService investigationService;
     @Mock
     private INotificationService notificationService;
@@ -46,8 +48,6 @@ class InvestigationNotificationServiceTests {
     private CustomNbsQuestionRepository customNbsQuestionRepository;
     @InjectMocks
     private InvestigationNotificationService investigationNotificationService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +58,7 @@ class InvestigationNotificationServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -106,7 +106,7 @@ class InvestigationNotificationServiceTests {
     }
 
     @Test
-    void sendNotification_Exception()  {
+    void sendNotification_Exception() {
         var obj = new Person();
         String nndComment = "COM";
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -178,7 +178,6 @@ class InvestigationNotificationServiceTests {
         colRetriQuest.add(colRetri);
 
 
-
         when(customNbsQuestionRepository.retrieveQuestionRequiredNnd("investigationFormCd")).thenReturn(colRetriQuest);
 
         var pageAct = new PageActProxyContainer();
@@ -245,7 +244,7 @@ class InvestigationNotificationServiceTests {
         phc.setTheActIdDTCollection(new ArrayList<>());
         pageObj.setPublicHealthCaseContainer(phc);
         Long publicHealthCaseUid = 10L;
-        Map<Object, Object>  reqFields = new HashMap<>();
+        Map<Object, Object> reqFields = new HashMap<>();
         String formCd = NEDSSConstant.INV_FORM_RVCT;
 
 

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -17,7 +18,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("srte")); // Add your cache names here
+        cacheManager.setCacheNames(List.of("srte")); // Add your cache names here
         cacheManager.setCaffeine(caffeineConfig());
         return cacheManager;
     }

@@ -25,11 +25,11 @@ import java.util.*;
 
 @Service
 public class JurisdictionService implements IJurisdictionService {
-    private StringBuffer detailError= null;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final JurisdictionParticipationRepository jurisdictionParticipationRepository;
     private final JurisdictionCodeRepository jurisdictionCodeRepository;
+    private StringBuffer detailError = null;
 
     public JurisdictionService(PatientRepositoryUtil patientRepositoryUtil,
                                OrganizationRepositoryUtil organizationRepositoryUtil,
@@ -42,14 +42,12 @@ public class JurisdictionService implements IJurisdictionService {
     }
 
     public List<JurisdictionCode> getJurisdictionCode() {
-       var jusCode = jurisdictionCodeRepository.findAll();
-       if (!jusCode.isEmpty()) {
-           return jusCode;
-       }
-       else
-       {
-           return new ArrayList<>();
-       }
+        var jusCode = jurisdictionCodeRepository.findAll();
+        if (!jusCode.isEmpty()) {
+            return jusCode;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public void assignJurisdiction(PersonContainer patientContainer, PersonContainer providerContainer,
@@ -60,23 +58,20 @@ public class JurisdictionService implements IJurisdictionService {
             jurisdictionMap = resolveLabReportJurisdiction(patientContainer, providerContainer, organizationContainer, null);
         }
 
-        if (jurisdictionMap!=null && jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY) != null) {
+        if (jurisdictionMap != null && jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY) != null) {
             String jurisdiction = jurisdictionMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY);
             observationRequest.getTheObservationDto().setJurisdictionCd(jurisdiction);
-        }
-        else
-        {
+        } else {
             observationRequest.getTheObservationDto().setJurisdictionCd(null);
         }
 
     } // end of assignJursidiction()
 
 
-
     public String deriveJurisdictionCd(BaseContainer proxyVO, ObservationDto rootObsDT) throws DataProcessingException {
         try {
             //Retieve provider uid and patient uid
-            Collection<ParticipationDto>  partColl = null;
+            Collection<ParticipationDto> partColl = null;
             boolean isLabReport = false;
             String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
 //            if (proxyVO instanceof MorbidityProxyVO)
@@ -86,13 +81,11 @@ public class JurisdictionService implements IJurisdictionService {
 //            }
 
 
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
+            if (proxyVO instanceof LabResultProxyContainer) {
                 isLabReport = true;
-                partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
+                partColl = ((LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
             }
-            if (partColl == null || partColl.size() == 0)
-            {
+            if (partColl == null || partColl.size() == 0) {
                 throw new DataProcessingException("Participation collection is null or empty, it is: " + partColl);
             }
 
@@ -137,43 +130,35 @@ public class JurisdictionService implements IJurisdictionService {
             PersonContainer providerVO = null;
             OrganizationContainer orderingFacilityVO = null;
             OrganizationContainer reportingFacilityVO = null;
-            try
-            {
-                if (providerUid != null)
-                {
+            try {
+                if (providerUid != null) {
                     providerVO = patientRepositoryUtil.loadPerson(providerUid);
                 }
-                if (orderingFacilityUid != null)
-                {
+                if (orderingFacilityUid != null) {
                     // orderingFacilityVO = getOrganization(orderingFacilityUid);
                     orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                 }
-                if(reportingFacilityUid!=null)
-                {
+                if (reportingFacilityUid != null) {
                     // reportingFacilityVO = getOrganization(reportingFacilityUid);
                     //it was assigned to orderingFacilityVO in the first implementation.not sure if it was correct.
                     reportingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                 }
-            }
-            catch (Exception rex)
-            {
-                throw new DataProcessingException("Error retieving provider with UID:"+ providerUid +" OR Ordering Facility, its uid is: " + orderingFacilityUid);
+            } catch (Exception rex) {
+                throw new DataProcessingException("Error retieving provider with UID:" + providerUid + " OR Ordering Facility, its uid is: " + orderingFacilityUid);
             }
 
             //Get the patient subject
             PersonContainer patientVO = null;
-            Collection<PersonContainer>  personVOColl = null;
-            if (isLabReport)
-            {
-                personVOColl = ( (LabResultProxyContainer) proxyVO).getThePersonContainerCollection();
+            Collection<PersonContainer> personVOColl = null;
+            if (isLabReport) {
+                personVOColl = ((LabResultProxyContainer) proxyVO).getThePersonContainerCollection();
             }
 //            if (isMorbReport)
 //            {
 //                personVOColl = ( (MorbidityProxyVO) proxyVO).getThePersonVOCollection();
 //
 //            }
-            if (patientUid != null && personVOColl != null && personVOColl.size() > 0)
-            {
+            if (patientUid != null && personVOColl != null && personVOColl.size() > 0) {
                 for (PersonContainer pVO : personVOColl) {
                     if (pVO == null || pVO.getThePersonDto() == null) {
                         continue;
@@ -187,39 +172,29 @@ public class JurisdictionService implements IJurisdictionService {
 
             //Derive the jurisdictionCd
             Map<String, String> jMap = null;
-            if (patientVO != null)
-            {
+            if (patientVO != null) {
 
-                try
-                {
+                try {
                     jMap = resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
-                }
-                catch (Exception cex)
-                {
+                } catch (Exception cex) {
                     throw new DataProcessingException("Error creating jurisdiction services.");
                 }
             }
 
             //set jurisdiction for order test
             if (rootObsDT != null) {
-                if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY))
-                {
+                if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY)) {
                     rootObsDT.setJurisdictionCd(jMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY));
-                }
-                else
-                {
+                } else {
                     rootObsDT.setJurisdictionCd(null);
                 }
             }
 
 
             //Return errors if any
-            if (jMap != null && jMap.containsKey("ERROR"))
-            {
+            if (jMap != null && jMap.containsKey("ERROR")) {
                 return jMap.get("ERROR");
-            }
-            else
-            {
+            } else {
                 return null;
             }
         } catch (Exception e) {
@@ -231,7 +206,7 @@ public class JurisdictionService implements IJurisdictionService {
     /**
      * Description: this method find jurisdiction associated with patient, provider, organization.
      * Jurisdiction is identified based on Postal locator
-     * */
+     */
     private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer patientContainer,
                                                                  PersonContainer providerContainer,
                                                                  OrganizationContainer organizationContainer,
@@ -242,31 +217,27 @@ public class JurisdictionService implements IJurisdictionService {
             Collection<String> organizationJurisdictionCollection = null;
             HashMap<String, String> map = new HashMap<>();
             detailError = new StringBuffer();
-            String jurisdiction =null;
+            String jurisdiction = null;
             //Initial value was not set in the first implementation.
             detailError.append("Patient: ");
             patientJurisdictionCollection = findJurisdiction(patientContainer.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
 
             // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
-            if (patientJurisdictionCollection.size() <= 1)
-            {
+            if (patientJurisdictionCollection.size() <= 1) {
                 // Check the result to make sure that there is a value for the subject's jurisdiction.
                 // If not then go and find the jurisdiction based on the provider
-                if (patientJurisdictionCollection.size() == 1)
-                {
+                if (patientJurisdictionCollection.size() == 1) {
                     Iterator<String> iter = patientJurisdictionCollection.iterator();
                     jurisdiction = iter.next();
                     map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                 }
 
-                if (jurisdiction==null && providerContainer !=null)
-                {
+                if (jurisdiction == null && providerContainer != null) {
                     detailError.append("Provider: ");
                     providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
-                    if(!(providerJurisdictionCollection.size()==0))
+                    if (!(providerJurisdictionCollection.size() == 0))
                         // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
-                        if (providerJurisdictionCollection.size() == 1)
-                        {
+                        if (providerJurisdictionCollection.size() == 1) {
                             // Check the result to make sure that there is a value for the provider's jurisdiction.
                             // If not then go and find the jurisdiction based on the provider
                             Iterator<String> iter = providerJurisdictionCollection.iterator();
@@ -276,21 +247,17 @@ public class JurisdictionService implements IJurisdictionService {
                         }
                 }
 
-                if(jurisdiction==null){
-                    if (organizationContainer != null)
-                    {
+                if (jurisdiction == null) {
+                    if (organizationContainer != null) {
                         detailError.append("Ordering Facility: ");
                         organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
-                    if (organizationJurisdictionCollection != null)
-                    {
+                    if (organizationJurisdictionCollection != null) {
                         // Check to see the organization size.  Only proceed if the organization size is not greater than 1.
-                        if (organizationJurisdictionCollection.size() <= 1)
-                        {
+                        if (organizationJurisdictionCollection.size() <= 1) {
                             // Check the result to make sure that there is a value for the organization's jurisdiction.
                             // If not then go and find the jurisdiction based on the organization
-                            if (organizationJurisdictionCollection.size() == 1)
-                            {
+                            if (organizationJurisdictionCollection.size() == 1) {
                                 Iterator<String> iter = organizationJurisdictionCollection.iterator();
                                 jurisdiction = iter.next();
                                 map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
@@ -323,7 +290,7 @@ public class JurisdictionService implements IJurisdictionService {
                 }
             }
 
-            detailError= null;
+            detailError = null;
             return map;
         } catch (Exception e) {
             e.printStackTrace();
@@ -331,73 +298,68 @@ public class JurisdictionService implements IJurisdictionService {
         }
     }
 
-    private Collection<String> findJurisdiction(Collection<EntityLocatorParticipationDto> entityLocatorPartColl, String useCd, String classCd)
-    {
-            PostalLocatorDto postalDt;
-            Collection<String> coll = new ArrayList<>();
+    private Collection<String> findJurisdiction(Collection<EntityLocatorParticipationDto> entityLocatorPartColl, String useCd, String classCd) {
+        PostalLocatorDto postalDt;
+        Collection<String> coll = new ArrayList<>();
 
-            // Check to make sure that you are able to get a locator participation
-            if (entityLocatorPartColl != null)
-            {
+        // Check to make sure that you are able to get a locator participation
+        if (entityLocatorPartColl != null) {
 
-                // If there is a locator participation then proceed.
-                if (!entityLocatorPartColl.isEmpty())
-                {
+            // If there is a locator participation then proceed.
+            if (!entityLocatorPartColl.isEmpty()) {
 
-                    for (EntityLocatorParticipationDto dt : entityLocatorPartColl) {
-                        // for subject the use code	= "H" class cd = "PST"
-                        // for provider the use code = "W" class cd = "PST"
-                        if (dt.getUseCd().equals(useCd) && dt.getClassCd().equals(classCd)) {
-                            postalDt = dt.getThePostalLocatorDto();
+                for (EntityLocatorParticipationDto dt : entityLocatorPartColl) {
+                    // for subject the use code	= "H" class cd = "PST"
+                    // for provider the use code = "W" class cd = "PST"
+                    if (dt.getUseCd().equals(useCd) && dt.getClassCd().equals(classCd)) {
+                        postalDt = dt.getThePostalLocatorDto();
 
-                            // Parse the zip if is valid.
-                            if (postalDt != null) {
+                        // Parse the zip if is valid.
+                        if (postalDt != null) {
 
-                                String searchZip;
-                                searchZip = parseZip(postalDt.getZipCd());
+                            String searchZip;
+                            searchZip = parseZip(postalDt.getZipCd());
 
-                                if (searchZip == null) {
-                                    searchZip = "NO ZIP";
+                            if (searchZip == null) {
+                                searchZip = "NO ZIP";
+                            }
+                            detailError.append(searchZip);
+                            detailError.append(", ");
+
+
+                            // Attempt to find the jurisicition by zip code.  if you do not retrieve any
+                            // data then attempt to retriece by county.  If no data then retrieve
+                            // by city.
+
+                            var res = jurisdictionParticipationRepository.findJurisdiction(searchZip, "Z");
+                            if (res.isPresent()) {
+                                coll = res.get();
+                            }
+                            if (coll.size() < 1) {
+                                String cityDesc = postalDt.getCityDescTxt();
+                                if (cityDesc == null) {
+                                    cityDesc = "NO CITY";
                                 }
-                                detailError.append(searchZip);
+                                detailError.append(cityDesc);
+                                detailError.append(", ");
+                                if (postalDt.getCityDescTxt() != null) {
+                                    var resCity = jurisdictionParticipationRepository.findJurisdictionForCity(postalDt.getCityDescTxt(), postalDt.getStateCd(), "C");
+                                    if (resCity.isPresent()) {
+                                        coll = resCity.get();
+                                    }
+
+                                }
+                                String countyDesc = postalDt.getCntyDescTxt();
+                                if (countyDesc == null) {
+                                    countyDesc = "NO COUNTY";
+                                }
+                                detailError.append(countyDesc);
                                 detailError.append(", ");
 
-
-                                // Attempt to find the jurisicition by zip code.  if you do not retrieve any
-                                // data then attempt to retriece by county.  If no data then retrieve
-                                // by city.
-
-                                var res = jurisdictionParticipationRepository.findJurisdiction(searchZip, "Z");
-                                if (res.isPresent()) {
-                                    coll = res.get();
-                                }
                                 if (coll.size() < 1) {
-                                    String cityDesc = postalDt.getCityDescTxt();
-                                    if (cityDesc == null)
-                                    {
-                                        cityDesc = "NO CITY";
-                                    }
-                                    detailError.append(cityDesc);
-                                    detailError.append(", ");
-                                    if (postalDt.getCityDescTxt() != null) {
-                                        var resCity = jurisdictionParticipationRepository.findJurisdictionForCity(postalDt.getCityDescTxt(), postalDt.getStateCd(), "C");
-                                        if (resCity.isPresent()) {
-                                            coll = resCity.get();
-                                        }
-
-                                    }
-                                    String countyDesc = postalDt.getCntyDescTxt();
-                                    if (countyDesc == null) {
-                                        countyDesc = "NO COUNTY";
-                                    }
-                                    detailError.append(countyDesc);
-                                    detailError.append(", ");
-
-                                    if (coll.size() < 1) {
-                                        var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
-                                        if (resJus.isPresent()) {
-                                            coll = resJus.get();
-                                        }
+                                    var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
+                                    if (resJus.isPresent()) {
+                                        coll = resJus.get();
                                     }
                                 }
                             }
@@ -405,34 +367,31 @@ public class JurisdictionService implements IJurisdictionService {
                     }
                 }
             }
-            if(!detailError.toString().equals("Provider: ")) {
-                //this will remove the trailing ","
-                String detail = detailError.substring(0,(detailError.toString().length() - 2));
-                detail = detail + " ";
-                detailError = new StringBuffer(detail);
-            }
-            return coll;
+        }
+        if (!detailError.toString().equals("Provider: ")) {
+            //this will remove the trailing ","
+            String detail = detailError.substring(0, (detailError.toString().length() - 2));
+            detail = detail + " ";
+            detailError = new StringBuffer(detail);
+        }
+        return coll;
     }
 
 
     /**
      * Uses a StringTokenizer to parse a zip code using "-" as a delimeter.
      * Returns the first token of the zip.
-     * @param searchZip  String
+     *
+     * @param searchZip String
      * @return String
      */
-    private String parseZip(String searchZip)
-    {
-        if(searchZip != null && searchZip.trim().length()>5)
-        {
+    private String parseZip(String searchZip) {
+        if (searchZip != null && searchZip.trim().length() > 5) {
             return searchZip.substring(0, 5);
-        }
-        else
-        {
+        } else {
             return searchZip;
         }
     }
-
 
 
 }

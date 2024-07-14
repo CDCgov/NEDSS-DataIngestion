@@ -34,13 +34,13 @@ import static org.mockito.Mockito.when;
 
 class ObservationMatchingServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ObservationMatchStoredProcRepository observationMatchStoredProcRepository;
     @Mock
     private ObservationRepository observationRepository;
     @InjectMocks
     private ObservationMatchingService observationMatchingService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +51,7 @@ class ObservationMatchingServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

@@ -39,6 +39,8 @@ import static org.mockito.Mockito.*;
 
 class EdxLogServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private EdxActivityLogRepository edxActivityLogRepository;
     @Mock
     private EdxActivityDetailLogRepository edxActivityDetailLogRepository;
@@ -48,8 +50,6 @@ class EdxLogServiceTest {
     private EdxLabInformationDto edxLabInformationDto;
     @InjectMocks
     private EdxLogService edxLogService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +60,7 @@ class EdxLogServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

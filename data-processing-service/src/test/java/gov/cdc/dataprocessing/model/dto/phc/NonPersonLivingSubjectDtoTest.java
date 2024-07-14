@@ -65,24 +65,24 @@ class NonPersonLivingSubjectDtoTest {
         assertEquals("DeceasedIndCd", dto.getDeceasedIndCd());
         assertNotNull(dto.getDeceasedTime());
         assertEquals("Description", dto.getDescription());
-        assertNull( dto.getLastChgReasonCd());
+        assertNull(dto.getLastChgReasonCd());
         assertNull(dto.getLastChgTime());
-        assertNull( dto.getLastChgUserId());
-        assertNull( dto.getLocalId());
+        assertNull(dto.getLastChgUserId());
+        assertNull(dto.getLocalId());
         assertEquals("MultipleBirthInd", dto.getMultipleBirthInd());
         assertEquals("Nm", dto.getNm());
-        assertNull( dto.getRecordStatusCd());
+        assertNull(dto.getRecordStatusCd());
         assertNull(dto.getRecordStatusTime());
-        assertNull( dto.getStatusCd());
+        assertNull(dto.getStatusCd());
         assertNull(dto.getStatusTime());
         assertEquals("TaxonomicClassificationCd", dto.getTaxonomicClassificationCd());
         assertEquals("TaxonomicClassificationDesc", dto.getTaxonomicClassificationDesc());
         assertEquals("UserAffiliationTxt", dto.getUserAffiliationTxt());
-        assertNull( dto.getVersionCtrlNbr());
-        assertNull( dto.getProgAreaCd());
-        assertNull( dto.getJurisdictionCd());
-        assertNull( dto.getProgramJurisdictionOid());
-        assertNull( dto.getSharedInd());
+        assertNull(dto.getVersionCtrlNbr());
+        assertNull(dto.getProgAreaCd());
+        assertNull(dto.getJurisdictionCd());
+        assertNull(dto.getProgramJurisdictionOid());
+        assertNull(dto.getSharedInd());
         assertFalse(dto.isItDirty());
         assertTrue(dto.isItNew());
         assertFalse(dto.isItDelete());
@@ -126,7 +126,7 @@ class NonPersonLivingSubjectDtoTest {
         assertEquals(1L, dto.getNonPersonUid());
         assertEquals("AddReasonCd", dto.getAddReasonCd());
         assertNull(dto.getAddTime());
-        assertNull( dto.getAddUserId());
+        assertNull(dto.getAddUserId());
         assertEquals("BirthSexCd", dto.getBirthSexCd());
         assertEquals(3, dto.getBirthOrderNbr());
         assertNotNull(dto.getBirthTime());
@@ -137,12 +137,12 @@ class NonPersonLivingSubjectDtoTest {
         assertEquals("DeceasedIndCd", dto.getDeceasedIndCd());
         assertNotNull(dto.getDeceasedTime());
         assertEquals("Description", dto.getDescription());
-        assertNull( dto.getLastChgReasonCd());
+        assertNull(dto.getLastChgReasonCd());
         assertNull(dto.getLastChgTime());
-        assertNull( dto.getLastChgUserId());
+        assertNull(dto.getLastChgUserId());
         assertEquals("MultipleBirthInd", dto.getMultipleBirthInd());
         assertEquals("Nm", dto.getNm());
-   
+
     }
 
     @Test

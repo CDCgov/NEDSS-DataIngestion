@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EdxPatientMatchDtoTest {
 
@@ -37,6 +38,6 @@ public class EdxPatientMatchDtoTest {
         assertEquals(101L, dto.getLastChgUserId());
         assertEquals(addTime, dto.getAddTime());
         assertEquals(lastChgTime, dto.getLastChgTime());
-        assertEquals(true, dto.isMultipleMatch());
+        assertTrue(dto.isMultipleMatch());
     }
 }

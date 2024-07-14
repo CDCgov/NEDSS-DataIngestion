@@ -25,7 +25,7 @@ import java.util.Iterator;
 public class ObservationMatchingService implements IObservationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(ObservationMatchingService.class);
 
-    private  final ObservationMatchStoredProcRepository observationMatchStoredProcRepository;
+    private final ObservationMatchStoredProcRepository observationMatchStoredProcRepository;
     private final ObservationRepository observationRepository;
 
     public ObservationMatchingService(ObservationMatchStoredProcRepository observationMatchStoredProcRepository,
@@ -86,32 +86,28 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 // MATCHED
                 edxLabInformationDto.setObservationMatch(true);
                 return obsDT;
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+            } else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
             ) {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
                 throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+            } else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
             ) {
                 edxLabInformationDto.setPreliminaryPostFinal(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
                 throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+            } else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
             ) {
                 edxLabInformationDto.setPreliminaryPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
                 throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-            }
-            else {
+            } else {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
@@ -127,50 +123,46 @@ public class ObservationMatchingService implements IObservationMatchingService {
     public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
                                       LabResultProxyContainer matchedlabResultProxyVO,
                                       EdxLabInformationDto edxLabInformationDT) {
-        Long matchedObservationUid =null;
+        Long matchedObservationUid = null;
         ObservationDto matchedObservationDto = null;
         Collection<ObservationContainer> observationCollection = matchedlabResultProxyVO.getTheObservationContainerCollection();
         Iterator<ObservationContainer> it = observationCollection.iterator();
         Collection<ActRelationshipDto> updatedARCollection = new ArrayList<>();
         Collection<ParticipationDto> updatedPartCollection = new ArrayList<>();
-        Collection<RoleDto> updatedRoleCollection=new ArrayList<>();
+        Collection<RoleDto> updatedRoleCollection = new ArrayList<>();
 
         while (it.hasNext()) {
             ObservationContainer observationContainer = it.next();
             String obsDomainCdSt1 = observationContainer.getTheObservationDto().getObsDomainCdSt1();
 
             if (obsDomainCdSt1 != null
-                && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
+                    && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
             ) {
 
                 matchedObservationDto = observationContainer.getTheObservationDto();
 
                 //update the order status
-                if(edxLabInformationDT.getRootObservationContainer()!=null && edxLabInformationDT.getRootObservationContainer().getTheObservationDto()!=null)
-                {
+                if (edxLabInformationDT.getRootObservationContainer() != null && edxLabInformationDT.getRootObservationContainer().getTheObservationDto() != null) {
                     observationContainer.getTheObservationDto().setStatusCd(edxLabInformationDT.getRootObservationContainer().getTheObservationDto().getStatusCd());
                 }
                 observationContainer.setItDirty(true);
                 observationContainer.setItNew(false);
-                matchedObservationUid= observationContainer.getTheObservationDto().getObservationUid();
+                matchedObservationUid = observationContainer.getTheObservationDto().getObservationUid();
 
-            }
-            else{
-                if(observationContainer.getTheObservationDto().getCtrlCdDisplayForm()!=null
-                    && (
+            } else {
+                if (observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null
+                        && (
                         observationContainer.getTheObservationDto().getCd().equalsIgnoreCase(EdxELRConstant.ELR_LAB_CD)
-                        || observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(EdxELRConstant.ELR_LAB_COMMENT)
-                        )
-                ){
+                                || observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(EdxELRConstant.ELR_LAB_COMMENT)
+                )
+                ) {
                     observationContainer.setItDirty(true);
                     continue;
-                }
-                else
-                {
+                } else {
                     observationContainer.setItDelete(true);
                 }
 
-                if(labResultProxyVO.getTheObservationContainerCollection()==null){
+                if (labResultProxyVO.getTheObservationContainerCollection() == null) {
                     labResultProxyVO.setTheObservationContainerCollection(new ArrayList<>());
                 }
                 labResultProxyVO.getTheObservationContainerCollection().add(observationContainer);
@@ -186,8 +178,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 }
                 if (actRelationshipDto.getTypeCd() != null && actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_AR_LAB_COMMENT)) {
                     updatedARCollection.add(actRelationshipDto);
-                }
-                else {
+                } else {
                     actRelationshipDto.setItDelete(true);
                     updatedARCollection.add(actRelationshipDto);
                 }
@@ -214,13 +205,12 @@ public class ObservationMatchingService implements IObservationMatchingService {
         Long patientUid;
         Collection<PersonContainer> coll = matchedlabResultProxyVO.getThePersonContainerCollection();
 
-        if(coll!=null){
+        if (coll != null) {
             for (PersonContainer personVO : coll) {
                 if (personVO.getThePersonDto() != null
                         && personVO.getThePersonDto().getCdDescTxt() != null
                         && personVO.getThePersonDto().getCdDescTxt().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)
-                )
-                {
+                ) {
                     patientUid = personVO.getThePersonDto().getPersonUid();
                     edxLabInformationDT.setPatientUid(patientUid);
                 }
@@ -229,14 +219,14 @@ public class ObservationMatchingService implements IObservationMatchingService {
         }
 
         Collection<OrganizationContainer> orgColl = matchedlabResultProxyVO.getTheOrganizationContainerCollection();
-        if(orgColl!=null){
+        if (orgColl != null) {
             for (OrganizationContainer organizationContainer : orgColl) {
                 rolecoll.addAll(organizationContainer.getTheRoleDTCollection());
             }
         }
 
         Collection<MaterialContainer> matColl = matchedlabResultProxyVO.getTheMaterialContainerCollection();
-        if(matColl!=null){
+        if (matColl != null) {
             for (MaterialContainer materialContainer : matColl) {
                 rolecoll.addAll(materialContainer.getTheRoleDTCollection());
             }
@@ -251,14 +241,13 @@ public class ObservationMatchingService implements IObservationMatchingService {
         updatedRoleCollection.addAll(labResultProxyVO.getTheRoleDtoCollection());
         labResultProxyVO.setTheRoleDtoCollection(updatedRoleCollection);
 
-        if(labResultProxyVO.getTheObservationContainerCollection() != null){
+        if (labResultProxyVO.getTheObservationContainerCollection() != null) {
             for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
                 String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
                 if (obsDomainCdSt1 != null
-                    && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
+                        && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)
                         && matchedObservationDto != null
-                )
-                {
+                ) {
                     obsVO.getTheObservationDto().setObservationUid(matchedObservationUid);
                     obsVO.getTheObservationDto().setVersionCtrlNbr(matchedObservationDto.getVersionCtrlNbr());
                     obsVO.getTheObservationDto().setProgAreaCd(matchedObservationDto.getProgAreaCd());
@@ -278,14 +267,13 @@ public class ObservationMatchingService implements IObservationMatchingService {
             }
         }
 
-        if(labResultProxyVO.getTheActRelationshipDtoCollection()!=null)
-        {
+        if (labResultProxyVO.getTheActRelationshipDtoCollection() != null) {
             for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
                 if (actRelationshipDto.getTargetActUid().compareTo(edxLabInformationDT.getRootObserbationUid()) == 0
                         && (!actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_SUPPORT_CD)
-                            || !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)
-                            || !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_COMP_CD)
-                            )
+                        || !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)
+                        || !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_COMP_CD)
+                )
                 ) {
                     actRelationshipDto.setTargetActUid(matchedObservationUid);
                     break;
@@ -298,15 +286,11 @@ public class ObservationMatchingService implements IObservationMatchingService {
         Long observationUid = observationMatchStoredProcRepository.getMatchedObservation(edxLabInformationDto);
         if (observationUid == null) {
             return null;
-        }
-        else
-        {
+        } else {
             var result = observationRepository.findById(observationUid);
             if (result.isEmpty()) {
                 return null;
-            }
-            else
-            {
+            } else {
                 ObservationDto observationDto = new ObservationDto(result.get());
                 observationDto.setItNew(false);
                 observationDto.setItDirty(false);

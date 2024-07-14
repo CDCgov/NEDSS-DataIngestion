@@ -31,7 +31,7 @@ public class CTConstants {
     public static final String SignsSymptomsNotes = "CON130";
     public static final String RiskFactorsForIllness = "CON131";
     public static final String RiskFactorNotes = "CON132";
-    public static final String TestingEvaluationCompleted  = "CON117";
+    public static final String TestingEvaluationCompleted = "CON117";
     public static final String DateOfEvaluation = "CON118";
     public static final String EvaluationFindings = "CON119";
     public static final String WasTreatmentInitiatedForIllness = "CON120";

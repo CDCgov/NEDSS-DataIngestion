@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 
 @Repository
-public interface StoredProcRepository  extends CrudRepository<NbsInterfaceModel, Integer> {
+public interface StoredProcRepository extends CrudRepository<NbsInterfaceModel, Integer> {
     @Procedure(name = "UpdateSpecimenCollDate_SP")
     void updateSpecimenCollDateSP(@Param("NBSInterfaceUid") Long nbsInterfaceUid, @Param("specimentCollectionDate") Timestamp specimentCollectionDate);
 }

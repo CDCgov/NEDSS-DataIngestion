@@ -1,4 +1,5 @@
 package gov.cdc.dataprocessing.utilities.time;
+
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +36,6 @@ public class TimeStampUtilTest {
         Exception exception = assertThrows(DataProcessingException.class, () -> {
             TimeStampUtil.convertStringToTimestamp(timestampString);
         });
-        assertNotNull( exception.getMessage());
+        assertNotNull(exception.getMessage());
     }
 }

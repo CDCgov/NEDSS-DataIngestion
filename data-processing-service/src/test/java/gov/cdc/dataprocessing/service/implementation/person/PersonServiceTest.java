@@ -49,6 +49,7 @@ class PersonServiceTest {
         MockitoAnnotations.openMocks(this);
 
     }
+
     @AfterEach
     void tearDown() {
         Mockito.reset(patientMatchingServiceMock);
@@ -56,87 +57,92 @@ class PersonServiceTest {
         Mockito.reset(providerMatchingServiceMock);
         Mockito.reset(uidServiceMock);
     }
+
     @Test
     void processingNextOfKin() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
 
-        PersonContainer personContainerResult=personService.processingNextOfKin(labResultProxyContainer,personContainer);
+        PersonContainer personContainerResult = personService.processingNextOfKin(labResultProxyContainer, personContainer);
         assertNotNull(personContainerResult);
     }
+
     @Test
     void processingNextOfKin_personid_null() {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(null);
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        assertThrows(DataProcessingException.class, () -> personService.processingNextOfKin(labResultProxyContainer,personContainer));
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        assertThrows(DataProcessingException.class, () -> personService.processingNextOfKin(labResultProxyContainer, personContainer));
     }
 
     @Test
     void processingPatient() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setFirstNm("TestFirstName");
         personNameDto.setLastNm("TestLastName");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setPatientUid(123L);
-        PersonContainer personContainerResult=personService.processingPatient(labResultProxyContainer,edxLabInformationDto,personContainer);
+        PersonContainer personContainerResult = personService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
         assertNotNull(personContainerResult);
     }
+
     @Test
     void processingPatient_with_personNameCollection() {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.setThePersonNameDtoCollection(new ArrayList<>());
 
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setPatientUid(123L);
 
-        assertThrows(DataProcessingException.class, () -> personService.processingPatient(labResultProxyContainer,edxLabInformationDto,personContainer));
+        assertThrows(DataProcessingException.class, () -> personService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer));
     }
+
     @Test
     void processingPatient_personid_zero() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(0L);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setFirstNm("TestFirstName");
         personNameDto.setLastNm("TestLastName");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setPatientUid(0L);
-        PersonContainer personContainerResult=personService.processingPatient(labResultProxyContainer,edxLabInformationDto,personContainer);
+        PersonContainer personContainerResult = personService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
         assertNotNull(personContainerResult);
     }
+
     @Test
     void processingPatient_personid_PatientMatchedFound() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setPersonParentUid(123L);
         personContainer.setPatientMatchedFound(true);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setFirstNm("TestFirstName");
         personNameDto.setLastNm("TestLastName");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
 
-        EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setPatientUid(0L);
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
@@ -146,89 +152,89 @@ class PersonServiceTest {
         when(patientMatchingServiceMock.getMatchingPatient(personContainer)).thenReturn(edxPatientMatchFoundDT);
         when(patientMatchingServiceMock.getMultipleMatchFound()).thenReturn(false);
 
-        PersonContainer personContainerResult=personService.processingPatient(labResultProxyContainer,edxLabInformationDto,personContainer);
+        PersonContainer personContainerResult = personService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
         assertNotNull(personContainerResult);
     }
 
     @Test
     void processingProvider() throws DataProcessingException {
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        PersonContainer personContainer=new PersonContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(111L);
         personContainer.setRole("testrole");
 
-        EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
-        boolean orderingProviderIndicator=false;
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        boolean orderingProviderIndicator = false;
 
         EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
         eDXActivityDetailLogDto.setRecordId("123");
 
         when(providerMatchingServiceMock.getMatchingProvider(personContainer)).thenReturn(eDXActivityDetailLogDto);
 
-        PersonContainer personContainerResult=personService.processingProvider(labResultProxyContainer,edxLabInformationDto,personContainer,orderingProviderIndicator);
+        PersonContainer personContainerResult = personService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
         assertNull(personContainerResult);
 
         /// Role null
         personContainer.setRole(null);
         eDXActivityDetailLogDto.setRecordId(null);
         when(providerMatchingServiceMock.getMatchingProvider(personContainer)).thenReturn(eDXActivityDetailLogDto);
-        PersonContainer personContainerResult1=personService.processingProvider(labResultProxyContainer,edxLabInformationDto,personContainer,orderingProviderIndicator);
+        PersonContainer personContainerResult1 = personService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
         assertNull(personContainerResult1);
     }
 
     @Test
     void processingProvider_with_role() throws DataProcessingException {
-        LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        PersonContainer personContainer=new PersonContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(111L);
         personContainer.setRole(EdxELRConstant.ELR_OP_CD);
 
-        EdxLabInformationDto edxLabInformationDto=new EdxLabInformationDto();
-        boolean orderingProviderIndicator=false;
+        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+        boolean orderingProviderIndicator = false;
 
         EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
         eDXActivityDetailLogDto.setRecordId(null);
 
         when(providerMatchingServiceMock.getMatchingProvider(personContainer)).thenReturn(eDXActivityDetailLogDto);
-        PersonContainer personContainerResult=personService.processingProvider(labResultProxyContainer,edxLabInformationDto,personContainer,orderingProviderIndicator);
+        PersonContainer personContainerResult = personService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
         assertNotNull(personContainerResult);
     }
 
     @Test
     void getMatchedPersonUID() {
-        Collection<PersonContainer> personCollection=new ArrayList<>();
-        PersonContainer personContainer=new PersonContainer();
+        Collection<PersonContainer> personCollection = new ArrayList<>();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(111L);
         personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personCollection.add(personContainer);
 
-        LabResultProxyContainer matchedlabResultProxyVO=new LabResultProxyContainer();
+        LabResultProxyContainer matchedlabResultProxyVO = new LabResultProxyContainer();
         matchedlabResultProxyVO.setThePersonContainerCollection(personCollection);
-        Long personUidAcutual= personService.getMatchedPersonUID(matchedlabResultProxyVO);
+        Long personUidAcutual = personService.getMatchedPersonUID(matchedlabResultProxyVO);
         assertEquals(111L, personUidAcutual);
     }
 
     @Test
     void getMatchedPersonUID_with_cdDescText_null() {
-        Collection<PersonContainer> personCollection=new ArrayList<>();
-        PersonContainer personContainer=new PersonContainer();
+        Collection<PersonContainer> personCollection = new ArrayList<>();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(111L);
         personCollection.add(personContainer);
 
-        LabResultProxyContainer matchedlabResultProxyVO=new LabResultProxyContainer();
+        LabResultProxyContainer matchedlabResultProxyVO = new LabResultProxyContainer();
         matchedlabResultProxyVO.setThePersonContainerCollection(personCollection);
-        Long personUidAcutual= personService.getMatchedPersonUID(matchedlabResultProxyVO);
+        Long personUidAcutual = personService.getMatchedPersonUID(matchedlabResultProxyVO);
         assertNull(personUidAcutual);
     }
 
     @Test
     void updatePersonELRUpdate() {
-        LabResultProxyContainer labResultProxyVO=new LabResultProxyContainer();
-        LabResultProxyContainer matchedLabResultProxyVO=new LabResultProxyContainer();
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        LabResultProxyContainer matchedLabResultProxyVO = new LabResultProxyContainer();
 
         //matchedLabResultProxyVO
-        Collection<PersonContainer> personCollection=new ArrayList<>();
-        PersonContainer personContainer=new PersonContainer();
+        Collection<PersonContainer> personCollection = new ArrayList<>();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personContainer.getThePersonDto().setPersonUid(123L);
         personContainer.getThePersonDto().setPersonParentUid(234L);
@@ -237,34 +243,34 @@ class PersonServiceTest {
         personCollection.add(personContainer);
 
         //person name
-        PersonNameDto personNameDT=new PersonNameDto();
+        PersonNameDto personNameDT = new PersonNameDto();
         personNameDT.setPersonNameSeq(1);
         personContainer.getThePersonNameDtoCollection().add(personNameDT);
 
         //person race
-        PersonRaceDto personRaceDT=new PersonRaceDto();
+        PersonRaceDto personRaceDT = new PersonRaceDto();
         personRaceDT.setRaceCd("TEST_RACE_CD");
         personContainer.getThePersonRaceDtoCollection().add(personRaceDT);
         //person ethnic group
-        PersonEthnicGroupDto personEthnicGroupDT=new PersonEthnicGroupDto();
+        PersonEthnicGroupDto personEthnicGroupDT = new PersonEthnicGroupDto();
         personEthnicGroupDT.setEthnicGroupCd("TEST_ETHNICGROUP_CD");
         personContainer.getThePersonEthnicGroupDtoCollection().add(personEthnicGroupDT);
 
         //Entity Id
-        EntityIdDto entityIDDT=new EntityIdDto();
+        EntityIdDto entityIDDT = new EntityIdDto();
         entityIDDT.setEntityIdSeq(1);
         personContainer.getTheEntityIdDtoCollection().add(entityIDDT);
 
         //Entity Locator Participation
-        EntityLocatorParticipationDto entityLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entityLocPartDT = new EntityLocatorParticipationDto();
 
-        PostalLocatorDto thePostalLocatorDto=new PostalLocatorDto();
+        PostalLocatorDto thePostalLocatorDto = new PostalLocatorDto();
         thePostalLocatorDto.setPostalLocatorUid(111L);
 
-        PhysicalLocatorDto thePhysicalLocatorDto=new PhysicalLocatorDto();
+        PhysicalLocatorDto thePhysicalLocatorDto = new PhysicalLocatorDto();
         thePhysicalLocatorDto.setPhysicalLocatorUid(222L);
 
-        TeleLocatorDto theTeleLocatorDto=new TeleLocatorDto();
+        TeleLocatorDto theTeleLocatorDto = new TeleLocatorDto();
         theTeleLocatorDto.setTeleLocatorUid(333L);
 
         entityLocPartDT.setThePostalLocatorDto(thePostalLocatorDto);
@@ -275,41 +281,41 @@ class PersonServiceTest {
         matchedLabResultProxyVO.setThePersonContainerCollection(personCollection);
 
         //labResultProxyVO
-        Collection<PersonContainer> personCollection1=new ArrayList<>();
+        Collection<PersonContainer> personCollection1 = new ArrayList<>();
 
-        PersonContainer personContainer1=new PersonContainer();
+        PersonContainer personContainer1 = new PersonContainer();
         personContainer1.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personCollection1.add(personContainer1);
         //person name
-        PersonNameDto personNameDT1=new PersonNameDto();
+        PersonNameDto personNameDT1 = new PersonNameDto();
         personNameDT1.setPersonNameSeq(1);
         personContainer1.getThePersonNameDtoCollection().add(personNameDT1);
 
         //person race
-        PersonRaceDto personRaceDT1=new PersonRaceDto();
+        PersonRaceDto personRaceDT1 = new PersonRaceDto();
         personRaceDT1.setRaceCd("TEST_RACE_CD");
         personContainer1.getThePersonRaceDtoCollection().add(personRaceDT1);
 
         //person ethnic group
-        PersonEthnicGroupDto personEthnicGroupDT1=new PersonEthnicGroupDto();
+        PersonEthnicGroupDto personEthnicGroupDT1 = new PersonEthnicGroupDto();
         personEthnicGroupDT1.setEthnicGroupCd("TEST_ETHNICGROUP_CD");
         personContainer1.getThePersonEthnicGroupDtoCollection().add(personEthnicGroupDT1);
 
         //Entity Id
-        EntityIdDto entityIDDT1=new EntityIdDto();
+        EntityIdDto entityIDDT1 = new EntityIdDto();
         entityIDDT1.setEntityIdSeq(1);
         personContainer1.getTheEntityIdDtoCollection().add(entityIDDT1);
 
         //Entity Locator Participation
-        EntityLocatorParticipationDto entityLocPartDT1=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entityLocPartDT1 = new EntityLocatorParticipationDto();
 
-        PostalLocatorDto thePostalLocatorDto1=new PostalLocatorDto();
+        PostalLocatorDto thePostalLocatorDto1 = new PostalLocatorDto();
         thePostalLocatorDto1.setPostalLocatorUid(111L);
 
-        PhysicalLocatorDto thePhysicalLocatorDto1=new PhysicalLocatorDto();
+        PhysicalLocatorDto thePhysicalLocatorDto1 = new PhysicalLocatorDto();
         thePhysicalLocatorDto1.setPhysicalLocatorUid(222L);
 
-        TeleLocatorDto theTeleLocatorDto1=new TeleLocatorDto();
+        TeleLocatorDto theTeleLocatorDto1 = new TeleLocatorDto();
         theTeleLocatorDto1.setTeleLocatorUid(333L);
 
         entityLocPartDT1.setThePostalLocatorDto(thePostalLocatorDto1);
@@ -319,17 +325,18 @@ class PersonServiceTest {
 
         labResultProxyVO.setThePersonContainerCollection(personCollection1);
 
-        personService.updatePersonELRUpdate(labResultProxyVO,matchedLabResultProxyVO);
+        personService.updatePersonELRUpdate(labResultProxyVO, matchedLabResultProxyVO);
         assertNotNull(labResultProxyVO);
     }
+
     @Test
     void updatePersonELRUpdate_with_empty_proxy_collections() {
-        LabResultProxyContainer labResultProxyVO=new LabResultProxyContainer();
-        LabResultProxyContainer matchedLabResultProxyVO=new LabResultProxyContainer();
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
+        LabResultProxyContainer matchedLabResultProxyVO = new LabResultProxyContainer();
 
         //matchedLabResultProxyVO
-        Collection<PersonContainer> personCollection=new ArrayList<>();
-        PersonContainer personContainer=new PersonContainer();
+        Collection<PersonContainer> personCollection = new ArrayList<>();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personContainer.getThePersonDto().setPersonUid(123L);
         personContainer.getThePersonDto().setPersonParentUid(234L);
@@ -338,34 +345,34 @@ class PersonServiceTest {
         personCollection.add(personContainer);
 
         //person name
-        PersonNameDto personNameDT=new PersonNameDto();
+        PersonNameDto personNameDT = new PersonNameDto();
         personNameDT.setPersonNameSeq(1); //condition 2
         personContainer.getThePersonNameDtoCollection().add(personNameDT);
 
         //person race
-        PersonRaceDto personRaceDT=new PersonRaceDto();
+        PersonRaceDto personRaceDT = new PersonRaceDto();
         personRaceDT.setRaceCd("TEST_RACE_CD");
         personContainer.getThePersonRaceDtoCollection().add(personRaceDT);
         //person ethnic group
-        PersonEthnicGroupDto personEthnicGroupDT=new PersonEthnicGroupDto();
+        PersonEthnicGroupDto personEthnicGroupDT = new PersonEthnicGroupDto();
         personEthnicGroupDT.setEthnicGroupCd("TEST_ETHNICGROUP_CD");
         personContainer.getThePersonEthnicGroupDtoCollection().add(personEthnicGroupDT);
 
         //Entity Id
-        EntityIdDto entityIDDT=new EntityIdDto();
+        EntityIdDto entityIDDT = new EntityIdDto();
         entityIDDT.setEntityIdSeq(1);
         personContainer.getTheEntityIdDtoCollection().add(entityIDDT);
 
         //Entity Locator Participation
-        EntityLocatorParticipationDto entityLocPartDT=new EntityLocatorParticipationDto();
+        EntityLocatorParticipationDto entityLocPartDT = new EntityLocatorParticipationDto();
 
-        PostalLocatorDto thePostalLocatorDto=new PostalLocatorDto();
+        PostalLocatorDto thePostalLocatorDto = new PostalLocatorDto();
         thePostalLocatorDto.setPostalLocatorUid(111L);
 
-        PhysicalLocatorDto thePhysicalLocatorDto=new PhysicalLocatorDto();
+        PhysicalLocatorDto thePhysicalLocatorDto = new PhysicalLocatorDto();
         thePhysicalLocatorDto.setPhysicalLocatorUid(222L);
 
-        TeleLocatorDto theTeleLocatorDto=new TeleLocatorDto();
+        TeleLocatorDto theTeleLocatorDto = new TeleLocatorDto();
         theTeleLocatorDto.setTeleLocatorUid(333L);
 
         entityLocPartDT.setThePostalLocatorDto(thePostalLocatorDto);
@@ -376,20 +383,20 @@ class PersonServiceTest {
         matchedLabResultProxyVO.setThePersonContainerCollection(personCollection);
 
         //labResultProxyVO
-        Collection<PersonContainer> personCollection1=new ArrayList<>();
+        Collection<PersonContainer> personCollection1 = new ArrayList<>();
 
-        PersonContainer personContainer1=new PersonContainer();
+        PersonContainer personContainer1 = new PersonContainer();
         personContainer1.getThePersonDto().setCdDescTxt(EdxELRConstant.ELR_PATIENT_DESC);
         personCollection1.add(personContainer1);
         //person name
         personContainer1.setThePersonNameDtoCollection(null);
 
         //Person race
-        PersonRaceDto personRaceDT1=new PersonRaceDto();
+        PersonRaceDto personRaceDT1 = new PersonRaceDto();
         personContainer1.getThePersonRaceDtoCollection().add(personRaceDT1);
 
         //person ethnic group
-        PersonEthnicGroupDto personEthnicGroupDT1=new PersonEthnicGroupDto();
+        PersonEthnicGroupDto personEthnicGroupDT1 = new PersonEthnicGroupDto();
         personContainer1.getThePersonEthnicGroupDtoCollection().add(personEthnicGroupDT1);
 
         //Entity Id
@@ -400,7 +407,7 @@ class PersonServiceTest {
 
         labResultProxyVO.setThePersonContainerCollection(personCollection1);
 
-        personService.updatePersonELRUpdate(labResultProxyVO,matchedLabResultProxyVO);
+        personService.updatePersonELRUpdate(labResultProxyVO, matchedLabResultProxyVO);
         assertNotNull(labResultProxyVO);
     }
 }

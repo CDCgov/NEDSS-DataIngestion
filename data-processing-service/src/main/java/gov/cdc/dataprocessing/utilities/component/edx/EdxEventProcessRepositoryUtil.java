@@ -28,7 +28,7 @@ public class EdxEventProcessRepositoryUtil {
         var uidObj = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NBS_DOCUMENT);
         var uid = uidObj.getSeedValueNbr();
 
-        actRepositoryUtil.insertActivityId(uid, edxEventProcessDto.getDocEventTypeCd(),  NEDSSConstant.EVENT_MOOD_CODE );
+        actRepositoryUtil.insertActivityId(uid, edxEventProcessDto.getDocEventTypeCd(), NEDSSConstant.EVENT_MOOD_CODE);
 
 
         EdxEventProcess data = new EdxEventProcess(edxEventProcessDto);

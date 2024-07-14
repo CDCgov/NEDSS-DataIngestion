@@ -24,7 +24,7 @@ public class EntityLocatorParticipation {
     @Column(name = "locator_uid", nullable = false)
     private Long locatorUid;
 
- //   @Version
+    //   @Version
     @Column(name = "version_ctrl_nbr", nullable = false)
     private Integer versionCtrlNbr;
 
@@ -113,7 +113,7 @@ public class EntityLocatorParticipation {
             this.addUserId = entityLocatorParticipationDto.getAddUserId();
             this.addTime = entityLocatorParticipationDto.getAddTime();
         }
-        
+
         this.cd = entityLocatorParticipationDto.getCd();
         this.cdDescTxt = entityLocatorParticipationDto.getCdDescTxt();
         this.classCd = entityLocatorParticipationDto.getClassCd();

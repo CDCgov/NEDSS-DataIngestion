@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @SuppressWarnings("all")
 public class EdxActivityLogContainer {
-    private EDXActivityLogDto edxActivityLogDto=new EDXActivityLogDto();
+    private EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
 }

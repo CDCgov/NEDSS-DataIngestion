@@ -26,13 +26,13 @@ import static org.mockito.Mockito.*;
 
 class ParticipationRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ParticipationRepository participationRepository;
     @Mock
     private ParticipationHistRepository participationHistRepository;
     @InjectMocks
     private ParticipationRepositoryUtil participationRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -43,7 +43,7 @@ class ParticipationRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -73,7 +73,7 @@ class ParticipationRepositoryUtilTest {
     }
 
     @Test
-    void storeParticipation_Test()  {
+    void storeParticipation_Test() {
         ParticipationDto pat = null;
 
 
@@ -119,7 +119,7 @@ class ParticipationRepositoryUtilTest {
 
 
     @Test
-    void storeParticipation_Test_4()   {
+    void storeParticipation_Test_4() {
         ParticipationDto pat = new ParticipationDto();
         pat.setItDirty(true);
 
@@ -146,6 +146,7 @@ class ParticipationRepositoryUtilTest {
 
         assertNotNull(res);
     }
+
     @Test
     void getParticipation_Test_2() {
         Long subjectEntityUid = 10L;

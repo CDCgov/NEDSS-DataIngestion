@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LookupMappingRepository  extends JpaRepository<LookupQuestion, Long> {
+public interface LookupMappingRepository extends JpaRepository<LookupQuestion, Long> {
     @Query(value = "SELECT " +
             "   LOOKUP_QUESTION.*, " +
             "   LOOKUP_ANSWER.FROM_CODE_SYSTEM_CD AS fromAnsCodeSystemCd, " +

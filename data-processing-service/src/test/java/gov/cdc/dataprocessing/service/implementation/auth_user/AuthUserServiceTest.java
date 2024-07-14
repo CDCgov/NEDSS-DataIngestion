@@ -24,13 +24,13 @@ import static org.mockito.Mockito.when;
 
 class AuthUserServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private AuthUserRepository authUserRepository;
     @Mock
     private CustomAuthUserRepository customAuthUserRepository;
     @InjectMocks
     private AuthUserService authUserService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -41,7 +41,7 @@ class AuthUserServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -66,7 +66,7 @@ class AuthUserServiceTest {
     }
 
     @Test
-    void getAuthUserInfo_Exception()  {
+    void getAuthUserInfo_Exception() {
         String authUserId = "Test";
         when(authUserRepository.findAuthUserByUserId(authUserId)).thenReturn(Optional.empty());
 

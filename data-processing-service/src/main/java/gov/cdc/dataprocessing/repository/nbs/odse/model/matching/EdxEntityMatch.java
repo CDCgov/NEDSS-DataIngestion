@@ -30,6 +30,7 @@ public class EdxEntityMatch {
     public EdxEntityMatch() {
 
     }
+
     public EdxEntityMatch(EdxEntityMatchDto edxEntityMatchDto) {
         this.edxEntityMatchUid = edxEntityMatchDto.getEdxEntityMatchUid();
         this.entityUid = edxEntityMatchDto.getEntityUid();

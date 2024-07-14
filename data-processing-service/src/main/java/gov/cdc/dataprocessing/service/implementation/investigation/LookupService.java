@@ -39,116 +39,6 @@ public class LookupService implements ILookupService {
         this.catchingValueService = catchingValueService;
     }
 
-    public TreeMap<Object, Object> getToPrePopFormMapping(String formCd) throws DataProcessingException {
-        TreeMap<Object, Object> returnMap;
-        returnMap = (TreeMap<Object, Object>) OdseCache.toPrePopFormMapping.get(formCd);
-        if (returnMap == null) {
-                Collection<LookupMappingDto> qColl = getPrePopMapping();
-                createPrePopToMap(qColl);
-        }
-        returnMap = (TreeMap<Object, Object>) OdseCache.toPrePopFormMapping.get(formCd);
-
-        return returnMap;
-    }
-
-    public TreeMap<Object,Object>  getQuestionMap() {
-        TreeMap<Object,Object> questionMap = null;
-
-        if (OdseCache.map != null && OdseCache.map.size() > 0) {
-            return (TreeMap<Object,Object>) OdseCache.map;
-
-        }
-
-        try {
-            Collection<Object>  qColl = getPamQuestions();
-            questionMap = createQuestionMap(qColl);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (questionMap != null) {
-            OdseCache.map.putAll(questionMap);
-        }
-        return questionMap;
-    }
-
-
-    // PG_Generic_V2_Investigation
-    public TreeMap<Object,Object>  getDMBQuestionMapAfterPublish() {
-        TreeMap<Object,Object> dmbQuestionMap = null;
-
-        try {
-            //TODO: MUST CACHING THESE TWO. these are queries that pull the entire table into memory
-            var res =  nbsUiMetaDataRepository.findDmbQuestionMetaData();
-            var res2 = waQuestionRepository.findGenericQuestionMetaData();
-            Collection<MetaAndWaCommonAttribute>  metaQuestion = new ArrayList<>();
-            if (res.isPresent()) {
-                for(var item : res.get()) {
-                    var commonAttribute = new MetaAndWaCommonAttribute(item);
-                    metaQuestion.add(commonAttribute);
-                }
-                if (res2.isPresent()) {
-                    for(var item : res2.get()) {
-                        var commonAttribute = new MetaAndWaCommonAttribute(item);
-                        metaQuestion.add(commonAttribute);
-                    }
-                }
-            }
-
-
-            dmbQuestionMap = createDMBQuestionMap(metaQuestion);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if(dmbQuestionMap != null)
-        {
-            OdseCache.dmbMap.putAll(dmbQuestionMap);
-        }
-        return dmbQuestionMap;
-    }
-
-
-    public void fillPrePopMap() {
-
-        if (OdseCache.fromPrePopFormMapping == null || OdseCache.fromPrePopFormMapping.size() == 0) {
-            try {
-                    Collection<LookupMappingDto> qColl = retrievePrePopMapping();
-                    createPrePopFromMap(qColl);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        if (OdseCache.toPrePopFormMapping == null || OdseCache.toPrePopFormMapping.size() == 0) {
-            try {
-                    Collection<LookupMappingDto> qColl = retrievePrePopMapping();
-                    createPrePopToMap(qColl);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-
-    }
-
-
-    private Collection<LookupMappingDto> retrievePrePopMapping () {
-        var res = lookupMappingRepository.getLookupMappings();
-        List<LookupMappingDto> lst = new ArrayList<>();
-        if (res.isPresent()) {
-            for(var item : res.get()) {
-                LookupMappingDto mappingDto = new LookupMappingDto(item);
-                lst.add(mappingDto);
-            }
-        }
-        return lst;
-    }
-
     private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws Exception {
         int count = 0;
         int loopcount = 0;
@@ -338,6 +228,112 @@ public class LookupService implements ILookupService {
 
     }
 
+    public TreeMap<Object, Object> getToPrePopFormMapping(String formCd) throws DataProcessingException {
+        TreeMap<Object, Object> returnMap;
+        returnMap = (TreeMap<Object, Object>) OdseCache.toPrePopFormMapping.get(formCd);
+        if (returnMap == null) {
+            Collection<LookupMappingDto> qColl = getPrePopMapping();
+            createPrePopToMap(qColl);
+        }
+        returnMap = (TreeMap<Object, Object>) OdseCache.toPrePopFormMapping.get(formCd);
+
+        return returnMap;
+    }
+
+    public TreeMap<Object, Object> getQuestionMap() {
+        TreeMap<Object, Object> questionMap = null;
+
+        if (OdseCache.map != null && OdseCache.map.size() > 0) {
+            return (TreeMap<Object, Object>) OdseCache.map;
+
+        }
+
+        try {
+            Collection<Object> qColl = getPamQuestions();
+            questionMap = createQuestionMap(qColl);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (questionMap != null) {
+            OdseCache.map.putAll(questionMap);
+        }
+        return questionMap;
+    }
+
+    // PG_Generic_V2_Investigation
+    public TreeMap<Object, Object> getDMBQuestionMapAfterPublish() {
+        TreeMap<Object, Object> dmbQuestionMap = null;
+
+        try {
+            //TODO: MUST CACHING THESE TWO. these are queries that pull the entire table into memory
+            var res = nbsUiMetaDataRepository.findDmbQuestionMetaData();
+            var res2 = waQuestionRepository.findGenericQuestionMetaData();
+            Collection<MetaAndWaCommonAttribute> metaQuestion = new ArrayList<>();
+            if (res.isPresent()) {
+                for (var item : res.get()) {
+                    var commonAttribute = new MetaAndWaCommonAttribute(item);
+                    metaQuestion.add(commonAttribute);
+                }
+                if (res2.isPresent()) {
+                    for (var item : res2.get()) {
+                        var commonAttribute = new MetaAndWaCommonAttribute(item);
+                        metaQuestion.add(commonAttribute);
+                    }
+                }
+            }
+
+
+            dmbQuestionMap = createDMBQuestionMap(metaQuestion);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (dmbQuestionMap != null) {
+            OdseCache.dmbMap.putAll(dmbQuestionMap);
+        }
+        return dmbQuestionMap;
+    }
+
+    public void fillPrePopMap() {
+
+        if (OdseCache.fromPrePopFormMapping == null || OdseCache.fromPrePopFormMapping.size() == 0) {
+            try {
+                Collection<LookupMappingDto> qColl = retrievePrePopMapping();
+                createPrePopFromMap(qColl);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        if (OdseCache.toPrePopFormMapping == null || OdseCache.toPrePopFormMapping.size() == 0) {
+            try {
+                Collection<LookupMappingDto> qColl = retrievePrePopMapping();
+                createPrePopToMap(qColl);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+    }
+
+    private Collection<LookupMappingDto> retrievePrePopMapping() {
+        var res = lookupMappingRepository.getLookupMappings();
+        List<LookupMappingDto> lst = new ArrayList<>();
+        if (res.isPresent()) {
+            for (var item : res.get()) {
+                LookupMappingDto mappingDto = new LookupMappingDto(item);
+                lst.add(mappingDto);
+            }
+        }
+        return lst;
+    }
+
 
 //    public QuestionMap getQuestionMapEJBRef() throws Exception {
 //        if (qMap == null) {
@@ -352,20 +348,19 @@ public class LookupService implements ILookupService {
 //        return qMap;
 //    }
 
-
-    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
+    private TreeMap<Object, Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute> coll) throws Exception {
         TreeMap<Object, Object> qCodeMap = new TreeMap<>();
-        int count =0;
-        int loopcount=0;
-        int sizecount=0;
+        int count = 0;
+        int loopcount = 0;
+        int sizecount = 0;
         String currentFormCode;
-        String previousFormCode="";
+        String previousFormCode = "";
 
         //For Demo Purpose CHOLERA Metadata
-        TreeMap<Object, Object>[] map ;
+        TreeMap<Object, Object>[] map;
         map = new TreeMap[coll.size()];
         NbsQuestionMetadata qMetadata = null;
-        try{
+        try {
             if (coll.size() > 0) {
                 for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
                     sizecount++;
@@ -379,8 +374,7 @@ public class LookupService implements ILookupService {
 
                     if (qMetadata.getInvestigationFormCd() != null) {
 
-                        if (loopcount == 0)
-                        {
+                        if (loopcount == 0) {
                             previousFormCode = qMetadata.getInvestigationFormCd();
                             String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
                             if (!questionId.equals("")) {
@@ -389,25 +383,18 @@ public class LookupService implements ILookupService {
                                 loopcount++;
                             }
 
-                        }
-                        else
-                        {
+                        } else {
                             currentFormCode = qMetadata.getInvestigationFormCd();
-                            if (currentFormCode.equals(previousFormCode))
-                            {
+                            if (currentFormCode.equals(previousFormCode)) {
                                 String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
-                                if (!questionId.equals(""))
-                                {
+                                if (!questionId.equals("")) {
                                     map[count].put(questionId, qMetadata);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 qCodeMap.put(previousFormCode, map[count]);
                                 count = count + 1;
                                 String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
-                                if (!questionId.equals(""))
-                                {
+                                if (!questionId.equals("")) {
                                     map[count] = new TreeMap<>();
                                     map[count].put(questionId, qMetadata);
                                 }
@@ -425,16 +412,15 @@ public class LookupService implements ILookupService {
                 }
 
             }
-        }
-        catch(Exception ex){
-            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel()+" in form cd :"+ qMetadata.getInvestigationFormCd());
+        } catch (Exception ex) {
+            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel() + " in form cd :" + qMetadata.getInvestigationFormCd());
         }
 
         return qCodeMap;
     }
 
 
-    protected Collection<LookupMappingDto>  getPrePopMapping() throws DataProcessingException {
+    protected Collection<LookupMappingDto> getPrePopMapping() throws DataProcessingException {
 
         try {
             return retrievePrePopMapping();
@@ -444,23 +430,22 @@ public class LookupService implements ILookupService {
     }
 
 
-    private Collection<Object>  getPamQuestions() {
+    private Collection<Object> getPamQuestions() {
         var res = nbsUiMetaDataRepository.findPamQuestionMetaData();
-        Collection<Object>  questions = new ArrayList<>();
+        Collection<Object> questions = new ArrayList<>();
         if (res.isPresent()) {
-            questions  = res.get();
+            questions = res.get();
         }
         return questions;
     }
 
-    private TreeMap<Object,Object> createQuestionMap(Collection<Object>  coll) {
-        TreeMap<Object,Object> qCodeMap = new TreeMap<>();
-        TreeMap<Object,Object> qInvFormRVCTMap = new TreeMap<>();
+    private TreeMap<Object, Object> createQuestionMap(Collection<Object> coll) {
+        TreeMap<Object, Object> qCodeMap = new TreeMap<>();
+        TreeMap<Object, Object> qInvFormRVCTMap = new TreeMap<>();
         if (coll != null && coll.size() > 0) {
             for (Object o : coll) {
                 NbsQuestionMetadata qMetadata = (NbsQuestionMetadata) o;
-                if (qMetadata.getInvestigationFormCd().equals(NBSConstantUtil.INV_FORM_RVCT))
-                {
+                if (qMetadata.getInvestigationFormCd().equals(NBSConstantUtil.INV_FORM_RVCT)) {
                     qInvFormRVCTMap.put(qMetadata.getQuestionIdentifier(), qMetadata);
                 }
             }

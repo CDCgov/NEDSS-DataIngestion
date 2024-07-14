@@ -71,7 +71,8 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     private String currSexCd;
     private String orderingFacility;
 
-    public LabReportSummaryContainer() {}
+    public LabReportSummaryContainer() {
+    }
 
     public LabReportSummaryContainer(Observation_Lab_Summary_ForWorkUp_New observationLabSummaryForWorkUpNew) {
         uid = observationLabSummaryForWorkUpNew.getUid();
@@ -167,13 +168,13 @@ public class LabReportSummaryContainer extends BaseContainer implements RootDtoI
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        this.dateReceived = aAddTime;
+    public Timestamp getAddTime() {
+        return dateReceived;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return dateReceived;
+    public void setAddTime(Timestamp aAddTime) {
+        this.dateReceived = aAddTime;
     }
 
     @Override

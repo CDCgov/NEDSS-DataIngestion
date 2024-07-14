@@ -46,6 +46,7 @@ class ProviderMatchingBaseServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
     @Test
     void testProcessingProvider_ValidData() throws Exception {
         // Mock the PersonContainer and PersonDto
@@ -255,7 +256,6 @@ class ProviderMatchingBaseServiceTest {
     }
 
 
-
     @Test
     void testGetIdentifierForProvider_FullIdentifiers() throws DataProcessingException {
         // Mock the PersonContainer and EntityIdDto
@@ -356,13 +356,13 @@ class ProviderMatchingBaseServiceTest {
 
 
         // Call the method under test and verify exception is thrown
-       var res =  providerMatchingBaseService.getIdentifierForProvider(personContainer);
+        var res = providerMatchingBaseService.getIdentifierForProvider(personContainer);
         assertNotNull(res);
     }
 
 
     @Test
-    void testGetIdentifierForProvider_ExceptionHandling_2()  {
+    void testGetIdentifierForProvider_ExceptionHandling_2() {
         // Mock the PersonContainer and EntityIdDto
         PersonContainer personContainer = mock(PersonContainer.class);
         EntityIdDto entityIdDto1 = mock(EntityIdDto.class);

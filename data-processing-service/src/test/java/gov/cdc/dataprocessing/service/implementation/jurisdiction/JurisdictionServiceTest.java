@@ -39,6 +39,8 @@ import static org.mockito.Mockito.*;
 
 class JurisdictionServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
     @Mock
     private OrganizationRepositoryUtil organizationRepositoryUtil;
@@ -46,8 +48,6 @@ class JurisdictionServiceTest {
     private JurisdictionParticipationRepository jurisdictionParticipationRepository;
     @Mock
     private JurisdictionCodeRepository jurisdictionCodeRepository;
-    @Mock
-    AuthUtil authUtil;
     @InjectMocks
     private JurisdictionService jurisdictionService;
 
@@ -58,7 +58,7 @@ class JurisdictionServiceTest {
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
         authUserProfileInfo.setAuthUser(user);
-        authUtil.setGlobalAuthUser(authUserProfileInfo);
+        AuthUtil.setGlobalAuthUser(authUserProfileInfo);
     }
 
     @AfterEach
@@ -300,7 +300,7 @@ class JurisdictionServiceTest {
         when(organizationRepositoryUtil.loadObject(any(), any())).thenReturn(organizationContainer2);
 
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
-        verify(organizationRepositoryUtil,times(2)).loadObject(any(), any());
+        verify(organizationRepositoryUtil, times(2)).loadObject(any(), any());
     }
 
     @Test
@@ -323,7 +323,7 @@ class JurisdictionServiceTest {
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(personContainer);
 
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
-        verify(patientRepositoryUtil,times(1)).loadPerson(123L);
+        verify(patientRepositoryUtil, times(1)).loadPerson(123L);
     }
 
     @Test
@@ -349,7 +349,7 @@ class JurisdictionServiceTest {
         personContainerCol.add(new PersonContainer());
         labResultProxyContainer.setThePersonContainerCollection(personContainerCol);
 
-        String result=jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
+        String result = jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         assertNull(result);
     }
 

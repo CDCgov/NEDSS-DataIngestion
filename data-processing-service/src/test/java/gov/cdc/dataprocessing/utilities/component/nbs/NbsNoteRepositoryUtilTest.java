@@ -22,11 +22,11 @@ import static org.mockito.Mockito.verify;
 
 class NbsNoteRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private NbsNoteRepository nbsNoteRepository;
     @InjectMocks
     private NbsNoteRepositoryUtil nbsNoteRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -37,7 +37,7 @@ class NbsNoteRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

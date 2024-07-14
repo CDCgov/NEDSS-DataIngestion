@@ -17,6 +17,10 @@ import java.util.Collection;
 @SuppressWarnings("all")
 public class ObservationContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
+    //Collections added for Participation and Activity Relationship object association
+    public Collection<ParticipationDto> theParticipationDtoCollection;
+    public Collection<ActRelationshipDto> theActRelationshipDtoCollection;
+    public Collection<MaterialDto> theMaterialDtoCollection;
     private ObservationDto theObservationDto = new ObservationDto();
     private Collection<ActIdDto> theActIdDtoCollection;
     private Collection<ObservationReasonDto> theObservationReasonDtoCollection;
@@ -27,9 +31,5 @@ public class ObservationContainer extends BaseContainer {
     private Collection<ObsValueDateDto> theObsValueDateDtoCollection;
     private Collection<ObsValueNumericDto> theObsValueNumericDtoCollection;
     private Collection<ActivityLocatorParticipationDto> theActivityLocatorParticipationDtoCollection;
-    //Collections added for Participation and Activity Relationship object association
-    public Collection<ParticipationDto> theParticipationDtoCollection;
-    public Collection<ActRelationshipDto> theActRelationshipDtoCollection;
-    public Collection<MaterialDto> theMaterialDtoCollection;
 
 }

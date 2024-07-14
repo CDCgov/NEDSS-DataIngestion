@@ -6,5 +6,5 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 
 public interface IDecisionSupportService {
     EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
-                                                       EdxLabInformationDto edxLabInformationDT) throws DataProcessingException;
+                                                EdxLabInformationDto edxLabInformationDT) throws DataProcessingException;
 }

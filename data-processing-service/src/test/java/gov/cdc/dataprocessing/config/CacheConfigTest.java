@@ -8,6 +8,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +29,7 @@ class CacheConfigTest {
         assertEquals(CaffeineCacheManager.class, cacheManager.getClass());
 
         CaffeineCacheManager caffeineCacheManager = (CaffeineCacheManager) cacheManager;
-        assertNotEquals(Arrays.asList("srte"), caffeineCacheManager.getCacheNames());
+        assertNotEquals(List.of("srte"), caffeineCacheManager.getCacheNames());
     }
 
     @Test

@@ -66,6 +66,6 @@ class NbsNoteDtoTest {
 
         // Test setting and getting statusCd
         dto.setStatusCd("StatusCd");
-        assertNull( dto.getStatusCd());
+        assertNull(dto.getStatusCd());
     }
 }

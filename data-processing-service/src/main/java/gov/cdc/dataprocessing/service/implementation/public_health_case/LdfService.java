@@ -26,8 +26,7 @@ public class LdfService implements ILdfService {
 
         StateDefinedFieldDataDto stateDefinedFieldDataDT = new StateDefinedFieldDataDto();
         List<StateDefinedFieldDataDto> pList;
-        try
-        {
+        try {
             StringBuilder query = new StringBuilder(SELECT_LDF);
             if (conditionCode != null) //only include this where clause when the cond code is not null
             {
@@ -36,15 +35,11 @@ public class LdfService implements ILdfService {
             query.append(this.SELECT_LDF_ORDER_BY);
             pList = customRepository.getLdfCollection(busObjectUid, conditionCode, query.toString());
 
-        }
-        catch(Exception ex)
-        {
-            throw new DataProcessingException( ex.getMessage());
+        } catch (Exception ex) {
+            throw new DataProcessingException(ex.getMessage());
         }
         return pList;
     }//end of selecting place
-
-
 
 
 }

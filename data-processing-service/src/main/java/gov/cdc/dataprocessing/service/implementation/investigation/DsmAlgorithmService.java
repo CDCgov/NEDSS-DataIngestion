@@ -16,7 +16,7 @@ public class DsmAlgorithmService {
     }
 
     Collection<DsmAlgorithm> findActiveDsmAlgorithm() {
-        Collection<DsmAlgorithm> col  = new ArrayList<>();
+        Collection<DsmAlgorithm> col = new ArrayList<>();
         var results = dsmAlgorithmRepository.findDsmAlgorithmByStatusCode("A");
         if (results.isPresent()) {
             col = results.get();

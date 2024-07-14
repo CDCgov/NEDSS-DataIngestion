@@ -39,6 +39,8 @@ import static org.mockito.Mockito.when;
 
 class NotificationRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private NotificationRepository notificationRepository;
     @Mock
     private ActIdRepositoryUtil actIdRepositoryUtil;
@@ -51,13 +53,11 @@ class NotificationRepositoryUtilTest {
     @Mock
     private EntityHelper entityHelper;
     @Mock
-    private  ActRepositoryUtil actRepositoryUtil;
+    private ActRepositoryUtil actRepositoryUtil;
     @Mock
     private OdseIdGeneratorService odseIdGeneratorService;
     @InjectMocks
     private NotificationRepositoryUtil notificationRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +68,7 @@ class NotificationRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -80,7 +80,7 @@ class NotificationRepositoryUtilTest {
     }
 
     @Test
-    void getNotificationContainer_Test(){
+    void getNotificationContainer_Test() {
         Long uid = 10L;
         var noti = new Notification();
         when(notificationRepository.findById(uid)).thenReturn(Optional.of(noti));
@@ -111,7 +111,7 @@ class NotificationRepositoryUtilTest {
     }
 
     @Test
-    void getNotificationContainer_Test_2(){
+    void getNotificationContainer_Test_2() {
         Long uid = 10L;
         when(notificationRepository.findById(uid)).thenReturn(Optional.empty());
 

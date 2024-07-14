@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 @SuppressWarnings("all")
 public class NotificationSummaryContainer extends BaseContainer implements RootDtoInterface {
 
+    public String isHistory;
     private Long notificationUid;
     private Timestamp addTime;
     private Timestamp rptSentTime;
@@ -35,7 +36,6 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
     private String currSexCd;
     private Timestamp birthTimeCalc;
     private String autoResendInd;
-    public String isHistory;
     private String progAreaCd;
     private String sharedInd;
     private String currSexCdDesc;
@@ -170,13 +170,13 @@ public class NotificationSummaryContainer extends BaseContainer implements RootD
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        this.addTime = aAddTime;
+    public Timestamp getAddTime() {
+        return addTime;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return addTime;
+    public void setAddTime(Timestamp aAddTime) {
+        this.addTime = aAddTime;
     }
 
     @Override

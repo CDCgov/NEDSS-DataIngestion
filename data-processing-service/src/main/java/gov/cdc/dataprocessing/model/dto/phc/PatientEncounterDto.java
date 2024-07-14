@@ -111,7 +111,7 @@ public class PatientEncounterDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-       this.lastChgUserId = aLastChgUserId;
+        this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
@@ -151,7 +151,7 @@ public class PatientEncounterDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLocalId(String aLocalId) {
-        this.localId =aLocalId;
+        this.localId = aLocalId;
     }
 
     @Override
@@ -201,7 +201,7 @@ public class PatientEncounterDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusCd(String aStatusCd) {
-        statusCd =aStatusCd;
+        statusCd = aStatusCd;
     }
 
     @Override
@@ -225,13 +225,13 @@ public class PatientEncounterDto extends BaseContainer implements RootDtoInterfa
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        addTime = aAddTime;
+    public Timestamp getAddTime() {
+        return addTime;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return addTime;
+    public void setAddTime(Timestamp aAddTime) {
+        addTime = aAddTime;
     }
 
     @Override

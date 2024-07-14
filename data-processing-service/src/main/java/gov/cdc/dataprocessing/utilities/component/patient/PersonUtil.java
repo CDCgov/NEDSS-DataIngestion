@@ -70,12 +70,12 @@ public class PersonUtil {
             boolean isExternal = false;
             String electronicInd = rootDT.getElectronicInd();
             if (
-                electronicInd != null
-                && (
-                    isMorbReport
-                    && electronicInd.equals(NEDSSConstant.EXTERNAL_USER_IND)
-                    || electronicInd.equals(NEDSSConstant.YES)
-                )
+                    electronicInd != null
+                            && (
+                            isMorbReport
+                                    && electronicInd.equals(NEDSSConstant.EXTERNAL_USER_IND)
+                                    || electronicInd.equals(NEDSSConstant.YES)
+                    )
             ) {
                 isExternal = true;
             }
@@ -110,33 +110,22 @@ public class PersonUtil {
     }
 
 
-
     /**
      * Description: determine person is PAT or PROVIDER, then create or update based on isNEW arg
-     * */
-    private Long setPersonForObservationFlow(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException
-    {
-        try
-        {
-            if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
-            {
+     */
+    private Long setPersonForObservationFlow(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException {
+        try {
+            if (personType.equalsIgnoreCase(NEDSSConstant.PAT)) {
                 return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
-            }
-            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
-            {
+            } else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal))) {
                 return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
-            }
-            else
-            {
+            } else {
                 throw new IllegalArgumentException("Expected a valid person type: " + personType);
             }
-        }
-        catch (Exception rex)
-        {
+        } catch (Exception rex) {
             throw new DataProcessingException(rex.getMessage(), rex);
         }
     }
-
 
 
 }

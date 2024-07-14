@@ -177,12 +177,12 @@ public class ResultedTestSummaryContainer extends BaseContainer implements RootD
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
+    public Timestamp getAddTime() {
+        return null;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return null;
+    public void setAddTime(Timestamp aAddTime) {
     }
 
     @Override

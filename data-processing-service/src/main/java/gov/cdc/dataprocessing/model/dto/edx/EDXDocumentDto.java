@@ -36,9 +36,9 @@ public class EDXDocumentDto extends BaseContainer {
     private String viewLink;
 
     public EDXDocumentDto() {
-           itDirty = false;
-           itNew = false;
-           itDelete = false;
+        itDirty = false;
+        itNew = false;
+        itDelete = false;
     }
 
     public EDXDocumentDto(EdxDocument domain) {

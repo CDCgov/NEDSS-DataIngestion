@@ -64,13 +64,13 @@ class OrganizationNameDtoTest {
         OrganizationNameDto dto = new OrganizationNameDto();
 
         // Test overridden methods
-        assertNull( dto.getLastChgUserId());  // Note: This will fail since `organizationUid` is not set
+        assertNull(dto.getLastChgUserId());  // Note: This will fail since `organizationUid` is not set
         dto.setLastChgUserId(2L);  // No operation
         assertNotNull(dto.getLastChgTime());
         dto.setLastChgTime(new Timestamp(System.currentTimeMillis()));  // No operation
         assertEquals("Entity", dto.getLocalId());
         dto.setLocalId("Entity");  // No operation
-        assertNull( dto.getAddUserId());  // Note: This will fail since `organizationUid` is not set
+        assertNull(dto.getAddUserId());  // Note: This will fail since `organizationUid` is not set
         dto.setAddUserId(2L);
         assertEquals("Entity", dto.getLastChgReasonCd());
         dto.setLastChgReasonCd("Entity");  // No operation

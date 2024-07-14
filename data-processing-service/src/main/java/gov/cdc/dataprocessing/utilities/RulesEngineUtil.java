@@ -5,13 +5,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class RulesEngineUtil {
-    public static int[] CalcMMWR(String pDate)
-    {
+    public static int[] CalcMMWR(String pDate) {
         //  Create return variable.
-        int[] r = {0,0};
-        if(pDate == null || pDate.trim().equals(""))
+        int[] r = {0, 0};
+        if (pDate == null || pDate.trim().equals(""))
             return r;
-        try{
+        try {
             //  Define constants.
             int SECOND = 1000;
             int MINUTE = 60 * SECOND;
@@ -25,7 +24,7 @@ public class RulesEngineUtil {
             long varTime = cal.getTimeInMillis();
             //  Get January 1st of given year.
 
-            Date varJan1Date = new SimpleDateFormat("MM/dd/yyyy").parse("01/01/"+cal.get(Calendar.YEAR));
+            Date varJan1Date = new SimpleDateFormat("MM/dd/yyyy").parse("01/01/" + cal.get(Calendar.YEAR));
             Calendar calJan1 = Calendar.getInstance();
             calJan1.setTime(varJan1Date);
             int varJan1Day = calJan1.get(Calendar.DAY_OF_WEEK);
@@ -39,13 +38,11 @@ public class RulesEngineUtil {
             //  MMWR Week.
             int w = 0;
             //  Find first day of MMWR Year.
-            if(varJan1Day < 5)
-            {
+            if (varJan1Day < 5) {
                 //  If SUN, MON, TUE, or WED, go back to nearest Sunday.
-                t -= ((varJan1Day-1) * DAY);
+                t -= ((long) (varJan1Day - 1) * DAY);
                 //  Loop through each week until we reach the given date.
-                while(t < varTime)
-                {
+                while (t < varTime) {
                     //  Increment the week counter.
                     w++;
                     t += WEEK;
@@ -54,37 +51,30 @@ public class RulesEngineUtil {
                     Calendar cal1 = Calendar.getInstance();
                     cal1.setTime(d);
                     h = cal1.get(Calendar.HOUR);
-                    if(h == 1)
-                    {
+                    if (h == 1) {
                         t -= HOUR;
                     }
-                    if(h == 23 || h == 11)
-                    {
+                    if (h == 23 || h == 11) {
                         t += HOUR;
                     }
                 }
                 //  If at end of year, move on to next year if this week has
                 //  more days from next year than from this year.
-                if(w == 53)
-                {
-                    Date varNextJan1Date = new SimpleDateFormat("MM/dd/yyyy").parse("01/01/"+(cal.get(Calendar.YEAR)+1));
+                if (w == 53) {
+                    Date varNextJan1Date = new SimpleDateFormat("MM/dd/yyyy").parse("01/01/" + (cal.get(Calendar.YEAR) + 1));
                     Calendar varNextJan1Cal = Calendar.getInstance();
                     varNextJan1Cal.setTime(varNextJan1Date);
                     int varNextJan1Day = varNextJan1Cal.get(Calendar.DAY_OF_WEEK);
-                    if(varNextJan1Day < 5)
-                    {
+                    if (varNextJan1Day < 5) {
                         y++;
                         w = 1;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 //  If THU, FRI, or SAT, go forward to nearest Sunday.
-                t += ((7 - (varJan1Day-1)) * DAY);
+                t += ((long) (7 - (varJan1Day - 1)) * DAY);
                 //  Loop through each week until we reach the given date.
-                while(t <= varTime)
-                {
+                while (t <= varTime) {
                     //  Increment the week counter.
                     w++;
                     d = new Date(t);
@@ -96,27 +86,23 @@ public class RulesEngineUtil {
                     Calendar dCal = Calendar.getInstance();
                     dCal.setTime(d);
                     h = dCal.get(Calendar.HOUR);
-                    if(h == 1)
-                    {
+                    if (h == 1) {
                         t -= HOUR;
                     }
-                    if(h == 23)
-                    {
+                    if (h == 23) {
                         t += HOUR;
                     }
                 }
                 //  If at beginning of year, move back to previous year if this week has
                 //  more days from last year than from this year.
 
-                if(w == 0)
-                {
+                if (w == 0) {
                     d = new Date(t);
                     Calendar dCal1 = Calendar.getInstance();
                     dCal1.setTime(d);
-                    if( (dCal1.get(Calendar.MONTH) == 0) && (dCal1.get(Calendar.DAY_OF_WEEK) <= 5) )
-                    {
+                    if ((dCal1.get(Calendar.MONTH) == 0) && (dCal1.get(Calendar.DAY_OF_WEEK) <= 5)) {
                         y--;
-                        int a[] = CalcMMWR("12/31/" + y);
+                        int[] a = CalcMMWR("12/31/" + y);
                         w = a[0];
                     }
                 }
@@ -129,9 +115,7 @@ public class RulesEngineUtil {
             //  Assemble result.
             r[0] = w;
             r[1] = y;
-        }
-        catch(Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         //  Return result.

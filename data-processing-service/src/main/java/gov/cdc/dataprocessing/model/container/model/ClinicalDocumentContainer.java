@@ -11,8 +11,7 @@ import java.util.Collection;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ClinicalDocumentContainer extends BaseContainer implements Serializable
-{
+public class ClinicalDocumentContainer extends BaseContainer implements Serializable {
     // private boolean itDirty = false;
     // private boolean itNew = true;
     // private boolean itDelete = false;

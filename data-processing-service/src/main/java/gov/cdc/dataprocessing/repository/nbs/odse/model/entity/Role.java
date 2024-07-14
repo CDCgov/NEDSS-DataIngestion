@@ -95,6 +95,7 @@ public class Role {
     public Role() {
 
     }
+
     public Role(RoleDto roleDto) {
         this.subjectEntityUid = roleDto.getSubjectEntityUid();
         this.code = roleDto.getCd();

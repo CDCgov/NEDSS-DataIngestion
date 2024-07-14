@@ -1,4 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.intervention;
+
 import gov.cdc.dataprocessing.model.dto.phc.InterventionDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +14,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Table(name = "Intervention")
-public class Intervention  {
+public class Intervention {
 
     @Id
     @Column(name = "intervention_uid")

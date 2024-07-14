@@ -17,6 +17,7 @@ import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocMod
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Component;
+
 @Component
 public class NbsDocumentRepositoryUtil {
     private final CustomRepository customRepository;
@@ -41,11 +42,11 @@ public class NbsDocumentRepositoryUtil {
         this.nbsDocumentHistRepository = nbsDocumentHistRepository;
     }
 
-    public NbsDocumentContainer getNBSDocumentWithoutActRelationship(Long nbsDocUid) throws  DataProcessingException {
+    public NbsDocumentContainer getNBSDocumentWithoutActRelationship(Long nbsDocUid) throws DataProcessingException {
         try {
             NbsDocumentContainer nbsDocumentVO;
-            PersonContainer personVO ;
-            ParticipationDto participationDt ;
+            PersonContainer personVO;
+            ParticipationDto participationDt;
 
             nbsDocumentVO = customRepository.getNbsDocument(nbsDocUid);
             Long personUid = nbsDocumentVO.getPatientVO().getThePersonDto().getPersonUid();
@@ -72,22 +73,20 @@ public class NbsDocumentRepositoryUtil {
                 nbsDocumentDT.setSuperclass("ACT");
                 RootDtoInterface rootDTInterface = nbsDocVO.getNbsDocumentDT();
                 String businessObjLookupName = NBSBOLookup.DOCUMENT;
-                String businessTriggerCd ;
+                String businessTriggerCd;
                 businessTriggerCd = "DOC_PROCESS";
 
                 if (nbsDocumentDT.getRecordStatusCd() != null
                         && nbsDocumentDT.getRecordStatusCd().equals(
-                        NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE))
-                {
+                        NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE)) {
                     businessTriggerCd = "DOC_DEL";
                 }
-                if (nbsDocVO.isFromSecurityQueue())
-                {
+                if (nbsDocVO.isFromSecurityQueue()) {
                     businessTriggerCd = "DOC_IN_PROCESS";
                 }
                 String tableName = "NBS_DOCUMENT";
                 String moduleCd = "BASE";
-                nbsDocumentDT =  (NBSDocumentDto) prepareAssocModelHelper.prepareVO(
+                nbsDocumentDT = (NBSDocumentDto) prepareAssocModelHelper.prepareVO(
                         rootDTInterface, businessObjLookupName,
                         businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
 
@@ -109,6 +108,7 @@ public class NbsDocumentRepositoryUtil {
         var nbs = new NbsDocumentHist(nbsDocumentDto);
         nbsDocumentHistRepository.save(nbs);
     }
+
     public Long updateNbsDocument(NBSDocumentDto nbsDocumentDto) {
         var nbs = new NbsDocument(nbsDocumentDto);
         nbsDocumentRepository.save(nbs);

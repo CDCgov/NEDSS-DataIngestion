@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ManufacturedMaterialDto extends BaseContainer
-{
+public class ManufacturedMaterialDto extends BaseContainer {
 
     private static final long serialVersionUID = 1L;
 

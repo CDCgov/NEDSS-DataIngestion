@@ -9,7 +9,6 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 
-
 @Data
 @Entity
 @Table(name = "Auth_user")

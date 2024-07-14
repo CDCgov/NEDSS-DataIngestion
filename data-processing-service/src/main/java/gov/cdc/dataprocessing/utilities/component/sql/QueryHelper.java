@@ -20,7 +20,7 @@ public class QueryHelper {
 
     /**
      * OBSERVATIONLABREPORT & OBSERVATIONMORBIDITYREPORT -> SECURE By both prog and jus
-     * */
+     */
     @SuppressWarnings("java:S125")
     public String getDataAccessWhereClause(String businessObjLookupName, String operation, String alias) {
 
@@ -40,10 +40,10 @@ public class QueryHelper {
 
 //        if (paSecured && jSecured)
 //        {
-            columnName = "program_jurisdiction_oid";
-            ownerList = getHashedPAJList(businessObjLookupName, operation, false);
-            guestList = getHashedPAJList(businessObjLookupName, operation, true);
-            whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
+        columnName = "program_jurisdiction_oid";
+        ownerList = getHashedPAJList(businessObjLookupName, operation, false);
+        guestList = getHashedPAJList(businessObjLookupName, operation, true);
+        whereClause = buildWhereClause(ownerList, guestList, columnName, alias, true, businessObjLookupName);
 //          }
 //        else if (paSecured || jSecured) {
 //            //If the record is secured by program area only, do the following
@@ -111,8 +111,7 @@ public class QueryHelper {
 
         if (hashedPAJList.toString().trim().length() > 0) {
             return hashedPAJList.toString().trim().substring(0, (hashedPAJList.toString().trim().length() - 1));
-        }
-        else {
+        } else {
             return hashedPAJList.toString();
         }
     }
@@ -128,20 +127,17 @@ public class QueryHelper {
 
         if (isOwnerClauseValid && isGuestClauseValid) {
             return "(" + whereClauseOwner + " or " + whereClauseGuest + ")";
-        }
-        else if (isOwnerClauseValid) {
+        } else if (isOwnerClauseValid) {
             return "(" + whereClauseOwner + ")";
-        }
-        else if (isGuestClauseValid) {
+        } else if (isGuestClauseValid) {
             return "(" + whereClauseGuest + ")";
-        }
-        else {
+        } else {
             return "(0=1)";
         }
     }
 
-   protected String buildOwnerWhereClause(String ownerList, String columnName,
-                                 String alias, boolean OIDFlag, String businessObjLookupName) {
+    protected String buildOwnerWhereClause(String ownerList, String columnName,
+                                           String alias, boolean OIDFlag, String businessObjLookupName) {
         String whereClauseOwner = "";
 
 
@@ -150,13 +146,11 @@ public class QueryHelper {
             if (alias == null || alias.trim().length() == 0) {
                 whereClauseOwner = "(" + columnName + " in (" + ownerList +
                         "))";
-            }
-            else {
+            } else {
                 whereClauseOwner = "(" + alias + "." + columnName + " in (" +
                         ownerList + "))";
             }
-        }
-        else {
+        } else {
             whereClauseOwner = null;
         }
 
@@ -165,31 +159,27 @@ public class QueryHelper {
 
 
     protected String buildGuestWhereClause(String guestList, String columnName,
-                                         String alias, boolean OIDFlag, String businessObjLookupName) {
+                                           String alias, boolean OIDFlag, String businessObjLookupName) {
 
         //logger.debug("alias = " + alias);
         String whereClauseGuest = "";
 
         if (guestList != null && guestList.trim().length() != 0) {
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseGuest = "(("+ columnName + " in (" + guestList +
+                whereClauseGuest = "((" + columnName + " in (" + guestList +
                         ")) and  shared_ind = '" +
                         "T" +
                         "')";
-            }
-            else {
+            } else {
                 whereClauseGuest = "((" + alias + "." + columnName +
                         " in (" + guestList +
                         ")) and " + alias + ".shared_ind = '" +
                         "T" +
                         "')";
             }
-        }
-        else {
+        } else {
             whereClauseGuest = null;
         }
-
-
 
 
         return whereClauseGuest;

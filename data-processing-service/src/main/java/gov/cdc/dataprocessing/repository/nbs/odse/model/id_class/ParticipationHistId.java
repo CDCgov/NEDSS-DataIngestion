@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ParticipationHistId  implements Serializable {
+public class ParticipationHistId implements Serializable {
     private Long subjectEntityUid;
     private Long actUid;
     private String typeCd;

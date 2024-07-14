@@ -63,6 +63,7 @@ public class PersonRace {
     public PersonRace() {
 
     }
+
     public PersonRace(PersonRaceDto personRaceDto) {
         var timestamp = getCurrentTimeStamp();
         this.personUid = personRaceDto.getPersonUid();

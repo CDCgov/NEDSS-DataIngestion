@@ -23,10 +23,12 @@ public interface IUidService {
      * Act Relationship collection
      * Role collection
      * - This is crucial in Observation Flow
-     * */
+     */
     void setFalseToNewPersonAndOrganization(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) throws DataProcessingException;
 
     void setFalseToNewForPageAct(PageActProxyContainer pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
+
     void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
+
     ActRelationshipDto setFalseToNewForNotification(NotificationProxyContainer notificationProxyVO, Long falseUid, Long actualUid) throws DataProcessingException;
 }

@@ -137,6 +137,7 @@ public class PatientEncounter implements Serializable {
     public PatientEncounter() {
 
     }
+
     public PatientEncounter(PatientEncounterDto dto) {
         this.patientEncounterUid = dto.getPatientEncounterUid();
         this.activityDurationAmt = dto.getActivityDurationAmt();

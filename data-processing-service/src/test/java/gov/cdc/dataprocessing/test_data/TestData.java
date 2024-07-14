@@ -18,9 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TestData {
-    public static LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer() {};
-    public static  ObservationContainer observationContainer = new ObservationContainer();
-    public static  EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+    public static LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer() {
+    };
+    public static ObservationContainer observationContainer = new ObservationContainer();
+    public static EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
 
     public static void createLabResultContainer() {
         // OBS Conn

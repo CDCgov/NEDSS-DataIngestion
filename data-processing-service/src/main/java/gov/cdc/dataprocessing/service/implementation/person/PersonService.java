@@ -32,6 +32,7 @@ public class PersonService implements IPersonService {
     private final INokMatchingService nokMatchingService;
     private final IProviderMatchingService providerMatchingService;
     private final IUidService uidService;
+
     public PersonService(
             PatientMatchingService patientMatchingService,
             INokMatchingService nokMatchingService,
@@ -75,10 +76,9 @@ public class PersonService implements IPersonService {
 
             personContainer.setRole(EdxELRConstant.ELR_PATIENT_CD);
 
-            if(edxLabInformationDto.getPatientUid()>0){
-                personUid= edxLabInformationDto.getPatientUid();
-            }
-            else{
+            if (edxLabInformationDto.getPatientUid() > 0) {
+                personUid = edxLabInformationDto.getPatientUid();
+            } else {
                 //NOTE: Mathing Patient
                 //NOTE: This matching also persist patient accordingly
                 //NOTE: Either new or existing patient, it will be processed within this method
@@ -99,10 +99,10 @@ public class PersonService implements IPersonService {
                 edxLabInformationDto.setEntityName(firstName + " " + lastName);
             }
 
-            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personContainer.getPatientMatchedFound()) {
+            if (edxPatientMatchFoundDT != null && !edxPatientMatchFoundDT.isMultipleMatch() && personContainer.getPatientMatchedFound()) {
                 edxLabInformationDto.setPatientMatch(true);
             }
-            if(personContainer.getThePersonDto().getPersonParentUid()!=null){
+            if (personContainer.getThePersonDto().getPersonParentUid() != null) {
                 edxLabInformationDto.setPersonParentUid(personContainer.getThePersonDto().getPersonParentUid());
             }
 
@@ -131,18 +131,17 @@ public class PersonService implements IPersonService {
             personUId = eDXActivityDetailLogDto.getRecordId();
             if (personUId != null) {
                 long uid = Long.parseLong(personUId);
-                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid,uid);
+                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, uid);
                 personContainer.setItNew(false);
                 personContainer.setItDirty(false);
                 personContainer.getThePersonDto().setItNew(false);
                 personContainer.getThePersonDto().setItDirty(false);
             }
-            if (orderingProviderIndicator)
-            {
+            if (orderingProviderIndicator) {
                 edxLabInformationDto.setProvider(true);
                 return personContainer;
             }
-            orderingProviderIndicator= false;
+            orderingProviderIndicator = false;
 
         } catch (Exception e) {
             edxLabInformationDto.setProvider(false);
@@ -164,7 +163,7 @@ public class PersonService implements IPersonService {
     public Long getMatchedPersonUID(LabResultProxyContainer matchedlabResultProxyVO) {
         Long matchedPersonUid = null;
         Collection<PersonContainer> personCollection = matchedlabResultProxyVO.getThePersonContainerCollection();
-        if(personCollection!=null){
+        if (personCollection != null) {
 
             for (PersonContainer personVO : personCollection) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
@@ -176,7 +175,7 @@ public class PersonService implements IPersonService {
         return matchedPersonUid;
     }
 
-    public void updatePersonELRUpdate(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO){
+    public void updatePersonELRUpdate(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO) {
         PersonDto matchedPersonDT;
         Long matchedPersonUid = null;
         Long matchedPersonParentUid = null;
@@ -185,16 +184,16 @@ public class PersonService implements IPersonService {
         Collection<PersonNameDto> updatedPersonNameCollection = new ArrayList<>();
         Collection<PersonRaceDto> updatedPersonRaceCollection = new ArrayList<>();
         Collection<PersonEthnicGroupDto> updatedPersonEthnicGroupCollection = new ArrayList<>();
-        Collection<EntityLocatorParticipationDto> updatedtheEntityLocatorParticipationDTCollection  = new ArrayList<>();
+        Collection<EntityLocatorParticipationDto> updatedtheEntityLocatorParticipationDTCollection = new ArrayList<>();
         Collection<EntityIdDto> updatedtheEntityIdDTCollection = new ArrayList<>();
-        HashMap<Object,Object> hm = new HashMap<>();
-        HashMap<Object,Object> ethnicGroupHm = new HashMap<>();
-        int nameSeq=0;
-        int entityIdSeq=0;
+        HashMap<Object, Object> hm = new HashMap<>();
+        HashMap<Object, Object> ethnicGroupHm = new HashMap<>();
+        int nameSeq = 0;
+        int entityIdSeq = 0;
 
 
         Collection<PersonContainer> personCollection = matchedLabResultProxyVO.getThePersonContainerCollection();
-        if(personCollection!=null){
+        if (personCollection != null) {
             for (PersonContainer personVO : personCollection) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
                 if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
@@ -225,8 +224,6 @@ public class PersonService implements IPersonService {
                             updatedPersonRaceCollection.add(personRaceDT);
                         }
                     }
-
-
 
 
                     if (personVO.getThePersonEthnicGroupDtoCollection() != null && personVO.getThePersonEthnicGroupDtoCollection().size() > 0) {
@@ -278,7 +275,7 @@ public class PersonService implements IPersonService {
         }
 
 
-        if(labResultProxyVO.getThePersonContainerCollection()!=null){
+        if (labResultProxyVO.getThePersonContainerCollection() != null) {
             for (PersonContainer personVO : labResultProxyVO.getThePersonContainerCollection()) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
                 if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
@@ -346,8 +343,8 @@ public class PersonService implements IPersonService {
 
 
                         if (personVO.getThePersonRaceDtoCollection() == null
-                            || (personVO.getThePersonRaceDtoCollection() != null
-                            && personVO.getThePersonRaceDtoCollection().size() == 0)
+                                || (personVO.getThePersonRaceDtoCollection() != null
+                                && personVO.getThePersonRaceDtoCollection().size() == 0)
                         ) {
                             personVO.setThePersonRaceDtoCollection(new ArrayList<>());
                             personVO.getThePersonRaceDtoCollection().addAll(updatedPersonRaceCollection);
@@ -370,8 +367,8 @@ public class PersonService implements IPersonService {
                         }
 
                         if (personVO.getThePersonEthnicGroupDtoCollection() == null
-                            || (personVO.getThePersonEthnicGroupDtoCollection() != null
-                            && personVO.getThePersonEthnicGroupDtoCollection().size() == 0)
+                                || (personVO.getThePersonEthnicGroupDtoCollection() != null
+                                && personVO.getThePersonEthnicGroupDtoCollection().size() == 0)
                         ) {
                             personVO.setThePersonEthnicGroupDtoCollection(new ArrayList<>());
                             personVO.getThePersonEthnicGroupDtoCollection().addAll(updatedPersonEthnicGroupCollection);
@@ -393,7 +390,7 @@ public class PersonService implements IPersonService {
 
                         var cloneEntityLocatorForParentUid = new ArrayList<EntityLocatorParticipationDto>();
                         if (personVO.getTheEntityLocatorParticipationDtoCollection() != null
-                            && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0
+                                && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0
                         ) {
                             for (EntityLocatorParticipationDto entityLocPartDT : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                                 entityLocPartDT.setItNew(true);
@@ -418,7 +415,7 @@ public class PersonService implements IPersonService {
                                 }
 
                                 if (!Objects.equals(matchedPersonParentUid, matchedPersonUid)) {
-                                    var mprRecord =  SerializationUtils.clone(entityLocPartDT);
+                                    var mprRecord = SerializationUtils.clone(entityLocPartDT);
                                     mprRecord.setEntityUid(matchedPersonParentUid);
                                     cloneEntityLocatorForParentUid.add(mprRecord);
                                 }

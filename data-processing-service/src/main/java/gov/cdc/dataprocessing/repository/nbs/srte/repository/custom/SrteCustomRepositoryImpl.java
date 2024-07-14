@@ -12,18 +12,18 @@ import java.util.List;
 import static gov.cdc.dataprocessing.utilities.DataParserForSql.parseValue;
 
 @Repository
-public class SrteCustomRepositoryImpl implements SrteCustomRepository{
+public class SrteCustomRepositoryImpl implements SrteCustomRepository {
     @PersistenceContext(unitName = "srte")
     private EntityManager entityManager;
 
 
     //THIS ONE IS  FOR CACHING
-    public List<LabResult> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()  {
+    public List<LabResult> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() {
         String codeSql =
                 "Select  Lab_result.LAB_RESULT_CD , lab_result_desc_txt  FROM "
                         + " Lab_result Lab_result, "
-                        + " Lab_coding_system Lab_coding_system WHERE "+
-                        " Lab_coding_system.laboratory_id = 'DEFAULT' and "+
+                        + " Lab_coding_system Lab_coding_system WHERE " +
+                        " Lab_coding_system.laboratory_id = 'DEFAULT' and " +
                         " Lab_result.organism_name_ind = 'Y'";
 
         Query query = entityManager.createNativeQuery(codeSql);
@@ -31,7 +31,7 @@ public class SrteCustomRepositoryImpl implements SrteCustomRepository{
         List<LabResult> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
-            for(var item : results) {
+            for (var item : results) {
                 int i = 0;
                 LabResult labResult = new LabResult();
                 labResult.setLabResultCd(parseValue(item[i], String.class));

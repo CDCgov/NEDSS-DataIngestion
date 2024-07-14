@@ -34,7 +34,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     public OrganizationMatchingService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
                                        OrganizationRepositoryUtil organizationRepositoryUtil) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
-        this.organizationRepositoryUtil=organizationRepositoryUtil;
+        this.organizationRepositoryUtil = organizationRepositoryUtil;
     }
 
     @Transactional
@@ -234,7 +234,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
 //                entityUid = entityController.setOrganization(organizationContainer,
 //                        businessTriggerCd, nbsSecurityObj);
                 String businessTriggerCd = NEDSSConstant.ORG_CR;
-                entityUid=organizationRepositoryUtil.setOrganization(organizationContainer,
+                entityUid = organizationRepositoryUtil.setOrganization(organizationContainer,
                         businessTriggerCd);
             } catch (Exception e) {
                 logger.error("Error in getting the entity Controller or setting the Organization");
@@ -271,8 +271,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     throw new DataProcessingException(e.getMessage(), e);
                 }
             }
-            if (localEdxEntityMatchDT != null)
-            {
+            if (localEdxEntityMatchDT != null) {
                 coll.add(localEdxEntityMatchDT);
             }
             if (coll != null) {
@@ -428,8 +427,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 if (organizationNameDto.getNmUseCd() != null
                         && organizationNameDto.getNmUseCd().equals(
                         NEDSSConstant.LEGAL)) {
-                    if (organizationNameDto.getNmTxt() != null)
-                    {
+                    if (organizationNameDto.getNmTxt() != null) {
                         nameStr = organizationNameDto.getNmTxt();
                     }
                 }
@@ -437,6 +435,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         }
         return nameStr;
     }
+
     private String telePhoneTxt(OrganizationContainer organizationContainer) {
         String nameTeleStr = null;
         String carrot = "^";

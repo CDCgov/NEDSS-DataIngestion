@@ -42,7 +42,7 @@ public class NbsAnswerDto extends BaseContainer {
         this.nbsQuestionUid = nbsAnswer.getNbsQuestionUid();
         this.nbsQuestionVersionCtrlNbr = nbsAnswer.getNbsQuestionVersionCtrlNbr();
         this.seqNbr = nbsAnswer.getSeqNbr();
-       // this.answerLargeTxt = nbsAnswer.getAnswerLargeTxt();
+        // this.answerLargeTxt = nbsAnswer.getAnswerLargeTxt();
         this.answerGroupSeqNbr = nbsAnswer.getAnswerGroupSeqNbr();
         this.recordStatusCd = nbsAnswer.getRecordStatusCd();
         this.recordStatusTime = nbsAnswer.getRecordStatusTime();

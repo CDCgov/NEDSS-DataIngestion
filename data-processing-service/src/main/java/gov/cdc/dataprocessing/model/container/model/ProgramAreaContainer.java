@@ -9,8 +9,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ProgramAreaContainer implements Serializable, Comparable
-{
+public class ProgramAreaContainer implements Serializable, Comparable {
 
     private String conditionCd;
     private String conditionShortNm;
@@ -20,6 +19,6 @@ public class ProgramAreaContainer implements Serializable, Comparable
 
     @Override
     public int compareTo(Object o) {
-        return getConditionShortNm().compareTo( ((ProgramAreaContainer) o).getConditionShortNm() );
+        return getConditionShortNm().compareTo(((ProgramAreaContainer) o).getConditionShortNm());
     }
 }

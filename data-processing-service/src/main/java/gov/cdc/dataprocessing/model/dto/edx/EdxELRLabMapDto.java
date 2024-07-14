@@ -34,7 +34,7 @@ public class EdxELRLabMapDto {
     private Timestamp asOfDate;
     private Long rootObservationUid;
     private String entityIdRootExtensionTxt;
-    private String entityIdAssigningAuthorityCd ;
+    private String entityIdAssigningAuthorityCd;
     private String entityIdAssigningAuthorityDescTxt;
     private String entityIdTypeCd;
     private String entityIdTypeDescTxt;

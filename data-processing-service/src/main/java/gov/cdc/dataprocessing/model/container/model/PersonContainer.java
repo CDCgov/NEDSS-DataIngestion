@@ -20,18 +20,18 @@ import java.util.Collection;
 @SuppressWarnings("all")
 public class PersonContainer extends LdfBaseContainer implements Serializable {
     public PersonDto thePersonDto = new PersonDto();
-    public Collection<PersonNameDto> thePersonNameDtoCollection =new ArrayList<>();
-    public Collection<PersonRaceDto> thePersonRaceDtoCollection =new ArrayList<>();
-    public Collection<PersonEthnicGroupDto> thePersonEthnicGroupDtoCollection =new ArrayList<>();
+    public Collection<PersonNameDto> thePersonNameDtoCollection = new ArrayList<>();
+    public Collection<PersonRaceDto> thePersonRaceDtoCollection = new ArrayList<>();
+    public Collection<PersonEthnicGroupDto> thePersonEthnicGroupDtoCollection = new ArrayList<>();
     public Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDtoCollection = new ArrayList<>();
     public Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
 
 
-    public Collection<ParticipationDto> theParticipationDtoCollection =new ArrayList<>();
+    public Collection<ParticipationDto> theParticipationDtoCollection = new ArrayList<>();
     public Collection<RoleDto> theRoleDtoCollection = new ArrayList<>();
 
     private String defaultJurisdictionCd;
-//    private Boolean isExistingPatient;
+    //    private Boolean isExistingPatient;
     private boolean isExt = false;
     private boolean isMPRUpdateValid = true;
     private String localIdentifier;
@@ -40,10 +40,9 @@ public class PersonContainer extends LdfBaseContainer implements Serializable {
 
     /**
      * NEW VARIABLE
-     * */
+     */
 
     private Boolean patientMatchedFound;
-
 
 
     public PersonContainer deepClone() {

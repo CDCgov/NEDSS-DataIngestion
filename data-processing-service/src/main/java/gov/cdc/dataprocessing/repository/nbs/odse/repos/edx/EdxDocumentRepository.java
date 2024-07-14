@@ -13,8 +13,8 @@ import java.util.Optional;
 @Repository
 public interface EdxDocumentRepository extends JpaRepository<EdxDocument, Long> {
     /*
-    * String SELECT_EDX_DOCUMENT_COLLECTION = "SELECT EDX_Document_uid \"eDXDocumentUid\", act_uid \"actUid\",
-    * add_time \"addTime\" FROM  EDX_Document WITH (NOLOCK) WHERE act_uid = ? order by add_time desc"
+     * String SELECT_EDX_DOCUMENT_COLLECTION = "SELECT EDX_Document_uid \"eDXDocumentUid\", act_uid \"actUid\",
+     * add_time \"addTime\" FROM  EDX_Document WITH (NOLOCK) WHERE act_uid = ? order by add_time desc"
      * */
     @Query("SELECT data FROM EdxDocument data WHERE data.actUid = :uid")
     Optional<Collection<EdxDocument>> selectEdxDocumentCollectionByActUid(@Param("uid") Long uid);

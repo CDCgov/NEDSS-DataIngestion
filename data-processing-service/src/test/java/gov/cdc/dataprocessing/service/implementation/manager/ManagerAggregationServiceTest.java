@@ -33,10 +33,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -45,6 +42,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ManagerAggregationServiceTest {
+    @Mock
+    AuthUtil authUtil;
     @Mock
     private IOrganizationService organizationService;
     @Mock
@@ -63,9 +62,6 @@ class ManagerAggregationServiceTest {
     private IRoleService roleService;
     @InjectMocks
     private ManagerAggregationService managerAggregationService;
-    @Mock
-    AuthUtil authUtil;
-
     @Mock
     private LabResultProxyContainer labResult;
 
@@ -110,13 +106,13 @@ class ManagerAggregationServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(organizationService, patientService, uidService, observationService,
-                observationMatchingService, programAreaService,jurisdictionService,roleService, authUtil,
+                observationMatchingService, programAreaService, jurisdictionService, roleService, authUtil,
                 labResult, edxLabInformationDto, personAggContainer, organizationContainer, observationContainerCollection,
                 personContainerCollection, observationContainer, observationDto, actIdDto,
                 personContainer, labResultProxyContainer, personDto);
@@ -368,10 +364,10 @@ class ManagerAggregationServiceTest {
         when(observationDto.getObservationUid()).thenReturn(123L);
         when(edxLabInformationDto.getRootObserbationUid()).thenReturn(123L);
 
-        Collection<ActIdDto> actIdDtoCollection = Arrays.asList(actIdDto);
+        Collection<ActIdDto> actIdDtoCollection = List.of(actIdDto);
         when(observationContainer.getTheActIdDtoCollection()).thenReturn(actIdDtoCollection);
 
-        Collection<ObservationContainer> observationContainerCollection = Arrays.asList(observationContainer);
+        Collection<ObservationContainer> observationContainerCollection = List.of(observationContainer);
 
         // Call the method under test
         managerAggregationService.observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
@@ -391,7 +387,7 @@ class ManagerAggregationServiceTest {
         when(observationDto.getObservationUid()).thenReturn(123L);
         when(edxLabInformationDto.getRootObserbationUid()).thenReturn(456L);
 
-        Collection<ObservationContainer> observationContainerCollection = Arrays.asList(observationContainer);
+        Collection<ObservationContainer> observationContainerCollection = List.of(observationContainer);
 
         // Call the method under test
         managerAggregationService.observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);

@@ -74,8 +74,7 @@ public class NotificationService implements INotificationService {
         return count > 0;
     }
 
-    private String getActClassCd(BaseContainer vo)
-    {
+    private String getActClassCd(BaseContainer vo) {
         if (vo == null)
             return null;
 
@@ -97,8 +96,7 @@ public class NotificationService implements INotificationService {
         return null;
     }
 
-    private Long getRootUid(BaseContainer vo)
-    {
+    private Long getRootUid(BaseContainer vo) {
         if (vo == null)
             return null;
 
@@ -121,26 +119,26 @@ public class NotificationService implements INotificationService {
 //            }
 //        } else
 
-            if (vo instanceof LabResultProxyContainer) {
+        if (vo instanceof LabResultProxyContainer) {
             // the root Lab observation UID out of the observation collection
             Collection<ObservationContainer> obsColl =
                     ((LabResultProxyContainer) vo).getTheObservationContainerCollection();
-                for (ObservationContainer observationContainer : obsColl) {
-                    String obsDomainCdSt1 =
-                            observationContainer.getTheObservationDto().getObsDomainCdSt1();
-                    String obsCtrlCdDisplayForm =
-                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm();
-                    if (obsDomainCdSt1 != null
-                            && obsDomainCdSt1.equalsIgnoreCase(
-                            NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
-                            && obsCtrlCdDisplayForm != null
-                            && obsCtrlCdDisplayForm.equalsIgnoreCase(
-                            NEDSSConstant.LAB_REPORT)) {
-                        return observationContainer
-                                .getTheObservationDto()
-                                .getObservationUid();
-                    }
+            for (ObservationContainer observationContainer : obsColl) {
+                String obsDomainCdSt1 =
+                        observationContainer.getTheObservationDto().getObsDomainCdSt1();
+                String obsCtrlCdDisplayForm =
+                        observationContainer.getTheObservationDto().getCtrlCdDisplayForm();
+                if (obsDomainCdSt1 != null
+                        && obsDomainCdSt1.equalsIgnoreCase(
+                        NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
+                        && obsCtrlCdDisplayForm != null
+                        && obsCtrlCdDisplayForm.equalsIgnoreCase(
+                        NEDSSConstant.LAB_REPORT)) {
+                    return observationContainer
+                            .getTheObservationDto()
+                            .getObservationUid();
                 }
+            }
 
         }
 //            else if (vo instanceof VaccinationProxyVO) {
@@ -154,18 +152,14 @@ public class NotificationService implements INotificationService {
     }
 
 
-
-    public Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException
-    {
+    public Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException {
 
         Long notificationUid = null;
         String permissionFlag;
         Collection<Object> act2 = new ArrayList<>();
 
-        try
-        {
-            if (notificationProxyVO == null)
-            {
+        try {
+            if (notificationProxyVO == null) {
                 throw new DataProcessingException("notificationproxyVO is null ");
             }
 
@@ -192,17 +186,14 @@ public class NotificationService implements INotificationService {
 //            {
 //                permissionFlag = "CREATE";
 //            }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new DataProcessingException(e.toString());
         }
 
 
         NotificationContainer notifVO = notificationProxyVO.getTheNotificationContainer();
 
-        if (notifVO == null)
-        {
+        if (notifVO == null) {
             throw new DataProcessingException("notificationVO is null ");
         }
 
@@ -210,42 +201,34 @@ public class NotificationService implements INotificationService {
         notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd());
         notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 
-        if (permissionFlag.equals("CREATE"))
-        {
+        if (permissionFlag.equals("CREATE")) {
             notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
         }
 
-        if ((notifVO.isItDirty()) || (notifVO.isItNew()))
-        {
+        if ((notifVO.isItDirty()) || (notifVO.isItNew())) {
             String boLookup = NBSBOLookup.NOTIFICATION;
             String triggerCd = "";
-            if (permissionFlag.equals("CREATE"))
-            {
+            if (permissionFlag.equals("CREATE")) {
                 triggerCd = NEDSSConstant.NOT_CR_APR;
             }
-            if (permissionFlag.equals("CREATENEEDSAPPROVAL"))
-            {
+            if (permissionFlag.equals("CREATENEEDSAPPROVAL")) {
                 triggerCd = NEDSSConstant.NOT_CR_PEND_APR;
             }
             String tableName = "Notification";
             String moduleCd = NEDSSConstant.BASE;
 
-            if(notifVO.isItNew() && propertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
-            {
+            if (notifVO.isItNew() && propertyUtil.isHIVProgramArea(notifDT.getProgAreaCd())) {
                 triggerCd = NEDSSConstant.NOT_HIV;// for HIV, notification is always created as completed
             }
-            if(notifVO.isItDirty() && propertyUtil.isHIVProgramArea(notifDT.getProgAreaCd()))
-            {
+            if (notifVO.isItDirty() && propertyUtil.isHIVProgramArea(notifDT.getProgAreaCd())) {
                 triggerCd = NEDSSConstant.NOT_HIV_EDIT;// for HIV, notification always stay as completed
             }
 
 
-            try
-            {
+            try {
                 notifDT = (NotificationDto) prepareAssocModelHelper.prepareVO(notifDT, boLookup, triggerCd, tableName, moduleCd, notifDT.getVersionCtrlNbr());
 
-                if (notifDT.getCd() == null || notifDT.getCd().isEmpty())
-                {
+                if (notifDT.getCd() == null || notifDT.getCd().isEmpty()) {
                     notifDT.setCd(NEDSSConstant.CLASS_CD_NOTIFICATION);
                 }
 
@@ -258,8 +241,7 @@ public class NotificationService implements INotificationService {
                 notificationUid = realUid;
                 falseUid = notifVO.getTheNotificationDT().getNotificationUid();
 
-                if (notifVO.isItNew())
-                {
+                if (notifVO.isItNew()) {
                     ActRelationshipDto actRelDT;
                     actRelDT = iUidService.setFalseToNewForNotification(notificationProxyVO, falseUid, realUid);
                     notifDT.setNotificationUid(realUid);
@@ -270,15 +252,12 @@ public class NotificationService implements INotificationService {
                     notificationProxyVO.setTheActRelationshipDTCollection(act2);
                     actRelationshipRepositoryUtil.storeActRelationship(actRelDT);
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new DataProcessingException(" : " + e);
             }
         } // end of if new or dirty
         return notificationUid;
     } // end of setNotificationProxy
-
 
 
 }

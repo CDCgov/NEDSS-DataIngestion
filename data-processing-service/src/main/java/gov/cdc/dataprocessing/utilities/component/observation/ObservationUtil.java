@@ -22,9 +22,9 @@ public class ObservationUtil {
     }
 
     public Long getUid(Collection<ParticipationDto> participationDtoCollection,
-                        Collection<ActRelationshipDto> actRelationshipDtoCollection,
-                        String uidListType, String uidClassCd, String uidTypeCd,
-                        String uidActClassCd, String uidRecordStatusCd) throws DataProcessingException {
+                       Collection<ActRelationshipDto> actRelationshipDtoCollection,
+                       String uidListType, String uidClassCd, String uidTypeCd,
+                       String uidActClassCd, String uidRecordStatusCd) throws DataProcessingException {
         Long anUid = null;
         try {
             if (participationDtoCollection != null) {
@@ -42,13 +42,11 @@ public class ObservationUtil {
                                             && (partDT.getRecordStatusCd() != null
                                             && partDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd))
                             )
-                    )
-                    {
+                    ) {
                         anUid = partDT.getSubjectEntityUid();
                     }
                 }
-            }
-            else if (actRelationshipDtoCollection != null) {
+            } else if (actRelationshipDtoCollection != null) {
                 for (ActRelationshipDto actRelDT : actRelationshipDtoCollection) {
                     if (
                             (
@@ -88,16 +86,15 @@ public class ObservationUtil {
     /**
      * Description:
      * Root OBS are one of these following
-     *  - Ctrl Code Display Form = LabReport;
-     *  - Obs Domain Code St 1 = Order;
-     *  - Ctrl Code Display Form = MorbReport;
-
-     *  Original Name: getRootDT
+     * - Ctrl Code Display Form = LabReport;
+     * - Obs Domain Code St 1 = Order;
+     * - Ctrl Code Display Form = MorbReport;
+     * <p>
+     * Original Name: getRootDT
      **/
     public ObservationDto getRootObservationDto(BaseContainer proxyVO) throws DataProcessingException {
         ObservationContainer rootVO = getRootObservationContainer(proxyVO);
-        if (rootVO != null)
-        {
+        if (rootVO != null) {
             return rootVO.getTheObservationDto();
         }
         return null;
@@ -107,26 +104,23 @@ public class ObservationUtil {
     /**
      * Description:
      * Root OBS are one of these following
-     *  - Ctrl Code Display Form = LabReport;
-     *  - Obs Domain Code St 1 = Order;
-     *  - Ctrl Code Display Form = MorbReport;
+     * - Ctrl Code Display Form = LabReport;
+     * - Obs Domain Code St 1 = Order;
+     * - Ctrl Code Display Form = MorbReport;
      * Original Name: getRootObservationContainer
      **/
-    public ObservationContainer getRootObservationContainer(BaseContainer proxy) throws DataProcessingException
-    {
-        Collection<ObservationContainer>  obsColl = null;
+    public ObservationContainer getRootObservationContainer(BaseContainer proxy) throws DataProcessingException {
+        Collection<ObservationContainer> obsColl = null;
         boolean isLabReport = false;
 
-        if (proxy instanceof LabResultProxyContainer)
-        {
-            obsColl = ( (LabResultProxyContainer) proxy).getTheObservationContainerCollection();
+        if (proxy instanceof LabResultProxyContainer) {
+            obsColl = ((LabResultProxyContainer) proxy).getTheObservationContainerCollection();
             isLabReport = true;
         }
 
         ObservationContainer rootVO = getRootObservationContainerFromObsCollection(obsColl, isLabReport);
 
-        if( rootVO == null)
-        {
+        if (rootVO == null) {
             throw new DataProcessingException("Expected the proxyVO containing a root observation(e.g., ordered test)");
         }
         return rootVO;
@@ -137,37 +131,35 @@ public class ObservationUtil {
     /**
      * Description:
      * Root OBS are one of these following
-     *  - Ctrl Code Display Form = LabReport;
-     *  - Obs Domain Code St 1 = Order;
-     *  - Ctrl Code Display Form = MorbReport;
+     * - Ctrl Code Display Form = LabReport;
+     * - Obs Domain Code St 1 = Order;
+     * - Ctrl Code Display Form = MorbReport;
      **/
     private ObservationContainer getRootObservationContainerFromObsCollection(Collection<ObservationContainer> obsColl, boolean isLabReport) {
-        if(obsColl == null){
+        if (obsColl == null) {
             return null;
         }
 
         Iterator<ObservationContainer> iterator;
-        for (iterator = obsColl.iterator(); iterator.hasNext(); )
-        {
+        for (iterator = obsColl.iterator(); iterator.hasNext(); ) {
             ObservationContainer observationContainer = iterator.next();
             if (
-                observationContainer.getTheObservationDto() != null
-                && (
-                        (
-                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null
-                            && observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY)
-                        )
-                        || (
-                            observationContainer.getTheObservationDto().getObsDomainCdSt1() != null
-                            && observationContainer.getTheObservationDto().getObsDomainCdSt1().equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
-                            && isLabReport
-                        ) || (
-                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null &&
-                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)
-                        )
-                )
-            )
-            {
+                    observationContainer.getTheObservationDto() != null
+                            && (
+                            (
+                                    observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null
+                                            && observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_CTRLCD_DISPLAY)
+                            )
+                                    || (
+                                    observationContainer.getTheObservationDto().getObsDomainCdSt1() != null
+                                            && observationContainer.getTheObservationDto().getObsDomainCdSt1().equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
+                                            && isLabReport
+                            ) || (
+                                    observationContainer.getTheObservationDto().getCtrlCdDisplayForm() != null &&
+                                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)
+                            )
+                    )
+            ) {
                 return observationContainer;
             }
         }

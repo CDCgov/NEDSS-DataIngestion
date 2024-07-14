@@ -55,14 +55,15 @@ class ProgramAreaServiceTest {
 
     @Test
     void getAllProgramAreaCode() {
-        ProgramAreaCode programAreaCode= getProgramAreaCode();
+        ProgramAreaCode programAreaCode = getProgramAreaCode();
         when(programAreaCodeRepository.findAll()).thenReturn(List.of(programAreaCode));
         List<ProgramAreaCode> programAreaCodeList = programAreaService.getAllProgramAreaCode();
         assertEquals(1, programAreaCodeList.size());
     }
+
     @Test
     void getAllProgramAreaCode_empty_list() {
-        List<ProgramAreaCode> programAreaCodeList=new ArrayList<>();
+        List<ProgramAreaCode> programAreaCodeList = new ArrayList<>();
         when(programAreaCodeRepository.findAll()).thenReturn(programAreaCodeList);
         List<ProgramAreaCode> programAreaCodeListResult = programAreaService.getAllProgramAreaCode();
         assertEquals(0, programAreaCodeListResult.size());
@@ -70,16 +71,16 @@ class ProgramAreaServiceTest {
 
     @Test
     void getProgramArea_SNOMED() throws DataProcessingException {
-        Collection<ObservationContainer> observationResults=new ArrayList<>();
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
         //1
-        ObservationContainer observationContainer1=new ObservationContainer();
-        ObservationDto obsDt1=new ObservationDto();
+        ObservationContainer observationContainer1 = new ObservationContainer();
+        ObservationDto obsDt1 = new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt1.setCd("TEST_CD1");
         observationContainer1.setTheObservationDto(obsDt1);
         //2
-        ObservationContainer observationContainer2=new ObservationContainer();
-        ObservationDto obsDt2=new ObservationDto();
+        ObservationContainer observationContainer2 = new ObservationContainer();
+        ObservationDto obsDt2 = new ObservationDto();
         obsDt2.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt2.setCd("TEST_CD2");
         observationContainer2.setTheObservationDto(obsDt2);
@@ -87,27 +88,28 @@ class ProgramAreaServiceTest {
         observationResults.add(observationContainer1);
         observationResults.add(observationContainer2);
 
-        ObservationContainer observationRequest=new ObservationContainer();
+        ObservationContainer observationRequest = new ObservationContainer();
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
 
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn("TEST_PA");
-        programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
-        verify(srteCodeObsService,times(2)).getPAFromSNOMEDCodes(any(), any());
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), any())).thenReturn("TEST_PA");
+        programAreaService.getProgramArea(observationResults, observationRequest, "TEST");
+        verify(srteCodeObsService, times(2)).getPAFromSNOMEDCodes(any(), any());
     }
+
     @Test
     void getProgramArea_LOINC() throws DataProcessingException {
-        Collection<ObservationContainer> observationResults=new ArrayList<>();
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
         //1
-        ObservationContainer observationContainer1=new ObservationContainer();
-        ObservationDto obsDt1=new ObservationDto();
+        ObservationContainer observationContainer1 = new ObservationContainer();
+        ObservationDto obsDt1 = new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt1.setCd("TEST_CD1");
         observationContainer1.setTheObservationDto(obsDt1);
         //2
-        ObservationContainer observationContainer2=new ObservationContainer();
-        ObservationDto obsDt2=new ObservationDto();
+        ObservationContainer observationContainer2 = new ObservationContainer();
+        ObservationDto obsDt2 = new ObservationDto();
         obsDt2.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt2.setCd("TEST_CD2");
         observationContainer2.setTheObservationDto(obsDt2);
@@ -115,29 +117,30 @@ class ProgramAreaServiceTest {
         observationResults.add(observationContainer1);
         observationResults.add(observationContainer2);
 
-        ObservationContainer observationRequest=new ObservationContainer();
+        ObservationContainer observationRequest = new ObservationContainer();
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
 
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn("TEST_PA");
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLOINCCode(any(), any())).thenReturn("TEST_PA");
 
-        programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
-        verify(srteCodeObsService,times(2)).getPAFromLOINCCode(any(), any());
+        programAreaService.getProgramArea(observationResults, observationRequest, "TEST");
+        verify(srteCodeObsService, times(2)).getPAFromLOINCCode(any(), any());
     }
+
     @Test
     void getProgramArea_LocalResult() throws DataProcessingException {
-        Collection<ObservationContainer> observationResults=new ArrayList<>();
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
         //1
-        ObservationContainer observationContainer1=new ObservationContainer();
-        ObservationDto obsDt1=new ObservationDto();
+        ObservationContainer observationContainer1 = new ObservationContainer();
+        ObservationDto obsDt1 = new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt1.setCd("TEST_CD1");
         observationContainer1.setTheObservationDto(obsDt1);
         //2
-        ObservationContainer observationContainer2=new ObservationContainer();
-        ObservationDto obsDt2=new ObservationDto();
+        ObservationContainer observationContainer2 = new ObservationContainer();
+        ObservationDto obsDt2 = new ObservationDto();
         obsDt2.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt2.setCd("TEST_CD2");
         observationContainer2.setTheObservationDto(obsDt2);
@@ -145,86 +148,89 @@ class ProgramAreaServiceTest {
         observationResults.add(observationContainer1);
         observationResults.add(observationContainer2);
 
-        ObservationContainer observationRequest=new ObservationContainer();
+        ObservationContainer observationRequest = new ObservationContainer();
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
 
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLocalResultCode(any(),any())).thenReturn("TEST_PA");
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLOINCCode(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLocalResultCode(any(), any())).thenReturn("TEST_PA");
 
-        programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
-        verify(srteCodeObsService,times(2)).getPAFromLocalResultCode(any(), any());
+        programAreaService.getProgramArea(observationResults, observationRequest, "TEST");
+        verify(srteCodeObsService, times(2)).getPAFromLocalResultCode(any(), any());
     }
+
     @Test
     void getProgramArea_LocalTestCode() throws DataProcessingException {
-        Collection<ObservationContainer> observationResults=new ArrayList<>();
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
 
-        ObservationContainer observationContainer1=new ObservationContainer();
-        ObservationDto obsDt1=new ObservationDto();
+        ObservationContainer observationContainer1 = new ObservationContainer();
+        ObservationDto obsDt1 = new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt1.setCd("TEST_CD1");
         observationContainer1.setTheObservationDto(obsDt1);
 
         observationResults.add(observationContainer1);
         //observationRequest
-        ObservationContainer observationRequest=new ObservationContainer();
+        ObservationContainer observationRequest = new ObservationContainer();
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
 
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLocalResultCode(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLocalTestCode(any(),any())).thenReturn("TEST_PA");
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLOINCCode(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLocalResultCode(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLocalTestCode(any(), any())).thenReturn("TEST_PA");
 
-        programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
-        verify(srteCodeObsService,times(1)).getPAFromLocalTestCode(any(), any());
+        programAreaService.getProgramArea(observationResults, observationRequest, "TEST");
+        verify(srteCodeObsService, times(1)).getPAFromLocalTestCode(any(), any());
     }
+
     @Test
     void getProgramArea_empty_PA() throws DataProcessingException {
-        Collection<ObservationContainer> observationResults=new ArrayList<>();
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
         //1
-        ObservationContainer observationContainer1=new ObservationContainer();
-        ObservationDto obsDt1=new ObservationDto();
+        ObservationContainer observationContainer1 = new ObservationContainer();
+        ObservationDto obsDt1 = new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt1.setCd("TEST_CD1");
         observationContainer1.setTheObservationDto(obsDt1);
 
         observationResults.add(observationContainer1);
         //observationRequest
-        ObservationContainer observationRequest=new ObservationContainer();
+        ObservationContainer observationRequest = new ObservationContainer();
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
 
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLOINCCode(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLocalResultCode(any(),any())).thenReturn(null);
-        when(srteCodeObsService.getPAFromLocalTestCode(any(),any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLOINCCode(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLocalResultCode(any(), any())).thenReturn(null);
+        when(srteCodeObsService.getPAFromLocalTestCode(any(), any())).thenReturn(null);
 
-        programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
-        verify(srteCodeObsService,times(1)).getPAFromLocalTestCode(any(), any());
+        programAreaService.getProgramArea(observationResults, observationRequest, "TEST");
+        verify(srteCodeObsService, times(1)).getPAFromLocalTestCode(any(), any());
     }
+
     @Test
     void getProgramArea_multi_PA() throws DataProcessingException {
-        Collection<ObservationContainer> observationResults=new ArrayList<>();
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
         //1
-        ObservationContainer observationContainer1=new ObservationContainer();
-        ObservationDto obsDt1=new ObservationDto();
+        ObservationContainer observationContainer1 = new ObservationContainer();
+        ObservationDto obsDt1 = new ObservationDto();
         obsDt1.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt1.setCd("TEST_CD1");
         observationContainer1.setTheObservationDto(obsDt1);
 
-        ObsValueCodedDto obsValueCodedDto=new ObsValueCodedDto();
+        ObsValueCodedDto obsValueCodedDto = new ObsValueCodedDto();
         obsValueCodedDto.setCode("TEST_CODE");
-        Collection<ObsValueCodedDto> obsValueCodedDtoCol=new ArrayList<>();
+        Collection<ObsValueCodedDto> obsValueCodedDtoCol = new ArrayList<>();
         obsValueCodedDtoCol.add(obsValueCodedDto);
         observationContainer1.setTheObsValueCodedDtoCollection(obsValueCodedDtoCol);
 
-        ObservationContainer observationContainer2=new ObservationContainer();
-        ObservationDto obsDt2=new ObservationDto();
+        ObservationContainer observationContainer2 = new ObservationContainer();
+        ObservationDto obsDt2 = new ObservationDto();
         obsDt2.setObsDomainCdSt1(ELRConstant.ELR_OBSERVATION_RESULT);
         obsDt2.setCd("TEST_CD2");
         observationContainer2.setTheObservationDto(obsDt2);
@@ -232,22 +238,23 @@ class ProgramAreaServiceTest {
         observationResults.add(observationContainer1);
         observationResults.add(observationContainer2);
 
-        ObservationContainer observationRequest=new ObservationContainer();
+        ObservationContainer observationRequest = new ObservationContainer();
         ObservationDto observationDto = new ObservationDto();
         observationDto.setElectronicInd(NEDSSConstant.ELECTRONIC_IND_ELR);
         observationRequest.setTheObservationDto(observationDto);
 
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),eq(null))).thenReturn("TEST_PA1");
-        when(srteCodeObsService.getPAFromSNOMEDCodes(any(),eq(observationContainer1.getTheObsValueCodedDtoCollection()))).thenReturn("TEST_PA2");
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), eq(null))).thenReturn("TEST_PA1");
+        when(srteCodeObsService.getPAFromSNOMEDCodes(any(), eq(observationContainer1.getTheObsValueCodedDtoCollection()))).thenReturn("TEST_PA2");
 
-        programAreaService.getProgramArea(observationResults,observationRequest,"TEST");
-        verify(srteCodeObsService,times(2)).getPAFromSNOMEDCodes(any(), any());
+        programAreaService.getProgramArea(observationResults, observationRequest, "TEST");
+        verify(srteCodeObsService, times(2)).getPAFromSNOMEDCodes(any(), any());
     }
+
     @Test
     void deriveProgramAreaCd() throws DataProcessingException {
-        LabResultProxyContainer labResultProxyVO=new LabResultProxyContainer();
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
         Collection<ObservationContainer> obsContainerList = new ArrayList<>();
-        ObservationContainer obsVO1 =new ObservationContainer();
+        ObservationContainer obsVO1 = new ObservationContainer();
         obsVO1.getTheObservationDto().setObsDomainCdSt1(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
         obsContainerList.add(obsVO1);
         labResultProxyVO.setTheObservationContainerCollection(obsContainerList);
@@ -255,24 +262,25 @@ class ProgramAreaServiceTest {
         labResultProxyVO.setLabClia("TEST123");
         labResultProxyVO.setManualLab(true);
 
-        ObservationContainer orderTest=new ObservationContainer();
+        ObservationContainer orderTest = new ObservationContainer();
         orderTest.getTheObservationDto().setElectronicInd(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
 
-        HashMap<Object, Object> paResults=new HashMap<>();
+        HashMap<Object, Object> paResults = new HashMap<>();
         paResults.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, "TEST_PA");
         paResults.put("ERROR", "ERROR_PA");
 
         when(srteCodeObsService.getProgramArea(any(), any(), any())).thenReturn(paResults);
 
-        String result= programAreaService.deriveProgramAreaCd(labResultProxyVO,orderTest);
-        assertEquals("ERROR_PA",result);
+        String result = programAreaService.deriveProgramAreaCd(labResultProxyVO, orderTest);
+        assertEquals("ERROR_PA", result);
         verify(srteCodeObsService).getProgramArea(any(), any(), any());
     }
+
     @Test
     void deriveProgramAreaCd_labClia_null() throws DataProcessingException {
-        LabResultProxyContainer labResultProxyVO=new LabResultProxyContainer();
+        LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
         Collection<ObservationContainer> obsContainerList = new ArrayList<>();
-        ObservationContainer obsVO1 =new ObservationContainer();
+        ObservationContainer obsVO1 = new ObservationContainer();
         obsVO1.getTheObservationDto().setObsDomainCdSt1(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
         obsContainerList.add(obsVO1);
         labResultProxyVO.setTheObservationContainerCollection(obsContainerList);
@@ -280,15 +288,15 @@ class ProgramAreaServiceTest {
         labResultProxyVO.setLabClia(null);
         labResultProxyVO.setManualLab(false);
 
-        ObservationContainer orderTest=new ObservationContainer();
+        ObservationContainer orderTest = new ObservationContainer();
         orderTest.getTheObservationDto().setElectronicInd(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
 
         when(observationCodeService.getReportingLabCLIA(any())).thenReturn(null);
         when(srteCodeObsService.getProgramArea(any(), any(), any())).thenReturn(null);
 
-        String result= programAreaService.deriveProgramAreaCd(labResultProxyVO,orderTest);
+        String result = programAreaService.deriveProgramAreaCd(labResultProxyVO, orderTest);
         assertNull(result);
-        verify(srteCodeObsService,times(1)).getProgramArea(any(), any(), any());
+        verify(srteCodeObsService, times(1)).getProgramArea(any(), any(), any());
     }
 
     private ProgramAreaCode getProgramAreaCode() {

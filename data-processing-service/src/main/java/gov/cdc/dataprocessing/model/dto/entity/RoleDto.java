@@ -40,6 +40,7 @@ public class RoleDto extends BaseContainer {
     public RoleDto() {
 
     }
+
     public RoleDto(Role role) {
         this.roleSeq = role.getRoleSeq();
         this.addReasonCd = role.getAddReasonCode();

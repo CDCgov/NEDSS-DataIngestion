@@ -23,14 +23,13 @@ import static org.mockito.Mockito.when;
 
 class QueryHelperTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
     @InjectMocks
     private QueryHelper queryHelper;
-
     @Mock
     private QueryHelper queryHelperMock;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +47,7 @@ class QueryHelperTest {
         roleCol.add(role);
         userInfo.setAuthUserRealizedRoleCollection(roleCol);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -67,7 +66,7 @@ class QueryHelperTest {
         when(progAreaJurisdictionUtil.getPAJHashList(any(), any())).thenReturn(padCol);
 
 
-        var res =  queryHelper.getDataAccessWhereClause(businessObjLookupName, operation, alias);
+        var res = queryHelper.getDataAccessWhereClause(businessObjLookupName, operation, alias);
         assertNotNull(res);
     }
 
@@ -84,8 +83,9 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
+
     @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_OnlyOwnerNonEmpty() {
@@ -99,8 +99,9 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
+
     @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_OnlyGuestNonEmpty() {
@@ -114,8 +115,9 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
+
     @SuppressWarnings("java:S5976")
     @Test
     void testBuildWhereClause_BothEmpty() {
@@ -129,7 +131,7 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("ownerList", "guestList", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
 
     @Test
@@ -144,7 +146,7 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("", "guestList", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
 
     @Test
@@ -159,7 +161,7 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("ownerList", "", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
 
     @Test
@@ -174,6 +176,6 @@ class QueryHelperTest {
         String result = queryHelper.buildWhereClause("", "", "columnName", "alias", true, "businessObjLookupName");
 
         // Assert
-        assertNotNull( result);
+        assertNotNull(result);
     }
 }

@@ -12,8 +12,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ActIdDto extends BaseContainer implements RootDtoInterface
-{
+public class ActIdDto extends BaseContainer implements RootDtoInterface {
     private Long actUid;
     private Integer actIdSeq;
     private String addReasonCd;
@@ -44,17 +43,6 @@ public class ActIdDto extends BaseContainer implements RootDtoInterface
     private String sharedInd = null;
 
 
-    // NOTE: Act Hist is also a Entity Type
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return actUid;
-    }
-
     public ActIdDto() {
         itDirty = false;
         itNew = true;
@@ -84,5 +72,16 @@ public class ActIdDto extends BaseContainer implements RootDtoInterface
         this.userAffiliationTxt = actId.getUserAffiliationTxt();
         this.validFromTime = actId.getValidFromTime();
         this.validToTime = actId.getValidToTime();
+    }
+
+    // NOTE: Act Hist is also a Entity Type
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return actUid;
     }
 }

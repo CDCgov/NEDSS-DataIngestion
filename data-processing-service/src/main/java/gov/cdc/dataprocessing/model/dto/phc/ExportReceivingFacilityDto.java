@@ -19,7 +19,7 @@ public class ExportReceivingFacilityDto extends BaseContainer {
     private Long exportReceivingFacilityUid;
     private String recordStatusCd;
     private String receivingSystemNm;
-    private String  receivingSystemOid;
+    private String receivingSystemOid;
     private String receivingSystemShortName;
     private String receivingSystemOwner;
     private String receivingSystemOwnerOid;

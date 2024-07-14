@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class NNDActivityLogDto extends BaseContainer
-{
+public class NNDActivityLogDto extends BaseContainer {
     private Long nndActivityLogUid;
     private Integer nndActivityLogSeq;
     private String errorMessageTxt;
@@ -26,6 +25,7 @@ public class NNDActivityLogDto extends BaseContainer
     public NNDActivityLogDto() {
 
     }
+
     public NNDActivityLogDto(NNDActivityLog activityLog) {
         this.nndActivityLogUid = activityLog.getNndActivityLogUid();
         this.nndActivityLogSeq = activityLog.getNndActivityLogSeq();

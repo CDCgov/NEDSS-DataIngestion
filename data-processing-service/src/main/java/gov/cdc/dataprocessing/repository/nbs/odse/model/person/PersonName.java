@@ -116,6 +116,7 @@ public class PersonName {
     public PersonName() {
 
     }
+
     public PersonName(PersonNameDto personNameDto) {
         var timeStamp = getCurrentTimeStamp();
         this.personUid = personNameDto.getPersonUid();
@@ -146,7 +147,7 @@ public class PersonName {
         this.recordStatusTime = timeStamp;
         this.statusCd = personNameDto.getStatusCd();
         this.statusTime = personNameDto.getStatusTime();
-        this.toTime = personNameDto.getToTime() ;
+        this.toTime = personNameDto.getToTime();
         this.userAffiliationTxt = personNameDto.getUserAffiliationTxt();
 
         if (personNameDto.getAsOfDate() == null) {

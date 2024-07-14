@@ -20,15 +20,14 @@ public class MessageLogService implements IMessageLogService {
 
     @Transactional
     public void saveMessageLog(Collection<MessageLogDto> messageLogDtoCollection) throws DataProcessingException {
-        try{
-            if(messageLogDtoCollection !=null)
-            {
+        try {
+            if (messageLogDtoCollection != null) {
                 for (MessageLogDto messageLogDto : messageLogDtoCollection) {
                     MessageLog msg = new MessageLog(messageLogDto);
                     messageLogRepository.save(msg);
                 }
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new DataProcessingException(ex.toString());
         }
     }

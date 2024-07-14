@@ -4,14 +4,21 @@ import gov.cdc.dataprocessing.model.container.model.InterventionContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 
 public interface PageProxyContainer {
-    public static final long serialVersionUID = 1L;
+    long serialVersionUID = 1L;
 
-    public String getPageProxyTypeCd();
-    public void setPageProxyTypeCd(String pageProxyTypeCd);
-    public PublicHealthCaseContainer getPublicHealthCaseVO();
-    public void setPublicHealthCaseVO(PublicHealthCaseContainer publicHealthCaseContainer);
-    public InterviewContainer getInterviewVO();
-    public void setInterviewVO(InterviewContainer interviewContainer);
-    public InterventionContainer getInterventionVO();
-    public void setInterventionVO(InterventionContainer interventionContainer);
+    String getPageProxyTypeCd();
+
+    void setPageProxyTypeCd(String pageProxyTypeCd);
+
+    PublicHealthCaseContainer getPublicHealthCaseVO();
+
+    void setPublicHealthCaseVO(PublicHealthCaseContainer publicHealthCaseContainer);
+
+    InterviewContainer getInterviewVO();
+
+    void setInterviewVO(InterviewContainer interviewContainer);
+
+    InterventionContainer getInterventionVO();
+
+    void setInterventionVO(InterventionContainer interventionContainer);
 }

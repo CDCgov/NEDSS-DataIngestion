@@ -40,18 +40,16 @@ import static org.mockito.Mockito.*;
 
 class AutoInvestigationServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ConditionCodeRepository conditionCodeRepository;
     @Mock
     private ICatchingValueService catchingValueService;
     @Mock
     private ILookupService lookupService;
-
     @InjectMocks
     @Spy
     private AutoInvestigationService autoInvestigationService;
-    @Mock
-    AuthUtil authUtil;
-
     @Mock
     private PageActProxyContainer pageActProxyContainerMock;
 
@@ -82,7 +80,7 @@ class AutoInvestigationServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         jurisdictionCodeMapWithNbsUid.put("STATE", 1);
         OdseCache.fromPrePopFormMapping.clear();
@@ -127,7 +125,6 @@ class AutoInvestigationServiceTest {
         ObservationContainer observationVO = TestData.observationContainer;
         EdxLabInformationDto edxLabInformationDT = TestData.edxLabInformationDto;
         edxLabInformationDT.setInvestigationType(null);
-
 
 
         // createPublicHealthCaseVO 59
@@ -180,7 +177,7 @@ class AutoInvestigationServiceTest {
     void transferValuesTOActProxyVO_Success() throws DataProcessingException {
         PageActProxyContainer pageActProxyContainer = new PageActProxyContainer();
         PamProxyContainer pamActProxyVO = new PamProxyContainer();
-        Collection< PersonContainer > personVOCollection = new ArrayList<>();
+        Collection<PersonContainer> personVOCollection = new ArrayList<>();
         ObservationContainer rootObservationVO = new ObservationContainer();
         Collection<Object> entities = new ArrayList<>();
         Map<Object, Object> questionIdentifierMap = new TreeMap<>();
@@ -238,7 +235,7 @@ class AutoInvestigationServiceTest {
         entities.add(entityEdxRule);
 
         // createActEntityObject 162
-        var tree =new TreeMap<String, String>();
+        var tree = new TreeMap<String, String>();
         tree.put("PAT", "PAT");
         when(catchingValueService.getCodedValue(any()))
                 .thenReturn(tree);
@@ -383,8 +380,6 @@ class AutoInvestigationServiceTest {
         OdseCache.fromPrePopFormMapping.put(NEDSSConstant.LAB_FORM_CD, mapTree);
 
 
-
-
         var proxLab = new LabResultProxyContainer();
         var obsColl = new ArrayList<ObservationContainer>();
         var obsConn = new ObservationContainer();
@@ -517,6 +512,7 @@ class AutoInvestigationServiceTest {
 
         verify(lookupService, times(1)).getToPrePopFormMapping("INVES");
     }
+
     @Test
     void testAutoCreateInvestigationTypeFormRvctCheck_Valid() {
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();

@@ -37,7 +37,7 @@ public class ParticipationService implements IParticipationService {
             var res = participationHistRepository.findVerNumberByKey(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getTypeCd());
             Integer ver = 1;
             if (res.isPresent()) {
-                if(!res.get().isEmpty()) {
+                if (!res.get().isEmpty()) {
                     ver = Collections.max(res.get());
                 }
             }
@@ -60,6 +60,7 @@ public class ParticipationService implements IParticipationService {
             deleteParticipationByPk(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getActClassCd());
         }
     }
+
     private void persistingParticipation(ParticipationDto participationDto) throws DataProcessingException {
         if (participationDto.getSubjectEntityUid() != null && participationDto.getActUid() != null) {
             try {

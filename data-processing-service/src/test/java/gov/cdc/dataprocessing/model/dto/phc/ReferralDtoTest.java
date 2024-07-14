@@ -171,7 +171,7 @@ class ReferralDtoTest {
 
         // Test overridden methods
         assertEquals(dto.getReferralUid(), dto.getUid());
-        assertNull( dto.getSuperclass());
+        assertNull(dto.getSuperclass());
         assertNull(dto.getLastChgUserId());
         assertNull(dto.getJurisdictionCd());
         assertNull(dto.getProgAreaCd());

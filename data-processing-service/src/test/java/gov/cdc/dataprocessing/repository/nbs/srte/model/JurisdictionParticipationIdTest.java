@@ -39,7 +39,6 @@ class JurisdictionParticipationIdTest {
         id3.setTypeCd("DifferentTypeCd");
 
 
-
         assertNotEquals(id1, id3);
         assertNotEquals(id1.hashCode(), id3.hashCode());
     }

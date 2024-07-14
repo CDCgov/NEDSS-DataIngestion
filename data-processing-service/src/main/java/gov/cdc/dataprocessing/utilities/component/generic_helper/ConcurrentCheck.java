@@ -14,53 +14,41 @@ public class ConcurrentCheck {
 
     public ConcurrentCheck() {
     }
-    public boolean dataConcurrenceCheck(RootDtoInterface theRootDTInterface, String tableName, Integer existingVersion) throws DataProcessingException
-    {
 
-        try
-        {
-            if(tableName.equalsIgnoreCase("Person"))
-            {
-               // PersonDto personDT  = patientRepositoryUtil.loadPerson(theRootDTInterface.getUid()).getThePersonDto();
-                if(theRootDTInterface.getVersionCtrlNbr() == null)
-                {
-                    ((PersonDto)theRootDTInterface).setVersionCtrlNbr(1);
+    public boolean dataConcurrenceCheck(RootDtoInterface theRootDTInterface, String tableName, Integer existingVersion) throws DataProcessingException {
+
+        try {
+            if (tableName.equalsIgnoreCase("Person")) {
+                // PersonDto personDT  = patientRepositoryUtil.loadPerson(theRootDTInterface.getUid()).getThePersonDto();
+                if (theRootDTInterface.getVersionCtrlNbr() == null) {
+                    ((PersonDto) theRootDTInterface).setVersionCtrlNbr(1);
                 }
-                if(existingVersion == null || existingVersion.equals(theRootDTInterface.getVersionCtrlNbr()))
-                {
+                if (existingVersion == null || existingVersion.equals(theRootDTInterface.getVersionCtrlNbr())) {
                     return true;
-                }else{
-                    PersonDto newPersonDT= (PersonDto)theRootDTInterface;
+                } else {
+                    PersonDto newPersonDT = (PersonDto) theRootDTInterface;
 
-                    if(existingVersion.equals(theRootDTInterface.getVersionCtrlNbr() - 1) && newPersonDT.isReentrant()) {
+                    if (existingVersion.equals(theRootDTInterface.getVersionCtrlNbr() - 1) && newPersonDT.isReentrant()) {
                         return true;
                     }
 
                 }
             }
-            if(tableName.equalsIgnoreCase(DataTables.ORGANIZATION_TABLE))
-            {
-               // OrganizationDto organizationDT  = organizationRepositoryUtil.loadObject(theRootDTInterface.getUid(), null).getTheOrganizationDto();
-                if(theRootDTInterface.getVersionCtrlNbr() == null)
-                {
-                    ((OrganizationDto)theRootDTInterface).setVersionCtrlNbr(1);
+            if (tableName.equalsIgnoreCase(DataTables.ORGANIZATION_TABLE)) {
+                // OrganizationDto organizationDT  = organizationRepositoryUtil.loadObject(theRootDTInterface.getUid(), null).getTheOrganizationDto();
+                if (theRootDTInterface.getVersionCtrlNbr() == null) {
+                    ((OrganizationDto) theRootDTInterface).setVersionCtrlNbr(1);
                 }
-                if(existingVersion.equals(theRootDTInterface.getVersionCtrlNbr()))
-                {
+                if (existingVersion.equals(theRootDTInterface.getVersionCtrlNbr())) {
                     return true;
                 }
             }
-            if(tableName.equalsIgnoreCase("Observation"))
-            {
+            if (tableName.equalsIgnoreCase("Observation")) {
                 //ObservationDto observationDT  = observationRepositoryUtil.loadObject(theRootDTInterface.getUid()).getTheObservationDto();
-                if(theRootDTInterface.getVersionCtrlNbr() == null)
-                {
-                    ((ObservationDto)theRootDTInterface).setVersionCtrlNbr(1);
+                if (theRootDTInterface.getVersionCtrlNbr() == null) {
+                    ((ObservationDto) theRootDTInterface).setVersionCtrlNbr(1);
                 }
-                if(existingVersion.equals(theRootDTInterface.getVersionCtrlNbr()))
-                {
-                    return true;
-                }
+                return existingVersion.equals(theRootDTInterface.getVersionCtrlNbr());
             }
 //            if(tableName.equalsIgnoreCase("Notification"))
 //            {
@@ -148,9 +136,7 @@ public class ConcurrentCheck {
 //            }
 
             return false;
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }

@@ -20,8 +20,8 @@ public class ActIdRepositoryUtil {
         var actIds = actIdRepository.findRecordsById(actUid);
         Collection<ActIdDto> actIdCollection = new ArrayList<>();
         if (actIds.isPresent()) {
-            for(var item : actIds.get()) {
-                var dto  = new ActIdDto(item);
+            for (var item : actIds.get()) {
+                var dto = new ActIdDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
                 actIdCollection.add(dto);
@@ -32,7 +32,7 @@ public class ActIdRepositoryUtil {
 
 
     public void insertActIdCollection(Long uid, Collection<ActIdDto> actIdDtoCollection) {
-        for(var item: actIdDtoCollection){
+        for (var item : actIdDtoCollection) {
             ActId data = new ActId(item);
             data.setActUid(uid);
             actIdRepository.save(data);

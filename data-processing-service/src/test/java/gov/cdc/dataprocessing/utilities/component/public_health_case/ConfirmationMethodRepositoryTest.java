@@ -23,11 +23,11 @@ import static org.mockito.Mockito.when;
 
 class ConfirmationMethodRepositoryTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ConfirmationMethodRepository confirmationMethodRepository;
     @InjectMocks
     private ConfirmationMethodRepositoryUtil confirmationMethodRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +38,7 @@ class ConfirmationMethodRepositoryTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

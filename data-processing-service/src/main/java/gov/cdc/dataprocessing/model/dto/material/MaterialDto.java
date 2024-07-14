@@ -50,16 +50,6 @@ public class MaterialDto extends BaseContainer implements RootDtoInterface {
     private String sharedInd = null;
 
 
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return materialUid;
-    }
-
     public MaterialDto() {
         itDirty = false;
         itNew = true;
@@ -97,6 +87,16 @@ public class MaterialDto extends BaseContainer implements RootDtoInterface {
         this.statusTime = material.getStatusTime();
         this.userAffiliationTxt = material.getUserAffiliationTxt();
         this.versionCtrlNbr = material.getVersionCtrlNbr();
+    }
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return materialUid;
     }
 
 }

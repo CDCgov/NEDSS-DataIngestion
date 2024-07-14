@@ -41,12 +41,11 @@ public class InvestigationContainer extends LdfBaseContainer {
     public Collection<Object> theLabReportSummaryVOCollection;
     public Collection<Object> theMorbReportSummaryVOCollection;
     public NotificationContainer theNotificationContainer;
+    public Collection<Object> theDocumentSummaryVOCollection;
     private boolean associatedNotificationsInd;
     private String businessObjectName;
     private boolean isOOSystemInd;
     private boolean isOOSystemPendInd;
-    private Collection<Object>  theContactVOColl;
+    private Collection<Object> theContactVOColl;
     private Collection<Object> theCTContactSummaryDTCollection;
-
-    public Collection<Object> theDocumentSummaryVOCollection;
 }

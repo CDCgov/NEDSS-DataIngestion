@@ -37,10 +37,9 @@ public class ObservationCodeService implements IObservationCodeService {
 
 
     public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
-        Collection<ParticipationDto>  partColl = null;
-        if (proxy instanceof LabResultProxyContainer)
-        {
-            partColl = ( (LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
+        Collection<ParticipationDto> partColl = null;
+        if (proxy instanceof LabResultProxyContainer) {
+            partColl = ((LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
         }
 //            if (proxy instanceof MorbidityProxyVO)
 //            {
@@ -57,8 +56,7 @@ public class ObservationCodeService implements IObservationCodeService {
 
         OrganizationContainer reportingLabVO = null;
 
-        if (reportingLabUid != null)
-        {
+        if (reportingLabUid != null) {
             reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
         }
 
@@ -66,9 +64,8 @@ public class ObservationCodeService implements IObservationCodeService {
         //Get the CLIA
         String reportingLabCLIA = null;
 
-        if(reportingLabVO != null)
-        {
-            Collection<EntityIdDto>  entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
+        if (reportingLabVO != null) {
+            Collection<EntityIdDto> entityIdColl = reportingLabVO.getTheEntityIdDtoCollection();
 
             if (entityIdColl != null && entityIdColl.size() > 0) {
                 for (EntityIdDto idDT : entityIdColl) {
@@ -91,12 +88,11 @@ public class ObservationCodeService implements IObservationCodeService {
     }
 
 
-
     /**
      * UNREACHABLE METHOD for the current flow; only reached if the payload is not ELR
      * deriveTheConditionCodeList - used by Associate to Investigations
-     *    when associating an STD lab to a closed investigation.
-     *    Condition list determines the Processing Decision to show.
+     * when associating an STD lab to a closed investigation.
+     * Condition list determines the Processing Decision to show.
      */
     public ArrayList<String> deriveTheConditionCodeList(LabResultProxyContainer labResultProxyVO,
                                                         ObservationContainer orderTest) throws DataProcessingException {
@@ -121,16 +117,14 @@ public class ObservationCodeService implements IObservationCodeService {
 
         // Get the reporting lab clia
         String reportingLabCLIA = "";
-        if (labResultProxyVO.getLabClia() != null && labResultProxyVO.isManualLab()){
+        if (labResultProxyVO.getLabClia() != null && labResultProxyVO.isManualLab()) {
             reportingLabCLIA = labResultProxyVO.getLabClia();
-        }
-        else {
+        } else {
             if (orderTest.getTheParticipationDtoCollection() != null) {
                 reportingLabCLIA = getReportingLabCLIAId(orderTest.getTheParticipationDtoCollection());
             }
         }
-        if (reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
-        {
+        if (reportingLabCLIA == null || reportingLabCLIA.trim().equals("")) {
             reportingLabCLIA = NEDSSConstant.DEFAULT;
         }
 
@@ -148,7 +142,7 @@ public class ObservationCodeService implements IObservationCodeService {
                                                       Collection<ObservationContainer> observationContainerCollection,
                                                       String electronicInd) throws DataProcessingException {
         int noConditionFoundForResultedTestCount = 0;
-        ArrayList<String> returnList =  new ArrayList<> ();
+        ArrayList<String> returnList = new ArrayList<>();
 
         // iterator through each resultTest
         for (ObservationContainer observationContainer : observationContainerCollection) {
@@ -224,8 +218,7 @@ public class ObservationCodeService implements IObservationCodeService {
             }
         }
         //if we couldn't derive a condition for a test, return no conditions
-        if (noConditionFoundForResultedTestCount > 0)
-        {
+        if (noConditionFoundForResultedTestCount > 0) {
             returnList.clear(); //incomplete list - return empty list
         }
 
@@ -280,7 +273,7 @@ public class ObservationCodeService implements IObservationCodeService {
     /**
      * Returns a List of Condition Codes associated with the passed Snomed codes.
      *
-     * @param reportingLabCLIA : String
+     * @param reportingLabCLIA     : String
      * @param obsValueCodedDtoColl : Collection
      * @return ArrayList<string>
      */
@@ -346,38 +339,32 @@ public class ObservationCodeService implements IObservationCodeService {
 
         String loincCd = "";
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
-        if (obsDt == null || reportingLabCLIA == null)
-        {
+        if (obsDt == null || reportingLabCLIA == null) {
             return null;
         }
 
         String cdSystemCd = obsDt.getCdSystemCd();
-        if (cdSystemCd == null || cdSystemCd.trim().equals(""))
-        {
+        if (cdSystemCd == null || cdSystemCd.trim().equals("")) {
             return null;
         }
 
         String obsCode = obsDt.getCd();
-        if (obsCode == null || obsCode.trim().equals(""))
-        {
+        if (obsCode == null || obsCode.trim().equals("")) {
             return null;
         }
 
         if (cdSystemCd.equals(ELRConstant.ELR_OBSERVATION_LOINC)) {
             loincCd = obsCode;
-        }
-        else
-        {
-            Map<String, Object> snomedMap =  srteCodeObsService.getSnomed(obsCode, "LT", reportingLabCLIA);
+        } else {
+            Map<String, Object> snomedMap = srteCodeObsService.getSnomed(obsCode, "LT", reportingLabCLIA);
 
-            if(snomedMap.containsKey("COUNT") && (Integer) snomedMap.get("COUNT") == 1) {
+            if (snomedMap.containsKey("COUNT") && (Integer) snomedMap.get("COUNT") == 1) {
                 loincCd = (String) snomedMap.get("LOINC");
             }
         }
 
         // If we have resolved the LOINC code, try to derive the condition
-        if (loincCd == null || loincCd.isEmpty())
-        {
+        if (loincCd == null || loincCd.isEmpty()) {
             return loincCd;
         }
 
@@ -394,15 +381,15 @@ public class ObservationCodeService implements IObservationCodeService {
     /**
      * Gets the default condition for a Local Result code.
      * If we find that it maps to more than one condition code, return nothing.
-     * @param reportingLabCLIA : String
+     *
+     * @param reportingLabCLIA      : String
      * @param obsValueCodedDtoColl: Collection
      * @return conditionCd : String
      */
     private String getConditionCodeForLocalResultCode(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) {
         String conditionCd = "";
         HashMap<String, String> conditionMap = new HashMap<>();
-        if (obsValueCodedDtoColl == null || reportingLabCLIA == null)
-        {
+        if (obsValueCodedDtoColl == null || reportingLabCLIA == null) {
             return null;
         }
 
@@ -417,31 +404,28 @@ public class ObservationCodeService implements IObservationCodeService {
                 }
             }
         }
-        if (conditionMap.size() > 1 || conditionMap.isEmpty())
-        {
-            return("");
-        }
-        else {
-            return(conditionCd);
+        if (conditionMap.size() > 1 || conditionMap.isEmpty()) {
+            return ("");
+        } else {
+            return (conditionCd);
         }
     }
 
     /**
      * Gets the default condition for the Local Test code.
-     * @param resultTestVO : Collection
+     *
+     * @param resultTestVO     : Collection
      * @param reportingLabCLIA : String
      * @return conditionCd : String
      */
     private String getConditionCodeForLocalTestCode(String reportingLabCLIA, ObservationContainer resultTestVO) {
 
         //edit checks
-        if (reportingLabCLIA == null || resultTestVO == null)
-        {
+        if (reportingLabCLIA == null || resultTestVO == null) {
             return null;
         }
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
-        if (obsDt.getCd() == null || obsDt.getCd().equals("") || obsDt.getCd().equals(" ") || obsDt.getCdSystemCd() == null)
-        {
+        if (obsDt.getCd() == null || obsDt.getCd().equals("") || obsDt.getCd().equals(" ") || obsDt.getCdSystemCd() == null) {
             return null;
         }
 
@@ -451,20 +435,17 @@ public class ObservationCodeService implements IObservationCodeService {
 
     /**
      * Gets the default condition for the Lab Test code.
+     *
      * @return conditionCd : String
      */
     private String getDefaultConditionForLabTestCode(String labTestCd, String reportingLabCLIA) {
-        String conditionCd = srteCodeObsService.getDefaultConditionForLabTest(labTestCd, reportingLabCLIA );
+        String conditionCd = srteCodeObsService.getDefaultConditionForLabTest(labTestCd, reportingLabCLIA);
         //see if the DEFAULT is set for the lab test if still not found..
-        if ((conditionCd == null || conditionCd.isEmpty()) && !reportingLabCLIA.equals(NEDSSConstant.DEFAULT))
-        {
+        if ((conditionCd == null || conditionCd.isEmpty()) && !reportingLabCLIA.equals(NEDSSConstant.DEFAULT)) {
             conditionCd = srteCodeObsService.getDefaultConditionForLabTest(labTestCd, NEDSSConstant.DEFAULT);
         }
-        return(conditionCd);
+        return (conditionCd);
     }
-
-
-
 
 
 }

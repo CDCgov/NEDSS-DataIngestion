@@ -46,17 +46,17 @@ public class PublicHealthCaseStoredProcRepository {
                 model.setActivityDurationUnitCd((String) result[2]);
                 model.setActivityFromTime((Timestamp) result[3]);
                 model.setActivityToTime((Timestamp) result[4]);
-                model.setAddReasonCd((String)  result[5]);
+                model.setAddReasonCd((String) result[5]);
                 model.setAddTime((Timestamp) result[6]);
-                model.setAddUserId((Long)  result[7]);
-                model.setCaseClassCd((String)  result[8]);
-                model.setCd((String)  result[9]);
-                model.setCdDescTxt((String)  result[10]);
-                model.setCdSystemCd((String)  result[11]);
-                model.setCdSystemDescTxt((String)  result[12]);
-                model.setConfidentialityCd((String)  result[13]);
-                model.setConfidentialityDescTxt((String)  result[14]);
-                model.setDetectionMethodCd((String)  result[15]);
+                model.setAddUserId((Long) result[7]);
+                model.setCaseClassCd((String) result[8]);
+                model.setCd((String) result[9]);
+                model.setCdDescTxt((String) result[10]);
+                model.setCdSystemCd((String) result[11]);
+                model.setCdSystemDescTxt((String) result[12]);
+                model.setConfidentialityCd((String) result[13]);
+                model.setConfidentialityDescTxt((String) result[14]);
+                model.setDetectionMethodCd((String) result[15]);
                 model.setDetectionMethodDescTxt((String) result[16]);
                 model.setDiseaseImportedCd((String) result[17]);
                 model.setDiseaseImportedDescTxt((String) result[18]);
@@ -84,7 +84,7 @@ public class PublicHealthCaseStoredProcRepository {
                 model.setRecordStatusTime((Timestamp) result[40]);
                 model.setRepeatNbr((Integer) result[41]);
                 model.setRptCntyCd((String) result[42]);
-                model.setStatusCd( ((Character) result[43]).toString());
+                model.setStatusCd(((Character) result[43]).toString());
                 model.setStatusTime((Timestamp) result[44]);
                 model.setTransmissionModeCd((String) result[45]);
                 model.setTransmissionModeDescTxt((String) result[46]);
@@ -140,7 +140,7 @@ public class PublicHealthCaseStoredProcRepository {
 
 
     @Transactional
-    public   Map<String, EDXEventProcessDto> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
+    public Map<String, EDXEventProcessDto> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
         Map<String, EDXEventProcessDto> eventProcessMap = new HashMap<>();
         try {
 

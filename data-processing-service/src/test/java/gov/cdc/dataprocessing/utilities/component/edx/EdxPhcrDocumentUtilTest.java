@@ -27,7 +27,6 @@ class EdxPhcrDocumentUtilTest {
     private EdxPhcrDocumentUtil edxPhcrDocumentUtil;
 
 
-
     @Mock
     private ILookupService lookupService;
 
@@ -107,7 +106,6 @@ class EdxPhcrDocumentUtilTest {
         tree.put("TA", ques);
 
         OdseCache.dmbMap.put(DecisionSupportConstants.CORE_INV_FORM, tree);
-
 
 
         var res = edxPhcrDocumentUtil.loadQuestions(condCode);

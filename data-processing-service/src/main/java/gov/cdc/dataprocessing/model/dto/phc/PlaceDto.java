@@ -198,13 +198,13 @@ public class PlaceDto extends BaseContainer implements RootDtoInterface {
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        this.addTime = aAddTime;
+    public Timestamp getAddTime() {
+        return addTime;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return addTime;
+    public void setAddTime(Timestamp aAddTime) {
+        this.addTime = aAddTime;
     }
 
     @Override

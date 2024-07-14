@@ -38,20 +38,18 @@ import static org.mockito.Mockito.*;
 
 class ObservationResultRequestHandlerTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ICatchingValueService checkingValueService;
     @Mock
     private NBSObjectConverter nbsObjectConverter;
     @Mock
     private CommonLabUtil commonLabUtil;
-
     @InjectMocks
     @Spy
     private ObservationResultRequestHandler observationResultRequestHandler;
-
     private List<HL7OBSERVATIONType> result;
     private EdxLabInformationDto edxLabInformationDt;
-    @Mock
-    AuthUtil authUtil;
     @Mock
     private HL7CWEType obsIdentifierMock;
     @Mock
@@ -60,6 +58,16 @@ class ObservationResultRequestHandlerTest {
     private EdxLabInformationDto edxLabInformationDtoMock;
     @Mock
     private ObservationContainer observationContainerMock;
+    @Mock
+    private HL7OBXType hl7OBXTypeMock;
+    @Mock
+    private LabResultProxyContainer labResultProxyContainerMock;
+    @Mock
+    private HL7XONType hl7XONTypeNameMock;
+    @Mock
+    private HL7HDType hl7AssigningAuthorityMock;
+    @Mock
+    private EntityIdDto entityIdDtoMock;
 
     @BeforeEach
     void setUp() throws JAXBException {
@@ -70,7 +78,7 @@ class ObservationResultRequestHandlerTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         var test = new TestDataReader();
         var xmlData = test.readDataFromXmlPath("/xml_payload/payload_1.xml");
@@ -98,7 +106,6 @@ class ObservationResultRequestHandlerTest {
     void tearDown() {
         Mockito.reset(checkingValueService, nbsObjectConverter, commonLabUtil, authUtil);
     }
-
 
     @Test
     void getObservationResultRequest_Test() throws DataProcessingException {
@@ -131,7 +138,7 @@ class ObservationResultRequestHandlerTest {
 
         observationDto.setObservationUid(10L);
 
-        var res= observationResultRequestHandler.setEquipments(equipmentIdType, observationDto, actIdDtoColl);
+        var res = observationResultRequestHandler.setEquipments(equipmentIdType, observationDto, actIdDtoColl);
 
         assertEquals(1, res.size());
     }
@@ -152,7 +159,7 @@ class ObservationResultRequestHandlerTest {
         observationContainer.setTheObservationInterpDtoCollection(new ArrayList<>());
 
         when(checkingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
-        var res= observationResultRequestHandler.processingAbnormalFlag(abnormalFlag, observationDto, observationContainer);
+        var res = observationResultRequestHandler.processingAbnormalFlag(abnormalFlag, observationDto, observationContainer);
         assertNotNull(res);
         assertEquals(1, res.getTheObservationInterpDtoCollection().size());
     }
@@ -173,7 +180,7 @@ class ObservationResultRequestHandlerTest {
         observationContainer.setTheObservationInterpDtoCollection(new ArrayList<>());
 
         when(checkingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("");
-        var res= observationResultRequestHandler.processingAbnormalFlag(abnormalFlag, observationDto, observationContainer);
+        var res = observationResultRequestHandler.processingAbnormalFlag(abnormalFlag, observationDto, observationContainer);
         assertNotNull(res);
         assertEquals(1, res.getTheObservationInterpDtoCollection().size());
     }
@@ -184,7 +191,7 @@ class ObservationResultRequestHandlerTest {
         HL7OBXType type = result.get(0).getObservationResult();
         type.setReferencesRange("1");
 
-        var res= observationResultRequestHandler.processingReferringRange(type, observationContainer);
+        var res = observationResultRequestHandler.processingReferringRange(type, observationContainer);
         assertNotNull(res);
 
     }
@@ -195,7 +202,7 @@ class ObservationResultRequestHandlerTest {
         HL7OBXType type = result.get(0).getObservationResult();
         type.setReferencesRange("1^2^3^4^5");
 
-        var res= observationResultRequestHandler.processingReferringRange(type, observationContainer);
+        var res = observationResultRequestHandler.processingReferringRange(type, observationContainer);
         assertNotNull(res);
 
     }
@@ -219,7 +226,7 @@ class ObservationResultRequestHandlerTest {
         when(checkingValueService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
 
 
-        var res= observationResultRequestHandler.processingObservationMethod(methodArray,edxLabInformationDto ,observationContainer);
+        var res = observationResultRequestHandler.processingObservationMethod(methodArray, edxLabInformationDto, observationContainer);
         assertNotNull(res);
         assertEquals("TEST**TEST_1", res.getTheObservationDto().getMethodCd());
     }
@@ -273,7 +280,7 @@ class ObservationResultRequestHandlerTest {
     }
 
     @Test
-    void formatValue_Test_txt_empty()  {
+    void formatValue_Test_txt_empty() {
         String text = "";
         HL7OBXType hl7OBXType = new HL7OBXType();
         ObservationContainer observationContainer = new ObservationContainer();
@@ -283,7 +290,6 @@ class ObservationResultRequestHandlerTest {
         hl7OBXType.setValueType(EdxELRConstant.ELR_CODED_WITH_EXC_CD);
         var unit = new HL7CEType();
         hl7OBXType.setUnits(unit);
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -310,6 +316,7 @@ class ObservationResultRequestHandlerTest {
         observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
 
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void formValue_Txt_Test_1() throws DataProcessingException {
@@ -329,10 +336,8 @@ class ObservationResultRequestHandlerTest {
 
     }
 
-
-
     @Test
-    void formatValue_Test_exp_un_support()  {
+    void formatValue_Test_exp_un_support() {
         String text = "";
         HL7OBXType hl7OBXType = new HL7OBXType();
         ObservationContainer observationContainer = new ObservationContainer();
@@ -344,13 +349,11 @@ class ObservationResultRequestHandlerTest {
         hl7OBXType.setUnits(unit);
 
 
-
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             observationResultRequestHandler.formatValue(text, hl7OBXType, observationContainer, edxLabInformationDto, elementName);
         });
         assertNotNull(thrown);
     }
-
 
     @Test
     void getObservationResultRequest_Test_Exp() {
@@ -551,8 +554,6 @@ class ObservationResultRequestHandlerTest {
         assertEquals(456L, result.getTargetActUid());
     }
 
-
-
     @Test
     void testProcessingObsResult1_AllValuesSet() throws DataProcessingException {
         // Arrange
@@ -621,12 +622,9 @@ class ObservationResultRequestHandlerTest {
         assertEquals("ObservationResultRequest.getObservationResult The Resulted Test ObservationCd  can't be set to null. Please check." + observationDtoMock.getCd(), exception.getMessage());
     }
 
-    @Mock
-    private HL7OBXType hl7OBXTypeMock;
-
     @Test
     void processingObsResultObsValueArray_Test_1() throws DataProcessingException {
-        List<String>  obsValueArray = new ArrayList<>();
+        List<String> obsValueArray = new ArrayList<>();
         when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_STRING_CD);
         ObservationContainer observationContainer = new ObservationContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -648,7 +646,7 @@ class ObservationResultRequestHandlerTest {
 
     @Test
     void processingObsResultObsValueArray_Test_2() throws DataProcessingException {
-        List<String>  obsValueArray = new ArrayList<>();
+        List<String> obsValueArray = new ArrayList<>();
         when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_TEXT_CD);
         ObservationContainer observationContainer = new ObservationContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -670,7 +668,7 @@ class ObservationResultRequestHandlerTest {
 
     @Test
     void processingObsResultObsValueArray_Test_3() throws DataProcessingException {
-        List<String>  obsValueArray = new ArrayList<>();
+        List<String> obsValueArray = new ArrayList<>();
         when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_TEXT_DT);
         ObservationContainer observationContainer = new ObservationContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -692,7 +690,7 @@ class ObservationResultRequestHandlerTest {
 
     @Test
     void processingObsResultObsValueArray_Test_4() throws DataProcessingException {
-        List<String>  obsValueArray = new ArrayList<>();
+        List<String> obsValueArray = new ArrayList<>();
         when(hl7OBXTypeMock.getValueType()).thenReturn(EdxELRConstant.ELR_TEXT_TS);
         ObservationContainer observationContainer = new ObservationContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -711,9 +709,10 @@ class ObservationResultRequestHandlerTest {
                 any(), anyString());
 
     }
+
     @Test
     void processingObsResultObsValueArray_Test_5() throws DataProcessingException {
-        List<String>  obsValueArray = new ArrayList<>();
+        List<String> obsValueArray = new ArrayList<>();
         when(hl7OBXTypeMock.getValueType()).thenReturn("BLAH");
         ObservationContainer observationContainer = new ObservationContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -732,8 +731,6 @@ class ObservationResultRequestHandlerTest {
                 any(), anyString());
 
     }
-    @Mock
-    private LabResultProxyContainer labResultProxyContainerMock;
 
     @Test
     void testProcessingObsResult2_WithStatusCd_FromCode() throws DataProcessingException {
@@ -744,8 +741,6 @@ class ObservationResultRequestHandlerTest {
 
         verify(observationDtoMock).setStatusCd("ACT_CD");
     }
-
-
 
     @Test
     void testProcessingObsResult2_WithStatusCd_OriginalStatus() throws DataProcessingException {
@@ -801,14 +796,6 @@ class ObservationResultRequestHandlerTest {
         // Verify all interactions
         verify(observationDtoMock).setStatusCd("ACT_CD");
     }
-
-    @Mock
-    private HL7XONType hl7XONTypeNameMock;
-    @Mock
-    private HL7HDType hl7AssigningAuthorityMock;
-    @Mock
-    private EntityIdDto entityIdDtoMock;
-
 
     @Test
     void testProcessingPeromAuthAssignAuth_WithAssigningAuthority() {

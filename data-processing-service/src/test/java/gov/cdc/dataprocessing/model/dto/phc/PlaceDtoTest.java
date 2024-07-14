@@ -142,7 +142,7 @@ class PlaceDtoTest {
 
         // Test overridden methods
         assertEquals(dto.getPlaceUid(), dto.getUid());
-        assertNull( dto.getSuperclass());
+        assertNull(dto.getSuperclass());
         assertNull(dto.getLastChgUserId());
         assertNull(dto.getJurisdictionCd());
         assertNull(dto.getProgAreaCd());

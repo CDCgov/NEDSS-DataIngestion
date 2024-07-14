@@ -37,6 +37,8 @@ import static org.mockito.Mockito.when;
 
 class ObservationRequestHandlerTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ICatchingValueService checkingValueService;
     @Mock
     private CommonLabUtil commonLabUtil;
@@ -48,11 +50,8 @@ class ObservationRequestHandlerTest {
     private HL7PatientHandler hl7PatientHandler;
     @InjectMocks
     private ObservationRequestHandler observationRequestHandler;
-
-    private  LabResultProxyContainer labResultProxyContainer;
+    private LabResultProxyContainer labResultProxyContainer;
     private EdxLabInformationDto edxLabInformationDto;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -63,12 +62,12 @@ class ObservationRequestHandlerTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         labResultProxyContainer = new LabResultProxyContainer();
 
         var orgConCol = new ArrayList<OrganizationContainer>();
-        var orgCon= new OrganizationContainer();
+        var orgCon = new OrganizationContainer();
         orgCon.setRole(EdxELRConstant.ELR_SENDING_FACILITY_CD);
         var entiCol = new ArrayList<EntityIdDto>();
         var enti = new EntityIdDto();
@@ -91,13 +90,13 @@ class ObservationRequestHandlerTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(checkingValueService, commonLabUtil,nbsObjectConverter,hl7SpecimenUtil,hl7PatientHandler, authUtil);
+        Mockito.reset(checkingValueService, commonLabUtil, nbsObjectConverter, hl7SpecimenUtil, hl7PatientHandler, authUtil);
     }
 
     @Test
     void getObservationRequest_Test() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -155,11 +154,10 @@ class ObservationRequestHandlerTest {
     }
 
 
-
     @Test
     void getObservationRequest_Test_2() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -244,18 +242,17 @@ class ObservationRequestHandlerTest {
         edxLabInformationDto.setEdxSusLabDTMap(sus);
 
 
-
         var result = observationRequestHandler.getObservationRequest(hl7OBRType, hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
         assertNotNull(result);
 
 
-
     }
+
     @SuppressWarnings("java:S5976")
     @Test
     void getObservationRequest_Test_exp_1() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -312,11 +309,12 @@ class ObservationRequestHandlerTest {
         assertNotNull(thrown);
 
     }
+
     @SuppressWarnings("java:S5976")
     @Test
     void getObservationRequest_Test_exp_2() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -373,11 +371,12 @@ class ObservationRequestHandlerTest {
         assertNotNull(thrown);
 
     }
+
     @SuppressWarnings("java:S5976")
     @Test
     void getObservationRequest_Test_exp_3() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn(null);
@@ -438,8 +437,8 @@ class ObservationRequestHandlerTest {
 
     @Test
     void getObservationRequest_Test_exp_4() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -498,8 +497,8 @@ class ObservationRequestHandlerTest {
 
     @Test
     void getObservationRequest_Test_exp_5() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -561,8 +560,8 @@ class ObservationRequestHandlerTest {
 
     @Test
     void getObservationRequest_Test_Coverage_1() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -621,8 +620,8 @@ class ObservationRequestHandlerTest {
 
     @Test
     void getObservationRequest_Test_Coverage_2() throws DataProcessingException {
-        HL7OBRType hl7OBRType =   Mockito.mock(HL7OBRType.class);
-        HL7PatientResultSPMType hl7PatientResultSPMType =  Mockito.mock(HL7PatientResultSPMType.class);
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
 
         when(hl7OBRType.getResultStatus()).thenReturn("TEST");
@@ -678,7 +677,6 @@ class ObservationRequestHandlerTest {
         var result = observationRequestHandler.getObservationRequest(hl7OBRType, hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
         assertNotNull(result);
     }
-
 
 
 }

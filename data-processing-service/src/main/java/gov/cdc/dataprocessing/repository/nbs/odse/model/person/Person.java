@@ -16,13 +16,13 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Getter
 @Setter
 @Table(name = "Person")
-public class Person  {
+public class Person {
 
     @Id
     @Column(name = "person_uid")
     private Long personUid;
 
-//    @Version
+    //    @Version
     @Column(name = "version_ctrl_nbr", nullable = false)
     private Integer versionCtrlNbr;
 
@@ -338,11 +338,12 @@ public class Person  {
     @Column(name = "sex_unk_reason_cd")
     private String sexUnkReasonCd;
 
-    
+
     // Constructors, getters, and setters
     public Person() {
 
     }
+
     public Person(PersonDto personDto) {
         var timeStamp = getCurrentTimeStamp();
         this.personUid = personDto.getPersonUid();

@@ -27,9 +27,9 @@ import java.util.*;
 public class DsmLabMatchHelper {
     static final String NULL_STRING = "null";
     //hold quick access values for this Workflow Decision Support algorithm
-    private Map<String,String> systemNameMap = new HashMap<String,String>(); //name-OID
-    private Map<String,String> systemOidMap = new HashMap<String,String>(); //OID-name
-    private Map<String,String> resultedTestCodeMap = new HashMap<String,String>(); //test code/test desc
+    private Map<String, String> systemNameMap = new HashMap<String, String>(); //name-OID
+    private Map<String, String> systemOidMap = new HashMap<String, String>(); //OID-name
+    private Map<String, String> resultedTestCodeMap = new HashMap<String, String>(); //test code/test desc
     //these resulted test lists need to be collections and not maps because a test could repeat
     private List<TestCodedValue> resultedTestCodedValueList = new ArrayList<TestCodedValue>(); //coded values
     private List<TestNumericValue> resultedTestNumericValueList = new ArrayList<TestNumericValue>(); //numeric values
@@ -48,14 +48,15 @@ public class DsmLabMatchHelper {
     /**
      * Constructor - expects algorithm payload (see DSMAlgorithm.xsd)
      * Get the values from the algorithm and populate class variables.
+     *
      * @param algorithmDocument
      */
     public DsmLabMatchHelper(Algorithm algorithmDocument) throws DataProcessingException {
         try {
-            this.algorithm =algorithmDocument;
-            this.algorithmDocument=algorithmDocument;
+            this.algorithm = algorithmDocument;
+            this.algorithmDocument = algorithmDocument;
         } catch (Exception e) {
-            throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process Container Document",e);
+            throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process Container Document", e);
         }
         if (algorithm.getAlgorithmName() != null) {
             algorithmNm = algorithm.getAlgorithmName();
@@ -70,46 +71,46 @@ public class DsmLabMatchHelper {
         else
             this.algorithmIsAndLogic = true;
         //initialize maps;
-        this.systemNameMap = new HashMap<String,String>();//name-OID
-        this.systemOidMap = new HashMap<String,String>(); //OID-name
+        this.systemNameMap = new HashMap<String, String>();//name-OID
+        this.systemOidMap = new HashMap<String, String>(); //OID-name
         //populate receiving systems map if present
-        if(algorithm.getApplyToSendingSystems()!=null ){
+        if (algorithm.getApplyToSendingSystems() != null) {
             try {
-                SendingSystemType sendingSystemType  =algorithm.getApplyToSendingSystems();
-                for(int i=0; i<sendingSystemType.getSendingSystem().size(); i++){
-                    CodedType sendingSystemCodedType= sendingSystemType.getSendingSystem().get(i);
+                SendingSystemType sendingSystemType = algorithm.getApplyToSendingSystems();
+                for (int i = 0; i < sendingSystemType.getSendingSystem().size(); i++) {
+                    CodedType sendingSystemCodedType = sendingSystemType.getSendingSystem().get(i);
                     String receivingSystemOid = sendingSystemCodedType.getCodeSystemVersionID();
                     String receivingSystemDescTxt = sendingSystemCodedType.getCode();
 
-                    if(receivingSystemOid!=null){
+                    if (receivingSystemOid != null) {
                         //criteriaBufferKey.append(spacer);
                         if (receivingSystemDescTxt != null)
                             systemOidMap.put(receivingSystemOid, receivingSystemDescTxt);
                         else
                             systemOidMap.put(receivingSystemOid, NULL_STRING);
                     }
-                    if(receivingSystemDescTxt!=null){
+                    if (receivingSystemDescTxt != null) {
                         if (receivingSystemOid != null)
-                            systemNameMap.put(receivingSystemDescTxt,receivingSystemOid);
+                            systemNameMap.put(receivingSystemDescTxt, receivingSystemOid);
                         else
                             systemNameMap.put(receivingSystemDescTxt, NULL_STRING);
                     }
                 } //for
             } catch (Exception e) {
-                throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process specified sending systems",e);
+                throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process specified sending systems", e);
             }
         }
 
         //next populate resultedTestCodeMap
-        if(algorithm.getElrAdvancedCriteria()!=null && algorithm.getElrAdvancedCriteria().getElrCriteria()!=null) {
+        if (algorithm.getElrAdvancedCriteria() != null && algorithm.getElrAdvancedCriteria().getElrCriteria() != null) {
             List<ElrCriteriaType> elrCriteriaArray = algorithm.getElrAdvancedCriteria().getElrCriteria();  //getElrCriteriaArray().
             try {
-                for(ElrCriteriaType elrCriteria : elrCriteriaArray){
-                    CodedType elrResultTestCriteriaType= elrCriteria.getResultedTest();
-                    if(elrResultTestCriteriaType!=null && elrResultTestCriteriaType.getCode()!=null && elrResultTestCriteriaType.getCode().length()>0){
+                for (ElrCriteriaType elrCriteria : elrCriteriaArray) {
+                    CodedType elrResultTestCriteriaType = elrCriteria.getResultedTest();
+                    if (elrResultTestCriteriaType != null && elrResultTestCriteriaType.getCode() != null && elrResultTestCriteriaType.getCode().length() > 0) {
                         String code = elrResultTestCriteriaType.getCode();
                         String codeDesc = elrResultTestCriteriaType.getCodeDescTxt();
-                        resultedTestCodeMap.put(code,  codeDesc);
+                        resultedTestCodeMap.put(code, codeDesc);
                         if (elrCriteria.getElrCodedResultValue() != null) {
                             TestCodedValue thisCodedValue = new TestCodedValue();
                             thisCodedValue.setTestCode(code);
@@ -173,17 +174,18 @@ public class DsmLabMatchHelper {
                     } //elrResultTestCriteriaType not null
                 } //for
             } catch (Exception e) {
-                throw new DataProcessingException("DSMMatchHelper.get criteria Exception thrown",e);
+                throw new DataProcessingException("DSMMatchHelper.get criteria Exception thrown", e);
             }
         }
     } //end Constructor
 
     /**
      * isThisLabAMatch
+     *
      * @param resultedTestCodeColl - test codes in the incoming lab
-     * @param resultedTestColl - lab results in the incoming lab
-     * @param sendingFacilityClia - Lab clia
-     * @param sendingFacilityName - Lab name
+     * @param resultedTestColl     - lab results in the incoming lab
+     * @param sendingFacilityClia  - Lab clia
+     * @param sendingFacilityName  - Lab name
      * @return true if this algorithm is a match, false otherwise
      */
     public WdsReport isThisLabAMatch(Collection<String> resultedTestCodeColl,
@@ -191,31 +193,27 @@ public class DsmLabMatchHelper {
         //Is this Decision Support Algorithm looking for the lab test(s) in these Lab results?
         WdsReport wdsReport = new WdsReport();
         boolean testNotMatched = testsDoNotMatch(resultedTestCodeColl, resultedTestCodeMap, andOrLogic);
-        if (testNotMatched)
-        {
+        if (testNotMatched) {
             var report = new WdsReport();
             report.setAlgorithmMatched(false);
             return report;
         }
 
         //Is this Decision Support Algorithm only for certain facilities? (Not ALL)
-        if (systemOidMap != null && !systemOidMap.isEmpty())
-        {
+        if (systemOidMap != null && !systemOidMap.isEmpty()) {
             boolean nameMatched = true;
             boolean oidMatched = true;
             if (sendingFacilityClia != null
                     && !sendingFacilityClia.isEmpty()
                     && systemOidMap.containsKey(sendingFacilityClia)) {
                 oidMatched = true;
-            }
-            else {
+            } else {
                 oidMatched = false;
             }
 
             if (sendingFacilityName != null && !sendingFacilityName.isEmpty() && systemNameMap.containsKey(sendingFacilityName)) {
                 nameMatched = true;
-            }
-            else {
+            } else {
                 if (sendingFacilityName != null) {
                     //logger.debug("Algorithm matches test code and Sending System OID but Sending System Name of " + sendingFacilityName +"  not in list of Specified Sending Systems");
                 }
@@ -226,9 +224,7 @@ public class DsmLabMatchHelper {
             ) //GST
             {
                 //logger.debug("Algorithm matches either the Sending Facility Name or the Sending Facility Oid");
-            }
-            else
-            {
+            } else {
                 return wdsReport; //specified facility(s) do not match so this algorithm is not a match
             }
         }
@@ -236,8 +232,7 @@ public class DsmLabMatchHelper {
         //test is in algorithm, check if value matches
         try {
             wdsReport = testIfAlgorthmMatchesLab(resultedTestColl, resultedTestCodedValueList, resultedTestTextValueList, resultedTestNumericValueList);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return wdsReport;
@@ -288,16 +283,14 @@ public class DsmLabMatchHelper {
 
 
         } catch (Exception e) {
-            throw new DataProcessingException("DSMMatchHelper.isThisLabAMatch Exception thrown",e);
+            throw new DataProcessingException("DSMMatchHelper.isThisLabAMatch Exception thrown", e);
         }
         ////All test complete!
-        if (algorithmIsOrLogic)
-        {
+        if (algorithmIsOrLogic) {
             wdsReport.setAlgorithmMatched(false);
             return wdsReport; //nothing matched
         }
-        if (algorithmIsAndLogic)
-        {
+        if (algorithmIsAndLogic) {
             wdsReport.setAlgorithmMatched(true);
             return wdsReport; //everything matched
         }
@@ -311,37 +304,29 @@ public class DsmLabMatchHelper {
             List<TestNumericValue> testNumericValueList,
             WdsReport wdsReport
     ) {
-        for (TestNumericValue algorithmNumericValue : testNumericValueList)
-        {
+        for (TestNumericValue algorithmNumericValue : testNumericValueList) {
             boolean numericAlgorithmMatched = false;
             for (ObservationContainer o : resultedTestColl) {
                 ObservationContainer resultObsVO = o;
                 String testCode = null;
-                if (resultObsVO.getTheObservationDto().getCd() != null)
-                {
+                if (resultObsVO.getTheObservationDto().getCd() != null) {
                     testCode = resultObsVO.getTheObservationDto().getCd();
-                }
-                else if (resultObsVO.getTheObservationDto().getAltCd() != null)
-                {
+                } else if (resultObsVO.getTheObservationDto().getAltCd() != null) {
                     testCode = resultObsVO.getTheObservationDto().getAltCd();
                 }
 
-                if (algorithmNumericValue.getTestCode().equalsIgnoreCase(testCode))
-                {
+                if (algorithmNumericValue.getTestCode().equalsIgnoreCase(testCode)) {
                     if (resultObsVO.getTheObsValueNumericDtoCollection() != null) {
                         var numericReport = new WdsValueNumericReport();
                         for (ObsValueNumericDto obsValueNumericDT : resultObsVO.getTheObsValueNumericDtoCollection()) {
                             //check if the units match (if present)
                             if (algorithmNumericValue.getUnitCode() != null) {
                                 String labUnits = obsValueNumericDT.getNumericUnitCd();
-                                if (labUnits == null)
-                                {
+                                if (labUnits == null) {
                                     continue; //no units match here
-                                }
-                                else if (algorithmNumericValue.getUnitCode().equals(labUnits.trim())) {
+                                } else if (algorithmNumericValue.getUnitCode().equals(labUnits.trim())) {
                                     //logger.debug("Algorithm units match with lab units of " +labUnits);
-                                }
-                                else {
+                                } else {
                                     //logger.debug("Algorithm units of " +algorithmNumericValue.getUnitCode() +"does not match with lab units of "+labUnits);
                                     continue; //no units match here
                                 }
@@ -351,14 +336,12 @@ public class DsmLabMatchHelper {
                                 String labComparator = obsValueNumericDT.getComparatorCd1().trim();
                                 if (labComparator.equals(NEDSSConstant.LESS_THAN_LOGIC) || labComparator.equals(NEDSSConstant.LESS_THAN_OR_EQUAL_LOGIC)
                                         || labComparator.equals(NEDSSConstant.GREATER_THAN_LOGIC) || labComparator.equals(NEDSSConstant.GREATER_THAN_OR_EQUAL_LOGIC)
-                                        || labComparator.equals(NEDSSConstant.NOT_EQUAL_LOGIC2))
-                                {
+                                        || labComparator.equals(NEDSSConstant.NOT_EQUAL_LOGIC2)) {
                                     continue; //skip this result
                                 }
                             }
                             boolean isTiterLab = false;
-                            if (obsValueNumericDT.getSeparatorCd() != null && !obsValueNumericDT.getSeparatorCd().trim().isEmpty())
-                            {
+                            if (obsValueNumericDT.getSeparatorCd() != null && !obsValueNumericDT.getSeparatorCd().trim().isEmpty()) {
                                 String labSeparator = obsValueNumericDT.getSeparatorCd().trim();
                                 //can't handle separators of /, -, or +
                                 if (!labSeparator.equals(NEDSSConstant.COLON)) {
@@ -371,8 +354,7 @@ public class DsmLabMatchHelper {
                                 }
 
                                 //numeric value 1 is 1 in the ratio i.e. =1:8, =1:16, =1:32
-                                if (obsValueNumericDT.getNumericValue1() != null)
-                                {
+                                if (obsValueNumericDT.getNumericValue1() != null) {
                                     BigDecimal bdOne = new BigDecimal(1);
                                     if (obsValueNumericDT.getNumericValue1().compareTo(bdOne) == 0) {
                                         //logger.debug("Lab has titer value");
@@ -384,14 +366,13 @@ public class DsmLabMatchHelper {
                                 }
                             }
 
-                            if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.EQUAL_LOGIC))
-                            {
+                            if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.EQUAL_LOGIC)) {
                                 //For BigDecimal must use CompareTo and not Equals (using Equals 5.0 is not equal to 5.00, using CompareTo they are equal)
 
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
-                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1()!= null ? obsValueNumericDT.getNumericValue1().toString(): "");
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2()!= null ? obsValueNumericDT.getNumericValue2().toString(): "");
+                                numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
 
                                 numericReport.setOperator(NEDSSConstant.EQUAL_LOGIC);
 
@@ -400,22 +381,19 @@ public class DsmLabMatchHelper {
                                         && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue1()) == 0) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
-                                }
-                                else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
+                                } else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
                                         && algorithmNumericValue.getValue1() != null
                                         && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) == 0) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
                                 }
 
-                            }
-                            else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.GREATER_THAN_LOGIC))
-                            {
+                            } else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.GREATER_THAN_LOGIC)) {
                                 //For BigDecimal must use CompareTo and not Equals (using Equals 5.0 is not equal to 5.00, using CompareTo they are equal)
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
                                 numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString(): "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                                 numericReport.setOperator(NEDSSConstant.GREATER_THAN_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -423,20 +401,17 @@ public class DsmLabMatchHelper {
                                     numericReport.setMatchedFound(true);
 
                                     numericAlgorithmMatched = true;
-                                }
-                                else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
+                                } else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
                                         && algorithmNumericValue.getValue1() != null
                                         && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) == -1) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
                                 }
-                            }
-                            else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.GREATER_THAN_OR_EQUAL_LOGIC))
-                            {
+                            } else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.GREATER_THAN_OR_EQUAL_LOGIC)) {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
                                 numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
-                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString(): "");
+                                numericReport.setInputCode2(obsValueNumericDT.getNumericValue2() != null ? obsValueNumericDT.getNumericValue2().toString() : "");
                                 numericReport.setOperator(NEDSSConstant.GREATER_THAN_OR_EQUAL_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
@@ -445,8 +420,7 @@ public class DsmLabMatchHelper {
                                 ) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
-                                }
-                                else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
+                                } else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
                                         && algorithmNumericValue.getValue1() != null
                                         && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) == 0
                                         || obsValueNumericDT.getNumericValue2() != null
@@ -456,9 +430,7 @@ public class DsmLabMatchHelper {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
                                 }
-                            }
-                            else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.LESS_THAN_LOGIC))
-                            {
+                            } else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.LESS_THAN_LOGIC)) {
 
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
@@ -471,17 +443,14 @@ public class DsmLabMatchHelper {
                                 ) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
-                                }
-                                else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
+                                } else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
                                         && algorithmNumericValue.getValue1() != null
                                         && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) == 1
                                 ) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
                                 }
-                            }
-                            else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.LESS_THAN_OR_EQUAL_LOGIC))
-                            {
+                            } else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.LESS_THAN_OR_EQUAL_LOGIC)) {
 
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
@@ -496,8 +465,7 @@ public class DsmLabMatchHelper {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
 
-                                }
-                                else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
+                                } else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
                                         && algorithmNumericValue.getValue1() != null
                                         && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) == 0
                                         || obsValueNumericDT.getNumericValue2() != null
@@ -507,9 +475,7 @@ public class DsmLabMatchHelper {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
                                 }
-                            }
-                            else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.NOT_EQUAL_LOGIC))
-                            {
+                            } else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.NOT_EQUAL_LOGIC)) {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
                                 numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
@@ -517,21 +483,16 @@ public class DsmLabMatchHelper {
                                 numericReport.setOperator(NEDSSConstant.NOT_EQUAL_LOGIC);
 
                                 if (!isTiterLab && obsValueNumericDT.getNumericValue1() != null
-                                        && obsValueNumericDT.getNumericValue1().compareTo(algorithmNumericValue.getValue1()) != 0)
-                                {
+                                        && obsValueNumericDT.getNumericValue1().compareTo(algorithmNumericValue.getValue1()) != 0) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
-                                }
-                                else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
+                                } else if (isTiterLab && obsValueNumericDT.getNumericValue2() != null
                                         && algorithmNumericValue.getValue1() != null
-                                        && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) != 0)
-                                {
+                                        && algorithmNumericValue.getValue1().compareTo(obsValueNumericDT.getNumericValue2()) != 0) {
                                     numericReport.setMatchedFound(true);
                                     numericAlgorithmMatched = true;
                                 }
-                            }
-                            else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.BETWEEN_LOGIC))
-                            {
+                            } else if (algorithmNumericValue.getComparatorCode().equals(NEDSSConstant.BETWEEN_LOGIC)) {
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
                                 numericReport.setInputCode1(obsValueNumericDT.getNumericValue1() != null ? obsValueNumericDT.getNumericValue1().toString() : "");
@@ -549,8 +510,7 @@ public class DsmLabMatchHelper {
                                         numericAlgorithmMatched = true;
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 numericReport.setMatchedFound(false);
                                 numericReport.setCodeType("OBS_NUMERIC_VALUE");
                                 numericReport.setWdsCode(algorithmNumericValue.getValue1().toString());
@@ -560,8 +520,7 @@ public class DsmLabMatchHelper {
                             wdsReport.getWdsValueNumericReportList().add(numericReport);
 
                             if (numericAlgorithmMatched) {
-                                if (algorithmIsOrLogic)
-                                {
+                                if (algorithmIsOrLogic) {
                                     wdsReport.setAlgorithmMatched(true);
                                     return true;
                                 }
@@ -588,69 +547,46 @@ public class DsmLabMatchHelper {
             List<TestTextValue> testTextValueList,
             WdsReport wdsReport
     ) {
-        for (TestTextValue algorithmTextValue : testTextValueList)
-        {
+        for (TestTextValue algorithmTextValue : testTextValueList) {
             boolean textAlgorithmMatched = false;
             for (ObservationContainer o : resultedTestColl) {
                 ObservationContainer resultObsVO = o;
                 String testCode = null;
-                if (resultObsVO.getTheObservationDto().getCd() != null)
-                {
+                if (resultObsVO.getTheObservationDto().getCd() != null) {
                     testCode = resultObsVO.getTheObservationDto().getCd();
-                }
-                else if (resultObsVO.getTheObservationDto().getAltCd() != null)
-                {
+                } else if (resultObsVO.getTheObservationDto().getAltCd() != null) {
                     testCode = resultObsVO.getTheObservationDto().getAltCd();
                 }
 
-                if (algorithmTextValue.getTestCode().equalsIgnoreCase(testCode))
-                {
+                if (algorithmTextValue.getTestCode().equalsIgnoreCase(testCode)) {
                     if (resultObsVO.getTheObsValueTxtDtoCollection() != null) {
-                        for (ObsValueTxtDto obsValueTxtDT : resultObsVO.getTheObsValueTxtDtoCollection())
-                        {
+                        for (ObsValueTxtDto obsValueTxtDT : resultObsVO.getTheObsValueTxtDtoCollection()) {
                             var wdsValueText = new WdsValueTextReport();
                             if (obsValueTxtDT.getTxtTypeCd() == null
                                     || obsValueTxtDT.getTxtTypeCd().trim().equals("")
-                                    || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O"))
-                            {//NBSCentral #11984: to avoid comparing with the notes
+                                    || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {//NBSCentral #11984: to avoid comparing with the notes
                                 wdsValueText.setMatchedFound(true);
-                                if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.EQUAL_LOGIC))
-                                {
-                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().equals(algorithmTextValue.getTextValue()))
-                                    {
+                                if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.EQUAL_LOGIC)) {
+                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().equals(algorithmTextValue.getTextValue())) {
                                         textAlgorithmMatched = true;
                                     }
-                                }
-                                else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.CONTAINS_LOGIC))
-                                {
-                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().contains(algorithmTextValue.getTextValue()))
-                                    {
+                                } else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.CONTAINS_LOGIC)) {
+                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().contains(algorithmTextValue.getTextValue())) {
                                         textAlgorithmMatched = true;
                                     }
-                                }
-                                else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.STARTS_WITH_LOGIC))
-                                {
-                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().startsWith(algorithmTextValue.getTextValue()))
-                                    {
+                                } else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.STARTS_WITH_LOGIC)) {
+                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().startsWith(algorithmTextValue.getTextValue())) {
                                         textAlgorithmMatched = true;
                                     }
-                                }
-                                else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.NOT_EQUAL_LOGIC))
-                                {
-                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().compareTo(algorithmTextValue.getTextValue()) != 0)
-                                    {
+                                } else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.NOT_EQUAL_LOGIC)) {
+                                    if (obsValueTxtDT.getValueTxt() != null && obsValueTxtDT.getValueTxt().compareTo(algorithmTextValue.getTextValue()) != 0) {
                                         textAlgorithmMatched = true;
                                     }
-                                }
-                                else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.NOTNULL_LOGIC))
-                                {
-                                    if (obsValueTxtDT.getValueTxt() != null && (obsValueTxtDT.getValueTxt().length() > 0))
-                                    {
+                                } else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.NOTNULL_LOGIC)) {
+                                    if (obsValueTxtDT.getValueTxt() != null && (obsValueTxtDT.getValueTxt().length() > 0)) {
                                         textAlgorithmMatched = true;
                                     }
-                                }
-                                else
-                                {
+                                } else {
                                     wdsValueText.setMatchedFound(false);
                                 }
                                 wdsValueText.setInputCode(obsValueTxtDT.getValueTxt());
@@ -660,8 +596,7 @@ public class DsmLabMatchHelper {
                             }
                         } //subObs has next
                         if (textAlgorithmMatched) {
-                            if (algorithmIsOrLogic)
-                            {
+                            if (algorithmIsOrLogic) {
                                 wdsReport.setAlgorithmMatched(true);
                                 return true;
                             }
@@ -681,41 +616,33 @@ public class DsmLabMatchHelper {
 
         return false;
     }
+
     private boolean checkingObsValueMatched(
             Collection<ObservationContainer> resultedTestColl,
             List<TestCodedValue> testCodedValueList,
             WdsReport wdsReport
     ) {
-        for (TestCodedValue algorithmCodedValue : testCodedValueList)
-        {
+        for (TestCodedValue algorithmCodedValue : testCodedValueList) {
             boolean textAlgorithmMatched = false;
-            for (ObservationContainer o : resultedTestColl)
-            {
+            for (ObservationContainer o : resultedTestColl) {
                 ObservationContainer resultObsVO = o;
                 String testCode = null;
-                if (resultObsVO.getTheObservationDto().getCd() != null)
-                {
+                if (resultObsVO.getTheObservationDto().getCd() != null) {
                     testCode = resultObsVO.getTheObservationDto().getCd();
-                }
-                else if (resultObsVO.getTheObservationDto().getAltCd() != null)
-                {
+                } else if (resultObsVO.getTheObservationDto().getAltCd() != null) {
                     testCode = resultObsVO.getTheObservationDto().getAltCd();
-                }
-                else
-                {
+                } else {
                     continue; //no test code?
                 }
 
-                if (algorithmCodedValue.getTestCode().equalsIgnoreCase(testCode))
-                {
+                if (algorithmCodedValue.getTestCode().equalsIgnoreCase(testCode)) {
                     if (resultObsVO.getTheObsValueCodedDtoCollection() != null) {
                         for (ObsValueCodedDto obsValueCodedDT : resultObsVO.getTheObsValueCodedDtoCollection()) {
                             //Test code match?
                             if (obsValueCodedDT.getCode() != null
                                     && algorithmCodedValue.getResultCode().equalsIgnoreCase(obsValueCodedDT.getCode())) {
                                 textAlgorithmMatched = true;
-                                if (algorithmIsOrLogic)
-                                {
+                                if (algorithmIsOrLogic) {
                                     var valueCoded = new WdsValueCodedReport();
                                     valueCoded.setCodeType("OBS_VALUE_CODED");
                                     valueCoded.setInputCode(obsValueCodedDT.getCode());
@@ -725,8 +652,7 @@ public class DsmLabMatchHelper {
                                     wdsReport.setAlgorithmMatched(true);
                                     return true;
                                 }
-                            }
-                            else if (algorithmIsAndLogic) //result code did not match
+                            } else if (algorithmIsAndLogic) //result code did not match
                             {
                                 var valueCoded = new WdsValueCodedReport();
                                 valueCoded.setCodeType("OBS_VALUE_CODED");
@@ -751,15 +677,15 @@ public class DsmLabMatchHelper {
      * Note negative logic - testsDoNotMatch
      * Quickly rule out labs that don't have the tests the algorithm seeks.
      * If it is an OR, one must be there. If an AND, all must be there.
+     *
      * @param resultedTestCodeColl - resulted test codes in lab
      * @param resultedTestCodeMap2 - resulted test codes in Algorithm
-     * @param andOrLogic2 - algorithm and/or logic
+     * @param andOrLogic2          - algorithm and/or logic
      * @return boolean true if this algorithm is not a match
      */
     private boolean testsDoNotMatch(Collection<String> resultedTestCodeColl,
                                     Map<String, String> resultedTestCodeMap2, String andOrLogic2) {
-        for (String resultedTest : resultedTestCodeMap2.keySet())
-        {
+        for (String resultedTest : resultedTestCodeMap2.keySet()) {
             if (resultedTestCodeColl.contains(resultedTest)) {
                 if (andOrLogic2.equals(DecisionSupportConstants.OR_AND_OR_LOGIC)) //OR
                 {

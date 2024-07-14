@@ -35,6 +35,8 @@ import static org.mockito.Mockito.when;
 
 class ObservationCodeServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ISrteCodeObsService srteCodeObsService;
     @Mock
     private OrganizationRepositoryUtil organizationRepositoryUtil;
@@ -42,8 +44,6 @@ class ObservationCodeServiceTest {
     private ObservationUtil observationUtil;
     @InjectMocks
     private ObservationCodeService observationCodeService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +54,7 @@ class ObservationCodeServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -161,7 +161,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -205,7 +205,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenThrow(new DataProcessingException("TEST"));
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -284,7 +284,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -348,7 +348,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -407,7 +407,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -449,7 +449,6 @@ class ObservationCodeServiceTest {
         codedCol.add(codedObs);
 
 
-
         obsConn.setTheObsValueCodedDtoCollection(codedCol);
         obsConnCol.add(obsConn);
         labResultProxyVO.setTheObservationContainerCollection(obsConnCol);
@@ -468,7 +467,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -501,12 +500,11 @@ class ObservationCodeServiceTest {
         obsDt.setCd("CODE");
         obsConn.setTheObservationDto(obsDt);
 
-        when(srteCodeObsService.getDefaultConditionForLabTest(eq("CODE"),any())).thenReturn("BLAH");
+        when(srteCodeObsService.getDefaultConditionForLabTest(eq("CODE"), any())).thenReturn("BLAH");
 
         var codedCol = new ArrayList<ObsValueCodedDto>();
         var codedObs = new ObsValueCodedDto();
         codedCol.add(codedObs);
-
 
 
         obsConn.setTheObsValueCodedDtoCollection(codedCol);
@@ -527,7 +525,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);
@@ -565,7 +563,6 @@ class ObservationCodeServiceTest {
         codedCol.add(codedObs);
 
 
-
         obsConn.setTheObsValueCodedDtoCollection(codedCol);
         obsConnCol.add(obsConn);
         labResultProxyVO.setTheObservationContainerCollection(obsConnCol);
@@ -584,7 +581,7 @@ class ObservationCodeServiceTest {
         when(observationUtil.getUid(any(), any(), any(), any(),
                 any(), any(), any())).thenReturn(10L);
 
-        OrganizationContainer orgConn =new OrganizationContainer();
+        OrganizationContainer orgConn = new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
         var en = new EntityIdDto();
         en.setAssigningAuthorityCd(null);

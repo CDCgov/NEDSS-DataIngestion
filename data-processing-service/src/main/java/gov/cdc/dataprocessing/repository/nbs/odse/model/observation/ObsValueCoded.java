@@ -51,7 +51,7 @@ public class ObsValueCoded implements Serializable {
     private String altCdSystemDescTxt;
 
     @Column(name = "code_derived_ind")
-    private String  codeDerivedInd;
+    private String codeDerivedInd;
 
     // Constructors, getters, and setters (Lombok-generated)
 //

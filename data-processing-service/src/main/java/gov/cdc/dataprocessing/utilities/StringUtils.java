@@ -14,12 +14,10 @@ public class StringUtils {
                 t = formatter.parse(input);
                 java.sql.Timestamp ts = new java.sql.Timestamp(t.getTime());
                 return ts;
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -27,9 +25,8 @@ public class StringUtils {
     public static String formatDate(Date date) {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("MM/dd/yyyy");
         if (date == null) {
-            return new String("");
-        }
-        else {
+            return "";
+        } else {
             return formatter.format(date);
         }
 

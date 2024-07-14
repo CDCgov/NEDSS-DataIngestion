@@ -104,6 +104,7 @@ public class EntityId {
     public EntityId() {
 
     }
+
     public EntityId(EntityIdDto entityIdDto) {
         var timestamp = getCurrentTimeStamp();
         this.entityUid = entityIdDto.getEntityUid();

@@ -222,17 +222,17 @@ public class NbsDocumentContainer extends BaseContainer implements ReportSummary
 
     @Override
     public Long getUid() {
-        return  null;
-    }
-
-    @Override
-    public void setAddTime(Timestamp aAddTime) {
-        this.addTime = aAddTime;
+        return null;
     }
 
     @Override
     public Timestamp getAddTime() {
         return addTime;
+    }
+
+    @Override
+    public void setAddTime(Timestamp aAddTime) {
+        this.addTime = aAddTime;
     }
 
     @Override

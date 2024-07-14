@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ActRelationshipDto extends BaseContainer
-{
+public class ActRelationshipDto extends BaseContainer {
     private String addReasonCd;
     private Timestamp addTime;
     private Long addUserId;

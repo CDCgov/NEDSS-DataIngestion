@@ -10,5 +10,6 @@ import java.util.ArrayList;
 public interface IObservationCodeService {
 
     ArrayList<String> deriveTheConditionCodeList(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException;
+
     String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException;
 }

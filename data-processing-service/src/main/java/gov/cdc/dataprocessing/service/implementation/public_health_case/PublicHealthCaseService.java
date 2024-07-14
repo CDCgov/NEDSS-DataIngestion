@@ -19,6 +19,7 @@ import java.util.Collection;
 public class PublicHealthCaseService implements IPublicHealthCaseService {
     private final EntityHelper entityHelper;
     private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
+
     public PublicHealthCaseService(EntityHelper entityHelper,
                                    PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil) {
 
@@ -30,8 +31,7 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
 
         Long PubHealthCaseUid;
 
-        try
-        {
+        try {
 
             PublicHealthCaseDto publicHealthCase;
 
@@ -40,41 +40,33 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
             Collection<ParticipationDto> pDTCol = publicHealthCaseContainer.getTheParticipationDTCollection();
             Collection<ActivityLocatorParticipationDto> col;
             Collection<ActRelationshipDto> colActRelationship;
-            Collection<ParticipationDto> colParticipation ;
+            Collection<ParticipationDto> colParticipation;
 
-            if (alpDTCol != null)
-            {
+            if (alpDTCol != null) {
                 col = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
                 publicHealthCaseContainer.setTheActivityLocatorParticipationDTCollection(col);
             }
 
-            if (arDTCol != null)
-            {
+            if (arDTCol != null) {
                 colActRelationship = entityHelper.iterateARDTActRelationship(arDTCol);
                 publicHealthCaseContainer.setTheActRelationshipDTCollection(colActRelationship);
             }
 
-            if (pDTCol != null)
-            {
+            if (pDTCol != null) {
                 colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
                 publicHealthCaseContainer.setTheParticipationDTCollection(colParticipation);
             }
 
-            if (publicHealthCaseContainer.isItNew())
-            {
+            if (publicHealthCaseContainer.isItNew()) {
                 publicHealthCaseRepositoryUtil.create(publicHealthCaseContainer);
-                publicHealthCase =  publicHealthCaseContainer.getThePublicHealthCaseDto();
+                publicHealthCase = publicHealthCaseContainer.getThePublicHealthCaseDto();
                 PubHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
-            }
-            else
-            {
+            } else {
                 publicHealthCaseRepositoryUtil.update(publicHealthCaseContainer);
                 PubHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
             }
-        }
-        catch (Exception e)
-        {
-           throw new DataProcessingException(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         return PubHealthCaseUid;

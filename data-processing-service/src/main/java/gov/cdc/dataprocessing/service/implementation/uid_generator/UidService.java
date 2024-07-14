@@ -29,78 +29,62 @@ public class UidService implements IUidService {
      * the investigationProxyVO(determined in the addInvestigation method).
      * As it has also got the actualUID (determined in the addInvestigation method) it replaces them accordingly.
      */
-    public void setFalseToNewForObservation(BaseContainer proxyVO, Long falseUid, Long actualUid)
-    {
+    public void setFalseToNewForObservation(BaseContainer proxyVO, Long falseUid, Long actualUid) {
         Iterator<ParticipationDto> participationDTIterator;
-        Iterator<ActRelationshipDto>  actRelationshipDTIterator;
-        Iterator<RoleDto>  roleDtoIterator;
+        Iterator<ActRelationshipDto> actRelationshipDTIterator;
+        Iterator<RoleDto> roleDtoIterator;
 
         ParticipationDto participationDto;
         ActRelationshipDto actRelationshipDto;
         RoleDto roleDT;
 
         Collection<ParticipationDto> participationColl = null;
-        Collection<ActRelationshipDto>  actRelationShipColl = null;
-        Collection<RoleDto>  roleColl = null;
+        Collection<ActRelationshipDto> actRelationShipColl = null;
+        Collection<RoleDto> roleColl = null;
 
-        if (proxyVO instanceof LabResultProxyContainer)
-        {
-            participationColl =  ((LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
+        if (proxyVO instanceof LabResultProxyContainer) {
+            participationColl = ((LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
             actRelationShipColl = ((LabResultProxyContainer) proxyVO).getTheActRelationshipDtoCollection();
             roleColl = ((LabResultProxyContainer) proxyVO).getTheRoleDtoCollection();
         }
 
-        if (participationColl != null)
-        {
-            for (participationDTIterator = participationColl.iterator(); participationDTIterator.hasNext(); )
-            {
+        if (participationColl != null) {
+            for (participationDTIterator = participationColl.iterator(); participationDTIterator.hasNext(); ) {
                 participationDto = participationDTIterator.next();
-                if (participationDto != null && falseUid != null)
-                {
-                    if (participationDto.getActUid().compareTo(falseUid) == 0)
-                    {
+                if (participationDto != null && falseUid != null) {
+                    if (participationDto.getActUid().compareTo(falseUid) == 0) {
                         participationDto.setActUid(actualUid);
                     }
-                    if (participationDto.getSubjectEntityUid().compareTo(falseUid) == 0)
-                    {
+                    if (participationDto.getSubjectEntityUid().compareTo(falseUid) == 0) {
                         participationDto.setSubjectEntityUid(actualUid);
                     }
                 }
             }
         }
 
-        if (actRelationShipColl != null)
-        {
-            for (actRelationshipDTIterator = actRelationShipColl.iterator(); actRelationshipDTIterator.hasNext(); )
-            {
+        if (actRelationShipColl != null) {
+            for (actRelationshipDTIterator = actRelationShipColl.iterator(); actRelationshipDTIterator.hasNext(); ) {
                 actRelationshipDto = actRelationshipDTIterator.next();
-                if (falseUid != null && actRelationshipDto.getTargetActUid().compareTo(falseUid) == 0)
-                {
+                if (falseUid != null && actRelationshipDto.getTargetActUid().compareTo(falseUid) == 0) {
                     actRelationshipDto.setTargetActUid(actualUid);
                 }
-                if (falseUid != null && actRelationshipDto.getSourceActUid().compareTo(falseUid) == 0)
-                {
+                if (falseUid != null && actRelationshipDto.getSourceActUid().compareTo(falseUid) == 0) {
                     actRelationshipDto.setSourceActUid(actualUid);
                 }
             }
 
         }
 
-        if (roleColl != null && roleColl.size() != 0)
-        {
-            for (roleDtoIterator = roleColl.iterator(); roleDtoIterator.hasNext(); )
-            {
-                roleDT =  roleDtoIterator.next();
+        if (roleColl != null && roleColl.size() != 0) {
+            for (roleDtoIterator = roleColl.iterator(); roleDtoIterator.hasNext(); ) {
+                roleDT = roleDtoIterator.next();
 
-                if (falseUid != null && roleDT.getSubjectEntityUid().compareTo(falseUid) == 0)
-                {
+                if (falseUid != null && roleDT.getSubjectEntityUid().compareTo(falseUid) == 0) {
                     roleDT.setSubjectEntityUid(actualUid);
 
                 }
-                if (roleDT.getScopingEntityUid() != null)
-                {
-                    if (falseUid != null && roleDT.getScopingEntityUid().compareTo(falseUid) == 0)
-                    {
+                if (roleDT.getScopingEntityUid() != null) {
+                    if (falseUid != null && roleDT.getScopingEntityUid().compareTo(falseUid) == 0) {
                         roleDT.setScopingEntityUid(actualUid);
                     }
                 }
@@ -116,15 +100,14 @@ public class UidService implements IUidService {
      * Act Relationship collection
      * Role collection
      * - This is crucial in Observation Flow
-     * */
-    public void setFalseToNewPersonAndOrganization(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid)
-    {
+     */
+    public void setFalseToNewPersonAndOrganization(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid) {
         Iterator<ParticipationDto> participationIterator;
         Iterator<ActRelationshipDto> actRelationshipIterator;
         Iterator<RoleDto> roleIterator;
 
         ParticipationDto participationDto;
-        ActRelationshipDto actRelationshipDto ;
+        ActRelationshipDto actRelationshipDto;
         RoleDto roleDto;
 
         Collection<ParticipationDto> participationColl = labResultProxyContainer.getTheParticipationDtoCollection();
@@ -190,7 +173,7 @@ public class UidService implements IUidService {
         Iterator<ParticipationDto> anIteratorPat;
         if (participationColl != null) {
             for (anIteratorPat = participationColl.iterator(); anIteratorPat
-                    .hasNext();) {
+                    .hasNext(); ) {
                 participationDT = anIteratorPat.next();
                 if (participationDT.getActUid().compareTo(falseUid) == 0) {
                     participationDT.setActUid(actualUid);
@@ -205,26 +188,26 @@ public class UidService implements IUidService {
         Iterator<ActRelationshipDto> anIteratorActRe;
         if (actRelationShipColl != null) {
             for (anIteratorActRe = actRelationShipColl.iterator(); anIteratorActRe
-                    .hasNext();) {
-                actRelationshipDT =  anIteratorActRe.next();
+                    .hasNext(); ) {
+                actRelationshipDT = anIteratorActRe.next();
 
                 if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
                     actRelationshipDT.setTargetActUid(actualUid);
-                    eventUid=actRelationshipDT.getTargetActUid();
+                    eventUid = actRelationshipDT.getTargetActUid();
                 }
                 if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
                     actRelationshipDT.setSourceActUid(actualUid);
                 }
                 logger.debug("ActRelationShipDT: falseUid "
-                        + falseUid+ " actualUid: " + actualUid);
+                        + falseUid + " actualUid: " + actualUid);
             }
         }
 
         Iterator<NbsActEntityDto> anIteratorNbsActEntity;
         if (pamCaseEntityColl != null) {
             for (anIteratorNbsActEntity = pamCaseEntityColl.iterator(); anIteratorNbsActEntity
-                    .hasNext();) {
-                pamCaseEntityDT =  anIteratorNbsActEntity.next();
+                    .hasNext(); ) {
+                pamCaseEntityDT = anIteratorNbsActEntity.next();
                 if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
                     pamCaseEntityDT.setEntityUid(actualUid);
                 }
@@ -236,15 +219,15 @@ public class UidService implements IUidService {
         ParticipationDto participationDT;
         ActRelationshipDto actRelationshipDT;
         NbsActEntityDto pamCaseEntityDT;
-        Collection<ParticipationDto>  participationColl = pamProxyVO.getTheParticipationDTCollection();
-        Collection<ActRelationshipDto>  actRelationShipColl = pamProxyVO
+        Collection<ParticipationDto> participationColl = pamProxyVO.getTheParticipationDTCollection();
+        Collection<ActRelationshipDto> actRelationShipColl = pamProxyVO
                 .getPublicHealthCaseContainer().getTheActRelationshipDTCollection();
-        Collection<NbsActEntityDto>  pamCaseEntityColl = pamProxyVO.getPamVO().getActEntityDTCollection();
+        Collection<NbsActEntityDto> pamCaseEntityColl = pamProxyVO.getPamVO().getActEntityDTCollection();
 
-        Iterator<ParticipationDto>  anIteratorPat;
+        Iterator<ParticipationDto> anIteratorPat;
         if (participationColl != null) {
-            for (anIteratorPat = participationColl.iterator(); anIteratorPat.hasNext();) {
-                participationDT =  anIteratorPat.next();
+            for (anIteratorPat = participationColl.iterator(); anIteratorPat.hasNext(); ) {
+                participationDT = anIteratorPat.next();
                 if (participationDT.getActUid().compareTo(falseUid) == 0) {
                     participationDT.setActUid(actualUid);
                 }
@@ -254,10 +237,10 @@ public class UidService implements IUidService {
             }
         }
 
-        Iterator<ActRelationshipDto>  anIteratorAct;
+        Iterator<ActRelationshipDto> anIteratorAct;
 
         if (actRelationShipColl != null) {
-            for (anIteratorAct = actRelationShipColl.iterator(); anIteratorAct.hasNext();) {
+            for (anIteratorAct = actRelationShipColl.iterator(); anIteratorAct.hasNext(); ) {
                 actRelationshipDT = anIteratorAct.next();
 
                 if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
@@ -269,11 +252,11 @@ public class UidService implements IUidService {
             }
         }
 
-        Iterator<NbsActEntityDto>  anIteratorActEntity;
+        Iterator<NbsActEntityDto> anIteratorActEntity;
 
         if (pamCaseEntityColl != null) {
-            for (anIteratorActEntity = pamCaseEntityColl.iterator(); anIteratorActEntity.hasNext();) {
-                pamCaseEntityDT =  anIteratorActEntity.next();
+            for (anIteratorActEntity = pamCaseEntityColl.iterator(); anIteratorActEntity.hasNext(); ) {
+                pamCaseEntityDT = anIteratorActEntity.next();
                 if (pamCaseEntityDT.getEntityUid().compareTo(falseUid) == 0) {
                     pamCaseEntityDT.setEntityUid(actualUid);
                 }
@@ -289,11 +272,9 @@ public class UidService implements IUidService {
         Collection<Object> actRelationShipColl = notificationProxyVO.getTheActRelationshipDTCollection();
         Collection<Object> act2 = new ArrayList<>();
 
-        if (actRelationShipColl != null)
-        {
+        if (actRelationShipColl != null) {
 
-            for (anIterator = actRelationShipColl.iterator(); anIterator.hasNext();)
-            {
+            for (anIterator = actRelationShipColl.iterator(); anIterator.hasNext(); ) {
                 actRelationshipDT = (ActRelationshipDto) anIterator.next();
                 actRelationshipDT.setSourceActUid(actualUid);
                 act2.add(actRelationshipDT);

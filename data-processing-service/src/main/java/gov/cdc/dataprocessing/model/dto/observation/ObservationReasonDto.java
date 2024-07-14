@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ObservationReasonDto extends BaseContainer
-{
+public class ObservationReasonDto extends BaseContainer {
 
     private Long observationUid;
 
@@ -24,7 +23,6 @@ public class ObservationReasonDto extends BaseContainer
     private Long programJurisdictionOid = null;
 
     private String sharedInd = null;
-
 
 
     public ObservationReasonDto() {

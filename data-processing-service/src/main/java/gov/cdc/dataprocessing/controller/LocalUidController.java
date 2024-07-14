@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class LocalUidController {
     private final IOdseIdGeneratorService odseIdGeneratorService;
+
     @Autowired
     public LocalUidController(OdseIdGeneratorService odseIdGeneratorService) {
         this.odseIdGeneratorService = odseIdGeneratorService;

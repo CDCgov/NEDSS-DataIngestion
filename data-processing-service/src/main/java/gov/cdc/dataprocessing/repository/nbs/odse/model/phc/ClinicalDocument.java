@@ -1,4 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.phc;
+
 import gov.cdc.dataprocessing.model.dto.phc.ClinicalDocumentDto;
 import jakarta.persistence.*;
 import lombok.Data;

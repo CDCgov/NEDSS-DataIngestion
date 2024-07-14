@@ -27,9 +27,8 @@ public class ObservationMatchStoredProcRepository {
         String clia = edxLabInformationDto.getSendingFacilityClia();
         String fillerNumber = edxLabInformationDto.getFillerNumber();
         Timestamp specimenCollectionDate = observationContainer.getTheObservationDto().getEffectiveFromTime();
-        String orderedTestCode= observationContainer.getTheObservationDto().getCd();
-        if (checkInvalidFillerSpecimenAndOrderedTest(fillerNumber, specimenCollectionDate, orderedTestCode, clia))
-        {
+        String orderedTestCode = observationContainer.getTheObservationDto().getCd();
+        if (checkInvalidFillerSpecimenAndOrderedTest(fillerNumber, specimenCollectionDate, orderedTestCode, clia)) {
             return null; // no match
         }
 
@@ -66,7 +65,7 @@ public class ObservationMatchStoredProcRepository {
             Long observationUid = (Long) storedProcedure.getOutputParameterValue("Observation_uid");
 
 
-            if (observationUid!= null && observationUid > 0) {
+            if (observationUid != null && observationUid > 0) {
                 matchedUID = observationUid;
             }
 
@@ -77,11 +76,11 @@ public class ObservationMatchStoredProcRepository {
 
     }
 
-    protected  boolean checkInvalidFillerSpecimenAndOrderedTest(
+    protected boolean checkInvalidFillerSpecimenAndOrderedTest(
             String fillerNumber, Timestamp specimenCollectionDate, String orderedTestCode,
             String clia
     ) {
-       return fillerNumber == null || specimenCollectionDate==null || orderedTestCode==null || clia==null;
+        return fillerNumber == null || specimenCollectionDate == null || orderedTestCode == null || clia == null;
     }
 
 }

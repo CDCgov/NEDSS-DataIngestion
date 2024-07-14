@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Table(name = "Notification")
-public class Notification   {
+public class Notification {
 
     @Id
     @Column(name = "notification_uid")

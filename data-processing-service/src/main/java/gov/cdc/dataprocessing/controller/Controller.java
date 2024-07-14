@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class Controller {
     private final IManagerService managerService;
+
     @Autowired
     public Controller(ManagerService managerService) {
         this.managerService = managerService;

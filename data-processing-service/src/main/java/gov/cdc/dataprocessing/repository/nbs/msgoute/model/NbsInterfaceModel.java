@@ -15,8 +15,8 @@ import java.sql.Timestamp;
 @SuppressWarnings("all")
 public class NbsInterfaceModel {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY )
-    @Column(name="nbs_interface_uid")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "nbs_interface_uid")
     private Integer nbsInterfaceUid;
 
     @Column(name = "payload", length = 2048, nullable = false)

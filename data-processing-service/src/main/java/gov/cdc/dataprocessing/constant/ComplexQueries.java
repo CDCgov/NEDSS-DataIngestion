@@ -59,8 +59,7 @@ public class ComplexQueries {
             + "order by NBS_UI_METADATA.investigation_form_cd, NBS_UI_METADATA.order_nbr  ";
 
 
-
-    public static final String GENERIC_QUESTION_OID_METADATA_SQL ="SELECT " +
+    public static final String GENERIC_QUESTION_OID_METADATA_SQL = "SELECT " +
             "wa_question.wa_question_uid, " +
             "wa_question.question_unit_identifier, " +
             "wa_question.add_time, " +
@@ -68,7 +67,7 @@ public class ComplexQueries {
             "wa_question.code_set_group_id, " +
             "wa_question.data_type, " +
             "wa_question.mask, " +
-            "'CORE_INV_FORM' \"investigationFormCd\", "+
+            "'CORE_INV_FORM' \"investigationFormCd\", " +
             "wa_question.last_chg_time, " +
             "wa_question.last_chg_user_id, " +
             "wa_question.question_nm, " +
@@ -91,20 +90,20 @@ public class ComplexQueries {
             "wa_question.standard_nnd_ind_cd,     " +
             "wa_question.question_group_seq_nbr  " +
             "FROM " +
-            "wa_question "+
-            "INNER JOIN NBS_UI_Component ON wa_question.nbs_ui_component_uid = NBS_UI_Component.nbs_ui_component_uid "+
-            "LEFT OUTER JOIN "+
-            "NBS_SRTE..CODESET "+
-            "ON CODESET.code_set_group_id = wa_question.code_set_group_id "+
-            " WHERE(UPPER( wa_question.data_location ) LIKE UPPER( 'public_health_case%' ) "+
+            "wa_question " +
+            "INNER JOIN NBS_UI_Component ON wa_question.nbs_ui_component_uid = NBS_UI_Component.nbs_ui_component_uid " +
+            "LEFT OUTER JOIN " +
+            "NBS_SRTE..CODESET " +
+            "ON CODESET.code_set_group_id = wa_question.code_set_group_id " +
+            " WHERE(UPPER( wa_question.data_location ) LIKE UPPER( 'public_health_case%' ) " +
             " OR UPPER( wa_question.data_location ) LIKE UPPER( 'confirmation_method%' )) " +
             " AND (wa_question.code_set_group_id IS NULL " +
-            "   OR wa_question.code_set_group_id IN "+
-            "   ( "+
+            "   OR wa_question.code_set_group_id IN " +
+            "   ( " +
             "     SELECT code_set_group_id " +
-            "      FROM nbs_srte..codeset "+
-            "      WHERE UPPER( class_cd )= UPPER('code_value_general') "+
-            "    ))" ;
+            "      FROM nbs_srte..codeset " +
+            "      WHERE UPPER( class_cd )= UPPER('code_value_general') " +
+            "    ))";
 
 
     public static final String PAM_QUESTION_OID_METADATA_SQL = "SELECT "
@@ -199,115 +198,115 @@ public class ComplexQueries {
                     " order by obs.observation_uid, ar2.source_act_uid  ";
 
 
-    public static final String SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1="select subject.cd \"subjectPhcCd\", "
-            +"  ct_contact.subject_entity_phc_uid \"subjectEntityPhcUid\", subject.local_id \"subjectPhcLocalId\","
-            +"  ct_contact.named_On_Date \"namedOnDate\", ct_contact.CT_Contact_uid \"ctContactUid\",ct_contact.local_Id \"localId\", "
-            +" 	ct_contact.subject_Entity_Uid \"subjectEntityUid\", ct_contact.contact_Entity_Uid \"contactEntityUid\", CT_CONTACT.priority_cd \"priorityCd\", ct_contact.disposition_cd \"dispositionCd\", "
-            +"  ct_contact.prog_area_cd \"progAreaCd\", ct_contact.named_during_interview_uid \"namedDuringInterviewUid\", cm.fld_foll_up_dispo \"invDispositionCd\", ct_contact.contact_referral_basis_cd \"contactReferralBasisCd\", "
-            +"  ct_contact.third_party_entity_uid \"thirdPartyEntityUid\", ct_contact.third_party_entity_phc_uid \"thirdPartyEntityPhcUid\", ct_contact.processing_decision_cd \"contactProcessingDecisionCd\", "
-            +"  subjectCM.FLD_FOLL_UP_DISPO \"sourceDispositionCd\", subject.cd \"sourceConditionCd\", subjectperson.curr_sex_cd \"sourceCurrentSexCd\", subjectCM.PAT_INTV_STATUS_CD \"sourceInterviewStatusCd\","
-            +" 	 contact.public_health_case_uid \"contactEntityPhcUid\", contact.local_id \"contactPhcLocalId\", person.person_parent_uid \"subjectMprUid\" ,  ixs.interview_date \"interviewDate\", ct_contact.add_time \"createDate\", personcontact.person_parent_uid \"contactMprUid\" "
-            +"   from ct_contact with (nolock) "
-            +"  left outer join public_health_case subject with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subject.public_health_case_uid) "
-            +"  left outer join case_management cm with (nolock) on (ct_contact.CONTACT_ENTITY_PHC_UID=cm.public_health_case_uid)"
-            +"  left outer join case_management subjectCM with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subjectCM.public_health_case_uid) "
-            +"  left outer join interview ixs with (nolock) on ct_contact.named_during_interview_uid=ixs.interview_uid "
-            +" 	left outer join public_health_case contact with (nolock) on (ct_contact.CONTACT_ENTITY_PHC_UID=contact.PUBLIC_HEALTH_CASE_UID ";
-    public static final String SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION3= " ) inner join person with (nolock)  on ct_contact.SUBJECT_ENTITY_UID=person.person_uid  "
-            +" inner join person subjectperson with (nolock)  on ct_contact.SUBJECT_ENTITY_UID=subjectperson.person_uid "
-            +" inner join person personcontact with (nolock) on ct_contact.CONTACT_ENTITY_UID=personcontact.person_uid "
-            +" where  ct_contact.record_status_cd='ACTIVE' and Subject_Entity_Phc_Uid =";
+    public static final String SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1 = "select subject.cd \"subjectPhcCd\", "
+            + "  ct_contact.subject_entity_phc_uid \"subjectEntityPhcUid\", subject.local_id \"subjectPhcLocalId\","
+            + "  ct_contact.named_On_Date \"namedOnDate\", ct_contact.CT_Contact_uid \"ctContactUid\",ct_contact.local_Id \"localId\", "
+            + " 	ct_contact.subject_Entity_Uid \"subjectEntityUid\", ct_contact.contact_Entity_Uid \"contactEntityUid\", CT_CONTACT.priority_cd \"priorityCd\", ct_contact.disposition_cd \"dispositionCd\", "
+            + "  ct_contact.prog_area_cd \"progAreaCd\", ct_contact.named_during_interview_uid \"namedDuringInterviewUid\", cm.fld_foll_up_dispo \"invDispositionCd\", ct_contact.contact_referral_basis_cd \"contactReferralBasisCd\", "
+            + "  ct_contact.third_party_entity_uid \"thirdPartyEntityUid\", ct_contact.third_party_entity_phc_uid \"thirdPartyEntityPhcUid\", ct_contact.processing_decision_cd \"contactProcessingDecisionCd\", "
+            + "  subjectCM.FLD_FOLL_UP_DISPO \"sourceDispositionCd\", subject.cd \"sourceConditionCd\", subjectperson.curr_sex_cd \"sourceCurrentSexCd\", subjectCM.PAT_INTV_STATUS_CD \"sourceInterviewStatusCd\","
+            + " 	 contact.public_health_case_uid \"contactEntityPhcUid\", contact.local_id \"contactPhcLocalId\", person.person_parent_uid \"subjectMprUid\" ,  ixs.interview_date \"interviewDate\", ct_contact.add_time \"createDate\", personcontact.person_parent_uid \"contactMprUid\" "
+            + "   from ct_contact with (nolock) "
+            + "  left outer join public_health_case subject with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subject.public_health_case_uid) "
+            + "  left outer join case_management cm with (nolock) on (ct_contact.CONTACT_ENTITY_PHC_UID=cm.public_health_case_uid)"
+            + "  left outer join case_management subjectCM with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subjectCM.public_health_case_uid) "
+            + "  left outer join interview ixs with (nolock) on ct_contact.named_during_interview_uid=ixs.interview_uid "
+            + " 	left outer join public_health_case contact with (nolock) on (ct_contact.CONTACT_ENTITY_PHC_UID=contact.PUBLIC_HEALTH_CASE_UID ";
+    public static final String SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION3 = " ) inner join person with (nolock)  on ct_contact.SUBJECT_ENTITY_UID=person.person_uid  "
+            + " inner join person subjectperson with (nolock)  on ct_contact.SUBJECT_ENTITY_UID=subjectperson.person_uid "
+            + " inner join person personcontact with (nolock) on ct_contact.CONTACT_ENTITY_UID=personcontact.person_uid "
+            + " where  ct_contact.record_status_cd='ACTIVE' and Subject_Entity_Phc_Uid =";
 
-    public static final String SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION=
+    public static final String SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION =
             "select ct_contact.named_On_Date \"namedOnDate\", " +
-            "ct_contact.CT_Contact_uid \"ctContactUid\", " +
-            "ct_contact.local_Id \"localId\", "
-            +" ct_contact.subject_Entity_Uid \"subjectEntityUid\", " +
-            "ct_contact.contact_Entity_Uid \"contactEntityUid\", " +
-            "CT_CONTACT.priority_cd \"priorityCd\", " +
-            "ct_contact.disposition_cd \"dispositionCd\", "
-            +" ct_contact.prog_area_cd \"progAreaCd\", " +
-            "ct_contact.named_during_interview_uid \"namedDuringInterviewUid\", " +
-            "ct_contact.contact_referral_basis_cd \"contactReferralBasisCd\", "
-            +" ct_contact.third_party_entity_uid \"thirdPartyEntityUid\"," +
-            " ct_contact.third_party_entity_phc_uid \"thirdPartyEntityPhcUid\", " +
-            "ct_contact.processing_decision_cd \"contactProcessingDecisionCd\", "
-            +" subjectCM.FLD_FOLL_UP_DISPO \"sourceDispositionCd\", " +
-            "subject.cd \"sourceConditionCd\", " +
-            "subjectperson.curr_sex_cd \"sourceCurrentSexCd\", " +
-            "subjectCM.PAT_INTV_STATUS_CD \"sourceInterviewStatusCd\","
-            +" ct_contact.SUBJECT_ENTITY_PHC_UID \"subjectEntityPhcUid\"," +
-            " ixs.interview_date \"interviewDate\", " +
-            " ct_contact.add_time \"createDate\", " +
-            "subject.local_id \"subjectPhcLocalId\", " +
-            "person.person_parent_uid \"contactMprUid\" ," +
-            " subject.cd \"subjectPhcCd\", " +
-            "subjectperson.person_parent_uid  \"subjectMprUid\" 	"
-            +" from ct_contact with (nolock) "
-            +"  left outer join public_health_case subject with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subject.public_health_case_uid) "
-            +"  left outer join case_management cm with (nolock) on (ct_contact.CONTACT_ENTITY_PHC_UID=cm.public_health_case_uid) "
-            +"  left outer join case_management subjectCM with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subjectCM.public_health_case_uid) "
-            +"  left outer join interview ixs with (nolock) on ct_contact.named_during_interview_uid=ixs.interview_uid "
-            +" 	inner join person with (nolock) on ct_contact.CONTACT_ENTITY_UID=person.person_uid "
-            +" 	inner join person subjectperson with (nolock) on ct_contact.SUBJECT_ENTITY_UID=subjectperson.person_uid "
-            +" 	where  ct_contact.record_status_cd='ACTIVE' and CONTACT_ENTITY_PHC_UID =";
+                    "ct_contact.CT_Contact_uid \"ctContactUid\", " +
+                    "ct_contact.local_Id \"localId\", "
+                    + " ct_contact.subject_Entity_Uid \"subjectEntityUid\", " +
+                    "ct_contact.contact_Entity_Uid \"contactEntityUid\", " +
+                    "CT_CONTACT.priority_cd \"priorityCd\", " +
+                    "ct_contact.disposition_cd \"dispositionCd\", "
+                    + " ct_contact.prog_area_cd \"progAreaCd\", " +
+                    "ct_contact.named_during_interview_uid \"namedDuringInterviewUid\", " +
+                    "ct_contact.contact_referral_basis_cd \"contactReferralBasisCd\", "
+                    + " ct_contact.third_party_entity_uid \"thirdPartyEntityUid\"," +
+                    " ct_contact.third_party_entity_phc_uid \"thirdPartyEntityPhcUid\", " +
+                    "ct_contact.processing_decision_cd \"contactProcessingDecisionCd\", "
+                    + " subjectCM.FLD_FOLL_UP_DISPO \"sourceDispositionCd\", " +
+                    "subject.cd \"sourceConditionCd\", " +
+                    "subjectperson.curr_sex_cd \"sourceCurrentSexCd\", " +
+                    "subjectCM.PAT_INTV_STATUS_CD \"sourceInterviewStatusCd\","
+                    + " ct_contact.SUBJECT_ENTITY_PHC_UID \"subjectEntityPhcUid\"," +
+                    " ixs.interview_date \"interviewDate\", " +
+                    " ct_contact.add_time \"createDate\", " +
+                    "subject.local_id \"subjectPhcLocalId\", " +
+                    "person.person_parent_uid \"contactMprUid\" ," +
+                    " subject.cd \"subjectPhcCd\", " +
+                    "subjectperson.person_parent_uid  \"subjectMprUid\" 	"
+                    + " from ct_contact with (nolock) "
+                    + "  left outer join public_health_case subject with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subject.public_health_case_uid) "
+                    + "  left outer join case_management cm with (nolock) on (ct_contact.CONTACT_ENTITY_PHC_UID=cm.public_health_case_uid) "
+                    + "  left outer join case_management subjectCM with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subjectCM.public_health_case_uid) "
+                    + "  left outer join interview ixs with (nolock) on ct_contact.named_during_interview_uid=ixs.interview_uid "
+                    + " 	inner join person with (nolock) on ct_contact.CONTACT_ENTITY_UID=person.person_uid "
+                    + " 	inner join person subjectperson with (nolock) on ct_contact.SUBJECT_ENTITY_UID=subjectperson.person_uid "
+                    + " 	where  ct_contact.record_status_cd='ACTIVE' and CONTACT_ENTITY_PHC_UID =";
 
-    public static final String SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION="select" +
+    public static final String SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION = "select" +
             " ct_contact.named_On_Date \"namedOnDate\"," +
             " ct_contact.CT_Contact_uid \"ctContactUid\", " +
             "ct_contact.local_Id \"localId\", "
-            +" ct_contact.subject_Entity_Uid \"subjectEntityUid\"," +
+            + " ct_contact.subject_Entity_Uid \"subjectEntityUid\"," +
             " ct_contact.contact_Entity_Uid \"contactEntityUid\"," +
             " CT_CONTACT.priority_cd \"priorityCd\", " +
             "ct_contact.disposition_cd \"dispositionCd\", "
-            +" ct_contact.prog_area_cd \"progAreaCd\"," +
+            + " ct_contact.prog_area_cd \"progAreaCd\"," +
             " ct_contact.named_during_interview_uid \"namedDuringInterviewUid\"," +
             " ct_contact.contact_referral_basis_cd \"contactReferralBasisCd\", "
-            +" ct_contact.third_party_entity_uid \"thirdPartyEntityUid\","
+            + " ct_contact.third_party_entity_uid \"thirdPartyEntityUid\","
             + " ct_contact.third_party_entity_phc_uid \"thirdPartyEntityPhcUid\","
             + " ct_contact.processing_decision_cd \"contactProcessingDecisionCd\", "
-            +" subjectCM.FLD_FOLL_UP_DISPO \"sourceDispositionCd\", " +
+            + " subjectCM.FLD_FOLL_UP_DISPO \"sourceDispositionCd\", " +
             "subject.cd \"sourceConditionCd\"," +
             " subjectperson.curr_sex_cd \"sourceCurrentSexCd\"," +
             " subjectCM.PAT_INTV_STATUS_CD \"sourceInterviewStatusCd\","
-            +" ct_contact.SUBJECT_ENTITY_PHC_UID \"subjectEntityPhcUid\", " +
+            + " ct_contact.SUBJECT_ENTITY_PHC_UID \"subjectEntityPhcUid\", " +
             " ixs.interview_date \"interviewDate\", " +
             " ct_contact.add_time \"createDate\"," +
             " subject.local_id \"subjectPhcLocalId\"," +
             " person.person_parent_uid \"contactMprUid\" , " +
             "subject.cd \"subjectPhcCd\"," +
             " subjectperson.person_parent_uid  \"subjectMprUid\" 	"
-            +" from ct_contact with (nolock) "
-            +"  left outer join public_health_case subject  with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subject.public_health_case_uid) "
-            +"  left outer join case_management cm  with (nolock) on (ct_contact.THIRD_PARTY_ENTITY_PHC_UID=cm.public_health_case_uid) "
-            +"  left outer join case_management subjectCM  with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subjectCM.public_health_case_uid) "
-            +"  left outer join interview ixs with (nolock) on ct_contact.named_during_interview_uid=ixs.interview_uid "
-            +" 	inner join person with (nolock) on ct_contact.THIRD_PARTY_ENTITY_UID=person.person_uid "
-            +" 	inner join person subjectperson with (nolock) on ct_contact.SUBJECT_ENTITY_UID=subjectperson.person_uid "
-            +" 	where  ct_contact.record_status_cd='ACTIVE' and THIRD_PARTY_ENTITY_PHC_UID =";
+            + " from ct_contact with (nolock) "
+            + "  left outer join public_health_case subject  with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subject.public_health_case_uid) "
+            + "  left outer join case_management cm  with (nolock) on (ct_contact.THIRD_PARTY_ENTITY_PHC_UID=cm.public_health_case_uid) "
+            + "  left outer join case_management subjectCM  with (nolock) on (ct_contact.SUBJECT_ENTITY_PHC_UID=subjectCM.public_health_case_uid) "
+            + "  left outer join interview ixs with (nolock) on ct_contact.named_during_interview_uid=ixs.interview_uid "
+            + " 	inner join person with (nolock) on ct_contact.THIRD_PARTY_ENTITY_UID=person.person_uid "
+            + " 	inner join person subjectperson with (nolock) on ct_contact.SUBJECT_ENTITY_UID=subjectperson.person_uid "
+            + " 	where  ct_contact.record_status_cd='ACTIVE' and THIRD_PARTY_ENTITY_PHC_UID =";
 
     public static final String SELECT_LABRESULTED_REFLEXTEST_SUMMARY_FORWORKUP_SQL =
             "SELECT distinct " +
-                    " obs.observation_uid \"observationUid\" , "+
+                    " obs.observation_uid \"observationUid\" , " +
                     " obs1.ctrl_Cd_User_Defined_1 \"ctrlCdUserDefined1\", " +
                     " act.source_act_uid \"sourceActUid\", " +
                     " obs1.local_id \"localId\"," +
-                    " obs1.cd_desc_txt \"resultedTest\", "+
+                    " obs1.cd_desc_txt \"resultedTest\", " +
                     " obs1.cd \"resultedTestCd\", " +
-                    " obs1.cd_system_cd \"cdSystemCd\", "+
-                    " obs1.status_cd \"resultedTestStatusCd\", "+ // Added this line for ER16368
+                    " obs1.cd_system_cd \"cdSystemCd\", " +
+                    " obs1.status_cd \"resultedTestStatusCd\", " + // Added this line for ER16368
                     " obsvaluecoded.code \"codedResultValue\", " +
                     " obsvaluecoded.display_name \"organismName\", " +
                     " obsvaluecoded.code_system_cd \"organismCodeSystemCd\", " +
-                    " obsnumeric.high_range \"highRange\","+
-                    " obsnumeric.low_range \"lowRange\","+
-                    " obsnumeric.comparator_cd_1 \"numericResultCompare\","+
+                    " obsnumeric.high_range \"highRange\"," +
+                    " obsnumeric.low_range \"lowRange\"," +
+                    " obsnumeric.comparator_cd_1 \"numericResultCompare\"," +
                     " obsnumeric.separator_cd \"numericResultSeperator\", " +
-                    " obsnumeric.numeric_value_1 \"numericResultValue1\","+
+                    " obsnumeric.numeric_value_1 \"numericResultValue1\"," +
                     " obsnumeric.numeric_value_2 \"numericResultValue2\", " +
                     " obsnumeric.numeric_scale_1 \"numericScale1\"," +
                     " obsnumeric.numeric_scale_2 \"numericScale2\", " +
-                    " obsnumeric.numeric_unit_cd \"numericResultUnits\", "+
+                    " obsnumeric.numeric_unit_cd \"numericResultUnits\", " +
                     " obsvaluetext.value_txt \"textResultValue\" " +
                     "FROM observation obs " +
                     "    inner JOIN act_relationship act ON  act.target_act_uid = obs.observation_uid " +
@@ -316,7 +315,7 @@ public class ComplexQueries {
                     "        AND (act.source_class_cd = 'OBS') " +
                     "        AND (act.record_status_cd = 'ACTIVE') " +
                     "    inner JOIN observation obs1 ON  act.source_act_uid = obs1.observation_uid " +
-                    "   and (obs1.obs_domain_cd_st_1 = 'Result')"  +
+                    "   and (obs1.obs_domain_cd_st_1 = 'Result')" +
                     "    LEFT OUTER JOIN obs_value_numeric obsnumeric on obsnumeric.observation_uid= obs1.observation_uid " +
                     "    LEFT OUTER JOIN obs_value_coded obsvaluecoded on obsvaluecoded.observation_uid = obs1.observation_uid " +
                     "    LEFT OUTER JOIN obs_value_txt obsvaluetext on obsvaluetext.observation_uid = obs1.observation_uid " +
@@ -389,7 +388,7 @@ public class ComplexQueries {
                     "Treatment.cd_desc_txt \"customTreatmentNameCode\", " +
                     "Treatment.activity_from_time \"activityFromTime\",  " +
 
-                    "FROM " +     "Public_Health_Case" + " phc with (nolock) , " +
+                    "FROM " + "Public_Health_Case" + " phc with (nolock) , " +
                     "Act_Relationship" + " ar with (nolock) , " +
                     "treatment" + " Treatment with (nolock) , " +
                     "Participation" + " par  with (nolock) " +
@@ -404,10 +403,10 @@ public class ComplexQueries {
                     "AND          par.record_status_cd = 'ACTIVE' " +
                     "AND          phc.public_health_case_uid = :PhcUid ";
 
-    public static final String DOCUMENT_FOR_A_PHC ="SELECT " +
+    public static final String DOCUMENT_FOR_A_PHC = "SELECT " +
             "phc.public_health_case_uid \"phcUid\"," +
             "Document.nbs_document_uid  \"nbsDocumentUid\"," +
-            "Document.doc_type_cd \"docType\", "+
+            "Document.doc_type_cd \"docType\", " +
             "Document.cd_desc_txt \"cdDescTxt\", " +
             "Document.add_time \"addTime\",  " +
             "Document.local_id \"localId\"," +
@@ -445,18 +444,18 @@ public class ComplexQueries {
                     "Notification.rpt_sent_time RptSentTime, " +
                     "Notification.record_status_time RecordStatusTime, " +
                     " Notification.case_condition_cd Cd, " +
-                    " Notification.jurisdiction_cd jurisdictionCd , "+
-                    " Notification.program_jurisdiction_oid programJurisdictionOid , "+
+                    " Notification.jurisdiction_cd jurisdictionCd , " +
+                    " Notification.program_jurisdiction_oid programJurisdictionOid , " +
                     " Public_health_case.case_class_cd ," +
-                    " Notification.auto_resend_ind AutoResendInd, "+
-                    " Notification.case_class_cd CaseClassCd, "+
+                    " Notification.auto_resend_ind AutoResendInd, " +
+                    " Notification.case_class_cd CaseClassCd, " +
                     " Notification.local_id LocalId, " +
-                    "Notification.txt Txt, "+
+                    "Notification.txt Txt, " +
                     " Notification.record_status_cd RecordStatusCd, " +
                     "'F' isHistory ," +
                     " cc.nnd_ind \"nndInd\" , " +
                     "exportReceiving.receiving_system_nm recipient " +
-                    " from Public_health_case Public_health_case  with (nolock) , act_relationship ar  with (nolock) , nbs_srte..condition_code cc  with (nolock) , "+
+                    " from Public_health_case Public_health_case  with (nolock) , act_relationship ar  with (nolock) , nbs_srte..condition_code cc  with (nolock) , " +
                     " notification Notification   with (nolock) " +
                     "LEFT JOIN Export_receiving_facility exportReceiving  with (nolock) " +
                     " ON exportReceiving.export_receiving_facility_uid = Notification.export_receiving_facility_uid " +
@@ -473,23 +472,23 @@ public class ComplexQueries {
 
     public static final String SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL =
             "select notHist.notification_uid NotificationUid, " +
-                    " Notification.cd cdNotif,"+
+                    " Notification.cd cdNotif," +
                     " notHist.add_time AddTime," +
                     " notHist.rpt_sent_time RptSentTime, " +
                     " notHist.record_status_time RecordStatusTime, " +
-                    " notHist.jurisdiction_cd jurisdictionCd, "+
-                    " notHist.program_jurisdiction_oid programJurisdictionOid, "+
+                    " notHist.jurisdiction_cd jurisdictionCd, " +
+                    " notHist.program_jurisdiction_oid programJurisdictionOid, " +
                     " notHist.case_condition_cd Cd, " +
-                    "notHist.version_ctrl_nbr VersionCtrlNbr,"+
+                    "notHist.version_ctrl_nbr VersionCtrlNbr," +
                     " Public_health_case.case_class_cd ," +
-                    " notHist.case_class_cd CaseClassCd, "+
+                    " notHist.case_class_cd CaseClassCd, " +
                     " notHist.local_id LocalId," +
-                    " notHist.txt Txt, "+
+                    " notHist.txt Txt, " +
                     " notHist.record_status_cd RecordStatusCd," +
                     " 'T' isHistory ," +
                     " cc.nnd_ind \"nndInd\" , " +
                     " exportReceiving.receiving_system_nm recipient " +
-                    " from Public_health_case Public_health_case  with (nolock) , act_relationship ar  with (nolock) , nbs_srte..condition_code cc  with (nolock) , "+
+                    " from Public_health_case Public_health_case  with (nolock) , act_relationship ar  with (nolock) , nbs_srte..condition_code cc  with (nolock) , " +
                     " notification Notification  with (nolock) , notification_hist notHist  with (nolock)  " +
                     "LEFT JOIN Export_receiving_facility exportReceiving  with (nolock) " +
                     " ON exportReceiving.export_receiving_facility_uid = notHist.export_receiving_facility_uid " +
@@ -507,21 +506,21 @@ public class ComplexQueries {
 
 
     public static final String SELECT_NOTIFICATION_FOR_INVESTIGATION_SQL1 =
-            " select Notification.notification_uid NotificationUid,  Notification.cd cdNotif,"+
+            " select Notification.notification_uid NotificationUid,  Notification.cd cdNotif," +
                     "  Notification.add_time AddTime, " +
                     " Notification.rpt_sent_time RptSentTime, " +
                     " Notification.record_status_time \"recordStatusTime\", " +
                     " Public_health_case.case_class_cd, " +
-                    " Notification.case_condition_cd \"Cd\", "+
-                    " Notification.jurisdiction_cd \"jurisdictionCd\" , "+
-                    " Notification.program_jurisdiction_oid \"programJurisdictionOid\" , "+
-                    " Notification.auto_resend_ind AutoResendInd, "+
-                    " Notification.case_class_cd CaseClassCd, "+
-                    " Notification.local_id LocalId, Notification.txt Txt, "+
+                    " Notification.case_condition_cd \"Cd\", " +
+                    " Notification.jurisdiction_cd \"jurisdictionCd\" , " +
+                    " Notification.program_jurisdiction_oid \"programJurisdictionOid\" , " +
+                    " Notification.auto_resend_ind AutoResendInd, " +
+                    " Notification.case_class_cd CaseClassCd, " +
+                    " Notification.local_id LocalId, Notification.txt Txt, " +
                     " Notification.record_status_cd RecordStatusCd, 'F' isHistory  ," +
                     " cc.nnd_ind \"nndInd\" , " +
                     " exportReceiving.receiving_system_nm recipient " +
-                    " from Public_health_case Public_health_case  with (nolock) "+
+                    " from Public_health_case Public_health_case  with (nolock) " +
                     " inner join  act_relationship ar  with (nolock)  on " +
                     " Public_health_case.Public_health_case_uid = ar.target_act_uid  " +
                     " and ar.type_cd = '" + NEDSSConstant.ACT106_TYP_CD + "'" +
@@ -537,7 +536,6 @@ public class ComplexQueries {
                     " and Public_health_case.public_health_case_uid = :PhcUid";
 
 
-
     public static final String SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL1 =
             " select notHist.notification_uid NotificationUid, " +
                     " notHist.cd cdNotif, " +
@@ -546,15 +544,15 @@ public class ComplexQueries {
                     " notHist.record_status_time \"recordStatusTime\", " +
                     " Public_health_case.case_class_cd, " +
                     " notHist.case_condition_cd \"Cd\", " +
-                    " notHist.jurisdiction_cd \"jurisdictionCd\" , "+
-                    " notHist.program_jurisdiction_oid \"programJurisdictionOid\" , "+
-                    " notHist.case_class_cd CaseClassCd, "+
-                    " notHist.version_ctrl_nbr VersionCtrlNbr, "+
-                    " notHist.local_id LocalId, notHist.txt Txt, "+
+                    " notHist.jurisdiction_cd \"jurisdictionCd\" , " +
+                    " notHist.program_jurisdiction_oid \"programJurisdictionOid\" , " +
+                    " notHist.case_class_cd CaseClassCd, " +
+                    " notHist.version_ctrl_nbr VersionCtrlNbr, " +
+                    " notHist.local_id LocalId, notHist.txt Txt, " +
                     " notHist.record_status_cd RecordStatusCd, 'T' isHistory ," +
                     " cc.nnd_ind \"nndInd\" , " +
                     " exportReceiving.receiving_system_nm recipient " +
-                    " from Public_health_case Public_health_case  with (nolock) "+
+                    " from Public_health_case Public_health_case  with (nolock) " +
                     " inner join  act_relationship ar  with (nolock) on " +
                     " Public_health_case.Public_health_case_uid = ar.target_act_uid  " +
                     " and ar.type_cd = '" + NEDSSConstant.ACT106_TYP_CD + "'" +
@@ -570,22 +568,6 @@ public class ComplexQueries {
                     " where Public_health_case.record_status_cd <> '" +
                     NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE + "'" +
                     " and Public_health_case.public_health_case_uid = :PhcUid";
-
-
-    public static String SELECT_LDF =  "SELECT "+
-            " sf.ldf_uid \"ldfUid\", "+
-            " sf.business_object_nm  \"businessObjNm\", "+
-            " sf.add_time    \"addTime\", "+
-            " sf.business_object_uid  \"businessObjUid\", "+
-            " sf.last_chg_time \"lastChgTime\", "+
-            " sf.ldf_value    \"ldfValue\", "+
-            " sf.version_ctrl_nbr \"versionCtrlNbr\" "+
-            " from State_defined_field_data sf, "+
-            " state_defined_field_metadata sdfmd "+
-            " where  sf.ldf_uid = sdfmd.ldf_uid "+
-            " and sf.business_object_uid = :businessObjUid ";
-
-
     public static final String GET_NBS_DOCUMENT = " SELECT"
             + " nbsdoc.nbs_document_uid  \"nbsDocumentUid\", "
             + " nbsdoc.local_id  \"localId\","
@@ -626,7 +608,7 @@ public class ComplexQueries {
             + " particip.act_uid = nbsdoc.nbs_document_uid "
             + " inner join person per on "
             + " particip.subject_entity_uid = per.person_uid "
-            + " and particip.type_cd='"+NEDSSConstant.SUBJECT_OF_DOC+ "' "
+            + " and particip.type_cd='" + NEDSSConstant.SUBJECT_OF_DOC + "' "
             + " inner join person_name pername on "
             + " per.person_uid = pername.person_uid "
             + " left outer join edx_event_process eep on "
@@ -634,21 +616,30 @@ public class ComplexQueries {
             + " and eep.doc_event_type_cd in('CASE','LabReport','MorbReport','CT') "
             + " and eep.parsed_ind = 'N' "
             + " WHERE  nbsdoc.nbs_document_uid = :NbsUid";
-
-
-
     public static final String COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL =
             "select distinct " +
                     "phc.public_health_case_uid \"publicHealthCaseUid\"," +
                     " phc.cd \"conditionCd\" " +
                     "from "
-            + "Public_health_case phc, person, Participation   "
-            + "where phc.investigation_status_cd='O'  and phc.record_status_cd !='LOG_DEL'  "
-            + "and phc.public_health_case_uid=participation.act_uid "
-            + "and participation.type_cd ='SubjOfPHC' "
-            + "and participation.subject_entity_uid =person.person_uid "
-            + "and coinfection_id= :CoInfect "
-            + "and person.person_parent_uid = :PersonUid ";
+                    + "Public_health_case phc, person, Participation   "
+                    + "where phc.investigation_status_cd='O'  and phc.record_status_cd !='LOG_DEL'  "
+                    + "and phc.public_health_case_uid=participation.act_uid "
+                    + "and participation.type_cd ='SubjOfPHC' "
+                    + "and participation.subject_entity_uid =person.person_uid "
+                    + "and coinfection_id= :CoInfect "
+                    + "and person.person_parent_uid = :PersonUid ";
+    public static String SELECT_LDF = "SELECT " +
+            " sf.ldf_uid \"ldfUid\", " +
+            " sf.business_object_nm  \"businessObjNm\", " +
+            " sf.add_time    \"addTime\", " +
+            " sf.business_object_uid  \"businessObjUid\", " +
+            " sf.last_chg_time \"lastChgTime\", " +
+            " sf.ldf_value    \"ldfValue\", " +
+            " sf.version_ctrl_nbr \"versionCtrlNbr\" " +
+            " from State_defined_field_data sf, " +
+            " state_defined_field_metadata sdfmd " +
+            " where  sf.ldf_uid = sdfmd.ldf_uid " +
+            " and sf.business_object_uid = :businessObjUid ";
 
 
 }

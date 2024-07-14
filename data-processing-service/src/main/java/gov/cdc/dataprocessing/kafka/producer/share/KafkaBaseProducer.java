@@ -5,6 +5,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 public class KafkaBaseProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
+
     public KafkaBaseProducer(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -12,6 +13,7 @@ public class KafkaBaseProducer {
     protected ProducerRecord<String, String> createProducerRecord(String topic, String msgKey, String msgContent) {
         return new ProducerRecord<>(topic, msgKey, msgContent);
     }
+
     protected void sendMessage(ProducerRecord<String, String> prodRecord) {
         kafkaTemplate.send(prodRecord);
     }

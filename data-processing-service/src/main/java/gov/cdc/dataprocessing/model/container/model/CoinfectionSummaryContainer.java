@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class CoinfectionSummaryContainer implements Serializable, Cloneable{
+public class CoinfectionSummaryContainer implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
     private Long publicHealthCaseUid;
@@ -35,7 +35,6 @@ public class CoinfectionSummaryContainer implements Serializable, Cloneable{
     private String disabled;
 
     private String processingDecisionCode;
-
 
 
 }

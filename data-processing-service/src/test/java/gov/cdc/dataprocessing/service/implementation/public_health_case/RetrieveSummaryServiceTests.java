@@ -35,6 +35,8 @@ import static org.mockito.Mockito.*;
 
 class RetrieveSummaryServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     @Mock
     private QueryHelper queryHelper;
@@ -48,8 +50,6 @@ class RetrieveSummaryServiceTests {
     private NotificationRepositoryUtil notificationRepositoryUtil;
     @InjectMocks
     private RetrieveSummaryService retrieveSummaryService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +60,7 @@ class RetrieveSummaryServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -140,7 +140,7 @@ class RetrieveSummaryServiceTests {
     void retrieveDocumentSummaryVOForInv_Exception() {
         long uid = 10L;
         when(customRepository.retrieveDocumentSummaryVOForInv(10L)).thenThrow(
-              new RuntimeException("TEST")
+                new RuntimeException("TEST")
         );
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             retrieveSummaryService.retrieveDocumentSummaryVOForInv(uid);
@@ -163,7 +163,7 @@ class RetrieveSummaryServiceTests {
         phcDt.setCdDescTxt("CODE");
         phcConn.setThePublicHealthCaseDto(phcDt);
 
-        var notSumCol = new ArrayList< NotificationSummaryContainer >();
+        var notSumCol = new ArrayList<NotificationSummaryContainer>();
         var notSum = new NotificationSummaryContainer();
         notSum.setCaseClassCd("Y");
         notSum.setCd("Y");
@@ -207,7 +207,7 @@ class RetrieveSummaryServiceTests {
         map.put("Y", "TXT");
         when(catchingValueService.getCodedValuesCallRepos("PHC_CLASS")).thenReturn(map);
 
-        when(catchingValueService.getCodeDescTxtForCd(NEDSSConstant.CLASS_CD_NOTF,"NBS_DOC_PURPOSE" ))
+        when(catchingValueService.getCodeDescTxtForCd(NEDSSConstant.CLASS_CD_NOTF, "NBS_DOC_PURPOSE"))
                 .thenReturn("TEST");
 
 
@@ -220,7 +220,7 @@ class RetrieveSummaryServiceTests {
     @Test
     void getAssociatedDocumentList_Success() throws DataProcessingException {
         long uid = 10L;
-        String targetClassCd= "CODE";
+        String targetClassCd = "CODE";
         String sourceClassCd = "CODE";
 
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.DOCUMENT, "VIEW", "")).thenReturn("BLAH");
@@ -234,7 +234,7 @@ class RetrieveSummaryServiceTests {
     @Test
     void getAssociatedDocumentList_Success_2() throws DataProcessingException {
         long uid = 10L;
-        String targetClassCd= "CODE";
+        String targetClassCd = "CODE";
         String sourceClassCd = "CODE";
 
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.DOCUMENT, "VIEW", ""))
@@ -249,7 +249,7 @@ class RetrieveSummaryServiceTests {
     @Test
     void getAssociatedDocumentList_Exception() {
         long uid = 10L;
-        String targetClassCd= "CODE";
+        String targetClassCd = "CODE";
         String sourceClassCd = "CODE";
 
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.DOCUMENT, "VIEW", ""))
@@ -316,7 +316,6 @@ class RetrieveSummaryServiceTests {
                 .thenThrow(
                         new RuntimeException("TEST")
                 );
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {

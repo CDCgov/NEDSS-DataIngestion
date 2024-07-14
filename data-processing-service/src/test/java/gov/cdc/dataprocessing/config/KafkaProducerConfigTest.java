@@ -38,7 +38,7 @@ class KafkaProducerConfigTest {
         ProducerFactory<String, String> producerFactory = kafkaProducerConfig.producerFactory();
         assertNotNull(producerFactory);
 
-        Map<String, Object> configs = ((DefaultKafkaProducerFactory<String, String>) producerFactory).getConfigurationProperties();
+        Map<String, Object> configs = producerFactory.getConfigurationProperties();
         assertEquals(bootstrapServers, configs.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
         assertEquals(StringSerializer.class, configs.get(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG));
         assertEquals(StringSerializer.class, configs.get(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));

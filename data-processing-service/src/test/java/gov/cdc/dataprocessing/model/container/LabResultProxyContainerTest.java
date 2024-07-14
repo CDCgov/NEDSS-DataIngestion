@@ -28,7 +28,7 @@ class LabResultProxyContainerTest {
         assertNotNull(container.getTheMaterialContainerCollection());
         assertNotNull(container.getTheRoleDtoCollection());
         assertNull(container.getTheActIdDTCollection());
-    //    assertNotNull(container.getTheInterventionVOCollection());
+        //    assertNotNull(container.getTheInterventionVOCollection());
         assertNull(container.getEDXDocumentCollection());
         assertNull(container.getTheConditionsList());
         assertNull(container.getMessageLogDCollection());

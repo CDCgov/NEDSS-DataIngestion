@@ -60,6 +60,8 @@ import static org.mockito.Mockito.*;
 
 class OrganizationRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private OrganizationRepository organizationRepository;
     @Mock
     private OrganizationNameRepository organizationNameRepository;
@@ -87,20 +89,18 @@ class OrganizationRepositoryUtilTest {
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
     private PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
-    @Mock
-    AuthUtil authUtil;
     @InjectMocks
     private OrganizationRepositoryUtil organizationRepositoryUtil;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        AuthUserProfileInfo authUserProfileInfo=new AuthUserProfileInfo();
+        AuthUserProfileInfo authUserProfileInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
         user.setNedssEntryId(1L);
         authUserProfileInfo.setAuthUser(user);
-        authUtil.setGlobalAuthUser(authUserProfileInfo);
+        AuthUtil.setGlobalAuthUser(authUserProfileInfo);
     }
 
     @AfterEach
@@ -318,8 +318,8 @@ class OrganizationRepositoryUtilTest {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
         organizationDto.setOrganizationUid(123L);
-        Long orgIdResult=organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
-        assertEquals(123L,orgIdResult);
+        Long orgIdResult = organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
+        assertEquals(123L, orgIdResult);
     }
 
     @Test
@@ -426,8 +426,8 @@ class OrganizationRepositoryUtilTest {
 
         when(prepareEntityStoredProcRepository.getPrepareEntity(any(), any(), any(), any())).thenReturn(prepareEntity);
 
-        Long orgIdResult=organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
-        assertEquals(1234L,orgIdResult);
+        Long orgIdResult = organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
+        assertEquals(1234L, orgIdResult);
     }
 
     @Test
@@ -527,8 +527,8 @@ class OrganizationRepositoryUtilTest {
 
         when(prepareEntityStoredProcRepository.getPrepareEntity(any(), any(), any(), any())).thenReturn(prepareEntity);
 
-        Long orgIdResult=organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
-        assertEquals(1234L,orgIdResult);
+        Long orgIdResult = organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
+        assertEquals(1234L, orgIdResult);
     }
 
     @Test

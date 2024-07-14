@@ -10,8 +10,7 @@ import java.util.Collection;
 @Getter
 @Setter
 @SuppressWarnings("all")
-public class ObsValueCodedDto extends BaseContainer
-{
+public class ObsValueCodedDto extends BaseContainer {
 
     private Long observationUid;
 

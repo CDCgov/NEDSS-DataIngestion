@@ -51,6 +51,7 @@ public class NbsActEntity {
     public NbsActEntity() {
 
     }
+
     public NbsActEntity(NbsActEntityDto nbsActEntityDto) {
         this.nbsActEntityUid = nbsActEntityDto.getNbsActEntityUid();
         this.addTime = nbsActEntityDto.getAddTime();

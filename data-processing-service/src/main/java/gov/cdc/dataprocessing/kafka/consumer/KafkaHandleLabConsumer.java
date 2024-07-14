@@ -14,12 +14,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class KafkaHandleLabConsumer {
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
-
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
+    @Value("${kafka.topic.elr_edx_log}")
+    private String logTopic = "elr_edx_log";
 
 
     public KafkaHandleLabConsumer(KafkaManagerProducer kafkaManagerProducer,
@@ -40,9 +39,7 @@ public class KafkaHandleLabConsumer {
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

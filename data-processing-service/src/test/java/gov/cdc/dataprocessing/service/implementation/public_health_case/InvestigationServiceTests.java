@@ -60,6 +60,10 @@ import static org.mockito.Mockito.*;
 
 class InvestigationServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
+    InvestigationContainer invesCon;
+    @Mock
     private EdxDocumentRepository edxDocumentRepository;
     @Mock
     private PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
@@ -97,8 +101,6 @@ class InvestigationServiceTests {
     private LabTestRepository labTestRepository;
     @InjectMocks
     private InvestigationService investigationService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -109,7 +111,7 @@ class InvestigationServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -128,7 +130,8 @@ class InvestigationServiceTests {
         ObservationContainer labProxyContainer = test.readDataFromJsonPath("phc/phc_investigation_obs.json", ObservationContainer.class);
 
         var phcDt = gson.fromJson(phcDTStr, PublicHealthCaseDto.class);
-        Type listOfPersonsType = new TypeToken<Collection<LabReportSummaryContainer>>(){}.getType();
+        Type listOfPersonsType = new TypeToken<Collection<LabReportSummaryContainer>>() {
+        }.getType();
         Collection<LabReportSummaryContainer> reportSumVOCollection = gson.fromJson(reportSumVOCollectionStr, listOfPersonsType);
 
         Long investigationUid = 10L;
@@ -291,7 +294,8 @@ class InvestigationServiceTests {
         ObservationContainer labProxyContainer = test.readDataFromJsonPath("phc/phc_investigation_obs.json", ObservationContainer.class);
 
         var phcDt = gson.fromJson(phcDTStr, PublicHealthCaseDto.class);
-        Type listOfPersonsType = new TypeToken<Collection<LabReportSummaryContainer>>(){}.getType();
+        Type listOfPersonsType = new TypeToken<Collection<LabReportSummaryContainer>>() {
+        }.getType();
         Collection<LabReportSummaryContainer> reportSumVOCollection = gson.fromJson(reportSumVOCollectionStr, listOfPersonsType);
 
         Long investigationUid = 10L;
@@ -329,7 +333,8 @@ class InvestigationServiceTests {
         Gson gson = new Gson();
 
         var phcDt = gson.fromJson(phcDTStr, PublicHealthCaseDto.class);
-        Type listOfPersonsType = new TypeToken<List<LabReportSummaryContainer>>(){}.getType();
+        Type listOfPersonsType = new TypeToken<List<LabReportSummaryContainer>>() {
+        }.getType();
         List<LabReportSummaryContainer> reportSumVOCollection = gson.fromJson(reportSumVOCollectionStr, listOfPersonsType);
         reportSumVOCollection.get(0).setLabFromDoc(true);
         reportSumVOCollection.get(0).setAssociated(false);
@@ -353,10 +358,9 @@ class InvestigationServiceTests {
         verify(observationRepositoryUtil, times(0)).loadObject(10006210L);
     }
 
-
     @Test
     void getPageProxyVO_Success() throws DataProcessingException, ParseException {
-        String typeCd= "PRINT_CDC_CASE";
+        String typeCd = "PRINT_CDC_CASE";
         long publicHealthCaseUid = 10006070L;
         String phcDTStr = "{\"caseStatusDirty\":false,\"isPamCase\":false,\"isPageCase\":false,\"isStdHivProgramAreaCode\":false,\"caseTypeCd\":\"I\",\"publicHealthCaseUid\":10006070,\"activityFromTime\":\"Jun 20, 2024, 12:00:00 AM\",\"addTime\":\"Jun 20, 2024, 12:36:18 PM\",\"addUserId\":36,\"cd\":\"11120\",\"cdDescTxt\":\"Acute flaccid myelitis\",\"groupCaseCnt\":1,\"investigationStatusCd\":\"O\",\"jurisdictionCd\":\"130001\",\"lastChgTime\":\"Jun 20, 2024, 12:36:18 PM\",\"lastChgUserId\":36,\"localId\":\"CAS10006070GA01\",\"mmwrWeek\":\"25\",\"mmwrYear\":\"2024\",\"progAreaCd\":\"GCD\",\"recordStatusCd\":\"OPEN\",\"recordStatusTime\":\"Jun 20, 2024, 12:36:18 PM\",\"rptFormCmpltTime\":\"Jun 20, 2024, 12:36:11 PM\",\"statusCd\":\"A\",\"programJurisdictionOid\":1300100009,\"sharedInd\":\"T\",\"versionCtrlNbr\":1,\"isSummaryCase\":false,\"itNew\":false,\"itOld\":false,\"itDirty\":false,\"itDelete\":false}";
         Gson gson = new Gson();
@@ -424,11 +428,10 @@ class InvestigationServiceTests {
         phcConn.setTheActRelationshipDTCollection(actCol);
 
 
-
         when(retrieveSummaryService.notificationSummaryOnInvestigation(any(), any())).thenReturn(notiSumCol);
 
         when(queryHelper
-                .getDataAccessWhereClause( NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs"))
+                .getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs"))
                 .thenReturn("BLAH");
 
         var uidSumCol = new ArrayList<UidSummaryContainer>();
@@ -497,7 +500,7 @@ class InvestigationServiceTests {
                 eq(NEDSSConstant.OBS_LAB_UNPROCESS),
                 eq(NEDSSConstant.OBSERVATION),
                 eq(NEDSSConstant.BASE),
-                eq(1) ))
+                eq(1)))
                 .thenReturn(rootDT);
 
         var test = investigationService.processingNonAssociatedReportSummaryContainer(reportSumVO, odsDT, rootDT);
@@ -540,9 +543,6 @@ class InvestigationServiceTests {
 
     }
 
-
-    @Mock
-    InvestigationContainer invesCon;
     @Test
     void testSetAssociations_ExceptionCase() {
         Long investigationUID = 1L;
@@ -749,8 +749,6 @@ class InvestigationServiceTests {
         labCol.add(lab);
 
 
-
-
         report.setTheResultedTestSummaryVOCollection(labCol);
         reportCol.add(report);
 
@@ -768,7 +766,6 @@ class InvestigationServiceTests {
         labLst.add(labTs);
         when(labTestRepository.findLabTestByLabIdAndLabTestCode(any(), eq("TEST"))).thenReturn(Optional.of(labLst));
         when(cachingValueService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
-
 
 
         investigationService.populateDescTxtFromCachedValues(reportCol);
@@ -919,7 +916,7 @@ class InvestigationServiceTests {
         participationDT.setSubjectEntityUid(1L);
         participationDT.setSubjectClassCd(NEDSSConstant.ORGANIZATION);
         participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        publicHealthCaseContainer.setTheParticipationDTCollection(Arrays.asList(participationDT));
+        publicHealthCaseContainer.setTheParticipationDTCollection(List.of(participationDT));
 
         ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
         ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
@@ -944,7 +941,7 @@ class InvestigationServiceTests {
         participationDT.setSubjectEntityUid(1L);
         participationDT.setSubjectClassCd(NEDSSConstant.PERSON);
         participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        publicHealthCaseContainer.setTheParticipationDTCollection(Arrays.asList(participationDT));
+        publicHealthCaseContainer.setTheParticipationDTCollection(List.of(participationDT));
 
         ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
         ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
@@ -969,7 +966,7 @@ class InvestigationServiceTests {
         participationDT.setSubjectEntityUid(1L);
         participationDT.setSubjectClassCd(NEDSSConstant.MATERIAL);
         participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        publicHealthCaseContainer.setTheParticipationDTCollection(Arrays.asList(participationDT));
+        publicHealthCaseContainer.setTheParticipationDTCollection(List.of(participationDT));
 
         ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
         ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();
@@ -994,7 +991,7 @@ class InvestigationServiceTests {
         participationDT.setSubjectEntityUid(1L);
         participationDT.setSubjectClassCd("OTHER");
         participationDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_INACTIVE);
-        publicHealthCaseContainer.setTheParticipationDTCollection(Arrays.asList(participationDT));
+        publicHealthCaseContainer.setTheParticipationDTCollection(List.of(participationDT));
 
         ArrayList<PersonContainer> personVOCollection = new ArrayList<>();
         ArrayList<OrganizationContainer> organizationVOCollection = new ArrayList<>();

@@ -26,19 +26,16 @@ public class EntityRepositoryUtil {
         } else {
             if (entityValue.getClass().toString().equals("class java.sql.Timestamp")) {
                 //TODO: Will get back to this
-            }
-            else {
+            } else {
 
             }
         }
 
         if (event.equals(NEDSSConstant.SELECT)) {
 
-        }
-        else if (event.equals(NEDSSConstant.SELECT_COUNT)) {
+        } else if (event.equals(NEDSSConstant.SELECT_COUNT)) {
 
-        }
-        else {
+        } else {
             return entityODSE;
         }
 

@@ -37,7 +37,7 @@ public class NNDActivityLog implements Serializable {
     private Timestamp recordStatusTime;
 
     @Column(name = "status_cd", length = 1, nullable = false)
-    private String  statusCd;
+    private String statusCd;
 
     @Column(name = "status_time", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -49,6 +49,7 @@ public class NNDActivityLog implements Serializable {
     public NNDActivityLog() {
 
     }
+
     public NNDActivityLog(NNDActivityLogDto activityLogDT) {
         this.nndActivityLogUid = activityLogDT.getNndActivityLogUid();
         this.nndActivityLogSeq = activityLogDT.getNndActivityLogSeq();

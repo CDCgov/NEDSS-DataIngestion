@@ -52,8 +52,9 @@ public class ObsValueNumeric implements Serializable {
 
     // Relationships if needed
     public ObsValueNumeric() {
-        
+
     }
+
     public ObsValueNumeric(ObsValueNumericDto obsValueNumericDto) {
         this.observationUid = obsValueNumericDto.getObservationUid();
         this.obsValueNumericSeq = obsValueNumericDto.getObsValueNumericSeq();

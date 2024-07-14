@@ -41,6 +41,7 @@ public class EdxLogService implements IEdxLogService {
         EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
         return edxActivityDetailLogResult;
     }
+
     @Transactional
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
@@ -51,15 +52,15 @@ public class EdxLogService implements IEdxLogService {
             EdxActivityLog dbActivityLog = dbActivityLogOptional.get();
             dbActivityLog.setExceptionTxt(edxActivityLogDto.getExceptionTxt());
             edxActivityLogRepository.save(dbActivityLog);
-            activityLogId=dbActivityLog.getId();
-        }else {
+            activityLogId = dbActivityLog.getId();
+        } else {
             EdxActivityLog edxActivityLogNew = edxActivityLogRepository.save(edxActivityLog);
-            activityLogId=edxActivityLogNew.getId();
+            activityLogId = edxActivityLogNew.getId();
         }
 
         if (edxActivityLogDto.getEDXActivityLogDTWithVocabDetails() != null) {
-            Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList= edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
-            for (EDXActivityDetailLogDto eDXActivityDetailLogDto: edxActivityDetailLogsList) {
+            Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList = edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
+            for (EDXActivityDetailLogDto eDXActivityDetailLogDto : edxActivityDetailLogsList) {
                 eDXActivityDetailLogDto.setEdxActivityLogUid(activityLogId);
                 saveEdxActivityDetailLog(eDXActivityDetailLogDto);
             }
@@ -158,7 +159,7 @@ public class EdxLogService implements IEdxLogService {
 
     @SuppressWarnings("java:S6541")
     public void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
-        try{
+        try {
             ArrayList<EDXActivityDetailLogDto> detailList =
                     (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
             if (detailList == null) {
@@ -334,10 +335,10 @@ public class EdxLogService implements IEdxLogService {
                         String.valueOf(edxLabInformationDto.getPersonParentUid()),
                         EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
-            if(edxLabInformationDto.isNextOfKin()) {
+            if (edxLabInformationDto.isNextOfKin()) {
 
                 var nokInfo = edxLabInformationDto.getLabResultProxyContainer().getThePersonContainerCollection()
-                                .stream().filter(nok -> nok.getRole().equals(NEDSSConstant.NOK)).findFirst();
+                        .stream().filter(nok -> nok.getRole().equals(NEDSSConstant.NOK)).findFirst();
                 String nokUid;
                 String nokParentUid;
                 String message = EdxELRConstant.NEXT_OF_KIN;
@@ -347,12 +348,12 @@ public class EdxLogService implements IEdxLogService {
                     message = message + ". (UID: " + nokUid + ", PUID: " + nokParentUid + ")";
                 }
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, message);
-            }else{
+            } else {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.NO_NEXT_OF_KIN);
             }
-            if(edxLabInformationDto.isProvider()) {
+            if (edxLabInformationDto.isProvider()) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.IS_PROVIDER);
-            }else{
+            } else {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, EdxELRConstant.IS_NOT_PROVIDER);
             }
             if (edxLabInformationDto.isLabIsCreateSuccess() && edxLabInformationDto.getJurisdictionName() != null) {
@@ -381,9 +382,9 @@ public class EdxLogService implements IEdxLogService {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.DOC_CREATE_SUCCESS);
             }
-            if(edxLabInformationDto.isObservationMatch()) {
+            if (edxLabInformationDto.isObservationMatch()) {
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, EdxELRConstant.OBSERVATION_MATCH);
-            }else{
+            } else {
                 String msg = EdxELRConstant.OBSERVATION_NOT_MATCH.replace("%1", Long.toString(edxLabInformationDto.getRootObserbationUid()));
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
@@ -467,14 +468,12 @@ public class EdxLogService implements IEdxLogService {
                             .append("(WDS value) ").append(wdsNumeric.getOperator()).append(" ")
                             .append(wdsNumeric.getInputCode1()).append(" (Input value 1) & ")
                             .append(wdsNumeric.getInputCode2()).append(" (Input value 2)");
-                }
-                else if (!item.getWdsValueTextReportList().isEmpty()) {
+                } else if (!item.getWdsValueTextReportList().isEmpty()) {
                     var wdsText = item.getWdsValueTextReportList().get(0);
                     sb.append("Matched on Text Value type. ").append(underCond).append(wdsText.getWdsCode())
                             .append("(WDS value) matching with ")
                             .append(wdsText.getInputCode());
-                }
-                else if (item.getWdsValueCodedReport() != null ) {
+                } else if (item.getWdsValueCodedReport() != null) {
                     sb.append("Matched on Coded Value type. ").append(underCond).append(item.getWdsValueCodedReport().getWdsCode())
                             .append("(WDS value) matching with ")
                             .append(item.getWdsValueCodedReport().getInputCode());
@@ -505,9 +504,8 @@ public class EdxLogService implements IEdxLogService {
 //                        EdxELRConstant.OFCN);
 //            }
             edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
-        }
-        catch (Exception e) {
-            ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
+        } catch (Exception e) {
+            ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
             if (delailList == null) {
                 delailList = new ArrayList<EDXActivityDetailLogDto>();
             }
@@ -523,8 +521,9 @@ public class EdxLogService implements IEdxLogService {
         edxActivityDetailLogDto.setComment(comment);
         detailLogs.add(edxActivityDetailLogDto);
     }
+
     public void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
-        try{
+        try {
             ArrayList<EDXActivityDetailLogDto> detailList =
                     (ArrayList<EDXActivityDetailLogDto>) edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
             if (detailList == null) {
@@ -560,8 +559,7 @@ public class EdxLogService implements IEdxLogService {
                         EdxELRConstant.OFCN);
             }
             edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error while adding activity detail log.", e);
         }
     }

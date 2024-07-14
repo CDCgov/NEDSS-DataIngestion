@@ -46,6 +46,7 @@ public class EdxActivityDetailLog {
 
     public EdxActivityDetailLog() {
     }
+
     public EdxActivityDetailLog(EDXActivityDetailLogDto eDXActivityDtlLogDto) {
         //this.id=eDXActivityDtlLogDto.getEdxActivityDetailLogUid();
         this.edxActivityLogUid = eDXActivityDtlLogDto.getEdxActivityLogUid();

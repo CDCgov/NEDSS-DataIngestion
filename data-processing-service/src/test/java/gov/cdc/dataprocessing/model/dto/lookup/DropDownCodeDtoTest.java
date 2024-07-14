@@ -40,7 +40,7 @@ class DropDownCodeDtoTest {
         dto.setAddTime(null);
         dto.setStatusTime(null);
         dto.setRecordStatusTime(null);
-        dto .setRecordStatusCd(null);
+        dto.setRecordStatusCd(null);
         dto.setLastChgReasonCd(null);
         dto.setAddUserId(null);
         dto.setLocalId(null);

@@ -53,36 +53,35 @@ import static org.mockito.Mockito.*;
 
 class ManagerServiceTest {
     @Mock
-    private  IObservationService observationService;
+    AuthUtil authUtil;
     @Mock
-    private  IEdxLogService edxLogService;
+    private IObservationService observationService;
     @Mock
-    private  IDataExtractionService dataExtractionService;
+    private IEdxLogService edxLogService;
     @Mock
-    private  NbsInterfaceRepository nbsInterfaceRepository;
+    private IDataExtractionService dataExtractionService;
     @Mock
-    private  IDecisionSupportService decisionSupportService;
+    private NbsInterfaceRepository nbsInterfaceRepository;
     @Mock
-    private  ManagerUtil managerUtil;
+    private IDecisionSupportService decisionSupportService;
     @Mock
-    private  KafkaManagerProducer kafkaManagerProducer;
+    private ManagerUtil managerUtil;
     @Mock
-    private  IManagerAggregationService managerAggregationService;
+    private KafkaManagerProducer kafkaManagerProducer;
     @Mock
-    private  ILabReportProcessing labReportProcessing;
+    private IManagerAggregationService managerAggregationService;
     @Mock
-    private  IPageService pageService;
+    private ILabReportProcessing labReportProcessing;
     @Mock
-    private  IPamService pamService;
+    private IPageService pageService;
     @Mock
-    private  IInvestigationNotificationService investigationNotificationService;
+    private IPamService pamService;
+    @Mock
+    private IInvestigationNotificationService investigationNotificationService;
     @Mock
     private IManagerCacheService managerCacheService;
-
     @InjectMocks
     private ManagerService managerService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -93,7 +92,7 @@ class ManagerServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
         SrteCache.programAreaCodesMap.clear();
         SrteCache.jurisdictionCodeMap.clear();
 
@@ -103,7 +102,7 @@ class ManagerServiceTest {
     void tearDown() {
         Mockito.reset(observationService, edxLogService, dataExtractionService, nbsInterfaceRepository, managerCacheService,
                 decisionSupportService, managerUtil, kafkaManagerProducer, managerAggregationService,
-                labReportProcessing, pageService,pamService, investigationNotificationService, authUtil);
+                labReportProcessing, pageService, pamService, investigationNotificationService, authUtil);
     }
 
 
@@ -117,7 +116,7 @@ class ManagerServiceTest {
         String data = gson.toJson(labData);
 
 
-     //   managerService.processDistribution(eventType, data);
+        //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -133,7 +132,6 @@ class ManagerServiceTest {
         var edxAcLog = new EDXActivityLogDto();
         edxLabInformationDto.setEdxActivityLogDto(edxAcLog);
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
-
 
 
         ObservationDto observationDto = new ObservationDto();
@@ -508,7 +506,6 @@ class ManagerServiceTest {
                 .thenReturn(detail);
 
 
-
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
         verify(nbsInterfaceRepository, times(1)).save(any());
     }
@@ -559,7 +556,6 @@ class ManagerServiceTest {
                 .thenReturn(detail);
 
 
-
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
         verify(nbsInterfaceRepository, times(1)).save(any());
     }
@@ -608,7 +604,6 @@ class ManagerServiceTest {
         detail.setLogType(null);
         when(investigationNotificationService.sendNotification(any(), any()))
                 .thenReturn(detail);
-
 
 
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
@@ -666,7 +661,6 @@ class ManagerServiceTest {
                 .thenReturn(detailLog);
 
 
-
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
         verify(nbsInterfaceRepository, times(1)).save(any());
     }
@@ -722,7 +716,6 @@ class ManagerServiceTest {
                 .thenReturn(detailLog);
 
 
-
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
         verify(nbsInterfaceRepository, times(1)).save(any());
     }
@@ -758,7 +751,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -767,7 +759,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException("Invalid XML"));
 
 
         managerService.processDistribution(eventType, data);
@@ -806,7 +798,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -815,7 +806,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -855,7 +846,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -864,7 +854,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -905,7 +895,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -914,7 +903,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -955,7 +944,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -964,7 +952,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
         managerService.processDistribution(eventType, data);
@@ -1005,7 +993,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -1014,7 +1001,7 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
 
 
         managerService.processDistribution(eventType, data);
@@ -1055,7 +1042,6 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
-
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
@@ -1064,14 +1050,13 @@ class ManagerServiceTest {
         observationDto.setJurisdictionCd("A");
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
-        when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
+        when(observationService.processingLabResultContainer(any())).thenThrow(new DataProcessingException("BLAH"));
 
 
         managerService.processDistribution(eventType, data);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
-
 
 
 }

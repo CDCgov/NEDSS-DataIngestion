@@ -75,8 +75,6 @@ public class ParticipationStoredProcRepository {
             storedProcedure.setParameter("act_class_cd", participationDto.getActClassCd());
 
 
-
-
             // Execute the stored procedure
             storedProcedure.execute();
 

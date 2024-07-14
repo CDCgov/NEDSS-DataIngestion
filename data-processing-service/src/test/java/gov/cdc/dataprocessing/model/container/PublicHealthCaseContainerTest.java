@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PublicHealthCaseContainerTest {
 
@@ -53,7 +54,7 @@ class PublicHealthCaseContainerTest {
         container.setErrorText("Error");
         container.setCoinfectionCondition(true);
 
-        assertEquals(true, container.isPamCase());
+        assertTrue(container.isPamCase());
         assertEquals(caseManagementDto, container.getTheCaseManagementDto());
         assertEquals(publicHealthCaseDto, container.getThePublicHealthCaseDto());
         assertEquals(confirmationMethodDtoCollection, container.getTheConfirmationMethodDTCollection());
@@ -66,6 +67,6 @@ class PublicHealthCaseContainerTest {
         assertEquals(edxPHCRLogDetailDtoCollection, container.getEdxPHCRLogDetailDTCollection());
         assertEquals(edxEventProcessDtoCollection, container.getEdxEventProcessDtoCollection());
         assertEquals("Error", container.getErrorText());
-        assertEquals(true, container.isCoinfectionCondition());
+        assertTrue(container.isCoinfectionCondition());
     }
 }

@@ -23,7 +23,7 @@ public class OrganizationService implements IOrganizationService {
 
     public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,
                                IUidService uidService) {
-        this.iOrganizationMatchingService = iOrganizationMatchingService;
+        OrganizationService.iOrganizationMatchingService = iOrganizationMatchingService;
         this.uidService = uidService;
     }
 
@@ -38,9 +38,7 @@ public class OrganizationService implements IOrganizationService {
                     long orgUid;
                     if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
                         orgUid = labResultProxyContainer.getSendingFacilityUid();
-                    }
-                    else
-                    {
+                    } else {
                         EDXActivityDetailLogDto eDXActivityDetailLogDto = iOrganizationMatchingService.getMatchingOrganization(organizationContainer);
                         orgUid = Long.parseLong(eDXActivityDetailLogDto.getRecordId());
                     }

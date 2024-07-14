@@ -43,7 +43,6 @@ public class InterviewDto extends BaseContainer {
     private Integer versionCtrlNbr;
 
 
-
     private String addUserName;
 
     private String lastChgUserName;

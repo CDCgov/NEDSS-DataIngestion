@@ -36,6 +36,7 @@ public class TestDataReader {
 
         return data;
     }
+
     public String readDataFromXmlPath(String path) {
         String resourcePath = "/test_data" + (path.startsWith("/") ? path : "/" + path);
         StringBuilder data = new StringBuilder();
@@ -67,12 +68,6 @@ public class TestDataReader {
         StringReader reader = new StringReader(payload);
         return (Container) unmarshaller.unmarshal(reader);
     }
-
-
-
-
-
-
 
 
 }

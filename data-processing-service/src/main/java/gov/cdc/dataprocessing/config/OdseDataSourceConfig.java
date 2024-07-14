@@ -61,7 +61,7 @@ public class OdseDataSourceConfig {
     @Bean(name = "odseEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean odseEntityManagerFactory(
             EntityManagerFactoryBuilder odseEntityManagerFactoryBuilder,
-            @Qualifier("odseDataSource") DataSource odseDataSource ) {
+            @Qualifier("odseDataSource") DataSource odseDataSource) {
         return odseEntityManagerFactoryBuilder
                 .dataSource(odseDataSource)
                 .packages("gov.cdc.dataprocessing.repository.nbs.odse.model")
@@ -72,7 +72,7 @@ public class OdseDataSourceConfig {
     @Primary
     @Bean(name = "odseTransactionManager")
     public PlatformTransactionManager odseTransactionManager(
-            @Qualifier("odseEntityManagerFactory") EntityManagerFactory odseEntityManagerFactory ) {
+            @Qualifier("odseEntityManagerFactory") EntityManagerFactory odseEntityManagerFactory) {
         return new JpaTransactionManager(odseEntityManagerFactory);
     }
 }

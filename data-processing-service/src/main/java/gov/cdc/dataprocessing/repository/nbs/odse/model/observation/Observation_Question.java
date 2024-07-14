@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "Observation")
 @Data
-public class Observation_Question extends ObservationBase{
+public class Observation_Question extends ObservationBase {
     private Long obsCodeUid;
     private String code;
     private String originalTxt;

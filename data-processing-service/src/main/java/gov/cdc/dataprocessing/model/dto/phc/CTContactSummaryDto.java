@@ -189,13 +189,13 @@ public class CTContactSummaryDto extends BaseContainer implements RootDtoInterfa
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        // No operation needed for setAddTime()
+    public Timestamp getAddTime() {
+        return null;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return null;
+    public void setAddTime(Timestamp aAddTime) {
+        // No operation needed for setAddTime()
     }
 
     @Override

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PersonContainerTest {
 
@@ -58,8 +58,8 @@ class PersonContainerTest {
         assertEquals(roleDtoCollection, personContainer.getTheRoleDtoCollection());
 
         assertEquals("testJurisdiction", personContainer.getDefaultJurisdictionCd());
-        assertEquals(true, personContainer.isExt());
-        assertEquals(false, personContainer.isMPRUpdateValid());
+        assertTrue(personContainer.isExt());
+        assertFalse(personContainer.isMPRUpdateValid());
         assertEquals("testLocalIdentifier", personContainer.getLocalIdentifier());
         assertEquals("testRole", personContainer.getRole());
         assertEquals("testAddReasonCode", personContainer.getAddReasonCode());

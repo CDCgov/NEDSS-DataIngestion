@@ -23,7 +23,7 @@ public class NbsActEntityDto extends BaseContainer {
     private Long lastChgUserId;
     private String recordStatusCd;
     private Timestamp recordStatusTime;
-    private String  typeCd;
+    private String typeCd;
     private Long actUid;
 
 
@@ -32,6 +32,7 @@ public class NbsActEntityDto extends BaseContainer {
         itNew = true;
         itDelete = false;
     }
+
     public NbsActEntityDto(NbsActEntity nbsActEntity) {
         this.nbsActEntityUid = nbsActEntity.getNbsActEntityUid();
         this.addTime = nbsActEntity.getAddTime();

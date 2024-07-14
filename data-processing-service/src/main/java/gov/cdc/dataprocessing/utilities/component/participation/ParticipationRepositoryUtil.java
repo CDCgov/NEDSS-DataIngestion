@@ -27,8 +27,8 @@ public class ParticipationRepositoryUtil {
         var res = participationRepository.findByActUid(actUid);
         Collection<ParticipationDto> dtoCollection = new ArrayList<>();
         if (res.isPresent()) {
-            for(var item : res.get()) {
-                var dto  = new ParticipationDto(item);
+            for (var item : res.get()) {
+                var dto = new ParticipationDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
                 dtoCollection.add(dto);
@@ -44,7 +44,7 @@ public class ParticipationRepositoryUtil {
     }
 
     public void storeParticipation(ParticipationDto dt) throws DataProcessingException {
-        try{
+        try {
 
             if (dt == null)
                 throw new DataProcessingException("Error: try to store null ParticipationDT object.");
@@ -56,26 +56,26 @@ public class ParticipationRepositoryUtil {
                 participationRepository.delete(data);
             else if (dt.isItDirty())
                 participationRepository.save(data);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new DataProcessingException(ex.toString());
         }
     }
 
     public ParticipationDto getParticipation(Long subjectEntityUid, Long actUid) {
         var items = getParticipations(subjectEntityUid);
-        for(var item : items) {
+        for (var item : items) {
             if (Objects.equals(item.getActUid(), actUid)) {
                 return item;
             }
         }
-        return  null;
+        return null;
     }
 
     public Collection<ParticipationDto> getParticipations(Long subjectEntityUid) {
         Collection<ParticipationDto> col = new ArrayList<>();
         var res = participationRepository.findByParentUid(subjectEntityUid);
         if (res.isPresent()) {
-            for(var item : res.get()) {
+            for (var item : res.get()) {
                 var pat = new ParticipationDto(item);
                 col.add(pat);
             }
@@ -87,7 +87,7 @@ public class ParticipationRepositoryUtil {
         Collection<ParticipationDto> col = new ArrayList<>();
         var res = participationRepository.findByActUid(actUid);
         if (res.isPresent()) {
-            for(var item : res.get()) {
+            for (var item : res.get()) {
                 var pat = new ParticipationDto(item);
                 col.add(pat);
             }

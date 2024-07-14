@@ -5,5 +5,6 @@ import gov.cdc.dataprocessing.model.container.model.MaterialContainer;
 
 public interface IMaterialService {
     MaterialContainer loadMaterialObject(Long materialUid);
+
     Long saveMaterial(MaterialContainer materialContainer) throws DataProcessingException;
 }

@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.constant;
 
-public class DecisionSupportConstants  {
+public class DecisionSupportConstants {
 
     //Basic Criteria constants
     public static final String ALGORITHM_NM = "AlgorithmName";
@@ -29,9 +29,9 @@ public class DecisionSupportConstants  {
     public static final String NBS_EVENT_DATE_SELECTED = "NbsEventDateSelected";
     public static final String TIMEFRAME_OPERATOR_SELECTED = "TimeFrameOperatorSelected";
     public static final String TIMEFRAME_DAYS = "TimeframeDays";
-    public static final String CURRENT_SELECT_DATE_LOGIC="CurrentSelectDateLogic";
-    public static final String CURRENT_CURRENT_SELECT_DATE_LOGIC="CURRENT";
-    public static final String SELECT_CURRENT_SELECT_DATE_LOGIC="SELECT";
+    public static final String CURRENT_SELECT_DATE_LOGIC = "CurrentSelectDateLogic";
+    public static final String CURRENT_CURRENT_SELECT_DATE_LOGIC = "CURRENT";
+    public static final String SELECT_CURRENT_SELECT_DATE_LOGIC = "SELECT";
 
     //public static final String CREATE_ALERT = "CREATE_ALERT";
     public static final String BEHAVIOR = "DefaultBehavior";

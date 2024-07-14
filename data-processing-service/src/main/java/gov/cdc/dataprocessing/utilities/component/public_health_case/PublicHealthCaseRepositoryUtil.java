@@ -114,8 +114,7 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ConfirmationMethodDT collection
          */
 
-        if (phcVO.getTheConfirmationMethodDTCollection() != null)
-        {
+        if (phcVO.getTheConfirmationMethodDTCollection() != null) {
             insertConfirmationMethods(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheConfirmationMethodDTCollection());
         }
         /**
@@ -123,16 +122,14 @@ public class PublicHealthCaseRepositoryUtil {
          */
 
         if (phcVO.getTheCaseManagementDto() != null
-                && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
-        {
+                && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated) {
             insertCaseManagementDT(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheCaseManagementDto());
         }
         /**
          * Inserts ActIdDT collection
          */
 
-        if (phcVO.getTheActIdDTCollection() != null)
-        {
+        if (phcVO.getTheActIdDTCollection() != null) {
             insertActivityIDs(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheActIdDTCollection());
         }
 
@@ -140,9 +137,8 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ActivityLocatorParticipationDT collection
          */
 
-        if (phcVO.getTheActivityLocatorParticipationDTCollection() != null)
-        {
-            insertActivityLocatorParticipations(phcVO.getThePublicHealthCaseDto().getUid() ,phcVO.getTheActivityLocatorParticipationDTCollection());
+        if (phcVO.getTheActivityLocatorParticipationDTCollection() != null) {
+            insertActivityLocatorParticipations(phcVO.getThePublicHealthCaseDto().getUid(), phcVO.getTheActivityLocatorParticipationDTCollection());
         }
 
         phcVO.setItNew(false);
@@ -155,8 +151,7 @@ public class PublicHealthCaseRepositoryUtil {
     public PublicHealthCaseContainer create(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         long phcUid;
         phcVO.getThePublicHealthCaseDto().setVersionCtrlNbr(1);
-        if(phcVO.getThePublicHealthCaseDto().getSharedInd() == null)
-        {
+        if (phcVO.getThePublicHealthCaseDto().getSharedInd() == null) {
             phcVO.getThePublicHealthCaseDto().setSharedInd("T");
         }
         phcUid = insertPublicHealthCase(phcVO);
@@ -169,24 +164,21 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ConfirmationMethodDT collection
          */
 
-        if (phcVO.getTheConfirmationMethodDTCollection() != null)
-        {
+        if (phcVO.getTheConfirmationMethodDTCollection() != null) {
             insertConfirmationMethods(phcUid, phcVO.getTheConfirmationMethodDTCollection());
         }
         /**
          * Inserts CaseManagementDto
          */
 
-        if (phcVO.getTheCaseManagementDto() != null && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated)
-        {
+        if (phcVO.getTheCaseManagementDto() != null && phcVO.getTheCaseManagementDto().isCaseManagementDTPopulated) {
             insertCaseManagementDT(phcUid, phcVO.getTheCaseManagementDto());
         }
         /**
          * Inserts ActIdDT collection
          */
 
-        if (phcVO.getTheActIdDTCollection() != null)
-        {
+        if (phcVO.getTheActIdDTCollection() != null) {
             insertActivityIDs(phcUid, phcVO.getTheActIdDTCollection());
         }
 
@@ -194,9 +186,8 @@ public class PublicHealthCaseRepositoryUtil {
          * Inserts ActivityLocatorParticipationDT collection
          */
 
-        if (phcVO.getTheActivityLocatorParticipationDTCollection() != null)
-        {
-            insertActivityLocatorParticipations(phcUid ,phcVO.getTheActivityLocatorParticipationDTCollection());
+        if (phcVO.getTheActivityLocatorParticipationDTCollection() != null) {
+            insertActivityLocatorParticipations(phcUid, phcVO.getTheActivityLocatorParticipationDTCollection());
         }
 
         phcVO.setItNew(false);
@@ -206,39 +197,34 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     private void insertActivityLocatorParticipations(Long phcUid, Collection<ActivityLocatorParticipationDto> activityIDs) throws DataProcessingException {
-        ArrayList<ActivityLocatorParticipationDto> activityLocatorArray =  (ArrayList<ActivityLocatorParticipationDto> )activityIDs;
-        Iterator<ActivityLocatorParticipationDto>  iterator = activityLocatorArray.iterator();
-        try{
-            while (iterator.hasNext())
-            {
-                ActivityLocatorParticipationDto  activityLocatorVO = iterator.next();
+        ArrayList<ActivityLocatorParticipationDto> activityLocatorArray = (ArrayList<ActivityLocatorParticipationDto>) activityIDs;
+        Iterator<ActivityLocatorParticipationDto> iterator = activityLocatorArray.iterator();
+        try {
+            while (iterator.hasNext()) {
+                ActivityLocatorParticipationDto activityLocatorVO = iterator.next();
 
-                if (activityLocatorVO.getLocatorUid() != null && activityLocatorVO.getEntityUid() != null)
-                {
+                if (activityLocatorVO.getLocatorUid() != null && activityLocatorVO.getEntityUid() != null) {
                     ActLocatorParticipation data = new ActLocatorParticipation(activityLocatorVO);
                     data.setActUid(phcUid);
                     actLocatorParticipationRepository.save(data);
                 }
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new DataProcessingException(ex.toString());
         }
     }
 
     private void insertActivityIDs(Long phcUid, Collection<ActIdDto> activityIDs) throws DataProcessingException {
         Iterator<ActIdDto> anIterator;
-        ArrayList<ActIdDto>  activityList = (ArrayList<ActIdDto> )activityIDs;
+        ArrayList<ActIdDto> activityList = (ArrayList<ActIdDto>) activityIDs;
 
-        try
-        {
+        try {
             anIterator = activityList.iterator();
 
-            while(anIterator.hasNext())
-            {
+            while (anIterator.hasNext()) {
                 ActIdDto activityID = anIterator.next();
 
-                if (activityID != null)
-                {
+                if (activityID != null) {
                     ActId data = new ActId(activityID);
                     data.setActUid(phcUid);
                     actIdRepository.save(data);
@@ -249,10 +235,8 @@ public class PublicHealthCaseRepositoryUtil {
                     activityID.setActUid(phcUid);
                 }
             }
-        }
-        catch(Exception ex)
-        {
-            throw new DataProcessingException( ex.toString() );
+        } catch (Exception ex) {
+            throw new DataProcessingException(ex.toString());
         }
     }
 
@@ -269,36 +253,33 @@ public class PublicHealthCaseRepositoryUtil {
         // generate EPI Link Id (Lot Nbr) and field record number if not present
 
         try {
-            if (caseManagementDto.getEpiLinkId() == null && caseManagementDto.getFieldRecordNumber() == null)
-            {
+            if (caseManagementDto.getEpiLinkId() == null && caseManagementDto.getFieldRecordNumber() == null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
                         .getTime());
                 var epicUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK);
-                String epiLinkId =  epicUid.getUidPrefixCd() + epicUid.getSeedValueNbr() + epicUid.getUidSuffixCd();
+                String epiLinkId = epicUid.getUidPrefixCd() + epicUid.getSeedValueNbr() + epicUid.getUidSuffixCd();
 //                TODO: ENV VARIABLE
 //                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
 //                        + epiLinkId.substring(2, epiLinkId.length()-2)
 //                        + twoDigitYear;
                 String lotNum = "NBS_STATE_CODE"
-                        + epiLinkId.substring(2, epiLinkId.length()-2)
+                        + epiLinkId.substring(2, epiLinkId.length() - 2)
                         + twoDigitYear;
                 caseManagementDto.setEpiLinkId(lotNum);
                 caseManagementDto.setFieldRecordNumber(lotNum);
-            }
-            else if (caseManagementDto.getEpiLinkId() != null && caseManagementDto.getFieldRecordNumber() == null)
-            {
+            } else if (caseManagementDto.getEpiLinkId() != null && caseManagementDto.getFieldRecordNumber() == null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
                         .getTime());
                 var epicUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK);
-                String epiLinkId =  epicUid.getUidPrefixCd() + epicUid.getSeedValueNbr() + epicUid.getUidSuffixCd();
+                String epiLinkId = epicUid.getUidPrefixCd() + epicUid.getSeedValueNbr() + epicUid.getUidSuffixCd();
                 //                TODO: ENV VARIABLE
 //                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
 //                        + epiLinkId.substring(2, epiLinkId.length()-2)
 //                        + twoDigitYear;
-                String fieldRecordNumber =  "NBS_STATE_CODE"
-                        + epiLinkId.substring(2, epiLinkId.length()-2)
+                String fieldRecordNumber = "NBS_STATE_CODE"
+                        + epiLinkId.substring(2, epiLinkId.length() - 2)
                         + twoDigitYear;
                 caseManagementDto.setFieldRecordNumber(fieldRecordNumber);
             }
@@ -354,28 +335,23 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     private void insertConfirmationMethods(Long phcUid, Collection<ConfirmationMethodDto> coll) throws DataProcessingException {
-        if(!coll.isEmpty())
-        {
+        if (!coll.isEmpty()) {
             Iterator<ConfirmationMethodDto> anIterator;
-            ArrayList<ConfirmationMethodDto> methodList = (ArrayList<ConfirmationMethodDto> )coll;
+            ArrayList<ConfirmationMethodDto> methodList = (ArrayList<ConfirmationMethodDto>) coll;
 
-            try
-            {
+            try {
                 /**
                  * Inserts confirmation methods
                  */
                 anIterator = methodList.iterator();
 
-                while(anIterator.hasNext())
-                {
+                while (anIterator.hasNext()) {
                     ConfirmationMethodDto confirmationMethod = anIterator.next();
 
-                    if (confirmationMethod != null)
-                    {
+                    if (confirmationMethod != null) {
                         ConfirmationMethod data = new ConfirmationMethod(confirmationMethod);
                         data.setPublicHealthCaseUid(phcUid);
-                        if(confirmationMethod.getConfirmationMethodCd() == null)
-                        {
+                        if (confirmationMethod.getConfirmationMethodCd() == null) {
                             data.setConfirmationMethodCd("Unknown");
                         }
                         confirmationMethodRepository.save(data);
@@ -383,16 +359,12 @@ public class PublicHealthCaseRepositoryUtil {
                         confirmationMethod.setPublicHealthCaseUid(phcUid);
                         confirmationMethod.setItNew(false);
                         confirmationMethod.setItDirty(false);
-                    }
-                    else
-                    {
+                    } else {
                         continue;
                     }
                 }
-            }
-            catch(Exception ex)
-            {
-                throw new DataProcessingException( ex.toString(), ex);
+            } catch (Exception ex) {
+                throw new DataProcessingException(ex.toString(), ex);
             }
         }
     }
@@ -446,7 +418,7 @@ public class PublicHealthCaseRepositoryUtil {
             throw new DataProcessingException("Public Health Case Not Exist");
         }
 
-        boolean isStdHivProgramAreaCode= false;
+        boolean isStdHivProgramAreaCode = false;
 
 
         //TODO: ENV VARIABLE - STD_PROGRAM_AREAS = STD
@@ -508,28 +480,28 @@ public class PublicHealthCaseRepositoryUtil {
 
     public BasePamContainer getPamVO(Long publicHealthCaseUID) throws DataProcessingException {
         BasePamContainer pamVO = new BasePamContainer();
-        try{
-            Map<Object,Object> pamAnswerDTReturnMap = getPamAnswerDTMaps(publicHealthCaseUID);
-            Map<Object, Object> nbsAnswerMap =new HashMap<>();
-            Map<Object, Object> nbsRepeatingAnswerMap =new HashMap<>();
-            if(pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION)!=null){
-                nbsAnswerMap=(HashMap<Object, Object>)pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
+        try {
+            Map<Object, Object> pamAnswerDTReturnMap = getPamAnswerDTMaps(publicHealthCaseUID);
+            Map<Object, Object> nbsAnswerMap = new HashMap<>();
+            Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
+            if (pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION) != null) {
+                nbsAnswerMap = (HashMap<Object, Object>) pamAnswerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
             }
-            if(pamAnswerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION)!=null){
-                nbsRepeatingAnswerMap=(HashMap<Object, Object>)pamAnswerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
+            if (pamAnswerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION) != null) {
+                nbsRepeatingAnswerMap = (HashMap<Object, Object>) pamAnswerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
             }
             pamVO.setPamAnswerDTMap(nbsAnswerMap);
             pamVO.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
 
-            Collection<NbsActEntityDto>  pamCaseEntityDTCollection= getActEntityDTCollection(publicHealthCaseUID);
+            Collection<NbsActEntityDto> pamCaseEntityDTCollection = getActEntityDTCollection(publicHealthCaseUID);
             pamVO.setActEntityDTCollection(pamCaseEntityDTCollection);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new DataProcessingException(ex.toString());
         }
         return pamVO;
     }
 
-    private Collection<NbsActEntityDto>  getActEntityDTCollection(Long actUid){
+    private Collection<NbsActEntityDto> getActEntityDTCollection(Long actUid) {
         Collection<NbsActEntityDto> lst = new ArrayList<>();
         var res = actEntityRepository.getNbsActEntitiesByActUid(actUid);
         if (res.isEmpty()) {
@@ -541,14 +513,14 @@ public class PublicHealthCaseRepositoryUtil {
         }
         return lst;
     }
+
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
         NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
         ArrayList<Object> PamAnswerDTCollection;
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
         Map<Object, Object> nbsAnswerMap = new HashMap<>();
         Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
-        try
-        {
+        try {
 
             var pamAnsCol = nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(publicHealthCaseUID);
             if (pamAnsCol.isEmpty()) {
@@ -560,9 +532,8 @@ public class PublicHealthCaseRepositoryUtil {
             Iterator<Object> it = PamAnswerDTCollection.iterator();
             Long nbsQuestionUid = 0L;
             Collection<Object> coll = new ArrayList<>();
-            while (it.hasNext())
-            {
-                NbsCaseAnswerDto pamAnsDT = new NbsCaseAnswerDto ((NbsCaseAnswer) it.next());
+            while (it.hasNext()) {
+                NbsCaseAnswerDto pamAnsDT = new NbsCaseAnswerDto((NbsCaseAnswer) it.next());
 
                 if (pamAnsDT.getNbsQuestionUid() != null
                         && nbsQuestionUid != 0
@@ -572,58 +543,43 @@ public class PublicHealthCaseRepositoryUtil {
                     coll = new ArrayList<>();
                 }
 
-                if (pamAnsDT.getAnswerGroupSeqNbr() != null && pamAnsDT.getAnswerGroupSeqNbr() > -1)
-                {
-                    if (nbsRepeatingAnswerMap.get(pamAnsDT.getNbsQuestionUid()) == null)
-                    {
+                if (pamAnsDT.getAnswerGroupSeqNbr() != null && pamAnsDT.getAnswerGroupSeqNbr() > -1) {
+                    if (nbsRepeatingAnswerMap.get(pamAnsDT.getNbsQuestionUid()) == null) {
                         Collection collection = new ArrayList();
                         collection.add(pamAnsDT);
                         nbsRepeatingAnswerMap.put(pamAnsDT.getNbsQuestionUid(), collection);
-                    }
-                    else
-                    {
+                    } else {
                         Collection collection = (Collection) nbsRepeatingAnswerMap.get(pamAnsDT.getNbsQuestionUid());
                         collection.add(pamAnsDT);
                         nbsRepeatingAnswerMap.put(pamAnsDT.getNbsQuestionUid(), collection);
                     }
-                }
-                else if (
+                } else if (
                         (pamAnsDT.getNbsQuestionUid() != null
                                 && pamAnsDT.getNbsQuestionUid().compareTo(nbsQuestionUid) == 0
                         )
-                        && pamAnsDT.getSeqNbr() != null
-                        && pamAnsDT.getSeqNbr() > 0
-                )
-                {
+                                && pamAnsDT.getSeqNbr() != null
+                                && pamAnsDT.getSeqNbr() > 0
+                ) {
                     coll.add(pamAnsDT);
-                }
-                else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr() > 0)
-                {
-                    if (coll.size() > 0)
-                    {
+                } else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr() > 0) {
+                    if (coll.size() > 0) {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                         coll = new ArrayList<>();
                     }
                     coll.add(pamAnsDT);
-                }
-                else
-                {
-                    if (coll.size() > 0)
-                    {
+                } else {
+                    if (coll.size() > 0) {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                     }
                     nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), pamAnsDT);
                     coll = new ArrayList<>();
                 }
                 nbsQuestionUid = pamAnsDT.getNbsQuestionUid();
-                if (!it.hasNext() && coll.size() > 0)
-                {
+                if (!it.hasNext() && coll.size() > 0) {
                     nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), coll);
                 }
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             throw new DataProcessingException(ex.toString());
         }
         nbsReturnAnswerMap.put(NEDSSConstant.NON_REPEATING_QUESTION, nbsAnswerMap);

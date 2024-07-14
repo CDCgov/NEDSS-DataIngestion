@@ -199,7 +199,7 @@ class PatientEncounterDtoTest {
 
         // Test overridden methods
         assertEquals(dto.getPatientEncounterUid(), dto.getUid());
-        assertNull( dto.getSuperclass());
+        assertNull(dto.getSuperclass());
         assertNull(dto.getLastChgUserId());
         assertNull(dto.getJurisdictionCd());
         assertNull(dto.getProgAreaCd());

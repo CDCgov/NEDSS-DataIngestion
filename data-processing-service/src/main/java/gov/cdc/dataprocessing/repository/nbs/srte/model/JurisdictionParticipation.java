@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "Jurisdiction_participation")
 @IdClass(JurisdictionParticipationId.class)
-public class JurisdictionParticipation  implements Serializable{
+public class JurisdictionParticipation implements Serializable {
     @Id
     @Column(name = "jurisdiction_cd")
     private String jurisdictionCd;

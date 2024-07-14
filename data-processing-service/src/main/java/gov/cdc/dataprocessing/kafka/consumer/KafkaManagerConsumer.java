@@ -19,17 +19,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
-
-
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
-
-    @Value("${kafka.topic.elr_health_case}")
-    private String healthCaseTopic = "elr_processing_public_health_case";
-
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
+    @Value("${kafka.topic.elr_edx_log}")
+    private String logTopic = "elr_edx_log";
+    @Value("${kafka.topic.elr_health_case}")
+    private String healthCaseTopic = "elr_processing_public_health_case";
 
     public KafkaManagerConsumer(
             KafkaManagerProducer kafkaManagerProducer,
@@ -50,7 +46,7 @@ public class KafkaManagerConsumer {
         try {
             var profile = this.authUserService.getAuthUserInfo("superuser");
             AuthUtil.setGlobalAuthUser(profile);
-            managerService.processDistribution(dataType,message);
+            managerService.processDistribution(dataType, message);
         } catch (Exception e) {
             logger.error("ERROR PROCESSING STEP 1: " + e.getMessage());
         }

@@ -29,6 +29,8 @@ import static org.mockito.Mockito.*;
 
 class CachingValueServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private JurisdictionCodeRepository jurisdictionCodeRepository;
     @Mock
     private CodeValueGeneralRepository codeValueGeneralRepository;
@@ -56,17 +58,12 @@ class CachingValueServiceTest {
     private SnomedCodeRepository snomedCodeRepository;
     @Mock
     private SrteCustomRepository srteCustomRepository;
-
     @Mock
     private Cache cacheMock;
-
     @Mock
     private Cache.ValueWrapper valueWrapperMock;
-
     @InjectMocks
     private CachingValueService cachingValueService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -77,7 +74,7 @@ class CachingValueServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
         SrteCache.codedValuesMap.clear();
         SrteCache.codeDescTxtMap.clear();
         SrteCache.countyCodeByDescMap.clear();
@@ -86,14 +83,14 @@ class CachingValueServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(cacheMock, valueWrapperMock,
-                jurisdictionCodeRepository, codeValueGeneralRepository,elrXrefRepository, raceCodeRepository,
-                stateCountyCodeValueRepository, stateCodeRepository, loincCodeRepository,cacheManager,
+                jurisdictionCodeRepository, codeValueGeneralRepository, elrXrefRepository, raceCodeRepository,
+                stateCountyCodeValueRepository, stateCodeRepository, loincCodeRepository, cacheManager,
                 programAreaService, jurisdictionService, conditionCodeRepository, labResultRepository,
                 snomedCodeRepository, srteCustomRepository, authUtil);
     }
 
     @Test
-    void getAllLoinCodeWithComponentName_1 () throws DataProcessingException {
+    void getAllLoinCodeWithComponentName_1() throws DataProcessingException {
         var lstRes = new ArrayList<LOINCCode>();
         var code = new LOINCCode();
         code.setLoincCode("TEST");
@@ -105,7 +102,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllLoinCodeWithComponentName_Exception () {
+    void getAllLoinCodeWithComponentName_Exception() {
         when(loincCodeRepository.findAll()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllLoinCodeWithComponentName();
@@ -114,7 +111,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_Success () throws DataProcessingException {
+    void getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_Success() throws DataProcessingException {
         var lstRes = new ArrayList<LabResult>();
         var code = new LabResult();
         code.setLabResultCd("TEST");
@@ -126,7 +123,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_Exception () {
+    void getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_Exception() {
         when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
@@ -135,7 +132,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllSnomedCode_Success () throws DataProcessingException {
+    void getAllSnomedCode_Success() throws DataProcessingException {
         var lstRes = new ArrayList<SnomedCode>();
         var code = new SnomedCode();
         code.setSnomedCd("TEST");
@@ -147,7 +144,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllSnomedCode_Exception () {
+    void getAllSnomedCode_Exception() {
         when(snomedCodeRepository.findAll()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllSnomedCode();
@@ -156,7 +153,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getLabResultDesc_Success () throws DataProcessingException {
+    void getLabResultDesc_Success() throws DataProcessingException {
         var lstRes = new ArrayList<LabResult>();
         var code = new LabResult();
         code.setLabResultCd("TEST");
@@ -168,7 +165,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getLabResultDesc_Exception () {
+    void getLabResultDesc_Exception() {
         when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getLabResultDesc();
@@ -178,7 +175,7 @@ class CachingValueServiceTest {
 
 
     @Test
-    void getAOELOINCCodes_Success () throws DataProcessingException {
+    void getAOELOINCCodes_Success() throws DataProcessingException {
         var lstRes = new ArrayList<LOINCCode>();
         var code = new LOINCCode();
         code.setLoincCode("TEST");
@@ -190,7 +187,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAOELOINCCodesException () {
+    void getAOELOINCCodesException() {
         when(loincCodeRepository.findLoincCodes()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAOELOINCCodes();
@@ -199,7 +196,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getRaceCodes_Success () throws DataProcessingException {
+    void getRaceCodes_Success() throws DataProcessingException {
         var lstRes = new ArrayList<RaceCode>();
         var code = new RaceCode();
         code.setCode("TEST");
@@ -211,7 +208,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getRaceCodes_Exception () {
+    void getRaceCodes_Exception() {
         when(raceCodeRepository.findAllActiveRaceCodes()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getRaceCodes();
@@ -221,7 +218,7 @@ class CachingValueServiceTest {
 
 
     @Test
-    void getAllProgramAreaCodes_Success () throws DataProcessingException {
+    void getAllProgramAreaCodes_Success() throws DataProcessingException {
         var lstRes = new ArrayList<ProgramAreaCode>();
         var code = new ProgramAreaCode();
         code.setProgAreaCd("TEST");
@@ -233,7 +230,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllProgramAreaCodes_Exception () {
+    void getAllProgramAreaCodes_Exception() {
         when(programAreaService.getAllProgramAreaCode()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllProgramAreaCodes();
@@ -242,7 +239,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllProgramAreaCodesWithNbsUid_Success () throws DataProcessingException {
+    void getAllProgramAreaCodesWithNbsUid_Success() throws DataProcessingException {
         var lstRes = new ArrayList<ProgramAreaCode>();
         var code = new ProgramAreaCode();
         code.setProgAreaCd("TEST");
@@ -254,7 +251,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllProgramAreaCodesWithNbsUid_Exception () {
+    void getAllProgramAreaCodesWithNbsUid_Exception() {
         when(programAreaService.getAllProgramAreaCode()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllProgramAreaCodesWithNbsUid();
@@ -263,7 +260,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllJurisdictionCode_Success () throws DataProcessingException {
+    void getAllJurisdictionCode_Success() throws DataProcessingException {
         var lstRes = new ArrayList<JurisdictionCode>();
         var code = new JurisdictionCode();
         code.setCode("TEST");
@@ -275,7 +272,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllJurisdictionCode_Exception () {
+    void getAllJurisdictionCode_Exception() {
         when(jurisdictionService.getJurisdictionCode()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllJurisdictionCode();
@@ -284,7 +281,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllJurisdictionCodeWithNbsUid_Success () throws DataProcessingException {
+    void getAllJurisdictionCodeWithNbsUid_Success() throws DataProcessingException {
         var lstRes = new ArrayList<JurisdictionCode>();
         var code = new JurisdictionCode();
         code.setCode("TEST");
@@ -296,7 +293,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllJurisdictionCodeWithNbsUid_Exception () {
+    void getAllJurisdictionCodeWithNbsUid_Exception() {
         when(jurisdictionService.getJurisdictionCode()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllJurisdictionCodeWithNbsUid();
@@ -305,7 +302,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllElrXref_Success () throws DataProcessingException {
+    void getAllElrXref_Success() throws DataProcessingException {
         var lstRes = new ArrayList<ElrXref>();
         var code = new ElrXref();
         code.setToCode("TEST");
@@ -317,7 +314,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllElrXref_Exception () {
+    void getAllElrXref_Exception() {
         when(elrXrefRepository.findAll()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllElrXref();
@@ -326,7 +323,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllOnInfectionConditionCode_Success () throws DataProcessingException {
+    void getAllOnInfectionConditionCode_Success() throws DataProcessingException {
         var lstRes = new ArrayList<ConditionCode>();
         var code = new ConditionCode();
         code.setConditionCd("TEST");
@@ -338,7 +335,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllOnInfectionConditionCode_Exception () {
+    void getAllOnInfectionConditionCode_Exception() {
         when(conditionCodeRepository.findCoInfectionConditionCode()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllOnInfectionConditionCode();
@@ -347,7 +344,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllConditionCode_Success () throws DataProcessingException {
+    void getAllConditionCode_Success() throws DataProcessingException {
         var lstRes = new ArrayList<ConditionCode>();
         var code = new ConditionCode();
         code.setConditionCd("TEST");
@@ -359,7 +356,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getAllConditionCode_Exception () {
+    void getAllConditionCode_Exception() {
         when(conditionCodeRepository.findAllConditionCode()).thenThrow(new RuntimeException("TEST"));
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.getAllConditionCode();
@@ -477,7 +474,7 @@ class CachingValueServiceTest {
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             cachingValueService.findToCode(fromCodeSetNm, fromCode, toCodeSetNm);
         });
-        assertEquals("TEST",thrown.getMessage());
+        assertEquals("TEST", thrown.getMessage());
     }
 
     @Test
@@ -567,7 +564,7 @@ class CachingValueServiceTest {
         when(stateCodeRepository.findStateCdByStateName(stateNm)).thenReturn(Optional.of(codeValue));
 
         var res = cachingValueService.findStateCodeByStateNm(stateNm);
-        assertEquals("TEST",  res.getCodeDescTxt());
+        assertEquals("TEST", res.getCodeDescTxt());
     }
 
     @Test
@@ -588,7 +585,7 @@ class CachingValueServiceTest {
         when(codeValueGeneralRepository.findCodeValuesByCodeSetNm(code)).thenReturn(Optional.of(lstCode));
 
         var res = cachingValueService.getGeneralCodedValue(code);
-        assertEquals(1,  res.size());
+        assertEquals(1, res.size());
     }
 
     @Test
@@ -663,7 +660,7 @@ class CachingValueServiceTest {
     }
 
     @Test
-    void getCodedValue_Exception()  {
+    void getCodedValue_Exception() {
         String code = ELRConstant.ELR_LOG_PROCESS;
 
 
@@ -690,7 +687,7 @@ class CachingValueServiceTest {
         when(stateCountyCodeValueRepository.findByIndentLevelNbr())
                 .thenReturn(Optional.of(lstState));
 
-        var res=   cachingValueService.getCountyCdByDescCallRepos(stateCd);
+        var res = cachingValueService.getCountyCdByDescCallRepos(stateCd);
 
         assertEquals("TEST", res.get("TEST COUNTY"));
     }
@@ -707,7 +704,7 @@ class CachingValueServiceTest {
         when(stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd))
                 .thenReturn(Optional.of(lstState));
 
-        var res=   cachingValueService.getCountyCdByDescCallRepos(stateCd);
+        var res = cachingValueService.getCountyCdByDescCallRepos(stateCd);
 
         assertEquals("TEST", res.get("TEST COUNTY"));
     }

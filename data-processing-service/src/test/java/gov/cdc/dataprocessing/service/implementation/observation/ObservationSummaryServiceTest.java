@@ -33,6 +33,8 @@ import static org.mockito.Mockito.*;
 
 class ObservationSummaryServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private Observation_SummaryRepository observationSummaryRepository;
     @Mock
     private CustomRepository customRepository;
@@ -40,8 +42,6 @@ class ObservationSummaryServiceTest {
     private QueryHelper queryHelper;
     @InjectMocks
     private ObservationSummaryService observationSummaryService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -52,7 +52,7 @@ class ObservationSummaryServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -81,7 +81,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void findAllActiveLabReportUidListForManage_Exception()  {
+    void findAllActiveLabReportUidListForManage_Exception() {
         long investUid = 10L;
         String where = "";
 
@@ -383,7 +383,7 @@ class ObservationSummaryServiceTest {
                 any(LabReportSummaryContainer.class), eq("REFR"), eq(11L)))
                 .thenReturn(uidSumCol);
 
-        var resTestSumCol =  new ArrayList<ResultedTestSummaryContainer>();
+        var resTestSumCol = new ArrayList<ResultedTestSummaryContainer>();
         var resTestSum = new ResultedTestSummaryContainer();
         resTestSumCol.add(resTestSum);
         when(customRepository.getSusceptibilityResultedTestSummary("COMP", 12L))
@@ -430,13 +430,12 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getAssociatedInvList_Exception()  {
+    void getAssociatedInvList_Exception() {
         long uid = 10L;
         String sourceClassCode = "TEST";
 
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", ""))
                 .thenThrow(new RuntimeException("TEST"));
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {

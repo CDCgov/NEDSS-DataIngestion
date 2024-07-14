@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ParticipationHistRepository  extends JpaRepository<ParticipationHist, ParticipationHistId> {
+public interface ParticipationHistRepository extends JpaRepository<ParticipationHist, ParticipationHistId> {
     @Query("SELECT data.versionCtrlNbr FROM ParticipationHist data WHERE data.subjectEntityUid = ?1 AND data.actUid = ?2 AND data.typeCd = ?3")
     Optional<List<Integer>> findVerNumberByKey(Long subjectEntityUid, Long actUid, String typeCd);
 }

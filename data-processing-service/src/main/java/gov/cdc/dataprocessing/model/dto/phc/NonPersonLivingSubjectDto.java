@@ -205,13 +205,13 @@ public class NonPersonLivingSubjectDto extends BaseContainer implements RootDtoI
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-        // No operation needed for setAddTime()
+    public Timestamp getAddTime() {
+        return null;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return null;
+    public void setAddTime(Timestamp aAddTime) {
+        // No operation needed for setAddTime()
     }
 
     @Override
