@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class mixTest {
+public class MixTestDto {
     @Test
     void  testParticipation() {
         ParticipationDto entity = new ParticipationDto();
