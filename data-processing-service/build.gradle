@@ -255,10 +255,10 @@ sonarqube {
                 "**/InvestigationService.java",
                 "**/ObservationRequestHandler.java",
                 "**/InvestigationNotificationService.java",
-//                "**/ObservationMatchingService.java",
-//                "**/ContactSummaryService.java",
-//                "**/RetrieveSummaryService.java",
-//                "**/ManagerCacheService.java"
+                "**/ObservationMatchingService.java",
+                "**/ContactSummaryService.java",
+                "**/RetrieveSummaryService.java",
+                "**/ManagerCacheService.java"
         ].join(",")
     }
 }
