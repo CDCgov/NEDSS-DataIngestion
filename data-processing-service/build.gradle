@@ -89,13 +89,13 @@ jacocoTestReport {
                             '**/WdsObjectChecker.java',
                             '**/AdvancedCriteria.java',
                             '**/WdsObjectChecker.java',
-                            '**/InvestigationService.java',
-                            '**/ObservationRequestHandler.java',
-                            '**/InvestigationNotificationService.java',
-                            '**/ObservationMatchingService.java',
-                            '**/ContactSummaryService.java',
-                            '**/RetrieveSummaryService.java',
-                            '**/ManagerCacheService.java'
+//                            '**/InvestigationService.java',
+//                            '**/ObservationRequestHandler.java',
+//                            '**/InvestigationNotificationService.java',
+//                            '**/ObservationMatchingService.java',
+//                            '**/ContactSummaryService.java',
+//                            '**/RetrieveSummaryService.java',
+//                            '**/ManagerCacheService.java'
                     ]
             )
         }))
@@ -252,13 +252,13 @@ sonarqube {
                 "**/DynamicBeanBinding.java",
                 "**/WdsObjectChecker.java",
                 "**/AdvancedCriteria.java",
-                "**/InvestigationService.java",
-                "**/ObservationRequestHandler.java",
-                "**/InvestigationNotificationService.java",
-                "**/ObservationMatchingService.java",
-                "**/ContactSummaryService.java",
-                "**/RetrieveSummaryService.java",
-                "**/ManagerCacheService.java"
+//                "**/InvestigationService.java",
+//                "**/ObservationRequestHandler.java",
+//                "**/InvestigationNotificationService.java",
+//                "**/ObservationMatchingService.java",
+//                "**/ContactSummaryService.java",
+//                "**/RetrieveSummaryService.java",
+//                "**/ManagerCacheService.java"
         ].join(",")
     }
 }
