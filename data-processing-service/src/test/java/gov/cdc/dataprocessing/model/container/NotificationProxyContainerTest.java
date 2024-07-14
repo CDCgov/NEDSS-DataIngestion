@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.model.container;
 
 
-import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.NotificationContainer;
 import gov.cdc.dataprocessing.model.container.model.NotificationProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;

@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.constant.KafkaCustomHeader;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;

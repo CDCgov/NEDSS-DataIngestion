@@ -2,7 +2,9 @@ package gov.cdc.dataprocessing.model.dto.nbs;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsCaseAnswer;
 import org.junit.jupiter.api.Test;
+
 import java.sql.Timestamp;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 

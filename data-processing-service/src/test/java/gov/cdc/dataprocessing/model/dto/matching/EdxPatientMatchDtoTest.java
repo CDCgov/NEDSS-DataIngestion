@@ -1,8 +1,9 @@
 package gov.cdc.dataprocessing.model.dto.matching;
 
-import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import org.junit.jupiter.api.Test;
+
 import java.sql.Timestamp;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EdxPatientMatchDtoTest {

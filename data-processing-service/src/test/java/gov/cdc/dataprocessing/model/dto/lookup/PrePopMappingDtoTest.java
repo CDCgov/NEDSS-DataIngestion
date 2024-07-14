@@ -1,7 +1,5 @@
 package gov.cdc.dataprocessing.model.dto.lookup;
 
-import gov.cdc.dataprocessing.model.dto.lookup.LookupMappingDto;
-import gov.cdc.dataprocessing.model.dto.lookup.PrePopMappingDto;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

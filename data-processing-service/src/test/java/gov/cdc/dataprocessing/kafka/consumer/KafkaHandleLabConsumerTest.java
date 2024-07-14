@@ -3,18 +3,15 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
-import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.kafka.annotation.KafkaListener;
 
 import static org.mockito.Mockito.*;
 

@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.model;
 
-import gov.cdc.dataprocessing.utilities.model.Coded;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

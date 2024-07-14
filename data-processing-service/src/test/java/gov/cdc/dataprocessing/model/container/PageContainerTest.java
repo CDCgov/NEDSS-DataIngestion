@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.model.container;
 
 
-import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.PageContainer;
 import org.junit.jupiter.api.Test;
 

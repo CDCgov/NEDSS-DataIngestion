@@ -1,9 +1,11 @@
 package gov.cdc.dataprocessing.model.dto.msgoute;
 
 import org.junit.jupiter.api.Test;
+
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NbsInterfaceDtoTest {

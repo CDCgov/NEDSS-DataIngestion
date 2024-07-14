@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.model.container;
 
 
-import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.EntityGroupContainer;
 import gov.cdc.dataprocessing.model.dto.phc.EntityGroupDto;
 import org.junit.jupiter.api.Test;
@@ -9,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EntityGroupContainerTest {
 

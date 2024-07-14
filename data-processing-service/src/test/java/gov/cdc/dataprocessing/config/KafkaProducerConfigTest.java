@@ -13,7 +13,8 @@ import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class KafkaProducerConfigTest {
 

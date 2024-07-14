@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.model.dto.lookup;
 
-import gov.cdc.dataprocessing.model.dto.lookup.LookupMappingDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.lookup.LookupQuestionExtended;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class LookupMappingDtoTest {
 

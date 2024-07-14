@@ -1,14 +1,11 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser;
 
-import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
-import gov.cdc.dataprocessing.model.dto.observation.ObsValueTxtDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.phdc.HL7NTEType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
