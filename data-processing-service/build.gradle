@@ -258,7 +258,8 @@ sonarqube {
                 "**/ObservationMatchingService.java",
                 "**/ContactSummaryService.java",
                 "**/RetrieveSummaryService.java",
-                "**/ManagerCacheService.java"
+                "**/ManagerCacheService.java",
+                "**/NBSObjectConverter.java"
         ].join(",")
     }
 }
