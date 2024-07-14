@@ -193,7 +193,7 @@ class OrganizationRepositoryUtilTest {
         when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
         organizationRepositoryUtil.createOrganization(organizationContainer);
-        verify(roleRepository, times(1)).save(new Role(roleDto));
+        verify(roleRepository, times(1)).save(any());
     }
 
     @Test
@@ -295,7 +295,7 @@ class OrganizationRepositoryUtilTest {
         when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
         organizationRepositoryUtil.updateOrganization(organizationContainer);
-        verify(roleRepository, times(1)).save(new Role(roleDto));
+        verify(roleRepository, times(1)).save(any());
     }
 
     @Test

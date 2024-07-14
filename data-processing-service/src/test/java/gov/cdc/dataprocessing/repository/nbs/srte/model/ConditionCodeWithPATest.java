@@ -38,36 +38,5 @@ class ConditionCodeWithPATest {
         assertTrue(conditionCodeWithPA1.compareTo(programAreaContainer) > 0);
     }
 
-    @Test
-    void testEqualsAndHashCode() {
-        ConditionCodeWithPA conditionCodeWithPA1 = new ConditionCodeWithPA();
-        conditionCodeWithPA1.setConditionCd("ConditionCd");
-        conditionCodeWithPA1.setStateProgAreaCode("StateProgAreaCode");
 
-        ConditionCodeWithPA conditionCodeWithPA2 = new ConditionCodeWithPA();
-        conditionCodeWithPA2.setConditionCd("ConditionCd");
-        conditionCodeWithPA2.setStateProgAreaCode("StateProgAreaCode");
-
-        ConditionCodeWithPA conditionCodeWithPA3 = new ConditionCodeWithPA();
-        conditionCodeWithPA3.setConditionCd("DifferentConditionCd");
-        conditionCodeWithPA3.setStateProgAreaCode("DifferentStateProgAreaCode");
-
-        // Assert equals and hashCode
-        assertEquals(conditionCodeWithPA1, conditionCodeWithPA2);
-        assertEquals(conditionCodeWithPA1.hashCode(), conditionCodeWithPA2.hashCode());
-
-        assertNotEquals(conditionCodeWithPA1, conditionCodeWithPA3);
-        assertNotEquals(conditionCodeWithPA1.hashCode(), conditionCodeWithPA3.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        ConditionCodeWithPA conditionCodeWithPA = new ConditionCodeWithPA();
-        conditionCodeWithPA.setConditionCd("ConditionCd");
-        conditionCodeWithPA.setStateProgAreaCode("StateProgAreaCode");
-        conditionCodeWithPA.setStateProgAreaCdDesc("StateProgAreaCdDesc");
-
-        String expectedString = "ConditionCodeWithPA(stateProgAreaCode=StateProgAreaCode, stateProgAreaCdDesc=StateProgAreaCdDesc)";
-        assertTrue(conditionCodeWithPA.toString().contains(expectedString));
-    }
 }

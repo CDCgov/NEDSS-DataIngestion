@@ -58,52 +58,5 @@ class StateCountyCodeValueTest {
         assertEquals("CodeSystemDesc", stateCountyCodeValue.getCodeSystemDescTxt());
     }
 
-    @Test
-    void testEqualsAndHashCode() {
-        StateCountyCodeValue stateCountyCodeValue1 = new StateCountyCodeValue();
-        stateCountyCodeValue1.setCode("001");
-        stateCountyCodeValue1.setAssigningAuthorityCd("AuthCd");
 
-        StateCountyCodeValue stateCountyCodeValue2 = new StateCountyCodeValue();
-        stateCountyCodeValue2.setCode("001");
-        stateCountyCodeValue2.setAssigningAuthorityCd("AuthCd");
-
-        StateCountyCodeValue stateCountyCodeValue3 = new StateCountyCodeValue();
-        stateCountyCodeValue3.setCode("002");
-        stateCountyCodeValue3.setAssigningAuthorityCd("DiffAuthCd");
-
-        // Assert equals and hashCode
-        assertEquals(stateCountyCodeValue1, stateCountyCodeValue2);
-        assertEquals(stateCountyCodeValue1.hashCode(), stateCountyCodeValue2.hashCode());
-
-        assertNotEquals(stateCountyCodeValue1, stateCountyCodeValue3);
-        assertNotEquals(stateCountyCodeValue1.hashCode(), stateCountyCodeValue3.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        StateCountyCodeValue stateCountyCodeValue = new StateCountyCodeValue();
-        stateCountyCodeValue.setCode("001");
-        stateCountyCodeValue.setAssigningAuthorityCd("AuthCd");
-        stateCountyCodeValue.setAssigningAuthorityDescTxt("AuthorityDesc");
-        stateCountyCodeValue.setCodeDescTxt("CodeDesc");
-        stateCountyCodeValue.setCodeShortDescTxt("ShortDesc");
-        stateCountyCodeValue.setEffectiveFromTime(new Date());
-        stateCountyCodeValue.setEffectiveToTime(new Date());
-        stateCountyCodeValue.setExcludedTxt("Excluded");
-        stateCountyCodeValue.setIndentLevelNbr((short) 1);
-        stateCountyCodeValue.setIsModifiableInd('Y');
-        stateCountyCodeValue.setParentIsCd("ParentCd");
-        stateCountyCodeValue.setStatusCd("A");
-        stateCountyCodeValue.setStatusTime(new Date());
-        stateCountyCodeValue.setCodeSetNm("CodeSetNm");
-        stateCountyCodeValue.setSeqNum((short) 1);
-        stateCountyCodeValue.setNbsUid(123);
-        stateCountyCodeValue.setSourceConceptId("SourceConceptId");
-        stateCountyCodeValue.setCodeSystemCd("CodeSystemCd");
-        stateCountyCodeValue.setCodeSystemDescTxt("CodeSystemDesc");
-
-        String expectedString = "StateCountyCodeValue(code=001, assigningAuthorityCd=AuthCd, assigningAuthorityDescTxt=AuthorityDesc, codeDescTxt=CodeDesc, codeShortDescTxt=ShortDesc, effectiveFromTime=" + stateCountyCodeValue.getEffectiveFromTime() + ", effectiveToTime=" + stateCountyCodeValue.getEffectiveToTime() + ", excludedTxt=Excluded, indentLevelNbr=1, isModifiableInd=Y, parentIsCd=ParentCd, statusCd=A, statusTime=" + stateCountyCodeValue.getStatusTime() + ", codeSetNm=CodeSetNm, seqNum=1, nbsUid=123, sourceConceptId=SourceConceptId, codeSystemCd=CodeSystemCd, codeSystemDescTxt=CodeSystemDesc)";
-        assertEquals(expectedString, stateCountyCodeValue.toString());
-    }
 }

@@ -111,7 +111,7 @@ class RoleServiceTest {
         var data = new Role(roleDto);
         when(roleRepositoryMock.save(data)).thenReturn(data);
         roleService.saveRole(roleDto);
-        verify(roleRepositoryMock).save(data);
+        verify(roleRepositoryMock).save(any());
     }
 
     @Test

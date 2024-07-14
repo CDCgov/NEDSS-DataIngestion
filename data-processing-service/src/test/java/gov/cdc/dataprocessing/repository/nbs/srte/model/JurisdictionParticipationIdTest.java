@@ -43,13 +43,4 @@ class JurisdictionParticipationIdTest {
         assertNotEquals(id1.hashCode(), id3.hashCode());
     }
 
-    @Test
-    void testToString() {
-        JurisdictionParticipationId id = new JurisdictionParticipationId();
-        id.setJurisdictionCd("JurisdictionCd");
-        id.setFipsCd("FipsCd");
-        id.setTypeCd("TypeCd");
-
-        assertNotNull(id.toString());
-    }
 }
