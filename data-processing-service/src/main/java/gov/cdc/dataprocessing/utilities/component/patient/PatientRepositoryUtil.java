@@ -483,16 +483,31 @@ public class PatientRepositoryUtil {
                 }
             }
 
-            // This executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
-            if (!retainingRaceCodeList.isEmpty() && patientUid > 0) {
-                try {
-                    personRaceRepository.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
-                } catch (Exception e) {
-                    logger.error(ERROR_DELETE_MSG + e.getMessage()); //NOSONAR
-                }
-            }
+            // Theses executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
+            deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
+        }
+    }
+
+    protected void deleteInactivePersonRace(List<String> retainingRaceCodeList, Long patientUid, Long parentUid) {
+        // Theses executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
+        if (!retainingRaceCodeList.isEmpty() && patientUid > 0) {
+            try {
+                personRaceRepository.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
+            } catch (Exception e) {
+                logger.error(ERROR_DELETE_MSG + e.getMessage()); //NOSONAR
+            }
+        }
+        if (!retainingRaceCodeList.isEmpty() && parentUid > 0 && !patientUid.equals(parentUid)) {
+            try {
+                var raceParent = personRaceRepository.findByParentUid(parentUid);
+                if (raceParent.isPresent() && raceParent.get().size() > 1) {
+                    personRaceRepository.deletePersonRaceByUid(parentUid,retainingRaceCodeList);
+                }
+            } catch (Exception e) {
+                logger.error(ERROR_DELETE_MSG + e.getMessage()); //NOSONAR
+            }
         }
     }
 

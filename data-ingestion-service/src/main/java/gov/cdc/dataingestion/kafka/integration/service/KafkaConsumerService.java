@@ -497,7 +497,7 @@ public class KafkaConsumerService {
                 Gson gson = new Gson();
                 String strGson = gson.toJson(nbsInterfaceModel);
 
-                kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_processing_micro", 0); //NOSONAR
+                kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_unprocessed", 0); //NOSONAR
             } else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
             }

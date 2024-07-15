@@ -28,6 +28,10 @@ public class KafkaPublicHealthCaseConsumer {
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
 
+
+    @Value("${nbs.user}")
+    private String nbsUser = "";
+
     public KafkaPublicHealthCaseConsumer(
             KafkaManagerProducer kafkaManagerProducer,
             IManagerService managerService, IAuthUserService authUserService) {
@@ -46,7 +50,7 @@ public class KafkaPublicHealthCaseConsumer {
     {
         try {
 
-            var profile = this.authUserService.getAuthUserInfo("superuser");
+            var profile = this.authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);

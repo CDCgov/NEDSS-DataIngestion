@@ -29,6 +29,10 @@ public class KafkaManagerConsumer {
     @Value("${kafka.topic.elr_health_case}")
     private String healthCaseTopic = "elr_processing_public_health_case";
 
+    @Value("${nbs.user}")
+    private String nbsUser = "";
+
+
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
@@ -51,7 +55,7 @@ public class KafkaManagerConsumer {
                               @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
             throws DataProcessingException {
         try {
-            var profile = this.authUserService.getAuthUserInfo("superuser");
+            var profile = this.authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
             managerService.processDistribution(dataType,message);
         } catch (DataProcessingConsumerException e) {
