@@ -8,7 +8,6 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "LOOKUP_ANSWER")
 public class LookupQuestionExtended extends LookupQuestion {
     private String fromAnsCodeSystemCd;
     private String toAnsCodeSystemCd;
