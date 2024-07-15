@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "Observation")
 @Data
 public class Observation_Lab_Summary_ForWorkUp_New extends ObservationBase {
     private Long uid;

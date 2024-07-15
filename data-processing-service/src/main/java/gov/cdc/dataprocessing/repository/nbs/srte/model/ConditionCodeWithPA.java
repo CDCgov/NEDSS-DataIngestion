@@ -5,12 +5,14 @@ import gov.cdc.dataprocessing.model.container.model.ProgramAreaContainer;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 @Entity
-@Data
-@Table(name = "Condition_code")
+@Getter
+@Setter
 public class ConditionCodeWithPA extends BaseConditionCode implements Serializable, Comparable {
 
     // Constructors, getters, and setters
