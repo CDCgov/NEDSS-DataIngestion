@@ -10,8 +10,8 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class ReferralContainer  extends BaseContainer implements Serializable
-{
+@SuppressWarnings("all")
+public class ReferralContainer extends BaseContainer implements Serializable {
     private static final long serialVersionUID = 1L;
     // private boolean itDirty = false;
     // private boolean itNew = true;

@@ -13,9 +13,11 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsQuestionMetadata extends BaseContainer {
 
     private static final long serialVersionUID = 1L;
+    List<CodeValueGeneral> aList = new ArrayList<>();
     private Long nbsQuestionUid;
     private Timestamp addTime;
     private Long addUserId;
@@ -46,7 +48,7 @@ public class NbsQuestionMetadata extends BaseContainer {
     private String enableInd;
     private String defaultValue;
     private String requiredInd;
-    private Long  parentUid;
+    private Long parentUid;
     private String ldfPageId;
     private Long nbsUiMetadataUid;
     private Long nbsUiComponentUid;
@@ -66,7 +68,6 @@ public class NbsQuestionMetadata extends BaseContainer {
     private String mask;
     private String subGroupNm;
     private String coinfectionIndCd;
-    List<CodeValueGeneral> aList = new ArrayList<>();
 
     public NbsQuestionMetadata() {
 

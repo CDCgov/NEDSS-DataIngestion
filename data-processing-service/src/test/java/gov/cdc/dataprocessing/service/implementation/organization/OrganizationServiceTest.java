@@ -37,6 +37,7 @@ class OrganizationServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
     @AfterEach
     void tearDown() {
         Mockito.reset(iOrganizationMatchingServiceMock);
@@ -45,9 +46,9 @@ class OrganizationServiceTest {
 
     @Test
     void processingOrganization_with_role_sf() throws DataProcessingConsumerException {
-        LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
-        Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         //set role
         organizationContainer.setRole(EdxELRConstant.ELR_SENDING_FACILITY_CD);
         labResultProxyContainer.setSendingFacilityUid(123L);
@@ -61,34 +62,35 @@ class OrganizationServiceTest {
 
     @Test
     void processingOrganization_with_role_op() throws DataProcessingConsumerException, DataProcessingException {
-        LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
-        Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         //set role
         organizationContainer.setRole(EdxELRConstant.ELR_OP_CD);
 
         theOrganizationContainerCollection.add(organizationContainer);
         labResultProxyContainer.setTheOrganizationContainerCollection(theOrganizationContainerCollection);
 
-        EDXActivityDetailLogDto eDXActivityDetailLogDto= new EDXActivityDetailLogDto();
+        EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
         eDXActivityDetailLogDto.setRecordId("123");
         when(iOrganizationMatchingServiceMock.getMatchingOrganization(organizationContainer)).thenReturn(eDXActivityDetailLogDto);
 
         OrganizationContainer organizationContainerResult = organizationService.processingOrganization(labResultProxyContainer);
         assertNotNull(organizationContainerResult);
     }
+
     @Test
     void processingOrganization_with_role_null() throws DataProcessingConsumerException, DataProcessingException {
-        LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
-        Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
-        OrganizationContainer organizationContainer= new OrganizationContainer();
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+        Collection<OrganizationContainer> theOrganizationContainerCollection = new ArrayList<>();
+        OrganizationContainer organizationContainer = new OrganizationContainer();
         //set role
         organizationContainer.setRole(null);
 
         theOrganizationContainerCollection.add(organizationContainer);
         labResultProxyContainer.setTheOrganizationContainerCollection(theOrganizationContainerCollection);
 
-        EDXActivityDetailLogDto eDXActivityDetailLogDto= new EDXActivityDetailLogDto();
+        EDXActivityDetailLogDto eDXActivityDetailLogDto = new EDXActivityDetailLogDto();
         eDXActivityDetailLogDto.setRecordId("123");
         when(iOrganizationMatchingServiceMock.getMatchingOrganization(organizationContainer)).thenReturn(eDXActivityDetailLogDto);
 

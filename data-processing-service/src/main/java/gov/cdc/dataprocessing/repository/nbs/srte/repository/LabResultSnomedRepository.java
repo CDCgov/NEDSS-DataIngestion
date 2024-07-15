@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LabResultSnomedRepository  extends JpaRepository<LabResultSnomed, String> {
+public interface LabResultSnomedRepository extends JpaRepository<LabResultSnomed, String> {
     @Query(value = "SELECT lr.snomedCd FROM LabResultSnomed lr WHERE lr.laboratoryId = :laboratoryId AND lr.labResultCd = :labResultCd")
     Optional<List<String>> findSnomedCds(@Param("laboratoryId") String laboratoryId, @Param("labResultCd") String labResultCd);
 }

@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 class ManagerUtilTest {
     @InjectMocks
     private ManagerUtil managerUtil;

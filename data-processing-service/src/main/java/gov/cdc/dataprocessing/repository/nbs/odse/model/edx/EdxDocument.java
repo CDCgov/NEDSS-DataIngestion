@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Table(name = "EDX_Document")
-public class EdxDocument  {
+public class EdxDocument {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

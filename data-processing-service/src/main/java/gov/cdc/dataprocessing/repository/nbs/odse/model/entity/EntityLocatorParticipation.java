@@ -4,7 +4,8 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityLocatorParticipationId;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
@@ -13,7 +14,8 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Entity
 @Table(name = "Entity_locator_participation", schema = "dbo")
 @IdClass(EntityLocatorParticipationId.class) // Specify the IdClass
-@Data
+@Getter
+@Setter
 public class EntityLocatorParticipation {
 
     @Id
@@ -24,7 +26,7 @@ public class EntityLocatorParticipation {
     @Column(name = "locator_uid", nullable = false)
     private Long locatorUid;
 
- //   @Version
+    //   @Version
     @Column(name = "version_ctrl_nbr", nullable = false)
     private Integer versionCtrlNbr;
 
@@ -113,7 +115,7 @@ public class EntityLocatorParticipation {
             this.addUserId = entityLocatorParticipationDto.getAddUserId();
             this.addTime = entityLocatorParticipationDto.getAddTime();
         }
-        
+
         this.cd = entityLocatorParticipationDto.getCd();
         this.cdDescTxt = entityLocatorParticipationDto.getCdDescTxt();
         this.classCd = entityLocatorParticipationDto.getClassCd();

@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface StateCodeRepository  extends JpaRepository<StateCode, String> {
+public interface StateCodeRepository extends JpaRepository<StateCode, String> {
     @Query("SELECT pn FROM StateCode pn WHERE pn.stateNm = :state_nm")
-    Optional<StateCode> findStateCdByStateName( @Param("state_nm") String stateName);
+    Optional<StateCode> findStateCdByStateName(@Param("state_nm") String stateName);
 }

@@ -23,7 +23,7 @@ public class ActRelationshipService implements IActRelationshipService {
         Collection<ActRelationshipDto> actRelationshipDtoCollection = new ArrayList<>();
         var result = actRelationshipRepository.loadActRelationshipBySrcIdAndTypeCode(uid, type);
         if (result.isPresent()) {
-            for(var item : result.get()) {
+            for (var item : result.get()) {
                 var elem = new ActRelationshipDto(item);
                 actRelationshipDtoCollection.add(elem);
             }
@@ -43,8 +43,7 @@ public class ActRelationshipService implements IActRelationshipService {
             if (actRelationshipDto.isItNew() || (actRelationshipDto.isItDirty() && actRelationshipDto.getTargetActUid() != null && actRelationshipDto.getSourceActUid() != null && actRelationshipDto.getTypeCd() != null)) {
                 actRelationshipRepository.save(data);
             }
-        }
-        else if (actRelationshipDto.isItDelete()) {
+        } else if (actRelationshipDto.isItDelete()) {
             actRelationshipRepository.deleteActRelationshipByPk(actRelationshipDto.getTargetActUid(), actRelationshipDto.getSourceActUid(), actRelationshipDto.getTypeCd());
         }
     }

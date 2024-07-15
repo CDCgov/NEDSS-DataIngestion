@@ -6,6 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PageActPatient {
     Long patientRevisionUid;
     Long mprUid;

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PersonRepository  extends JpaRepository<Person, Long> {
+public interface PersonRepository extends JpaRepository<Person, Long> {
     @Query("SELECT pn FROM Person pn WHERE pn.personParentUid = :parentUid")
     Optional<List<Person>> findByParentUid(@Param("parentUid") Long parentUid);
 
@@ -22,10 +22,9 @@ public interface PersonRepository  extends JpaRepository<Person, Long> {
     Integer updateExistingPersonEdxIndByUid(@Param("uid") Long uid);
 
     /**
-     *
      * String PATIENTPARENTUID_BY_UID = " SELECT p.person_parent_uid \"personParentUid\"
      * FROM person p with (nolock)  where p.person_uid = ? AND p.record_status_cd = 'ACTIVE' "
-     * */
+     */
     @Query("SELECT pn.personParentUid FROM Person pn WHERE pn.personUid = :parentUid AND pn.recordStatusCd='ACTIVE' ")
     Optional<List<Long>> findPatientParentUidByUid(@Param("parentUid") Long parentUid);
 

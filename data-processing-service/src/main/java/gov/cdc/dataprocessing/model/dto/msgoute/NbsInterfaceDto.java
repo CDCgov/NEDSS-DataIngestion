@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsInterfaceDto extends BaseContainer {
     private Long nbsInterfaceUid;
     private Blob payload;

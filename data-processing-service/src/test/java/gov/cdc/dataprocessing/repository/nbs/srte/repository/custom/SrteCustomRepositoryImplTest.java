@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 class SrteCustomRepositoryImplTest {
     @Mock
     private EntityManager entityManager;
@@ -36,8 +37,8 @@ class SrteCustomRepositoryImplTest {
         String codeSql =
                 "Select  Lab_result.LAB_RESULT_CD , lab_result_desc_txt  FROM "
                         + " Lab_result Lab_result, "
-                        + " Lab_coding_system Lab_coding_system WHERE "+
-                        " Lab_coding_system.laboratory_id = 'DEFAULT' and "+
+                        + " Lab_coding_system Lab_coding_system WHERE " +
+                        " Lab_coding_system.laboratory_id = 'DEFAULT' and " +
                         " Lab_result.organism_name_ind = 'Y'";
 
         when(entityManager.createNativeQuery(codeSql)).thenReturn(query);
@@ -61,14 +62,13 @@ class SrteCustomRepositoryImplTest {
     }
 
 
-
     @Test
     void testGetAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_NoResults() {
         String codeSql =
                 "Select  Lab_result.LAB_RESULT_CD , lab_result_desc_txt  FROM "
                         + " Lab_result Lab_result, "
-                        + " Lab_coding_system Lab_coding_system WHERE "+
-                        " Lab_coding_system.laboratory_id = 'DEFAULT' and "+
+                        + " Lab_coding_system Lab_coding_system WHERE " +
+                        " Lab_coding_system.laboratory_id = 'DEFAULT' and " +
                         " Lab_result.organism_name_ind = 'Y'";
 
         when(entityManager.createNativeQuery(codeSql)).thenReturn(query);

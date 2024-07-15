@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class ProviderMatchingBaseService extends MatchingBaseService{
+public class ProviderMatchingBaseService extends MatchingBaseService {
     private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class);
 
     public ProviderMatchingBaseService(
@@ -56,12 +56,12 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 }
             }
         }
-        if (nameTeleStr != null)
-        {
+        if (nameTeleStr != null) {
             nameTeleStr = getNameStringForProvider(personContainer) + nameTeleStr;
         }
         return nameTeleStr;
     }
+
     // Creating string for name and address for providers
     protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
@@ -95,17 +95,18 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             nameAddStr = getNameStringForProvider(personContainer) + nameAddStr;
         return nameAddStr;
     }
+
     protected Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
         try {
-            boolean callOrgHashCode= false;
-            if(personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
-                    && !personContainer.getThePersonDto().isCaseInd()){
-                callOrgHashCode= true;
+            boolean callOrgHashCode = false;
+            if (personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
+                    && !personContainer.getThePersonDto().isCaseInd()) {
+                callOrgHashCode = true;
                 personContainer.getThePersonDto().setEdxInd("Y");
             }
-            long personUid= persistingProvider(personContainer, "PROVIDER", businessTriggerCd );
+            long personUid = persistingProvider(personContainer, "PROVIDER", businessTriggerCd);
 
-            if(callOrgHashCode){
+            if (callOrgHashCode) {
                 try {
                     personContainer.getThePersonDto().setPersonUid(personUid);
                     /**
@@ -113,8 +114,8 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                      * */
                     setProvidertoEntityMatch(personContainer);
                 } catch (Exception e) {
-                    logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
-                    throw new DataProcessingException("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
+                    logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria:" + e);
+                    throw new DataProcessingException("EntityControllerEJB.setProvider method exception thrown for matching criteria:" + e);
                 }
             }
             return personUid;
@@ -122,9 +123,10 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             throw new DataProcessingException(e.getMessage());
         }
     }
-    protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
-        Long personUID ;
-        String localId ;
+
+    protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
+        Long personUID;
+        String localId;
         boolean isELRCase = false;
         try {
             localId = personContainer.getThePersonDto().getLocalId();
@@ -133,9 +135,9 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 isELRCase = true;
             }
 
-            Collection<EntityLocatorParticipationDto> collParLocator ;
+            Collection<EntityLocatorParticipationDto> collParLocator;
             Collection<RoleDto> colRole;
-            Collection<ParticipationDto> colPar ;
+            Collection<ParticipationDto> colPar;
 
 
             collParLocator = personContainer.getTheEntityLocatorParticipationDtoCollection();
@@ -160,8 +162,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             if (personContainer.isItNew()) {
                 Person p = getPatientRepositoryUtil().createPerson(personContainer);
                 personUID = p.getPersonUid();
-            }
-            else {
+            } else {
                 getPatientRepositoryUtil().updateExistingPerson(personContainer);
                 personUID = personContainer.getThePersonDto().getPersonUid();
 
@@ -174,10 +175,11 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         return personUID;
 
     }
+
     protected void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
 
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
-        String identifier ;
+        String identifier;
         int identifierHshCd;
         List<String> identifierList;
         identifierList = getIdentifierForProvider(personContainer);
@@ -216,7 +218,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
 
         // Continue for name Telephone with no extension
-        String nameTelePhone ;
+        String nameTelePhone;
         int nameTelePhonehshCd = 0;
         nameTelePhone = telePhoneTxtProvider(personContainer);
         if (nameTelePhone != null) {
@@ -231,7 +233,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             edxEntityMatchDto.setEntityUid(entityUid);
             edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDto.setMatchString(nameAddStrSt1);
-            edxEntityMatchDto.setMatchStringHashCode((long)nameAddStrSt1hshCd);
+            edxEntityMatchDto.setMatchStringHashCode((long) nameAddStrSt1hshCd);
             try {
                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
             } catch (Exception e) {
@@ -246,7 +248,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             edxEntityMatchDto.setEntityUid(entityUid);
             edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDto.setMatchString(nameTelePhone);
-            edxEntityMatchDto.setMatchStringHashCode((long)nameTelePhonehshCd);
+            edxEntityMatchDto.setMatchStringHashCode((long) nameTelePhonehshCd);
             try {
                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
             } catch (Exception e) {
@@ -258,13 +260,14 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
 
     }
+
     @SuppressWarnings("java:S3776")
     protected List<String> getIdentifierForProvider(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> identifierList = new ArrayList<>();
         String identifier = null;
         Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
-        try{
+        try {
             if (personContainer.getTheEntityIdDtoCollection() != null
                     && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
@@ -337,7 +340,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             }
             personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
             logger.debug(ex.getMessage() + errorMessage);
             throw new DataProcessingException(errorMessage, ex);
@@ -345,6 +348,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         return identifierList;
 
     }
+
     @SuppressWarnings("java:S3776")
     protected String getNameStringForProvider(PersonContainer personContainer) {
         String nameStr = null;

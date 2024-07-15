@@ -8,8 +8,8 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class NotificationProxyContainer extends BaseContainer
-{
+@SuppressWarnings("all")
+public class NotificationProxyContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     public Collection<Object> theActRelationshipDTCollection;
     public PublicHealthCaseContainer thePublicHealthCaseContainer;

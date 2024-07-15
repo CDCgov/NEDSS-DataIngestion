@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface IEntityLocatorParticipationService {
     void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException;
+
     void createEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException;
+
     List<EntityLocatorParticipation> findEntityLocatorById(Long uid);
 }

@@ -9,7 +9,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class DropDownCodeDto  extends BaseContainer implements RootDtoInterface {
+@SuppressWarnings("all")
+public class DropDownCodeDto extends BaseContainer implements RootDtoInterface {
 
     private String key;
     private String value;
@@ -111,12 +112,12 @@ public class DropDownCodeDto  extends BaseContainer implements RootDtoInterface 
 
     @Override
     public String getStatusCd() {
-        return null;
+        return statusCd;
     }
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        statusCd = aStatusCd;
     }
 
     @Override
@@ -140,13 +141,13 @@ public class DropDownCodeDto  extends BaseContainer implements RootDtoInterface 
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-
+    public Timestamp getAddTime() {
+        return null;
     }
 
     @Override
-    public Timestamp getAddTime() {
-        return null;
+    public void setAddTime(Timestamp aAddTime) {
+
     }
 
     @Override

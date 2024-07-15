@@ -7,9 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PageContainer extends BasePamContainer {
 
-    private boolean isCurrInvestgtrDynamic;
     private static final long serialVersionUID = 1L;
+    private boolean isCurrInvestgtrDynamic;
 
 }

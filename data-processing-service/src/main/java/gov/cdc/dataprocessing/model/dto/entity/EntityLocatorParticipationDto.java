@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EntityLocatorParticipationDto extends BaseContainer {
 
     private Long locatorUid;

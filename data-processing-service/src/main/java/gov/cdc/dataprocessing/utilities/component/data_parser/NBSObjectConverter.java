@@ -45,7 +45,7 @@ public class NBSObjectConverter {
         PersonNameDto personNameDto = new PersonNameDto();
         HL7FNType hl7FamilyName = hl7XPNType.getHL7FamilyName();
         /** Optional maxOccurs="1 */
-        if(hl7FamilyName!=null){
+        if (hl7FamilyName != null) {
             personNameDto.setLastNm(hl7FamilyName.getHL7Surname());
             personNameDto.setLastNm2(hl7FamilyName.getHL7OwnSurname());
         }
@@ -73,7 +73,7 @@ public class NBSObjectConverter {
         personNameDto.setNmUseCd(Objects.requireNonNullElse(hl7NameTypeCode, EdxELRConstant.ELR_LEGAL_NAME));
 
         String toCode = checkingValueService.findToCode("ELR_LCA_NM_USE", personNameDto.getNmUseCd(), "P_NM_USE");
-        if(toCode!=null && !toCode.isEmpty()){
+        if (toCode != null && !toCode.isEmpty()) {
             personNameDto.setNmUseCd(toCode);
         }
         /** length"1 */
@@ -109,7 +109,7 @@ public class NBSObjectConverter {
 
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        if (personNameDto.getNmUseCd()!=null && personNameDto.getNmUseCd().equals(EdxELRConstant.ELR_LEGAL_NAME)) {
+        if (personNameDto.getNmUseCd() != null && personNameDto.getNmUseCd().equals(EdxELRConstant.ELR_LEGAL_NAME)) {
             personContainer.getThePersonDto().setLastNm(personNameDto.getLastNm());
             personContainer.getThePersonDto().setFirstNm(personNameDto.getFirstNm());
             personContainer.getThePersonDto().setNmPrefix(personNameDto.getNmPrefix());
@@ -121,12 +121,12 @@ public class NBSObjectConverter {
 
     public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
-        if (hl7CXType != null ) {
+        if (hl7CXType != null) {
             entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
             entityIdDto.setAddTime(personContainer.getThePersonDto().getAddTime());
             entityIdDto.setEntityIdSeq(j + 1);
             entityIdDto.setRootExtensionTxt(hl7CXType.getHL7IDNumber());
-            if(hl7CXType.getHL7AssigningAuthority()!=null){
+            if (hl7CXType.getHL7AssigningAuthority() != null) {
                 entityIdDto.setAssigningAuthorityCd(hl7CXType.getHL7AssigningAuthority().getHL7UniversalID());
                 entityIdDto.setAssigningAuthorityDescTxt(hl7CXType.getHL7AssigningAuthority().getHL7NamespaceID());
                 entityIdDto.setAssigningAuthorityIdType(hl7CXType.getHL7AssigningAuthority().getHL7UniversalIDType());
@@ -134,15 +134,13 @@ public class NBSObjectConverter {
             if (indicator != null && indicator.equals(EdxELRConstant.ELR_PATIENT_ALTERNATE_IND)) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PATIENT_ALTERNATE_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_ALTERNATE_DESC);
-            }
-            else if (indicator != null && indicator.equals(EdxELRConstant.ELR_MOTHER_IDENTIFIER)) {
+            } else if (indicator != null && indicator.equals(EdxELRConstant.ELR_MOTHER_IDENTIFIER)) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
             } else if (indicator != null && indicator.equals(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER)) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
-            }
-            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
+            } else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
                 String typeCode = checkingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
@@ -200,8 +198,8 @@ public class NBSObjectConverter {
 
     /**
      * Parsing Entity Address into Object
-     * */
-    private EntityLocatorParticipationDto addressType(HL7XADType hl7XADType, String role)   {
+     */
+    private EntityLocatorParticipationDto addressType(HL7XADType hl7XADType, String role) {
 
         EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
         try {
@@ -215,20 +213,17 @@ public class NBSObjectConverter {
             /** Optional maxOccurs="1 */
             /** length"3 */
 
-            if (role.equalsIgnoreCase(EdxELRConstant.ELR_OP_CD))
-            {
+            if (role.equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
                 elp.setClassCd(EdxELRConstant.ELR_POSTAL_CD);
                 elp.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 elp.setCd(EdxELRConstant.ELR_OFFICE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_OFFICE_DESC);
-            }
-            else if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
+            } else if (role.equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                 elp.setClassCd(EdxELRConstant.ELR_POSTAL_CD);
                 elp.setUseCd(EdxELRConstant.ELR_USE_EMERGENCY_CONTACT_CD);
                 elp.setCd(EdxELRConstant.ELR_HOUSE_CD);
                 elp.setCdDescTxt(EdxELRConstant.ELR_HOUSE_DESC);
-            }
-            else {
+            } else {
                 elp.setCd(Objects.requireNonNullElse(addressType, EdxELRConstant.ELR_HOUSE_CD));
                 elp.setClassCd(NEDSSConstant.POSTAL);
                 elp.setUseCd(NEDSSConstant.HOME);
@@ -244,10 +239,10 @@ public class NBSObjectConverter {
             HL7SADType HL7StreetAddress = hl7XADType.getHL7StreetAddress();
             /** Optional maxOccurs="1 */
             /** length"184 */
-            if(HL7StreetAddress!=null){
+            if (HL7StreetAddress != null) {
                 pl = nbsStreetAddressType(HL7StreetAddress, pl);
             }
-            if(hl7XADType.getHL7OtherDesignation()!=null && (pl.getStreetAddr2()==null || pl.getStreetAddr2().trim().equalsIgnoreCase(""))) {
+            if (hl7XADType.getHL7OtherDesignation() != null && (pl.getStreetAddr2() == null || pl.getStreetAddr2().trim().equalsIgnoreCase(""))) {
                 pl.setStreetAddr2(hl7XADType.getHL7OtherDesignation());
             }
 
@@ -259,9 +254,9 @@ public class NBSObjectConverter {
             /** Optional maxOccurs="1 */
             /** length"50 */
 
-            String state="";
-            if(stateOrProvince!=null) {
-                state= translateStateCd(stateOrProvince);
+            String state = "";
+            if (stateOrProvince != null) {
+                state = translateStateCd(stateOrProvince);
             }
             pl.setStateCd(state);
             String zip = hl7XADType.getHL7ZipOrPostalCode();
@@ -270,23 +265,19 @@ public class NBSObjectConverter {
 
             pl.setZipCd(formatZip(zip));
             String country = hl7XADType.getHL7Country();
-            if(country!=null && country.equalsIgnoreCase(EdxELRConstant.ELR_USA_DESC))
-            {
+            if (country != null && country.equalsIgnoreCase(EdxELRConstant.ELR_USA_DESC)) {
                 pl.setCntryCd(EdxELRConstant.ELR_USA_CD);
-            }
-            else
-            {
+            } else {
                 pl.setCntryCd(country);
             }
             String countyParishCode = hl7XADType.getHL7CountyParishCode();
 
             /** Optional maxOccurs="1 */
             /** length"20 */
-            String cnty = checkingValueService.getCountyCdByDesc(countyParishCode,pl.getStateCd());
-            if(cnty==null) {
+            String cnty = checkingValueService.getCountyCdByDesc(countyParishCode, pl.getStateCd());
+            if (cnty == null) {
                 pl.setCntyCd(countyParishCode);
-            }
-            else {
+            } else {
                 pl.setCntyCd(cnty);
             }
             String HL7CensusTract = hl7XADType.getHL7CensusTract();
@@ -296,7 +287,7 @@ public class NBSObjectConverter {
 
             elp.setThePostalLocatorDto(pl);
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter. Error thrown: "+ e);
+            logger.error("Hl7ToNBSObjectConverter. Error thrown: " + e);
         }
         return elp;
     }
@@ -314,31 +305,28 @@ public class NBSObjectConverter {
         /** Optional maxOccurs="1 */
         /** length"12 */
 
-        if(dwellingNumber==null) {
-            dwellingNumber="";
+        if (dwellingNumber == null) {
+            dwellingNumber = "";
         }
-        if(streetName==null) {
-            streetName="";
+        if (streetName == null) {
+            streetName = "";
         }
         pl.setStreetAddr2(dwellingNumber + " " + streetName);
         return pl;
     }
 
     private String translateStateCd(String msgInStateCd) {
-        if(msgInStateCd != null && !msgInStateCd.trim().isEmpty())
-        {
+        if (msgInStateCd != null && !msgInStateCd.trim().isEmpty()) {
             StateCode stateCode = checkingValueService.findStateCodeByStateNm(msgInStateCd);
             return stateCode.getStateCd();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     private String formatZip(String zip) {
         if (zip != null) {
-            zip =zip.trim();
+            zip = zip.trim();
             // for zip code like: 12,123,1234,12345
             if (zip.length() <= 5) {
                 return zip;
@@ -347,8 +335,7 @@ public class NBSObjectConverter {
             else if (zip.length() == 9 && !zip.contains("-")) {
                 zip = zip.substring(0, 5) + "-" + zip.substring(5, 9);
                 // for zip code like: 123456,1234567890: Will ignore 12345-6789
-            }
-            else if (zip.length() > 5 && !zip.contains("-")) {
+            } else if (zip.length() > 5 && !zip.contains("-")) {
                 zip = zip.substring(0, 5);
             }
         }// end of if
@@ -356,27 +343,24 @@ public class NBSObjectConverter {
     }
 
 
-
     public EntityIdDto validateSSN(EntityIdDto entityIdDto) {
         String ssn = entityIdDto.getRootExtensionTxt();
-        if(ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
-            ssn =ssn.trim();
+        if (ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
+            ssn = ssn.trim();
             if (ssn.length() > 3) {
                 String newSSN = ssn.substring(0, 3);
                 newSSN = newSSN + "-";
                 if (ssn.length() > 5) {
                     newSSN = newSSN + ssn.replace("-", "").substring(3, 5) + "-";
-                    newSSN = newSSN + ssn.replace("-", "").substring(5, (ssn.replace("-", "").length()));
+                    newSSN = newSSN + ssn.replace("-", "").substring(5);
                     ssn = newSSN;
                     entityIdDto.setRootExtensionTxt(ssn);
-                }
-                else {
+                } else {
                     newSSN = newSSN + ssn.replace("-", "").substring(3, ssn.length()) + "- ";
                     ssn = newSSN;
                     entityIdDto.setRootExtensionTxt(ssn);
                 }
-            }
-            else {
+            } else {
                 ssn = ssn + "- - ";
                 entityIdDto.setRootExtensionTxt(ssn);
             }
@@ -404,18 +388,18 @@ public class NBSObjectConverter {
                 }
                 if (year >= 0 && month >= 0 && date >= 0) {
                     toTime = month + "/" + date + "/" + year;
-                    logger.debug("  in processHL7TSTypeForDOBWithoutTime: Date string is: " +toTime);
+                    logger.debug("  in processHL7TSTypeForDOBWithoutTime: Date string is: " + toTime);
                     toTimestamp = entityIdUtil.stringToStrutsTimestamp(toTime); //if can't process returns null
                 }
             }
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right. Please check.!"+ toTime);
-            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right."+
-                    EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG+toTime+"<--");
+            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right. Please check.!" + toTime);
+            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right." +
+                    EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG + toTime + "<--");
         }
 
         if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
-            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime " +EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG +toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
+            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime " + EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG + toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
         }
         return toTimestamp;
     }
@@ -432,7 +416,7 @@ public class NBSObjectConverter {
         elp.setUseCd(NEDSSConstant.HOME);
         elp.setCd(EdxELRConstant.ELR_PHONE_CD);
         elp.setCdDescTxt(EdxELRConstant.ELR_PHONE_DESC);
-        elp.setClassCd("PST") ;
+        elp.setClassCd("PST");
         elp.setUseCd("BIR");
         elp.setCd("F");
         elp.setAddUserId(personContainer.getThePersonDto().getAddUserId());
@@ -455,7 +439,7 @@ public class NBSObjectConverter {
     }
 
     public PersonEthnicGroupDto ethnicGroupType(HL7CWEType hl7CWEType,
-                                                       PersonContainer personContainer) {
+                                                PersonContainer personContainer) {
         PersonEthnicGroupDto ethnicGroupDT = new PersonEthnicGroupDto();
         ethnicGroupDT.setItNew(true);
         ethnicGroupDT.setItDirty(false);
@@ -497,18 +481,18 @@ public class NBSObjectConverter {
 
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                timeStr = year+"-"+month+"-"+day+" "+hourOfDay+":"+minute+":"+second;
-                logger.debug("  in processHL7TSType: Date string is: " +timeStr);
+                timeStr = year + "-" + month + "-" + day + " " + hourOfDay + ":" + minute + ":" + second;
+                logger.debug("  in processHL7TSType: Date string is: " + timeStr);
                 date2 = sdf.parse(timeStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
                 if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
-                    throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType " +itemDescription +timeStr + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
+                    throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType " + itemDescription + timeStr + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }
             }
             return toTimestamp;
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. Please check.!"+ timeStr);
-            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. "+ itemDescription+timeStr);
+            logger.error("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. Please check.!" + timeStr);
+            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. " + itemDescription + timeStr);
         }
     }
 
@@ -547,7 +531,6 @@ public class NBSObjectConverter {
             raceDT.setRaceDescTxt(hl7CEType.getHL7AlternateText());
             raceDT.setRaceCategoryCd(hl7CEType.getHL7AlternateIdentifier());
         }
-
 
 
         raceDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
@@ -595,10 +578,10 @@ public class NBSObjectConverter {
 
         ArrayList<String> areaAndNumber = new ArrayList<>();
         incorrectLength = checkIfAreaCodeMoreThan3Digits(areaAndNumber, hl7AreaCityCode);
-        if(!incorrectLength)
+        if (!incorrectLength)
             incorrectLength = checkIfNumberMoreThan10Digits(areaAndNumber, hl7LocalNumber);
 
-        if(!incorrectLength){
+        if (!incorrectLength) {
 
             if (hl7AreaCityCode != null && hl7AreaCityCode.getHL7Numeric() != null) {
                 areaCode = String.valueOf(hl7AreaCityCode.getHL7Numeric().intValue());
@@ -623,13 +606,12 @@ public class NBSObjectConverter {
                 number = hl7LocalNumber.getHL7Numeric().toString();
 
             }
-        }
-        else{
+        } else {
             areaCode = areaAndNumber.get(0);
             number = areaAndNumber.get(1);
         }
 
-        if(areaCode!=null && areaCode.equalsIgnoreCase("0"))
+        if (areaCode != null && areaCode.equalsIgnoreCase("0"))
             areaCode = "";
 
         String phoneNbrTxt = areaCode + number;
@@ -650,7 +632,7 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType HL7Type){
+    public boolean checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type) {
 
 
         boolean incorrectLength = false;
@@ -659,12 +641,12 @@ public class NBSObjectConverter {
         if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
             String areaCodeString = HL7Type.getHL7Numeric().toString();
 
-            if(areaCodeString.length()>10){//Phone number more than 10 digits
+            if (areaCodeString.length() > 10) {//Phone number more than 10 digits
                 int length = areaCodeString.length();
-                incorrectLength= true;
+                incorrectLength = true;
 
-                areaCode = areaCodeString.substring(0,length-10);
-                number = areaCodeString.substring(length-10);
+                areaCode = areaCodeString.substring(0, length - 10);
+                number = areaCodeString.substring(length - 10);
 
 
                 areaAndNumber.add(areaCode);
@@ -679,13 +661,14 @@ public class NBSObjectConverter {
         return incorrectLength;
 
     }
+
     public String formatPhoneNbr(String phoneNbrTxt) {
         // Format numeric number into telephone format
         // eg, 1234567 -> 123-4567, 1234567890 -> 123-456-7890
         String newFormatedNbr = "";
         if (phoneNbrTxt != null) {
             // String phoneNbr = dt.getPhoneNbrTxt();
-            phoneNbrTxt =phoneNbrTxt.trim();
+            phoneNbrTxt = phoneNbrTxt.trim();
             int nbrSize = phoneNbrTxt.length();
 
             if (nbrSize > 4) { // Add first dash
@@ -708,17 +691,17 @@ public class NBSObjectConverter {
         return newFormatedNbr;
     }// End of formatPhoneNbr
 
-    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
+    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type) {
 
         boolean incorrectLength = false;
         String areaCode, number;
         if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
 
-            String areaCodeString =HL7Type.getHL7Numeric().toString();
+            String areaCodeString = HL7Type.getHL7Numeric().toString();
 
-            if(areaCodeString.length()>3){//Area code more than 3 digits
-                incorrectLength= true;
-                areaCode = areaCodeString.substring(0,3);
+            if (areaCodeString.length() > 3) {//Area code more than 3 digits
+                incorrectLength = true;
+                areaCode = areaCodeString.substring(0, 3);
                 number = areaCodeString.substring(3);
 
                 areaAndNumber.add(areaCode);
@@ -761,7 +744,7 @@ public class NBSObjectConverter {
     }
 
     public PersonContainer processCNNPersonName(HL7CNNType hl7CNNType,
-                                                       PersonContainer personContainer) {
+                                                PersonContainer personContainer) {
         PersonNameDto personNameDto = new PersonNameDto();
         String lastName = hl7CNNType.getHL7FamilyName();
         personNameDto.setLastNm(lastName);
@@ -796,8 +779,9 @@ public class NBSObjectConverter {
         personDtToPersonVO(personNameDto, personContainer);
         return personContainer;
     }
+
     public PersonContainer personDtToPersonVO(PersonNameDto personNameDto,
-                                                     PersonContainer personContainer) {
+                                              PersonContainer personContainer) {
         personContainer.getThePersonDto().setLastNm(personNameDto.getLastNm());
         personContainer.getThePersonDto().setFirstNm(personNameDto.getFirstNm());
         personContainer.getThePersonDto().setNmPrefix(personNameDto.getNmPrefix());
@@ -805,6 +789,7 @@ public class NBSObjectConverter {
 
         return personContainer;
     }
+
     public Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";
         try {
@@ -835,19 +820,19 @@ public class NBSObjectConverter {
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 java.util.Date date2;
-                dateStr = year+"-"+month+"-"+day+" "+hourOfDay+":"+minute+":"+second+"."+millis;
-                logger.debug("  in processHL7TSTypeWithMillis: Date string is: " +dateStr);
+                dateStr = year + "-" + month + "-" + day + " " + hourOfDay + ":" + minute + ":" + second + "." + millis;
+                logger.debug("  in processHL7TSTypeWithMillis: Date string is: " + dateStr);
                 date2 = sdf.parse(dateStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
                 if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
-                    throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis " +itemDescription + date2
+                    throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis " + itemDescription + date2
                             + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
                 }
             }
             return toTimestamp;
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right. Please check.!"+ dateStr);
-            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right."+ itemDescription+dateStr);
+            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right. Please check.!" + dateStr);
+            throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right." + itemDescription + dateStr);
         }
     }
 

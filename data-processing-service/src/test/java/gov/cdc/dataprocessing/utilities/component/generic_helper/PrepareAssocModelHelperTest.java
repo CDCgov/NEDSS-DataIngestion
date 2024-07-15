@@ -27,6 +27,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 class PrepareAssocModelHelperTest {
     @InjectMocks
     @Spy
@@ -56,6 +57,7 @@ class PrepareAssocModelHelperTest {
     private ActRelationshipDto actInterface;
     @Mock
     private RoleDto roleInterface;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -66,7 +68,7 @@ class PrepareAssocModelHelperTest {
         user.setNedssEntryId(1L);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @Test
@@ -997,7 +999,6 @@ class PrepareAssocModelHelperTest {
     }
 
 
-
     @Test
     void testPrepareAssocDTForActRelationship_InnerTryBlock() throws DataProcessingException {
         // Arrange
@@ -1048,7 +1049,7 @@ class PrepareAssocModelHelperTest {
 
         assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
-    
+
 
     @Test
     void testPrepareAssocDTForRole_InnerTryBlock() throws DataProcessingException {

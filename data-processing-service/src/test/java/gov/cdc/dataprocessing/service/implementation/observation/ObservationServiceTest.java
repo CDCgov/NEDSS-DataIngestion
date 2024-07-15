@@ -55,6 +55,8 @@ import static org.mockito.Mockito.*;
 
 class ObservationServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private INNDActivityLogService nndActivityLogService;
     @Mock
     private IMessageLogService messageLogService;
@@ -96,15 +98,10 @@ class ObservationServiceTest {
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
     private IUidService uidService;
-
     @Mock
     private IInvestigationService investigationService;
-
     @InjectMocks
     private ObservationService observationService;
-
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -115,8 +112,9 @@ class ObservationServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
+
     @AfterEach
     void tearDown() {
         Mockito.reset(nndActivityLogService, messageLogService, observationRepositoryUtil, notificationService,
@@ -204,8 +202,8 @@ class ObservationServiceTest {
         when(observationRepositoryUtil.loadObject(obsUid)).thenReturn(observationContainer);
 
         // retrieveEntityFromParticipationForContainer
-         // - retrievePersonAndRoleFromParticipation
-          // - retrieveScopedPersons
+        // - retrievePersonAndRoleFromParticipation
+        // - retrieveScopedPersons
         var patContainer = new PersonContainer();
         var rolCol = new ArrayList<RoleDto>();
         var role = new RoleDto();
@@ -233,10 +231,9 @@ class ObservationServiceTest {
         when(materialService.loadMaterialObject(14L)).thenReturn(new MaterialContainer());
 
 
-
         // retrieveActForLabResultContainer
         // - retrieveInterventionFromActRelationship
-           // NOTE: This will return intervention which is not relevant at the time this test is created
+        // NOTE: This will return intervention which is not relevant at the time this test is created
         // - retrieveObservationFromActRelationship
 
         // NEDSSConstant.ACT_TYPE_PROCESSING_DECISION
@@ -485,8 +482,6 @@ class ObservationServiceTest {
         labResult.setEDXDocumentCollection(edxCol);
 
 
-
-
         //    - storeObservationVOCollection 1162
         when(observationRepositoryUtil.saveObservation(obsCon)).thenReturn(12L);
 
@@ -621,6 +616,7 @@ class ObservationServiceTest {
 
         assertEquals("Test Exception", exception.getMessage());
     }
+
     @Test
     void testPerformOrderTestStateTransition_NewWithProcessingDecision() throws DataProcessingException {
         LabResultProxyContainer labResultProxyVO = mock(LabResultProxyContainer.class);
@@ -634,7 +630,7 @@ class ObservationServiceTest {
 
         observationService.performOrderTestStateTransition(labResultProxyVO, orderTest, false);
 
-        verify(prepareAssocModelHelper).prepareVO(any(),any(),
+        verify(prepareAssocModelHelper).prepareVO(any(), any(),
                 any(), any(), any(), any());
     }
 

@@ -7,13 +7,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObservationInterpDto extends BaseContainer {
 
+    boolean _bDirty = false;
+    boolean _bNew = false;
     private Long observationUid;
     private String interpretationCd;
     private String interpretationDescTxt;
-    boolean _bDirty = false;
-    boolean _bNew = false;
 
     public ObservationInterpDto() {
 

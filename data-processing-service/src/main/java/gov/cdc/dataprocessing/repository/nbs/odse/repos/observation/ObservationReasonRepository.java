@@ -11,13 +11,12 @@ import java.util.Collection;
 @Repository
 public interface ObservationReasonRepository extends JpaRepository<ObservationReason, Long> {
     /**
-     *   public static final String SELECT_OBSERVATION_REASONS =
-     *       "SELECT observation_uid \"observationUid\", reason_cd \"reasonCd\", "+
-     *       " reason_desc_txt \"reasonDescTxt\" FROM " +
-     *       DataTables.OBSERVATION_REASON_TABLE +
-     *       " WITH (NOLOCK) WHERE observation_uid = ?";
-     *
-     * */
+     * public static final String SELECT_OBSERVATION_REASONS =
+     * "SELECT observation_uid \"observationUid\", reason_cd \"reasonCd\", "+
+     * " reason_desc_txt \"reasonDescTxt\" FROM " +
+     * DataTables.OBSERVATION_REASON_TABLE +
+     * " WITH (NOLOCK) WHERE observation_uid = ?";
+     */
     @Query("SELECT data FROM ObservationReason data WHERE data.observationUid = :uid")
     Collection<ObservationReason> findRecordsById(@Param("uid") Long uid);
 }

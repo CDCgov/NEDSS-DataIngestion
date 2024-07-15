@@ -3,13 +3,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.material;
 import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ManufacturedMaterialId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Manufactured_material")
-@Data
+@Getter
+@Setter
 @IdClass(ManufacturedMaterialId.class)
 public class ManufacturedMaterial {
     private static final long serialVersionUID = 1L;

@@ -45,6 +45,8 @@ import static org.mockito.Mockito.*;
 
 class PamServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private IInvestigationService investigationService;
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
@@ -68,8 +70,6 @@ class PamServiceTests {
     private PatientMatchingBaseService patientMatchingBaseService;
     @InjectMocks
     private PamService pamService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -80,12 +80,12 @@ class PamServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(investigationService,patientRepositoryUtil, prepareAssocModelHelper,
+        Mockito.reset(investigationService, patientRepositoryUtil, prepareAssocModelHelper,
                 retrieveSummaryService, publicHealthCaseService, uidService,
                 participationRepositoryUtil, actRelationshipRepositoryUtil,
                 nbsNoteRepositoryUtil, answerService, patientMatchingBaseService, authUtil);
@@ -189,7 +189,7 @@ class PamServiceTests {
         when(patientRepositoryUtil.loadPerson(101L))
                 .thenReturn(perConn);
 
-        when(patientMatchingBaseService.setPatientRevision(any(), eq( NEDSSConstant.PAT_CR), eq( NEDSSConstant.PAT)))
+        when(patientMatchingBaseService.setPatientRevision(any(), eq(NEDSSConstant.PAT_CR), eq(NEDSSConstant.PAT)))
                 .thenReturn(20L);
         var patObj = new Person();
         patObj.setPersonParentUid(201L);
@@ -201,7 +201,7 @@ class PamServiceTests {
                 eq("INV_CR"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"), eq(1)))
                 .thenReturn(phcDt);
 
-        var res = pamService.setPamProxyWithAutoAssoc(pamProxyVO, observationUid,  observationTypeCd);
+        var res = pamService.setPamProxyWithAutoAssoc(pamProxyVO, observationUid, observationTypeCd);
 
         assertNotNull(res);
         assertEquals(0, res);
@@ -301,7 +301,7 @@ class PamServiceTests {
         pamProxyVO.setTheParticipationDTCollection(patCol);
 
 
-        when(patientMatchingBaseService.setPatientRevision(any(), eq( NEDSSConstant.PAT_CR), eq( NEDSSConstant.PAT)))
+        when(patientMatchingBaseService.setPatientRevision(any(), eq(NEDSSConstant.PAT_CR), eq(NEDSSConstant.PAT)))
                 .thenReturn(20L);
         var patObj = new Person();
         patObj.setPersonParentUid(201L);
@@ -313,7 +313,7 @@ class PamServiceTests {
                 eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"), eq(1)))
                 .thenReturn(phcDt);
 
-        var res = pamService.setPamProxyWithAutoAssoc(pamProxyVO, observationUid,  observationTypeCd);
+        var res = pamService.setPamProxyWithAutoAssoc(pamProxyVO, observationUid, observationTypeCd);
 
         assertNotNull(res);
         assertEquals(0, res);
@@ -339,7 +339,7 @@ class PamServiceTests {
         pamProxyVO.setPublicHealthCaseContainer(phcConn);
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            pamService.setPamProxyWithAutoAssoc(pamProxyVO, observationUid,  observationTypeCd);
+            pamService.setPamProxyWithAutoAssoc(pamProxyVO, observationUid, observationTypeCd);
         });
 
         assertNotNull(thrown.getMessage());
@@ -349,7 +349,7 @@ class PamServiceTests {
     void insertPamVO_Success() throws DataProcessingException {
         BasePamContainer pamVO = new BasePamContainer();
         var mapAnswer = new HashMap<>();
-        mapAnswer.put("1","1");
+        mapAnswer.put("1", "1");
         pamVO.setPamAnswerDTMap(mapAnswer);
         pamVO.setPageRepeatingAnswerDTMap(mapAnswer);
         PublicHealthCaseContainer publichHealthCaseVO = new PublicHealthCaseContainer();

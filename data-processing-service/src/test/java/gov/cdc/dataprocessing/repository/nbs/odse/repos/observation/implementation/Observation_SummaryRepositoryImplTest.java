@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+
 class Observation_SummaryRepositoryImplTest {
     @Mock
     private EntityManager entityManager;
@@ -38,7 +39,6 @@ class Observation_SummaryRepositoryImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-
 
 
     @Test

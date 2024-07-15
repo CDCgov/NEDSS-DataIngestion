@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EDXDocumentDto extends BaseContainer {
     private Long eDXDocumentUid;
     private Long actUid;
@@ -35,9 +36,9 @@ public class EDXDocumentDto extends BaseContainer {
     private String viewLink;
 
     public EDXDocumentDto() {
-           itDirty = false;
-           itNew = false;
-           itDelete = false;
+        itDirty = false;
+        itNew = false;
+        itDelete = false;
     }
 
     public EDXDocumentDto(EdxDocument domain) {

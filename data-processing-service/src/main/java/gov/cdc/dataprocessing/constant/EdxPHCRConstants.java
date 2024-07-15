@@ -33,7 +33,7 @@ public class EdxPHCRConstants {
     public static final String DET_MSG_NO_CONDITION = " is not a condition in NBS.  Program Area cannot be derived.";
     public static final String DET_MSG_NOT_AUTH_1 = "User ";
     public static final String DET_MSG_NOT_AUTH_2 = " is not authorized to autocreate ";
-    public static final String DET_MSG_UPDATE_DOCUMENT= " marked as an Update to ";
+    public static final String DET_MSG_UPDATE_DOCUMENT = " marked as an Update to ";
     public static final String SUM_MSG_INVESTIGATION_CREATE_FAIL_1 = "At least one existing investigation for ";
     public static final String SUM_MSG_INVESTIGATION_OPEN = "At least one existing open investigation for ";
     public static final String SUM_MSG_INVESTIGATION_CLOSED = "At least one existing closed investigation for ";
@@ -43,12 +43,11 @@ public class EdxPHCRConstants {
     public static final String SUM_MSG_INVESTIGATION_CREATE_FAIL_2 = " was found.  Document logged in Documents Requiring Review queue.";
     public static final String SUM_MSG_INVESTIGATION_UPDATE_2 = " was found. Updated the most recent investigation ";
     public static final String SUM_MSG_INVESTIGATION_UPDATE_3 = " was found. Document marked as reviewed ";
-    public static final String EXISTING_INV_FOUND="At least one existing Investigation(s) found for ";
+    public static final String EXISTING_INV_FOUND = "At least one existing Investigation(s) found for ";
     public static final String DET_MSG_INTERVIEW_SUCCESS = "Interview created ";
     public static final String DET_MSG_INTERVIEW_FAIL = "Failed to create interview";
     public static final String DET_MSG_CONTACT_RECORD_SUCCESS = "Contact Record created ";
     public static final String DET_MSG_CONTACT_RECORD_FAIL = "Failed to create contact record";
-
 
 
     public static final String INV_STR = "Investigation";
@@ -57,6 +56,7 @@ public class EdxPHCRConstants {
     public static final int MAX_DETAIL_COMMENT_LEN = 1997;
 
     public enum MSG_TYPE {
-        Investigation, Document, Patient, Notification, Jurisdiction, Algorithm, NBS_System, Provider, Organization, Interview, ContactRecord,Place,
-    };
+        Investigation, Document, Patient, Notification, Jurisdiction, Algorithm, NBS_System, Provider, Organization, Interview, ContactRecord, Place,
+    }
+
 }

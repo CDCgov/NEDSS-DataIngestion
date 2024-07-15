@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 class ParticipationStoredProcRepositoryTest {
 
     @Mock
@@ -33,7 +34,7 @@ class ParticipationStoredProcRepositoryTest {
 
     @SuppressWarnings("java:S5961")
     @Test
-    void testInsertParticipation()  {
+    void testInsertParticipation() {
         ParticipationDto participationDto = new ParticipationDto();
         participationDto.setSubjectEntityUid(1L);
         participationDto.setActUid(2L);

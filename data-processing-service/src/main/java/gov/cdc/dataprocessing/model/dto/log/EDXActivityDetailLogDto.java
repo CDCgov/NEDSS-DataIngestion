@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EDXActivityDetailLogDto extends BaseContainer implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long edxActivityDetailLogUid;
@@ -20,7 +21,6 @@ public class EDXActivityDetailLogDto extends BaseContainer implements Serializab
     private String comment;
     private String logTypeHtml;
     private String commentHtml;
-
 
 
     private Long lastChgUserId;

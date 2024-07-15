@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Table(name = "EDX_activity_log")
 public class EdxActivityLog {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "edx_activity_log_uid", nullable = false)
     private Long id;
 

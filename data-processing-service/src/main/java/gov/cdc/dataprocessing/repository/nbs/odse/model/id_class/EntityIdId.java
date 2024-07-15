@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EntityIdId implements Serializable {
     private Long entityUid;
     private Integer entityIdSeq;

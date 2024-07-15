@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ActivityLocatorParticipationDto extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private Long actUid;

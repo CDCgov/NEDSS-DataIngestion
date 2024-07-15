@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LabTestLoincRepository  extends JpaRepository<LabTestLoinc, String> {
+public interface LabTestLoincRepository extends JpaRepository<LabTestLoinc, String> {
     @Query(value = "SELECT lr.loincCd FROM LabTestLoinc lr WHERE lr.laboratoryId = :laboratoryId AND lr.labTestCd = :labTestCd")
     Optional<List<String>> findLoincCds(@Param("laboratoryId") String laboratoryId, @Param("labTestCd") String labTestCd);
 }

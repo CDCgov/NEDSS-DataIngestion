@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EDXActivityLogDto extends BaseContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -36,7 +37,7 @@ public class EDXActivityLogDto extends BaseContainer implements Serializable {
     private Collection<EDXActivityDetailLogDto> EDXActivityLogDTWithVocabDetails;
     private Collection<Object> EDXActivityLogDTWithQuesDetails;
     private Collection<EDXActivityDetailLogDto> EDXActivityLogDTDetails = new ArrayList();
-    private Map<Object,Object> newaddedCodeSets = new HashMap<Object,Object>();
+    private Map<Object, Object> newaddedCodeSets = new HashMap<Object, Object>();
     private boolean logDetailAllStatus = false;
     private String algorithmAction;
     private String actionId;

@@ -27,7 +27,7 @@ public class RoleService implements IRoleService {
         Collection<RoleDto> roleDtoCollection = new ArrayList<>();
         var result = roleRepository.findRoleScopedToPatient(uid);
         if (result.isPresent()) {
-            for(var item: result.get()) {
+            for (var item : result.get()) {
                 var elem = new RoleDto(item);
                 elem.setItNew(false);
                 elem.setItDirty(false);
@@ -42,7 +42,7 @@ public class RoleService implements IRoleService {
     @Transactional
     public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
         try {
-            if(roleDTColl == null || roleDTColl.isEmpty()) return;
+            if (roleDTColl == null || roleDTColl.isEmpty()) return;
 
             for (RoleDto roleDT : roleDTColl) {
                 if (roleDT == null) {
@@ -58,14 +58,12 @@ public class RoleService implements IRoleService {
     }
 
 
-
     @Transactional
     public void saveRole(RoleDto roleDto) {
         if (roleDto.isItNew() || roleDto.isItDirty()) {
             var data = new Role(roleDto);
             roleRepository.save(data);
-        }
-        else if (roleDto.isItDelete()) {
+        } else if (roleDto.isItDelete()) {
             removeRole(roleDto);
         }
     }

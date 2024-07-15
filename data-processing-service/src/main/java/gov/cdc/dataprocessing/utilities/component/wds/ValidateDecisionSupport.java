@@ -37,9 +37,42 @@ public class ValidateDecisionSupport {
         this.edxPHCRDocumentUtil = edxPHCRDocumentUtil;
     }
 
-    public void processNbsObject(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData){
+    public static void setMethod(Object nbsObject, Method setMethod, EdxRuleManageDto edxRuleManageDT) {
+        try {
+            Class<?>[] parameterArray = setMethod.getParameterTypes();
+            for (Object object : parameterArray) {
+                if (object.toString().equalsIgnoreCase("class java.math.BigDecimal")) {
+                    if (edxRuleManageDT.getDefaultNumericValue() != null)
+                        setMethod.invoke(nbsObject, new BigDecimal(edxRuleManageDT.getDefaultNumericValue()));
+                    else
+                        setMethod.invoke(nbsObject, new BigDecimal(edxRuleManageDT.getDefaultStringValue()));
+                } else if (object.toString().equalsIgnoreCase("class java.lang.String")) {
+                    if (edxRuleManageDT.getDefaultStringValue() != null && !edxRuleManageDT.getDefaultStringValue().trim().equals(""))
+                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
+                    else if (edxRuleManageDT.getDefaultCommentValue() != null && !edxRuleManageDT.getDefaultCommentValue().trim().equals(""))
+                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultCommentValue());
+                } else if (object.toString().equalsIgnoreCase("class java.sql.Timestamp")) {
+                    setMethod.invoke(nbsObject, StringUtils.stringToStrutsTimestamp(edxRuleManageDT.getDefaultStringValue()));
+                } else if (object.toString().equalsIgnoreCase("class java.lang.Integer")) {
+                    if (edxRuleManageDT.getDefaultNumericValue() != null)
+                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultNumericValue());
+                    else
+                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
+                } else if (object.toString().equalsIgnoreCase("class java.lang.Long")) {
+                    if (edxRuleManageDT.getDefaultNumericValue() != null)
+                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultNumericValue());
+                    else
+                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void processNbsObject(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
-        processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, publicHealthCaseDto, metaData);
+        processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, publicHealthCaseDto, metaData);
     }
 
     public void processNBSObjectDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, Object object, NbsQuestionMetadata metaData) {
@@ -59,7 +92,7 @@ public class ValidateDecisionSupport {
          */
 
         String getMethodName = dataLocation.replaceAll("_", "");
-        getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1, getMethodName.length());
+        getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1);
 
         Class<?> phcClass = object.getClass();
         try {
@@ -70,7 +103,7 @@ public class ValidateDecisionSupport {
 
                     Method setMethod = null;
                     if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT) || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
-                        setMethod = phcClass.getMethod(setMethodName, new String().getClass());
+                        setMethod = phcClass.getMethod(setMethodName, "".getClass());
 
                     } else if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_DATETIME) || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.DATETIME_DATATYPE)
                             || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_DATE)) {
@@ -96,7 +129,7 @@ public class ValidateDecisionSupport {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } 
+        }
 
 
     }
@@ -111,12 +144,11 @@ public class ValidateDecisionSupport {
             isOverwrite = false;
         }
         String value = edxRuleManageDT.getDefaultStringValue();
-        if(value!=null && value.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
-        {
-            value=new SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().getTime());
+        if (value != null && value.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE)) {
+            value = new SimpleDateFormat("MM/dd/yyyy").format(Calendar.getInstance().getTime());
         }
         edxRuleManageDT.setDefaultStringValue(value);
-        Map<Object,Object> answerMap = pamVO.getPamAnswerDTMap();
+        Map<Object, Object> answerMap = pamVO.getPamAnswerDTMap();
         if (isOverwrite) {
             Collection<Object> list = new ArrayList<>();
             if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) // NOSONAR
@@ -156,9 +188,7 @@ public class ValidateDecisionSupport {
                 edxPHCRDocumentUtil.setStandardNBSCaseAnswerVals(publicHealthCaseContainer, nbsAnswerDT);
                 answerMap.put(metaData.getQuestionIdentifier(), nbsAnswerDT);
             }
-        }
-        else
-        {
+        } else {
             if (pamVO.getPamAnswerDTMap().get(metaData.getQuestionIdentifier()) == null) {
                 Collection<Object> list = new ArrayList<>();
                 if (metaData.getNbsUiComponentUid().compareTo(1013L) == 0) //NOSONAR
@@ -202,8 +232,9 @@ public class ValidateDecisionSupport {
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
+
     @SuppressWarnings("java:S6541")
-    public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
+    public void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
@@ -232,7 +263,7 @@ public class ValidateDecisionSupport {
                             Timestamp time;
 
                             while (cofirmIt.hasNext()) {
-                                ConfirmationMethodDto confirmDTTime =  cofirmIt.next();
+                                ConfirmationMethodDto confirmDTTime = cofirmIt.next();
                                 if (confirmDTTime.getConfirmationMethodTime() != null) {
                                     time = confirmDTTime.getConfirmationMethodTime();
                                     confirmDT.setConfirmationMethodTime(time);
@@ -276,7 +307,7 @@ public class ValidateDecisionSupport {
                         Iterator<ConfirmationMethodDto> cofirmIt = confirmColl.iterator();
                         boolean matchFound = false;
                         while (cofirmIt.hasNext()) {
-                            ConfirmationMethodDto confirmDT =  cofirmIt.next();
+                            ConfirmationMethodDto confirmDT = cofirmIt.next();
                             if (confirmDT.getConfirmationMethodTime() != null)
                                 time = confirmDT.getConfirmationMethodTime();
                             if (confirmDT.getConfirmationMethodCd() == null || confirmDT.getConfirmationMethodCd().trim().equals("")) {
@@ -305,39 +336,6 @@ public class ValidateDecisionSupport {
         }
     }
 
-
-    public static void setMethod(Object nbsObject, Method setMethod, EdxRuleManageDto edxRuleManageDT) {
-        try {
-            Class<?>[] parameterArray = setMethod.getParameterTypes();
-            for (Object object : parameterArray) {
-                if (object.toString().equalsIgnoreCase("class java.math.BigDecimal")) {
-                    if (edxRuleManageDT.getDefaultNumericValue() != null)
-                        setMethod.invoke(nbsObject, new BigDecimal(edxRuleManageDT.getDefaultNumericValue()));
-                    else
-                        setMethod.invoke(nbsObject, new BigDecimal(edxRuleManageDT.getDefaultStringValue()));
-                } else if (object.toString().equalsIgnoreCase("class java.lang.String")) {
-                    if (edxRuleManageDT.getDefaultStringValue() != null && !edxRuleManageDT.getDefaultStringValue().trim().equals(""))
-                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
-                    else if (edxRuleManageDT.getDefaultCommentValue() != null && !edxRuleManageDT.getDefaultCommentValue().trim().equals(""))
-                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultCommentValue());
-                } else if (object.toString().equalsIgnoreCase("class java.sql.Timestamp")) {
-                    setMethod.invoke(nbsObject, StringUtils.stringToStrutsTimestamp(edxRuleManageDT.getDefaultStringValue()));
-                } else if (object.toString().equalsIgnoreCase("class java.lang.Integer")) {
-                    if (edxRuleManageDT.getDefaultNumericValue() != null)
-                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultNumericValue());
-                    else
-                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
-                } else if (object.toString().equalsIgnoreCase("class java.lang.Long")) {
-                    if (edxRuleManageDT.getDefaultNumericValue() != null)
-                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultNumericValue());
-                    else
-                        setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     @SuppressWarnings({"java:S3776", "java:S6541"})
     public PublicHealthCaseContainer processConfirmationMethodTimeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) throws DataProcessingException {
         String behavior = edxRuleManageDT.getBehavior();
@@ -349,9 +347,8 @@ public class ValidateDecisionSupport {
         }
         String time = edxRuleManageDT.getDefaultStringValue();
         //If the date selected is current date, the date is translated to MM/dd/yyyy
-        if(time!=null && time.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
-        {
-            time= TimeStampUtil.convertTimestampToString();
+        if (time != null && time.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE)) {
+            time = TimeStampUtil.convertTimestampToString();
         }
 
         if (isOverwrite) {
@@ -373,13 +370,13 @@ public class ValidateDecisionSupport {
 
                 //check previous code entered:
                 Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseContainer.getTheConfirmationMethodDTCollection();
-                if(confirmColl!=null){
+                if (confirmColl != null) {
                     Iterator<ConfirmationMethodDto> cofirmIt = confirmColl.iterator();
                     String code;
 
                     while (cofirmIt.hasNext()) {
-                        ConfirmationMethodDto confirmDTCode =  cofirmIt.next();
-                        if (confirmDTCode.getConfirmationMethodCd() != null){
+                        ConfirmationMethodDto confirmDTCode = cofirmIt.next();
+                        if (confirmDTCode.getConfirmationMethodCd() != null) {
                             code = confirmDTCode.getConfirmationMethodCd();
                             confirmDT.setConfirmationMethodCd(code);
                             break;
@@ -421,19 +418,19 @@ public class ValidateDecisionSupport {
         return publicHealthCaseContainer;
     }
 
-    public void processNBSCaseManagementDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData){
+    public void processNBSCaseManagementDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         if (publicHealthCaseContainer.getTheCaseManagementDto() != null) {
             CaseManagementDto caseManagementDto = publicHealthCaseContainer.getTheCaseManagementDto();
             caseManagementDto.setCaseManagementDTPopulated(true);
-            processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, caseManagementDto, metaData);
+            processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, caseManagementDto, metaData);
         }
     }
 
-    public void processConfirmationMethodCodeDTRequired(PublicHealthCaseContainer publicHealthCaseContainer){
+    public void processConfirmationMethodCodeDTRequired(PublicHealthCaseContainer publicHealthCaseContainer) {
 
         Collection<ConfirmationMethodDto> confirmColl = publicHealthCaseContainer.getTheConfirmationMethodDTCollection();
 
-        if(confirmColl!=null){
+        if (confirmColl != null) {
 
             for (ConfirmationMethodDto confirmDT : confirmColl) {
                 if (confirmDT.getConfirmationMethodCd() == null && confirmDT.getConfirmationMethodTime() != null) {
@@ -488,7 +485,6 @@ public class ValidateDecisionSupport {
     }
 
 
-
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
                               PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
@@ -502,7 +498,7 @@ public class ValidateDecisionSupport {
                 .getTheActIdDTCollection();
         if (actIdColl != null && actIdColl.size() > 0) {
             Iterator<ActIdDto> ite = actIdColl.iterator();
-            ActIdDto actIdDT =  ite.next();
+            ActIdDto actIdDT = ite.next();
             if (actIdDT.getTypeCd() != null
                     && actIdDT.getTypeCd().equalsIgnoreCase(
                     NEDSSConstant.ACT_ID_STATE_TYPE_CD)
@@ -534,8 +530,7 @@ public class ValidateDecisionSupport {
     protected void getCurrentDateValue(EdxRuleManageDto edxRuleManageDT) {
         if (edxRuleManageDT.getDefaultStringValue() != null
                 && edxRuleManageDT.getDefaultStringValue().equals(
-                NEDSSConstant.USE_CURRENT_DATE))
-        {
+                NEDSSConstant.USE_CURRENT_DATE)) {
             edxRuleManageDT.setDefaultStringValue(StringUtils
                     .formatDate(new Timestamp((new Date()).getTime())));
         }

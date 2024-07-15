@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class StateDefinedFieldDataDto extends BaseContainer
-{
+@SuppressWarnings("all")
+public class StateDefinedFieldDataDto extends BaseContainer {
     private Long ldfUid;
     private String businessObjNm;
     private Timestamp addTime;

@@ -32,12 +32,13 @@ public class TimeStampUtil {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         return sdf.format(timestamp);
     }
+
     public static Timestamp convertStringToTimestamp(String timestampString) throws DataProcessingException {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             java.util.Date parsedDate = sdf.parse(timestampString);
             return new Timestamp(parsedDate.getTime());
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
         }
 

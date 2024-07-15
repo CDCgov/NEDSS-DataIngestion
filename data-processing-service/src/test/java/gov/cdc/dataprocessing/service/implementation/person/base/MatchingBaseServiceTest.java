@@ -30,6 +30,8 @@ import static org.mockito.Mockito.*;
 
 class MatchingBaseServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
     @Mock
     private EntityHelper entityHelper;
@@ -43,7 +45,9 @@ class MatchingBaseServiceTest {
     @Spy
     private MatchingBaseService matchingBaseService;
     @Mock
-    AuthUtil authUtil;
+    private PersonContainer personContainer;
+    @Mock
+    private Coded coded;
 
     @BeforeEach
     void setUp() {
@@ -54,16 +58,12 @@ class MatchingBaseServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
-    @Mock
-    private PersonContainer personContainer;
-    @Mock
-    private Coded coded;
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(edxPatientMatchRepositoryUtil, coded, entityHelper,patientRepositoryUtil,cachingValueService,prepareAssocModelHelper, personContainer, authUtil);
+        Mockito.reset(edxPatientMatchRepositoryUtil, coded, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper, personContainer, authUtil);
     }
 
 
@@ -78,7 +78,7 @@ class MatchingBaseServiceTest {
 
     @Test
     void testGetIdentifier_EmptyEntityIdDtoCollection() throws DataProcessingException {
-        when(personContainer.getTheEntityIdDtoCollection()).thenReturn(Arrays.asList());
+        when(personContainer.getTheEntityIdDtoCollection()).thenReturn(List.of());
 
         List<String> identifiers = matchingBaseService.getIdentifier(personContainer);
 
@@ -103,7 +103,7 @@ class MatchingBaseServiceTest {
     }
 
     @Test
-    void getIdentifier_Test_2()  {
+    void getIdentifier_Test_2() {
         when(personContainer.getTheEntityIdDtoCollection()).thenThrow(new RuntimeException());
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {

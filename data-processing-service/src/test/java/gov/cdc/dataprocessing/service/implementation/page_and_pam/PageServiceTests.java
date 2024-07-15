@@ -26,13 +26,13 @@ import static org.mockito.Mockito.when;
 
 class PageServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private IInvestigationService investigationService;
     @Mock
     private PageRepositoryUtil pageRepositoryUtil;
     @InjectMocks
     private PageService pageService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -43,12 +43,12 @@ class PageServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(investigationService, pageRepositoryUtil , authUtil);
+        Mockito.reset(investigationService, pageRepositoryUtil, authUtil);
     }
 
 
@@ -73,7 +73,7 @@ class PageServiceTests {
         var test = pageService.setPageProxyWithAutoAssoc(typeCd, pageProxyVO, observationUid, observationTypeCd, processingDecision);
 
         assertNotNull(test);
-        assertEquals(11L , test);
+        assertEquals(11L, test);
 
     }
 
@@ -97,7 +97,7 @@ class PageServiceTests {
         var test = pageService.setPageProxyWithAutoAssoc(typeCd, pageProxyVO, observationUid, observationTypeCd, processingDecision);
 
         assertNotNull(test);
-        assertEquals(11L , test);
+        assertEquals(11L, test);
 
     }
 }

@@ -63,45 +63,48 @@ class ProviderMatchingServiceTest {
 
     @Test
     void getMatchingProvider_local_id_entityMatch() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.setLocalIdentifier("123");
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
         edxEntityMatchingDT.setEntityUid(123L);
         edxEntityMatchingDT.setTypeCd("TYPE_CD");
         edxEntityMatchingDT.setMatchString("MATCH_STRING");
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(edxEntityMatchingDT.getEntityUid()),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(edxEntityMatchingDT.getEntityUid()), edxActivityDetailLogDtoResult.getRecordId());
     }
+
     @Test
     void getMatchingProvider_local_id_with_entityMatch_null_throw_exp() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.setLocalIdentifier("123");
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
         assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
+
     @Test
     void getMatchingProvider_local_id_throws_exp() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.setLocalIdentifier("123");
 
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
+
     @Test
     void getMatchingProvider_entityMatch_Identifier() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
 
         //for getIdentifier
-        EntityIdDto entityIdDto=new EntityIdDto();
+        EntityIdDto entityIdDto = new EntityIdDto();
         entityIdDto.setEntityIdSeq(1);
         entityIdDto.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
@@ -113,7 +116,7 @@ class ProviderMatchingServiceTest {
         entityIdDto.setAssigningAuthorityIdType("TEST");
         personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
@@ -121,24 +124,25 @@ class ProviderMatchingServiceTest {
         personNameDto.setFirstNm("TEST_FIRST_NM");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
         edxEntityMatchingDT.setEntityUid(123L);
         edxEntityMatchingDT.setTypeCd("TYPE_CD");
         edxEntityMatchingDT.setMatchString("MATCH_STRING");
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
+
     @Test
     void getMatchingProvider_entityMatch_Identifier_thorws_exp() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
 
         //for getIdentifier
-        EntityIdDto entityIdDto=new EntityIdDto();
+        EntityIdDto entityIdDto = new EntityIdDto();
         entityIdDto.setEntityIdSeq(1);
         entityIdDto.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
@@ -150,7 +154,7 @@ class ProviderMatchingServiceTest {
         entityIdDto.setAssigningAuthorityIdType("TEST");
         personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
@@ -161,15 +165,16 @@ class ProviderMatchingServiceTest {
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
+
     @Test
     void getMatchingProvider_entityMatch_Identifier_null_edxentity() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
 
         //for getIdentifier
-        EntityIdDto entityIdDto=new EntityIdDto();
+        EntityIdDto entityIdDto = new EntityIdDto();
         entityIdDto.setEntityIdSeq(1);
         entityIdDto.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
@@ -181,7 +186,7 @@ class ProviderMatchingServiceTest {
         entityIdDto.setAssigningAuthorityIdType("TEST");
         personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
@@ -189,15 +194,16 @@ class ProviderMatchingServiceTest {
         personNameDto.setFirstNm("TEST_FIRST_NM");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
+
     @Test
     void getMatchingProvider_name_addr() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
@@ -222,18 +228,19 @@ class ProviderMatchingServiceTest {
         entLocPartDT.setThePostalLocatorDto(postLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
         edxEntityMatchingDT.setEntityUid(123L);
         edxEntityMatchingDT.setTypeCd("TYPE_CD");
         edxEntityMatchingDT.setMatchString("MATCH_STRING");
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
+
     @Test
     void getMatchingProvider_name_addr_with_empty_entity() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
@@ -253,16 +260,16 @@ class ProviderMatchingServiceTest {
         entLocPartDT.setThePostalLocatorDto(postLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
 
     @Test
     void getMatchingProvider_name_addr_throws_exp() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
@@ -285,9 +292,10 @@ class ProviderMatchingServiceTest {
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
+
     @Test
     void getMatchingProvider_telephone() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
@@ -306,17 +314,18 @@ class ProviderMatchingServiceTest {
         entLocPartDT.setTheTeleLocatorDto(teleLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
         edxEntityMatchingDT.setEntityUid(123L);
         edxEntityMatchingDT.setTypeCd("TYPE_CD");
         edxEntityMatchingDT.setMatchString("MATCH_STRING");
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
+
     @Test
     void getMatchingProvider_telephone_empty_entity() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
@@ -332,17 +341,17 @@ class ProviderMatchingServiceTest {
         entLocPartDT.setTheTeleLocatorDto(teleLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto();
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
 
     @Test
     void getMatchingProvider_telephone_throws_exp() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
 
         personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
@@ -361,20 +370,22 @@ class ProviderMatchingServiceTest {
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
+
     @Test
     void getMatchingProvider_provider() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        EDXActivityDetailLogDto edxActivityDetailLogDtoResult = providerMatchingService.getMatchingProvider(personContainer);
+        assertEquals(String.valueOf(123L), edxActivityDetailLogDtoResult.getRecordId());
     }
+
     @Test
     void setProvider() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
-        Long idResult=providerMatchingService.setProvider(personContainer,"TEST");
-        assertEquals(123L,idResult);
+        Long idResult = providerMatchingService.setProvider(personContainer, "TEST");
+        assertEquals(123L, idResult);
     }
 }

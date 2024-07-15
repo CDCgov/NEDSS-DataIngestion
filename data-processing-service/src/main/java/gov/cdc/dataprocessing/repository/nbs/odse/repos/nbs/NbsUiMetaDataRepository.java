@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface NbsUiMetaDataRepository  extends JpaRepository<NbsUiMetaData, Long> {
+public interface NbsUiMetaDataRepository extends JpaRepository<NbsUiMetaData, Long> {
     @Query(value = ComplexQueries.DMB_QUESTION_OID_METADATA_SQL, nativeQuery = true)
     Optional<List<NbsUiMetaData>> findDmbQuestionMetaData();
 

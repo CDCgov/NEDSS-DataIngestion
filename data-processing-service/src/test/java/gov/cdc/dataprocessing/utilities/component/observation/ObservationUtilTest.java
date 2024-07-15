@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ObservationUtilTest {
-    @InjectMocks
-    private ObservationUtil observationUtil;
     @Mock
     AuthUtil authUtil;
+    @InjectMocks
+    private ObservationUtil observationUtil;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +38,7 @@ class ObservationUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -126,7 +126,6 @@ class ObservationUtilTest {
     }
 
 
-
     @Test
     void getRootObservationDto_Test() throws DataProcessingException {
         LabResultProxyContainer baseContainer = new LabResultProxyContainer();
@@ -183,7 +182,7 @@ class ObservationUtilTest {
     }
 
     @Test
-    void getRootObservationDto_Test_4()   {
+    void getRootObservationDto_Test_4() {
         BaseContainer baseContainer = new BaseContainer();
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             observationUtil.getRootObservationContainer(baseContainer);

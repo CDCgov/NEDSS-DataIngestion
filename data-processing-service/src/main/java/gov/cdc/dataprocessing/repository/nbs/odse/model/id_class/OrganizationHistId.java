@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class OrganizationHistId implements Serializable {
     private Long organizationUid;
     private int versionCtrlNbr;

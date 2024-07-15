@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonEthnicGroupId implements Serializable {
     private Long personUid;
     private String ethnicGroupCd;

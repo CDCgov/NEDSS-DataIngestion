@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PostalLocatorDto extends BaseContainer {
     private Long postalLocatorUid;
     private String addReasonCd;

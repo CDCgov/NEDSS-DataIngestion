@@ -9,7 +9,8 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class NonPersonLivingSubjectContainer  extends BaseContainer {
+@SuppressWarnings("all")
+public class NonPersonLivingSubjectContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     //   private Boolean itDirty = false; // defined in AbstractVO
 //   private Boolean itNew = true; // defined in AbstractVO

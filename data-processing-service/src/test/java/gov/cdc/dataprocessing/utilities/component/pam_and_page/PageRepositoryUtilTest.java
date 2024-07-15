@@ -59,6 +59,8 @@ import static org.mockito.Mockito.*;
 
 class PageRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private IInvestigationService investigationService;
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
@@ -88,14 +90,10 @@ class PageRepositoryUtilTest {
     private IPamService pamService;
     @Mock
     private PatientMatchingBaseService patientMatchingBaseService;
-    
     @InjectMocks
     private PageRepositoryUtil pageRepositoryUtil;
-
     @Mock
     private PageActProxyContainer pageActProxyContainerMock;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -107,12 +105,12 @@ class PageRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(investigationService, patientRepositoryUtil,uidService, pamRepositoryUtil, prepareAssocModelHelper,
+        Mockito.reset(investigationService, patientRepositoryUtil, uidService, pamRepositoryUtil, prepareAssocModelHelper,
                 publicHealthCaseService, retrieveSummaryService, actRelationshipRepositoryUtil, edxEventProcessRepositoryUtil,
                 nbsDocumentRepositoryUtil, participationRepositoryUtil, nbsNoteRepositoryUtil,
                 customRepository, pamService, patientMatchingBaseService, authUtil,
@@ -140,7 +138,7 @@ class PageRepositoryUtilTest {
     }
 
     @Test
-    void setPageActProxyVO_Test_Exp_2()  {
+    void setPageActProxyVO_Test_Exp_2() {
 
         var phc = new PublicHealthCaseContainer();
         var phcDt = new PublicHealthCaseDto();
@@ -193,7 +191,7 @@ class PageRepositoryUtilTest {
         phc.setCoinfectionCondition(true);
         phc.setNbsAnswerCollection(new ArrayList<>());
 
-        var caseMgDt=  new CaseManagementDto();
+        var caseMgDt = new CaseManagementDto();
         phc.setTheCaseManagementDto(caseMgDt);
         var actCol = new ArrayList<ActRelationshipDto>();
         var act = new ActRelationshipDto();
@@ -246,7 +244,7 @@ class PageRepositoryUtilTest {
         perCon.setItNew(true);
         perCon.setItDirty(false);
         perConArr.add(perCon);
-        var prvDt =  SerializationUtils.clone(perDt);
+        var prvDt = SerializationUtils.clone(perDt);
         prvDt.setPersonParentUid(12L);
         prvDt.setPersonUid(12L);
         when(patientRepositoryUtil.createPerson(any())).thenReturn(new Person(prvDt));
@@ -259,7 +257,7 @@ class PageRepositoryUtilTest {
         perCon.setItNew(false);
         perCon.setItDirty(true);
         perConArr.add(perCon);
-        when(patientMatchingBaseService.setPatientRevision(any(),eq(NEDSSConstant.PAT_EDIT), eq( NEDSSConstant.PAT))).thenReturn(13L);
+        when(patientMatchingBaseService.setPatientRevision(any(), eq(NEDSSConstant.PAT_EDIT), eq(NEDSSConstant.PAT))).thenReturn(13L);
         perCon = new PersonContainer();
         perDt = new PersonDto();
         perDt.setCd(NEDSSConstant.PRV);
@@ -272,11 +270,11 @@ class PageRepositoryUtilTest {
 
 
         // processingPhcContainerForPageAct
-        when(prepareAssocModelHelper.prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
+        when(prepareAssocModelHelper.prepareVO(any(), eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
                 eq(1))).thenReturn(phcDt);
         when(publicHealthCaseService.setPublicHealthCase(any())).thenReturn(1L);
 
-        Map<String, MessageLogDto > messageLogDTMap = new HashMap<>();
+        Map<String, MessageLogDto> messageLogDTMap = new HashMap<>();
         var msgLog = new MessageLogDto();
         messageLogDTMap.put(MessageConstants.DISPOSITION_SPECIFIED_KEY, msgLog);
         msgLog = new MessageLogDto();
@@ -336,7 +334,7 @@ class PageRepositoryUtilTest {
         when(customRepository.getInvListForCoInfectionId(11L, "1")).thenReturn(coInfecList);
 
         PageActProxyContainer pageActProxyContainer = new PageActProxyContainer();
-        Map<Object, Object>pamAsn = new HashMap<>();
+        Map<Object, Object> pamAsn = new HashMap<>();
         page.setPamAnswerDTMap(pamAsn);
         page.setPageRepeatingAnswerDTMap(pamAsn);
         pageActProxyContainer.setPageVO(page);
@@ -379,7 +377,7 @@ class PageRepositoryUtilTest {
         phc.setCoinfectionCondition(true);
         phc.setNbsAnswerCollection(new ArrayList<>());
 
-        var caseMgDt=  new CaseManagementDto();
+        var caseMgDt = new CaseManagementDto();
         caseMgDt.setEpiLinkId("EPI");
         phc.setTheCaseManagementDto(caseMgDt);
         var actCol = new ArrayList<ActRelationshipDto>();
@@ -400,12 +398,12 @@ class PageRepositoryUtilTest {
         pageActProxyContainer.setPublicHealthCaseContainer(phc);
         supersededProxyVO.setPublicHealthCaseContainer(phc);
 
-        Map<Object, Object>pamAsn = new HashMap<>();
+        Map<Object, Object> pamAsn = new HashMap<>();
         var nbsAns = new NbsCaseAnswerDto();
         nbsAns.setItDirty(false);
         nbsAns.setItDelete(false);
         nbsAns.setItNew(false);
-        pamAsn.put("TEST",nbsAns );
+        pamAsn.put("TEST", nbsAns);
         var arr = new ArrayList<>();
         arr.add(nbsAns);
         pamAsn.put("TEST-2", arr);
@@ -440,7 +438,7 @@ class PageRepositoryUtilTest {
         pageActProxyContainer1.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setInvestigationStatusCd(NEDSSConstant.STATUS_OPEN);
         when(investigationService.getPageProxyVO("CASE", 2L)).thenReturn(pageActProxyContainer1);
 
-        when(prepareAssocModelHelper.prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
+        when(prepareAssocModelHelper.prepareVO(any(), eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
                 eq(1))).thenReturn(phcDt);
 
 
@@ -456,7 +454,7 @@ class PageRepositoryUtilTest {
                 coinfectionSummaryVOCollection, coinfectionIdToUpdate);
 
         verify(investigationService, times(1)).getPageProxyVO("CASE", 2L);
-        verify(prepareAssocModelHelper, times(1)).prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
+        verify(prepareAssocModelHelper, times(1)).prepareVO(any(), eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
                 eq(1));
     }
 

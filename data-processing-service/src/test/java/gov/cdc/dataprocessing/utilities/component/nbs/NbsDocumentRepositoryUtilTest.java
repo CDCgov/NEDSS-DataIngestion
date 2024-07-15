@@ -32,6 +32,8 @@ import static org.mockito.Mockito.when;
 
 class NbsDocumentRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private CustomRepository customRepository;
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
@@ -41,14 +43,10 @@ class NbsDocumentRepositoryUtilTest {
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
     private NbsDocumentRepository nbsDocumentRepository;
-
     @Mock
     private NbsDocumentHistRepository nbsDocumentHistRepository;
     @InjectMocks
     private NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
-
     @Mock
     private NBSDocumentDto nbsDocumentDto;
 
@@ -62,13 +60,13 @@ class NbsDocumentRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(customRepository, patientRepositoryUtil,participationRepositoryUtil, prepareAssocModelHelper,
-                nbsDocumentRepository,nbsDocumentHistRepository,authUtil);
+        Mockito.reset(customRepository, patientRepositoryUtil, participationRepositoryUtil, prepareAssocModelHelper,
+                nbsDocumentRepository, nbsDocumentHistRepository, authUtil);
     }
 
     @Test
@@ -100,7 +98,7 @@ class NbsDocumentRepositoryUtilTest {
     void updateDocumentWithOutthePatient_Test() throws Exception {
         NbsDocumentContainer doc = new NbsDocumentContainer();
         doc.getNbsDocumentDT().setNbsDocumentMetadataUid(10L);
-        doc.getNbsDocumentDT().setRecordStatusCd( NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE);
+        doc.getNbsDocumentDT().setRecordStatusCd(NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE);
         doc.setFromSecurityQueue(true);
         when(customRepository.getNbsDocument(any())).thenReturn(new NbsDocumentContainer());
 

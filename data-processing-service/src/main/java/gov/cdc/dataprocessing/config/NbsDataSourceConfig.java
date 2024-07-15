@@ -28,16 +28,16 @@ import java.util.HashMap;
 )
 public class NbsDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
-    private String driverClassName;
+    protected String driverClassName;
 
     @Value("${spring.datasource.nbs.url}")
-    private String dbUrl;
+    protected String dbUrl;
 
     @Value("${spring.datasource.username}")
-    private String dbUserName;
+    protected String dbUserName;
 
     @Value("${spring.datasource.password}")
-    private String dbUserPassword;
+    protected String dbUserPassword;
 
     @Bean(name = "nbsDataSource")
     public DataSource nbsDataSource() {
@@ -59,7 +59,7 @@ public class NbsDataSourceConfig {
     @Bean(name = "nbsEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
             EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
-            @Qualifier("nbsDataSource") DataSource nbsDataSource ) {
+            @Qualifier("nbsDataSource") DataSource nbsDataSource) {
         return nbsEntityManagerFactoryBuilder
                 .dataSource(nbsDataSource)
                 .packages("gov.cdc.dataprocessing.repository.nbs.msgoute.model")
@@ -69,7 +69,7 @@ public class NbsDataSourceConfig {
 
     @Bean(name = "nbsTransactionManager")
     public PlatformTransactionManager nbsTransactionManager(
-            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
+            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory) {
         return new JpaTransactionManager(nbsEntityManagerFactory);
     }
 }

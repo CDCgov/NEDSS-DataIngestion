@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ExportReceivingFacilityDto extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private Timestamp addTime;
@@ -18,7 +19,7 @@ public class ExportReceivingFacilityDto extends BaseContainer {
     private Long exportReceivingFacilityUid;
     private String recordStatusCd;
     private String receivingSystemNm;
-    private String  receivingSystemOid;
+    private String receivingSystemOid;
     private String receivingSystemShortName;
     private String receivingSystemOwner;
     private String receivingSystemOwnerOid;

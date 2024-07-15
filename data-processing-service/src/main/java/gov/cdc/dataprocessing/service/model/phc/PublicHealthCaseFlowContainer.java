@@ -9,6 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PublicHealthCaseFlowContainer {
     LabResultProxyContainer labResultProxyContainer;
     EdxLabInformationDto edxLabInformationDto;

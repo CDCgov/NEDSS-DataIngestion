@@ -22,7 +22,7 @@ public class ConfirmationMethodRepositoryUtil {
         if (res.isEmpty()) {
             return new ArrayList<>();
         } else {
-            for(var item : res.get()) {
+            for (var item : res.get()) {
                 ConfirmationMethodDto data = new ConfirmationMethodDto(item);
                 lst.add(data);
             }

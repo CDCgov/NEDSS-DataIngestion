@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 
 
-
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
@@ -61,7 +60,7 @@ public class SrteDataSourceConfig {
     @Bean(name = "srteEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean srteEntityManagerFactory(
             EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder,
-            @Qualifier("srteDataSource") DataSource srteDataSource ) {
+            @Qualifier("srteDataSource") DataSource srteDataSource) {
         return srteEntityManagerFactoryBuilder
                 .dataSource(srteDataSource)
                 .packages("gov.cdc.dataprocessing.repository.nbs.srte.model")
@@ -71,7 +70,7 @@ public class SrteDataSourceConfig {
 
     @Bean(name = "srteTransactionManager")
     public PlatformTransactionManager srteTransactionManager(
-            @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory ) {
+            @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory) {
         return new JpaTransactionManager(srteEntityManagerFactory);
     }
 }

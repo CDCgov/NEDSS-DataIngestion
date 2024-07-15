@@ -70,7 +70,7 @@ class PatientMatchingServiceTest {
         edxPatientMatchFoundDT.setMultipleMatch(false);
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
         //call test method
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -111,7 +111,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -174,7 +174,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -224,7 +224,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -263,7 +263,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -302,7 +302,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult= patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -334,7 +334,7 @@ class PatientMatchingServiceTest {
     @Test
     void getMultipleMatchFound() {
         boolean multiMatchResult = patientMatchingService.getMultipleMatchFound();
-        assertEquals(false, multiMatchResult);
+        assertFalse(multiMatchResult);
     }
 
     @Test

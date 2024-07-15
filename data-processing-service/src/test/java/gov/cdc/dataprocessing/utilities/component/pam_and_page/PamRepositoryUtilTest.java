@@ -26,18 +26,17 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
+
 class PamRepositoryUtilTest {
 
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private NbsActEntityRepository nbsActEntityRepository;
-
     @Mock
     private NbsCaseAnswerRepository nbsCaseAnswerRepository;
-
     @InjectMocks
     private PamRepositoryUtil pamRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +47,7 @@ class PamRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -80,7 +79,7 @@ class PamRepositoryUtilTest {
 
 
     @Test
-    void getPamHistory_Test_Exp_1()  {
+    void getPamHistory_Test_Exp_1() {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         PublicHealthCaseDto publicHealthCaseDto = new PublicHealthCaseDto();
         publicHealthCaseDto.setPublicHealthCaseUid(1L);

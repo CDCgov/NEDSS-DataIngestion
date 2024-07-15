@@ -2,7 +2,8 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -10,8 +11,9 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Observation")
-@Data
-public class Observation_Question extends ObservationBase{
+@Getter
+@Setter
+public class Observation_Question extends ObservationBase {
     private Long obsCodeUid;
     private String code;
     private String originalTxt;

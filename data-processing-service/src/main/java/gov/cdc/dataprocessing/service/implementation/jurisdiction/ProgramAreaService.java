@@ -19,11 +19,10 @@ import java.util.*;
 @Service
 @Slf4j
 public class ProgramAreaService implements IProgramAreaService {
-    boolean programAreaDerivationExcludeFlag;
-
     private final ISrteCodeObsService srteCodeObsService;
     private final ProgramAreaCodeRepository programAreaCodeRepository;
     private final IObservationCodeService observationCodeService;
+    boolean programAreaDerivationExcludeFlag;
 
     public ProgramAreaService(
             ISrteCodeObsService srteCodeObsService,
@@ -51,18 +50,15 @@ public class ProgramAreaService implements IProgramAreaService {
      * CLIA code assoc with MSH-4.2.1 and PID-3.4.2.
      * This method set program area to Observation request (root observation) after it found valid code in observation results
      * */
-    public void getProgramArea(Collection<ObservationContainer> observationResults, ObservationContainer observationRequest, String clia) throws DataProcessingException
-    {
+    public void getProgramArea(Collection<ObservationContainer> observationResults, ObservationContainer observationRequest, String clia) throws DataProcessingException {
         String programAreaCode = null;
-        if (clia == null || clia.trim().equals(""))
-        {
+        if (clia == null || clia.trim().equals("")) {
             clia = NEDSSConstant.DEFAULT;
         }
 
         Map<String, String> paResults = null;
         if (observationRequest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
-            if (!observationResults.isEmpty())
-            {
+            if (!observationResults.isEmpty()) {
                 // Program Area happening here
                 paResults = getProgramAreaHelper(
                         clia,
@@ -71,23 +67,17 @@ public class ProgramAreaService implements IProgramAreaService {
                 );
             }
 
-            if (paResults != null && paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
-            {
+            if (paResults != null && paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY)) {
                 programAreaCode = paResults.get(ELRConstant.PROGRAM_AREA_HASHMAP_KEY);
                 observationRequest.getTheObservationDto().setProgAreaCd(programAreaCode);
-            }
-            else
-            {
+            } else {
                 observationRequest.getTheObservationDto().setProgAreaCd(null);
             }
         }
 
-        if (paResults != null && paResults.containsKey("ERROR"))
-        {
+        if (paResults != null && paResults.containsKey("ERROR")) {
             observationRequest.getTheObservationDto().setProgAreaCd(null);
-        }
-        else
-        {
+        } else {
             observationRequest.getTheObservationDto().setProgAreaCd(programAreaCode);
         }
     }
@@ -95,14 +85,13 @@ public class ProgramAreaService implements IProgramAreaService {
 
     /**
      * Description: method getting program area given CLIA and Observation Requests
-     * */
+     */
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
                                                          Collection<ObservationContainer> observationResults,
                                                          String electronicInd) throws DataProcessingException {
 
         HashMap<String, String> returnMap = new HashMap<>();
-        if (reportingLabCLIA == null)
-        {
+        if (reportingLabCLIA == null) {
             returnMap.put(NEDSSConstant.ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
             return returnMap;
         }
@@ -111,8 +100,7 @@ public class ProgramAreaService implements IProgramAreaService {
         Hashtable<String, String> paHTBL = new Hashtable<>();
 
         //iterator through each resultTest
-        while (obsResults.hasNext())
-        {
+        while (obsResults.hasNext()) {
             ObservationContainer obsResult = obsResults.next();
             ObservationDto obsDt = obsResult.getTheObservationDto();
 
@@ -130,77 +118,63 @@ public class ProgramAreaService implements IProgramAreaService {
                             obsDomainCdSt1.equals(ELRConstant.ELR_OBSERVATION_RESULT) &&
                             obsDTCode != null &&
                             !obsDTCode.equals(NEDSSConstant.ACT114_TYP_CD)
-            )
-            {
+            ) {
                 // Retrieve PAs using Lab Result --> SNOMED code mapping
                 // If ELR, use actual CLIA - if manual use "DEFAULT" as CLIA
                 String progAreaCd;
-                if ( electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR) )
-                {
+                if (electronicInd.equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
                     progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(reportingLabCLIA, obsResult.getTheObsValueCodedDtoCollection());
                 }
                 //NOTE: this wont happen in ELR flow
-                else
-                {
+                else {
                     progAreaCd = srteCodeObsService.getPAFromSNOMEDCodes(NEDSSConstant.DEFAULT, obsResult.getTheObsValueCodedDtoCollection());
                 }
 
 
                 // If PA returned, check to see if it is the same one as before.
-                if (progAreaCd != null)
-                {
+                if (progAreaCd != null) {
                     found = true;
                     paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                    if (paHTBL.size() != 1)
-                    {
+                    if (paHTBL.size() != 1) {
                         break;
                     }
 
                 }
 
                 // Retrieve PAs using Resulted Test --> LOINC mapping
-                if (!found)
-                {
+                if (!found) {
                     progAreaCd = srteCodeObsService.getPAFromLOINCCode(reportingLabCLIA, obsResult);
                     // If PA returned, check to see if it is the same one as before.
-                    if (progAreaCd != null)
-                    {
+                    if (progAreaCd != null) {
                         found = true;
                         paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                        if (paHTBL.size() != 1)
-                        {
+                        if (paHTBL.size() != 1) {
                             break;
                         }
                     }
                 }
 
                 // Retrieve PAs using Local Result Code to PA mapping
-                if (!found)
-                {
+                if (!found) {
                     progAreaCd = srteCodeObsService.getPAFromLocalResultCode(reportingLabCLIA, obsResult.getTheObsValueCodedDtoCollection());
                     // If PA returned, check to see if it is the same one as before.
-                    if (progAreaCd != null)
-                    {
+                    if (progAreaCd != null) {
                         found = true;
                         paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                        if (paHTBL.size() != 1)
-                        {
+                        if (paHTBL.size() != 1) {
                             break;
                         }
                     }
                 }
 
                 // Retrieve PAs using Local Result Code to PA mapping
-                if (!found)
-                {
+                if (!found) {
                     progAreaCd = srteCodeObsService.getPAFromLocalTestCode(reportingLabCLIA, obsResult);
                     // If PA returned, check to see if it is the same one as before.
-                    if (progAreaCd != null)
-                    {
+                    if (progAreaCd != null) {
                         found = true;
                         paHTBL.put(progAreaCd.trim(), progAreaCd.trim());
-                        if (paHTBL.size() != 1)
-                        {
+                        if (paHTBL.size() != 1) {
                             break;
                         }
                     }
@@ -208,24 +182,18 @@ public class ProgramAreaService implements IProgramAreaService {
 
                 //If we haven't found a PA and the no components were excluded based on the exclude flag,
                 //clear the PA hashtable which will fail the derivation
-                if (!found && !programAreaDerivationExcludeFlag)
-                {
+                if (!found && !programAreaDerivationExcludeFlag) {
                     paHTBL.clear();
                     break;
                 }
             }
         } //end of while
 
-        if(paHTBL.size() == 0)
-        {
+        if (paHTBL.size() == 0) {
             returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_2);
-        }
-        else if (paHTBL.size() == 1)
-        {
+        } else if (paHTBL.size() == 1) {
             returnMap.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, paHTBL.keys().nextElement());
-        }
-        else
-        {
+        } else {
             returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_1);
         }
         return returnMap;
@@ -233,7 +201,7 @@ public class ProgramAreaService implements IProgramAreaService {
 
     public String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
         //Gathering the result tests
-        Collection<ObservationContainer>  resultTests = new ArrayList<> ();
+        Collection<ObservationContainer> resultTests = new ArrayList<>();
         for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
             String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
             if (obsDomainCdSt1 != null &&
@@ -244,57 +212,41 @@ public class ProgramAreaService implements IProgramAreaService {
 
         //Get the reporting lab clia
         String reportingLabCLIA = "";
-        if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
-        {
-            reportingLabCLIA =labResultProxyVO.getLabClia();
-        }
-        else
-        {
+        if (labResultProxyVO.getLabClia() != null && labResultProxyVO.isManualLab()) {
+            reportingLabCLIA = labResultProxyVO.getLabClia();
+        } else {
             reportingLabCLIA = observationCodeService.getReportingLabCLIA(labResultProxyVO);
         }
 
-        if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
-        {
+        if (reportingLabCLIA == null || reportingLabCLIA.trim().equals("")) {
             reportingLabCLIA = NEDSSConstant.DEFAULT;
         }
 
         //Get program area
-        if(!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
+        if (!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)) {
             Map<Object, Object> paResults = null;
-            if (resultTests.size() > 0)
-            {
+            if (resultTests.size() > 0) {
                 paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDto().getElectronicInd());
             }
 
 
             //set program area for order test
             if (paResults != null &&
-                    paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY))
-            {
-                orderTest.getTheObservationDto().setProgAreaCd( (String) paResults.get(
+                    paResults.containsKey(ELRConstant.PROGRAM_AREA_HASHMAP_KEY)) {
+                orderTest.getTheObservationDto().setProgAreaCd((String) paResults.get(
                         ELRConstant.PROGRAM_AREA_HASHMAP_KEY));
-            }
-            else
-            {
+            } else {
                 orderTest.getTheObservationDto().setProgAreaCd(null);
             }
 
-            if (paResults != null && paResults.containsKey("ERROR"))
-            {
+            if (paResults != null && paResults.containsKey("ERROR")) {
                 return (String) paResults.get("ERROR");
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
         return null;
     }
-
-
-
-
-
 
 
 }

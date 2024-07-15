@@ -7,5 +7,6 @@ import java.util.Collection;
 
 public interface IActRelationshipService {
     Collection<ActRelationshipDto> loadActRelationshipBySrcIdAndTypeCode(Long uid, String type);
+
     void saveActRelationship(ActRelationshipDto actRelationshipDto) throws DataProcessingException;
 }

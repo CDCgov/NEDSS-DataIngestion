@@ -10,7 +10,8 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class PatientEncounterContainer  extends BaseContainer implements Serializable {
+@SuppressWarnings("all")
+public class PatientEncounterContainer extends BaseContainer implements Serializable {
     private static final long serialVersionUID = 1L;
     public PatientEncounterDto thePatientEncounterDT = new PatientEncounterDto();
     public Collection<Object> theActivityLocatorParticipationDTCollection;

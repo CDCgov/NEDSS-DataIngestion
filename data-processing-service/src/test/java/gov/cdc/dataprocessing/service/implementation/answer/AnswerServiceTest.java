@@ -33,6 +33,8 @@ import static org.mockito.Mockito.*;
 
 class AnswerServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private NbsAnswerRepository nbsAnswerRepository;
     @Mock
     private NbsActEntityRepository nbsActEntityRepository;
@@ -42,8 +44,6 @@ class AnswerServiceTest {
     private NbsActEntityHistRepository nbsActEntityHistRepository;
     @InjectMocks
     private AnswerService answerService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +54,7 @@ class AnswerServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -355,7 +355,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void storePageAnswer_Exception()  {
+    void storePageAnswer_Exception() {
         PageContainer pageContainer = new PageContainer();
         var answerMap = new HashMap<Object, NbsAnswerDto>();
         var ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
@@ -458,7 +458,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void storeActEntityDTCollectionWithPublicHealthCase_Success()  {
+    void storeActEntityDTCollectionWithPublicHealthCase_Success() {
         Collection<NbsActEntityDto> pamDTCollection = new ArrayList<>();
         var nbsActEntity = new NbsActEntityDto();
         nbsActEntity.setItNew(true);
@@ -514,7 +514,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void getNbsAnswerAndAssociation_Exception()  {
+    void getNbsAnswerAndAssociation_Exception() {
 
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(any())).thenThrow(new RuntimeException("TEST"));
 
@@ -522,12 +522,12 @@ class AnswerServiceTest {
             answerService.getNbsAnswerAndAssociation(null);
         });
 
-        assertEquals("InterviewAnswerRootDAOImpl:answerCollection- could not be returned",thrown.getMessage());
+        assertEquals("InterviewAnswerRootDAOImpl:answerCollection- could not be returned", thrown.getMessage());
 
     }
 
     @Test
-    void getPageAnswerDTMaps_Test()  {
+    void getPageAnswerDTMaps_Test() {
         Long uid = 10L;
 
         var ansCol = new ArrayList<NbsAnswer>();
@@ -585,7 +585,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void insertAnswerHistoryDTCollection_Test_1()  {
+    void insertAnswerHistoryDTCollection_Test_1() {
         var anCol1 = new ArrayList<>();
         var an1 = new NbsAnswerDto();
         anCol1.add(an1);

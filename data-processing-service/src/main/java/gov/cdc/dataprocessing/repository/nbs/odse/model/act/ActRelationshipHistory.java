@@ -3,7 +3,8 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActRelationshipId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -11,7 +12,8 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "Act_relationship_hist")
 @IdClass(ActRelationshipId.class)
-@Data
+@Getter
+@Setter
 public class ActRelationshipHistory implements Serializable {
     private static final long serialVersionUID = 1L;
 

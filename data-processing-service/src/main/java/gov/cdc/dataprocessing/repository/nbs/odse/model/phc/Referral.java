@@ -2,13 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.phc;
 
 import gov.cdc.dataprocessing.model.dto.phc.ReferralDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Referral")
-@Data
+@Getter
+@Setter
 public class Referral {
 
     @Id

@@ -9,19 +9,15 @@ import java.util.Set;
 
 @Component
 public class ProgAreaJurisdictionUtil {
-    public long getPAJHash(String programAreaCode, String jurisdictionCode)
-    {
+    public long getPAJHash(String programAreaCode, String jurisdictionCode) {
         long hashCode = 0;
 
-        if(!((programAreaCode==null || programAreaCode.isEmpty()) || (jurisdictionCode==null || jurisdictionCode.isEmpty()))){
-            try
-            {
+        if (!((programAreaCode == null || programAreaCode.isEmpty()) || (jurisdictionCode == null || jurisdictionCode.isEmpty()))) {
+            try {
                 Integer programAreaNumericID = SrteCache.programAreaCodesMapWithNbsUid.get(programAreaCode);
                 Integer jurisdictionNumericID = SrteCache.jurisdictionCodeMapWithNbsUid.get(jurisdictionCode);
                 hashCode = (jurisdictionNumericID.longValue() * 100000L) + programAreaNumericID.longValue();
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -34,19 +30,15 @@ public class ProgAreaJurisdictionUtil {
      * code, but when the jurisdiction code is ALL, a hash code for each jurisdiction
      * in the jurisdictionMap is created.
      */
-    public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode)
-    {
-        ArrayList<Object>  arrayList = new ArrayList<>();
-        if(jurisdictionCode.equals("ALL"))
-        {
+    public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode) {
+        ArrayList<Object> arrayList = new ArrayList<>();
+        if (jurisdictionCode.equals("ALL")) {
             //get key set
             Set<String> jurisdictionKeys = SrteCache.jurisdictionCodeMapWithNbsUid.keySet();
             for (String jCode : jurisdictionKeys) {
                 arrayList.add(getPAJHash(programAreaCode, jCode));
             }
-        }
-        else
-        {
+        } else {
             arrayList.add(getPAJHash(programAreaCode, jurisdictionCode));
         }
         return arrayList;

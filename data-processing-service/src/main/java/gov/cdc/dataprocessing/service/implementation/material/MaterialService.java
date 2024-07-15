@@ -192,7 +192,7 @@ public class MaterialService implements IMaterialService {
 
     }
 
-    private Long updateMaterial(MaterialContainer materialContainer) throws  DataProcessingException{
+    private Long updateMaterial(MaterialContainer materialContainer) throws DataProcessingException {
         var timestamp = getCurrentTimeStamp();
         if (materialContainer.getTheMaterialDto() != null) {
             Material material = new Material(materialContainer.getTheMaterialDto());
@@ -211,7 +211,7 @@ public class MaterialService implements IMaterialService {
             }
         }
 
-        if (materialContainer.getTheMaterialDto() !=  null) {
+        if (materialContainer.getTheMaterialDto() != null) {
             return materialContainer.getTheMaterialDto().getMaterialUid();
         }
         return null;
@@ -251,9 +251,10 @@ public class MaterialService implements IMaterialService {
             entityLocatorParticipationService.createEntityLocatorParticipation(entityCollection, uid);
         }
     }
+
     private void persistingManufacturedMaterial(Long uid, Collection<ManufacturedMaterialDto> manufacturedMaterialDtoCollection) throws DataProcessingException {
         ArrayList<ManufacturedMaterialDto> arr = new ArrayList<>(manufacturedMaterialDtoCollection);
-        for(var item : arr) {
+        for (var item : arr) {
             item.setMaterialUid(uid);
             if (item.getManufacturedMaterialSeq() == null) {
                 throw new DataProcessingException("Material Seq is Null");
@@ -267,16 +268,17 @@ public class MaterialService implements IMaterialService {
         }
 
     }
-    private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) throws DataProcessingException {
+
+    private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection) throws DataProcessingException {
         try {
             Iterator<EntityIdDto> anIterator;
-            ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
+            ArrayList<EntityIdDto> entityList = (ArrayList<EntityIdDto>) entityIdCollection;
             anIterator = entityList.iterator();
             int maxSeq = 0;
             while (anIterator.hasNext()) {
                 EntityIdDto entityID = anIterator.next();
-                if(maxSeq == 0) {
-                    if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {
+                if (maxSeq == 0) {
+                    if (null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {
                         entityID.setEntityUid(uid);
                     }
                     var result = entityIdRepository.findMaxEntityId(entityID.getEntityUid());
@@ -295,6 +297,7 @@ public class MaterialService implements IMaterialService {
         }
 
     }
+
     private void persistingMaterial(Material material, Long uid, Timestamp timestamp) {
         EntityODSE entityODSE = new EntityODSE();
         entityODSE.setEntityUid(uid);
@@ -314,7 +317,7 @@ public class MaterialService implements IMaterialService {
         }
 
 
-        if(material.getLastChgTime() == null) {
+        if (material.getLastChgTime() == null) {
             material.setLastChgTime(timestamp);
         }
 
@@ -330,7 +333,7 @@ public class MaterialService implements IMaterialService {
             material.setStatusTime(timestamp);
         }
 
-        if( material.getVersionCtrlNbr() == null){
+        if (material.getVersionCtrlNbr() == null) {
             material.setVersionCtrlNbr(1);
         }
 

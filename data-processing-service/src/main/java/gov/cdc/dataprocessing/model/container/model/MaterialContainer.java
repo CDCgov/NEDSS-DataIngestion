@@ -15,34 +15,31 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class MaterialContainer extends BaseContainer
-{
+@SuppressWarnings("all")
+public class MaterialContainer extends BaseContainer {
 
-
-    /**
-     * Data Table of Value Object
-     */
-    private MaterialDto theMaterialDto = new MaterialDto();
-
-    /**
-     * Related Locators
-     */
-    private Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDTCollection;
-
-    /**
-     * Other Related Entities
-     */
-    private Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
 
     /**
      * collections for role and participation object association added by John Park
      */
     public Collection<ParticipationDto> theParticipationDtoCollection;
     public Collection<RoleDto> theRoleDTCollection;
+    /**
+     * Data Table of Value Object
+     */
+    private MaterialDto theMaterialDto = new MaterialDto();
+    /**
+     * Related Locators
+     */
+    private Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDTCollection;
+    /**
+     * Other Related Entities
+     */
+    private Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
     private Collection<ManufacturedMaterialDto> theManufacturedMaterialDtoCollection;
 
     public MaterialContainer() {
-         itDirty = false;
-            itNew = true;
+        itDirty = false;
+        itNew = true;
     }
 }

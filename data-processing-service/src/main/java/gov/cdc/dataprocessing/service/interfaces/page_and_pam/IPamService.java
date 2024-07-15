@@ -8,5 +8,6 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 public interface IPamService {
 
     Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException;
+
     void insertPamVO(BasePamContainer pamVO, PublicHealthCaseContainer publichHealthCaseVO) throws DataProcessingException;
 }

@@ -5,13 +5,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "NBS_case_answer")
-@Data
+@Getter
+@Setter
 public class NbsCaseAnswer {
 
     @Id
@@ -79,7 +81,6 @@ public class NbsCaseAnswer {
         this.recordStatusCd = nbsCaseAnswerDto.getRecordStatusCd();
         this.recordStatusTime = nbsCaseAnswerDto.getRecordStatusTime();
         this.seqNbr = nbsCaseAnswerDto.getSeqNbr();
-        this.answerLargeTxt = nbsCaseAnswerDto.getAnswerLargeTxt().toString();
         this.nbsTableMetadataUid = nbsCaseAnswerDto.getNbsTableMetadataUid();
         this.nbsUiMetadataVerCtrlNbr = nbsCaseAnswerDto.getNbsQuestionVersionCtrlNbr();
         this.answerGroupSeqNbr = nbsCaseAnswerDto.getAnswerGroupSeqNbr();

@@ -145,7 +145,8 @@
                             <HL7Surname>TESTNOK114B</HL7Surname>
                         </HL7FamilyName>
                         <HL7GivenName>FIRSTNOK1</HL7GivenName>
-                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>X</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>X
+                        </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                         <HL7Suffix>JR</HL7Suffix>
                         <HL7Prefix>DR</HL7Prefix>
                         <HL7Degree>MD</HL7Degree>
@@ -272,7 +273,8 @@
                             <HL7Surname>BRENTNALL</HL7Surname>
                         </HL7FamilyName>
                         <HL7GivenName>GERRY</HL7GivenName>
-                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE
+                        </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                         <HL7Suffix>SR</HL7Suffix>
                         <HL7Prefix>DR</HL7Prefix>
                         <HL7Degree>MD</HL7Degree>
@@ -303,7 +305,8 @@
                             <HL7Surname>MATHIS</HL7Surname>
                         </HL7FamilyName>
                         <HL7GivenName>GERRY</HL7GivenName>
-                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE
+                        </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                         <HL7Suffix>SR</HL7Suffix>
                         <HL7Prefix>DR</HL7Prefix>
                         <HL7Degree>MD</HL7Degree>
@@ -314,7 +317,8 @@
                             <HL7Surname>JONES</HL7Surname>
                         </HL7FamilyName>
                         <HL7GivenName>THOMAS</HL7GivenName>
-                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE
+                        </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                         <HL7Suffix>III</HL7Suffix>
                         <HL7Prefix>DR</HL7Prefix>
                         <HL7Degree>MD</HL7Degree>
@@ -325,7 +329,8 @@
                             <HL7Surname>MARTIN</HL7Surname>
                         </HL7FamilyName>
                         <HL7GivenName>JERRY</HL7GivenName>
-                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>L</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                        <HL7SecondAndFurtherGivenNamesOrInitialsThereof>L
+                        </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                         <HL7Suffix>JR</HL7Suffix>
                         <HL7Prefix>DR</HL7Prefix>
                         <HL7Degree>MD</HL7Degree>
@@ -340,7 +345,8 @@
                             <HL7IDNumber>22582</HL7IDNumber>
                             <HL7FamilyName>JONES</HL7FamilyName>
                             <HL7GivenName>TOM</HL7GivenName>
-                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>L</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>L
+                            </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                             <HL7Suffix>JR</HL7Suffix>
                             <HL7Prefix>DR</HL7Prefix>
                             <HL7Degree>MD</HL7Degree>
@@ -351,7 +357,8 @@
                             <HL7IDNumber>22582</HL7IDNumber>
                             <HL7FamilyName>MOORE</HL7FamilyName>
                             <HL7GivenName>THOMAS</HL7GivenName>
-                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>E</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>E
+                            </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                             <HL7Suffix>III</HL7Suffix>
                             <HL7Prefix>DR</HL7Prefix>
                             <HL7Degree>MD</HL7Degree>
@@ -362,7 +369,8 @@
                             <HL7IDNumber>44</HL7IDNumber>
                             <HL7FamilyName>JONES</HL7FamilyName>
                             <HL7GivenName>SAM</HL7GivenName>
-                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>A</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>A
+                            </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                             <HL7Suffix>JR</HL7Suffix>
                             <HL7Prefix>MR</HL7Prefix>
                             <HL7Degree>MT</HL7Degree>
@@ -373,7 +381,8 @@
                             <HL7IDNumber>82</HL7IDNumber>
                             <HL7FamilyName>JONES</HL7FamilyName>
                             <HL7GivenName>THOMASINA</HL7GivenName>
-                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE ANN</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                            <HL7SecondAndFurtherGivenNamesOrInitialsThereof>LEE ANN
+                            </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                             <HL7Suffix>II</HL7Suffix>
                             <HL7Prefix>MS</HL7Prefix>
                             <HL7Degree>RA</HL7Degree>
@@ -439,7 +448,8 @@
                                     <HL7Surname>JONES</HL7Surname>
                                 </HL7FamilyName>
                                 <HL7GivenName>BOB</HL7GivenName>
-                                <HL7SecondAndFurtherGivenNamesOrInitialsThereof>F</HL7SecondAndFurtherGivenNamesOrInitialsThereof>
+                                <HL7SecondAndFurtherGivenNamesOrInitialsThereof>F
+                                </HL7SecondAndFurtherGivenNamesOrInitialsThereof>
                                 <HL7Degree>MD</HL7Degree>
                             </PerformingOrganizationMedicalDirector>
                         </ObservationResult>

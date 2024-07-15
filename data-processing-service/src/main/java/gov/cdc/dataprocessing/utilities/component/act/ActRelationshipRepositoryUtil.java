@@ -28,8 +28,8 @@ public class ActRelationshipRepositoryUtil {
         var res = actRelationshipRepository.findRecordsBySourceId(actUid);
         Collection<ActRelationshipDto> dtoCollection = new ArrayList<>();
         if (res.isPresent()) {
-            for(var item : res.get()) {
-                var dto  = new ActRelationshipDto(item);
+            for (var item : res.get()) {
+                var dto = new ActRelationshipDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
                 dtoCollection.add(dto);
@@ -38,10 +38,8 @@ public class ActRelationshipRepositoryUtil {
         return dtoCollection;
     }
 
-    public Collection<ActRelationshipDto> selectActRelationshipDTCollectionFromActUid(long aUID) throws DataProcessingException
-    {
-        try
-        {
+    public Collection<ActRelationshipDto> selectActRelationshipDTCollectionFromActUid(long aUID) throws DataProcessingException {
+        try {
             var col = actRelationshipRepository.findRecordsByActUid(aUID);
             Collection<ActRelationshipDto> dtCollection = new ArrayList<>();
             if (col.isPresent()) {
@@ -53,9 +51,7 @@ public class ActRelationshipRepositoryUtil {
                 }
             }
             return dtCollection;
-        }
-        catch(Exception ndapex)
-        {
+        } catch (Exception ndapex) {
             throw new DataProcessingException(ndapex.toString());
         }
     }
@@ -67,26 +63,19 @@ public class ActRelationshipRepositoryUtil {
     }
 
     public void storeActRelationship(ActRelationshipDto dt) throws DataProcessingException {
-        if (dt == null)
-        {
+        if (dt == null) {
             throw new DataProcessingException("Error: try to store null ActRelationshipDT object.");
         }
         ActRelationship data = new ActRelationship(dt);
-        if (dt.isItNew())
-        {
+        if (dt.isItNew()) {
             data.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
             actRelationshipRepository.save(data);
-        }
-        else if (dt.isItDelete())
-        {
+        } else if (dt.isItDelete()) {
             actRelationshipRepository.delete(data);
-        }
-        else if (dt.isItDirty())
-        {
+        } else if (dt.isItDirty()) {
             if (dt.getTargetActUid() != null &&
-                    dt.getSourceActUid() != null && dt.getTypeCd() != null)
-            {
+                    dt.getSourceActUid() != null && dt.getTypeCd() != null) {
                 actRelationshipRepository.save(data);
             }
         }

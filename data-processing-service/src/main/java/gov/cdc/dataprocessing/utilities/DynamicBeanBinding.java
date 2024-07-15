@@ -9,8 +9,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class DynamicBeanBinding {
-    private static Map<Object, Object> beanMethodMap = new HashMap<>();
-
+    private static final Map<Object, Object> beanMethodMap = new HashMap<>();
 
 
     /**
@@ -28,15 +27,15 @@ public class DynamicBeanBinding {
             Map<Object, Object> methodMap = getMethods(bean.getClass());
 
             Method method = (Method) methodMap.get(methodName);
-            if(method==null){
+            if (method == null) {
                 return;
             }
             Object[] parmTypes = method.getParameterTypes();
             String pType = ((Class<?>) parmTypes[0]).getName();
-            Object[] arg = { "" };
+            Object[] arg = {""};
             Object[] nullArg = null;
 
-            if (colVal!=null && !colVal.equals("")) {
+            if (colVal != null && !colVal.equals("")) {
                 if (pType.equalsIgnoreCase("java.sql.Timestamp")) {
 
                     Timestamp ts = new Timestamp(new SimpleDateFormat("MM/dd/yyyy")
@@ -56,65 +55,54 @@ public class DynamicBeanBinding {
                 } else if (pType.equalsIgnoreCase("java.math.BigDecimal")) {
                     arg[0] = BigDecimal.valueOf(Long.parseLong(colVal));
 
-                } else if (pType.equalsIgnoreCase("boolean")) {
-                    arg[0] = colVal;
+                } else if (pType.equalsIgnoreCase("boolean")|| pType.equalsIgnoreCase("java.lang.Boolean")) {
+                    arg[0] =  Boolean.parseBoolean(colVal);;
                 }
-            }else {
+            } else {
                 arg[0] = nullArg;
             }
-            try {
-                if(colVal==null) {
-                    Object[] nullargs = { null };
-                    method.invoke(bean, nullargs);
-                }else
-                    method.invoke(bean, arg);
-//                logger.debug("Successfully called methodName for bean " + bean
-//                        + " with value " + colVal);
-            } catch (Exception e) {
-                throw new Exception(e);
+            if (colVal == null) {
+                Object[] nullargs = {null};
+                method.invoke(bean, nullargs);
+            } else
+            {
+                method.invoke(bean, arg);
             }
         } catch (Exception e) {
             throw new Exception(e);
         }
     }
 
-    private static String getSetterName(String columnName) throws Exception {
-        try {
-            StringBuilder sb = new StringBuilder("set");
-            StringTokenizer st = new StringTokenizer(columnName, "_");
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken();
-                s = s.substring(0, 1).toUpperCase()
-                        + s.substring(1).toLowerCase();
-                sb.append(s);
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new Exception(e);
+    protected static String getSetterName(String columnName) throws Exception {
+        StringBuilder sb = new StringBuilder("set");
+        StringTokenizer st = new StringTokenizer(columnName, "_");
+        while (st.hasMoreTokens()) {
+            String s = st.nextToken();
+            s = s.substring(0, 1).toUpperCase()
+                    + s.substring(1).toLowerCase();
+            sb.append(s);
         }
+        return sb.toString();
+
     }
 
 
     @SuppressWarnings("unchecked")
-    private static Map<Object, Object> getMethods(Class<?> beanClass)
-            throws Exception {
-        try {
-            if (beanMethodMap.get(beanClass) == null) {
-                Method[] gettingMethods = beanClass.getMethods();
-                Map<Object, Object> resultMap = new HashMap<>();
-                for (Method gettingMethod : gettingMethods) {
-                    Method method =  gettingMethod;
-                    String methodName = method.getName();
-                    Object[] parmTypes = method.getParameterTypes();
-                    if (methodName.startsWith("set") && parmTypes.length == 1)
-                        resultMap.put(methodName, method);
-                }
-                beanMethodMap.put(beanClass, resultMap);
+    protected static Map<Object, Object> getMethods(Class<?> beanClass){
+        if (beanMethodMap.get(beanClass) == null) {
+            Method[] gettingMethods = beanClass.getMethods();
+            Map<Object, Object> resultMap = new HashMap<>();
+            for (Method gettingMethod : gettingMethods) {
+                Method method = gettingMethod;
+                String methodName = method.getName();
+                Object[] parmTypes = method.getParameterTypes();
+                if (methodName.startsWith("set") && parmTypes.length == 1)
+                    resultMap.put(methodName, method);
             }
-            return (Map<Object, Object>) beanMethodMap.get(beanClass);
-        } catch (SecurityException e) {
-            throw new Exception(e);
+            beanMethodMap.put(beanClass, resultMap);
         }
+        return (Map<Object, Object>) beanMethodMap.get(beanClass);
+
     }
 
 }

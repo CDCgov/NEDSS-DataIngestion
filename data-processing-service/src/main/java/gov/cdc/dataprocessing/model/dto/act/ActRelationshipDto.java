@@ -9,8 +9,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class ActRelationshipDto extends BaseContainer
-{
+@SuppressWarnings("all")
+public class ActRelationshipDto extends BaseContainer {
     private String addReasonCd;
     private Timestamp addTime;
     private Long addUserId;

@@ -64,11 +64,11 @@ class PatientMatchingBaseServiceTest {
 
     @Test
     void setPatientRevision_new_pat() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.setItNew(true);
         personContainer.getThePersonDto().setVersionCtrlNbr(1);
 
-        PersonDto personDto=new PersonDto();
+        PersonDto personDto = new PersonDto();
         personDto.setItNew(true);
         personDto.setVersionCtrlNbr(2);
 
@@ -80,7 +80,7 @@ class PatientMatchingBaseServiceTest {
                         any()
                 )).thenReturn(personDto);
 
-        PersonContainer personContainerPrepare=new PersonContainer();
+        PersonContainer personContainerPrepare = new PersonContainer();
         personContainerPrepare.setItNew(true);
         personContainerPrepare.getThePersonDto().setVersionCtrlNbr(1);
 
@@ -101,16 +101,16 @@ class PatientMatchingBaseServiceTest {
         when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
 
         //call test
-        patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.PAT);
+        patientMatchingBaseService.setPatientRevision(personContainer, "", NEDSSConstant.PAT);
     }
 
     @Test
     void setPatientRevision_new_nok() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.setItNew(true);
         personContainer.getThePersonDto().setVersionCtrlNbr(1);
 
-        PersonDto personDto=new PersonDto();
+        PersonDto personDto = new PersonDto();
         personDto.setItNew(true);
         personDto.setVersionCtrlNbr(2);
 
@@ -122,7 +122,7 @@ class PatientMatchingBaseServiceTest {
                         any()
                 )).thenReturn(personDto);
 
-        PersonContainer personContainerPrepare=new PersonContainer();
+        PersonContainer personContainerPrepare = new PersonContainer();
         personContainerPrepare.setItNew(true);
         personContainerPrepare.getThePersonDto().setVersionCtrlNbr(1);
 
@@ -142,13 +142,13 @@ class PatientMatchingBaseServiceTest {
         person.setLocalId("333");
         when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
 
-        patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.NOK);
+        patientMatchingBaseService.setPatientRevision(personContainer, "", NEDSSConstant.NOK);
     }
 
 
     @Test
     void getLNmFnmDobCurSexStr() {
-        PersonContainer personContainer=new PersonContainer();
+        PersonContainer personContainer = new PersonContainer();
         personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
         personContainer.getThePersonDto().setCurrSexCd("M");
         personContainer.getThePersonDto().setBirthTime(new Timestamp(System.currentTimeMillis()));
@@ -230,7 +230,6 @@ class PatientMatchingBaseServiceTest {
         when(patientRepositoryUtil.findExistingPersonByUid(any())).thenReturn(per);
 
 
-
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             patientMatchingBaseService.updateExistingPerson(perCon, businessTrigger, 10L);
         });
@@ -257,7 +256,6 @@ class PatientMatchingBaseServiceTest {
 
         when(patientRepositoryUtil.findPersonByParentUid(any())).thenReturn(new ArrayList<>());
         when(patientRepositoryUtil.findExistingPersonByUid(any())).thenThrow(new RuntimeException("TEST"));
-
 
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -650,7 +648,7 @@ class PatientMatchingBaseServiceTest {
         personDto.setCdDescTxt("NOT_NOK");
         personContainer.setThePersonDto(personDto);
 
-        List<String> identifierStrList = Arrays.asList("identifier1");
+        List<String> identifierStrList = List.of("identifier1");
 
         doReturn(identifierStrList).when(patientMatchingBaseService).getIdentifier(personContainer);
         doReturn("lastname^firstname^dob^sex").when(patientMatchingBaseService).getLNmFnmDobCurSexStr(personContainer);
@@ -811,7 +809,7 @@ class PatientMatchingBaseServiceTest {
         personDto.setCdDescTxt(EdxELRConstant.ELR_NOK_DESC);
         personContainer.setThePersonDto(personDto);
 
-        List<String> nameAddressStreetOneStrList = Arrays.asList("address1");
+        List<String> nameAddressStreetOneStrList = List.of("address1");
 
         doReturn(nameAddressStreetOneStrList).when(patientMatchingBaseService).nameAddressStreetOneNOK(personContainer);
         doThrow(new RuntimeException("Database error")).when(edxPatientMatchRepositoryUtil).setEdxPatientMatchDT(any());

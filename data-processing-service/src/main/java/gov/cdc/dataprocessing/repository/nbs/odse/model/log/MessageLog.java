@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Table(name = "message_log")
-public class MessageLog   {
+public class MessageLog {
 
     @Id
     @Column(name = "message_log_uid")

@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class InterventionDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
 
@@ -124,17 +125,6 @@ public class InterventionDto extends BaseContainer implements RootDtoInterface {
     private String electronicInd;
 
 
-
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return interventionUid;
-    }
-
     public InterventionDto() {
         itDirty = false;
         itNew = true;
@@ -196,6 +186,16 @@ public class InterventionDto extends BaseContainer implements RootDtoInterface {
         this.vaccDoseNbr = domain.getVaccDoseNbr();
         this.vaccInfoSourceCd = domain.getVaccInfoSourceCd();
         this.electronicInd = domain.getElectronicInd();
+    }
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return interventionUid;
     }
 
 

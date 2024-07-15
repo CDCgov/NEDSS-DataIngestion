@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private String dedupMatchInd;
@@ -121,25 +122,14 @@ public class PersonDto extends BaseContainer implements RootDtoInterface {
     private String jurisdictionCd = null;
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
-    private String edxInd =null;
-    private boolean isCaseInd= false;
+    private String edxInd = null;
+    private boolean isCaseInd = false;
     private String speaksEnglishCd;
     private String additionalGenderCd;
     private String eharsId;
     private String ethnicUnkReasonCd;
     private String sexUnkReasonCd;
-    private boolean isReentrant= false;
-
-    // Same on PersonHIST
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return personUid;
-    }
+    private boolean isReentrant = false;
 
     public PersonDto() {
         itDirty = false;
@@ -252,6 +242,17 @@ public class PersonDto extends BaseContainer implements RootDtoInterface {
         this.speaksEnglishCd = person.getSpeaksEnglishCd();
         this.additionalGenderCd = person.getAdditionalGenderCd();
         this.eharsId = person.getEharsId();
+    }
+
+    // Same on PersonHIST
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return personUid;
     }
 
 }

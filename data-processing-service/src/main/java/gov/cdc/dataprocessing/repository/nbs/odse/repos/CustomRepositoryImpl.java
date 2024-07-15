@@ -23,9 +23,9 @@ import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
 
 @Repository
 public class CustomRepositoryImpl implements CustomRepository {
+    private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
     @PersistenceContext(unitName = "odse")
     protected EntityManager entityManager;
-    private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
 
     public CustomRepositoryImpl(PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository) {
         this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
@@ -38,7 +38,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         List<StateDefinedFieldDataDto> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 StateDefinedFieldDataDto container = new StateDefinedFieldDataDto();
                 int i = 0;
                 container.setLdfUid(parseValue(item[i], Long.class));
@@ -56,20 +56,21 @@ public class CustomRepositoryImpl implements CustomRepository {
 
 
     public Map<Object, Object> getAssociatedDocumentList(Long uid, String targetClassCd, String sourceClassCd, String theQuery) {
-        Map<Object, Object> map= new HashMap<> ();
+        Map<Object, Object> map = new HashMap<>();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("TargetActUid", uid);
         query.setParameter("SourceClassCd", sourceClassCd);
         query.setParameter("TargetClassCd", targetClassCd);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 map.put(item[0].toString(), Long.valueOf(item[1].toString()));
             }
         }
         return map;
     }
-    public Map<String, EDXEventProcessDto>getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) {
+
+    public Map<String, EDXEventProcessDto> getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) {
         String docQuery = " SELECT"
                 + " edx_event_process_uid  \"eDXEventProcessUid\", "
                 + " nbs_document_uid  \"nbsDocumentUid\", "
@@ -82,12 +83,12 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + " where edx_event_process.nbs_event_uid=act_relationship.source_act_uid "
                 + " and act_relationship.target_act_uid = :TargetActUid order by nbs_document_uid";
 
-        Map<String, EDXEventProcessDto> map= new HashMap<> ();
+        Map<String, EDXEventProcessDto> map = new HashMap<>();
         Query query = entityManager.createNativeQuery(docQuery);
         query.setParameter("TargetActUid", publicHealthCaseUid);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 EDXEventProcessDto container = new EDXEventProcessDto();
                 int i = 0;
                 container.setEDXEventProcessUid(parseValue(item[i], Long.class));
@@ -109,12 +110,12 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public Map<Object, Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) {
-        Map<Object,Object> map= new HashMap<Object,Object> ();
+        Map<Object, Object> map = new HashMap<Object, Object>();
         Query query = entityManager.createNativeQuery(DOCUMENT_FOR_A_PHC);
         query.setParameter("PhcUid", publicHealthUID);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 DocumentSummaryContainer container = new DocumentSummaryContainer();
                 int i = 0;
                 Long getNbsDocumentUid = parseValue(item[++i], Long.class);
@@ -133,12 +134,12 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public List<NotificationSummaryContainer> retrieveNotificationSummaryListForInvestigation(Long publicHealthUID, String theQuery) {
-        List<NotificationSummaryContainer> map= new ArrayList<> ();
+        List<NotificationSummaryContainer> map = new ArrayList<>();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("PhcUid", publicHealthUID);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 NotificationSummaryContainer container = new NotificationSummaryContainer();
                 int i = 0;
                 container.setNotificationUid(parseValue(item[i], Long.class));
@@ -165,12 +166,12 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public Map<Object, Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID, String theQuery) {
-        Map<Object,Object> map= new HashMap<Object,Object> ();
+        Map<Object, Object> map = new HashMap<Object, Object>();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("PhcUid", publicHealthUID);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 TreatmentContainer container = new TreatmentContainer();
                 int i = 0;
                 container.setPhcUid(parseValue(item[i], Long.class));
@@ -186,14 +187,14 @@ public class CustomRepositoryImpl implements CustomRepository {
         return map;
     }
 
-    public Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd, String theQuery) {
-        Map<Object,Object> assocoiatedInvMap= new HashMap<Object,Object> ();
+    public Map<Object, Object> getAssociatedInvList(Long uid, String sourceClassCd, String theQuery) {
+        Map<Object, Object> assocoiatedInvMap = new HashMap<Object, Object>();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("ClassCd", sourceClassCd);
-        query.setParameter("ActUid",uid);
+        query.setParameter("ActUid", uid);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 assocoiatedInvMap.put(item[0].toString(), item[1].toString());
                 if (sourceClassCd.equalsIgnoreCase(NEDSSConstant.CLASS_CD_OBS)) {
                     if (dataNotNull(item[2])) {
@@ -210,12 +211,12 @@ public class CustomRepositoryImpl implements CustomRepository {
         String theSelect = SELECT_LABSUSCEPTIBILITES_REFLEXTEST_SUMMARY_FORWORKUP_SQLSERVER;
         Query query = entityManager.createNativeQuery(theSelect);
         query.setParameter("TypeCode", typeCode);
-        query.setParameter("TargetActUid",observationUid);
+        query.setParameter("TargetActUid", observationUid);
 
         ArrayList<ResultedTestSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
                 int i = 0;
                 container.setObservationUid(parseValue(item[i], Long.class));
@@ -242,16 +243,15 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-    public ArrayList<UidSummaryContainer> getSusceptibilityUidSummary(ResultedTestSummaryContainer RVO, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm, String typeCode, Long observationUid)
-    {
+    public ArrayList<UidSummaryContainer> getSusceptibilityUidSummary(ResultedTestSummaryContainer RVO, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm, String typeCode, Long observationUid) {
         String theSelect = GET_SOURCE_ACT_UID_FOR_SUSCEPTIBILITES_SQL;
         Query query = entityManager.createNativeQuery(theSelect);
         query.setParameter("TypeCode", typeCode);
-        query.setParameter("TargetActUid",observationUid);
+        query.setParameter("TargetActUid", observationUid);
         ArrayList<UidSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 UidSummaryContainer uid = new UidSummaryContainer();
                 uid.setUid(parseValue(item[0], Long.class));
                 lst.add(uid);
@@ -264,11 +264,11 @@ public class CustomRepositoryImpl implements CustomRepository {
         String theSelect = SELECT_LABRESULTED_REFLEXTEST_SUMMARY_FORWORKUP_SQL;
         Query query = entityManager.createNativeQuery(theSelect);
         query.setParameter("TypeCode", typeCode);
-        query.setParameter("TargetActUid",observationUid);
+        query.setParameter("TargetActUid", observationUid);
         ArrayList<ResultedTestSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 ResultedTestSummaryContainer container = new ResultedTestSummaryContainer();
                 int i = 0;
                 container.setObservationUid(parseValue(item[i], Long.class));
@@ -299,27 +299,27 @@ public class CustomRepositoryImpl implements CustomRepository {
 
     public ProviderDataForPrintContainer getOrderingPersonPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) {
         String theSelect = "select phone_nbr_txt \"phoneNbrTxt\", extension_txt \"extensionTxt\" from TELE_locator with (nolock) where TELE_locator_uid in ("
-                +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= "+ organizationUid + " and cd='O' and class_cd='TELE')  ";
+                + " select locator_uid from Entity_locator_participation with (nolock) where entity_uid= " + organizationUid + " and cd='O' and class_cd='TELE')  ";
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 providerDataForPrintVO.setProviderPhone(item[0].toString());
                 providerDataForPrintVO.setProviderPhoneExtension(item[1].toString());
             }
         }
         return providerDataForPrintVO;
     }
-    public ProviderDataForPrintContainer getOrderingPersonAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
-    {
+
+    public ProviderDataForPrintContainer getOrderingPersonAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) {
         String theSelect = "select street_addr1 \"streetAddr1\", city_desc_txt \"cityDescTxt\", state_cd \"stateCd\", zip_cd \"zipCd\" from Postal_locator with (nolock) where postal_locator_uid in ("
-                + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in ("+organizationUid+")and cd='O' and class_cd='PST')";
+                + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in (" + organizationUid + ")and cd='O' and class_cd='PST')";
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 providerDataForPrintVO.setProviderStreetAddress1(item[0].toString());
                 providerDataForPrintVO.setProviderCity(item[1].toString());
                 providerDataForPrintVO.setProviderState(item[2].toString());
@@ -328,32 +328,32 @@ public class CustomRepositoryImpl implements CustomRepository {
         }
         return providerDataForPrintVO;
     }
-    public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
-    {
+
+    public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) {
         String theSelect = "select phone_nbr_txt \"phoneNbrTxt\", extension_txt \"extensionTxt\" from TELE_locator with (nolock) where TELE_locator_uid in ("
-                +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= "+ organizationUid +"  and cd='PH' and class_cd='TELE')  ";
+                + " select locator_uid from Entity_locator_participation with (nolock) where entity_uid= " + organizationUid + "  and cd='PH' and class_cd='TELE')  ";
 
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 providerDataForPrintVO.setFacilityPhone(item[0].toString());
                 providerDataForPrintVO.setFacilityPhoneExtension(item[1].toString());
             }
         }
         return providerDataForPrintVO;
     }
-    public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
-    {
+
+    public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) {
 
         String theSelect = "select street_addr1 \"streetAddr1\", street_addr2 \"streetAddr2\", city_desc_txt \"cityDescTxt\", "
                 + "state_cd \"stateCd\", zip_cd \"zipCd\" from Postal_locator with (nolock) where postal_locator_uid in ("
-                + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in ("+ organizationUid+ ")"
-                +  "and cd='O' and class_cd='PST')";
+                + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in (" + organizationUid + ")"
+                + "and cd='O' and class_cd='PST')";
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.setMaxResults(1).getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 providerDataForPrintVO.setFacilityAddress1(item[0].toString());
                 providerDataForPrintVO.setFacilityAddress2(item[1].toString());
                 providerDataForPrintVO.setFacilityCity(item[2].toString());
@@ -371,14 +371,14 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 vals = (item[0].toString());
             }
         }
         return vals;
     }
 
-    public  String getReportingFacilityName(Long organizationUid) {
+    public String getReportingFacilityName(Long organizationUid) {
 
         String vals = null;
         String theSelect = "SELECT organization_name.nm_txt \"nmTxt\" "
@@ -386,15 +386,15 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 vals = (item[0].toString());
             }
         }
         return vals;
     }
 
-    public ArrayList<Object>  getActIdDetails(Long observationUID) {
-        ArrayList<Object> vals= new ArrayList<Object> ();
+    public ArrayList<Object> getActIdDetails(Long observationUID) {
+        ArrayList<Object> vals = new ArrayList<Object>();
         String theSelect = "SELECT Act_id.root_extension_txt \"rootExtTxt\" " +
                 "FROM Act_id with (nolock) " +
                 "WHERE Act_id.Act_uid = " + observationUID;
@@ -402,14 +402,15 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 vals.add(item[0].toString());
             }
         }
         return vals;
     }
-    public  ArrayList<Object>  getProviderInfo(Long observationUID,String partTypeCd) {
-        ArrayList<Object> vals = new ArrayList<Object> ();
+
+    public ArrayList<Object> getProviderInfo(Long observationUID, String partTypeCd) {
+        ArrayList<Object> vals = new ArrayList<Object>();
         //per Pete Varnell - use optimizer hint on select
         String ORD_PROVIDER_MSQL = "SELECT ";
         String ORD_PROVIDER = "person_name.person_uid \"providerUid\",person_name.last_nm \"lastNm\", person_name.nm_degree \"degree\", " +
@@ -418,13 +419,13 @@ public class CustomRepositoryImpl implements CustomRepository {
                 "participation with (nolock) WHERE person_name.person_uid = participation.subject_entity_uid " +
                 "AND participation.act_uid = observation.observation_uid " +
                 "AND participation.type_cd = '" + partTypeCd + "'" + " AND participation.subject_class_cd='PSN' " +
-                "AND observation.observation_uid = "  + observationUID;
+                "AND observation.observation_uid = " + observationUID;
 
         var theSelect = ORD_PROVIDER_MSQL + ORD_PROVIDER;
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 vals.add(item[0].toString());
                 vals.add(item[1].toString());
                 vals.add(item[2].toString());
@@ -438,21 +439,21 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public ArrayList<Object> getPatientPersonInfo(Long observationUID) {
-        ArrayList<Object> vals= new ArrayList<Object> ();
+        ArrayList<Object> vals = new ArrayList<Object>();
         String theSelect = "SELECT person_name.last_nm \"lastNm\", " +
                 "person_name.first_nm \"firstNm\", observation.ctrl_cd_display_form \"ctrlCdDisplayForm\", " +
                 "person.person_parent_uid \"personParentUid\" " +
                 "FROM person with (nolock) , person_name with (nolock) , observation with (nolock) , participation with (nolock) " +
                 "WHERE person.person_uid = participation.subject_entity_uid " +
                 "AND participation.act_uid = observation.observation_uid " +
-                "AND participation.type_cd = \'PATSBJ\' " +
+                "AND participation.type_cd = 'PATSBJ' " +
                 "AND person.person_uid = person_name.person_uid " +
-                "AND person_name.nm_use_cd = \'L\' " +
-                "AND observation.observation_uid = "  + observationUID;
+                "AND person_name.nm_use_cd = 'L' " +
+                "AND observation.observation_uid = " + observationUID;
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 vals.add(item[0].toString());
                 vals.add(item[1].toString());
                 vals.add(item[2].toString());
@@ -462,31 +463,30 @@ public class CustomRepositoryImpl implements CustomRepository {
         return vals;
     }
 
-    public  Map<Object,Object> getLabParticipations(Long observationUID) {
+    public Map<Object, Object> getLabParticipations(Long observationUID) {
         String QUICK_FIND_PATIENT_MSQL = "SELECT ";
-        String QUICK_FIND_PATIENT =  "participation.subject_class_cd \"classCd\", "
+        String QUICK_FIND_PATIENT = "participation.subject_class_cd \"classCd\", "
                 + "participation.type_cd \"typeCd\", "
                 + "participation.subject_entity_uid \"subjectEntityUid\" "
                 + "from observation with (nolock), participation with (nolock)"
                 + "WHERE participation.act_uid = observation.observation_uid "
-                + "AND participation.type_cd in(\'"
-                + NEDSSConstant.PAR111_TYP_CD + "\',\'"
-                + NEDSSConstant.PAR104_TYP_CD + "\',\'"
-                + NEDSSConstant.PAR110_TYP_CD + "\',\'"
-                + NEDSSConstant.PAR101_TYP_CD + "\')"
+                + "AND participation.type_cd in('"
+                + NEDSSConstant.PAR111_TYP_CD + "','"
+                + NEDSSConstant.PAR104_TYP_CD + "','"
+                + NEDSSConstant.PAR110_TYP_CD + "','"
+                + NEDSSConstant.PAR101_TYP_CD + "')"
                 + "AND observation.observation_uid = " + observationUID.toString();
-        String theSelect=  QUICK_FIND_PATIENT_MSQL+QUICK_FIND_PATIENT;
+        String theSelect = QUICK_FIND_PATIENT_MSQL + QUICK_FIND_PATIENT;
 
-        Map<Object,Object> vals = new HashMap<Object,Object>();
+        Map<Object, Object> vals = new HashMap<Object, Object>();
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
-                String classCd =  item[0].toString();
+            for (var item : results) {
+                String classCd = item[0].toString();
                 String typeCd = item[1].toString();
                 Long subjectEntityUid = Long.valueOf(item[2].toString());
-                if(classCd.equalsIgnoreCase(NEDSSConstant.CLASS_CD_PSN) && typeCd.equalsIgnoreCase( NEDSSConstant.PAR101_TYP_CD))
-                {
+                if (classCd.equalsIgnoreCase(NEDSSConstant.CLASS_CD_PSN) && typeCd.equalsIgnoreCase(NEDSSConstant.PAR101_TYP_CD)) {
                     continue;
                 }
                 vals.put(typeCd, subjectEntityUid);
@@ -502,7 +502,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         Collection<CTContactSummaryDto> ctContactSummaryDtoCollection = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 CTContactSummaryDto contact = new CTContactSummaryDto();
                 int i = 0;
                 contact.setNamedOnDate(parseValue(item[i], Timestamp.class));
@@ -544,7 +544,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 int i = 0;
                 container.setNbsDocumentUid(parseValue(item[i], Long.class));
                 container.setLocalId(parseValue(item[++i], String.class));
@@ -591,7 +591,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
 
-    public ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) {
+    public ArrayList<Object> getInvListForCoInfectionId(Long mprUid, String coInfectionId) {
         ArrayList<Object> coinfectionInvList = new ArrayList<>();
 
         Query query = entityManager.createNativeQuery(COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL);
@@ -602,7 +602,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
-            for(var item : results) {
+            for (var item : results) {
                 int i = 0;
                 CoinfectionSummaryContainer container = new CoinfectionSummaryContainer();
                 container.setPublicHealthCaseUid(parseValue(item[i], Long.class));
@@ -612,9 +612,6 @@ public class CustomRepositoryImpl implements CustomRepository {
         }
         return coinfectionInvList;
     }
-
-
-
 
 
 }

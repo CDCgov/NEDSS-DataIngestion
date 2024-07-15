@@ -28,13 +28,13 @@ import static org.mockito.Mockito.*;
 
 class PublicHealthCaseServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private EntityHelper entityHelper;
     @Mock
     private PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     @InjectMocks
     private PublicHealthCaseService publicHealthCaseService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -45,7 +45,7 @@ class PublicHealthCaseServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

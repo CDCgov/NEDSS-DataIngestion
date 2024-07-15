@@ -8,6 +8,7 @@ import java.io.*;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PrePopMappingDto extends BaseContainer {
 
     private static final long serialVersionUID = 1L;
@@ -47,8 +48,7 @@ public class PrePopMappingDto extends BaseContainer {
         this.toAnsCodeSystemCd = lookupMappingDto.getToAnsCodeSystemCd();
     }
 
-    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException
-    {
+    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(this);
@@ -56,6 +56,6 @@ public class PrePopMappingDto extends BaseContainer {
         ObjectInputStream ois = new ObjectInputStream(bais);
         Object deepCopy = ois.readObject();
 
-        return  deepCopy;
+        return deepCopy;
     }
 }

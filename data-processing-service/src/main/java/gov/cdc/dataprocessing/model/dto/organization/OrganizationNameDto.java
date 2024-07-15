@@ -13,6 +13,7 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class OrganizationNameDto extends BaseContainer implements RootDtoInterface {
     private Long organizationUid;
     private Integer organizationNameSeq;
@@ -25,6 +26,21 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
     private Long programJurisdictionOid = null;
     private String sharedInd = null;
 
+    public OrganizationNameDto() {
+        itDirty = false;
+        itNew = true;
+        itDelete = false;
+    }
+
+    public OrganizationNameDto(OrganizationName organizationName) {
+        this.organizationUid = organizationName.getOrganizationUid();
+        this.organizationNameSeq = organizationName.getOrganizationNameSeq();
+        this.nmTxt = organizationName.getNameText();
+        this.nmUseCd = organizationName.getNameUseCode();
+        this.recordStatusCd = organizationName.getRecordStatusCode();
+        this.defaultNmInd = organizationName.getDefaultNameIndicator();
+    }
+
     @Override
     public Long getLastChgUserId() {
         return organizationUid;
@@ -32,7 +48,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        // No operation needed for setLastChgUserId()
     }
 
     @Override
@@ -42,7 +58,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        // No operation needed for setLastChgTime()
     }
 
     @Override
@@ -52,7 +68,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        // No operation needed for setLocalId()
     }
 
     @Override
@@ -72,7 +88,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        // No operation needed for setLastChgReasonCd()
     }
 
     @Override
@@ -82,7 +98,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        // No operation needed for setRecordStatusTime()
     }
 
     @Override
@@ -92,7 +108,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        // No operation needed for setStatusCd()
     }
 
     @Override
@@ -102,9 +118,10 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        // No operation needed for setStatusTime()
     }
 
+    @Override
     public String getSuperclass() {
         this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
         return superClassType;
@@ -116,32 +133,17 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
     }
 
     @Override
-    public void setAddTime(Timestamp aAddTime) {
-
-    }
-
-    @Override
     public Timestamp getAddTime() {
         return null;
     }
 
     @Override
+    public void setAddTime(Timestamp aAddTime) {
+        // No operation needed for setAddTime()
+    }
+
+    @Override
     public Integer getVersionCtrlNbr() {
         return null;
-    }
-
-    public OrganizationNameDto(){
-        itDirty = false;
-        itNew = true;
-        itDelete = false;
-
-    }
-    public OrganizationNameDto(OrganizationName organizationName){
-        this.organizationUid=organizationName.getOrganizationUid();
-        this.organizationNameSeq=organizationName.getOrganizationNameSeq();
-        this.nmTxt=organizationName.getNameText();
-        this.nmUseCd=organizationName.getNameUseCode();
-        this.recordStatusCd=organizationName.getRecordStatusCode();
-        this.defaultNmInd=organizationName.getDefaultNameIndicator();
     }
 }

@@ -22,7 +22,7 @@ public class EdxDocumentService implements IEdxDocumentService {
         Collection<EDXDocumentDto> edxDocumentDtoCollection = new ArrayList<>();
         var result = edxDocumentRepository.selectEdxDocumentCollectionByActUid(uid);
         if (result.isPresent()) {
-            for(var item: result.get()) {
+            for (var item : result.get()) {
                 var elem = new EDXDocumentDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);

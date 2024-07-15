@@ -52,11 +52,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class OrganizationRepositoryUtil {
-    private static final Logger logger = LoggerFactory.getLogger(OrganizationRepositoryUtil.class);
     /**
      * Organization Entity Code
      */
     public final static String ORG = "ORG";
+    private static final Logger logger = LoggerFactory.getLogger(OrganizationRepositoryUtil.class);
     private final OrganizationRepository organizationRepository;
     private final OrganizationNameRepository organizationNameRepository;
     private final EntityRepository entityRepository;
@@ -112,10 +112,10 @@ public class OrganizationRepositoryUtil {
     @Transactional
     public long createOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
-        Long organizationUid ;
+        Long organizationUid;
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
         try {
-            String localUid ;
+            String localUid;
             LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
             organizationUid = localIdModel.getSeedValueNbr();
             localUid = localIdModel.getUidPrefixCd() + organizationUid + localIdModel.getUidSuffixCd();
@@ -318,15 +318,15 @@ public class OrganizationRepositoryUtil {
 
     /**
      * Sets the organization values in the databse based on the businessTrigger
-<<<<<<< HEAD
-=======
+     * <<<<<<< HEAD
+     * =======
      *
      * @param organizationContainer the OrganizationContainer
      * @param businessTriggerCd     the String
      * @return organizationUID the Long
      * @roseuid 3E6E4E05003E
      * @J2EE_METHOD -- setOrganization
->>>>>>> main
+     * >>>>>>> main
      */
     @Transactional
     public Long setOrganization(OrganizationContainer organizationContainer,
@@ -504,7 +504,6 @@ public class OrganizationRepositoryUtil {
         ovo.setTheRoleDTCollection(roleColl);
 
 
-
         //SelectsParticipationDTCollection
         Collection<ParticipationDto> parColl = selectParticipationDTCollection(organizationUID, actUid);
         ovo.setTheParticipationDtoCollection(parColl);
@@ -540,7 +539,7 @@ public class OrganizationRepositoryUtil {
         try {
             Optional<List<OrganizationName>> listOptional = organizationNameRepository.findByOrganizationUid(organizationUID);
             List<OrganizationName> organizationNameList = new ArrayList<>();
-            if(listOptional.isPresent()) {
+            if (listOptional.isPresent()) {
                 organizationNameList = listOptional.get();
             }
             for (OrganizationName organizationNameModel : organizationNameList) {
@@ -589,7 +588,7 @@ public class OrganizationRepositoryUtil {
             throws DataProcessingException {
         Collection<EntityLocatorParticipationDto> entityLocatorParticipationList = new ArrayList<>();
         try {
-            var res =  entityLocatorParticipationRepository.findByParentUid(organizationUID);
+            var res = entityLocatorParticipationRepository.findByParentUid(organizationUID);
             List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
             if (res.isPresent()) {
                 entityLocatorParticipations = res.get();
@@ -679,10 +678,10 @@ public class OrganizationRepositoryUtil {
     private Collection<RoleDto> selectRoleDTCollection(long uid) throws DataProcessingException {
         Collection<RoleDto> retval = new ArrayList<>();
         try {
-            var res =  roleRepository.findBySubjectEntityUid(uid);
+            var res = roleRepository.findBySubjectEntityUid(uid);
             List<Role> roleList = new ArrayList<>();
             if (res.isPresent()) {
-                roleList =res.get();
+                roleList = res.get();
             }
             for (Role roleModel : roleList) {
                 RoleDto newdt = new RoleDto(roleModel);
@@ -736,20 +735,19 @@ public class OrganizationRepositoryUtil {
     /**
      * This method is used to prepare Dirty Acts,Dirty Entities,New Acts And New Entities depending
      * you want to edit,delete or create records
-<<<<<<< HEAD
-=======
+     * <<<<<<< HEAD
+     * =======
      *
      * @param organizationDto   -- The DT to be prepared
      * @param businessTriggerCd
      * @param tableName
      * @param moduleCd
      * @return RootDTInterface -- the prepared DT(System attribute Set)
-     * @throws DataProcessingException
->>>>>>> main
+     * @throws DataProcessingException >>>>>>> main
      */
     public OrganizationDto prepareVO(OrganizationDto organizationDto, String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException {
         try {
-            if (organizationDto.isItNew() == false && organizationDto.isItDirty() == false && organizationDto.isItDelete() == false) {
+            if (!organizationDto.isItNew() && !organizationDto.isItDirty() && !organizationDto.isItDelete()) {
                 throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
             }
             logger.debug("(Boolean.FALSE).equals(new Boolean(theRootDTInterface.tableName)?:" + tableName + ":theRootDTInterface.moduleCd:" + moduleCd + ":businessTriggerCd:" + businessTriggerCd);

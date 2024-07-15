@@ -24,11 +24,11 @@ import static org.mockito.Mockito.when;
 
 class LdfServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private CustomRepository customRepository;
     @InjectMocks
     private LdfService ldfService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -39,17 +39,17 @@ class LdfServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(customRepository , authUtil);
+        Mockito.reset(customRepository, authUtil);
     }
 
     @Test
     void getLDFCollection_Success() throws DataProcessingException {
-        long  busObjUid = 10L;
+        long busObjUid = 10L;
         String condCode = "COND";
 
         var list = new ArrayList<StateDefinedFieldDataDto>();
@@ -62,8 +62,8 @@ class LdfServiceTests {
     }
 
     @Test
-    void getLDFCollection_Exception()  {
-        long  busObjUid = 10L;
+    void getLDFCollection_Exception() {
+        long busObjUid = 10L;
         String condCode = "COND";
 
         when(customRepository.getLdfCollection(any(), any(), any())).thenThrow(

@@ -53,6 +53,7 @@ class ValidateDecisionSupportTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
     @AfterEach
     void tearDown() {
         Mockito.reset(investigationDefaultValuesType);
@@ -120,32 +121,6 @@ class ValidateDecisionSupportTest {
         assertEquals("Existing Value", object.getTestField());
     }
 
-
-
-
-
-    // Helper class for testing
-    public static class TestObject {
-        private String testField;
-        private Timestamp testDateField;
-
-        public String getTestField() {
-            return testField;
-        }
-
-        public void setTestField(String testField) {
-            this.testField = testField;
-        }
-
-        public Timestamp getTestDateField() {
-            return testDateField;
-        }
-
-        public void setTestDateField(Timestamp testDateField) {
-            this.testDateField = testDateField;
-        }
-    }
-
     @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
     void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndInteger() {
@@ -205,9 +180,10 @@ class ValidateDecisionSupportTest {
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
 
     }
+
     @SuppressWarnings({"java:S2699", "java:S5976"})
     @Test
-    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndString()  {
+    void processNBSObjectDT_shouldSetValue_whenDataTypeIsNumericAndString() {
         // Arrange
         EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
         edxRuleManageDT.setBehavior("1"); // Overwrite
@@ -224,47 +200,6 @@ class ValidateDecisionSupportTest {
         validateDecisionSupport.processNBSObjectDT(edxRuleManageDT, publicHealthCaseContainer, object, metaData);
 
     }
-
-    public static class TestObjectNumeric {
-        private Integer testIntegerField;
-        private Long testLongField;
-        private BigDecimal testBigDecimalField;
-        private String testStringField;
-
-        public Integer getTestIntegerField() {
-            return testIntegerField;
-        }
-
-        public void setTestIntegerField(Integer testIntegerField) {
-            this.testIntegerField = testIntegerField;
-        }
-
-        public Long getTestLongField() {
-            return testLongField;
-        }
-
-        public void setTestLongField(Long testLongField) {
-            this.testLongField = testLongField;
-        }
-
-        public BigDecimal getTestBigDecimalField() {
-            return testBigDecimalField;
-        }
-
-        public void setTestBigDecimalField(BigDecimal testBigDecimalField) {
-            this.testBigDecimalField = testBigDecimalField;
-        }
-
-        public String getTestStringField() {
-            return testStringField;
-        }
-
-        public void setTestStringField(String testStringField) {
-            this.testStringField = testStringField;
-        }
-    }
-
-
 
     @Test
     void processNBSCaseAnswerDT_Test() {
@@ -364,6 +299,7 @@ class ValidateDecisionSupportTest {
         verify(edxPhcrDocumentUtil, times(1)).setStandardNBSCaseAnswerVals(any(), any());
 
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodCodeDT_Test_1() {
@@ -389,6 +325,7 @@ class ValidateDecisionSupportTest {
 
         validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodCodeDT_Test_2() {
@@ -410,6 +347,7 @@ class ValidateDecisionSupportTest {
 
         validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodCodeDT_Test_3() {
@@ -439,6 +377,7 @@ class ValidateDecisionSupportTest {
 
         validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodTimeDT_Test_1() throws DataProcessingException {
@@ -495,6 +434,7 @@ class ValidateDecisionSupportTest {
 
         validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodTimeDT_Test_4() throws DataProcessingException {
@@ -513,6 +453,7 @@ class ValidateDecisionSupportTest {
 
 
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodTimeDT_Test_5() throws DataProcessingException {
@@ -547,6 +488,7 @@ class ValidateDecisionSupportTest {
         assertNotNull(thrown);
 
     }
+
     @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodCodeDTRequired_Test() {
@@ -561,8 +503,6 @@ class ValidateDecisionSupportTest {
         validateDecisionSupport.processConfirmationMethodCodeDTRequired(publicHealthCaseContainer);
 
     }
-
-
 
     @Test
     void parseInvestigationDefaultValuesType_Test() {
@@ -664,7 +604,7 @@ class ValidateDecisionSupportTest {
         actCol.add(act);
         publicHealthCaseContainer.setTheActIdDTCollection(actCol);
 
-        metaData.setDataCd( NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+        metaData.setDataCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
 
         validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
@@ -684,7 +624,7 @@ class ValidateDecisionSupportTest {
         actCol.add(act);
         publicHealthCaseContainer.setTheActIdDTCollection(actCol);
 
-        metaData.setDataCd( NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+        metaData.setDataCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
 
         validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
@@ -724,11 +664,10 @@ class ValidateDecisionSupportTest {
         actCol.add(act);
         publicHealthCaseContainer.setTheActIdDTCollection(actCol);
 
-        metaData.setDataCd( "CITY");
+        metaData.setDataCd("CITY");
 
         validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
     }
-
 
     @Test
     void testGetCurrentDateValue_UseCurrentDate() {
@@ -775,7 +714,68 @@ class ValidateDecisionSupportTest {
         validateDecisionSupport.processNbsObject(edxRuleManageDT, publicHealthCaseContainer, metaData);
 
         // Assert
-        assertNull( object.getTestField());
+        assertNull(object.getTestField());
+    }
+
+    // Helper class for testing
+    public static class TestObject {
+        private String testField;
+        private Timestamp testDateField;
+
+        public String getTestField() {
+            return testField;
+        }
+
+        public void setTestField(String testField) {
+            this.testField = testField;
+        }
+
+        public Timestamp getTestDateField() {
+            return testDateField;
+        }
+
+        public void setTestDateField(Timestamp testDateField) {
+            this.testDateField = testDateField;
+        }
+    }
+
+    public static class TestObjectNumeric {
+        private Integer testIntegerField;
+        private Long testLongField;
+        private BigDecimal testBigDecimalField;
+        private String testStringField;
+
+        public Integer getTestIntegerField() {
+            return testIntegerField;
+        }
+
+        public void setTestIntegerField(Integer testIntegerField) {
+            this.testIntegerField = testIntegerField;
+        }
+
+        public Long getTestLongField() {
+            return testLongField;
+        }
+
+        public void setTestLongField(Long testLongField) {
+            this.testLongField = testLongField;
+        }
+
+        public BigDecimal getTestBigDecimalField() {
+            return testBigDecimalField;
+        }
+
+        public void setTestBigDecimalField(BigDecimal testBigDecimalField) {
+            this.testBigDecimalField = testBigDecimalField;
+        }
+
+        public String getTestStringField() {
+            return testStringField;
+        }
+
+        public void setTestStringField(String testStringField) {
+            this.testStringField = testStringField;
+        }
     }
 
 }

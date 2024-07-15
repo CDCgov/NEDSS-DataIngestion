@@ -6,6 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonAggContainer {
     PersonContainer personContainer;
     PersonContainer providerContainer;

@@ -3,14 +3,16 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ActIdId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Act_id")
-@Data
+@Getter
+@Setter
 @IdClass(ActIdId.class)
 public class ActId implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -3,13 +3,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.PersonNameId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
-@Data
+@Getter
+@Setter
 @Entity
 @IdClass(PersonNameId.class) // Specify the IdClass
 @Table(name = "Person_name")
@@ -116,6 +118,7 @@ public class PersonName {
     public PersonName() {
 
     }
+
     public PersonName(PersonNameDto personNameDto) {
         var timeStamp = getCurrentTimeStamp();
         this.personUid = personNameDto.getPersonUid();
@@ -146,7 +149,7 @@ public class PersonName {
         this.recordStatusTime = timeStamp;
         this.statusCd = personNameDto.getStatusCd();
         this.statusTime = personNameDto.getStatusTime();
-        this.toTime = personNameDto.getToTime() ;
+        this.toTime = personNameDto.getToTime();
         this.userAffiliationTxt = personNameDto.getUserAffiliationTxt();
 
         if (personNameDto.getAsOfDate() == null) {

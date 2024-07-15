@@ -44,6 +44,8 @@ import static org.mockito.Mockito.*;
 
 class DecisionSupportServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private EdxPhcrDocumentUtil edxPhcrDocumentUtil;
     @Mock
     private IAutoInvestigationService autoInvestigationService;
@@ -59,8 +61,6 @@ class DecisionSupportServiceTest {
     private WdsObjectChecker wdsObjectChecker;
     @InjectMocks
     private DecisionSupportService decisionSupportService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -71,13 +71,13 @@ class DecisionSupportServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(edxPhcrDocumentUtil, autoInvestigationService, validateDecisionSupport, publicHealthCaseStoredProcRepository,
-                dsmAlgorithmService , authUtil, advancedCriteria, wdsObjectChecker);
+                dsmAlgorithmService, authUtil, advancedCriteria, wdsObjectChecker);
     }
 
 
@@ -89,7 +89,8 @@ class DecisionSupportServiceTest {
         TestDataReader test = new TestDataReader();
         LabResultProxyContainer labProxyContainer = test.readDataFromJsonPath("wds/wds_reviewed_lab.json", LabResultProxyContainer.class);
         EdxLabInformationDto edxLab = test.readDataFromJsonPath("wds/wds_reviewed_edx.json", EdxLabInformationDto.class);
-        Type collectionType = new TypeToken<Collection<DsmAlgorithm>>(){}.getType();
+        Type collectionType = new TypeToken<Collection<DsmAlgorithm>>() {
+        }.getType();
         Collection<DsmAlgorithm> algoCol = gson.fromJson(alsoCol, collectionType);
 
 
@@ -111,7 +112,8 @@ class DecisionSupportServiceTest {
         TestDataReader test = new TestDataReader();
         LabResultProxyContainer labProxyContainer = test.readDataFromJsonPath("wds/wds_reviewed_lab.json", LabResultProxyContainer.class);
         EdxLabInformationDto edxLab = test.readDataFromJsonPath("wds/wds_reviewed_edx.json", EdxLabInformationDto.class);
-        Type collectionType = new TypeToken<Collection<DsmAlgorithm>>(){}.getType();
+        Type collectionType = new TypeToken<Collection<DsmAlgorithm>>() {
+        }.getType();
         Collection<DsmAlgorithm> algoCol = gson.fromJson(alsoCol, collectionType);
 
 
@@ -140,7 +142,8 @@ class DecisionSupportServiceTest {
         TestDataReader test = new TestDataReader();
         LabResultProxyContainer labProxyContainer = test.readDataFromJsonPath("wds/wds_reviewed_lab.json", LabResultProxyContainer.class);
         EdxLabInformationDto edxLab = test.readDataFromJsonPath("wds/wds_reviewed_edx.json", EdxLabInformationDto.class);
-        Type collectionType = new TypeToken<Collection<DsmAlgorithm>>(){}.getType();
+        Type collectionType = new TypeToken<Collection<DsmAlgorithm>>() {
+        }.getType();
         Collection<DsmAlgorithm> algoCol = gson.fromJson(alsoCol, collectionType);
 
 
@@ -399,8 +402,6 @@ class DecisionSupportServiceTest {
         questionMap.put("_REQUIRED", new HashMap<>());
 
 
-
-
         when(edxPhcrDocumentUtil.loadQuestions(any()))
                 .thenReturn(questionMap);
 
@@ -592,7 +593,7 @@ class DecisionSupportServiceTest {
         var lst = new ArrayList<>();
         edxRule = new EdxRuleManageDto();
         lst.add(edxRule);
-        advanceInvCriteriaMap.put("2",lst);
+        advanceInvCriteriaMap.put("2", lst);
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
         when(wdsObjectChecker.checkNbsObject(any(), any(), any())).thenReturn(true);
@@ -630,7 +631,7 @@ class DecisionSupportServiceTest {
         var lst = new ArrayList<>();
         edxRule = new EdxRuleManageDto();
         lst.add(edxRule);
-        advanceInvCriteriaMap.put("2",lst);
+        advanceInvCriteriaMap.put("2", lst);
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(advanceInvCriteriaMap);
         when(wdsObjectChecker.checkNbsObject(any(), any(), any())).thenReturn(false);

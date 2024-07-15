@@ -7,5 +7,6 @@ import java.util.Collection;
 
 public interface IEdxDocumentService {
     Collection<EDXDocumentDto> selectEdxDocumentCollectionByActUid(Long uid);
+
     EDXDocumentDto saveEdxDocument(EDXDocumentDto edxDocumentDto) throws DataProcessingException;
 }

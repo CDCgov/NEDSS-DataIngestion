@@ -3,12 +3,14 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 import gov.cdc.dataprocessing.model.dto.observation.ObsValueCodedDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.ObsValueCodedId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Obs_value_coded")
 @IdClass(ObsValueCodedId.class)
@@ -51,7 +53,7 @@ public class ObsValueCoded implements Serializable {
     private String altCdSystemDescTxt;
 
     @Column(name = "code_derived_ind")
-    private String  codeDerivedInd;
+    private String codeDerivedInd;
 
     // Constructors, getters, and setters (Lombok-generated)
 //

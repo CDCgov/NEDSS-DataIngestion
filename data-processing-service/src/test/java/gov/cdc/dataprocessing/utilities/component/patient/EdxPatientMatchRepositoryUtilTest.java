@@ -25,6 +25,8 @@ import static org.mockito.Mockito.*;
 
 class EdxPatientMatchRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private EdxPatientMatchRepository edxPatientMatchRepository;
     @Mock
     private EdxEntityMatchRepository edxEntityMatchRepository;
@@ -32,8 +34,6 @@ class EdxPatientMatchRepositoryUtilTest {
     private EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
     @InjectMocks
     private EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -44,7 +44,7 @@ class EdxPatientMatchRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

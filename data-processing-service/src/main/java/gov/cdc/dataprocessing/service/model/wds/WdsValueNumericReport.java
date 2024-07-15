@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class WdsValueNumericReport {
     private String codeType;
     private String inputCode1;

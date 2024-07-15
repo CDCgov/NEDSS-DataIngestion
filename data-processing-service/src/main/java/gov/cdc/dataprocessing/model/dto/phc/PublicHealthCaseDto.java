@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PublicHealthCaseDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
 
@@ -129,17 +130,6 @@ public class PublicHealthCaseDto extends BaseContainer implements RootDtoInterfa
         itDelete = false;
     }
 
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return publicHealthCaseUid;
-    }
-
-
     public PublicHealthCaseDto(PublicHealthCase publicHealthCase) {
         this.publicHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
         this.activityDurationAmt = publicHealthCase.getActivityDurationAmt();
@@ -236,7 +226,15 @@ public class PublicHealthCaseDto extends BaseContainer implements RootDtoInterfa
 //        this.currentPatientUid = publicHealthCase.getCurrentPatientUid();
     }
 
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+        return superClassType;
+    }
 
+    @Override
+    public Long getUid() {
+        return publicHealthCaseUid;
+    }
 
 
 }

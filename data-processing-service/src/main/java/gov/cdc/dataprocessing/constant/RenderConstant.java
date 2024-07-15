@@ -31,24 +31,24 @@ public class RenderConstant {
     public static final String NBS_CASE_ANSWER_PARTICIPANT = "NBS_CASE_ANSWER_PARTICIPANT";
     public static final String REPEATING_NBS_CASE_ANSWER = "REPEATING_NBS_CASE_ANSWER";
     public static final String OBSERVATION_DB = "OBSERVATION.";
-    public static final String OBS_VALUE_CODED_DB="OBS_VALUE_CODED.";
-    public static final String OBS_VALUE_DATE_DB="OBS_VALUE_DATE.";
-    public static final String OBS_VALUE_NUMERIC_DB="OBS_VALUE_NUMERIC.";
-    public static final String OBS_VALUE_TXT_DB="OBS_VALUE_TXT.";
-    public static final String OBSERVATION_INTERP_DB="OBSERVATION_INTERP.";
-    public static final String OBSERVATION_REASON_DB="OBSERVATION_REASON.";
-    public static final String OBS_VALUE_CODED_MOD_DB="OBS_VALUE_CODED_MOD.";
+    public static final String OBS_VALUE_CODED_DB = "OBS_VALUE_CODED.";
+    public static final String OBS_VALUE_DATE_DB = "OBS_VALUE_DATE.";
+    public static final String OBS_VALUE_NUMERIC_DB = "OBS_VALUE_NUMERIC.";
+    public static final String OBS_VALUE_TXT_DB = "OBS_VALUE_TXT.";
+    public static final String OBSERVATION_INTERP_DB = "OBSERVATION_INTERP.";
+    public static final String OBSERVATION_REASON_DB = "OBSERVATION_REASON.";
+    public static final String OBS_VALUE_CODED_MOD_DB = "OBS_VALUE_CODED_MOD.";
 
 
     public static final String OBSERVATION = "OBSERVATION";
-    public static final String OBS_VALUE_CODED="OBS_VALUE_CODED";
-    public static final String OBS_VALUE_DATE="OBS_VALUE_DATE";
-    public static final String OBS_VALUE_NUMERIC="OBS_VALUE_NUMERIC";
-    public static final String OBS_VALUE_TXT="OBS_VALUE_TXT";
-    public static final String OBSERVATION_INTERP="OBSERVATION_INTERP";
-    public static final String OBSERVATION_REASON="OBSERVATION_REASON";
-    public static final String OBS_VALUE_CODED_MOD="OBS_VALUE_CODED_MOD";
-    public static final String MATERIAL="MATERIAL";
-    public static final String MATERIAL_CD="MATERIAL.CD";
+    public static final String OBS_VALUE_CODED = "OBS_VALUE_CODED";
+    public static final String OBS_VALUE_DATE = "OBS_VALUE_DATE";
+    public static final String OBS_VALUE_NUMERIC = "OBS_VALUE_NUMERIC";
+    public static final String OBS_VALUE_TXT = "OBS_VALUE_TXT";
+    public static final String OBSERVATION_INTERP = "OBSERVATION_INTERP";
+    public static final String OBSERVATION_REASON = "OBSERVATION_REASON";
+    public static final String OBS_VALUE_CODED_MOD = "OBS_VALUE_CODED_MOD";
+    public static final String MATERIAL = "MATERIAL";
+    public static final String MATERIAL_CD = "MATERIAL.CD";
 
 }

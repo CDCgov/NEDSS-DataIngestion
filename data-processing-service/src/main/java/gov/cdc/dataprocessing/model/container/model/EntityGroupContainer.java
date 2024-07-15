@@ -9,11 +9,12 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EntityGroupContainer extends BaseContainer {
     public Collection<Object> theEntityLocatorParticipationDTCollection;
     public Collection<Object> theEntityIdDTCollection;
-    private EntityGroupDto theEntityGroupDT = new EntityGroupDto();
     public Collection<Object> theParticipationDTCollection;
     public Collection<Object> theRoleDTCollection;
+    private EntityGroupDto theEntityGroupDT = new EntityGroupDto();
 
 }

@@ -9,6 +9,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class AuthUserProfileInfo {
     private AuthUser authUser;
     private Collection<AuthUserRealizedRole> authUserRealizedRoleCollection;

@@ -35,6 +35,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
+
     @Transactional
     public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
@@ -72,13 +73,13 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             theEdxEntityMatchDto = new EdxEntityMatchDto();
             theEdxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             theEdxEntityMatchDto.setMatchString(localId);
-            theEdxEntityMatchDto.setMatchStringHashCode((long)localIdhshCd);
+            theEdxEntityMatchDto.setMatchStringHashCode((long) localIdhshCd);
         }
 
         // Matching the Identifier (i.e. NPI)
         String identifier;
         int identifierHshCd = 0;
-        List identifierList ;
+        List identifierList;
         identifierList = getIdentifier(personContainer);
         if (identifierList != null && !identifierList.isEmpty()) {
             for (Object o : identifierList) {
@@ -200,7 +201,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             edxEntityMatchDto.setEntityUid(entityUid);
             edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDto.setMatchString(nameAddStrSt1);
-            edxEntityMatchDto.setMatchStringHashCode((long)nameAddStrSt1hshCd);
+            edxEntityMatchDto.setMatchStringHashCode((long) nameAddStrSt1hshCd);
             try {
                 if (personContainer.getRole() == null) {
                     getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
@@ -218,7 +219,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             edxEntityMatchDto.setEntityUid(entityUid);
             edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDto.setMatchString(nameTelePhone);
-            edxEntityMatchDto.setMatchStringHashCode((long)(nameTelePhonehshCd));
+            edxEntityMatchDto.setMatchStringHashCode((long) (nameTelePhonehshCd));
             try {
                 if (personContainer.getRole() == null) {
                     getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
@@ -227,8 +228,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
-        if (theEdxEntityMatchDto != null)
-        {
+        if (theEdxEntityMatchDto != null) {
             coll.add(theEdxEntityMatchDto);
         }
         if (coll != null) {
@@ -250,7 +250,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
 
 
     public Long setProvider(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException {
-       return processingProvider(personContainer,  "",  businessTriggerCd) ;
+        return processingProvider(personContainer, "", businessTriggerCd);
     }
 
 }

@@ -55,7 +55,7 @@ public class ObservationRequestHandler {
     /**
      * Description: This method parsing OBR and SPM into Lab result Object.
      * OBR & SPM.
-     * */
+     */
     @SuppressWarnings("java:S6541")
     public LabResultProxyContainer getObservationRequest(HL7OBRType hl7OBRType, HL7PatientResultSPMType hl7PatientResultSPMType,
                                                          LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -65,19 +65,17 @@ public class ObservationRequestHandler {
             observationDto.setObsDomainCd(EdxELRConstant.CTRL_CD_DISPLAY_FORM);
             observationDto.setCtrlCdDisplayForm(EdxELRConstant.CTRL_CD_DISPLAY_FORM);
 
-            if(hl7OBRType.getResultStatus()!=null){
+            if (hl7OBRType.getResultStatus() != null) {
                 String toCode = checkingValueService.findToCode("ELR_LCA_STATUS", hl7OBRType.getResultStatus(), "ACT_OBJ_ST");
-                if (toCode != null && !toCode.equals("") && !toCode.equals(" ")){
+                if (toCode != null && !toCode.equals("") && !toCode.equals(" ")) {
                     observationDto.setStatusCd(toCode.trim());
 
-                }
-                else{
+                } else {
                     edxLabInformationDto.setObsStatusTranslated(false);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
                 }
-            }
-            else{
+            } else {
                 edxLabInformationDto.setObsStatusTranslated(false);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
@@ -85,13 +83,12 @@ public class ObservationRequestHandler {
             //observationDto.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD);
             observationDto.setElectronicInd(EdxELRConstant.ELR_ELECTRONIC_IND);
 
-            if(hl7OBRType.getSetIDOBR()!=null && hl7OBRType.getSetIDOBR().getHL7SequenceID()!=null
+            if (hl7OBRType.getSetIDOBR() != null && hl7OBRType.getSetIDOBR().getHL7SequenceID() != null
                     && hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")) {
                 observationDto.setObservationUid(edxLabInformationDto.getRootObserbationUid());
-            }
-            else if(hl7OBRType.getSetIDOBR()!=null && !hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")){
-                observationDto.setObservationUid((long)(edxLabInformationDto.getNextUid()));
-            }else{
+            } else if (hl7OBRType.getSetIDOBR() != null && !hl7OBRType.getSetIDOBR().getHL7SequenceID().equalsIgnoreCase("1")) {
+                observationDto.setObservationUid((long) (edxLabInformationDto.getNextUid()));
+            } else {
                 observationDto.setObservationUid(edxLabInformationDto.getRootObserbationUid());
             }
             observationDto.setItNew(true);
@@ -100,7 +97,7 @@ public class ObservationRequestHandler {
             observationContainer.setItDirty(false);
             observationDto.setObsDomainCdSt1(EdxELRConstant.ELR_ORDER_CD);
 
-            if(hl7OBRType.getDangerCode()!=null) {
+            if (hl7OBRType.getDangerCode() != null) {
                 edxLabInformationDto.setDangerCode(hl7OBRType.getDangerCode().getHL7Identifier());
             }
 
@@ -120,7 +117,7 @@ public class ObservationRequestHandler {
             }
 
 
-            Collection<ActIdDto> actIdDtoColl =  new ArrayList<>();
+            Collection<ActIdDto> actIdDtoColl = new ArrayList<>();
             ActIdDto actIdDto = new ActIdDto();
             actIdDto.setActIdSeq(1);
             actIdDto.setActUid(edxLabInformationDto.getRootObserbationUid());
@@ -132,14 +129,13 @@ public class ObservationRequestHandler {
             actIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
             actIdDtoColl.add(actIdDto);
 
-            HL7EIType fillerType =hl7OBRType.getFillerOrderNumber();
-            if(hl7OBRType.getParent()==null ){
-                if(fillerType == null || fillerType.getHL7EntityIdentifier() == null){
+            HL7EIType fillerType = hl7OBRType.getFillerOrderNumber();
+            if (hl7OBRType.getParent() == null) {
+                if (fillerType == null || fillerType.getHL7EntityIdentifier() == null) {
                     edxLabInformationDto.setFillerNumberPresent(false);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.FILLER_FAIL);
-                }
-                else{
+                } else {
                     edxLabInformationDto.setFillerNumber(fillerType.getHL7EntityIdentifier());
                     edxLabInformationDto.setFillerNumberPresent(true);
                 }
@@ -156,76 +152,72 @@ public class ObservationRequestHandler {
             actIdDtoColl.add(act2IdDT);
 
             observationContainer.setTheActIdDtoCollection(actIdDtoColl);
-            if(hl7OBRType.getUniversalServiceIdentifier()==null){
+            if (hl7OBRType.getUniversalServiceIdentifier() == null) {
                 edxLabInformationDto.setUniversalServiceIdMissing(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.UNIVSRVCID);
-            }
-            else{
+            } else {
 
-                if(hl7OBRType.getUniversalServiceIdentifier()!= null
-                        && hl7OBRType.getUniversalServiceIdentifier().getHL7NameofCodingSystem()!=null
-                        && hl7OBRType.getUniversalServiceIdentifier().getHL7NameofCodingSystem().equals(EdxELRConstant.ELR_LOINC_CD)){
+                if (hl7OBRType.getUniversalServiceIdentifier() != null
+                        && hl7OBRType.getUniversalServiceIdentifier().getHL7NameofCodingSystem() != null
+                        && hl7OBRType.getUniversalServiceIdentifier().getHL7NameofCodingSystem().equals(EdxELRConstant.ELR_LOINC_CD)) {
                     observationDto.setCdSystemCd(EdxELRConstant.ELR_LOINC_CD);
                     observationDto.setCdSystemDescTxt(EdxELRConstant.ELR_LOINC_DESC);
                 }
 
-                if(hl7OBRType.getUniversalServiceIdentifier().getHL7Identifier()!=null) {
+                if (hl7OBRType.getUniversalServiceIdentifier().getHL7Identifier() != null) {
                     observationDto.setCd(hl7OBRType.getUniversalServiceIdentifier().getHL7Identifier());
                 }
 
-                if(hl7OBRType.getUniversalServiceIdentifier().getHL7Text()!=null) {
+                if (hl7OBRType.getUniversalServiceIdentifier().getHL7Text() != null) {
                     observationDto.setCdDescTxt(hl7OBRType.getUniversalServiceIdentifier().getHL7Text());
                 }
 
 
-                if(observationDto.getCd()!=null) {
+                if (observationDto.getCd() != null) {
                     observationDto.setAltCd(hl7OBRType.getUniversalServiceIdentifier().getHL7AlternateIdentifier());
-                }
-                else {
+                } else {
                     observationDto.setCd(hl7OBRType.getUniversalServiceIdentifier().getHL7AlternateIdentifier());
                 }
 
-                if(observationDto.getCdDescTxt()!=null) {
+                if (observationDto.getCdDescTxt() != null) {
                     observationDto.setAltCdDescTxt(hl7OBRType.getUniversalServiceIdentifier().getHL7AlternateText());
-                }
-                else {
+                } else {
                     observationDto.setCdDescTxt(hl7OBRType.getUniversalServiceIdentifier().getHL7AlternateText());
                 }
 
-                if(observationDto.getCdSystemCd()!=null
+                if (observationDto.getCdSystemCd() != null
                         && observationDto.getCdSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_LOINC_CD)
-                        && (observationDto.getAltCd()!=null) ){
+                        && (observationDto.getAltCd() != null)) {
                     observationDto.setAltCdSystemCd(EdxELRConstant.ELR_LOCAL_CD);
                     observationDto.setAltCdSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
-                }else if((observationDto.getCd()!=null || observationDto.getCdDescTxt()!=null) && observationDto.getCdSystemCd()==null){
+                } else if ((observationDto.getCd() != null || observationDto.getCdDescTxt() != null) && observationDto.getCdSystemCd() == null) {
                     observationDto.setCdSystemCd(EdxELRConstant.ELR_LOCAL_CD);
                     observationDto.setCdSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
                 }
-                if(
-                    (
-                        observationDto.getCd()==null
-                        || observationDto.getCd().trim().equalsIgnoreCase("")
-                    )
-                    && (observationDto.getAltCd()==null
-                        || observationDto.getAltCd().trim().equalsIgnoreCase("")
-                    )
-                )
-                {
+                if (
+                        (
+                                observationDto.getCd() == null
+                                        || observationDto.getCd().trim().equalsIgnoreCase("")
+                        )
+                                && (observationDto.getAltCd() == null
+                                || observationDto.getAltCd().trim().equalsIgnoreCase("")
+                        )
+                ) {
                     edxLabInformationDto.setOrderTestNameMissing(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
-                    String xmlElementName = commonLabUtil.getXMLElementNameForOBR(hl7OBRType)+".UniversalServiceIdentifier";
-                    throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME+" XMLElementName: "+xmlElementName);
+                    String xmlElementName = commonLabUtil.getXMLElementNameForOBR(hl7OBRType) + ".UniversalServiceIdentifier";
+                    throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME + " XMLElementName: " + xmlElementName);
                 }
 
             }
             observationDto.setPriorityCd(hl7OBRType.getPriorityOBR());
             observationDto.setActivityFromTime(edxLabInformationDto.getOrderEffectiveDate());
             observationDto.setActivityToTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getResultsRptStatusChngDateTime(), EdxELRConstant.DATE_VALIDATION_OBR_RESULTS_RPT_STATUS_CHNG_TO_TIME_MSG));
-            observationDto.setEffectiveFromTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getObservationDateTime(),EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_DATE_MSG));
-            observationDto.setEffectiveToTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getObservationEndDateTime(),EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_END_DATE_MSG));
+            observationDto.setEffectiveFromTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getObservationDateTime(), EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_DATE_MSG));
+            observationDto.setEffectiveToTime(nbsObjectConverter.processHL7TSType(hl7OBRType.getObservationEndDateTime(), EdxELRConstant.DATE_VALIDATION_OBR_OBSERVATION_END_DATE_MSG));
 
-            List<HL7CWEType> reasonArray =hl7OBRType.getReasonforStudy();
+            List<HL7CWEType> reasonArray = hl7OBRType.getReasonforStudy();
             Collection<ObservationReasonDto> obsReasonDTColl = new ArrayList<>();
             for (HL7CWEType hl7CWEType : reasonArray) {
                 ObservationReasonDto obsReasonDT = new ObservationReasonDto();
@@ -247,37 +239,36 @@ public class ObservationRequestHandler {
 
                 obsReasonDTColl.add(obsReasonDT);
             }
-            if(edxLabInformationDto.getLastChgTime()==null) {
+            if (edxLabInformationDto.getLastChgTime() == null) {
                 observationDto.setRptToStateTime(edxLabInformationDto.getAddTime());
-            }
-            else {
+            } else {
                 observationDto.setRptToStateTime(edxLabInformationDto.getLastChgTime());
             }
             observationContainer.setTheObservationDto(observationDto);
             observationContainer.setTheObservationReasonDtoCollection(obsReasonDTColl);
             labResultProxyContainer.getTheObservationContainerCollection().add(observationContainer);
-            if(edxLabInformationDto.getRootObservationContainer()==null) {
+            if (edxLabInformationDto.getRootObservationContainer() == null) {
                 edxLabInformationDto.setRootObservationContainer(observationContainer);
             }
 
 
-            if(hl7OBRType.getParent()==null){
+            if (hl7OBRType.getParent() == null) {
                 processRootOBR(hl7OBRType, observationDto, labResultProxyContainer, hl7PatientResultSPMType, edxLabInformationDto);
             }
 
-            if(hl7OBRType.getParent()!=null){
+            if (hl7OBRType.getParent() != null) {
                 processSusOBR(hl7OBRType, observationDto, labResultProxyContainer, edxLabInformationDto);
             }
-            if(hl7OBRType.getParentResult()==null){
+            if (hl7OBRType.getParentResult() == null) {
                 edxLabInformationDto.setParentObservationUid(0L);
                 edxLabInformationDto.setParentObsInd(false);
             }
 
-            if(hl7OBRType.getResultCopiesTo()!=null){
-                for(int i=0; i<hl7OBRType.getResultCopiesTo().size(); i++){
-                    HL7XCNType providerType =hl7OBRType.getResultCopiesTo().get(i);
+            if (hl7OBRType.getResultCopiesTo() != null) {
+                for (int i = 0; i < hl7OBRType.getResultCopiesTo().size(); i++) {
+                    HL7XCNType providerType = hl7OBRType.getResultCopiesTo().get(i);
                     edxLabInformationDto.setRole(EdxELRConstant.ELR_COPY_TO_CD);
-                    PersonContainer personContainer = getProviderVO(providerType,null, labResultProxyContainer, edxLabInformationDto);
+                    PersonContainer personContainer = getProviderVO(providerType, null, labResultProxyContainer, edxLabInformationDto);
                     labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
 
                 }
@@ -285,32 +276,31 @@ public class ObservationRequestHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getObservationRequest:"+e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at ObservationRequest.getObservationRequest:"+ e.getMessage());
+            logger.error("Exception thrown at ObservationRequest.getObservationRequest:" + e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.getObservationRequest:" + e.getMessage());
         }
-
 
 
         return labResultProxyContainer;
 
     }
+
     @SuppressWarnings("java:S6541")
     private void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
-                                      LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+                               LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
             EdxLabIdentiferDto edxLabIdentiferDT;
-            if(hl7OBRType.getParentResult()== null ||
-                    hl7OBRType.getParentResult().getParentObservationIdentifier()==null||
-                    (hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7Identifier()==null &&
-                            hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null))
-            {
+            if (hl7OBRType.getParentResult() == null ||
+                    hl7OBRType.getParentResult().getParentObservationIdentifier() == null ||
+                    (hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7Identifier() == null &&
+                            hl7OBRType.getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier() == null)) {
                 edxLabInformationDto.setReflexOrderedTestCdMissing(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.ELR_MASTER_LOG_ID_13);
             }
             Long parentObservation = null;
             boolean fillerMatch = false;
-            if(edxLabInformationDto.getEdxLabIdentiferDTColl()!=null){
+            if (edxLabInformationDto.getEdxLabIdentiferDTColl() != null) {
                 for (EdxLabIdentiferDto labIdentiferDT : edxLabInformationDto.getEdxLabIdentiferDTColl()) {
                     edxLabIdentiferDT = labIdentiferDT;
                     if (edxLabIdentiferDT.getIdentifer() != null
@@ -328,23 +318,23 @@ public class ObservationRequestHandler {
                         fillerMatch = true;
                     }
                 }
-                if(parentObservation == null || !fillerMatch){
+                if (parentObservation == null || !fillerMatch) {
                     edxLabInformationDto.setChildSuscWithoutParentResult(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.CHILD_SUSC_WITH_NO_PARENT_RESULT);
                 }
             }
-            if(edxLabInformationDto.getEdxSusLabDTMap()== null || edxLabInformationDto.getEdxSusLabDTMap().get(parentObservation)!=null){
+            if (edxLabInformationDto.getEdxSusLabDTMap() == null || edxLabInformationDto.getEdxSusLabDTMap().get(parentObservation) != null) {
 
-                ObservationContainer obsVO= new ObservationContainer();
-                ObservationDto obsDT= new ObservationDto();
+                ObservationContainer obsVO = new ObservationContainer();
+                ObservationDto obsDT = new ObservationDto();
                 obsDT.setCd(EdxELRConstant.ELR_LAB222_CD);
                 obsDT.setCdDescTxt(EdxELRConstant.ELR_NO_INFO_DESC);
                 obsDT.setObsDomainCdSt1(EdxELRConstant.ELR_REF_ORDER_CD);
                 obsDT.setCtrlCdDisplayForm(EdxELRConstant.CTRL_CD_DISPLAY_FORM);
                 obsDT.setElectronicInd(EdxELRConstant.ELR_ELECTRONIC_IND);
                 obsDT.setStatusTime(edxLabInformationDto.getAddTime());
-                obsDT.setObservationUid((long)(edxLabInformationDto.getNextUid()));
+                obsDT.setObservationUid((long) (edxLabInformationDto.getNextUid()));
                 obsDT.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD);
                 obsDT.setItNew(true);
                 obsDT.setItDirty(false);
@@ -354,7 +344,7 @@ public class ObservationRequestHandler {
                 obsValueCodedDto.setObservationUid(observationDto.getObservationUid());
                 obsValueCodedDto.setCode(EdxELRConstant.ELR_YES_CD);
 
-                if(obsVO.getTheObsValueCodedDtoCollection()==null) {
+                if (obsVO.getTheObsValueCodedDtoCollection() == null) {
                     obsVO.setTheObsValueCodedDtoCollection(new ArrayList<>());
                 }
                 obsVO.getTheObsValueCodedDtoCollection().add(obsValueCodedDto);
@@ -373,7 +363,7 @@ public class ObservationRequestHandler {
                 actRelationshipDto.setAddTime(edxLabInformationDto.getAddTime());
                 actRelationshipDto.setLastChgTime(edxLabInformationDto.getAddTime());
                 actRelationshipDto.setRecordStatusTime(edxLabInformationDto.getAddTime());
-                if(labResultProxyContainer.getTheActRelationshipDtoCollection()==null) {
+                if (labResultProxyContainer.getTheActRelationshipDtoCollection() == null) {
                     labResultProxyContainer.setTheActRelationshipDtoCollection(new ArrayList<>());
                 }
                 labResultProxyContainer.getTheActRelationshipDtoCollection().add(actRelationshipDto);
@@ -391,137 +381,132 @@ public class ObservationRequestHandler {
                 arDT.setItNew(true);
                 arDT.setItDirty(false);
                 labResultProxyContainer.getTheActRelationshipDtoCollection().add(arDT);
-                if(hl7OBRType.getParent()!=null){
+                if (hl7OBRType.getParent() != null) {
                     labResultProxyContainer.getTheObservationContainerCollection().add(obsVO);
                 }
                 edxLabInformationDto.getEdxSusLabDTMap().put(parentObservation, obsVO.getTheObservationDto().getObservationUid());
             }
 
-            if(parentObservation!=null){
+            if (parentObservation != null) {
                 Long uid = (Long) edxLabInformationDto.getEdxSusLabDTMap().get(parentObservation);
-                if(uid!=null){
+                if (uid != null) {
                     edxLabInformationDto.setParentObservationUid(uid);
                     edxLabInformationDto.setParentObsInd(true);
                 }
             }
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.processSusOBR:"+e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at ObservationRequest.processSusOBR:"+ e);
+            logger.error("Exception thrown at ObservationRequest.processSusOBR:" + e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.processSusOBR:" + e);
         }
 
     }
 
     /**
      * Processing
-     *  PROVIDER info
-     *  other obs info
-     * */
+     * PROVIDER info
+     * other obs info
+     */
     @SuppressWarnings("java:S6541")
     private void processRootOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
-                                       LabResultProxyContainer labResultProxyContainer, HL7PatientResultSPMType hl7PatientResultSPMType,
-                                       EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
+                                LabResultProxyContainer labResultProxyContainer, HL7PatientResultSPMType hl7PatientResultSPMType,
+                                EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
 
 
         try {
 
             PersonContainer collectorVO = null;
             List<HL7XCNType> collectorArray = hl7OBRType.getCollectorIdentifier();
-            if(collectorArray!=null && collectorArray.size() > 1) {
+            if (collectorArray != null && collectorArray.size() > 1) {
                 edxLabInformationDto.setMultipleCollector(true);
             }
-            if(collectorArray!=null && !collectorArray.isEmpty()){
-                HL7XCNType collector= collectorArray.get(0);
+            if (collectorArray != null && !collectorArray.isEmpty()) {
+                HL7XCNType collector = collectorArray.get(0);
                 collectorVO = getCollectorVO(collector, labResultProxyContainer, edxLabInformationDto);
                 labResultProxyContainer.getThePersonContainerCollection().add(collectorVO);
             }
-            if(hl7OBRType.getRelevantClinicalInformation()!=null) {
+            if (hl7OBRType.getRelevantClinicalInformation() != null) {
                 observationDto.setTxt(hl7OBRType.getRelevantClinicalInformation());
             }
-            if(hl7PatientResultSPMType!=null){
+            if (hl7PatientResultSPMType != null) {
                 logger.debug("ObservationRequest.getObservationRequest specimen is being processes for 2.5.1 message type");
-                hl7SpecimenUtil.process251Specimen( hl7PatientResultSPMType, labResultProxyContainer, observationDto,  collectorVO, edxLabInformationDto);
+                hl7SpecimenUtil.process251Specimen(hl7PatientResultSPMType, labResultProxyContainer, observationDto, collectorVO, edxLabInformationDto);
             }
             List<HL7XCNType> orderingProviderArray = hl7OBRType.getOrderingProvider();
-            if(orderingProviderArray!=null && orderingProviderArray.size()  >1){
+            if (orderingProviderArray != null && orderingProviderArray.size() > 1) {
                 edxLabInformationDto.setMultipleOrderingProvider(true);
             }
             PersonContainer orderingProviderVO;
-            if(orderingProviderArray!=null && !orderingProviderArray.isEmpty()){
-                HL7XCNType orderingProvider=orderingProviderArray.get(0);
-                Collection<EntityLocatorParticipationDto> entitylocatorColl =null;
+            if (orderingProviderArray != null && !orderingProviderArray.isEmpty()) {
+                HL7XCNType orderingProvider = orderingProviderArray.get(0);
+                Collection<EntityLocatorParticipationDto> entitylocatorColl = null;
 
                 PersonContainer providerVO;
-                if(edxLabInformationDto.getOrderingProviderVO()!=null){
+                if (edxLabInformationDto.getOrderingProviderVO() != null) {
                     providerVO = edxLabInformationDto.getOrderingProviderVO();
-                    entitylocatorColl=providerVO.getTheEntityLocatorParticipationDtoCollection();
-                    if(labResultProxyContainer.getThePersonContainerCollection().contains(providerVO)) {
-                        labResultProxyContainer.getThePersonContainerCollection().remove(providerVO);
-                    }
+                    entitylocatorColl = providerVO.getTheEntityLocatorParticipationDtoCollection();
+                    labResultProxyContainer.getThePersonContainerCollection().remove(providerVO);
                 }
                 edxLabInformationDto.setRole(EdxELRConstant.ELR_OP_CD);
-                orderingProviderVO= getProviderVO(orderingProvider,entitylocatorColl, labResultProxyContainer, edxLabInformationDto);
+                orderingProviderVO = getProviderVO(orderingProvider, entitylocatorColl, labResultProxyContainer, edxLabInformationDto);
                 edxLabInformationDto.setOrderingProvider(true);
 
-                if(hl7OBRType.getOrderCallbackPhoneNumber()!=null && orderingProviderVO!=null && !hl7OBRType.getOrderCallbackPhoneNumber().isEmpty()){
-                    HL7XTNType orderingProvPhone  =hl7OBRType.getOrderCallbackPhoneNumber().get(0);
+                if (hl7OBRType.getOrderCallbackPhoneNumber() != null && orderingProviderVO != null && !hl7OBRType.getOrderCallbackPhoneNumber().isEmpty()) {
+                    HL7XTNType orderingProvPhone = hl7OBRType.getOrderCallbackPhoneNumber().get(0);
                     EntityLocatorParticipationDto elpt = nbsObjectConverter.personTelePhoneType(orderingProvPhone, EdxELRConstant.ELR_PROVIDER_CD, orderingProviderVO);
                     elpt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 }
-                if(labResultProxyContainer.getThePersonContainerCollection()==null) {
+                if (labResultProxyContainer.getThePersonContainerCollection() == null) {
                     labResultProxyContainer.setThePersonContainerCollection(new ArrayList<>());
                 }
-                if(orderingProviderVO!=null) {
+                if (orderingProviderVO != null) {
                     labResultProxyContainer.getThePersonContainerCollection().add(orderingProviderVO);
                 }
 
-            }else{
-                if(edxLabInformationDto.getOrderingProviderVO()!=null){
+            } else {
+                if (edxLabInformationDto.getOrderingProviderVO() != null) {
                     edxLabInformationDto.setOrderingProvider(false);
                     PersonContainer providerVO = edxLabInformationDto.getOrderingProviderVO();
-                    if(labResultProxyContainer.getThePersonContainerCollection().contains(providerVO)) {
-                        labResultProxyContainer.getThePersonContainerCollection().remove(providerVO);
-                    }
+                    labResultProxyContainer.getThePersonContainerCollection().remove(providerVO);
                 }
             }
-            if(edxLabInformationDto.isMissingOrderingProvider() && edxLabInformationDto.isMissingOrderingFacility()){
+            if (edxLabInformationDto.isMissingOrderingProvider() && edxLabInformationDto.isMissingOrderingFacility()) {
                 edxLabInformationDto.setMissingOrderingProviderandFacility(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException("HL7ORCProcessorget.getORCProcessing: Both Ordering Provider and Ordering facility are null. Please check!!!");
             }
 
-            HL7NDLType  princResultInterpretor = hl7OBRType.getPrincipalResultInterpreter();
+            HL7NDLType princResultInterpretor = hl7OBRType.getPrincipalResultInterpreter();
             edxLabInformationDto.setMultiplePrincipalInterpreter(false);
             edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_PROVIDER_CD);
-            getOtherProviderVO( princResultInterpretor, labResultProxyContainer, edxLabInformationDto);
+            getOtherProviderVO(princResultInterpretor, labResultProxyContainer, edxLabInformationDto);
 
 
-
-            if( hl7OBRType.getAssistantResultInterpreter() !=null){
-                for(int i = 0; i<hl7OBRType.getAssistantResultInterpreter().size(); i++){
-                    HL7NDLType  assPrincResultInterpretor =hl7OBRType.getAssistantResultInterpreter().get(i);
+            if (hl7OBRType.getAssistantResultInterpreter() != null) {
+                for (int i = 0; i < hl7OBRType.getAssistantResultInterpreter().size(); i++) {
+                    HL7NDLType assPrincResultInterpretor = hl7OBRType.getAssistantResultInterpreter().get(i);
                     edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
-                    getOtherProviderVO( assPrincResultInterpretor, labResultProxyContainer, edxLabInformationDto);
+                    getOtherProviderVO(assPrincResultInterpretor, labResultProxyContainer, edxLabInformationDto);
                 }
             }
 
 
-            if( hl7OBRType.getTechnician()!=null){
-                for(int i = 0; i<hl7OBRType.getTechnician().size(); i++){
-                    HL7NDLType  technician =hl7OBRType.getTechnician().get(i);
+            if (hl7OBRType.getTechnician() != null) {
+                for (int i = 0; i < hl7OBRType.getTechnician().size(); i++) {
+                    HL7NDLType technician = hl7OBRType.getTechnician().get(i);
                     edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_PERFORMER_CD);
-                    getOtherProviderVO( technician, labResultProxyContainer, edxLabInformationDto);
+                    getOtherProviderVO(technician, labResultProxyContainer, edxLabInformationDto);
                 }
             }
-            if( hl7OBRType.getTranscriptionist()!=null){
-                for(int i = 0; i<hl7OBRType.getTranscriptionist().size(); i++){
-                    HL7NDLType  technician =hl7OBRType.getTranscriptionist().get(i);
+            if (hl7OBRType.getTranscriptionist() != null) {
+                for (int i = 0; i < hl7OBRType.getTranscriptionist().size(); i++) {
+                    HL7NDLType technician = hl7OBRType.getTranscriptionist().get(i);
                     edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_ENTERER_CD);
-                    getOtherProviderVO( technician, labResultProxyContainer, edxLabInformationDto);
+                    getOtherProviderVO(technician, labResultProxyContainer, edxLabInformationDto);
                 }
             }
         } catch (Exception e) {
-            logger.error(" Exception thrown at ObservationRequest.processRootOBR:"+e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at ObservationRequest.processRootOBR:"+ e.getMessage() +e);
+            logger.error(" Exception thrown at ObservationRequest.processRootOBR:" + e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.processRootOBR:" + e.getMessage() + e);
         }
 
     }
@@ -549,11 +534,11 @@ public class ObservationRequestHandler {
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PROVIDER_CD);
 
             personContainer = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
-            
+
             personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
             PersonNameDto personNameDto = new PersonNameDto();
-            if(collector.getHL7FamilyName()!=null && collector.getHL7FamilyName().getHL7Surname()!=null) {
+            if (collector.getHL7FamilyName() != null && collector.getHL7FamilyName().getHL7Surname() != null) {
                 personNameDto.setLastNm(collector.getHL7FamilyName().getHL7Surname());
             }
             personNameDto.setFirstNm(collector.getHL7GivenName());
@@ -588,10 +573,10 @@ public class ObservationRequestHandler {
             roleDto.setItNew(true);
             roleDto.setItDirty(false);
             labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
-            
+
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getCollectorVO:"+e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at ObservationRequest.getCollectorVO:"+ e);
+            logger.error("Exception thrown at ObservationRequest.getCollectorVO:" + e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.getCollectorVO:" + e);
         }
 
         return personContainer;
@@ -601,15 +586,15 @@ public class ObservationRequestHandler {
 
         PersonContainer personContainer;
         try {
-            if(providerType==null) {
+            if (providerType == null) {
                 return null;
             }
             personContainer = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
-            if(providerType.getHL7Name()!=null && providerType.getHL7Name().getHL7IDNumber()!=null){
+            if (providerType.getHL7Name() != null && providerType.getHL7Name().getHL7IDNumber() != null) {
                 Collection<EntityIdDto> entityColl = new ArrayList<>();
                 EntityIdDto entityIdDto = new EntityIdDto();
-                entityIdDto.setEntityUid((long)(edxLabInformationDto.getNextUid()));
+                entityIdDto.setEntityUid((long) (edxLabInformationDto.getNextUid()));
                 entityIdDto.setEntityIdSeq(1);
                 entityIdDto.setAddTime(edxLabInformationDto.getAddTime());
                 entityIdDto.setRootExtensionTxt(providerType.getHL7Name().getHL7IDNumber());
@@ -624,7 +609,7 @@ public class ObservationRequestHandler {
                 entityIdDto.setItNew(true);
                 entityIdDto.setItDirty(false);
                 entityColl.add(entityIdDto);
-                if(entityIdDto.getEntityUid()!=null) {
+                if (entityIdDto.getEntityUid() != null) {
                     personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
                 }
             }
@@ -632,27 +617,23 @@ public class ObservationRequestHandler {
             ParticipationDto participationDto = new ParticipationDto();
             participationDto.setSubjectEntityUid(personContainer.getThePersonDto().getPersonUid());
 
-            if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_PROVIDER_CD)){
+            if (edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_PROVIDER_CD)) {
                 participationDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
                 participationDto.setTypeCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_VERIFIER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_VERIFIER_CD)){
+            } else if (edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_VERIFIER_CD)) {
                 participationDto.setCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
                 participationDto.setTypeCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_VERIFIER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_PERFORMER_CD)){
+            } else if (edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_PERFORMER_CD)) {
                 participationDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
                 participationDto.setTypeCd(EdxELRConstant.ELR_LAB_PERFORMER_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_PERFORMER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_ENTERER_CD)){
+            } else if (edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_ENTERER_CD)) {
                 participationDto.setCd(EdxELRConstant.ELR_LAB_ENTERER_CD);
                 participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ENTERER_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ENTERER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_ASSISTANT_CD)){
+            } else if (edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_ASSISTANT_CD)) {
                 participationDto.setCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
                 participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
                 participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ASSISTANT_DESC);
@@ -666,13 +647,13 @@ public class ObservationRequestHandler {
             labResultProxyContainer.getTheParticipationDtoCollection().add(participationDto);
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PROVIDER_CD);
             nbsObjectConverter.processCNNPersonName(providerType.getHL7Name(), personContainer);
-            if(labResultProxyContainer.getThePersonContainerCollection()==null) {
+            if (labResultProxyContainer.getThePersonContainerCollection() == null) {
                 labResultProxyContainer.setThePersonContainerCollection(new ArrayList<>());
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getCollectorVO:"+e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at ObservationRequest.getCollectorVO:"+ e);
+            logger.error("Exception thrown at ObservationRequest.getCollectorVO:" + e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.getCollectorVO:" + e);
         }
         return personContainer;
     }
@@ -682,7 +663,7 @@ public class ObservationRequestHandler {
 
         try {
             EntityIdDto entityIdDto = new EntityIdDto();
-            entityIdDto.setEntityUid((long)(edxLabInformationDto.getNextUid()));
+            entityIdDto.setEntityUid((long) (edxLabInformationDto.getNextUid()));
             entityIdDto.setAddTime(edxLabInformationDto.getAddTime());
             entityIdDto.setEntityIdSeq(1);
             entityIdDto.setRootExtensionTxt(orderingProvider.getHL7IDNumber());
@@ -696,15 +677,15 @@ public class ObservationRequestHandler {
             entityIdDto.setAsOfDate(edxLabInformationDto.getAddTime());
             entityIdDto.setItNew(true);
             entityIdDto.setItDirty(false);
-            personContainer =hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
-            if(entitylocatorColl!=null) {
+            personContainer = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+            if (entitylocatorColl != null) {
                 personContainer.setTheEntityLocatorParticipationDtoCollection(entitylocatorColl);
             }
-            if(entityIdDto.getEntityUid()!=null) {
+            if (entityIdDto.getEntityUid() != null) {
                 personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
             }
 
-            if(edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)){
+            if (edxLabInformationDto.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
                 ParticipationDto participationDto = new ParticipationDto();
                 participationDto.setActClassCd(EdxELRConstant.ELR_OBS);
                 participationDto.setCd(EdxELRConstant.ELR_OP_CD);
@@ -719,7 +700,7 @@ public class ObservationRequestHandler {
 
             }
             PersonNameDto personNameDto = new PersonNameDto();
-            if(orderingProvider.getHL7FamilyName()!=null && orderingProvider.getHL7FamilyName().getHL7Surname()!=null ) {
+            if (orderingProvider.getHL7FamilyName() != null && orderingProvider.getHL7FamilyName().getHL7Surname() != null) {
                 personNameDto.setLastNm(orderingProvider.getHL7FamilyName().getHL7Surname());
             }
             personNameDto.setFirstNm(orderingProvider.getHL7GivenName());
@@ -739,15 +720,13 @@ public class ObservationRequestHandler {
             personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getOrderingProviderVO:"+e);
-            throw new DataProcessingException("Exception thrown at ObservationRequest.getOrderingProviderVO:"+ e);
+            logger.error("Exception thrown at ObservationRequest.getOrderingProviderVO:" + e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.getOrderingProviderVO:" + e);
 
         }
 
         return personContainer;
     }
-
-
 
 
 }

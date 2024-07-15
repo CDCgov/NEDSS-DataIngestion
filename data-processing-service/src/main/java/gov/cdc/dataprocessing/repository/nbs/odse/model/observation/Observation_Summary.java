@@ -1,10 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.observation;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 public class Observation_Summary {
     private Long uid;
     private Timestamp addTime;

@@ -11,6 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NBSDocumentDto extends BaseContainer implements RootDtoInterface {
 
     private static final long serialVersionUID = 1L;

@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ActRelationshipId implements Serializable {
     private Long sourceActUid;
     private Long targetActUid;

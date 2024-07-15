@@ -13,15 +13,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 @SuppressWarnings("java:S2187")
-class AdvancedCriteriaTest
-{
-    @InjectMocks
-    private AdvancedCriteria advancedCriteria;
+class AdvancedCriteriaTest {
     @Mock
     AuthUtil authUtil;
-
     @Mock
     Algorithm algorithm;
+    @InjectMocks
+    private AdvancedCriteria advancedCriteria;
 
     @BeforeEach
     void setUp() {
@@ -32,7 +30,7 @@ class AdvancedCriteriaTest
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

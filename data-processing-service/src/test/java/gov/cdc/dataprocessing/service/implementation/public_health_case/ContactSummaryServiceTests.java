@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 class ContactSummaryServiceTests {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private QueryHelper queryHelper;
     @Mock
     private PersonNameRepository personNameRepository;
@@ -38,11 +40,8 @@ class ContactSummaryServiceTests {
     private CustomRepository customRepository;
     @Mock
     private IRetrieveSummaryService retrieveSummaryService;
-    
     @InjectMocks
     private ContactSummaryService contactSummaryService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -53,7 +52,7 @@ class ContactSummaryServiceTests {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -65,7 +64,7 @@ class ContactSummaryServiceTests {
     void getContactListForInvestigation_Success() throws DataProcessingException {
         long phcUid = 10L;
 
-        when(queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT,"VIEW", "")).thenReturn("BLAH");
+        when(queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT, "VIEW", "")).thenReturn("BLAH");
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "")).thenReturn("BLAH");
 
         var contactSumCol = new ArrayList<CTContactSummaryDto>();

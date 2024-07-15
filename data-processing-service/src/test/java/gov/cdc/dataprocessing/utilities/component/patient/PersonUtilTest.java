@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
 
 class PersonUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ObservationUtil observationUtil;
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
@@ -37,11 +39,8 @@ class PersonUtilTest {
     private ProviderMatchingService providerMatchingService;
     @Mock
     private IUidService uidService;
-
     @InjectMocks
     private PersonUtil personUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -52,17 +51,17 @@ class PersonUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(observationUtil, patientRepositoryUtil,patientMatchingService,
+        Mockito.reset(observationUtil, patientRepositoryUtil, patientMatchingService,
                 providerMatchingService, uidService, authUtil);
     }
 
     @Test
-    void processLabPersonContainerCollection_Test()  {
+    void processLabPersonContainerCollection_Test() {
         var personContainerCollection = new ArrayList<PersonContainer>();
         boolean morbidityApplied = true;
         BaseContainer dataContainer = new BaseContainer();

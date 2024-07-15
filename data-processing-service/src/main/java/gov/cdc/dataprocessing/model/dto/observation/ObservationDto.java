@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ObservationDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
     private Long observationUid;
@@ -173,16 +174,6 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
     private String pregnantIndCd;
     private Integer pregnantWeek;
 
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return observationUid;
-    }
-
     public ObservationDto() {
         itDirty = false;
         itNew = true;
@@ -264,6 +255,16 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
         this.pregnantIndCd = observation.getPregnantIndCd();
         this.pregnantWeek = observation.getPregnantWeek();
         this.processingDecisionTxt = observation.getProcessingDecisionTxt();
+    }
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return observationUid;
     }
 
 //    // Constructor for converting Observation to ObservationDto

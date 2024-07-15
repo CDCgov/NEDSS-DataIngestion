@@ -27,7 +27,7 @@ public class EntityIdUtil {
 
     /**
      * This method process then parse data from Person into EntityId Object
-     * */
+     */
     public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null) {
@@ -35,26 +35,23 @@ public class EntityIdUtil {
             entityIdDto.setAddTime(personContainer.getThePersonDto().getAddTime());
             entityIdDto.setEntityIdSeq(index + 1);
             entityIdDto.setRootExtensionTxt(hl7CXType.getHL7IDNumber());
-            
-            if(hl7CXType.getHL7AssigningAuthority() != null){
+
+            if (hl7CXType.getHL7AssigningAuthority() != null) {
                 entityIdDto.setAssigningAuthorityCd(hl7CXType.getHL7AssigningAuthority().getHL7UniversalID());
                 entityIdDto.setAssigningAuthorityDescTxt(hl7CXType.getHL7AssigningAuthority().getHL7NamespaceID());
                 entityIdDto.setAssigningAuthorityIdType(hl7CXType.getHL7AssigningAuthority().getHL7UniversalIDType());
             }
-            
+
             if (indicator != null && indicator.equals(EdxELRConstant.ELR_PATIENT_ALTERNATE_IND)) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PATIENT_ALTERNATE_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PATIENT_ALTERNATE_DESC);
-            }
-            else if (indicator != null && indicator.equals(EdxELRConstant.ELR_MOTHER_IDENTIFIER)) {
+            } else if (indicator != null && indicator.equals(EdxELRConstant.ELR_MOTHER_IDENTIFIER)) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_MOTHER_IDENTIFIER);
-            }
-            else if (indicator != null && indicator.equals(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER)) {
+            } else if (indicator != null && indicator.equals(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER)) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
-            }
-            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().isEmpty()) {
+            } else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().isEmpty()) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
 
@@ -104,11 +101,11 @@ public class EntityIdUtil {
 
             if (year >= 0 && month >= 0 && date >= 0) {
                 toTime = month + "/" + date + "/" + year;
-                logger.debug("  in processHL7DTType: Date string is: " +toTime);
+                logger.debug("  in processHL7DTType: Date string is: " + toTime);
                 toTimestamp = stringToStrutsTimestamp(toTime);
             }
             if (isDateNotOkForDatabase(toTimestamp)) {
-                throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7DTType " +itemDescription +toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
+                throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7DTType " + itemDescription + toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
             }
         }
 
@@ -123,12 +120,10 @@ public class EntityIdUtil {
                 t = formatter.parse(strTime);
                 logger.debug(String.valueOf(t));
                 return new Timestamp(t.getTime());
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.info("string could not be parsed into time");
             return null;
         }
@@ -138,24 +133,22 @@ public class EntityIdUtil {
      * The earliest date that can be stored in SQL is Jan 1st, 1753 and the latest is Dec 31st, 9999
      * Check the date so we don't get a SQL error.
      */
-    public boolean isDateNotOkForDatabase (Timestamp dateVal) {
+    public boolean isDateNotOkForDatabase(Timestamp dateVal) {
         if (dateVal == null)
             return false;
         String earliestDate = "1753-01-01";
         String latestDate = "9999-12-31";
-        try{
+        try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date earliestDateAcceptable = dateFormat.parse(earliestDate);
-            if (dateVal.before(earliestDateAcceptable))
-            {
+            if (dateVal.before(earliestDateAcceptable)) {
                 return true;
             }
             Date lastAcceptableDate = dateFormat.parse(latestDate);
-            if (dateVal.after(lastAcceptableDate))
-            {
+            if (dateVal.after(lastAcceptableDate)) {
                 return true;
             }
-        }catch(Exception ex){//this generic but you can control another types of exception
+        } catch (Exception ex) {//this generic but you can control another types of exception
             logger.error("Unexpected exception in checkDateForDatabase() " + ex.getMessage());
         }
         return false;

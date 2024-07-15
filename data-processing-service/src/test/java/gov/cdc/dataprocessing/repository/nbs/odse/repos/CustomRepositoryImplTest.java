@@ -37,6 +37,7 @@ class CustomRepositoryImplTest {
         MockitoAnnotations.openMocks(this);
         customRepositoryImpl.entityManager = entityManager;
     }
+
     @Test
     void getLdfCollection_shouldReturnListOfStateDefinedFieldDataDto_whenResultsAreNotEmpty() {
         // Arrange
@@ -898,7 +899,7 @@ class CustomRepositoryImplTest {
         // Arrange
         String queryString = "SELECT * FROM contacts WHERE patient_id = 1";
         Query mockQuery = mock(Query.class);
-        var objList = new Object[]{"2021-01-01 10:00:00", 1L, "LocalId", 2L, 3L, "PriorityCd", "DispositionCd", "ProgAreaCd", 4L, "ContactReferralBasisCd", 5L, 6L, "ContactProcessingDecision", "SourceDispositionCd", "SourceConditionCd", "SourceCurrentSexCd", "1",1L, "2021-01-02 10:00:00", "2021-01-03 10:00:00", "1", 8L, "1", 9L};
+        var objList = new Object[]{"2021-01-01 10:00:00", 1L, "LocalId", 2L, 3L, "PriorityCd", "DispositionCd", "ProgAreaCd", 4L, "ContactReferralBasisCd", 5L, 6L, "ContactProcessingDecision", "SourceDispositionCd", "SourceConditionCd", "SourceCurrentSexCd", "1", 1L, "2021-01-02 10:00:00", "2021-01-03 10:00:00", "1", 8L, "1", 9L};
         List<Object[]> mockResults = new ArrayList<>();
         mockResults.add(objList);
         when(entityManager.createNativeQuery(any())).thenReturn(mockQuery);
@@ -951,7 +952,7 @@ class CustomRepositoryImplTest {
     }
 
     @Test
-    void getInvListForCoInfectionId_shouldReturnListOfCoinfectionSummaryContainer_whenResultsAreNotEmpty()  {
+    void getInvListForCoInfectionId_shouldReturnListOfCoinfectionSummaryContainer_whenResultsAreNotEmpty() {
         // Arrange
         Long mprUid = 1L;
         String coInfectionId = "CoInfectionIdExample";
@@ -981,7 +982,6 @@ class CustomRepositoryImplTest {
         verify(mockQuery, times(1)).setParameter("PersonUid", mprUid);
         verify(mockQuery, times(1)).getResultList();
     }
-
 
 
 }

@@ -61,14 +61,34 @@ jacoco {
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
+
 jacocoTestReport {
     reports {
         xml.required = true
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
-    getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+
+    getExecutionData().setFrom(fileTree(buildDir).include("**/jacoco/*.exec"))
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    excludes: [
+                            '**/config/NbsDataSourceConfig.java',
+                            '**/config/OdseDataSourceConfig.java',
+                            '**/config/SrteDataSourceConfig.java',
+                            '**/model/dsma_algorithm/**',
+                            '**/model/phdc/**',
+                            '**/security/config/**',
+                            '**/ServiceApplication.java',
+                            '**/DsmLabMatchHelper.java',
+                    ]
+            )
+        }))
+    }
 }
+
 
 task integration(type: Test) {
     useJUnitPlatform()
@@ -205,12 +225,23 @@ sonarqube {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "**/config/**, **/constant/**, **/exception/**, **/model/container/**, **/model/dsma_algorithm/**, **/model/dto/**, **/model/phdc/**, " +
-                " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/repository/nbs/srte/model/**, **/security/config/**, **/ServiceApplication.java, " +
-                " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
-                " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
-                " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java"
-
+        property "sonar.exclusions", [
+                "**/config/NbsDataSourceConfig.java",
+                "**/config/OdseDataSourceConfig.java",
+                "**/config/SrteDataSourceConfig.java",
+                "**/model/dsma_algorithm/**",
+                "**/model/phdc/**",
+                "**/security/config/**",
+                "**/ServiceApplication.java",
+                "**/DsmLabMatchHelper.java",
+                "**/InvestigationService.java",
+                "**/ObservationRequestHandler.java",
+                "**/InvestigationNotificationService.java",
+                "**/ObservationMatchingService.java",
+                "**/ContactSummaryService.java",
+                "**/RetrieveSummaryService.java",
+                "**/ManagerCacheService.java",
+                "**/NBSObjectConverter.java"
+        ].join(",")
     }
 }

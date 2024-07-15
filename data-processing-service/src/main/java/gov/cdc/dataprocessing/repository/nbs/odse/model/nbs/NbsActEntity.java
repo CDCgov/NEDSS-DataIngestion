@@ -2,13 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.nbs;
 
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "NBS_act_entity")
-@Data
+@Getter
+@Setter
 public class NbsActEntity {
 
     @Id
@@ -51,6 +53,7 @@ public class NbsActEntity {
     public NbsActEntity() {
 
     }
+
     public NbsActEntity(NbsActEntityDto nbsActEntityDto) {
         this.nbsActEntityUid = nbsActEntityDto.getNbsActEntityUid();
         this.addTime = nbsActEntityDto.getAddTime();

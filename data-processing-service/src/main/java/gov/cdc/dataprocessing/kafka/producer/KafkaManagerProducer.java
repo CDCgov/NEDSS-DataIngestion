@@ -9,26 +9,23 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+
 @Service
 @Slf4j
-public class KafkaManagerProducer  extends KafkaBaseProducer {
+public class KafkaManagerProducer extends KafkaBaseProducer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerProducer.class);
+    @Value("${kafka.topic.elr_health_case}")
+    private String phcTopic = "elr_processing_public_health_case";
+    @Value("${kafka.topic.elr_handle_lab}")
+    private String labHandleTopic = "elr_processing_handle_lab";
+    @Value("${kafka.topic.elr_action_tracker}")
+    private String actionTrackerTopic = "elr_action_tracker";
+    @Value("${kafka.topic.elr_edx_log}")
+    private String edx_log_topic = "elr_edx_log";
+
     public KafkaManagerProducer(KafkaTemplate<String, String> kafkaTemplate) {
         super(kafkaTemplate);
     }
-
-
-    @Value("${kafka.topic.elr_health_case}")
-    private String phcTopic = "elr_processing_public_health_case";
-
-    @Value("${kafka.topic.elr_handle_lab}")
-    private String labHandleTopic = "elr_processing_handle_lab" ;
-
-    @Value("${kafka.topic.elr_action_tracker}")
-    private String actionTrackerTopic = "elr_action_tracker" ;
-
-    @Value("${kafka.topic.elr_edx_log}")
-    private String edx_log_topic = "elr_edx_log";
 
     public void sendDataPhc(String msg) {
         sendData(phcTopic, msg);
@@ -48,6 +45,7 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
         // ADD HEADER if needed
         sendMessage(record);
     }
+
     public void sendDataEdxActivityLog(String msgContent) {
         String uniqueID = "DP_LOG_" + UUID.randomUUID();
         var record = createProducerRecord(edx_log_topic, uniqueID, msgContent);

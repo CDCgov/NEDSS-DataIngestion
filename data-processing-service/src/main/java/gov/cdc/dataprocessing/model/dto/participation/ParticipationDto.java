@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ParticipationDto extends BaseContainer {
     private String addReasonCd;
     private Timestamp addTime;

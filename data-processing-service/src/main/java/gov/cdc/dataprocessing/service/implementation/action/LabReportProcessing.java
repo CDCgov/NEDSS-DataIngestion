@@ -21,18 +21,17 @@ public class LabReportProcessing implements ILabReportProcessing {
         String markAsReviewedFlag = "";
         try {
 
-            if(edxLabInformationDT.getAssociatedPublicHealthCaseUid()==null || edxLabInformationDT.getAssociatedPublicHealthCaseUid() <0){
+            if (edxLabInformationDT.getAssociatedPublicHealthCaseUid() == null || edxLabInformationDT.getAssociatedPublicHealthCaseUid() < 0) {
                 boolean returnValue = observationService.processObservation(observationUid);
                 if (returnValue) {
                     markAsReviewedFlag = "PROCESSED";
-                }
-                else {
+                } else {
                     markAsReviewedFlag = "UNPROCESSED";
                 }
-            }else {
+            } else {
                 observationService.setLabInvAssociation(observationUid, edxLabInformationDT.getAssociatedPublicHealthCaseUid());
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             edxLabInformationDT.setLabIsMarkedAsReviewed(false);
             edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_12);
             throw new DataProcessingException(EdxELRConstant.ELR_MASTER_MSG_ID_12);

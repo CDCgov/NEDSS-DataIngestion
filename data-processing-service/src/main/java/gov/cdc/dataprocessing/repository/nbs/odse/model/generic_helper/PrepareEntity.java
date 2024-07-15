@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PrepareEntity {
     private String localId = null;
     private Long addUserId = null;

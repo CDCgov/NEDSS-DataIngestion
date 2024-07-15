@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class ObsValueNumericDto extends BaseContainer
-{
+@SuppressWarnings("all")
+public class ObsValueNumericDto extends BaseContainer {
     private String numericValue;
 
     private Long observationUid;
@@ -44,13 +44,12 @@ public class ObsValueNumericDto extends BaseContainer
     private Integer numericScale2;
 
 
-
-
     public ObsValueNumericDto() {
         itDirty = false;
         itNew = true;
         itDelete = false;
     }
+
     public ObsValueNumericDto(ObsValueNumeric obsValueNumeric) {
         this.observationUid = obsValueNumeric.getObservationUid();
         this.obsValueNumericSeq = obsValueNumeric.getObsValueNumericSeq();

@@ -11,6 +11,6 @@ public interface IManagerAggregationService {
 
 
     EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
-                                                LabResultProxyContainer labResultProxyContainer,
-                                                Long aPersonUid) throws DataProcessingException;
+                                                       LabResultProxyContainer labResultProxyContainer,
+                                                       Long aPersonUid) throws DataProcessingException;
 }

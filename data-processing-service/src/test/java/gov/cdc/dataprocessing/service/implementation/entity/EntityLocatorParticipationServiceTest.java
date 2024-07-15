@@ -37,19 +37,19 @@ import static org.mockito.Mockito.*;
 
 class EntityLocatorParticipationServiceTest {
     @Mock
-    private  EntityLocatorParticipationRepository entityLocatorParticipationRepository;
+    AuthUtil authUtil;
     @Mock
-    private  TeleLocatorRepository teleLocatorRepository;
+    private EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     @Mock
-    private  PostalLocatorRepository postalLocatorRepository;
+    private TeleLocatorRepository teleLocatorRepository;
     @Mock
-    private  PhysicalLocatorRepository physicalLocatorRepository;
+    private PostalLocatorRepository postalLocatorRepository;
     @Mock
-    private  OdseIdGeneratorService odseIdGeneratorService;
+    private PhysicalLocatorRepository physicalLocatorRepository;
+    @Mock
+    private OdseIdGeneratorService odseIdGeneratorService;
     @InjectMocks
     private EntityLocatorParticipationService entityLocatorParticipationService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +60,7 @@ class EntityLocatorParticipationServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

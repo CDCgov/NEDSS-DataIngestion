@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PersonRaceDto extends BaseContainer implements RootDtoInterface {
 
     private Long personUid;
@@ -37,16 +38,6 @@ public class PersonRaceDto extends BaseContainer implements RootDtoInterface {
     private String statusCd;
     private String localId;
 
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return personUid;
-    }
-
     public PersonRaceDto() {
         itDirty = false;
         itNew = true;
@@ -70,7 +61,15 @@ public class PersonRaceDto extends BaseContainer implements RootDtoInterface {
         this.asOfDate = personRace.getAsOfDate();
     }
 
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ENTITY;
+        return superClassType;
+    }
 
+    @Override
+    public Long getUid() {
+        return personUid;
+    }
 
 
 }

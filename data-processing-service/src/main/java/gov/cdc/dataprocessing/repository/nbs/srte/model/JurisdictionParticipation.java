@@ -2,16 +2,18 @@ package gov.cdc.dataprocessing.repository.nbs.srte.model;
 
 import gov.cdc.dataprocessing.repository.nbs.srte.model.id_class.JurisdictionParticipationId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Jurisdiction_participation")
 @IdClass(JurisdictionParticipationId.class)
-public class JurisdictionParticipation  implements Serializable{
+public class JurisdictionParticipation implements Serializable {
     @Id
     @Column(name = "jurisdiction_cd")
     private String jurisdictionCd;

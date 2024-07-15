@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SnomedCodeRepository  extends JpaRepository<SnomedCode, String> {
+public interface SnomedCodeRepository extends JpaRepository<SnomedCode, String> {
     @Query("SELECT sc FROM SnomedCode sc WHERE sc.snomedCd = :snomedCd")
     Optional<List<SnomedCode>> findSnomedProgramAreaExclusion(@Param("snomedCd") String snomedCd);
 

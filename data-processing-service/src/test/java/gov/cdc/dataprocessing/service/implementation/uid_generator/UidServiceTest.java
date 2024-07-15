@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UidServiceTest {
-    @InjectMocks
-    private UidService uidService;
     @Mock
     AuthUtil authUtil;
+    @InjectMocks
+    private UidService uidService;
 
     @BeforeEach
     void setUp() {
@@ -41,7 +41,7 @@ class UidServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -200,13 +200,11 @@ class UidServiceTest {
         proxyVO.setTheActRelationshipDTCollection(actCol);
 
 
-
         Long falseUid = -1L;
         Long actualUid = 1L;
 
         uidService.setFalseToNewForObservation(proxyVO, falseUid, actualUid);
     }
-
 
 
     @Test
@@ -467,7 +465,6 @@ class UidServiceTest {
         verify(proxyVO).getPageVO();
     }
 
-  
 
     // Tests for setFalseToNewForPam
 

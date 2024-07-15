@@ -233,7 +233,7 @@ class MaterialServiceTest {
         return manufacturedMaterials;
     }
 
-    private  List<EntityIdDto> getEntityIdDto() {
+    private List<EntityIdDto> getEntityIdDto() {
         EntityIdDto entityIdDto = new EntityIdDto();
         entityIdDto.setEntityUid(2L);
 

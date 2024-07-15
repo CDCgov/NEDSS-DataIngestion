@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 
 public interface IProviderMatchingService {
     EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException;
+
     Long setProvider(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException;
 
 }

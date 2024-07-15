@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PageActPhc {
     Long falsePublicHealthCaseUid;
     Long actualUid;

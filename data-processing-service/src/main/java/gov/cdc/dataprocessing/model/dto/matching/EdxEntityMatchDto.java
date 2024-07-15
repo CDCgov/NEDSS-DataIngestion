@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EdxEntityMatchDto extends BaseContainer {
     private Long edxEntityMatchUid;
     private Long entityUid;

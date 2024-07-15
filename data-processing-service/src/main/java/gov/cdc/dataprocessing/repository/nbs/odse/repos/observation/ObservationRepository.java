@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
-public interface ObservationRepository  extends JpaRepository<Observation, Long> {
+public interface ObservationRepository extends JpaRepository<Observation, Long> {
 
     @Query(value = ComplexQueries.RETRIEVE_OBSERVATION_QUESTION_SQL, nativeQuery = true)
     Optional<Collection<Observation_Question>> retrieveObservationQuestion(Long targetActUid);

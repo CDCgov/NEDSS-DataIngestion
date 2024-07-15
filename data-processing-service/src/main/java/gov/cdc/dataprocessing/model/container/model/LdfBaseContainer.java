@@ -12,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class LdfBaseContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private Collection<Object> ldfUids;
@@ -22,8 +23,8 @@ public class LdfBaseContainer extends BaseContainer {
 
     /* Read all input ldfs. Descard one with no value entered by user */
     public void setTheStateDefinedFieldDataDTCollection(List<StateDefinedFieldDataDto> newLdfs) {
-        if(newLdfs != null && newLdfs.size() > 0){
-            ldfs = new ArrayList<Object> ();
+        if (newLdfs != null && newLdfs.size() > 0) {
+            ldfs = new ArrayList<Object>();
             ldfUids = new ArrayList<Object>();
             Iterator<StateDefinedFieldDataDto> itr = newLdfs.iterator();
             while (itr.hasNext()) {

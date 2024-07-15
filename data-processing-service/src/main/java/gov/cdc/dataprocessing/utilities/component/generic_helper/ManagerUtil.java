@@ -27,10 +27,10 @@ public class ManagerUtil {
 
     /**
      * Description: Assign person Uid to the Observation, This happen on the matched observation flow
-     * */
+     */
     public void setPersonUIDOnUpdate(Long aPersonUid, LabResultProxyContainer labResultProxyVO) {
         Collection<PersonContainer> personCollection = labResultProxyVO.getThePersonContainerCollection();
-        if(personCollection!=null){
+        if (personCollection != null) {
             for (PersonContainer personVO : personCollection) {
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
                 if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
@@ -47,7 +47,7 @@ public class ManagerUtil {
 
     /**
      * Original name: getOrderedTest
-     * */
+     */
     public ObservationContainer getObservationWithOrderDomainCode(LabResultProxyContainer labResultProxyVO) {
         for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
             String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
@@ -59,13 +59,12 @@ public class ManagerUtil {
     }
 
 
-
     public PersonAggContainer patientAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
         PersonContainer personContainerObj = null;
         PersonContainer providerVOObj = null;
-        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty() ) {
+        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty()) {
             Iterator<PersonContainer> it = labResult.getThePersonContainerCollection().iterator();
             boolean orderingProviderIndicator = false;
 
@@ -74,12 +73,10 @@ public class ManagerUtil {
                 if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                     patientService.processingNextOfKin(labResult, personContainer);
 
-                }
-                else {
+                } else {
                     if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        personContainerObj =  patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
-                    }
-                    else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                        personContainerObj = patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
+                    } else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                         var prv = patientService.processingProvider(labResult, edxLabInformationDto, personContainer, orderingProviderIndicator);
                         if (prv != null) {
                             providerVOObj = prv;
@@ -98,7 +95,7 @@ public class ManagerUtil {
     /**
      * This wont work in this @Transactional architecture
      * As we update the person and its assoc tables serveral time, so we must keep the @Transactional as synchronous flow
-     * */
+     */
     public PersonAggContainer personAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonAggContainer container = new PersonAggContainer();
         CompletableFuture<PersonContainer> patientFuture = null;
@@ -189,8 +186,6 @@ public class ManagerUtil {
 
         return container;
     }
-
-
 
 
 }

@@ -26,8 +26,7 @@ public class AuthUserService implements IAuthUserService {
             authUserData.setAuthUser(authUser.get());
             var authUserRoleRes = this.customAuthUserRepository.getAuthUserRealizedRole(authUserId);
             authUserData.setAuthUserRealizedRoleCollection(authUserRoleRes);
-        }
-        else {
+        } else {
             throw new DataProcessingException("Auth User Not Found");
         }
 

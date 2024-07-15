@@ -15,6 +15,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EdxRuleAlgorothmManagerDto implements Serializable {
     private static final long serialVersionUID = 1L;
     private String updateAction;
@@ -23,8 +24,8 @@ public class EdxRuleAlgorothmManagerDto implements Serializable {
     private String dsmAlgorithmName;
     private String conditionName;
 
-    private Map<Object,Object> edxRuleApplyDTMap;
-    private Map<Object,Object> edxRuleAdvCriteriaDTMap;
+    private Map<Object, Object> edxRuleApplyDTMap;
+    private Map<Object, Object> edxRuleAdvCriteriaDTMap;
     private Long dsmAlgorithmUid;
     private String onFailureToCreateInv;
     private String action;
@@ -38,8 +39,9 @@ public class EdxRuleAlgorothmManagerDto implements Serializable {
     private String errorText;
     private Collection<Object> sendingFacilityColl;
     private Map<Object, Object> edxBasicCriteriaMap;
-    public  enum STATUS_VAL {Success, Failure};
     private Timestamp lastChgTime;
+
+    ;
     private Long PHCUid;
     private Long PHCRevisionUid;
     private NBSDocumentDto documentDT;
@@ -51,5 +53,6 @@ public class EdxRuleAlgorothmManagerDto implements Serializable {
     private boolean isMorbReportDoc;
     private boolean isCaseUpdated;
     private EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+    public enum STATUS_VAL {Success, Failure}
 
 }

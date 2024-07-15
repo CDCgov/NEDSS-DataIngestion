@@ -9,6 +9,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class UserProfile extends BaseContainer {
     private static final long serialVersionUID = 1L;
     public Collection<RealizedRoleDto> theRealizedRoleDtoCollection;

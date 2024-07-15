@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     private Long nbsNoteUid;
@@ -24,15 +25,14 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
     private String typeCd;
     private String lastChgUserNm;
 
-
     @Override
     public Long getLastChgUserId() {
-        return null;
+        return this.lastChgUserId;
     }
 
     @Override
     public void setLastChgUserId(Long aLastChgUserId) {
-
+        this.lastChgUserId = aLastChgUserId;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setJurisdictionCd(String aJurisdictionCd) {
-
+        // No operation needed for setJurisdictionCd()
     }
 
     @Override
@@ -52,17 +52,17 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setProgAreaCd(String aProgAreaCd) {
-
+        // No operation needed for setProgAreaCd()
     }
 
     @Override
     public Timestamp getLastChgTime() {
-        return null;
+        return this.lastChgTime;
     }
 
     @Override
     public void setLastChgTime(Timestamp aLastChgTime) {
-
+        this.lastChgTime = aLastChgTime;
     }
 
     @Override
@@ -72,17 +72,17 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setLocalId(String aLocalId) {
-
+        // No operation needed for setLocalId()
     }
 
     @Override
     public Long getAddUserId() {
-        return null;
+        return this.addUserId;
     }
 
     @Override
     public void setAddUserId(Long aAddUserId) {
-
+        this.addUserId = aAddUserId;
     }
 
     @Override
@@ -92,27 +92,27 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setLastChgReasonCd(String aLastChgReasonCd) {
-
+        // No operation needed for setLastChgReasonCd()
     }
 
     @Override
     public String getRecordStatusCd() {
-        return null;
+        return this.recordStatusCode;
     }
 
     @Override
     public void setRecordStatusCd(String aRecordStatusCd) {
-
+        this.recordStatusCode = aRecordStatusCd;
     }
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return null;
+        return this.recordStatusTime;
     }
 
     @Override
     public void setRecordStatusTime(Timestamp aRecordStatusTime) {
-
+        this.recordStatusTime = aRecordStatusTime;
     }
 
     @Override
@@ -122,7 +122,7 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setStatusCd(String aStatusCd) {
-
+        // No operation needed for setStatusCd()
     }
 
     @Override
@@ -132,7 +132,7 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setStatusTime(Timestamp aStatusTime) {
-
+        // No operation needed for setStatusTime()
     }
 
     @Override
@@ -142,17 +142,17 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public Long getUid() {
-        return null;
-    }
-
-    @Override
-    public void setAddTime(Timestamp aAddTime) {
-
+        return this.nbsNoteUid;
     }
 
     @Override
     public Timestamp getAddTime() {
-        return null;
+        return this.addTime;
+    }
+
+    @Override
+    public void setAddTime(Timestamp aAddTime) {
+        this.addTime = aAddTime;
     }
 
     @Override
@@ -162,7 +162,7 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setProgramJurisdictionOid(Long aProgramJurisdictionOid) {
-
+        // No operation needed for setProgramJurisdictionOid()
     }
 
     @Override
@@ -172,7 +172,7 @@ public class NbsNoteDto extends BaseContainer implements RootDtoInterface {
 
     @Override
     public void setSharedInd(String aSharedInd) {
-
+        // No operation needed for setSharedInd()
     }
 
     @Override

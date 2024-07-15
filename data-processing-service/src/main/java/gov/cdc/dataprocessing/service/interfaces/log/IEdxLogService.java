@@ -16,5 +16,6 @@ public interface IEdxLogService {
     void updateActivityLogDT(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto);
 
     void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
+
     void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
 }

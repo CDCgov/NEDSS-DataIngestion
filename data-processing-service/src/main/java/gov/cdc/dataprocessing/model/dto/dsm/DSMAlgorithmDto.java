@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class DSMAlgorithmDto extends BaseContainer {
     private static final long serialVersionUID = 4546705321489806575L;
     private Long dsmAlgorithmUid;
@@ -27,6 +28,10 @@ public class DSMAlgorithmDto extends BaseContainer {
     private String statusCd;
     private Long lastChgUserId;
     private Timestamp lastChgTime;
+
+    public DSMAlgorithmDto() {
+
+    }
 
     public DSMAlgorithmDto(DsmAlgorithm dsmAlgorithm) {
         this.dsmAlgorithmUid = dsmAlgorithm.getDsmAlgorithmUid();

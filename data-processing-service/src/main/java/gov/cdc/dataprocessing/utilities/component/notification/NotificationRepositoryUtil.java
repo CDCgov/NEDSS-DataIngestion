@@ -32,7 +32,7 @@ public class NotificationRepositoryUtil {
     private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final EntityHelper entityHelper;
-    private  final ActRepositoryUtil actRepositoryUtil;
+    private final ActRepositoryUtil actRepositoryUtil;
     private final OdseIdGeneratorService odseIdGeneratorService;
 
     public NotificationRepositoryUtil(NotificationRepository notificationRepository,
@@ -69,17 +69,17 @@ public class NotificationRepositoryUtil {
             notificationContainer.setTheActIdDTCollection(actIdCollection);
         }
 
-        var actPatCollection =  actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(uid);
+        var actPatCollection = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(uid);
         if (!actPatCollection.isEmpty()) {
             notificationContainer.setTheActivityLocatorParticipationDTCollection(actPatCollection);
         }
 
-        var actReCollection =  actRelationshipRepositoryUtil.getActRelationshipCollectionFromSourceId(uid);
+        var actReCollection = actRelationshipRepositoryUtil.getActRelationshipCollectionFromSourceId(uid);
         if (!actReCollection.isEmpty()) {
             notificationContainer.setTheActRelationshipDTCollection(actReCollection);
         }
 
-        var patCollection =  participationRepositoryUtil.getParticipationCollection(uid);
+        var patCollection = participationRepositoryUtil.getParticipationCollection(uid);
         if (!patCollection.isEmpty()) {
             notificationContainer.setTheParticipationDTCollection(patCollection);
         }
@@ -92,48 +92,38 @@ public class NotificationRepositoryUtil {
 
 
     @Transactional
-    public Long setNotification(NotificationContainer notificationContainer) throws DataProcessingException
-    {
+    public Long setNotification(NotificationContainer notificationContainer) throws DataProcessingException {
         Long notificationUid;
 
-        try
-        {
+        try {
             Collection<ActivityLocatorParticipationDto> alpDTCol = notificationContainer.getTheActivityLocatorParticipationDTCollection();
             Collection<ActRelationshipDto> arDTCol = notificationContainer.getTheActRelationshipDTCollection();
             Collection<ParticipationDto> pDTCol = notificationContainer.getTheParticipationDTCollection();
 
-            if (alpDTCol != null)
-            {
+            if (alpDTCol != null) {
                 var col1 = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
                 notificationContainer.setTheActivityLocatorParticipationDTCollection(col1);
             }
 
-            if (arDTCol != null)
-            {
+            if (arDTCol != null) {
                 var col2 = entityHelper.iterateARDTActRelationship(arDTCol);
                 notificationContainer.setTheActRelationshipDTCollection(col2);
             }
 
-            if (pDTCol != null)
-            {
+            if (pDTCol != null) {
                 var col3 = entityHelper.iteratePDTForParticipation(pDTCol);
                 notificationContainer.setTheParticipationDTCollection(col3);
             }
 
-            if (notificationContainer.isItNew())
-            {
+            if (notificationContainer.isItNew()) {
                 notificationUid = createNotification(notificationContainer);
-            }
-            else
-            {
-                var  notification = getNotificationContainer(notificationContainer.getTheNotificationDT().getNotificationUid());
+            } else {
+                var notification = getNotificationContainer(notificationContainer.getTheNotificationDT().getNotificationUid());
                 updateNotification(notification);
                 notificationUid = notification.getTheNotificationDT().getNotificationUid();
             }
-        }
-        catch (Exception e)
-        {
-            throw new DataProcessingException(e.getMessage(),e);
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return notificationUid;
     }
@@ -143,7 +133,7 @@ public class NotificationRepositoryUtil {
         var uid = uidData.getSeedValueNbr();
         var localId = uidData.getUidPrefixCd() + uid + uidData.getUidSuffixCd();
 
-        actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
+        actRepositoryUtil.insertActivityId(uid, NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
 
         Notification notification = new Notification(notificationContainer.getTheNotificationDT());
         notification.setNotificationUid(uid);
@@ -166,7 +156,7 @@ public class NotificationRepositoryUtil {
         var uid = notificationContainer.getTheNotificationDT().getNotificationUid();
         var localId = notificationContainer.getTheNotificationDT().getLocalId();
 
-        actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
+        actRepositoryUtil.insertActivityId(uid, NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
 
         Notification notification = new Notification(notificationContainer.getTheNotificationDT());
         notification.setNotificationUid(uid);

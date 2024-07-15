@@ -19,14 +19,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaPublicHealthCaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class);
-
+    private final KafkaManagerProducer kafkaManagerProducer;
+    private final IManagerService managerService;
+    private final IAuthUserService authUserService;
     @Value("${kafka.topic.elr_handle_lab}")
     private String handleLabTopic = "elr_processing_handle_lab";
     @Value("${kafka.topic.elr_edx_log}")
     private String logTopic = "elr_edx_log";
-    private final KafkaManagerProducer kafkaManagerProducer;
-    private final IManagerService managerService;
-    private final IAuthUserService authUserService;
 
     public KafkaPublicHealthCaseConsumer(
             KafkaManagerProducer kafkaManagerProducer,
@@ -42,8 +41,7 @@ public class KafkaPublicHealthCaseConsumer {
             topics = "${kafka.topic.elr_health_case}"
     )
     public void handleMessageForPublicHealthCase(String message,
-                                     @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
-    {
+                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         try {
 
             var profile = this.authUserService.getAuthUserInfo("superuser");
@@ -51,10 +49,8 @@ public class KafkaPublicHealthCaseConsumer {
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
-        }
-        catch (Exception e)
-        {
-             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

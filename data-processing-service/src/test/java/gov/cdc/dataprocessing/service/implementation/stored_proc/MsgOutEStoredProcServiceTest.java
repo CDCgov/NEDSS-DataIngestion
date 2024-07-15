@@ -21,11 +21,11 @@ import static org.mockito.Mockito.*;
 
 class MsgOutEStoredProcServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private StoredProcRepository storedProcRepository;
     @InjectMocks
     private MsgOutEStoredProcService msgOutEStoredProcService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -36,7 +36,7 @@ class MsgOutEStoredProcServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

@@ -2,11 +2,13 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.act;
 
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Act_locator_participation")
 public class ActLocatorParticipation {

@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -73,7 +72,7 @@ class NotificationServiceTest {
     void getNotificationByIdNull() {
         Long uid = 1L;
         when(notificationRepository.findById(uid)).thenReturn(Optional.empty());
-        assertEquals(null, notificationService.getNotificationById(uid));
+        assertNull(notificationService.getNotificationById(uid));
     }
 
     private Notification getNotification() {
@@ -89,7 +88,7 @@ class NotificationServiceTest {
         when(notificationRepository.save(Mockito.any())).thenReturn(null);
 
         Long result = notificationService.saveNotification(notificationContainer);
-        assertEquals(1l, result);
+        assertEquals(1L, result);
     }
 
     private NotificationDto getNotificationDto() {
@@ -147,21 +146,21 @@ class NotificationServiceTest {
         NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
         notificationProxyContainer.setTheNotificationContainer(getNotificationContainer());
         notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
-        return  notificationProxyContainer;
+        return notificationProxyContainer;
     }
 
     private NotificationProxyContainer getNotificationProxyDirty() {
         NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
         notificationProxyContainer.setTheNotificationContainer(getNotificationContainerDirty());
         notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
-        return  notificationProxyContainer;
+        return notificationProxyContainer;
     }
 
     private NotificationProxyContainer getNotificationProxyNull() {
         NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
         notificationProxyContainer.setTheNotificationContainer(null);
         notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
-        return  notificationProxyContainer;
+        return notificationProxyContainer;
     }
 
     @Test
@@ -170,7 +169,7 @@ class NotificationServiceTest {
         when(notificationRepository.getCountOfExistingNotifications(1L, NEDSSConstant.CLASS_CD_OBS)).thenReturn(1L);
 
         boolean result = notificationService.checkForExistingNotification(labResultProxyContainer);
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     @Test
@@ -179,7 +178,7 @@ class NotificationServiceTest {
         when(notificationRepository.getCountOfExistingNotifications(1L, NEDSSConstant.CLASS_CD_OBS)).thenReturn(0L);
 
         boolean result = notificationService.checkForExistingNotification(labResultProxyContainer);
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     @Test
@@ -222,7 +221,8 @@ class NotificationServiceTest {
         assertThrows(DataProcessingException.class, () -> notificationService.setNotificationProxy(null));
     }
 
-    @Test void setNotificationProxy() throws DataProcessingException {
+    @Test
+    void setNotificationProxy() throws DataProcessingException {
         when(propertyUtil.isHIVProgramArea(any())).thenReturn(true);
 
         when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(getNotificationDto());
@@ -236,7 +236,8 @@ class NotificationServiceTest {
         assertEquals(1L, notificationService.setNotificationProxy(getNotificationProxy()));
     }
 
-    @Test void setNotificationProxyDirty() throws DataProcessingException {
+    @Test
+    void setNotificationProxyDirty() throws DataProcessingException {
         when(propertyUtil.isHIVProgramArea(any())).thenReturn(true);
 
         when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(getNotificationDto());
@@ -250,7 +251,8 @@ class NotificationServiceTest {
         assertEquals(1L, notificationService.setNotificationProxy(getNotificationProxyDirty()));
     }
 
-    @Test void setNotificationProxyNull() {
+    @Test
+    void setNotificationProxyNull() {
         assertThrows(DataProcessingException.class, () -> notificationService.setNotificationProxy(getNotificationProxyNull()));
     }
 }

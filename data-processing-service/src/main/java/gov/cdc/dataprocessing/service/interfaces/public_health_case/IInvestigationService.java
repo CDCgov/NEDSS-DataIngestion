@@ -9,12 +9,15 @@ import java.util.Collection;
 
 public interface IInvestigationService {
     void updateAutoResendNotificationsAsync(BaseContainer v);
+
     void setAssociations(Long investigationUID,
                          Collection<LabReportSummaryContainer> reportSumVOCollection,
-                         Collection<Object>  vaccinationSummaryVOCollection,
-                         Collection<Object>  summaryDTColl,
+                         Collection<Object> vaccinationSummaryVOCollection,
+                         Collection<Object> summaryDTColl,
                          Collection<Object> treatmentSumColl,
                          Boolean isNNDResendCheckRequired) throws DataProcessingException;
+
     PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException;
-    void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException;
+
+    void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer> reportSumVOCollection, boolean invFromEvent) throws DataProcessingException;
 }

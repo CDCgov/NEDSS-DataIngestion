@@ -5,13 +5,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "NBS_document")
-@Data
+@Getter
+@Setter
 public class NbsDocument {
     @Id
     @Column(name = "nbs_document_uid")
@@ -101,14 +103,14 @@ public class NbsDocument {
     @Column(name = "processing_decision_cd")
     private String processingDecisionCd;
 
-    public  NbsDocument() {
+    public NbsDocument() {
 
     }
 
 
     public NbsDocument(NBSDocumentDto nbsDocumentDto) {
         this.nbsDocumentUid = nbsDocumentDto.getNbsDocumentUid();
-        this.docPayload = nbsDocumentDto.getDocPayload().toString();
+        this.docPayload = nbsDocumentDto.getDocPayload();
         this.docTypeCd = nbsDocumentDto.getDocTypeCd();
         this.localId = nbsDocumentDto.getLocalId();
         this.recordStatusCd = nbsDocumentDto.getRecordStatusCd();
@@ -131,7 +133,7 @@ public class NbsDocument {
         this.nbsInterfaceUid = nbsDocumentDto.getNbsInterfaceUid();
         this.sendingAppEventId = nbsDocumentDto.getSendingAppEventId();
         this.sendingAppPatientId = nbsDocumentDto.getSendingAppPatientId();
-        this.phdcDocDerived = nbsDocumentDto.getPhdcDocDerived().toString();
+        this.phdcDocDerived = nbsDocumentDto.getPhdcDocDerived();
         this.payloadViewIndCd = nbsDocumentDto.getPayloadViewIndCd();
         this.externalVersionCtrlNbr = nbsDocumentDto.getExternalVersionCtrlNbr();
         this.processingDecisionTxt = nbsDocumentDto.getProcessingDecisiontxt();

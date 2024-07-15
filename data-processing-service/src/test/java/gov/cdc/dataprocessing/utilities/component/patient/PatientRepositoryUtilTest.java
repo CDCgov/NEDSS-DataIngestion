@@ -49,6 +49,8 @@ import static org.mockito.Mockito.*;
 
 class PatientRepositoryUtilTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private PersonRepository personRepository;
     @Mock
     private EntityRepositoryUtil entityRepositoryUtil;
@@ -68,8 +70,6 @@ class PatientRepositoryUtilTest {
     private IEntityLocatorParticipationService entityLocatorParticipationService;
     @InjectMocks
     private PatientRepositoryUtil patientRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -80,7 +80,7 @@ class PatientRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
@@ -231,7 +231,6 @@ class PatientRepositoryUtilTest {
         perCon.setThePersonRaceDtoCollection(patRaceCol);
 
 
-
         var patEthCol = new ArrayList<PersonEthnicGroupDto>();
         var patEth = new PersonEthnicGroupDto();
         patEthCol.add(patEth);
@@ -305,7 +304,7 @@ class PatientRepositoryUtilTest {
         perEthCol.add(perEth);
         when(personEthnicRepository.findByParentUid(uid)).thenReturn(Optional.of(perEthCol));
 
-        var entiCol =new ArrayList<EntityId>();
+        var entiCol = new ArrayList<EntityId>();
         var enti = new EntityId();
         entiCol.add(enti);
         when(entityIdRepository.findByParentUid(uid)).thenReturn(Optional.of(entiCol));
@@ -316,14 +315,13 @@ class PatientRepositoryUtilTest {
         when(entityLocatorParticipationService.findEntityLocatorById(uid)).thenReturn(loCol);
 
         var rolCol = new ArrayList<Role>();
-        var role =new Role();
+        var role = new Role();
         rolCol.add(role);
         when(roleRepository.findByParentUid(uid)).thenReturn(Optional.of(rolCol));
 
         var res = patientRepositoryUtil.loadPerson(uid);
 
         assertNotNull(res);
-
 
 
     }

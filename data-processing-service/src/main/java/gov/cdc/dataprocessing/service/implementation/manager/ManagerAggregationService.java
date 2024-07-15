@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class ManagerAggregationService implements IManagerAggregationService {
+    private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
     private final IOrganizationService organizationService;
     private final IPersonService patientService;
     private final IUidService uidService;
@@ -37,7 +38,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
-    private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
 
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
@@ -59,29 +59,25 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
 
     public EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
-                                                       LabResultProxyContainer labResultProxyContainer,
-                                                       Long aPersonUid) throws DataProcessingException {
+                                                              LabResultProxyContainer labResultProxyContainer,
+                                                              Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
 
-        if(observationDto !=null){
+        if (observationDto != null) {
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
-            observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
+            observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto);
 
             patientService.getMatchedPersonUID(matchedlabResultProxyVO);
             patientService.updatePersonELRUpdate(labResultProxyContainer, matchedlabResultProxyVO);
 
             edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
-            if(observationDto.getProgAreaCd()!=null && observationDto.getJurisdictionCd()!=null)
-            {
+            if (observationDto.getProgAreaCd() != null && observationDto.getJurisdictionCd() != null) {
                 edxLabInformationDto.setLabIsUpdateDRRQ(true);
-            }
-            else
-            {
+            } else {
                 edxLabInformationDto.setLabIsUpdateDRSA(true);
             }
             edxLabInformationDto.setPatientMatch(true);
-        }
-        else {
+        } else {
             edxLabInformationDto.setLabIsCreate(true);
         }
 
@@ -112,7 +108,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         CompletableFuture<OrganizationContainer> organizationFuture = CompletableFuture.supplyAsync(() ->
         {
             try {
-               return organizationService.processingOrganization(labResult);
+                return organizationService.processingOrganization(labResult);
             } catch (DataProcessingConsumerException e) {
                 throw new RuntimeException(e);
             }
@@ -121,31 +117,22 @@ public class ManagerAggregationService implements IManagerAggregationService {
         // Wait for all tasks to complete
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(observationFuture, patientFuture, organizationFuture);
 
-        try
-        {
+        try {
             allFutures.get(); // Wait for all tasks to complete
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-        }
-        catch (ExecutionException e)
-        {
+        } catch (ExecutionException e) {
             throw new DataProcessingException("Failed to execute tasks", e);
         }
         // Get the results from CompletableFuture
         try {
             personAggContainer = patientFuture.get();
             organizationContainer = organizationFuture.get();
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-        }
-        catch (ExecutionException e)
-        {
+        } catch (ExecutionException e) {
             throw new DataProcessingException("Failed to get results", e);
         }
 
@@ -154,14 +141,10 @@ public class ManagerAggregationService implements IManagerAggregationService {
         CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         try {
             progAndJurisdictionFuture.get();
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-        }
-        catch (ExecutionException e)
-        {
+        } catch (ExecutionException e) {
             throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
         }
     }
@@ -169,9 +152,9 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     @SuppressWarnings("java:S3776")
     protected CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
-                                                                        EdxLabInformationDto edxLabInformationDto,
-                                                                        PersonAggContainer personAggContainer,
-                                                                        OrganizationContainer organizationContainer) {
+                                                                          EdxLabInformationDto edxLabInformationDto,
+                                                                          PersonAggContainer personAggContainer,
+                                                                          OrganizationContainer organizationContainer) {
         return CompletableFuture.runAsync(() -> {
             // Pulling Jurisdiction and Program from OBS
             ObservationContainer observationRequest = null;
@@ -215,13 +198,12 @@ public class ManagerAggregationService implements IManagerAggregationService {
          *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
          */
 
-        Map<Object, RoleDto> mappedExistingRoleCollection  = new HashMap<>();
-        Map<Object, RoleDto> mappedNewRoleCollection  = new HashMap<>();
-        if(labResult.getTheRoleDtoCollection()!=null){
+        Map<Object, RoleDto> mappedExistingRoleCollection = new HashMap<>();
+        Map<Object, RoleDto> mappedNewRoleCollection = new HashMap<>();
+        if (labResult.getTheRoleDtoCollection() != null) {
 
-            Collection<RoleDto> coll=labResult.getTheRoleDtoCollection();
-            if(!coll.isEmpty())
-            {
+            Collection<RoleDto> coll = labResult.getTheRoleDtoCollection();
+            if (!coll.isEmpty()) {
                 for (RoleDto roleDT : coll) {
                     if (roleDT.isItDelete()) {
                         mappedExistingRoleCollection.put(roleDT.getSubjectEntityUid() + roleDT.getCd() + roleDT.getScopingEntityUid(), roleDT);
@@ -235,7 +217,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         ArrayList<Object> list = new ArrayList<>();
 
         //update scenario
-        if(!mappedNewRoleCollection.isEmpty()){
+        if (!mappedNewRoleCollection.isEmpty()) {
             Set<Object> set = mappedNewRoleCollection.keySet();
             for (Object o : set) {
                 String key = (String) o;
@@ -262,7 +244,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         Map<Object, RoleDto> modifiedRoleMap = new HashMap<>();
         ArrayList<RoleDto> listFinal = new ArrayList<>();
-        if(!list.isEmpty()){
+        if (!list.isEmpty()) {
             for (Object o : list) {
                 RoleDto roleDT = (RoleDto) o;
                 if (roleDT.isItDelete()) {
@@ -271,8 +253,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                     continue;
                 }
                 //We will write the role if there are no existing role relationships.
-                if (roleDT.getScopingEntityUid() == null)
-                {
+                if (roleDT.getScopingEntityUid() == null) {
                     long count;
                     count = roleService.loadCountBySubjectCdComb(roleDT).longValue();
                     if (count == 0) {
@@ -280,9 +261,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                         modifiedRoleMap.put(roleDT.getSubjectEntityUid() + roleDT.getRoleSeq() + roleDT.getCd(), roleDT);
                     }
 
-                }
-                else
-                {
+                } else {
                     int checkIfExisits;
                     checkIfExisits = roleService.loadCountBySubjectScpingCdComb(roleDT);
 
@@ -317,7 +296,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 }
             }
 
-            if(!modifiedRoleMap.isEmpty()){
+            if (!modifiedRoleMap.isEmpty()) {
                 Collection<RoleDto> roleCollection = modifiedRoleMap.values();
                 listFinal.addAll(roleCollection);
             }
@@ -355,12 +334,12 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     protected PersonAggContainer patientAggregation(LabResultProxyContainer labResultProxyContainer,
                                                     EdxLabInformationDto edxLabInformationDto,
-                                                  Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException {
+                                                    Collection<PersonContainer> personContainerCollection) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
         PersonContainer personContainerObj = null;
         PersonContainer providerVOObj = null;
-        if (personContainerCollection != null && !personContainerCollection.isEmpty() ) {
+        if (personContainerCollection != null && !personContainerCollection.isEmpty()) {
             Iterator<PersonContainer> it = personContainerCollection.iterator();
             boolean orderingProviderIndicator = false;
 
@@ -369,12 +348,10 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
                     patientService.processingNextOfKin(labResultProxyContainer, personContainer);
                     edxLabInformationDto.setNextOfKin(true);
-                }
-                else {
+                } else {
                     if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        personContainerObj =  patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
-                    }
-                    else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                        personContainerObj = patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
+                    } else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
                         providerVOObj = patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
                     }
                 }

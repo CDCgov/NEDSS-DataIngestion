@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class NotificationDto extends BaseContainer implements RootDtoInterface {
     private static final long serialVersionUID = 1L;
 
@@ -111,8 +112,7 @@ public class NotificationDto extends BaseContainer implements RootDtoInterface {
     private String autoResendInd;
 
 
-
-    private Long  exportReceivingFacilityUid;
+    private Long exportReceivingFacilityUid;
 
     private String receiving_system_nm;
 
@@ -123,16 +123,6 @@ public class NotificationDto extends BaseContainer implements RootDtoInterface {
     private String labReportEnableInd;
 
     private String vaccineEnableInd;
-
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
-        return superClassType;
-    }
-
-    @Override
-    public Long getUid() {
-        return notificationUid;
-    }
 
     public NotificationDto() {
         itDirty = false;
@@ -191,6 +181,16 @@ public class NotificationDto extends BaseContainer implements RootDtoInterface {
         this.autoResendInd = domain.getAutoResendInd();
         this.exportReceivingFacilityUid = domain.getExportReceivingFacilityUid();
         this.nbsInterfaceUid = domain.getNbsInterfaceUid();
+    }
+
+    public String getSuperclass() {
+        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+        return superClassType;
+    }
+
+    @Override
+    public Long getUid() {
+        return notificationUid;
     }
 
 }

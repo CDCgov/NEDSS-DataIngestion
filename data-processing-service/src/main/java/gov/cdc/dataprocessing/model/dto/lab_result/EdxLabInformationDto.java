@@ -20,6 +20,7 @@ import java.util.*;
  */
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -73,7 +74,7 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
 
     private boolean labIsUpdateSuccess;
     private boolean labIsMarkedAsReviewed;
-    private Map<Object,Object> resultedTest;
+    private Map<Object, Object> resultedTest;
     private String conditionCode;
     private Object proxyVO;
     private Map<Object, Object> edxSusLabDTMap = new HashMap<Object, Object>();
@@ -108,9 +109,9 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
     private boolean resultedTestNameMissing;
     private boolean drugNameMissing;
     private boolean obsStatusTranslated;
-    private  String dangerCode;
-    private  String relationship;
-    private  String relationshipDesc;
+    private String dangerCode;
+    private String relationship;
+    private String relationshipDesc;
     private boolean activityToTimeMissing;
     private boolean systemException;
     private boolean universalServiceIdMissing;
@@ -150,23 +151,23 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
     public EdxLabInformationDto() {
         unexpectedResultType = false;
         childSuscWithoutParentResult = false;
-        jurisdictionName								= null;
-        programAreaName									= null;
-        jurisdictionAndProgramAreaSuccessfullyDerived	= false;
+        jurisdictionName = null;
+        programAreaName = null;
+        jurisdictionAndProgramAreaSuccessfullyDerived = false;
 
-        algorithmHasInvestigation						= false;
-        investigationSuccessfullyCreated				= false;
-        investigationMissingFields						= false;
+        algorithmHasInvestigation = false;
+        investigationSuccessfullyCreated = false;
+        investigationMissingFields = false;
 
-        algorithmHasNotification						= false;
-        notificationSuccessfullyCreated					= false;
-        notificationMissingFields						= false;
+        algorithmHasNotification = false;
+        notificationSuccessfullyCreated = false;
+        notificationMissingFields = false;
 
-        labIsCreate										= false;
-        labIsCreateSuccess								= false;
-        labIsUpdateDRRQ										= false;
-        labIsUpdateSuccess								= false;
-        labIsMarkedAsReviewed							= false;
+        labIsCreate = false;
+        labIsCreateSuccess = false;
+        labIsUpdateDRRQ = false;
+        labIsUpdateSuccess = false;
+        labIsMarkedAsReviewed = false;
 
         multipleSubjectMatch = false;
         multipleOrderingProvider = false;
@@ -198,7 +199,7 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
         systemException = false;
         universalServiceIdMissing = false;
         missingOrderingProvider = false;
-        missingOrderingFacility=false;
+        missingOrderingFacility = false;
         multipleReceivingFacility = false;
         patientMatch = false;
         multipleOBR = false;

@@ -35,8 +35,8 @@ public interface ActRelationshipRepository extends JpaRepository<ActRelationship
     Optional<Collection<ActRelationship>> loadActRelationshipBySrcIdAndTypeCode(@Param("uid") Long uid, @Param("type") String type);
 
     /**
-     String DELETE_BY_PK = "DELETE from Act_relationship where target_act_uid = ? and source_act_uid = ? and type_cd = ?"
-     * */
+     * String DELETE_BY_PK = "DELETE from Act_relationship where target_act_uid = ? and source_act_uid = ? and type_cd = ?"
+     */
     @Modifying
     @Query("DELETE FROM ActRelationship data WHERE data.targetActUid = ?1 AND data.sourceActUid = ?2 AND data.typeCd = ?3")
     void deleteActRelationshipByPk(Long subjectUid, Long actUid, String typeCode);

@@ -248,9 +248,9 @@ public class NBSConstantUtil {
     public static final String DSSummaryReportInfo = "DSSummaryReportInfo";
 
     //public static final String DSPublicHealthCaseVO = "DSPublicHealthCaseVO";
-    public static final String DSRejectedDeleteString  = "DSRejectedDeleteString";
-    public static final String DSInvestigationFormCd  = "DSInvestigationFormCd";
-    public static final String DSDocumentUID ="DSDocumentUID";
+    public static final String DSRejectedDeleteString = "DSRejectedDeleteString";
+    public static final String DSInvestigationFormCd = "DSInvestigationFormCd";
+    public static final String DSDocumentUID = "DSDocumentUID";
     public static final String DSDocConditionCD = "DSDocConditionCD";
     public static final String VaccinationIDFromInv = "VaccinationIDFromInv";
     public static final String ViewObservationLab = "ViewObservationLab";
@@ -277,17 +277,17 @@ public class NBSConstantUtil {
     public static final String DSObservationList = "DSObservationList";
     public static final String DSFilePath = "DSFilePath";
     public static final String CONTACT_REC = "CONTACT_REC";
-    public static final String DSContextVO="DSContextVO";
+    public static final String DSContextVO = "DSContextVO";
     public static final String DSPatientMPRUID = "DSPatientPersonUID";
-    public static final String ContactTracing="ContactTracing";
+    public static final String ContactTracing = "ContactTracing";
     public static final String DSPatientMap = "DSPatientMap";
     public static final String DSInvestigatorUid = "DSInvestigatorUid";
-    public static final String DSContactColl="DSContactColl";
-    public static final String DSInterviewList="DSInterviewList";
-    public static final String DSSharedInd="DSSharedInd";
-    public static final String DSConditionCdDescTxt="DSConditionCdDescTxt";
-    public static final String ContactRecordFormPrefix="CT";
-    public static final String InvestigationFormPrefix="PG";
+    public static final String DSContactColl = "DSContactColl";
+    public static final String DSInterviewList = "DSInterviewList";
+    public static final String DSSharedInd = "DSSharedInd";
+    public static final String DSConditionCdDescTxt = "DSConditionCdDescTxt";
+    public static final String ContactRecordFormPrefix = "CT";
+    public static final String InvestigationFormPrefix = "PG";
     public static final String DSCoinfectionInvSummVO = "DSCoinfectionInvSummVO";
     public static final String DSStdDispositionCd = "DSStdDispositionCd";
     public static final String DSSourceConditionCd = "DSSourceConditionCd";
@@ -297,6 +297,6 @@ public class NBSConstantUtil {
     public static final String DSRecordSearchClosureInvSummVO = "DSRecordSearchClosureInvSummVO";
     public static final String DSSecondaryReferralInvSummVO = "DSSecondaryReferralInvSummVO";
     public static final String DSSearchCriteriaMap = "DSSearchCriteriaMap";
-    public static final String ViewElectronicDoc="viewELRDoc";
+    public static final String ViewElectronicDoc = "viewELRDoc";
 
 }

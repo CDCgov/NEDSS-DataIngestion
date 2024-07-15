@@ -19,15 +19,9 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class PublicHealthCaseContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
-    //  private boolean itNew = false;
-    // private boolean itDirty = true;
-    private boolean isPamCase;
-    private CaseManagementDto theCaseManagementDto = new CaseManagementDto();
-    private PublicHealthCaseDto thePublicHealthCaseDto = new PublicHealthCaseDto();
-    private Collection<ConfirmationMethodDto> theConfirmationMethodDTCollection;
-    private Collection<ActIdDto> theActIdDTCollection;
     public Collection<ActivityLocatorParticipationDto> theActivityLocatorParticipationDTCollection;
     //Collections added for Participation and Activity Relationship object association
     public Collection<ParticipationDto> theParticipationDTCollection;
@@ -36,8 +30,13 @@ public class PublicHealthCaseContainer extends BaseContainer {
     public Collection<NbsCaseAnswerDto> nbsAnswerCollection;
     public Collection<EDXActivityDetailLogDto> edxPHCRLogDetailDTCollection;
     public Collection<EDXEventProcessDto> edxEventProcessDtoCollection;
-
-
+    //  private boolean itNew = false;
+    // private boolean itDirty = true;
+    private boolean isPamCase;
+    private CaseManagementDto theCaseManagementDto = new CaseManagementDto();
+    private PublicHealthCaseDto thePublicHealthCaseDto = new PublicHealthCaseDto();
+    private Collection<ConfirmationMethodDto> theConfirmationMethodDTCollection;
+    private Collection<ActIdDto> theActIdDTCollection;
     private String errorText;
     private boolean isCoinfectionCondition;
 

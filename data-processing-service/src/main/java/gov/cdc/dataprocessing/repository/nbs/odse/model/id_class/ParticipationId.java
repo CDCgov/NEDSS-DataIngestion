@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@SuppressWarnings("all")
 public class ParticipationId implements Serializable {
     private Long subjectEntityUid;
     private Long actUid;

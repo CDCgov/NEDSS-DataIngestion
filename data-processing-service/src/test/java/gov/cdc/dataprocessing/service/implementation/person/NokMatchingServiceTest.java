@@ -82,9 +82,10 @@ class NokMatchingServiceTest {
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
 
-        EdxPatientMatchDto edxPatientMatchResult =nokMatchingService.getMatchingNextOfKin(personContainer);
+        EdxPatientMatchDto edxPatientMatchResult = nokMatchingService.getMatchingNextOfKin(personContainer);
         assertNotNull(edxPatientMatchResult);
     }
+
     @Test
     void getMatchingNextOfKin_name_addr_street_throw_exp() {
         PersonContainer personContainer = new PersonContainer();
@@ -136,7 +137,7 @@ class NokMatchingServiceTest {
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
         //for NEW NOK
-        EntityIdDto entityIdDto=new EntityIdDto();
+        EntityIdDto entityIdDto = new EntityIdDto();
         entityIdDto.setEntityUid(123L);
         entityIdDto.setTypeCd("TEST");
         personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
@@ -157,9 +158,10 @@ class NokMatchingServiceTest {
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
 
-        EdxPatientMatchDto edxPatientMatchResult =nokMatchingService.getMatchingNextOfKin(personContainer);
+        EdxPatientMatchDto edxPatientMatchResult = nokMatchingService.getMatchingNextOfKin(personContainer);
         assertNotNull(edxPatientMatchResult);
     }
+
     @Test
     void getMatchingNextOfKin_telephone_throw_exp() {
         PersonContainer personContainer = new PersonContainer();
@@ -189,6 +191,7 @@ class NokMatchingServiceTest {
 
         assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
+
     @Test
     void getMatchingNextOfKin_entityId_throw_exp() throws DataProcessingException {
         PersonContainer personContainer = new PersonContainer();
@@ -221,6 +224,7 @@ class NokMatchingServiceTest {
 
         assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
+
     @Test
     void getMatchingNextOfKin_throw_exp() {
         PersonContainer personContainer = new PersonContainer();

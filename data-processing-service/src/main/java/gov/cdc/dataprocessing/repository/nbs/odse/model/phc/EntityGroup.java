@@ -2,13 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.phc;
 
 import gov.cdc.dataprocessing.model.dto.phc.EntityGroupDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Entity_group")
-@Data
+@Getter
+@Setter
 public class EntityGroup {
 
     @Id

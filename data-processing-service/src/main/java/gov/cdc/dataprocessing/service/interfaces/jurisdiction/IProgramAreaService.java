@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface IProgramAreaService {
     void getProgramArea(Collection<ObservationContainer> observationResults, ObservationContainer observationRequest, String clia) throws DataProcessingException;
+
     List<ProgramAreaCode> getAllProgramAreaCode();
+
     String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException;
 }

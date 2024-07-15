@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PersonNameRepository  extends JpaRepository<PersonName, Long> {
+public interface PersonNameRepository extends JpaRepository<PersonName, Long> {
     @Query("SELECT pn FROM PersonName pn WHERE pn.personUid = :parentUid")
     Optional<List<PersonName>> findByParentUid(@Param("parentUid") Long parentUid);
 
@@ -21,11 +21,11 @@ public interface PersonNameRepository  extends JpaRepository<PersonName, Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM Person_name WHERE person_uid = :personUid AND person_name_seq = :personSeq",  nativeQuery = true)
-    void deletePersonNameByIdAndSeq (@Param("personUid") Long personUid, @Param("personSeq") Integer personSeq);
+    @Query(value = "DELETE FROM Person_name WHERE person_uid = :personUid AND person_name_seq = :personSeq", nativeQuery = true)
+    void deletePersonNameByIdAndSeq(@Param("personUid") Long personUid, @Param("personSeq") Integer personSeq);
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE Person_name SET status_cd = 'I' WHERE person_uid = :personUid AND person_name_seq = :personSeq",  nativeQuery = true)
-    void updatePersonNameStatus (@Param("personUid") Long personUid, @Param("personSeq") Integer personSeq);
+    @Query(value = "UPDATE Person_name SET status_cd = 'I' WHERE person_uid = :personUid AND person_name_seq = :personSeq", nativeQuery = true)
+    void updatePersonNameStatus(@Param("personUid") Long personUid, @Param("personSeq") Integer personSeq);
 }

@@ -47,14 +47,14 @@ public class ORCHandler {
                                 hl7ORCType.getOrderEffectiveDateTime(), EdxELRConstant.DATE_VALIDATION_ORC_ORDER_EFFECTIVE_TIME_MSG));
             }
         } catch (Exception e) {
-            logger.error("Exception thrown at HL7ORCProcessorget.getORCProcessing:"+ e.getMessage() ,e);
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getORCProcessing:"+ e);
+            logger.error("Exception thrown at HL7ORCProcessorget.getORCProcessing:" + e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getORCProcessing:" + e);
         }
     }
 
     /**
      * Get Ordering Provider
-     * */
+     */
     private LabResultProxyContainer getOrderingProvider(HL7ORCType hl7ORCType,
                                                         LabResultProxyContainer labResultProxyContainer,
                                                         EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -62,7 +62,7 @@ public class ORCHandler {
             HL7XADType address;
             List<HL7XADType> addressArray = hl7ORCType
                     .getOrderingProviderAddress();
-            if(addressArray!=null && !addressArray.isEmpty()){
+            if (addressArray != null && !addressArray.isEmpty()) {
                 edxLabInformationDto.setRole(EdxELRConstant.ELR_OP_CD);
                 edxLabInformationDto.setOrderingProvider(true);
                 PersonContainer personContainer = new PersonContainer();
@@ -77,12 +77,12 @@ public class ORCHandler {
                 edxLabInformationDto.setOrderingProviderVO(personContainer);
                 labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
                 edxLabInformationDto.setMissingOrderingProvider(false);
-            }else{
+            } else {
                 edxLabInformationDto.setMissingOrderingProvider(true);
             }
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessor.getOrderingProvider " + e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessor.getOrderingProvider:"+ e);
+            throw new DataProcessingException("Exception thrown at HL7ORCProcessor.getOrderingProvider:" + e);
         }
 
         return labResultProxyContainer;
@@ -95,7 +95,7 @@ public class ORCHandler {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         try {
             List<HL7XADType> addressArray = hl7ORCType.getOrderingFacilityAddress();
-            if(addressArray!=null && addressArray.size() !=0){
+            if (addressArray != null && addressArray.size() != 0) {
                 OrganizationDto organizationDto = new OrganizationDto();
                 organizationContainer.setItNew(true);
                 organizationContainer.setItDirty(false);
@@ -174,13 +174,13 @@ public class ORCHandler {
                 }
                 organizationContainer.setTheOrganizationNameDtoCollection(orgNameColl);
                 edxLabInformationDto.setMissingOrderingFacility(false);
-            }else{
+            } else {
                 edxLabInformationDto.setMissingOrderingFacility(true);
             }
 
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessorget.getOrderingFacility " + e.getMessage(), e);
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getOrderingFacility:"+ e);
+            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getOrderingFacility:" + e);
         }
         edxLabInformationDto.setMultipleOrderingFacility(false);
 

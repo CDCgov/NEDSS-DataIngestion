@@ -33,7 +33,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
         nndActivityLogDto.setStatusTime(timeStamp);
         long uid;
 
-        if(nndActivityLogDto.getNndActivityLogUid() == null) {
+        if (nndActivityLogDto.getNndActivityLogUid() == null) {
             var id = odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA);
             uid = id.getSeedValueNbr();
         } else {

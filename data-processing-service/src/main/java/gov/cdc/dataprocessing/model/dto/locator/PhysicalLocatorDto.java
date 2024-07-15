@@ -9,8 +9,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class PhysicalLocatorDto extends BaseContainer
-{
+@SuppressWarnings("all")
+public class PhysicalLocatorDto extends BaseContainer {
     private Long physicalLocatorUid;
     private String addReasonCd;
     private Timestamp addTime;

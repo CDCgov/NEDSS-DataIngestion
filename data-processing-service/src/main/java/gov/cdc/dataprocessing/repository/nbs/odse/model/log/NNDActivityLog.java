@@ -3,14 +3,16 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.log;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.NNDActivityLogId;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "NND_Activity_log")
-@Data
+@Getter
+@Setter
 @IdClass(NNDActivityLogId.class)
 public class NNDActivityLog implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -37,7 +39,7 @@ public class NNDActivityLog implements Serializable {
     private Timestamp recordStatusTime;
 
     @Column(name = "status_cd", length = 1, nullable = false)
-    private String  statusCd;
+    private String statusCd;
 
     @Column(name = "status_time", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -49,6 +51,7 @@ public class NNDActivityLog implements Serializable {
     public NNDActivityLog() {
 
     }
+
     public NNDActivityLog(NNDActivityLogDto activityLogDT) {
         this.nndActivityLogUid = activityLogDT.getNndActivityLogUid();
         this.nndActivityLogSeq = activityLogDT.getNndActivityLogSeq();

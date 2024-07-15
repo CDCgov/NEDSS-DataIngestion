@@ -23,11 +23,11 @@ import static org.mockito.Mockito.when;
 
 class OdseIdGeneratorServiceTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private LocalUidGeneratorRepository localUidGeneratorRepository;
     @InjectMocks
     private OdseIdGeneratorService odseIdGeneratorService;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +38,7 @@ class OdseIdGeneratorServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach

@@ -39,6 +39,8 @@ import static org.mockito.Mockito.when;
 
 class HL7PatientHandlerTest {
     @Mock
+    AuthUtil authUtil;
+    @Mock
     private ICatchingValueService checkingValueService;
     @Mock
     private NBSObjectConverter nbsObjectConverter;
@@ -46,8 +48,6 @@ class HL7PatientHandlerTest {
     private EntityIdUtil entityIdUtil;
     @InjectMocks
     private HL7PatientHandler hl7PatientHandler;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +58,7 @@ class HL7PatientHandlerTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.setGlobalAuthUser(userInfo);
 
         SrteCache.elrXrefsList.clear();
         SrteCache.raceCodesMap.clear();
@@ -146,7 +146,7 @@ class HL7PatientHandlerTest {
         motherName.setHL7GivenName("TEST");
         hl7PatientResult.getPATIENT().getPatientIdentification().getMothersMaidenName().add(motherName);
 
-        var birthOrder =new HL7NMType();
+        var birthOrder = new HL7NMType();
         birthOrder.setHL7Numeric(BigInteger.ONE);
         hl7PatientResult.getPATIENT().getPatientIdentification().setBirthOrder(birthOrder);
 
@@ -170,7 +170,7 @@ class HL7PatientHandlerTest {
         hl7PatientResult.getPATIENT().getPatientIdentification().getPhoneNumberHome().add(homePone);
 
         var entiyLoca = new EntityLocatorParticipationDto();
-        when(nbsObjectConverter.personTelePhoneType(any(),eq(EdxELRConstant.ELR_PATIENT_CD), any())).thenReturn(entiyLoca);
+        when(nbsObjectConverter.personTelePhoneType(any(), eq(EdxELRConstant.ELR_PATIENT_CD), any())).thenReturn(entiyLoca);
 
         var race = new PersonRaceDto();
         race.setRaceCategoryCd("CODE");
@@ -184,7 +184,7 @@ class HL7PatientHandlerTest {
         SrteCache.raceCodesMap.put("TO_CODE", "TO_CODE");
 
         // NOK
-        when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");
+        when(checkingValueService.getCodeDescTxtForCd(any(), eq(EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");
 
 
         var res = hl7PatientHandler.getPatientAndNextOfKin(hl7PatientResult, labResultProxyContainer, edxLabInformationDto);
@@ -201,7 +201,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -214,7 +214,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_PROVIDER_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -227,7 +227,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_VERIFIER_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -240,7 +240,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -253,7 +253,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_PERFORMER_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -266,7 +266,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_LAB_ENTERER_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -279,7 +279,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_OP_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }
@@ -292,7 +292,7 @@ class HL7PatientHandlerTest {
 
         edxLabInformationDto.setRole(EdxELRConstant.ELR_COPY_TO_CD);
 
-        var res =  hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
+        var res = hl7PatientHandler.parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
 
         assertNotNull(res);
     }

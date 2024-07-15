@@ -22,20 +22,21 @@ public class PamRepositoryUtil {
         this.nbsActEntityRepository = nbsActEntityRepository;
         this.nbsCaseAnswerRepository = nbsCaseAnswerRepository;
     }
+
     public PublicHealthCaseContainer getPamHistory(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
-            Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
-            publicHealthCaseContainer.setNbsCaseEntityCollection(pamEntityColl);
-            Collection<NbsCaseAnswerDto>  pamAnswerColl = getPamAnswerDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
-            publicHealthCaseContainer.setNbsAnswerCollection(pamAnswerColl);
-            return publicHealthCaseContainer;
+        Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
+        publicHealthCaseContainer.setNbsCaseEntityCollection(pamEntityColl);
+        Collection<NbsCaseAnswerDto> pamAnswerColl = getPamAnswerDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
+        publicHealthCaseContainer.setNbsAnswerCollection(pamAnswerColl);
+        return publicHealthCaseContainer;
     }
 
-    private Collection<NbsActEntityDto>  getPamCaseEntityDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
-        ArrayList<NbsActEntityDto> pamEntityDTCollection  = new ArrayList<> ();
+    private Collection<NbsActEntityDto> getPamCaseEntityDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
+        ArrayList<NbsActEntityDto> pamEntityDTCollection = new ArrayList<>();
         try {
-            var res  =  nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getUid());
+            var res = nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getUid());
             if (res.isPresent()) {
-                for(var item : res.get()) {
+                for (var item : res.get()) {
                     var nbsItem = new NbsActEntityDto(item);
                     pamEntityDTCollection.add(nbsItem);
                 }
@@ -46,13 +47,13 @@ public class PamRepositoryUtil {
         return pamEntityDTCollection;
     }
 
-    private Collection<NbsCaseAnswerDto>  getPamAnswerDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
-        ArrayList<NbsCaseAnswerDto> nbsAnswerDTCollection  = new ArrayList<> ();
+    private Collection<NbsCaseAnswerDto> getPamAnswerDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
+        ArrayList<NbsCaseAnswerDto> nbsAnswerDTCollection = new ArrayList<>();
         try {
 
-            var res  =  nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(rootDTInterface.getUid());
+            var res = nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(rootDTInterface.getUid());
             if (res.isPresent()) {
-                for(var item : res.get()) {
+                for (var item : res.get()) {
                     var nbsItem = new NbsCaseAnswerDto(item);
                     nbsAnswerDTCollection.add(nbsItem);
                 }

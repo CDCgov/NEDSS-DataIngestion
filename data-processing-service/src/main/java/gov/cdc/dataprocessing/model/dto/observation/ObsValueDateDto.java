@@ -9,8 +9,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class ObsValueDateDto extends BaseContainer
-{
+@SuppressWarnings("all")
+public class ObsValueDateDto extends BaseContainer {
     private static final long serialVersionUID = 1L;
 
     private Long observationUid;
@@ -32,7 +32,6 @@ public class ObsValueDateDto extends BaseContainer
     private Long programJurisdictionOid = null;
 
     private String sharedInd = null;
-
 
 
     public ObsValueDateDto() {
