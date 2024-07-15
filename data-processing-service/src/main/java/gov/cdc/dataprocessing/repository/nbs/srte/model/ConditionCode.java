@@ -3,9 +3,11 @@ package gov.cdc.dataprocessing.repository.nbs.srte.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
-@Table(name = "Condition_code")
+@Getter
+@Setter
 public class ConditionCode extends BaseConditionCode {
 }
