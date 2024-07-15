@@ -119,6 +119,7 @@ public class PatientRepositoryUtil {
 
         //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto());
+        person.setBirthCntryCd(null);
         personRepository.save(person);
 
         //NOTE: Create Person Name
@@ -160,6 +161,7 @@ public class PatientRepositoryUtil {
         Person person = new Person(personContainer.getThePersonDto());
         var ver = person.getVersionCtrlNbr();
         person.setVersionCtrlNbr(++ver);
+        person.setBirthCntryCd(null);
         personRepository.save(person);
 
 
@@ -204,6 +206,7 @@ public class PatientRepositoryUtil {
                 if (person.getEthnicGroupInd() != null) {
                     mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
                 }
+                mprRes.get().setBirthCntryCd(null);
                 personRepository.save(mprRes.get());
             }
 

@@ -1,8 +1,10 @@
 package gov.cdc.dataprocessing.service.implementation.entity;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.kafka.consumer.KafkaEdxLogConsumer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
@@ -16,6 +18,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepos
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +27,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class EntityLocatorParticipationService implements IEntityLocatorParticipationService {
+    private static final Logger logger = LoggerFactory.getLogger(EntityLocatorParticipationService.class); // NOSONAR
+
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
@@ -124,10 +130,10 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 else if (
                         entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                         && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-                        && (
-                            entityLocatorParticipationDto.getCd().equals(NEDSSConstant.HOME) ||
-                            entityLocatorParticipationDto.getCd().isEmpty()
-                        )
+//                        && (
+//                            entityLocatorParticipationDto.getCd().equals(NEDSSConstant.HOME) ||
+//                            entityLocatorParticipationDto.getCd().isEmpty()
+//                        )
                 )
                 {
                     if (!postalLocators.isEmpty())
@@ -284,7 +290,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     inserted = true;
                 } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                         && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null) {
+//                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null
+                ) {
                     entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
                     postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                     inserted = true;

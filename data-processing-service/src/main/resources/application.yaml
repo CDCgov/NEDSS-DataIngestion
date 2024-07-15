@@ -32,7 +32,7 @@ kafka:
     elr_action_tracker: elr_action_tracker
 
 nbs:
-  user:  ${NBS_AUTH_USER:}
+  user:  ${NBS_AUTH_USER:superuser}
   data:
     hiv_program_areas: ${HIV_PROG_AREA:}
 
