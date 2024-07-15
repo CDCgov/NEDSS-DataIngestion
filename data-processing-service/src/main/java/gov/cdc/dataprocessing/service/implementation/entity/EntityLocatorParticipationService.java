@@ -177,9 +177,20 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
 
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
-                                uid = entityLocatorParticipationDto.getEntityUid();
-                                entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
-                                postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+                                if (entityLocatorParticipationDto.isItDelete()) {
+                                    // DELETE
+                                    newLocator = false;
+                                }
+                                else if (entityLocatorParticipationDto.isItDirty()) {
+                                    newLocator = false;
+
+                                }
+                                else {
+                                    uid = entityLocatorParticipationDto.getEntityUid();
+                                    entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
+                                    postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+                                }
+
                             }
                             else
                             {
