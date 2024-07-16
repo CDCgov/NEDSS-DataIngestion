@@ -1,11 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.entity;
 
-import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.kafka.consumer.KafkaEdxLogConsumer;
-import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;

@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.lookup;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
