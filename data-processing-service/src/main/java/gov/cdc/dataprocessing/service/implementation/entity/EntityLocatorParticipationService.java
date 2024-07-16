@@ -193,10 +193,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 else if (
                         entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                         && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-//                        && (
-//                            entityLocatorParticipationDto.getCd().equals(NEDSSConstant.HOME) ||
-//                            entityLocatorParticipationDto.getCd().isEmpty()
-//                        )
                 )
                 {
                     if (!postalLocators.isEmpty())
@@ -240,19 +236,9 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
 
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
-                                if (entityLocatorParticipationDto.isItDelete()) {
-                                    // DELETE
-                                    newLocator = false;
-                                }
-                                else if (entityLocatorParticipationDto.isItDirty()) {
-                                    newLocator = false;
-
-                                }
-                                else {
-                                    uid = entityLocatorParticipationDto.getEntityUid();
-                                    entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
-                                    postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
-                                }
+                                uid = entityLocatorParticipationDto.getEntityUid();
+                                entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
+                                postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
 
                             }
                             else
