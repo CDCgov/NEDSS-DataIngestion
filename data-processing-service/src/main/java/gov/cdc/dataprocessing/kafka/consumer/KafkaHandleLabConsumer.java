@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 public class KafkaHandleLabConsumer {
     @Value("${kafka.topic.elr_edx_log}")
     private String logTopic = "elr_edx_log";
+    @Value("${nbs.user}")
+    private String nbsUser = "";
 
     private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
@@ -35,7 +37,7 @@ public class KafkaHandleLabConsumer {
     )
     public void handleMessage(String message) {
         try {
-            var auth = authUserService.getAuthUserInfo("superuser");
+            var auth = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(auth);
             Gson gson = new Gson();
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);

@@ -282,7 +282,7 @@ class EntityLocatorParticipationServiceTest {
 
 
         verify(physicalLocatorRepository, times(1)).save(any());
-        verify(postalLocatorRepository, times(0)).save(any());
+        verify(postalLocatorRepository, times(1)).save(any());
         verify(teleLocatorRepository, times(0)).save(any());
     }
 

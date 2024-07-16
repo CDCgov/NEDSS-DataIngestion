@@ -40,6 +40,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -376,5 +377,76 @@ class PatientRepositoryUtilTest {
         var res = patientRepositoryUtil.preparePersonNameBeforePersistence(personContainer);
 
         assertNotNull(res);
+    }
+
+    @Test
+    void deleteInactivePersonRace_Test() {
+        List<String> retainingRaceCodeList = new ArrayList<>();
+        Long patientUid = 10L;
+        Long parentUid = 11L;
+
+        retainingRaceCodeList.add("TEST");
+
+        var personRaceCol = new ArrayList<PersonRace>();
+        personRaceCol.add(new PersonRace());
+        personRaceCol.add(new PersonRace());
+        when(personRaceRepository.findByParentUid(11L)).thenReturn(Optional.of(personRaceCol));
+
+
+        patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
+
+        verify(personRaceRepository, times(1)).deletePersonRaceByUid(eq(10L),any());
+    }
+
+    @Test
+    void deleteInactivePersonRace_Test_Exp() {
+        List<String> retainingRaceCodeList = new ArrayList<>();
+        Long patientUid = 10L;
+        Long parentUid = 11L;
+
+        retainingRaceCodeList.add("TEST");
+
+
+        doThrow(new RuntimeException("TEST")).when(personRaceRepository).deletePersonRaceByUid(eq(10L), any());
+        when(personRaceRepository.findByParentUid(11L)).thenThrow(new RuntimeException("TEST"));
+
+
+        patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
+
+        verify(personRaceRepository, times(0)).deletePersonRaceByUid(eq(11L),any());
+    }
+
+    @Test
+    void deleteInactivePersonRace_Test_2() {
+        List<String> retainingRaceCodeList = new ArrayList<>();
+        Long patientUid = 10L;
+        Long parentUid = 11L;
+
+        retainingRaceCodeList.add("TEST");
+
+        var personRaceCol = new ArrayList<PersonRace>();
+        personRaceCol.add(new PersonRace());
+        when(personRaceRepository.findByParentUid(11L)).thenReturn(Optional.of(personRaceCol));
+
+
+        patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
+
+        verify(personRaceRepository, times(0)).deletePersonRaceByUid(eq(11L),any());
+    }
+
+
+
+    @Test
+    void deleteInactivePersonRace_Test_3() {
+        List<String> retainingRaceCodeList = new ArrayList<>();
+        Long patientUid = -10L;
+        Long parentUid = -11L;
+
+
+
+
+        patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
+
+        verify(personRaceRepository, times(0)).deletePersonRaceByUid(eq(10L),any());
     }
 }
