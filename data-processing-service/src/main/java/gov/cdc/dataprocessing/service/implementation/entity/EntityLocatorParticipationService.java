@@ -48,6 +48,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
+    @SuppressWarnings({"java:S3776", "java:S125"})
     protected void deleteEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) {
         var deletePostal = locatorCollection.stream().filter(x -> x.getClassCd().equalsIgnoreCase(NEDSSConstant.POSTAL) && x.isItDelete()).toList();
         StringBuilder comparingString = new StringBuilder();
@@ -60,13 +61,13 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             if (personRes.isPresent()) {
                 parentUid = personRes.get().get(0).getPersonParentUid();
             }
-            List<EntityLocatorParticipation> mprEntityHomeCheck = new ArrayList<EntityLocatorParticipation>();
+//            List<EntityLocatorParticipation> mprEntityHomeCheck = new ArrayList<EntityLocatorParticipation>();
             var postalRevision = postalLocatorRepository.findByPostalLocatorUids(deletePostal.stream().map(EntityLocatorParticipationDto::getLocatorUid).toList());
             if (parentUid != null && postalRevision.isPresent()) {
                 var entityMprEntityRes = entityLocatorParticipationRepository.findByParentUid(parentUid);
                 var entityMprRes = entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid);
                 if (entityMprRes.isPresent() && entityMprEntityRes.isPresent()) {
-                    mprEntityHomeCheck = entityMprEntityRes.get().stream().filter(x -> x.getCd().equalsIgnoreCase("H")).toList();
+//                    mprEntityHomeCheck = entityMprEntityRes.get().stream().filter(x -> x.getCd().equalsIgnoreCase("H")).toList();
                     var postalMpr = postalLocatorRepository.findByPostalLocatorUids(entityMprRes.get());
                     if (postalMpr.isPresent()) {
                         for(var revision : postalRevision.get()) {
@@ -283,7 +284,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
                                 uid = entityLocatorParticipationDto.getEntityUid();
                                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
-                                entityLocatorParticipationDto.getThePostalLocatorDto().setRecordStatusCd("ACTIVE");
+                                entityLocatorParticipationDto.getThePostalLocatorDto().setRecordStatusCd(NEDSSConstant.ACTIVE);
                                 postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
 
                             }
@@ -297,7 +298,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         {
                             uid = entityLocatorParticipationDto.getEntityUid();
                             entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
-                            entityLocatorParticipationDto.getThePostalLocatorDto().setRecordStatusCd("ACTIVE");
+                            entityLocatorParticipationDto.getThePostalLocatorDto().setRecordStatusCd(NEDSSConstant.ACTIVE);
                             postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                         }
                         comparingString.setLength(0);
@@ -379,7 +380,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         entityLocatorParticipationDto.setVersionCtrlNbr(1);
                     }
                     entityLocatorParticipationDto.setStatusCd("A");
-                    entityLocatorParticipationDto.setRecordStatusCd("ACTIVE");
+                    entityLocatorParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
                     entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto));
                 }
 
