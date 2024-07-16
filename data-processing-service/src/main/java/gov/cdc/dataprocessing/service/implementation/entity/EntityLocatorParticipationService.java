@@ -48,7 +48,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
-    public void deleteEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) {
+    protected void deleteEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) {
         var deletePostal = locatorCollection.stream().filter(x -> x.getClassCd().equalsIgnoreCase(NEDSSConstant.POSTAL) && x.isItDelete()).toList();
         StringBuilder comparingString = new StringBuilder();
         ArrayList<String> comparingStrList = new ArrayList<>();
