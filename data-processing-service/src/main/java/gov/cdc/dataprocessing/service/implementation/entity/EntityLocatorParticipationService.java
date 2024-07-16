@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.consumer.KafkaEdxLogConsumer;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
@@ -46,6 +47,68 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
+//    public void updateEntityLocatorParticipationV2(Collection<EntityLocatorParticipationDto> locatorCollection,
+//                                                   Long patientUid, Long parentUid) {
+//
+//        var mprRecord = entityLocatorParticipationRepository.findByParentUid(parentUid);
+//        if (mprRecord.isPresent()) {
+//            var mprPostal = mprRecord.get().stream().filter(x -> x.getClassCd().equals(NEDSSConstant.POSTAL)).toList();
+//            var mprPhy = mprRecord.get().stream().filter(x -> x.getClassCd().equals(NEDSSConstant.PHYSICAL)).toList();
+//            var mprTel = mprRecord.get().stream().filter(x -> x.getClassCd().equals(NEDSSConstant.TELE)).toList();
+//
+//            var incomingPostals = locatorCollection.stream().filter(x -> x.getClassCd().equals(NEDSSConstant.POSTAL) &&
+//                    x.getLocatorUid() == null).toList();
+//            var existingPostals = locatorCollection.stream().filter(x -> x.getClassCd().equals(NEDSSConstant.POSTAL) &&
+//                    x.getLocatorUid() != null).toList();
+//
+//            if (!existingPostals.isEmpty()) {
+//                var deletePostals = existingPostals.stream().filter(BaseContainer::isItDelete).toList();
+//                for (EntityLocatorParticipationDto entityLocatorParticipationDto : deletePostals) {
+//                    try {
+//                        postalLocatorRepository.deletePostalById(entityLocatorParticipationDto.getLocatorUid());
+//                        entityLocatorParticipationRepository.deleteEntityLocatorById(entityLocatorParticipationDto.getEntityUid(),
+//                                entityLocatorParticipationDto.getLocatorUid());
+//
+//                        postalLocatorRepository.deletePostalById(entityLocatorParticipationDto.getLocatorUid());
+//                        entityLocatorParticipationRepository.deleteEntityLocatorById(entityLocatorParticipationDto.getEntityUid(),
+//                                entityLocatorParticipationDto.getLocatorUid());
+//                    } catch (Exception e) {
+//                        logger.info("ERROR DELETE LOCATOR: " + e.getMessage());
+//                    }
+//                }
+//            }
+//            if (!incomingPostals.isEmpty()) {
+//                for (EntityLocatorParticipationDto entityLocatorParticipationDto : incomingPostals) {
+//                    try {
+//                        LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
+//                        entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
+//                        postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+//                        entityLocatorParticipationDto.setLocatorUid(localUid.getSeedValueNbr());
+//                        if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
+//                            entityLocatorParticipationDto.setVersionCtrlNbr(1);
+//                        }
+//                        entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto));
+//                    } catch (Exception e) {
+//                        logger.info("ERROR DELETE LOCATOR: " + e.getMessage());
+//                    }
+//                }
+//            }
+//
+//
+//            var incomingPhysicals = locatorCollection.stream().filter(x -> x.getClassCd().equals(NEDSSConstant.PHYSICAL) &&
+//                    x.getLocatorUid() == null).toList();
+//            var existingPhysicals = locatorCollection.stream().filter(x -> x.getClassCd().equals(NEDSSConstant.PHYSICAL) &&
+//                    x.getLocatorUid() != null).toList();
+//
+//            var incomingTeles = locatorCollection.stream().filter(x -> x.getClassCd().equals(NEDSSConstant.TELE) &&
+//                    x.getLocatorUid() == null).toList();
+//            var existingTeles = locatorCollection.stream().filter(x -> x.getClassCd().equals(NEDSSConstant.TELE) &&
+//                    x.getLocatorUid() != null).toList();
+//
+//        }
+//    }
+//
+//
     @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
     public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) throws DataProcessingException {
