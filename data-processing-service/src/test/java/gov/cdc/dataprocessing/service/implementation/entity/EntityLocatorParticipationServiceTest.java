@@ -13,10 +13,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidG
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -46,13 +48,21 @@ class EntityLocatorParticipationServiceTest {
     private  PhysicalLocatorRepository physicalLocatorRepository;
     @Mock
     private  OdseIdGeneratorService odseIdGeneratorService;
+
+    @Mock
+    private PersonRepository personRepository;
     @InjectMocks
     private EntityLocatorParticipationService entityLocatorParticipationService;
     @Mock
     AuthUtil authUtil;
 
+    private Collection<EntityLocatorParticipationDto> locatorCollectionMock;
+
+
     @BeforeEach
     void setUp() {
+        locatorCollectionMock = new ArrayList<>();
+
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
@@ -66,7 +76,7 @@ class EntityLocatorParticipationServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(entityLocatorParticipationRepository, teleLocatorRepository, postalLocatorRepository, physicalLocatorRepository,
-                odseIdGeneratorService, authUtil);
+                odseIdGeneratorService, authUtil, personRepository);
     }
 
     @Test
@@ -329,5 +339,279 @@ class EntityLocatorParticipationServiceTest {
         assertNotNull(res);
 
 
+    }
+
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenDeletePostalIsEmpty() {
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+        verify(personRepository, never()).findByPersonUid(anyLong());
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenPersonResIsEmpty() {
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.empty());
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        locatorCollectionMock.add(dto);
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenPostalRevisionIsEmpty() {
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(new Person())));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.empty());
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        locatorCollectionMock.add(dto);
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenEntityMprEntityResIsEmpty() {
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(new Person())));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(new PostalLocator())));
+        when(entityLocatorParticipationRepository.findByParentUid(anyLong())).thenReturn(Optional.empty());
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        locatorCollectionMock.add(dto);
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenEntityMprResIsEmpty() {
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(new Person())));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(new PostalLocator())));
+        when(entityLocatorParticipationRepository.findByParentUid(anyLong())).thenReturn(Optional.of(List.of(new EntityLocatorParticipation())));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(anyLong())).thenReturn(Optional.empty());
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        locatorCollectionMock.add(dto);
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+    }
+    private EntityLocatorParticipationDto createEntityLocatorParticipationDto(String classCd, boolean itDelete, String useCd) {
+        EntityLocatorParticipationDto dto = new EntityLocatorParticipationDto();
+        dto.setClassCd(classCd);
+        dto.setItDelete(itDelete);
+        dto.setUseCd(useCd);
+        return dto;
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenConditionsAreMet() {
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(new Person())));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(new PostalLocator())));
+        when(entityLocatorParticipationRepository.findByParentUid(anyLong())).thenReturn(Optional.of(List.of(new EntityLocatorParticipation())));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(anyLong())).thenReturn(Optional.of(List.of(1L)));
+
+        EntityLocatorParticipationDto dto = new EntityLocatorParticipationDto();
+        dto.setClassCd(NEDSSConstant.POSTAL);
+        dto.setItDelete(true);
+        dto.setUseCd("BIR");
+        locatorCollectionMock.add(dto);
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(entityLocatorParticipationRepository).deleteLocatorById(any(), any());
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenExceptionThrown() {
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(new Person())));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(new PostalLocator())));
+        when(entityLocatorParticipationRepository.findByParentUid(anyLong())).thenReturn(Optional.of(List.of(new EntityLocatorParticipation())));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(anyLong())).thenReturn(Optional.of(List.of(1L)));
+
+        EntityLocatorParticipationDto dto = new EntityLocatorParticipationDto();
+        dto.setClassCd(NEDSSConstant.POSTAL);
+        dto.setItDelete(true);
+        dto.setUseCd("BIR");
+        locatorCollectionMock.add(dto);
+
+        doThrow(new RuntimeException()).when(postalLocatorRepository).deletePostalLocatorById(any());
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(entityLocatorParticipationRepository, never()).deleteLocatorById(any(), any());
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWithSpecificScenario() {
+        Long parentUid = 1L;
+        Long patientUid = 2L;
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        dto.setLocatorUid(1L);
+        locatorCollectionMock.add(dto);
+
+        EntityLocatorParticipation entityLocator = new EntityLocatorParticipation();
+        entityLocator.setLocatorUid(1L);
+        entityLocator.setCd("H");
+        entityLocator.setUseCd("BIR");
+
+        PostalLocator postalLocator = new PostalLocator();
+        postalLocator.setPostalLocatorUid(1L);
+        postalLocator.setCityCd("CITY");
+        postalLocator.setCityDescTxt("City Description");
+        postalLocator.setCntryCd("Country");
+        postalLocator.setCntryDescTxt("Country Description");
+        postalLocator.setCntyCd("County");
+        postalLocator.setCntyDescTxt("County Description");
+        postalLocator.setStateCd("State");
+        postalLocator.setStreetAddr1("Street 1");
+        postalLocator.setStreetAddr2("Street 2");
+        postalLocator.setZipCd("Zip");
+
+
+        var p = new Person();
+        p.setPersonParentUid(parentUid);
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(p)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+        when(entityLocatorParticipationRepository.findByParentUid(parentUid)).thenReturn(Optional.of(List.of(entityLocator)));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid)).thenReturn(Optional.of(List.of(1L)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
+
+        verify(postalLocatorRepository, times(2)).deletePostalLocatorById(1L);
+        verify(entityLocatorParticipationRepository).deleteLocatorById(parentUid, 1L);
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenExceptionThrownInDeleteOperations() {
+        Long parentUid = 1L;
+        Long patientUid = 2L;
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        dto.setLocatorUid(1L);
+        locatorCollectionMock.add(dto);
+
+        EntityLocatorParticipation entityLocator = new EntityLocatorParticipation();
+        entityLocator.setLocatorUid(1L);
+        entityLocator.setCd("H");
+        entityLocator.setUseCd("BIR");
+
+        PostalLocator postalLocator = new PostalLocator();
+        postalLocator.setPostalLocatorUid(1L);
+        postalLocator.setCityCd("CITY");
+        postalLocator.setCityDescTxt("City Description");
+        postalLocator.setCntryCd("Country");
+        postalLocator.setCntryDescTxt("Country Description");
+        postalLocator.setCntyCd("County");
+        postalLocator.setCntyDescTxt("County Description");
+        postalLocator.setStateCd("State");
+        postalLocator.setStreetAddr1("Street 1");
+        postalLocator.setStreetAddr2("Street 2");
+        postalLocator.setZipCd("Zip");
+        var p = new Person();
+        p.setPersonParentUid(parentUid);
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(p)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+        when(entityLocatorParticipationRepository.findByParentUid(parentUid)).thenReturn(Optional.of(List.of(entityLocator)));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid)).thenReturn(Optional.of(List.of(1L)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+
+        doThrow(new RuntimeException()).when(postalLocatorRepository).deletePostalLocatorById(anyLong());
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
+
+        verify(entityLocatorParticipationRepository, never()).deleteLocatorById(parentUid, 1L);
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenBirCheckIsEmpty() {
+        Long parentUid = 1L;
+        Long patientUid = 2L;
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        dto.setLocatorUid(1L);
+        locatorCollectionMock.add(dto);
+
+        EntityLocatorParticipation entityLocator = new EntityLocatorParticipation();
+        entityLocator.setLocatorUid(1L);
+        entityLocator.setCd("H");
+        entityLocator.setUseCd("HOME");
+
+        PostalLocator postalLocator = new PostalLocator();
+        postalLocator.setPostalLocatorUid(1L);
+        postalLocator.setCityCd("CITY");
+        postalLocator.setCityDescTxt("City Description");
+        postalLocator.setCntryCd("Country");
+        postalLocator.setCntryDescTxt("Country Description");
+        postalLocator.setCntyCd("County");
+        postalLocator.setCntyDescTxt("County Description");
+        postalLocator.setStateCd("State");
+        postalLocator.setStreetAddr1("Street 1");
+        postalLocator.setStreetAddr2("Street 2");
+        postalLocator.setZipCd("Zip");
+        var p = new Person();
+        p.setPersonParentUid(parentUid);
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(p)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+        when(entityLocatorParticipationRepository.findByParentUid(parentUid)).thenReturn(Optional.of(List.of(entityLocator)));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid)).thenReturn(Optional.of(List.of(1L)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
+
+        verify(postalLocatorRepository).deletePostalLocatorById(any());
+    }
+
+    @Test
+    void testDeleteEntityLocatorParticipationWhenElseConditionIsMet() {
+        Long parentUid = 1L;
+        Long patientUid = 2L;
+
+        EntityLocatorParticipationDto dto = createEntityLocatorParticipationDto(NEDSSConstant.POSTAL, true, "BIR");
+        dto.setLocatorUid(1L);
+        locatorCollectionMock.add(dto);
+
+        EntityLocatorParticipation entityLocator = new EntityLocatorParticipation();
+        entityLocator.setLocatorUid(1L);
+        entityLocator.setCd("H");
+        entityLocator.setUseCd("BIR");
+
+        PostalLocator postalLocator = new PostalLocator();
+        postalLocator.setPostalLocatorUid(1L);
+        postalLocator.setCityCd("CITY");
+        postalLocator.setCityDescTxt("City Description");
+        postalLocator.setCntryCd("Country");
+        postalLocator.setCntryDescTxt("Country Description");
+        postalLocator.setCntyCd("County");
+        postalLocator.setCntyDescTxt("County Description");
+        postalLocator.setStateCd("State");
+        postalLocator.setStreetAddr1("Street 1");
+        postalLocator.setStreetAddr2("Street 2");
+        postalLocator.setZipCd("Zip");
+
+        var p = new Person();
+        p.setPersonParentUid(parentUid);
+        when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(p)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+        when(entityLocatorParticipationRepository.findByParentUid(parentUid)).thenReturn(Optional.of(List.of(entityLocator)));
+        when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid)).thenReturn(Optional.of(List.of(1L)));
+        when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
+
+        when(entityLocatorParticipationRepository.findByParentUid(parentUid)).thenReturn(Optional.of(List.of(entityLocator, entityLocator)));
+
+        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
+
+         verify(postalLocatorRepository, times(0)).updatePostalStatus(any(), any());
     }
 }
