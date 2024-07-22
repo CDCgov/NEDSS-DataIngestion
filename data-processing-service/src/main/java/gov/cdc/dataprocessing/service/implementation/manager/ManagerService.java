@@ -396,7 +396,7 @@ public class ManagerService implements IManagerService {
 
 
             // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
-            managerAggregationService.serviceAggregationAsync(labResultProxyContainer, edxLabInformationDto);
+            managerAggregationService.serviceAggregation(labResultProxyContainer, edxLabInformationDto);
 
 
             // Hit when Obs is matched
@@ -450,6 +450,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            logger.error("DP ERROR: " + e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
