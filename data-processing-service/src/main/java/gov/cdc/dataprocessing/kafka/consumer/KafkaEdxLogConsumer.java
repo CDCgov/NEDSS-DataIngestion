@@ -5,10 +5,12 @@ import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityLogDto;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class KafkaEdxLogConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_edx_log}"
     )
+
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
         Gson gson = new Gson();

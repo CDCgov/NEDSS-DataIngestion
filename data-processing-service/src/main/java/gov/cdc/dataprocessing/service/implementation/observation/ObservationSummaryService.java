@@ -48,7 +48,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             }
 
         }catch(Exception ex){
-            throw new DataProcessingException(ex.toString(), ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return uidSummaryVOCollection;
     }
@@ -61,7 +61,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             vals = customRepository.getLabParticipations(observationUID);
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return vals;
     }
@@ -76,7 +76,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
 
 
@@ -93,7 +93,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return orderProviderInfo;
@@ -108,7 +108,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return actIdDetails;
@@ -122,7 +122,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
            orgName = customRepository.getReportingFacilityName(organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return orgName;
     }
@@ -132,7 +132,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             specSource = customRepository.getSpecimanSource(materialUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return specSource;
     }
@@ -150,7 +150,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -167,7 +167,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         }catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -177,7 +177,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -188,7 +188,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
 
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -272,7 +272,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return assocoiatedInvMap;

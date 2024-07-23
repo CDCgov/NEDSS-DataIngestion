@@ -10,12 +10,18 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @EnableKafka
+@EnableTransactionManagement
 @Configuration
 public class KafkaConsumerConfig {
     @Value("${spring.kafka.group-id}")
@@ -29,6 +35,12 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.maxPollIntervalMs}")
     private String maxPollInterval = "";
 
+    private final ProducerFactory<String, String> producerFactory;
+
+    public KafkaConsumerConfig(ProducerFactory<String, String> producerFactory) {
+        this.producerFactory = producerFactory;
+    }
+
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         final Map<String, Object> config = new HashMap<>();
@@ -37,17 +49,36 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollInterval);
-        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  //TRANSACTION SUPPORT
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // Disable auto commit for manual commit
 
         return new DefaultKafkaConsumerFactory<>(config);
     }
+//
+//    @Bean
+//    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+//        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+//                new ConcurrentKafkaListenerContainerFactory<>();
+//        factory.setConsumerFactory(consumerFactory());
+//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+//        return factory;
+//    }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
-    kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        return  factory;
+        factory.getContainerProperties().setTransactionManager(kafkaTransactionManager());
+        return factory;
+    }
+
+    @Bean
+    public KafkaTransactionManager<String, String> kafkaTransactionManager() {
+        return new KafkaTransactionManager<>(producerFactory);
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return kafkaTransactionManager();
     }
 }

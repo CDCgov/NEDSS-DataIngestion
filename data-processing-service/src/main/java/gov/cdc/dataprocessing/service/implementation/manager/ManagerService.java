@@ -106,7 +106,7 @@ public class ManagerService implements IManagerService {
         this.managerCacheService = managerCacheService;
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRED)
     public void processDistribution(String eventType, String data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             switch (eventType) {
@@ -123,7 +123,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRED)
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
@@ -221,10 +221,11 @@ public class ManagerService implements IManagerService {
             }
         }
 
+        logger.info("Completed 2nd Step");
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRED)
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
@@ -359,6 +360,8 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
+
+        logger.info("Completed 3rd Step");
     }
 
     @SuppressWarnings("java:S6541")
@@ -396,7 +399,7 @@ public class ManagerService implements IManagerService {
 
 
             // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
-            managerAggregationService.serviceAggregation(labResultProxyContainer, edxLabInformationDto);
+            managerAggregationService.serviceAggregationAsync(labResultProxyContainer, edxLabInformationDto);
 
 
             // Hit when Obs is matched
@@ -580,6 +583,7 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
+        logger.info("Completed 1st Step");
     }
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {

@@ -221,7 +221,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
             }
         }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -252,7 +252,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException( ex.toString() );
+            throw new DataProcessingException( ex.getMessage() );
         }
     }
 
@@ -392,7 +392,7 @@ public class PublicHealthCaseRepositoryUtil {
             }
             catch(Exception ex)
             {
-                throw new DataProcessingException( ex.toString(), ex);
+                throw new DataProcessingException( ex.getMessage(), ex);
             }
         }
     }
@@ -524,7 +524,7 @@ public class PublicHealthCaseRepositoryUtil {
             Collection<NbsActEntityDto>  pamCaseEntityDTCollection= getActEntityDTCollection(publicHealthCaseUID);
             pamVO.setActEntityDTCollection(pamCaseEntityDTCollection);
         }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return pamVO;
     }
@@ -624,7 +624,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         catch (Exception ex)
         {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         nbsReturnAnswerMap.put(NEDSSConstant.NON_REPEATING_QUESTION, nbsAnswerMap);
         nbsReturnAnswerMap.put(NEDSSConstant.REPEATING_QUESTION, nbsRepeatingAnswerMap);

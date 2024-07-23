@@ -23,14 +23,14 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); //TRANSACTION SUPPORT
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); // Enable idempotence for transactions
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "txn-id"); // Set a transactional ID
+
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
-        // set factory for both producer and consumer
         return new KafkaTemplate<>(producerFactory());
     }
-
 }

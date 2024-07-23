@@ -97,7 +97,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             documentSummaryVOColl = customRepository.retrieveDocumentSummaryVOForInv(publicHealthUID);
         }
         catch (Exception rsuex) {
-            throw new DataProcessingException(rsuex.toString());
+            throw new DataProcessingException(rsuex.getMessage());
         }
         return documentSummaryVOColl;
     } // retrieveDocumentSummaryList
@@ -399,7 +399,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return assocoiatedDocMap;
