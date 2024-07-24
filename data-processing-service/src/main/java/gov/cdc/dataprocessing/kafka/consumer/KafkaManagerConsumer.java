@@ -19,6 +19,8 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class KafkaManagerConsumer {
@@ -52,12 +54,26 @@ public class KafkaManagerConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_micro}"
     )
-    public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                              @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
+    public void handleMessage(List<String> messages,
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
             throws DataProcessingException, DataProcessingConsumerException {
-            var profile = this.authUserService.getAuthUserInfo(nbsUser);
-            AuthUtil.setGlobalAuthUser(profile);
-            managerService.processDistribution(dataType,message);
+        var profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+        messages.forEach(message -> {
+            try {
+                managerService.processDistribution("ELR", message);
+            } catch (DataProcessingConsumerException e) {
+                logger.error(e.getMessage());
+            }
+        });
     }
+
+//    public void handleMessage(String message,
+//                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+//                              @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
+//            throws DataProcessingException, DataProcessingConsumerException {
+//            var profile = this.authUserService.getAuthUserInfo(nbsUser);
+//            AuthUtil.setGlobalAuthUser(profile);
+//            managerService.processDistribution(dataType,message);
+//    }
 }

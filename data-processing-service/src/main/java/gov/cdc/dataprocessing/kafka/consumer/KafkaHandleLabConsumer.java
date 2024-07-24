@@ -13,6 +13,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class KafkaHandleLabConsumer {
@@ -37,17 +39,30 @@ public class KafkaHandleLabConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_handle_lab}"
     )
-    public void handleMessage(String message) {
-        try {
-            var auth = authUserService.getAuthUserInfo(nbsUser);
-            AuthUtil.setGlobalAuthUser(auth);
-            Gson gson = new Gson();
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
-            managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+    public void handleMessage(List<String> messages) {
+        Gson gson = new Gson();
+        for (String message : messages) {
+            try {
+                var auth = authUserService.getAuthUserInfo(nbsUser);
+                AuthUtil.setGlobalAuthUser(auth);
+                PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+                managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+//    public void handleMessage(String message) {
+//        try {
+//            var auth = authUserService.getAuthUserInfo(nbsUser);
+//            AuthUtil.setGlobalAuthUser(auth);
+//            Gson gson = new Gson();
+//            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+//            managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//    }
 }

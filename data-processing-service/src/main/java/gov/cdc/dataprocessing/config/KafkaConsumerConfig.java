@@ -48,29 +48,34 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollInterval);
+        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "30000");
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // Disable auto commit for manual commit
+        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);  // Fetch up to 100 messages per poll
 
         return new DefaultKafkaConsumerFactory<>(config);
     }
-//
+
+    // REGULAR CONN
 //    @Bean
 //    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
 //        ConcurrentKafkaListenerContainerFactory<String, String> factory =
 //                new ConcurrentKafkaListenerContainerFactory<>();
 //        factory.setConsumerFactory(consumerFactory());
-//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+//        factory.getContainerProperties().setTransactionManager(kafkaTransactionManager());
 //        return factory;
 //    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+//        factory.setConcurrency(3);  // Set the number of concurrent threads
+        factory.setBatchListener(true);  // Enable batch processing
         factory.getContainerProperties().setTransactionManager(kafkaTransactionManager());
         return factory;
     }
+
 
     @Bean
     public KafkaTransactionManager<String, String> kafkaTransactionManager() {
