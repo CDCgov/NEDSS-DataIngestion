@@ -133,7 +133,7 @@ public class PamService implements IPamService {
                 NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
                 String phcLocalId = pamProxyVO.getPublicHealthCaseContainer().
                         getThePublicHealthCaseDto().getLocalId();
-                nndActivityLogDT.setErrorMessageTxt(e.toString());
+                nndActivityLogDT.setErrorMessageTxt(e.getMessage());
                 if (phcLocalId != null)
                 {
                     nndActivityLogDT.setLocalId(phcLocalId);

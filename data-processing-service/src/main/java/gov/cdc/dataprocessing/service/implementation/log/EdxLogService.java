@@ -41,7 +41,7 @@ public class EdxLogService implements IEdxLogService {
         EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
         return edxActivityDetailLogResult;
     }
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRED)
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         //Check if the activity log has already been created for the source.

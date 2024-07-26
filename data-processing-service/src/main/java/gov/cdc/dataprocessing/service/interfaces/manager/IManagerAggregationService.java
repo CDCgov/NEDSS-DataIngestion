@@ -13,4 +13,7 @@ public interface IManagerAggregationService {
     EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
                                                 LabResultProxyContainer labResultProxyContainer,
                                                 Long aPersonUid) throws DataProcessingException;
+
+    void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
+            DataProcessingException, DataProcessingConsumerException;
 }

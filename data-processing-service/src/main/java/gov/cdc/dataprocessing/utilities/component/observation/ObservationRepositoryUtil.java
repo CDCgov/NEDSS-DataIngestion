@@ -166,7 +166,7 @@ public class ObservationRepositoryUtil {
             obVO.setItDirty(false);
             return obVO;
         }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -497,7 +497,7 @@ public class ObservationRepositoryUtil {
             }
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
 
     }
@@ -518,7 +518,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -542,7 +542,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
 
     }
@@ -563,7 +563,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -583,7 +583,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -603,7 +603,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -623,7 +623,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -643,7 +643,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -663,7 +663,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 
@@ -687,7 +687,7 @@ public class ObservationRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 

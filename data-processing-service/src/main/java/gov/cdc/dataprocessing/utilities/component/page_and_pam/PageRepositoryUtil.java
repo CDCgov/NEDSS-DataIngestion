@@ -593,7 +593,7 @@ public class PageRepositoryUtil {
 
         }catch(Exception e) {
 
-            throw new DataProcessingException(e.toString() ,e);
+            throw new DataProcessingException(e.getMessage() ,e);
         }
     }
 
@@ -640,7 +640,7 @@ public class PageRepositoryUtil {
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.toString());
+            throw new DataProcessingException(e.getMessage());
         }
     }
 
@@ -679,7 +679,7 @@ public class PageRepositoryUtil {
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.toString());
+            throw new DataProcessingException(e.getMessage());
         }
         return returnMap;
     }
@@ -719,7 +719,7 @@ public class PageRepositoryUtil {
             }
 
         }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
