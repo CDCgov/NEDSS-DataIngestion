@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.config;
+package gov.cdc.dataingestion.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class KafkaProducerConfig {
+public class KafkaProducerTransactionConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers = "";
 
-    @Bean
+    @Bean(name = "transactionalProducerFactory")
     public ProducerFactory<String, String> producerFactory() {
         final Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -29,7 +29,7 @@ public class KafkaProducerConfig {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
-    @Bean
+    @Bean(name = "transactionalKafkaTemplate")
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }

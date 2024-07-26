@@ -5,6 +5,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -18,6 +19,7 @@ public class KafkaProducerConfig {
     private String bootstrapServers = "";
 
     @Bean
+    @Primary
     public ProducerFactory<String, String> producerFactory() {
         final Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -28,6 +30,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
+    @Primary
     public KafkaTemplate<String, String> kafkaTemplate() {
         // set factory for both producer and consumer
         return new KafkaTemplate<>(producerFactory());
