@@ -16,6 +16,7 @@ import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
+import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerTransactionService;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -98,7 +99,8 @@ class KafkaConsumerServiceTest {
 
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
-
+    @Mock
+    private KafkaProducerTransactionService kafkaProducerTransactionService;
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
             .withStartupTimeout(Duration.ofMinutes(5));
@@ -169,7 +171,8 @@ class KafkaConsumerServiceTest {
                 cdaMapper,
                 ecrMsgQueryService,
                 iReportStatusRepository,
-                customMetricsBuilder);
+                customMetricsBuilder,
+                kafkaProducerTransactionService);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
