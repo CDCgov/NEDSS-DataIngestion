@@ -82,7 +82,7 @@ public class ParticipationStoredProcRepository {
 
 
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
 
     }

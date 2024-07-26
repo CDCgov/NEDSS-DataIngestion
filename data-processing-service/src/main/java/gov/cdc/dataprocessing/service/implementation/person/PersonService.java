@@ -59,7 +59,6 @@ public class PersonService implements IPersonService {
                 personContainer.getThePersonDto().setItDirty(false);
 
             }
-            System.out.print("NOK ID: " + personContainer.getThePersonDto().getPersonUid());
             return personContainer;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());

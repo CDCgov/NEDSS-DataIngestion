@@ -39,7 +39,7 @@ public class EdxPatientMatchRepositoryUtil {
 
         } catch (Exception ex) {
             logger.error("Exception in EdxPatientMatchDAO.getEdxPatientMatchOnMatchString for typeCd=" + typeCd + " match string=" + matchString + ": ERROR = " + ex);
-            throw new DataProcessingException(ex.toString(), ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -53,7 +53,7 @@ public class EdxPatientMatchRepositoryUtil {
 
         } catch (Exception ex) {
             logger.error("Exception in EdxPatientMatchDAO.getEdxPatientMatchOnMatchString for typeCd=" + typeCd + " match string=" + matchString + ": ERROR = " + ex);
-            throw new DataProcessingException(ex.toString(), ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 

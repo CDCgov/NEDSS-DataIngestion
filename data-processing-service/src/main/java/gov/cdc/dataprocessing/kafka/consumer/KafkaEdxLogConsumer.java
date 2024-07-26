@@ -13,6 +13,8 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class KafkaEdxLogConsumer {
@@ -29,10 +31,20 @@ public class KafkaEdxLogConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_edx_log}"
     )
-    public void handleMessage(String message,
+
+    public void handleMessage(List<String> messages,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
         Gson gson = new Gson();
-        EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
-        edxLogService.saveEdxActivityLogs(edxActivityLogDto);
+        logger.info("UNPROCESSED BATCH SIZE: " + messages.size());
+        for (String message : messages) {
+            EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
+            edxLogService.saveEdxActivityLogs(edxActivityLogDto);
+        }
     }
+//    public void handleMessage(String message,
+//                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
+//        Gson gson = new Gson();
+//        EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
+//        edxLogService.saveEdxActivityLogs(edxActivityLogDto);
+//    }
 }

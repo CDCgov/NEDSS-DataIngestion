@@ -147,7 +147,7 @@ class RetrieveSummaryServiceTests {
         });
 
         assertNotNull(thrown);
-        assertEquals("java.lang.RuntimeException: TEST", thrown.getMessage());
+        assertEquals("TEST", thrown.getMessage());
 
     }
 
@@ -259,7 +259,7 @@ class RetrieveSummaryServiceTests {
         });
 
         assertNotNull(thrown);
-        assertEquals("java.lang.RuntimeException: TEST", thrown.getMessage());
+        assertEquals("TEST", thrown.getMessage());
 
     }
 

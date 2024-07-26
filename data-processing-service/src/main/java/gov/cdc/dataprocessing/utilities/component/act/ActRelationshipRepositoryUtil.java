@@ -56,7 +56,7 @@ public class ActRelationshipRepositoryUtil {
         }
         catch(Exception ndapex)
         {
-            throw new DataProcessingException(ndapex.toString());
+            throw new DataProcessingException(ndapex.getMessage());
         }
     }
 

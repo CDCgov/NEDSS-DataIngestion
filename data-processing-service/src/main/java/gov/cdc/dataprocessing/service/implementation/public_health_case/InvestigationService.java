@@ -1042,7 +1042,7 @@ public class InvestigationService implements IInvestigationService {
                 }
             }
             catch (Exception ex) {
-                throw new DataProcessingException(ex.toString());
+                throw new DataProcessingException(ex.getMessage());
             }
         }
 
