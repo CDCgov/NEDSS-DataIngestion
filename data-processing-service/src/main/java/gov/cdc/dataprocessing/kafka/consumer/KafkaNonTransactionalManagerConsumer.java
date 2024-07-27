@@ -32,17 +32,17 @@ public class KafkaNonTransactionalManagerConsumer {
     }
 
 
-//    @KafkaListener(
-//            topics = "${kafka.topic.elr_micro}",
-//            containerFactory = "nonTransactionalKafkaListenerContainerFactory"
-//    )
-//    public void handleMessage(String message,
-//                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
-//            throws DataProcessingException, DataProcessingConsumerException {
-//        logger.info("HIT");
-//        kafkaManagerProducer.sendUnprocessedData(message);
-//
-//    }
+    @KafkaListener(
+            topics = "${kafka.topic.elr_micro}",
+            containerFactory = "nonTransactionalKafkaListenerContainerFactory"
+    )
+    public void handleMessage(String message,
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
+            throws DataProcessingException, DataProcessingConsumerException {
+        logger.info("HIT");
+        kafkaManagerProducer.sendUnprocessedData(message);
+
+    }
 
 //    public void handleMessage(String message,
 //                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,

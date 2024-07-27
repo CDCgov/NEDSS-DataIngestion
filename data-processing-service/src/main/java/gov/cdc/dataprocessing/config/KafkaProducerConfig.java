@@ -24,10 +24,10 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); // Enable idempotence for transactions
-//        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "rti"); // Set a transactional ID
-//        config.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 120000);
-//        config.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaProducerClient");
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); // Enable idempotence for transactions
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "rti"); // Set a transactional ID
+        config.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 120000);
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaProducerClient");
 
         return new DefaultKafkaProducerFactory<>(config);
     }
@@ -37,8 +37,8 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-//    @Bean
-//    public KafkaTransactionManager<String, String> kafkaTransactionManager() {
-//        return new KafkaTransactionManager<>(producerFactory());
-//    }
+    @Bean
+    public KafkaTransactionManager<String, String> kafkaTransactionManager() {
+        return new KafkaTransactionManager<>(producerFactory());
+    }
 }

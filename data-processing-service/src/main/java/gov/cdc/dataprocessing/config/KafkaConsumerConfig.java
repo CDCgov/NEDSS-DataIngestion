@@ -36,17 +36,14 @@ public class KafkaConsumerConfig {
     private String maxPollInterval = "";
 
     private final ProducerFactory<String, String> producerFactory;
-//    private final KafkaTransactionManager<String, String> kafkaTransactionManager;
-//
-//    public KafkaConsumerConfig(ProducerFactory<String, String> producerFactory, KafkaTransactionManager<String, String> kafkaTransactionManager) {
-//        this.producerFactory = producerFactory;
-//        this.kafkaTransactionManager = kafkaTransactionManager;
-//    }
+    private final KafkaTransactionManager<String, String> kafkaTransactionManager;
 
-
-    public KafkaConsumerConfig(ProducerFactory<String, String> producerFactory) {
+    public KafkaConsumerConfig(ProducerFactory<String, String> producerFactory, KafkaTransactionManager<String, String> kafkaTransactionManager) {
         this.producerFactory = producerFactory;
+        this.kafkaTransactionManager = kafkaTransactionManager;
     }
+
+
 
 
     @Bean
@@ -57,8 +54,8 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "30000");
-//        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // Disable auto commit for manual commit
-//        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);  // Fetch up to 10 messages per poll
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");  // Disable auto commit for manual commit
+        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);  // Fetch up to 10 messages per poll
 
         return new DefaultKafkaConsumerFactory<>(config);
     }
@@ -67,13 +64,13 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        //factory.setBatchListener(true);  // Enable batch processing
-        //factory.getContainerProperties().setTransactionManager(kafkaTransactionManager);
+        factory.setBatchListener(true);  // Enable batch processing
+        factory.getContainerProperties().setTransactionManager(kafkaTransactionManager);
         return factory;
     }
-//
-//    @Bean
-//    public PlatformTransactionManager transactionManager() {
-//        return kafkaTransactionManager;
-//    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return kafkaTransactionManager;
+    }
 }

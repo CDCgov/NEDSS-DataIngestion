@@ -49,7 +49,7 @@ public class KafkaManagerConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_micro}"
+            topics = "${kafka.topic.elr_micro_transaction}"
     )
     public void handleMessage(String messages,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)

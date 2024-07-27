@@ -50,18 +50,18 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     public void sendDataEdxActivityLog(String msgContent) {
         String uniqueID = "DP_LOG_" + UUID.randomUUID();
         var record = createProducerRecord(edxLogTopic, uniqueID, msgContent);
-        sendMessage(record);
+        sendMessageTransactional(record);
     }
 
     public void sendUnprocessedData(String msgContent) {
         String uniqueID = "DP_Unprocessed_ELR_" + UUID.randomUUID();
         var record = createProducerRecord(unprocessedTopic, uniqueID, msgContent);
-        sendMessage(record);
+        sendMessageTransactional(record);
     }
 
     private void sendData(String topic, String msgContent) {
         String uniqueID = "DP_ELR_" + UUID.randomUUID();
         var record = createProducerRecord(topic, uniqueID, msgContent);
-        sendMessage(record);
+        sendMessageTransactional(record);
     }
 }
