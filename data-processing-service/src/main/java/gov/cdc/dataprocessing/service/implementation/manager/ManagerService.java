@@ -76,7 +76,7 @@ public class ManagerService implements IManagerService {
     private final IInvestigationNotificationService investigationNotificationService;
 
     private final IManagerCacheService managerCacheService;
-
+    private final Gson gson = new Gson();
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -107,15 +107,9 @@ public class ManagerService implements IManagerService {
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    public void processDistribution(String eventType, String data) throws DataProcessingConsumerException {
+    public void processDistribution(NbsInterfaceModel data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
-            switch (eventType) {
-                case EVENT_ELR:
-                    processingELR(data);
-                    break;
-                default:
-                    break;
-            }
+            processingELR(data);
         } else {
             throw new DataProcessingConsumerException("Invalid User");
         }
@@ -194,11 +188,9 @@ public class ManagerService implements IManagerService {
             }
 
 
-            Gson gson = new Gson();
             String trackerString = gson.toJson(trackerView);
             kafkaManagerProducer.sendDataActionTracker(trackerString);
 
-            gson = new Gson();
             String jsonString = gson.toJson(phcContainer);
             kafkaManagerProducer.sendDataLabHandling(jsonString);
 
@@ -215,7 +207,6 @@ public class ManagerService implements IManagerService {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                Gson gson = new Gson();
                 String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
@@ -355,7 +346,6 @@ public class ManagerService implements IManagerService {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
 
-                Gson gson = new Gson();
                 String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
@@ -365,17 +355,15 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings("java:S6541")
-    private void processingELR(String data) {
-        NbsInterfaceModel nbsInterfaceModel = null;
+    private void processingELR(NbsInterfaceModel data) {
+        NbsInterfaceModel nbsInterfaceModel = data;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
-        Gson gson = new Gson();
         try {
 
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
-            nbsInterfaceModel = gson.fromJson(data, NbsInterfaceModel.class);
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
@@ -445,7 +433,6 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            gson = new Gson();
             String jsonString = gson.toJson(phcContainer);
             kafkaManagerProducer.sendDataPhc(jsonString);
 
@@ -578,7 +565,6 @@ public class ManagerService implements IManagerService {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                gson = new Gson();
                 String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }

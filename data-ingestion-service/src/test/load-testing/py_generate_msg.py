@@ -64,4 +64,4 @@ def generate_unique_patient_messages(num_messages, output_folder):
             text_file.write(fake_message)
 
 if __name__ == "__main__":
-    generate_unique_patient_messages(1000, "/Users/DucNguyen/Downloads/python_code_for_di/data")
+    generate_unique_patient_messages(100, "/Users/DucNguyen/Downloads/python_code_for_di/data")
