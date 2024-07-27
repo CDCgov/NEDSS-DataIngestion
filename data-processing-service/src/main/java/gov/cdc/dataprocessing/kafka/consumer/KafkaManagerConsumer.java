@@ -51,18 +51,20 @@ public class KafkaManagerConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_micro}"
     )
-    public void handleMessage(List<String> messages,
+    public void handleMessage(String messages,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
             throws DataProcessingException, DataProcessingConsumerException {
         var profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
-        messages.forEach(message -> {
-            try {
-                managerService.processDistribution("ELR", message);
-            } catch (DataProcessingConsumerException e) {
-                logger.error(e.getMessage());
-            }
-        });
+        managerService.processDistribution("ELR", messages);
+
+//        messages.forEach(message -> {
+//            try {
+//                managerService.processDistribution("ELR", message);
+//            } catch (DataProcessingConsumerException e) {
+//                logger.error(e.getMessage());
+//            }
+//        });
     }
 
 //    public void handleMessage(String message,
