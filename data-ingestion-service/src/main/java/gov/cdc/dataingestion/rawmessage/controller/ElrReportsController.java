@@ -2,9 +2,6 @@ package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
@@ -32,24 +29,14 @@ import org.springframework.web.server.ResponseStatusException;
 public class ElrReportsController {
 
     private final RawELRService rawELRService;
-
-    private IEcrMsgQueryService ecrMsgQueryService;
-    private final ICdaMapper cdaMapper;
-    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private final CustomMetricsBuilder customMetricsBuilder;
-
     private IHL7Service hl7Service;
 
     @Autowired
-    public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
-                                RawELRService rawELRService,
-                                ICdaMapper cdaMapper, NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
+    public ElrReportsController(RawELRService rawELRService,
                                 CustomMetricsBuilder customMetricsBuilder,
                                 IHL7Service hl7Service) {
-        this.ecrMsgQueryService = ecrMsgQueryService;
-        this.cdaMapper = cdaMapper;
         this.rawELRService = rawELRService;
-        this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.customMetricsBuilder = customMetricsBuilder;
         this.hl7Service = hl7Service;
     }

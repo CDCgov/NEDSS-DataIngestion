@@ -229,9 +229,12 @@ public class KafkaConsumerService {
     )
     public void handleMessageForElrXml(String message,
                                        @Header(KafkaHeaders.RECEIVED_KEY) String messageId,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                       @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
         log.debug(topicDebugLog, messageId, topic);
-        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message);
+
+        boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
+        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
         log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
     }
 

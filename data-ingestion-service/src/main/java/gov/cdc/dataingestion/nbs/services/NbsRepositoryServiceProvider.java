@@ -109,14 +109,18 @@ public class NbsRepositoryServiceProvider {
     	return nbsInterfaceModel;
     }
 
-	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg) {
+	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg, boolean dataProcessingApplied) {
 
 		log.debug("Processing Elr xml: \n {} \n with an uid: {}", xmlMsg, messageId);
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		item.setPayload(xmlMsg);
 		item.setImpExpIndCd(IMPEXP_CD);
-		item.setRecordStatusCd(STATUS_UNPROCESSED);
+		if (dataProcessingApplied) {
+			item.setRecordStatusCd(STATUS_UNPROCESSED_V2);
+		} else {
+			item.setRecordStatusCd(STATUS_UNPROCESSED);
+		}
 
 		var time = getCurrentTimeStamp();
 		item.setRecordStatusTime(time);

@@ -239,7 +239,6 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     }
 
     private EcrMsgCaseAnswerDto setCaseAnsData(Object [] val) {
-        //TODO: FIX THIS
         EcrMsgCaseAnswerDto dto = new EcrMsgCaseAnswerDto();
         dto.setQuestionGroupSeqNbr(nullToString(val[0]));
         dto.setAnswerGroupSeqNbr(nullToString(val[1]));
@@ -484,7 +483,7 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
 
     public List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_interview_answer.sql");
-        return setListCaseAns( queryString,
+        return setListCaseAns(queryString,
                 containerId,
                 ixsLocalId);
     }

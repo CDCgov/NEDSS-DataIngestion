@@ -31,7 +31,7 @@ public class RawELRService {
 
     public String submission(RawERLDto rawERLDto, String version) {
         RawERLModel created = rawELRRepository.save(convert(rawERLDto));
-        if(created.getType().equalsIgnoreCase("HL7")) {
+        if(rawERLDto.getType().equalsIgnoreCase("HL7")) {
             kafkaProducerService.sendMessageFromController(
                     created.getId(),
                     topicName,
@@ -40,13 +40,14 @@ public class RawELRService {
                     rawERLDto.getValidationActive(),
                     version);
         }
-        if(created.getType().equalsIgnoreCase("HL7-XML")) {
+        if(rawERLDto.getType().equalsIgnoreCase("HL7-XML")) {
             kafkaProducerService.sendElrXmlMessageFromController(
                     created.getId(),
                     rawXmlTopicName,
                     rawERLDto.getType(),
                     0,
-                    rawERLDto.getPayload());
+                    rawERLDto.getPayload(),
+                    version);
         }
         return created.getId();
     }

@@ -41,10 +41,30 @@ class RawELRServiceTest {
 
 
     @Test
-    void testSave_Success() {
+    void testSaveHL7_Success() {
         RawERLDto modelDto = new RawERLDto();
         modelDto.setPayload("test");
         modelDto.setType("HL7");
+        RawERLModel model = new RawERLModel();
+        model.setId("test");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.save(any())).thenReturn(model);
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        var result = target.submission(modelDto, "1");
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("test",result);
+
+    }
+
+    @Test
+    void testSaveElrXml_Success() {
+        RawERLDto modelDto = new RawERLDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7-XML");
         RawERLModel model = new RawERLModel();
         model.setId("test");
         model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
@@ -79,8 +99,5 @@ class RawELRServiceTest {
         var result = target.getById(modelDto.getId());
 
         Assertions.assertNotNull(result);
-
-
     }
-
 }
