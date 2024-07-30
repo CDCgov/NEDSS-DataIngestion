@@ -7,15 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 @Service
 @Slf4j
 public class KafkaManagerProducer  extends KafkaBaseProducer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerProducer.class);
-    public KafkaManagerProducer(KafkaTemplate<String, String> kafkaTemplate) {
-        super(kafkaTemplate);
-    }
 
 
     @Value("${kafka.topic.elr_health_case}")
@@ -28,7 +26,14 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     private String actionTrackerTopic = "elr_action_tracker" ;
 
     @Value("${kafka.topic.elr_edx_log}")
-    private String edx_log_topic = "elr_edx_log";
+    private String edxLogTopic = "elr_edx_log";
+
+    @Value("${kafka.topic.elr_micro_transaction}")
+    private String unprocessedTopic = "elr_unprocessed_transaction";
+
+    public KafkaManagerProducer(KafkaTemplate<String, String> kafkaTemplate) {
+        super(kafkaTemplate);
+    }
 
     public void sendDataPhc(String msg) {
         sendData(phcTopic, msg);
@@ -42,16 +47,21 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
         sendData(actionTrackerTopic, msg);
     }
 
-    public void sendData(String topic, String msgContent) {
-        String uniqueID = "DP_ELR_" + UUID.randomUUID();
-        var record = createProducerRecord(topic, uniqueID, msgContent);
-        // ADD HEADER if needed
-        sendMessage(record);
-    }
     public void sendDataEdxActivityLog(String msgContent) {
         String uniqueID = "DP_LOG_" + UUID.randomUUID();
-        var record = createProducerRecord(edx_log_topic, uniqueID, msgContent);
-        // ADD HEADER if needed
-        sendMessage(record);
+        var record = createProducerRecord(edxLogTopic, uniqueID, msgContent);
+        sendMessageTransactional(record);
+    }
+
+    public void sendUnprocessedData(String msgContent) {
+        String uniqueID = "DP_Unprocessed_ELR_" + UUID.randomUUID();
+        var record = createProducerRecord(unprocessedTopic, uniqueID, msgContent);
+        sendMessageTransactional(record);
+    }
+
+    private void sendData(String topic, String msgContent) {
+        String uniqueID = "DP_ELR_" + UUID.randomUUID();
+        var record = createProducerRecord(topic, uniqueID, msgContent);
+        sendMessageTransactional(record);
     }
 }
