@@ -34,8 +34,7 @@ public class ElrReportsController {
     private final RawELRService rawELRService;
 
     private IEcrMsgQueryService ecrMsgQueryService;
-    private ICdaMapper mapper;
-
+    private final ICdaMapper cdaMapper;
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
     private final CustomMetricsBuilder customMetricsBuilder;
 
@@ -43,13 +42,12 @@ public class ElrReportsController {
 
     @Autowired
     public ElrReportsController(IEcrMsgQueryService ecrMsgQueryService,
-                                ICdaMapper mapper,
                                 RawELRService rawELRService,
-                                NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
+                                ICdaMapper cdaMapper, NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
                                 CustomMetricsBuilder customMetricsBuilder,
                                 IHL7Service hl7Service) {
         this.ecrMsgQueryService = ecrMsgQueryService;
-        this.mapper = mapper;
+        this.cdaMapper = cdaMapper;
         this.rawELRService = rawELRService;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.customMetricsBuilder = customMetricsBuilder;
@@ -58,8 +56,8 @@ public class ElrReportsController {
 
 
     @Operation(
-            summary = "Submit a plain text HL7 message",
-            description = "Submit a plain text HL7 message with msgType header",
+            summary = "Submit a plain text or XML converted HL7 message",
+            description = "Submit a plain text or XML converted HL7 message with msgType header",
             parameters = {
                     @Parameter(in = ParameterIn.HEADER,
                             name = "clientid",
@@ -72,25 +70,31 @@ public class ElrReportsController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE,path = "/api/elrs")
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs")
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,
-                                       @RequestHeader(name = "version",  defaultValue = "1") String version) {
-            if (type.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
-            }
+                                       @RequestHeader(name = "version", defaultValue = "1") String version) {
+        if (type.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
+        }
 
-            if (!type.equalsIgnoreCase("HL7")) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");
-            }
+        RawERLDto rawERLDto = new RawERLDto();
+        customMetricsBuilder.incrementMessagesProcessed();
 
-
-            RawERLDto rawERLDto = new RawERLDto();
-            customMetricsBuilder.incrementMessagesProcessed();
+        if (type.equalsIgnoreCase("HL7")) {
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
             rawERLDto.setValidationActive(true);
-
             return ResponseEntity.ok(rawELRService.submission(rawERLDto, version));
+        }
+        else if (type.equalsIgnoreCase("HL7-XML")) {
+            rawERLDto.setType(type);
+            rawERLDto.setPayload(payload);
+            rawERLDto.setValidationActive(true);
+            return ResponseEntity.ok(rawELRService.submission(rawERLDto, version));
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");
+        }
     }
 
     @Operation(

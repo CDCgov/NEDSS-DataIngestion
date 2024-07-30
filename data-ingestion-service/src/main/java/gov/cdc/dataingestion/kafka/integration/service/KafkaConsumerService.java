@@ -78,6 +78,9 @@ public class KafkaConsumerService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
+    @Value("${kafka.raw.xml-topic}")
+    private String rawXmlTopicName = "elr_raw_xml";
+
     @Value("${kafka.elr-duplicate.topic}")
     private String validatedElrDuplicateTopic = "";
 
@@ -193,6 +196,45 @@ public class KafkaConsumerService {
         validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
     }
 
+
+    /**
+     * Receive XML converted HL7 and save it to NBS Interface
+     * Description: The ELR ingestion endpoint that we have right now is modified to accept both
+     * plain text HL7 as well as HL7s converted to XML already.
+     * */
+    @RetryableTopic(
+            attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
+            dltStrategy = DltStrategy.FAIL_ON_ERROR,
+            retryTopicSuffix = "${kafka.retry.suffix}",
+            dltTopicSuffix = "${kafka.dlt.suffix}",
+            // retry topic name, such as topic-retry-1, topic-retry-2, etc
+            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
+            // time to wait before attempting to retry
+            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+            // if these exceptions occur, skip retry then push message to DLQ
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class,
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
+            }
+
+    )
+    @KafkaListener(
+            topics = "${kafka.raw.xml-topic}"
+    )
+    public void handleMessageForElrXml(String message,
+                                       @Header(KafkaHeaders.RECEIVED_KEY) String messageId,
+                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        log.debug(topicDebugLog, messageId, topic);
+        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message);
+        log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
+    }
+
     /**
      * After Validation Process
      * Description: After validated by Raw Consumer, data will be sent to validated producer
@@ -279,7 +321,7 @@ public class KafkaConsumerService {
         //conversionHandlerForFhir(message, operation);//NOSONAR
 
     }
-    //endregion
+
 
 
     @RetryableTopic(

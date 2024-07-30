@@ -56,7 +56,6 @@ public class CdaMapper implements ICdaMapper {
         //region DOCUMENT INITIATION
         ClinicalDocumentDocument1 rootDocument = ClinicalDocumentDocument1.Factory.newInstance();
         POCDMT000040ClinicalDocument1 clinicalDocument = POCDMT000040ClinicalDocument1.Factory.newInstance();
-        //endregion
 
         var containerModel = mapParentContainer(clinicalDocument,
                 input, inv168);
@@ -305,7 +304,7 @@ public class CdaMapper implements ICdaMapper {
             String xmlOutput = clinicalDocument.xmlText(options);
 
             xmlOutput = xmlOutput.replaceAll("<STRING[^>]*>([^<]+)</STRING>", "$1");// NOSONAR // remove string tag
-            xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
+            xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "$1");// NOSONAR // replace CDATA with real CDATA
             xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", "");// NOSONAR // remove empty <tag></tag>
             xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", "");// NOSONAR // remove empty <tag/>
             xmlOutput = xmlOutput.replaceAll("<STUD xmlns=\"\">STUD</STUD>", "");// NOSONAR // remove STUD tag

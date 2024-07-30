@@ -50,18 +50,28 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
     public PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(String questionIdentifier, String ansFromCode) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("phdc_answer_translation_code.sql");
         Query query = entityManager.createNativeQuery(queryString);
-        query.setParameter("VALUE_DATA", ansFromCode);
+        if (questionIdentifier != null && !questionIdentifier.isEmpty()) {
+            query.setParameter("QUESTION_IDENTIFIER", questionIdentifier);
+        } else {
+            query.setParameter("QUESTION_IDENTIFIER", null);
+        }
+        if(ansFromCode != null && !ansFromCode.isEmpty()) {
+            query.setParameter("ANSWER_FROM_CODE", ansFromCode);
+        }
+        else {
+            query.setParameter("ANSWER_FROM_CODE", null);
+        }
 
         PhdcAnswerLookUpDto model = new PhdcAnswerLookUpDto();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {
             var val = results.get(0);
-            model.setAnsToCode(nullToString(val[0]));
-            model.setAnsToCodeSystemCd((nullToString(val[1])));
+            model.setAnsFromCode(nullToString(val[0]));
+            model.setAnsFromCodeSystemCd(nullToString(val[1]));
             model.setAnsFromCodeSystemDescTxt(nullToString(val[2]));
-            model.setAnsFromDisplayNm((nullToString(val[3])));
-            model.setAnsToCode((nullToString(val[4])));
-            model.setAnsToCodeSystemCd(nullToString(val[5]));
+            model.setAnsFromDisplayNm(nullToString(val[3]));
+            model.setAnsToCode(nullToString(val[4]));
+            model.setAnsToCodeSystemCd((nullToString(val[5])));
             model.setAnsToCodeSystemDescTxt(nullToString(val[6]));
             model.setAnsToDisplayNm((nullToString(val[7])));
             model.setCodeTranslationRequired(nullToString(val[8]));
@@ -100,6 +110,7 @@ public class EcrLookUpRepository implements IEcrLookUpRepository {
         return null;
     }
 
+    // TODO: Merge this with the other method
     public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException {
         String queryString = loadLookUpSqlFromFile("phdc_question_by_column.sql");
         queryString = queryString.replace("{TAB_COLUMN}", column);

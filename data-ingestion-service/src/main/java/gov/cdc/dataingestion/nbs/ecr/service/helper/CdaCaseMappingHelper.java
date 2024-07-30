@@ -136,7 +136,11 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 // IGNORE
             }
             else if (value != null && !value.isEmpty()) {
-                String questionId = this.cdaMapHelper.mapToQuestionId(name);
+                String regex = "([a-z])([A-Z0-9])";
+                String replacement = "$1_$2";
+                String data = name.replaceAll(regex, replacement).toUpperCase();
+
+                String questionId = this.cdaMapHelper.mapToQuestionId(data);
                 if (name.equalsIgnoreCase("invConditionCd")) {
                     repeats = (int) caseDto.getMsgCase().getInvConditionCd().chars().filter(x -> x == '^').count();
                 }
@@ -396,19 +400,34 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         int sequenceNbr = 0;
 
         MessageAnswer model = new MessageAnswer();
+
+        out.getSection().addNewEntry().addNewObservation().addNewCode();
+        CE ce = CE.Factory.newInstance();
+        ce.addNewTranslation();
+
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
+
             String name = entry.getKey();
             String value = this.cdaMapHelper.getValueFromMap(entry);
 
             CdaCaseMsgAnswer param = new CdaCaseMsgAnswer();
-            param.setDataType(dataType);
-            param.setSequenceNbr(sequenceNbr);
+
+            if(in.getDataMap().containsKey(COL_DATA_TYPE)
+                    && in.getDataMap().get(COL_DATA_TYPE) != null) {
+                param.setDataType(in.getDataType());
+            }
+            if(in.getDataMap().containsKey(COL_SEQ_NBR)
+                    && in.getDataMap().get(COL_SEQ_NBR) != null) {
+                param.setSequenceNbr(sequenceNbr);
+            }
             param.setCounter(counter);
+
             var caseMsgAnsModel = mapToMessageAnswerFieldCheck(name,
                      value,
                      in,
                      out,
-                     param
+                     param,
+                     ce
             );
 
             out = caseMsgAnsModel.getOut();
@@ -417,7 +436,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             counter = caseMsgAnsModel.getCounter();
 
 
-            if (!in.getQuestionIdentifier().isEmpty()) {
+            if (name.equalsIgnoreCase(COL_QUES_IDENTIFIER)) {
                 var caseAnsQuesIdentifier = setMessageAnswerQuestionIdentifier(in, out,
                         questionSeq, counter, sequenceNbr);
                 out = caseAnsQuesIdentifier.getComponent();
@@ -425,13 +444,13 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                 counter = caseAnsQuesIdentifier.getCounter();
                 sequenceNbr = caseAnsQuesIdentifier.getSequenceNbr();
             }
-            else if (!in.getQuesCodeSystemCd().isEmpty()) {
+            else if (name.equalsIgnoreCase(COL_QUES_CODE_SYSTEM_CD)) {
                 out.getSection().getEntryArray(counter).getObservation().getCode().setCodeSystem(in.getQuesCodeSystemCd());
             }
-            else if (!in.getQuesCodeSystemDescTxt().isEmpty()) {
+            else if (name.equalsIgnoreCase(COL_QUES_CODE_SYSTEM_DESC_TXT)) {
                 out.getSection().getEntryArray(counter).getObservation().getCode().setCodeSystemName(in.getQuesCodeSystemDescTxt());
             }
-            else if (!in.getQuesDisplayTxt().isEmpty()) {
+            else if (name.equalsIgnoreCase(COL_QUES_DISPLAY_TXT)) {
                 out.getSection().getEntryArray(counter).getObservation().getCode().setDisplayName(in.getQuesDisplayTxt());
             }
 
@@ -447,16 +466,16 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                                          String value,
                                          EcrMsgCaseAnswerDto in,
                                          POCDMT000040Component3 out,
-                                         CdaCaseMsgAnswer param
-                                         ) throws EcrCdaXmlException {
-        if (name.equals(COL_DATA_TYPE) && !in.getDataType().isEmpty()) {
+                                         CdaCaseMsgAnswer param,
+                                                          CE ce) throws EcrCdaXmlException {
+        if (name.equals(COL_DATA_TYPE) && in.getDataType() != null && !in.getDataType().isEmpty()) {
             param.setDataType(in.getDataType());
         }
-        else if (name.equals(COL_SEQ_NBR) && !in.getSeqNbr().isEmpty()) {
+        else if (name.equals(COL_SEQ_NBR) && in.getSeqNbr() != null && !in.getSeqNbr().isEmpty()) {
             param.setSequenceNbr(out.getSection().getEntryArray(param.getCounter()).getObservation().getValueArray().length);
         }
         else if (param.getDataType().equalsIgnoreCase(DATA_TYPE_CODE) || param.getDataType().equalsIgnoreCase(COUNTY)) {
-             setMessageAnswerArrayValue(name, in, param.getSequenceNbr(), param.getCounter(), out);
+             setMessageAnswerArrayValue(name, in, param.getSequenceNbr(), param.getCounter(), out, ce);
         }
 
         else if (param.getDataType().equalsIgnoreCase("TEXT") || param.getDataType().equalsIgnoreCase(DATA_TYPE_NUMERIC)) {
@@ -487,9 +506,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             }
             questionSeq = in.getQuestionIdentifier();
 
-            if (out.getSection().getEntryArray().length - 1 < counter) {
-                out.getSection().addNewEntry().addNewObservation().addNewCode();
-            }
             out.getSection().getEntryArray(counter).getObservation().setClassCode("OBS");
             out.getSection().getEntryArray(counter).getObservation().setMoodCode(XActMoodDocumentObservation.EVN);
             out.getSection().getEntryArray(counter).getObservation().getCode().setCode(in.getQuestionIdentifier());
@@ -505,13 +521,15 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     private void setMessageAnswerDate(String name, EcrMsgCaseAnswerDto in, POCDMT000040Component3 out, int counter,
                                       String value) throws EcrCdaXmlException {
         if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
+            checkSectionEntryObservationValueArray(counter, out);
+
             var element = out.getSection().getEntryArray(counter).getObservation().getValueArray(0);
+
             XmlCursor cursor = element.newCursor();
             cursor.toFirstAttribute();
             cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "TS");
-            cursor.insertAttributeWithValue(value, ""); // As per your code, it's empty
             var ot = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-            cursor.setAttributeText(new QName("", value), ot);
+            cursor.insertAttributeWithValue("value", ot);
             cursor.dispose();
         }
 
@@ -524,11 +542,10 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             out.getSection().getEntryArray(counter).setObservation((POCDMT000040Observation) ot);
         }
     }
+
     private void setMessageAnswerArrayValue(String name, EcrMsgCaseAnswerDto in,
                                             int sequenceNbr, int counter,
-                                            POCDMT000040Component3 out) {
-        CE ce = CE.Factory.newInstance();
-        ce.addNewTranslation();
+                                            POCDMT000040Component3 out, CE ce) {
         if (name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()) {
             ce.getTranslationArray(0).setCode(in.getAnswerTxt());
         }
@@ -551,7 +568,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             ce.setCodeSystemName(in.getAnsToCodeSystemDescTxt());
         }
         else if (name.equals(COL_ANS_TO_DISPLAY_NM)) {
-            setMessageAnswerArrayValueAnsDisplayNm(ce, in);
+            setMessageAnswerArrayValueAnsDisplayNm(ce, in, counter, out);
         }
 
         checkSectionEntryObservationValueArray(counter, out);
@@ -564,7 +581,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         }
     }
 
-    private void setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in) {
+    private void setMessageAnswerArrayValueAnsDisplayNm(CE ce, EcrMsgCaseAnswerDto in, int counter, POCDMT000040Component3 out) {
         if (!in.getAnsToDisplayNm().isEmpty()) {
             if (ce.getTranslationArray(0).getDisplayName() == null) {
                 ce.getTranslationArray(0).setDisplayName("");

@@ -109,6 +109,35 @@ public class NbsRepositoryServiceProvider {
     	return nbsInterfaceModel;
     }
 
+	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg) {
+
+		log.debug("Processing Elr xml: \n {} \n with an uid: {}", xmlMsg, messageId);
+		NbsInterfaceModel item = new NbsInterfaceModel();
+
+		item.setPayload(xmlMsg);
+		item.setImpExpIndCd(IMPEXP_CD);
+		item.setRecordStatusCd(STATUS_UNPROCESSED);
+
+		var time = getCurrentTimeStamp();
+		item.setRecordStatusTime(time);
+		item.setAddTime(time);
+
+		item.setSystemNm(SYSTEM_NAME_NBS);
+		item.setDocTypeCd(DOCUMENT_TYPE_CODE);
+		item.setOriginalPayload(null);
+		item.setOriginalDocTypeCd(null);
+		item.setSpecimenCollDate(null);
+		item.setLabClia(null);
+		item.setFillerOrderNbr(null);
+		item.setOrderTestCode(null);
+		item.setObservationUid(null);
+
+		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
+		log.debug("Persisted the following Elr xml to NBS_interface table: {}", xmlMsg);
+
+		return nbsInterfaceModel;
+	}
+
 	private NbsInterfaceModel savingNbsInterfaceModelHelper(OruR1 oru, NbsInterfaceModel nbsInterface) throws XmlConversionException {
 		String labClia = (oru.getMessageHeader() != null && oru.getMessageHeader().getSendingFacility() != null)
 				? oru.getMessageHeader().getSendingFacility().getUniversalId() : null;

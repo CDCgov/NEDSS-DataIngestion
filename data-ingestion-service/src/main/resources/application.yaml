@@ -69,6 +69,7 @@ kafka:
     producer:
       topic: elr_raw
     topic: elr_raw
+    xml-topic: elr_raw_xml
   validation:
     topic: elr_validated
   fhir-conversion:
@@ -124,6 +125,7 @@ kafka:
     producer:
       topic: elr_raw
     topic: elr_raw
+    xml-topic: elr_raw_xml
   validation:
     topic: elr_validated
   fhir-conversion:

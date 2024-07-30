@@ -7,5 +7,5 @@ SELECT [DOC_TYPE_CD],
             [QUES_DISPLAY_NAME],
             [SECTION_NM],
             [SENDING_SYSTEM_CD]
-            FROM [ecr_phdc_question_lookup]
+            FROM [NBS_MSGOUTE].[dbo].[ecr_phdc_question_lookup]
             WHERE [QUESTION_IDENTIFIER] = :QUES_IDENTIFIER

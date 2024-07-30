@@ -128,13 +128,13 @@ class EcrMsgQueryServiceTest {
         EcrMsgProviderDto providerTreat = new EcrMsgProviderDto();
         List<EcrMsgProviderDto> providerTreatList = new ArrayList<>();
         providerTreatList.add(providerTreat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(container.getMsgContainerUid(), trtLocalId))
                 .thenReturn(providerTreatList);
 
         EcrMsgOrganizationDto orgTreat = new EcrMsgOrganizationDto();
         List<EcrMsgOrganizationDto> orgTreatList = new ArrayList<>();
         orgTreatList.add(orgTreat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(container.getMsgContainerUid(), trtLocalId))
                 .thenReturn(orgTreatList);
 
         var result = target.getSelectedEcrRecord();

@@ -48,6 +48,19 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
 
+    public void sendElrXmlMessageFromController(String msgId,
+                                          String topic,
+                                          String msgType,
+                                          Integer dltOccurrence,
+                                          String payload) {
+        String uniqueID = msgType + "_" + msgId;
+        var prodRecord = new ProducerRecord<>(topic, uniqueID, payload);
+        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+        sendMessage(prodRecord);
+    }
+
     public void sendMessageFromDltController(
             String msg, String topic, String msgType, Integer dltOccurrence) {
         String uniqueID = msgType + "_" + UUID.randomUUID();

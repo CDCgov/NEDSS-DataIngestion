@@ -21,19 +21,33 @@ public class RawELRService {
     private static final String CREATED_BY = "admin";
     @Value("${kafka.raw.topic}")
     String topicName;
+
+    @Value("${kafka.raw.xml-topic}")
+    String rawXmlTopicName;
+
     private final IRawELRRepository rawELRRepository;
     private final KafkaProducerService kafkaProducerService;
 
 
     public String submission(RawERLDto rawERLDto, String version) {
         RawERLModel created = rawELRRepository.save(convert(rawERLDto));
-        kafkaProducerService.sendMessageFromController(
-                created.getId(),
-                topicName,
-                rawERLDto.getType(),
-                0,
-                rawERLDto.getValidationActive(),
-                version);
+        if(created.getType().equalsIgnoreCase("HL7")) {
+            kafkaProducerService.sendMessageFromController(
+                    created.getId(),
+                    topicName,
+                    rawERLDto.getType(),
+                    0,
+                    rawERLDto.getValidationActive(),
+                    version);
+        }
+        if(created.getType().equalsIgnoreCase("HL7-XML")) {
+            kafkaProducerService.sendElrXmlMessageFromController(
+                    created.getId(),
+                    rawXmlTopicName,
+                    rawERLDto.getType(),
+                    0,
+                    rawERLDto.getPayload());
+        }
         return created.getId();
     }
 

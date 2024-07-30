@@ -239,25 +239,30 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     }
 
     private EcrMsgCaseAnswerDto setCaseAnsData(Object [] val) {
+        //TODO: FIX THIS
         EcrMsgCaseAnswerDto dto = new EcrMsgCaseAnswerDto();
-        dto.setQuestionIdentifier((nullToString(val[0])));
-        dto.setMsgContainerUid(((Number)val[1]).intValue());
-        dto.setMsgEventId((nullToString(val[2])));
-        dto.setMsgEventType((nullToString(val[3])));
-        dto.setAnsCodeSystemCd((nullToString(val[4])));
-        dto.setAnsCodeSystemDescTxt((nullToString(val[5])));
-        dto.setAnsDisplayTxt((nullToString(val[6])));
-        dto.setAnswerTxt((nullToString(val[7])));
-        dto.setPartTypeCd((nullToString(val[8])));
-        dto.setQuesCodeSystemCd((nullToString(val[9])));
-        dto.setQuesCodeSystemDescTxt((nullToString(val[10])));
-        dto.setQuesDisplayTxt((nullToString(val[11])));
-        dto.setQuestionDisplayName((nullToString(val[12])));
-        dto.setAnsToCode((nullToString(val[13])));
-        dto.setAnsToCodeSystemCd((nullToString(val[14])));
-        dto.setAnsToDisplayNm((nullToString(val[15])));
-        dto.setCodeTranslationRequired((nullToString(val[16])));
-        dto.setAnsToCodeSystemDescTxt((nullToString(val[17])));
+        dto.setQuestionGroupSeqNbr(nullToString(val[0]));
+        dto.setAnswerGroupSeqNbr(nullToString(val[1]));
+        dto.setSeqNbr(nullToString(val[2]));
+        dto.setDataType(nullToString(val[3]));
+        dto.setQuestionIdentifier((nullToString(val[4])));
+        dto.setMsgContainerUid(((Number)val[5]).intValue());
+        dto.setMsgEventId((nullToString(val[6])));
+        dto.setMsgEventType((nullToString(val[7])));
+        dto.setAnsCodeSystemCd((nullToString(val[8])));
+        dto.setAnsCodeSystemDescTxt((nullToString(val[9])));
+        dto.setAnsDisplayTxt((nullToString(val[10])));
+        dto.setAnswerTxt((nullToString(val[11])));
+        dto.setPartTypeCd((nullToString(val[12])));
+        dto.setQuesCodeSystemCd((nullToString(val[13])));
+        dto.setQuesCodeSystemDescTxt((nullToString(val[14])));
+        dto.setQuesDisplayTxt((nullToString(val[15])));
+        dto.setQuestionDisplayName((nullToString(val[16])));
+        dto.setAnsToCode((nullToString(val[17])));
+        dto.setAnsToCodeSystemCd((nullToString(val[18])));
+        dto.setAnsToDisplayNm((nullToString(val[19])));
+        dto.setCodeTranslationRequired((nullToString(val[20])));
+        dto.setAnsToCodeSystemDescTxt((nullToString(val[21])));
         return dto;
     }
 
@@ -534,17 +539,19 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
         return dtos;
     }
 
-    public List<EcrMsgProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId, String trtLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment_provider.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(MSG_UID, containerId);
+        query.setParameter("TRT_LOCAL_ID", trtLocalId);
         return setProviderList(query);
     }
 
-    public List<EcrMsgOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
+    public List<EcrMsgOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId, String trtLocalId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_treatment_organization.sql");
         Query query = entityManager.createNativeQuery(queryString);
         query.setParameter(MSG_UID, containerId);
+        query.setParameter("TRT_LOCAL_ID", trtLocalId);
         List<EcrMsgOrganizationDto> dtos = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (results != null && !results.isEmpty()) {

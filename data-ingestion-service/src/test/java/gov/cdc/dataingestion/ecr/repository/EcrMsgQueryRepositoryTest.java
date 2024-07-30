@@ -708,7 +708,7 @@ class EcrMsgQueryRepositoryTest {
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
 
         // When
-        List<EcrMsgProviderDto> result = target.fetchMsgTreatmentProviderForApplicableEcr(containerId);
+        List<EcrMsgProviderDto> result = target.fetchMsgTreatmentProviderForApplicableEcr(containerId, trtLocalId);
 
         // Then
         assertNotNull(result);
@@ -770,7 +770,7 @@ class EcrMsgQueryRepositoryTest {
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
 
         // When
-        List<EcrMsgOrganizationDto> result = target.fetchMsgTreatmentOrganizationForApplicableEcr(containerId);
+        List<EcrMsgOrganizationDto> result = target.fetchMsgTreatmentOrganizationForApplicableEcr(containerId, trtLocalId);
 
         // Then
         assertNotNull(result);
