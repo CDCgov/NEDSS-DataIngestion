@@ -38,7 +38,7 @@ public class DataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String className;
 
-    @Value("${spring.datasource.url}")
+    @Value("${spring.datasource.dataingest.url}")
     private String dbUrl;
 
     @Value("${spring.datasource.username}")
