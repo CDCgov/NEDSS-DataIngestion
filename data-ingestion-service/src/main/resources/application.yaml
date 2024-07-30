@@ -38,20 +38,18 @@ spring:
     activate:
       on-profile: default
   datasource:
-    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
-    username: ${DI_USERNAME}
-    password: ${DI_PASSWORD}
+    username: ${NBS_DBUSER}
+    password: ${NBS_DBPASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
       connection-timeout: 60000
-      maximum-pool-size: 5
-    nbs:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_NBS_DBUSER}
-      password: ${DI_NBS_DBPASSWORD}
-      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      maximum-pool-size: 10
+    dataingest:
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
+    msgoute:
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
     odse:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_ODSE_DBNAME};encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_ODSE;encrypt=true;trustServerCertificate=true;
   jpa:
     show-sql: true
     hibernate:
@@ -86,61 +84,6 @@ kafka:
       suffix: _retry
   dlt:
       suffix: _dlt
-
----
-spring:
-  config:
-    activate:
-      on-profile: kubernetes
-  datasource:
-    url: jdbc:sqlserver://${DI_DBSERVER};databaseName=${DI_DBNAME};encrypt=true;trustServerCertificate=true;
-    username: ${DI_USERNAME}
-    password: ${DI_PASSWORD}
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 5
-    nbs:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_NBS_DBNAME};encrypt=true;trustServerCertificate=true;
-      username: ${DI_NBS_DBUSER}
-      password: ${DI_NBS_DBPASSWORD}
-      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    odse:
-      url: jdbc:sqlserver://${DI_NBS_DBSERVER};databaseName=${DI_ODSE_DBNAME};encrypt=true;trustServerCertificate=true;
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: none
-  kafka:
-    bootstrap-servers: ${BOOTSTRAP_SERVERS}
-    group-id: data-ingestion-group
-    consumer:
-      maxPollIntervalMs: 30000
-
-kafka:
-  consumer:
-    max-retry: 2
-  raw:
-    producer:
-      topic: elr_raw
-    topic: elr_raw
-  validation:
-    topic: elr_validated
-  fhir-conversion:
-    topic: fhir_converted
-  fhir-conversion-prep:
-    topic: fhir_prep
-  xml-conversion:
-    topic: xml_converted
-  xml-conversion-prep:
-    topic: xml_prep
-  elr-duplicate:
-    topic: elr_duplicate
-  topics: elr_raw,elr_validated
-  retry:
-    suffix: _retry
-  dlt:
-    suffix: _dlt
 
 security:
   protocol: SASL_SSL
