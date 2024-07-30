@@ -29,7 +29,7 @@ public class KafkaNonTransactionalManagerConsumer {
 
     private final List<String> messageBatch = new ArrayList<>();
 
-    private static final int BATCH_SIZE = 20;
+    private static final int BATCH_SIZE = 100;
 
     public KafkaNonTransactionalManagerConsumer(KafkaManagerProducer kafkaManagerProducer) {
         this.kafkaManagerProducer = kafkaManagerProducer;

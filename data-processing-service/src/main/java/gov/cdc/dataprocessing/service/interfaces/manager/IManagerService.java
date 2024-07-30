@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 
 public interface IManagerService {
-    void processDistribution(NbsInterfaceModel data) throws DataProcessingConsumerException;
+    void processDistribution(Integer data) throws DataProcessingConsumerException;
     void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data) throws DataProcessingException;
     void initiatingLabProcessing(PublicHealthCaseFlowContainer data)  throws DataProcessingConsumerException;
 }

@@ -70,7 +70,7 @@ public class KafkaManagerConsumer {
         List<String> list = gson.fromJson(reader, listType);
         for(var item : list) {
             try {
-                var nbs = gson.fromJson(item, NbsInterfaceModel.class);
+                var nbs = gson.fromJson(item, Integer.class);
                 managerService.processDistribution(nbs);
             } catch (Exception e) {
                 log.info(e.getMessage());

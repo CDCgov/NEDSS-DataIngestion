@@ -107,7 +107,7 @@ public class ManagerService implements IManagerService {
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    public void processDistribution(NbsInterfaceModel data) throws DataProcessingConsumerException {
+    public void processDistribution(Integer data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
         } else {
@@ -355,12 +355,18 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings("java:S6541")
-    private void processingELR(NbsInterfaceModel data) {
-        NbsInterfaceModel nbsInterfaceModel = data;
+    private void processingELR(Integer data) {
+        NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
         try {
 
+            var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
+            if (obj.isPresent()) {
+                nbsInterfaceModel = obj.get();
+            } else {
+                throw new DataProcessingException("NBS Interface Not Exist");
+            }
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
