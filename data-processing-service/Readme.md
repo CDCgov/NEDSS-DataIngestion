@@ -18,3 +18,6 @@ kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topi
 kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic xml_converted
 kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic xml_prep
 kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic xml_prep_dlt_manual
+
+
+https://stackoverflow.com/questions/65744538/problems-with-amazon-msk-default-configuration-and-publishing-with-transactions
