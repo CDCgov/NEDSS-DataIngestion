@@ -13,6 +13,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorPart
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import jakarta.transaction.Transactional;
@@ -27,21 +28,131 @@ import java.util.stream.Collectors;
 public class EntityLocatorParticipationService implements IEntityLocatorParticipationService {
     private static final Logger logger = LoggerFactory.getLogger(EntityLocatorParticipationService.class); // NOSONAR
 
+    private final PersonRepository personRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
     private final OdseIdGeneratorService odseIdGeneratorService;
-    public EntityLocatorParticipationService(EntityLocatorParticipationRepository entityLocatorParticipationRepository,
+    public EntityLocatorParticipationService(PersonRepository personRepository,
+                                             EntityLocatorParticipationRepository entityLocatorParticipationRepository,
                                              TeleLocatorRepository teleLocatorRepository,
                                              PostalLocatorRepository postalLocatorRepository,
                                              PhysicalLocatorRepository physicalLocatorRepository,
                                              OdseIdGeneratorService odseIdGeneratorService) {
+        this.personRepository = personRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
+    }
+
+    @SuppressWarnings({"java:S3776", "java:S125"})
+    protected void deleteEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) {
+        var deletePostal = locatorCollection.stream().filter(x -> x.getClassCd().equalsIgnoreCase(NEDSSConstant.POSTAL) && x.isItDelete()).toList();
+        StringBuilder comparingString = new StringBuilder();
+        ArrayList<String> comparingStrList = new ArrayList<>();
+        if (!deletePostal.isEmpty()) {
+
+
+            var personRes = personRepository.findByPersonUid(patientUid);
+            Long parentUid = null;
+            if (personRes.isPresent()) {
+                parentUid = personRes.get().get(0).getPersonParentUid();
+            }
+//            List<EntityLocatorParticipation> mprEntityHomeCheck = new ArrayList<EntityLocatorParticipation>();
+            var postalRevision = postalLocatorRepository.findByPostalLocatorUids(deletePostal.stream().map(EntityLocatorParticipationDto::getLocatorUid).toList());
+            if (parentUid != null && postalRevision.isPresent()) {
+                var entityMprEntityRes = entityLocatorParticipationRepository.findByParentUid(parentUid);
+                var entityMprRes = entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid);
+                if (entityMprRes.isPresent() && entityMprEntityRes.isPresent()) {
+//                    mprEntityHomeCheck = entityMprEntityRes.get().stream().filter(x -> x.getCd().equalsIgnoreCase("H")).toList();
+                    var postalMpr = postalLocatorRepository.findByPostalLocatorUids(entityMprRes.get());
+                    if (postalMpr.isPresent()) {
+                        for(var revision : postalRevision.get()) {
+                            comparingString.setLength(0);
+                            comparingString.append(revision.getCityCd());
+                            comparingString.append(revision.getCityDescTxt());
+                            comparingString.append(revision.getCntryCd());
+                            comparingString.append(revision.getCntryDescTxt());
+                            comparingString.append(revision.getCntyCd());
+                            comparingString.append(revision.getCntyDescTxt());
+                            comparingString.append(revision.getStateCd());
+                            comparingString.append(revision.getStreetAddr1());
+                            comparingString.append(revision.getStreetAddr2());
+                            comparingString.append(revision.getZipCd());
+                            comparingStrList.add(comparingString.toString().toUpperCase());
+                        }
+
+
+
+
+                        for(var mpr : postalMpr.get()) {
+                            comparingString.setLength(0);
+                            comparingString.append(mpr.getCityCd());
+                            comparingString.append(mpr.getCityDescTxt());
+                            comparingString.append(mpr.getCntryCd());
+                            comparingString.append(mpr.getCntryDescTxt());
+                            comparingString.append(mpr.getCntyCd());
+                            comparingString.append(mpr.getCntyDescTxt());
+                            comparingString.append(mpr.getStateCd());
+                            comparingString.append(mpr.getStreetAddr1());
+                            comparingString.append(mpr.getStreetAddr2());
+                            comparingString.append(mpr.getZipCd());
+
+                            var birCheck = entityMprEntityRes.get().stream().filter(x -> Objects.equals(x.getLocatorUid(), mpr.getPostalLocatorUid())
+                            && x.getUseCd().equalsIgnoreCase("BIR")).toList();
+                            // Comparing String of MPR matched with Incoming Revision Then Do Delete
+                            if (comparingStrList.contains(comparingString.toString().toUpperCase()) && !birCheck.isEmpty()) {
+                                try {
+                                    postalLocatorRepository.deletePostalLocatorById(mpr.getPostalLocatorUid());
+                                    entityLocatorParticipationRepository.deleteLocatorById(parentUid, mpr.getPostalLocatorUid());
+                                } catch (Exception e) {
+                                    logger.info("DELETE OPS ERROR");
+                                }
+                            }
+//                            else if (comparingStrList.contains(comparingString.toString().toUpperCase()) && birCheck.isEmpty() &&
+//                                    mprEntityHomeCheck.size() > 1) {
+//                                try {
+//                                    postalLocatorRepository.updatePostalStatus(mpr.getPostalLocatorUid(), "INACTIVE");
+//                                    entityLocatorParticipationRepository.updateLocatorStatus(parentUid, mpr.getPostalLocatorUid(),
+//                                            "INACTIVE", "I");
+//                                } catch (Exception e) {
+//                                    logger.info("DELETE OPS ERROR");
+//                                }
+//                            }
+                        }
+                    }
+                }
+            }
+
+
+            for(var deleteRevision: deletePostal) {
+
+                if (deleteRevision.getUseCd().equalsIgnoreCase("BIR")) {
+                    try {
+                        postalLocatorRepository.deletePostalLocatorById(deleteRevision.getLocatorUid());
+                        entityLocatorParticipationRepository.deleteLocatorById(deleteRevision.getEntityUid(), deleteRevision.getLocatorUid());
+                    } catch (Exception e) {
+                        logger.info("DELETE OPS ERROR");
+                    }
+                }
+//                else if (mprEntityHomeCheck.size() > 1) {
+//                    try {
+//                        postalLocatorRepository.updatePostalStatus(deleteRevision.getLocatorUid(), "INACTIVE");
+//                        entityLocatorParticipationRepository.updateLocatorStatus(deleteRevision.getEntityUid(), deleteRevision.getLocatorUid(),
+//                                "INACTIVE", "I");
+//                    } catch (Exception e) {
+//                        logger.info("DELETE OPS ERROR");
+//                    }
+//                }
+
+            }
+        }
+
+        locatorCollection.removeIf(x -> x.getClassCd().equalsIgnoreCase(NEDSSConstant.POSTAL) && x.isItDelete() && x.getUseCd().equalsIgnoreCase("BIR"));
+
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
@@ -73,8 +184,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
                     .collect(Collectors.toList());
 
-
-
+            // This remove to be deleted entity from the Participation
+            deleteEntityLocatorParticipation(locatorCollection, patientUid);
             StringBuilder comparingString = new StringBuilder();
             for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
 
@@ -173,18 +284,21 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             if (!compareStringList.contains(existComparingLocator.toString().toUpperCase())) {
                                 uid = entityLocatorParticipationDto.getEntityUid();
                                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
+                                entityLocatorParticipationDto.getThePostalLocatorDto().setRecordStatusCd(NEDSSConstant.ACTIVE);
                                 postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
 
                             }
                             else
                             {
                                 newLocator = false;
+
                             }
                         }
                         else
                         {
                             uid = entityLocatorParticipationDto.getEntityUid();
                             entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
+                            entityLocatorParticipationDto.getThePostalLocatorDto().setRecordStatusCd(NEDSSConstant.ACTIVE);
                             postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                         }
                         comparingString.setLength(0);
@@ -265,6 +379,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
                         entityLocatorParticipationDto.setVersionCtrlNbr(1);
                     }
+                    entityLocatorParticipationDto.setStatusCd("A");
+                    entityLocatorParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
                     entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto));
                 }
 

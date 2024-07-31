@@ -39,6 +39,12 @@ public class ParticipationRepositoryUtil {
 
     public void insertParticipationHist(ParticipationDto participationDto) {
         ParticipationHist hist = new ParticipationHist(participationDto);
+        if (hist.getVersionCtrlNbr() != null) {
+            var ver = hist.getVersionCtrlNbr();
+            hist.setVersionCtrlNbr(++ver);
+        } else {
+            hist.setVersionCtrlNbr(1);
+        }
         participationHistRepository.save(hist);
         participationDto.setItNew(false);
     }
@@ -57,7 +63,7 @@ public class ParticipationRepositoryUtil {
             else if (dt.isItDirty())
                 participationRepository.save(data);
         }catch(Exception ex){
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 

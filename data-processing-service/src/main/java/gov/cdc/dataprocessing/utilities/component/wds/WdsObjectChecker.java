@@ -26,7 +26,6 @@ public class WdsObjectChecker {
             for (Method item : methodList) {
                 Method method = item;
                 if (method.getName().equalsIgnoreCase(getMethodName)) {
-                    //System.out.println(method.getName());
                     Object ob = method.invoke(object, (Object[]) null);
 
                     String logic = edxRuleManageDT.getLogic();

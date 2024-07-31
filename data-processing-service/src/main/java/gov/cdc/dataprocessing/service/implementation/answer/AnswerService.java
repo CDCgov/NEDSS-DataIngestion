@@ -263,7 +263,7 @@ public class AnswerService implements IAnswerService {
                 }
             }
         } catch(Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -317,7 +317,7 @@ public class AnswerService implements IAnswerService {
                 }
             }
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -339,7 +339,7 @@ public class AnswerService implements IAnswerService {
             }
         } catch (Exception ex) // NO SONAR
         {
-            throw new DataProcessingException(ex.toString(), ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 }

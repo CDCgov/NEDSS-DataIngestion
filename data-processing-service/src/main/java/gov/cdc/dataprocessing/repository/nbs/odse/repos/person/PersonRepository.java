@@ -29,4 +29,7 @@ public interface PersonRepository  extends JpaRepository<Person, Long> {
     @Query("SELECT pn.personParentUid FROM Person pn WHERE pn.personUid = :parentUid AND pn.recordStatusCd='ACTIVE' ")
     Optional<List<Long>> findPatientParentUidByUid(@Param("parentUid") Long parentUid);
 
+    @Query("SELECT pn FROM Person pn WHERE pn.personUid = :personUid")
+    Optional<List<Person>> findByPersonUid(@Param("personUid") Long personUid);
+
 }

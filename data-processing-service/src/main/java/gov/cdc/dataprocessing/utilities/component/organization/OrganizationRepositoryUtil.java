@@ -213,7 +213,6 @@ public class OrganizationRepositoryUtil {
             entityRepository.save(entityModel);
             organizationDto.setCd(entityModel.getClassCd());
 
-            logger.info("OrganizationDAOImpl - after save Entity");
             if (organizationDto != null) {
                 Organization organization = new Organization(organizationDto);
                 organizationRepository.save(organization);
@@ -257,7 +256,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error(" Exception while inserting " +
                     "Organization names into ORGINIZATION_NAME_TABLE: \n", ex);
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         logger.debug("OrganizationRepositoryUtil - Done inserting all Organization names");
     }//end of inserting Organization names
@@ -526,7 +525,7 @@ public class OrganizationRepositoryUtil {
             organizationDto.setItNew(false);
             organizationDto.setItDirty(false);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         logger.debug("return organization object");
         return organizationDto;
@@ -553,7 +552,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception while selection " +
                     "Organization names; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -581,7 +580,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception while selection " +
                     "entity ids; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -670,7 +669,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception selectEntityLocatorParticipations " +
                     "entity id; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.toString());
+            throw new DataProcessingException(ex.getMessage());
         }
         return entityLocatorParticipationList;
     }
@@ -783,7 +782,7 @@ public class OrganizationRepositoryUtil {
             return prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
         } catch (Exception ex) {
             logger.error("Exception in getPrepareEntityForOrganization for businessTriggerCd=" + businessTriggerCd + " moduleCd=" + moduleCd + " uid:" + uid + " tableName=" + tableName + ": ERROR = " + ex);
-            throw new DataProcessingException(ex.toString(), ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 }

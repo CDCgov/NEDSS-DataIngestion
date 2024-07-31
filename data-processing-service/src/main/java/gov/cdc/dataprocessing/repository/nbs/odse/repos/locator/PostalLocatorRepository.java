@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.repos.locator;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,14 @@ import java.util.Optional;
 public interface PostalLocatorRepository extends JpaRepository<PostalLocator, Long> {
     @Query(value = "SELECT x FROM PostalLocator x WHERE x.postalLocatorUid IN :uids", nativeQuery = false)
     Optional<List<PostalLocator>> findByPostalLocatorUids(@Param("uids") List<Long> uids);
+
+    @Modifying
+    @Query(value = "DELETE FROM PostalLocator x WHERE x.postalLocatorUid = :postalId", nativeQuery = false)
+    void deletePostalLocatorById(@Param("postalId") Long postalId);
+
+
+    @Modifying
+    @Query(value = "UPDATE PostalLocator x SET x.recordStatusCd = :status WHERE x.postalLocatorUid = :postalId", nativeQuery = false)
+    void updatePostalStatus(@Param("postalId") Long postalId, @Param("status") String status);
+
 }
