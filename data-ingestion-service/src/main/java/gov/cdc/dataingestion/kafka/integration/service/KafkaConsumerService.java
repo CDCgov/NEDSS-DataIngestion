@@ -104,7 +104,7 @@ public class KafkaConsumerService {
     private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
-
+    private final KafkaProducerTransactionService kafkaProducerTransactionService;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -125,7 +125,8 @@ public class KafkaConsumerService {
             ICdaMapper cdaMapper,
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
-            CustomMetricsBuilder customMetricsBuilder) {
+            CustomMetricsBuilder customMetricsBuilder,
+            KafkaProducerTransactionService kafkaProducerTransactionService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -139,6 +140,7 @@ public class KafkaConsumerService {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
+        this.kafkaProducerTransactionService =kafkaProducerTransactionService;
     }
     //endregion
 
@@ -551,7 +553,7 @@ public class KafkaConsumerService {
                 Gson gson = new Gson();
                 String strGson = gson.toJson(nbsInterfaceModel);
 
-                kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_unprocessed", 0); //NOSONAR
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "elr_unprocessed", 0); //NOSONAR
             } else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
             }

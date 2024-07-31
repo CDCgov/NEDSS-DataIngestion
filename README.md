@@ -10,23 +10,13 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
         - Building application with Docker
           - Create env file on the top directory and name it as dataingestion.env. Update the content below with appropriate value
             ```
-              DI_DBSERVER=value
+              NBS_DBSERVER=value
 
-              DI_DBNAME=value
+              NBS_DBUSER=value
       
-              DI_USERNAME=value
+              NBS_DBPASSWORD=value
          
-              DI_PASSWORD=value
-         
-              DI_NBS_DBSERVER=value
-         
-              DI_NBS_DBNAME=value
-         
-              DI_NBS_DBUSER=value
-         
-              DI_NBS_DBPASSWORD=value
-              
-              DI_ODSE_DBNAME=value
+              BOOTSTRAP_SERVERS=value
             
               DI_LOG_PATH=value
          
@@ -39,8 +29,6 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
               DI_SFTP_USER=value
     
               DI_SFTP_PWD=value
-            
-              DI_SERVER_HOST=value
           ```
           - Run "docker-compose up -d"
           - If encounter gradle exception such as missing wrapper then run the following command
