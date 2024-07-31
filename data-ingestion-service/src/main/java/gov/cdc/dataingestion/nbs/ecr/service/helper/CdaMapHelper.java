@@ -191,18 +191,32 @@ public class CdaMapHelper implements ICdaMapHelper {
             String result;
             boolean checkerCode = data.contains("/");
             boolean checkerCodeDash = data.contains("-");
+            boolean checkerCodeDateOnly = checkerCode && data.length() == 10;
+            boolean checkerDateOnly = checkerCodeDash && data.length() == 10;
             if (!checkerCode && !checkerCodeDash) {
                 result = data;
             }
+            else if (checkerDateOnly) {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
+                Date date = inputFormat.parse(data);
+                result = outputFormat.format(date);
+            }
             else if (checkerCodeDash) {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
+                Date date = inputFormat.parse(data);
+                result = outputFormat.format(date);
+            }
+            else if (checkerCodeDateOnly) {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("MM/dd/yyyy");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
                 Date date = inputFormat.parse(data);
                 result = outputFormat.format(date);
             }
             else {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.S");
-                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
                 Date date = inputFormat.parse(data);
                 result = outputFormat.format(date);
             }
@@ -255,6 +269,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         if (data == null) {
             data = "";
         }
+
         var answer = mapToCodedAnswer(data, questionCode);
 
         if (!answer.getCode().isEmpty()) {
@@ -310,7 +325,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         }
 
         if (code.equalsIgnoreCase("NULL") || code.isEmpty()) {
-            code = data ;
+            code = data;
             codeSystem = transCodeSystem;
             codeSystemName = transCodeSystemName;
             displayName = transDisplayName;
@@ -331,15 +346,15 @@ public class CdaMapHelper implements ICdaMapHelper {
     public POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name) {
         XmlCursor cursor = output.newCursor();
         cursor.toFirstChild();
-        cursor.beginElement(name);
-        cursor.insertAttributeWithValue("xmlns", XML_NAME_SPACE_HOLDER);
-        cursor.insertProcInst("CDATA", data);
+        cursor.beginElement(name, XML_NAME_SPACE_HOLDER);
+        cursor.insertChars(data);
         cursor.dispose();
 
         return output;
     }
 
 
+    //TODO: Check if we need to fix the Zulu time zone
     public String getCurrentUtcDateTimeInCdaFormat() {
         ZonedDateTime utcNow = ZonedDateTime.now(ZoneId.of("UTC"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
@@ -365,6 +380,14 @@ public class CdaMapHelper implements ICdaMapHelper {
             var result = ecrLookUpService.fetchPhdcQuestionByCriteria(questionCode);
             if (result != null) {
 
+                if (observation.getCode() == null) {
+                    observation.addNewCode();
+                }
+                observation.getCode().setCode(result.getQuestionIdentifier());
+                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
+                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
+                observation.getCode().setDisplayName(result.getQuesDisplayName());
+
                 //region DB LOOKUP
                 var param = new Observation();
                 param.setQuestionLup(questionLup);
@@ -385,7 +408,7 @@ public class CdaMapHelper implements ICdaMapHelper {
                                  result);
                     }
                     else {
-                        mapToObservationDataTypeNotCoded( result,
+                        mapToObservationDataTypeNotCoded(result,
                                  observation,
                                  data,
                                  defaultQuestionIdentifier);
@@ -408,7 +431,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     private void mapToObservationDateTypeCoded(
             POCDMT000040Observation observation,
             String data,
-            PhdcQuestionLookUpDto result) {
+            PhdcQuestionLookUpDto result) throws EcrCdaXmlException {
         var dataList = getStringsBeforePipe(data);
         StringBuilder dataStr = new StringBuilder();
         for (String s : dataList) {
@@ -416,11 +439,9 @@ public class CdaMapHelper implements ICdaMapHelper {
 
         }
         dataStr = new StringBuilder(dataStr.toString().trim());
-        observation.addNewCode();
-        observation.getCode().setCode(dataStr.toString());
-        observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-        observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-        observation.getCode().setDisplayName(result.getQuesDisplayName());
+        var value = mapToCEAnswerType(String.valueOf(dataStr), result.getQuestionIdentifier());
+        observation.addNewValue();
+        observation.setValueArray(0, value);
     }
 
     private  void mapToObservationDataTypeNotCoded(PhdcQuestionLookUpDto result,
@@ -442,38 +463,34 @@ public class CdaMapHelper implements ICdaMapHelper {
                 XmlCursor cursor = any.newCursor();
                 cursor.toFirstAttribute();
                 cursor.toNextToken();
-                cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "II");
+                cursor.insertAttributeWithValue("type", "II");
                 var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
                 cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
                 cursor.insertAttributeWithValue("extension", data);
                 cursor.dispose();
-                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                observation.getCode().setDisplayName(result.getQuesDisplayName());
-                observation.getCode().setCode(data);
                 observation.setValueArray(0, any); // THIS
             }
             else if (result.getDataType().equalsIgnoreCase("DATE")) {
-                var ts = mapToTsType(data).getValue();
-                observation.addNewCode();
-                observation.getCode().setCode(ts);
-                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                observation.getCode().setDisplayName(result.getQuesDisplayName());
+                var ts = mapToTsType(data);
+                observation.addNewValue();
+                observation.setValueArray(0, ts);
             }
             else {
-                // TEXT type also goes here
-                // CHECK mapToObservation from ori 77
-                observation.addNewCode();
-                observation.getCode().setCode(data);
-                observation.getCode().setCodeSystem(result.getQuesCodeSystemCd());
-                observation.getCode().setCodeSystemName(result.getQuesCodeSystemDescTxt());
-                observation.getCode().setDisplayName(result.getQuesDisplayName());
+                observation.addNewValue();
+
+                ANY any = ANY.Factory.parse(VALUE_TAG);
+                XmlCursor cursor = any.newCursor();
+                cursor.toFirstAttribute();
+                cursor.toNextToken();
+                cursor.insertAttributeWithValue("type", "ST");
+                cursor.insertChars(data);
+                cursor.dispose();
+                observation.setValueArray(0, any);
+
             }
         } catch (Exception e) {
             throw  new EcrCdaXmlException(e.getMessage());
         }
-
 
     }
 
@@ -555,10 +572,8 @@ public class CdaMapHelper implements ICdaMapHelper {
         XmlCursor cursor = output.newCursor();
 
         if (cursor.toChild(new QName(VALUE_NAME))) {
-            // Set the attributes of the 'value' element
-            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
-            // Add child CDATA to 'value' element
-            cursor.toNextToken(); // Move to the end of the current element (value element)
+            cursor.insertAttributeWithValue("type", "ST");
+            cursor.toNextToken();
             cursor.insertChars(input);
         }
 

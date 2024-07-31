@@ -11,5 +11,6 @@ SELECT [ANS_FROM_CODE], [ANS_FROM_CODE_SYSTEM_CD],
                 [QUES_CODE_SYSTEM_CD],
                 [QUESTION_IDENTIFIER],
                 [SENDING_SYSTEM_CD]
-                FROM [ecr_phdc_answer_lookup]
-                WHERE [QUESTION_IDENTIFIER] = :VALUE_DATA
+                FROM [NBS_MSGOUTE].[dbo].[ecr_phdc_answer_lookup]
+                WHERE (ISNULL(:QUESTION_IDENTIFIER, '') = '' OR [QUESTION_IDENTIFIER] = :QUESTION_IDENTIFIER) AND
+                    (ISNULL(:ANSWER_FROM_CODE, '') = '' OR [ANS_FROM_CODE] = :ANSWER_FROM_CODE)

@@ -23,7 +23,7 @@ public interface IEcrMsgQueryRepository {
      List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException;
      List<EcrMsgCaseAnswerDto> fetchMsgInterviewAnswerRepeatForApplicableEcr(Integer containerId, String ixsLocalId) throws EcrCdaXmlException;
      List<EcrMsgTreatmentDto> fetchMsgTreatmentForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
-     List<EcrMsgProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
-     List<EcrMsgOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId) throws EcrCdaXmlException;
+     List<EcrMsgProviderDto> fetchMsgTreatmentProviderForApplicableEcr(Integer containerId, String trtLocalId) throws EcrCdaXmlException;
+     List<EcrMsgOrganizationDto> fetchMsgTreatmentOrganizationForApplicableEcr(Integer containerId, String trtLocalId) throws EcrCdaXmlException;
      void updateMatchEcrRecordForProcessing(Integer containerUid) throws EcrCdaXmlException;
 }
