@@ -236,6 +236,15 @@ public class KafkaConsumerService {
         boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
         NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
         log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
+
+        if (dataProcessingApplied) {
+            Gson gson = new Gson();
+            String strGson = gson.toJson(nbsInterfaceModel);
+            kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_unprocessed", 0); //NOSONAR
+        }
+        else {
+            kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+        }
     }
 
     /**
