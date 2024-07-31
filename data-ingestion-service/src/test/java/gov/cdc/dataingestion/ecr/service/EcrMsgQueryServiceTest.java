@@ -14,6 +14,8 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 
@@ -128,13 +130,13 @@ class EcrMsgQueryServiceTest {
         EcrMsgProviderDto providerTreat = new EcrMsgProviderDto();
         List<EcrMsgProviderDto> providerTreatList = new ArrayList<>();
         providerTreatList.add(providerTreat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(eq(container.getMsgContainerUid()), anyString()))
                 .thenReturn(providerTreatList);
 
         EcrMsgOrganizationDto orgTreat = new EcrMsgOrganizationDto();
         List<EcrMsgOrganizationDto> orgTreatList = new ArrayList<>();
         orgTreatList.add(orgTreat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(eq(container.getMsgContainerUid()), anyString()))
                 .thenReturn(orgTreatList);
 
         var result = target.getSelectedEcrRecord();

@@ -83,8 +83,9 @@ class EcrLookUpRepositoryTest {
         };
 
         Query mockQuery = mock(Query.class);
-        when(mockQuery.setParameter("VALUE_DATA", ansFromCode)).thenReturn(mockQuery);
-        when(mockQuery.getResultList()).thenReturn(Arrays.asList(new Object[][] { phdcAnswerArray }));
+        when(mockQuery.setParameter("QUESTION_IDENTIFIER", questionIdentifier)).thenReturn(mockQuery);
+        when(mockQuery.setParameter("ANSWER_FROM_CODE", ansFromCode)).thenReturn(mockQuery);
+        when(mockQuery.getResultList()).thenReturn(Arrays.asList(new Object[][]{ phdcAnswerArray }));
 
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
 
@@ -93,7 +94,6 @@ class EcrLookUpRepositoryTest {
 
         // Then
         assertNotNull(result);
-
         assertEquals("ansToCode2", result.getAnsToCode());
         assertEquals("ansToCodeSystemCd2", result.getAnsToCodeSystemCd());
         assertEquals("ansFromCodeSystemDescTxt1", result.getAnsFromCodeSystemDescTxt());
@@ -108,7 +108,8 @@ class EcrLookUpRepositoryTest {
         assertEquals("questionIdentifier1", result.getQuestionIdentifier());
         assertEquals("sendingSystemCd1", result.getSendingSystemCd());
 
-        verify(mockQuery).setParameter("VALUE_DATA", ansFromCode);
+        verify(mockQuery).setParameter("QUESTION_IDENTIFIER", questionIdentifier);
+        verify(mockQuery).setParameter("ANSWER_FROM_CODE", ansFromCode);
         verify(mockQuery).getResultList();
     }
 

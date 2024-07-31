@@ -30,7 +30,9 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
         if (msgContainer != null && msgContainer.getMsgContainerUid() != null) {
             selectedRecord = new EcrSelectedRecord();
 
+            // Commented out for testing right now and will need to be uncommented during the unit tests stage
             // this.ecrMsgQueryRepository.updateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid()); //NOSONAR
+
             List<EcrMsgPatientDto> msgPatients = this.ecrMsgQueryRepository.fetchMsgPatientForApplicableEcr(msgContainer.getMsgContainerUid());
 
             List<EcrSelectedCase> selectedMsgCases = new ArrayList<>();
@@ -87,14 +89,18 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
 
             List<EcrSelectedTreatment> selectedTreatments = new ArrayList<>();
             List<EcrMsgTreatmentDto> msgTreatments = this.ecrMsgQueryRepository.fetchMsgTreatmentForApplicableEcr(msgContainer.getMsgContainerUid());
-            for(var item : msgTreatments) {
+            for(int i = 0; i <= msgTreatments.size() - 1; i++) {
+
+                var item = msgTreatments.get(i);
                 EcrSelectedTreatment selectedTreatment = new EcrSelectedTreatment();
 
+                String trtLocalId = item.getTrtLocalId();
+
                 List<EcrMsgProviderDto> ecrMsgTreatmentProviders = this.ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(
-                        msgContainer.getMsgContainerUid());
+                        msgContainer.getMsgContainerUid(), trtLocalId);
 
                 List<EcrMsgOrganizationDto> ecrMsgTreatmentOrganizations = this.ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(
-                        msgContainer.getMsgContainerUid()
+                        msgContainer.getMsgContainerUid(), trtLocalId
                 );
 
                 selectedTreatment.setMsgTreatment(item);

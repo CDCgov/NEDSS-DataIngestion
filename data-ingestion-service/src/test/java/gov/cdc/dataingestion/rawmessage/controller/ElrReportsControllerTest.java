@@ -1,9 +1,6 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
-import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
@@ -30,12 +27,6 @@ class ElrReportsControllerTest {
     @MockBean
     private RawELRService rawELRService;
     @MockBean
-    private ICdaMapper cdaMapper;
-    @MockBean
-    private IEcrMsgQueryService ecrMsgQueryService;
-    @MockBean
-    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
-    @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
     @MockBean
     private IHL7Service hl7Service;
@@ -57,6 +48,25 @@ class ElrReportsControllerTest {
 
         verify(rawELRService).submission(rawERLDto, "1");
 
+    }
+
+    @Test
+    void testSaveElrXmlMessage() throws Exception {
+        String xmlPayload = "testxmlmessage";
+        String messageType = "HL7-XML";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
+                        .header("msgType", messageType)
+                        .contentType("text/plain")
+                        .content(xmlPayload)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        RawERLDto rawERLDto = new RawERLDto();
+        rawERLDto.setType(messageType);
+        rawERLDto.setPayload(xmlPayload);
+        rawERLDto.setValidationActive(true);
+
+        verify(rawELRService).submission(rawERLDto, "1");
     }
 
     @Test

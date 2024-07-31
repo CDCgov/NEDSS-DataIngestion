@@ -254,7 +254,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().getNameArray(1).getGivenArray(0).set(cdaMapHelper.mapToCData(patient.getPatNameAliasTxt()));
         }
         else if(field.getName().equals("patCurrentSexCd") && patient.getPatCurrentSexCd() != null && !patient.getPatCurrentSexCd().isEmpty()) {
-            String questionCode = this.cdaMapHelper.mapToQuestionId(patient.getPatCurrentSexCd());
+            String questionCode = this.cdaMapHelper.mapToQuestionId("PAT_CURRENT_SEX_CD");
             checkPatientRoleGenderCode(clinicalDocument);
             CE administrativeGender = this.cdaMapHelper.mapToCEAnswerType(patient.getPatCurrentSexCd(), questionCode);
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setAdministrativeGenderCode(administrativeGender);
@@ -264,7 +264,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setBirthTime(cdaMapHelper.mapToTsType(patient.getPatBirthDt().toString()));
         }
         else if(field.getName().equals("patMaritalStatusCd") && patient.getPatMaritalStatusCd() != null  && !patient.getPatMaritalStatusCd().isEmpty()) {
-            String questionCode = this.cdaMapHelper.mapToQuestionId(patient.getPatMaritalStatusCd());
+            String questionCode = this.cdaMapHelper.mapToQuestionId("PAT_MARITAL_STATUS_CD");
             CE ce = this.cdaMapHelper.mapToCEAnswerType(patient.getPatMaritalStatusCd(), questionCode);
             checkPatientRole(clinicalDocument);
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setMaritalStatusCode(ce);
@@ -277,7 +277,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         }
         else if(field.getName().equals("patEthnicGroupIndCd") && patient.getPatEthnicGroupIndCd() != null  && !patient.getPatEthnicGroupIndCd().isEmpty()) {
             checkPatientRole(clinicalDocument);
-            String questionCode = this.cdaMapHelper.mapToQuestionId(patient.getPatEthnicGroupIndCd());
+            String questionCode = this.cdaMapHelper.mapToQuestionId("PAT_ETHNIC_GROUP_IND_CD");
             CE ce = this.cdaMapHelper.mapToCEAnswerType(patient.getPatEthnicGroupIndCd(), questionCode);
 
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getPatient().setEthnicGroupCode(ce);
@@ -360,7 +360,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         if (k> 1 && field.getName().equals("patAddrAsOfDt") && patient.getPatAddrAsOfDt() != null ) {
             checkPatientRoleAddrArray(clinicalDocument);
             AD element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getAddrArray(0);
-            var ad = cdaMapHelper.mapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, USESABLE_PERIOD);
+            var ad = cdaMapHelper.mapToUsableTSElement(patient.getPatAddrAsOfDt().toString(), element, USEABLE_PERIOD);
             clinicalDocument.getRecordTargetArray(0).getPatientRole().setAddrArray(0, (AD) ad);
         }
 
@@ -543,7 +543,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setRoot(ROOT_ID);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setExtension(inv168);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getId().setAssigningAuthorityName("LR");
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCode("297622");
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCode("29762-2");
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystem(CODE_SYSTEM);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
             clinicalDocument.getComponent().getStructuredBody().getComponentArray(patientComponentCounter).getSection().getCode().setDisplayName("Social History");
@@ -697,7 +697,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                 if(!patPhoneAsOfDt.isEmpty()){
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USEABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -736,7 +736,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USEABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -776,7 +776,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USEABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -833,7 +833,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
                     TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                     // CHECK mapToUsableTSElement
                     element.set(XmlObject.Factory.parse(STUD));
-                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USESABLE_PERIOD);
+                    var out = cdaMapHelper.mapToUsableTSElement(patPhoneAsOfDt, element, USEABLE_PERIOD);
                     clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
                 }
 
@@ -996,7 +996,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             if(!phoneAsDt.isEmpty()){
                 TEL element = clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount);
                 element.set(XmlObject.Factory.parse(STUD));
-                var out = cdaMapHelper.mapToUsableTSElement(phoneAsDt, element, USESABLE_PERIOD);
+                var out = cdaMapHelper.mapToUsableTSElement(phoneAsDt, element, USEABLE_PERIOD);
                 clinicalDocument.getRecordTargetArray(0).getPatientRole().setTelecomArray(pCount, (TEL) out);
             }
             clinicalDocument.getRecordTargetArray(0).getPatientRole().getTelecomArray(pCount).setUse(new ArrayList<String>(List.of("HP")));

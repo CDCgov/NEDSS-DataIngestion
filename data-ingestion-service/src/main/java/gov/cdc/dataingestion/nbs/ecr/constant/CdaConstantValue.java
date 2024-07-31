@@ -12,7 +12,7 @@ public class CdaConstantValue {
     public static final String STATE = "STATE";
     public static final String COUNTY = "COUNTY";
     public static final String COUNTRY = "COUNTRY";
-    public static final String USESABLE_PERIOD = "useablePeriod";
+    public static final String USEABLE_PERIOD = "useablePeriod";
     public static final String CODE = "123-4567";
     public static final String CLINICAL_CODE_SYSTEM = "Local-codesystem-oid";
     public static final String CLINICAL_CODE_SYSTEM_NAME = "LocalSystem";

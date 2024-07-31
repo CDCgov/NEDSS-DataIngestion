@@ -196,6 +196,10 @@ class EcrMsgQueryRepositoryTest {
 
         List<Object[]> mockResults = new ArrayList<>();
         mockResults.add(new Object[]{
+                "questionGroupSeqNumberValue",
+                "answerGroupSeqNumberValue",
+                "seqNumberValue",
+                "dataTypeValue",
                 "questionIdentifierValue",
                 1,
                 "msgEventIdValue",
@@ -257,6 +261,10 @@ class EcrMsgQueryRepositoryTest {
 
         List<Object[]> mockResults = new ArrayList<>();
         mockResults.add(new Object[]{
+                "questionGroupSeqNumberValue",
+                "answerGroupSeqNumberValue",
+                "seqNumberValue",
+                "dataTypeValue",
                 "questionIdentifierValue",
                 1,
                 "msgEventIdValue",
@@ -581,7 +589,7 @@ class EcrMsgQueryRepositoryTest {
         Integer containerId = 123;
         String ixsLocalId = "testIxsLocalId";
         Object[] answerArray = {
-                "questionId", 1234, "eventId", "eventType", "codeSystemCd", "codeSystemDesc",
+                "questionGroupSeqNumber", "answerGroupSeqNumber", "seqNumber", "dataType", "questionId", 1234, "eventId", "eventType", "codeSystemCd", "codeSystemDesc",
                 "displayTxt", "answerTxt", "partTypeCd", "quesCodeSystemCd", "quesCodeSystemDesc",
                 "quesDisplayTxt", "quesDisplayName", "ansToCode", "ansToCodeSystemCd", "ansToDisplayNm",
                 "translationRequired", "ansToCodeSystemDesc"
@@ -615,7 +623,7 @@ class EcrMsgQueryRepositoryTest {
         Integer containerId = 123;
         String ixsLocalId = "testIxsLocalId";
         Object[] answerArray = {
-                "questionId", 1234, "eventId", "eventType", "codeSystemCd", "codeSystemDesc",
+                "questionGroupSeqNumber", "answerGroupSeqNumber", "seqNumber", "dataType","questionId", 1234, "eventId", "eventType", "codeSystemCd", "codeSystemDesc",
                 "displayTxt", "answerTxt", "partTypeCd", "quesCodeSystemCd", "quesCodeSystemDesc",
                 "quesDisplayTxt", "quesDisplayName", "ansToCode", "ansToCodeSystemCd", "ansToDisplayNm",
                 "translationRequired", "ansToCodeSystemDesc"
@@ -708,7 +716,7 @@ class EcrMsgQueryRepositoryTest {
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
 
         // When
-        List<EcrMsgProviderDto> result = target.fetchMsgTreatmentProviderForApplicableEcr(containerId);
+        List<EcrMsgProviderDto> result = target.fetchMsgTreatmentProviderForApplicableEcr(containerId, anyString());
 
         // Then
         assertNotNull(result);
@@ -770,7 +778,7 @@ class EcrMsgQueryRepositoryTest {
         when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
 
         // When
-        List<EcrMsgOrganizationDto> result = target.fetchMsgTreatmentOrganizationForApplicableEcr(containerId);
+        List<EcrMsgOrganizationDto> result = target.fetchMsgTreatmentOrganizationForApplicableEcr(containerId, anyString());
 
         // Then
         assertNotNull(result);
