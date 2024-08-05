@@ -37,7 +37,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -66,7 +66,7 @@ public class OrganizationRepositoryUtil {
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final IOdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityHelper entityHelper;
     private final ParticipationRepository participationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
@@ -81,8 +81,7 @@ public class OrganizationRepositoryUtil {
                                       TeleLocatorRepository teleLocatorRepository,
                                       PostalLocatorRepository postalLocatorRepository,
                                       PhysicalLocatorRepository physicalLocatorRepository,
-                                      IOdseIdGeneratorService odseIdGeneratorService,
-                                      EntityHelper entityHelper,
+                                      IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityHelper entityHelper,
                                       ParticipationRepository participationRepository,
                                       PrepareAssocModelHelper prepareAssocModelHelper,
                                       PrepareEntityStoredProcRepository prepareEntityStoredProcRepository) {
@@ -116,9 +115,9 @@ public class OrganizationRepositoryUtil {
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
         try {
             String localUid ;
-            LocalUidGenerator localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
-            organizationUid = localIdModel.getSeedValueNbr();
-            localUid = localIdModel.getUidPrefixCd() + organizationUid + localIdModel.getUidSuffixCd();
+            var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+            organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
+            localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
             if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
                 organizationContainer.getTheOrganizationDto().setLocalId(localUid);
@@ -278,21 +277,21 @@ public class OrganizationRepositoryUtil {
         ArrayList<EntityLocatorParticipationDto> entityLocatorList = (ArrayList<EntityLocatorParticipationDto>) ovo.getTheEntityLocatorParticipationDtoCollection();
         try {
             for (EntityLocatorParticipationDto entityLocatorDT : entityLocatorList) {
-                LocalUidGenerator localUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION);
+                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorDT.getThePhysicalLocatorDto() != null) {
-                    entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getSeedValueNbr());
+                    entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                     physicalLocatorRepository.save(new PhysicalLocator(entityLocatorDT.getThePhysicalLocatorDto()));
                 }
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorDT.getThePostalLocatorDto() != null) {
-                    entityLocatorDT.getThePostalLocatorDto().setPostalLocatorUid(localUid.getSeedValueNbr());
+                    entityLocatorDT.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                     postalLocatorRepository.save(new PostalLocator(entityLocatorDT.getThePostalLocatorDto()));
                 }
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.TELE) && entityLocatorDT.getTheTeleLocatorDto() != null) {
-                    entityLocatorDT.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getSeedValueNbr());
+                    entityLocatorDT.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                     teleLocatorRepository.save(new TeleLocator(entityLocatorDT.getTheTeleLocatorDto()));
                 }
                 entityLocatorDT.setEntityUid(ovo.getTheOrganizationDto().getOrganizationUid());
-                entityLocatorDT.setLocatorUid(localUid.getSeedValueNbr());
+                entityLocatorDT.setLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
 
                 if (entityLocatorDT.getVersionCtrlNbr() == null) {
                     entityLocatorDT.setVersionCtrlNbr(1);

@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +16,12 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 @Service
 public class NNDActivityLogService implements INNDActivityLogService {
     private final NNDActivityLogRepository nndActivityLogRepository;
-    private final OdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     public NNDActivityLogService(NNDActivityLogRepository nndActivityLogRepository,
-                                 OdseIdGeneratorService odseIdGeneratorService) {
+                                 IOdseIdGeneratorWCacheService odseIdGeneratorService1) {
         this.nndActivityLogRepository = nndActivityLogRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
+        this.odseIdGeneratorService = odseIdGeneratorService1;
     }
 
     @Transactional
@@ -34,8 +35,8 @@ public class NNDActivityLogService implements INNDActivityLogService {
         long uid;
 
         if(nndActivityLogDto.getNndActivityLogUid() == null) {
-            var id = odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA);
-            uid = id.getSeedValueNbr();
+            var id = odseIdGeneratorService.getValidLocalUid(NND_METADATA, false);
+            uid = id.getClassTypeUid().getSeedValueNbr();
         } else {
             uid = nndActivityLogDto.getNndActivityLogUid();
         }

@@ -21,9 +21,9 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.ManufacturedMat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.MaterialRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import jakarta.transaction.Transactional;
@@ -46,7 +46,7 @@ public class MaterialService implements IMaterialService {
     private final ManufacturedMaterialRepository manufacturedMaterialRepository;
     private final EntityHelper entityHelper;
 
-    private final OdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityRepository entityRepository;
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
 
@@ -57,8 +57,7 @@ public class MaterialService implements IMaterialService {
                            ParticipationRepository participationRepository,
                            ManufacturedMaterialRepository manufacturedMaterialRepository,
                            EntityHelper entityHelper,
-                           OdseIdGeneratorService odseIdGeneratorService,
-                           EntityRepository entityRepository,
+                           IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityRepository entityRepository,
                            IEntityLocatorParticipationService entityLocatorParticipationService) {
         this.materialRepository = materialRepository;
         this.entityIdRepository = entityIdRepository;
@@ -218,27 +217,28 @@ public class MaterialService implements IMaterialService {
     }
 
     private Long insertNewMaterial(MaterialContainer materialContainer) throws DataProcessingException {
-        var uid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.MATERIAL);
+        var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.MATERIAL, true);
         var timestamp = getCurrentTimeStamp();
         if (materialContainer.getTheMaterialDto() != null) {
             Material material = new Material(materialContainer.getTheMaterialDto());
-            material.setMaterialUid(uid.getSeedValueNbr());
-            persistingMaterial(material, uid.getSeedValueNbr(), timestamp);
+            material.setMaterialUid(uid.getGaTypeUid().getSeedValueNbr());
+            persistingMaterial(material, uid.getGaTypeUid().getSeedValueNbr(), timestamp);
+            material.setLocalId(uid.getClassTypeUid().getUidPrefixCd() + uid.getClassTypeUid().getSeedValueNbr() + uid.getClassTypeUid().getUidSuffixCd());
 
             if (materialContainer.getTheEntityIdDtoCollection() != null) {
-                persistingEntityId(uid.getSeedValueNbr(), materialContainer.getTheEntityIdDtoCollection());
+                persistingEntityId(uid.getGaTypeUid().getSeedValueNbr(), materialContainer.getTheEntityIdDtoCollection());
             }
 
             if (materialContainer.getTheEntityLocatorParticipationDTCollection() != null) {
-                persistingEntityLocatorParticipation(uid.getSeedValueNbr(), materialContainer.getTheEntityLocatorParticipationDTCollection(), false);
+                persistingEntityLocatorParticipation(uid.getGaTypeUid().getSeedValueNbr(), materialContainer.getTheEntityLocatorParticipationDTCollection(), false);
             }
 
             if (materialContainer.getTheManufacturedMaterialDtoCollection() != null) {
-                persistingManufacturedMaterial(uid.getSeedValueNbr(), materialContainer.getTheManufacturedMaterialDtoCollection());
+                persistingManufacturedMaterial(uid.getGaTypeUid().getSeedValueNbr(), materialContainer.getTheManufacturedMaterialDtoCollection());
             }
         }
 
-        return uid.getSeedValueNbr();
+        return uid.getGaTypeUid().getSeedValueNbr();
     }
 
     private void persistingEntityLocatorParticipation(

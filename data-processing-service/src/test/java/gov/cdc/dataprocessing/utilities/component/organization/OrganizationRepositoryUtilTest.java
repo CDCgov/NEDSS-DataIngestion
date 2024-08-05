@@ -13,6 +13,8 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
@@ -37,6 +39,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.Participat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -78,7 +81,7 @@ class OrganizationRepositoryUtilTest {
     @Mock
     private PhysicalLocatorRepository physicalLocatorRepository;
     @Mock
-    private IOdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
     private EntityHelper entityHelper;
     @Mock
@@ -147,12 +150,19 @@ class OrganizationRepositoryUtilTest {
         theOrganizationNameDtoCollection.add(orgNameDto);
         organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
 
-        LocalUidGenerator localIdModel = new LocalUidGenerator();
-        localIdModel.setSeedValueNbr(1234L);
-        localIdModel.setUidPrefixCd("TEST_PX");
-        localIdModel.setUidSuffixCd("TEST_SX");
+        LocalUidModel localIdModel = new LocalUidModel();
+        localIdModel.setGaTypeUid(new LocalUidGeneratorDto());
+        localIdModel.setClassTypeUid(new LocalUidGeneratorDto());
 
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localIdModel);
+        localIdModel.getGaTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getGaTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getGaTypeUid().setUidSuffixCd("TEST_SX");
+
+        localIdModel.getClassTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getClassTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
+
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
         //Insert Organization
         Organization organization = new Organization(organizationDto);
         when(organizationRepository.save(organization)).thenReturn(organization);
@@ -178,8 +188,8 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoPo);
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoTel);
 
-        LocalUidGenerator localUidGenerator = getLocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localUidGenerator);
+        LocalUidModel  localUidGenerator = getLocalUidGenerator();
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localUidGenerator);
 
         when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
         when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
@@ -202,11 +212,19 @@ class OrganizationRepositoryUtilTest {
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
         organizationDto.setOrganizationUid(123L);
 
-        LocalUidGenerator localIdModel = new LocalUidGenerator();
-        localIdModel.setSeedValueNbr(1234L);
-        localIdModel.setUidPrefixCd("TEST_PX");
-        localIdModel.setUidSuffixCd("TEST_SX");
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localIdModel);
+        LocalUidModel localIdModel = new LocalUidModel();
+        localIdModel.setGaTypeUid(new LocalUidGeneratorDto());
+        localIdModel.setClassTypeUid(new LocalUidGeneratorDto());
+
+        localIdModel.getGaTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getGaTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getGaTypeUid().setUidSuffixCd("TEST_SX");
+
+        localIdModel.getClassTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getClassTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
+
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
         long orgIdResult = organizationRepositoryUtil.createOrganization(organizationContainer);
         assertEquals(1234L, orgIdResult);
     }
@@ -231,7 +249,7 @@ class OrganizationRepositoryUtilTest {
         localIdModel.setUidPrefixCd("TEST_PX");
         localIdModel.setUidSuffixCd("TEST_SX");
 
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenThrow(Mockito.mock(DataProcessingException.class));
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenThrow(Mockito.mock(DataProcessingException.class));
         assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.createOrganization(organizationContainer));
     }
 
@@ -249,12 +267,19 @@ class OrganizationRepositoryUtilTest {
         theOrganizationNameDtoCollection.add(orgNameDto);
         organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
 
-        LocalUidGenerator localIdModel = new LocalUidGenerator();
-        localIdModel.setSeedValueNbr(1234L);
-        localIdModel.setUidPrefixCd("TEST_PX");
-        localIdModel.setUidSuffixCd("TEST_SX");
+        LocalUidModel localIdModel = new LocalUidModel();
+        localIdModel.setGaTypeUid(new LocalUidGeneratorDto());
+        localIdModel.setClassTypeUid(new LocalUidGeneratorDto());
 
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localIdModel);
+        localIdModel.getGaTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getGaTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getGaTypeUid().setUidSuffixCd("TEST_SX");
+
+        localIdModel.getClassTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getClassTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
+
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
         //Insert Organization
         Organization organization = new Organization(organizationDto);
         when(organizationRepository.save(organization)).thenReturn(organization);
@@ -280,8 +305,8 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoPo);
         organizationContainer.getTheEntityLocatorParticipationDtoCollection().add(entityLocatorParticipationDtoTel);
 
-        LocalUidGenerator localUidGenerator = getLocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localUidGenerator);
+        var localUidGenerator = getLocalUidGenerator();
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localUidGenerator);
 
         when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
         when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
@@ -461,12 +486,20 @@ class OrganizationRepositoryUtilTest {
         theOrganizationNameDtoCollection.add(orgNameDto1);
         organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
         //for localid
-        LocalUidGenerator localIdModel = new LocalUidGenerator();
-        localIdModel.setSeedValueNbr(1234L);
-        localIdModel.setUidPrefixCd("TEST_PX");
-        localIdModel.setUidSuffixCd("TEST_SX");
 
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.ORGANIZATION)).thenReturn(localIdModel);
+        LocalUidModel localIdModel = new LocalUidModel();
+        localIdModel.setGaTypeUid(new LocalUidGeneratorDto());
+        localIdModel.setClassTypeUid(new LocalUidGeneratorDto());
+
+        localIdModel.getGaTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getGaTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getGaTypeUid().setUidSuffixCd("TEST_SX");
+
+        localIdModel.getClassTypeUid().setSeedValueNbr(1234L);
+        localIdModel.getClassTypeUid().setUidPrefixCd("TEST_PX");
+        localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
+
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
         //Select Org
         Organization organization = new Organization();
         organization.setOrganizationUid(123L);
@@ -692,13 +725,21 @@ class OrganizationRepositoryUtilTest {
         return entityLocatorDTTel;
     }
 
-    private LocalUidGenerator getLocalUidGenerator() {
-        LocalUidGenerator newLocalId = new LocalUidGenerator();
-        newLocalId.setUidSuffixCd("TEST_SFCD");
-        newLocalId.setUidPrefixCd("TEST_SFCD");
-        newLocalId.setTypeCd("TYPE_CD");
-        newLocalId.setClassNameCd("TEST_CL_CD");
-        newLocalId.setSeedValueNbr(123456L);
+    private LocalUidModel  getLocalUidGenerator() {
+        LocalUidModel newLocalId = new LocalUidModel();
+        newLocalId.setGaTypeUid(new LocalUidGeneratorDto());
+        newLocalId.setClassTypeUid(new LocalUidGeneratorDto());
+        newLocalId.getClassTypeUid().setUidSuffixCd("TEST_SFCD");
+        newLocalId.getClassTypeUid().setUidPrefixCd("TEST_SFCD");
+        newLocalId.getClassTypeUid().setTypeCd("TYPE_CD");
+        newLocalId.getClassTypeUid().setClassNameCd("TEST_CL_CD");
+        newLocalId.getClassTypeUid().setSeedValueNbr(123456L);
+
+        newLocalId.getGaTypeUid().setUidSuffixCd("TEST_SFCD");
+        newLocalId.getGaTypeUid().setUidPrefixCd("TEST_SFCD");
+        newLocalId.getGaTypeUid().setTypeCd("TYPE_CD");
+        newLocalId.getGaTypeUid().setClassNameCd("TEST_CL_CD");
+        newLocalId.getGaTypeUid().setSeedValueNbr(123456L);
         return newLocalId;
     }
 

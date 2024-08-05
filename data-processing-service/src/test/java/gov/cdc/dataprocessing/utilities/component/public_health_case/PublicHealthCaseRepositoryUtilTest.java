@@ -7,6 +7,8 @@ import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
@@ -19,6 +21,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityReposito
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
@@ -57,7 +60,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Mock
     private PatientEncounterRepository patientEncounterRepository;
     @Mock
-    private OdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
     private ActRepository actRepository;
     @Mock
@@ -137,11 +140,19 @@ class PublicHealthCaseRepositoryUtilTest {
         caseDt.setFieldRecordNumber("TEST");
         phc.setTheCaseManagementDto(caseDt);
 
-        var localId = new LocalUidGenerator();
-        localId.setSeedValueNbr(10L);
-        localId.setUidPrefixCd("TEST");
-        localId.setUidSuffixCd("TEST");
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK)).thenReturn(localId);
+        var localId = new LocalUidModel();
+        localId.setGaTypeUid(new LocalUidGeneratorDto());
+        localId.setClassTypeUid(new LocalUidGeneratorDto());
+        localId.getClassTypeUid().setSeedValueNbr(10L);
+        localId.getGaTypeUid().setSeedValueNbr(10L);
+
+        localId.getClassTypeUid().setUidPrefixCd("TEST");
+        localId.getClassTypeUid().setUidSuffixCd("TEST");
+
+        localId.getGaTypeUid().setUidPrefixCd("TEST");
+        localId.getGaTypeUid().setUidSuffixCd("TEST");
+
+        when(odseIdGeneratorService.getValidLocalUid(EPILINK, false)).thenReturn(localId);
 
         var actIdCol = new ArrayList<ActIdDto>();
         var actId = new ActIdDto();
@@ -228,15 +239,24 @@ class PublicHealthCaseRepositoryUtilTest {
         phc.getThePublicHealthCaseDto().setCaseTypeCd("BLAH");
 
 
-        var localId = new LocalUidGenerator();
-        localId.setSeedValueNbr(10L);
-        localId.setUidPrefixCd("TEST");
-        localId.setUidSuffixCd("TEST");
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(PUBLIC_HEALTH_CASE)).thenReturn(localId);
+
+
+        var localId = new LocalUidModel();
+        localId .setGaTypeUid(new LocalUidGeneratorDto());
+        localId .setClassTypeUid(new LocalUidGeneratorDto());
+        localId .getClassTypeUid().setSeedValueNbr(10L);
+        localId .getGaTypeUid().setSeedValueNbr(10L);
+
+        localId.getGaTypeUid().setUidPrefixCd("TEST");
+        localId.getGaTypeUid().setUidSuffixCd("TEST");
+
+        localId.getClassTypeUid().setUidPrefixCd("TEST");
+        localId.getClassTypeUid().setUidSuffixCd("TEST");
+        when(odseIdGeneratorService.getValidLocalUid(PUBLIC_HEALTH_CASE, true)).thenReturn(localId);
 
 
         phc.getThePublicHealthCaseDto().setCoinfectionId(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE);
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(COINFECTION_GROUP)).thenReturn(localId);
+        when(odseIdGeneratorService.getValidLocalUid(COINFECTION_GROUP, false)).thenReturn(localId);
 
 
         var res = publicHealthCaseRepositoryUtil.create(phc);
@@ -438,23 +458,23 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void updateCaseManagementWithEPIIDandFRNum_Test() throws DataProcessingException {
         CaseManagementDto caseManagementDto = new CaseManagementDto();
-        var localId = new LocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK)).thenReturn(localId);
+        var localId = new LocalUidModel();
+        when(odseIdGeneratorService.getValidLocalUid(EPILINK, false)).thenReturn(localId);
 
         publicHealthCaseRepositoryUtil.updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
 
-        verify(odseIdGeneratorService, times(1)).getLocalIdAndUpdateSeed(any());
+        verify(odseIdGeneratorService, times(1)).getValidLocalUid(any(), eq(false));
     }
 
     @Test
     void updateCaseManagementWithEPIIDandFRNum_Test_2() throws DataProcessingException {
         CaseManagementDto caseManagementDto = new CaseManagementDto();
         caseManagementDto.setEpiLinkId("TEST");
-        var localId = new LocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK)).thenReturn(localId);
+        var localId = new LocalUidModel();
+        when(odseIdGeneratorService.getValidLocalUid(EPILINK, false)).thenReturn(localId);
 
         publicHealthCaseRepositoryUtil.updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
 
-        verify(odseIdGeneratorService, times(1)).getLocalIdAndUpdateSeed(any());
+        verify(odseIdGeneratorService, times(1)).getValidLocalUid(any(), eq(false));
     }
 }
