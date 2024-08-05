@@ -15,10 +15,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.HashMap;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -26,13 +23,11 @@ public class CachingValueService implements ICatchingValueService {
     private final JurisdictionCodeRepository jurisdictionCodeRepository;
     private final CodeValueGeneralRepository codeValueGeneralRepository;
     private final ElrXrefRepository elrXrefRepository;
-    private  final RaceCodeRepository raceCodeRepository;
+    private final RaceCodeRepository raceCodeRepository;
     private final StateCountyCodeValueRepository stateCountyCodeValueRepository;
     private final StateCodeRepository stateCodeRepository;
     private final LOINCCodeRepository loincCodeRepository;
-
     private final CacheManager cacheManager;
-
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final ConditionCodeRepository conditionCodeRepository;
@@ -70,169 +65,54 @@ public class CachingValueService implements ICatchingValueService {
         this.srteCustomRepository = srteCustomRepository;
     }
 
-
     @Cacheable(cacheNames = "srte", key = "'loinCodeWithComponentName'")
     public HashMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = loincCodeRepository.findAll();
-            if (!result.isEmpty()) {
-                for (LOINCCode obj : result) {
-                    map.put(obj.getLoincCode(), obj.getComponentName());
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(loincCodeRepository::findAll, LOINCCode::getLoincCode, LOINCCode::getComponentName);
     }
 
     @Cacheable(cacheNames = "srte", key = "'labResulDescWithOrgnismName'")
     public HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-            if (!result.isEmpty()) {
-                for (LabResult obj : result) {
-                    map.put(obj.getLabResultCd(), obj.getLabResultDescTxt());
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(srteCustomRepository::getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd, LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
     }
-
-
 
     @Cacheable(cacheNames = "srte", key = "'snomedCodeByDesc'")
     public HashMap<String, String> getAllSnomedCode() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = snomedCodeRepository.findAll();
-            if (!result.isEmpty()) {
-                for (SnomedCode obj : result) {
-                    map.put(obj.getSnomedCd(), obj.getSnomedDescTxt());
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(snomedCodeRepository::findAll, SnomedCode::getSnomedCd, SnomedCode::getSnomedDescTxt);
     }
 
-
-
-    // getCodedResultDesc
     @Cacheable(cacheNames = "srte", key = "'labResulDesc'")
     public HashMap<String, String> getLabResultDesc() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = labResultRepository.findLabResultByDefaultLabAndOrgNameN();
-            if (result.isPresent()) {
-                var data = result.get();
-                for (LabResult obj :data) {
-                    map.put(obj.getLabResultCd(), obj.getLabResultDescTxt());
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(() -> labResultRepository.findLabResultByDefaultLabAndOrgNameN().orElse(Collections.emptyList()), LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
     }
 
-
     @Cacheable(cacheNames = "srte", key = "'loincCodes'")
-    public HashMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = loincCodeRepository.findLoincCodes();
-            if (result.isPresent()) {
-                for (LOINCCode obj :result.get()) {
-                    map.put(obj.getLoincCode(), obj.getLoincCode());
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return map;
+    public HashMap<String, String> getAOELOINCCodes() throws DataProcessingException {
+        return loadCache(() -> loincCodeRepository.findLoincCodes().orElse(Collections.emptyList()), LOINCCode::getLoincCode, LOINCCode::getLoincCode);
     }
 
     @Cacheable(cacheNames = "srte", key = "'raceCodes'")
     public HashMap<String, String> getRaceCodes() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = raceCodeRepository.findAllActiveRaceCodes();
-            if (result.isPresent()) {
-                var raceCode = result.get();
-                for (RaceCode obj :raceCode) {
-                    map.put(obj.getCode(), obj.getCodeShortDescTxt());
-                }
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(() -> raceCodeRepository.findAllActiveRaceCodes().orElse(Collections.emptyList()), RaceCode::getCode, RaceCode::getCodeShortDescTxt);
     }
 
     @Cacheable(cacheNames = "srte", key = "'programAreaCodes'")
     public HashMap<String, String> getAllProgramAreaCodes() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = programAreaService.getAllProgramAreaCode();
-            for (ProgramAreaCode obj :result) {
-                map.put(obj.getProgAreaCd(), obj.getProgAreaDescTxt());
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getProgAreaDescTxt);
     }
 
     @Cacheable(cacheNames = "srte", key = "'programAreaCodesWithNbsUid'")
     public HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException {
-        HashMap<String, Integer> map = new HashMap<>();
-        try {
-            var result = programAreaService.getAllProgramAreaCode();
-            for (ProgramAreaCode obj :result) {
-                map.put(obj.getProgAreaCd(), obj.getNbsUid());
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getNbsUid);
     }
 
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCode'")
     public HashMap<String, String> getAllJurisdictionCode() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = jurisdictionService.getJurisdictionCode();
-            for (JurisdictionCode obj :result) {
-                map.put(obj.getCode(), obj.getCodeDescTxt());
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
     }
 
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCodeWithNbsUid'")
     public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException {
-        HashMap<String, Integer> map = new HashMap<>();
-        try {
-            var result = jurisdictionService.getJurisdictionCode();
-            for (JurisdictionCode obj :result) {
-                map.put(obj.getCode(), obj.getNbsUid());
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getNbsUid);
     }
 
     @Cacheable(cacheNames = "srte", key = "'elrXref'")
@@ -240,51 +120,28 @@ public class CachingValueService implements ICatchingValueService {
         try {
             return elrXrefRepository.findAll();
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
-
     }
 
     @Cacheable(cacheNames = "srte", key = "'coInfectionConditionCode'")
     public HashMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var result = conditionCodeRepository.findCoInfectionConditionCode();
-            if (result.isPresent()) {
-                for (ConditionCode obj :result.get()) {
-                    map.put(obj.getConditionCd(), obj.getCoinfectionGrpCd());
-                }
-
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-        return  map;
+        return loadCache(() -> conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList()), ConditionCode::getConditionCd, ConditionCode::getCoinfectionGrpCd);
     }
 
     @Cacheable(cacheNames = "srte", key = "'conditionCode'")
     public List<ConditionCode> getAllConditionCode() throws DataProcessingException {
         try {
-            var result = conditionCodeRepository.findAllConditionCode();
-            if (result.isPresent()) {
-                return result.get();
-            }
-
+            return conditionCodeRepository.findAllConditionCode().orElse(Collections.emptyList());
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
-        return  new ArrayList<>();
     }
 
-    /**
-     * Retrieve value from Cache
-     * */
     public HashMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
-        var cache = cacheManager.getCache("srte");
+        Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
-            Cache.ValueWrapper valueWrapper;
-            valueWrapper = cache.get("codedValues");
+            Cache.ValueWrapper valueWrapper = cache.get("codedValues");
             if (valueWrapper != null) {
                 Object cachedObject = valueWrapper.get();
                 if (cachedObject instanceof HashMap) {
@@ -292,26 +149,17 @@ public class CachingValueService implements ICatchingValueService {
                 }
             }
         }
-        if ( cache != null && (
-                (SrteCache.codedValuesMap.get(key) != null && SrteCache.codedValuesMap.get(key).isEmpty())
-                    || SrteCache.codedValuesMap.get(key) == null)
-        ) {
+        if (cache != null && (SrteCache.codedValuesMap.get(key) == null || SrteCache.codedValuesMap.get(key).isEmpty())) {
             SrteCache.codedValuesMap.putAll(getCodedValuesCallRepos(pType));
             cache.put("codedValues", SrteCache.codedValuesMap);
         }
-
-
         return SrteCache.codedValuesMap;
     }
 
-    /**
-     * Retrieve value from Cache
-     * */
-    public  String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
-        var cache = cacheManager.getCache("srte");
+    public String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
+        Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
-            Cache.ValueWrapper valueWrapper;
-            valueWrapper = cache.get("codeDescTxt");
+            Cache.ValueWrapper valueWrapper = cache.get("codeDescTxt");
             if (valueWrapper != null) {
                 Object cachedObject = valueWrapper.get();
                 if (cachedObject instanceof HashMap) {
@@ -319,47 +167,33 @@ public class CachingValueService implements ICatchingValueService {
                 }
             }
         }
-        if (
-                cache != null && (
-                (SrteCache.codeDescTxtMap.get(code) != null && SrteCache.codeDescTxtMap.get(code).isEmpty())
-                        || SrteCache.codeDescTxtMap.get(code) == null)
-        ) {
+        if (cache != null && (SrteCache.codeDescTxtMap.get(code) == null || SrteCache.codeDescTxtMap.get(code).isEmpty())) {
             SrteCache.codeDescTxtMap.putAll(getCodedValuesCallRepos(codeSetNm));
             cache.put("codeDescTxt", SrteCache.codeDescTxtMap);
         }
-
         return SrteCache.codeDescTxtMap.get(code);
     }
 
     public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws DataProcessingException {
         try {
-            var result = elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm);
-            if (result.isPresent()) {
-                return result.get().getToCode();
-            }
-            else {
-                return "";
-            }
+            return elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm).map(ElrXref::getToCode).orElse("");
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
-
     }
 
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
-
         if (county == null || stateCd == null) {
-          return null;
+            return null;
         }
         String cnty = county.toUpperCase();
         if (!cnty.endsWith("COUNTY")) {
-            cnty = cnty + " COUNTY";
+            cnty += " COUNTY";
         }
 
-        var cache = cacheManager.getCache("srte");
+        Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
-            Cache.ValueWrapper valueWrapper;
-            valueWrapper = cache.get("countyCodeByDesc");
+            Cache.ValueWrapper valueWrapper = cache.get("countyCodeByDesc");
             if (valueWrapper != null) {
                 Object cachedObject = valueWrapper.get();
                 if (cachedObject instanceof HashMap) {
@@ -368,10 +202,7 @@ public class CachingValueService implements ICatchingValueService {
             }
         }
 
-        if ( cache != null &&
-                ((SrteCache.countyCodeByDescMap.get(cnty) != null && SrteCache.countyCodeByDescMap.get(cnty).isEmpty())
-                || SrteCache.countyCodeByDescMap.get(cnty) == null)
-        ) {
+        if (cache != null && (SrteCache.countyCodeByDescMap.get(cnty) == null || SrteCache.countyCodeByDescMap.get(cnty).isEmpty())) {
             SrteCache.countyCodeByDescMap.putAll(getCountyCdByDescCallRepos(stateCd));
             cache.put("countyCodeByDesc", SrteCache.countyCodeByDescMap);
         }
@@ -380,100 +211,85 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code) {
-        var result = codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
-        return result.orElseGet(ArrayList::new);
-
+        return codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code).orElseGet(ArrayList::new);
     }
 
     public StateCode findStateCodeByStateNm(String stateNm) {
-        var res = stateCodeRepository.findStateCdByStateName(stateNm);
-        return res.orElseGet(StateCode::new);
+        return stateCodeRepository.findStateCdByStateName(stateNm).orElseGet(StateCode::new);
     }
 
     public List<CodeValueGeneral> getGeneralCodedValue(String code) {
-        var res = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
-        return res.orElseGet(ArrayList::new);
+        return codeValueGeneralRepository.findCodeValuesByCodeSetNm(code).orElseGet(ArrayList::new);
     }
 
     public HashMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
-        HashMap<String, String> map;
-        if (pType.equals("S_JURDIC_C")) {
-            map = getJurisdictionCode();
+        if ("S_JURDIC_C".equals(pType)) {
+            return getJurisdictionCode();
         } else {
-            map = getCodedValue(pType);
+            return getCodedValue(pType);
         }
-        return map;
     }
 
     public HashMap<String, String> getCodedValue(String code) throws DataProcessingException {
         HashMap<String, String> map = new HashMap<>();
         try {
             List<CodeValueGeneral> codeValueGeneralList;
-            if (code.equals(ELRConstant.ELR_LOG_PROCESS)) {
-                 var result = codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code);
-                 if (result.isPresent()) {
-                     codeValueGeneralList = result.get();
-                     for (CodeValueGeneral obj : codeValueGeneralList) {
-                         map.put(obj.getCode(), obj.getCodeDescTxt());
-                     }
-                 }
-            }
-            else {
-                var result = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code);
-                if (result.isPresent()) {
-                    codeValueGeneralList = result.get();
-                    for (CodeValueGeneral obj : codeValueGeneralList) {
-                        map.put(obj.getCode(), obj.getCodeShortDescTxt());
-                    }
+            if (ELRConstant.ELR_LOG_PROCESS.equals(code)) {
+                codeValueGeneralList = codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code).orElse(Collections.emptyList());
+                for (CodeValueGeneral obj : codeValueGeneralList) {
+                    map.put(obj.getCode(), obj.getCodeDescTxt());
+                }
+            } else {
+                codeValueGeneralList = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code).orElse(Collections.emptyList());
+                for (CodeValueGeneral obj : codeValueGeneralList) {
+                    map.put(obj.getCode(), obj.getCodeShortDescTxt());
                 }
             }
-
         } catch (Exception e) {
-            throw  new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return map;
     }
 
-
     private HashMap<String, String> getJurisdictionCode() throws DataProcessingException {
-        HashMap<String, String> map = new HashMap<>();
-        try {
-            var codes = jurisdictionCodeRepository.findJurisdictionCodeValues();
-            if (codes.isPresent()) {
-                for (JurisdictionCode obj : codes.get()) {
-                    map.put(obj.getCode(), obj.getCodeDescTxt());
-                }
-            }
-        } catch (Exception e) {
-            throw  new DataProcessingException(e.getMessage());
-        }
-        return map;
+        return loadCache(() -> jurisdictionCodeRepository.findJurisdictionCodeValues().orElse(Collections.emptyList()), JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
     }
 
     protected HashMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws DataProcessingException {
-        HashMap<String, String> codeMap = new HashMap<>();
-        try {
-            Optional<List<StateCountyCodeValue>> result;
-            if( stateCd==null || stateCd.trim().equals("")) {
-                result = stateCountyCodeValueRepository.findByIndentLevelNbr();
+        return loadCache(() -> {
+            if (stateCd == null || stateCd.trim().isEmpty()) {
+                return stateCountyCodeValueRepository.findByIndentLevelNbr().orElse(Collections.emptyList());
             } else {
-                result = stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd);
+                return stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd).orElse(Collections.emptyList());
             }
-
-            if (result.isPresent()) {
-                var res  = result.get();
-                for (StateCountyCodeValue obj : res) {
-                    codeMap.put(obj.getCode() + " COUNTY", obj.getAssigningAuthorityDescTxt());
-                }
-            }
-            return codeMap;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
-        }
-
+        }, stateCountyCodeValue -> stateCountyCodeValue.getCode() + " COUNTY", StateCountyCodeValue::getAssigningAuthorityDescTxt);
     }
 
+    private <T, K, V> HashMap<K, V> loadCache(CacheLoader<T> loader, KeyExtractor<T, K> keyExtractor, ValueExtractor<T, V> valueExtractor) throws DataProcessingException {
+        HashMap<K, V> map = new HashMap<>();
+        try {
+            List<T> result = loader.load();
+            for (T obj : result) {
+                map.put(keyExtractor.extract(obj), valueExtractor.extract(obj));
+            }
+        } catch (Exception e) {
+            throw new DataProcessingException(e.getMessage(), e);
+        }
+        return map;
+    }
 
+    @FunctionalInterface
+    private interface CacheLoader<T> {
+        List<T> load() throws DataProcessingException;
+    }
 
+    @FunctionalInterface
+    private interface KeyExtractor<T, K> {
+        K extract(T obj);
+    }
 
+    @FunctionalInterface
+    private interface ValueExtractor<T, V> {
+        V extract(T obj);
+    }
 }
