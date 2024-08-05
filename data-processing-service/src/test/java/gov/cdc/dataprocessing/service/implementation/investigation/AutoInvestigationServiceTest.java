@@ -219,7 +219,7 @@ class AutoInvestigationServiceTest {
         entities.add(entityEdxRule);
 
         // createActEntityObject 162
-        var tree =new TreeMap<String, String>();
+        var tree =new HashMap<String, String>();
         tree.put("PAT", "PAT");
         when(catchingValueService.getCodedValue(any()))
                 .thenReturn(tree);

@@ -6,28 +6,28 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import java.util.*;
 
 public class SrteCache {
-    public static TreeMap<String, String> loinCodeWithComponentNameMap = new TreeMap<>();
-    public static TreeMap<String, String> labResultByDescMap = new TreeMap<>();
-    public static TreeMap<String, String> labResultWithOrganismNameIndMap = new TreeMap<>();
-    public static TreeMap<String, String> snomedCodeByDescMap = new TreeMap<>();
-    public static TreeMap<String, String> loincCodesMap = new TreeMap<>();
-    public static TreeMap<String, String> raceCodesMap = new TreeMap<>();
-    public static TreeMap<String, String> programAreaCodesMap = new TreeMap<>();
-    public static TreeMap<String, Integer> programAreaCodesMapWithNbsUid = new TreeMap<>();
+    public static HashMap<String, String> loinCodeWithComponentNameMap = new HashMap<>();
+    public static HashMap<String, String> labResultByDescMap = new HashMap<>();
+    public static HashMap<String, String> labResultWithOrganismNameIndMap = new HashMap<>();
+    public static HashMap<String, String> snomedCodeByDescMap = new HashMap<>();
+    public static HashMap<String, String> loincCodesMap = new HashMap<>();
+    public static HashMap<String, String> raceCodesMap = new HashMap<>();
+    public static HashMap<String, String> programAreaCodesMap = new HashMap<>();
+    public static HashMap<String, Integer> programAreaCodesMapWithNbsUid = new HashMap<>();
 
-    public static TreeMap<String, String> jurisdictionCodeMap = new TreeMap<>();
-    public static TreeMap<String, Integer> jurisdictionCodeMapWithNbsUid = new TreeMap<>();
+    public static HashMap<String, String> jurisdictionCodeMap = new HashMap<>();
+    public static HashMap<String, Integer> jurisdictionCodeMapWithNbsUid = new HashMap<>();
 
-    public static TreeMap<String, String> codedValuesMap = new TreeMap<>();
+    public static HashMap<String, String> codedValuesMap = new HashMap<>();
 
-    public static TreeMap<String, String> codeDescTxtMap = new TreeMap<>();
-    public static TreeMap<String, String> countyCodeByDescMap = new TreeMap<>();
+    public static HashMap<String, String> codeDescTxtMap = new HashMap<>();
+    public static HashMap<String, String> countyCodeByDescMap = new HashMap<>();
 
     public static List<ElrXref> elrXrefsList = new ArrayList<>();
 
     public static List<ConditionCode> conditionCodes = new ArrayList<>();
-    public static TreeMap<String, String> coInfectionConditionCode = new TreeMap<>();
-    public static TreeMap<String, String> investigationFormConditionCode = new TreeMap<>();
+    public static HashMap<String, String> coInfectionConditionCode = new HashMap<>();
+    public static HashMap<String, String> investigationFormConditionCode = new HashMap<>();
 
     public static Optional<ElrXref> findRecordForElrXrefsList(String fromCodeSetNm, String fromCode, String toCodeSetNm) {
         return elrXrefsList.stream()

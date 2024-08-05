@@ -373,7 +373,7 @@ class CachingValueServiceTest {
         String pType = "";
         String key = "key";
 
-        TreeMap<String, String> codeMap = new TreeMap<>();
+        HashMap<String, String> codeMap = new HashMap<>();
         codeMap.put("key", "value1");
         SrteCache.codedValuesMap.put("key", "value");
 
@@ -391,7 +391,7 @@ class CachingValueServiceTest {
         String pType = "";
         String key = "key";
 
-        TreeMap<String, String> codeMap = new TreeMap<>();
+        HashMap<String, String> codeMap = new HashMap<>();
         codeMap.put("DUMP", "value1");
         SrteCache.codedValuesMap.put("key-2", "value");
 
@@ -409,7 +409,7 @@ class CachingValueServiceTest {
         String code = "key";
         String codeSetNm = "key";
 
-        TreeMap<String, String> codeMap = new TreeMap<>();
+        HashMap<String, String> codeMap = new HashMap<>();
         codeMap.put("key", "value1");
         SrteCache.codeDescTxtMap.put("key", "value");
 
@@ -427,7 +427,7 @@ class CachingValueServiceTest {
         String code = "";
         String codeSetNm = "key";
 
-        TreeMap<String, String> codeMap = new TreeMap<>();
+        HashMap<String, String> codeMap = new HashMap<>();
         codeMap.put("DUMP", "value1");
         SrteCache.codeDescTxtMap.put("key-2", "value");
 
@@ -504,7 +504,7 @@ class CachingValueServiceTest {
         String stateCd = "ARIZONA";
 
 
-        TreeMap<String, String> codeMap = new TreeMap<>();
+        HashMap<String, String> codeMap = new HashMap<>();
         codeMap.put("MARICOPA COUNTY", "");
         SrteCache.countyCodeByDescMap.put("key-2", "value");
 
@@ -523,7 +523,7 @@ class CachingValueServiceTest {
         String stateCd = "ARIZONA";
 
 
-        TreeMap<String, String> codeMap = new TreeMap<>();
+        HashMap<String, String> codeMap = new HashMap<>();
         codeMap.put("MARICOPA COUNTY", "ARIZONA");
         SrteCache.countyCodeByDescMap.put("key-2", "value");
 
@@ -732,9 +732,9 @@ class CachingValueServiceTest {
         when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenReturn(Collections.emptyList());
 
         // Call the method
-        TreeMap<String, String> result = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+        HashMap<String, String> result = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
 
-        // Verify that the result is an empty TreeMap
+        // Verify that the result is an empty HashMap
         assertTrue(result.isEmpty());
 
         // Verify that the repository method was called
@@ -746,7 +746,7 @@ class CachingValueServiceTest {
     void testGetAllSnomedCode_EmptyResult() throws DataProcessingException {
         when(snomedCodeRepository.findAll()).thenReturn(Collections.emptyList());
 
-        TreeMap<String, String> result = cachingValueService.getAllSnomedCode();
+        HashMap<String, String> result = cachingValueService.getAllSnomedCode();
 
         assertTrue(result.isEmpty());
         verify(snomedCodeRepository, times(1)).findAll();
@@ -756,7 +756,7 @@ class CachingValueServiceTest {
     void testGetLabResultDesc_EmptyResult() throws DataProcessingException {
         when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenReturn(Optional.empty());
 
-        TreeMap<String, String> result = cachingValueService.getLabResultDesc();
+        HashMap<String, String> result = cachingValueService.getLabResultDesc();
 
         assertTrue(result.isEmpty());
         verify(labResultRepository, times(1)).findLabResultByDefaultLabAndOrgNameN();
@@ -766,7 +766,7 @@ class CachingValueServiceTest {
     void testGetAOELOINCCodes_EmptyResult() throws DataProcessingException {
         when(loincCodeRepository.findLoincCodes()).thenReturn(Optional.empty());
 
-        TreeMap<String, String> result = cachingValueService.getAOELOINCCodes();
+        HashMap<String, String> result = cachingValueService.getAOELOINCCodes();
 
         assertTrue(result.isEmpty());
         verify(loincCodeRepository, times(1)).findLoincCodes();
@@ -776,7 +776,7 @@ class CachingValueServiceTest {
     void testGetRaceCodes_EmptyResult() throws DataProcessingException {
         when(raceCodeRepository.findAllActiveRaceCodes()).thenReturn(Optional.empty());
 
-        TreeMap<String, String> result = cachingValueService.getRaceCodes();
+        HashMap<String, String> result = cachingValueService.getRaceCodes();
 
         assertTrue(result.isEmpty());
         verify(raceCodeRepository, times(1)).findAllActiveRaceCodes();
@@ -786,7 +786,7 @@ class CachingValueServiceTest {
     void testGetAllLoinCodeWithComponentName_EmptyResult() throws DataProcessingException {
         when(loincCodeRepository.findAll()).thenReturn(Collections.emptyList());
 
-        TreeMap<String, String> result = cachingValueService.getAllLoinCodeWithComponentName();
+        HashMap<String, String> result = cachingValueService.getAllLoinCodeWithComponentName();
 
         assertTrue(result.isEmpty());
         verify(loincCodeRepository, times(1)).findAll();
@@ -796,7 +796,7 @@ class CachingValueServiceTest {
     void testGetAllOnInfectionConditionCode_EmptyResult() throws DataProcessingException {
         when(conditionCodeRepository.findCoInfectionConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
 
-        TreeMap<String, String> result = cachingValueService.getAllOnInfectionConditionCode();
+        HashMap<String, String> result = cachingValueService.getAllOnInfectionConditionCode();
 
         assertTrue(result.isEmpty());
         verify(conditionCodeRepository, times(1)).findCoInfectionConditionCode();
@@ -816,11 +816,11 @@ class CachingValueServiceTest {
     void testGetCodedValues_CacheIsNull() throws DataProcessingException {
         String pType = "testType";
         String key = "testKey";
-        SrteCache.codedValuesMap = new TreeMap<>();
+        SrteCache.codedValuesMap = new HashMap<>();
 
         when(cacheManager.getCache("srte")).thenReturn(null);
 
-        TreeMap<String, String> result = cachingValueService.getCodedValues(pType, key);
+        HashMap<String, String> result = cachingValueService.getCodedValues(pType, key);
 
         assertEquals(SrteCache.codedValuesMap, result);
     }
@@ -829,13 +829,13 @@ class CachingValueServiceTest {
     void testGetCodedValues_CacheValueWrapperIsNull() throws DataProcessingException {
         String pType = "testType";
         String key = "testKey";
-        SrteCache.codedValuesMap = new TreeMap<>();
+        SrteCache.codedValuesMap = new HashMap<>();
         Cache cache = mock(Cache.class);
 
         when(cacheManager.getCache("srte")).thenReturn(cache);
         when(cache.get("codedValues")).thenReturn(null);
 
-        TreeMap<String, String> result = cachingValueService.getCodedValues(pType, key);
+        HashMap<String, String> result = cachingValueService.getCodedValues(pType, key);
 
         assertEquals(SrteCache.codedValuesMap, result);
     }
@@ -844,7 +844,7 @@ class CachingValueServiceTest {
     void testGetCodedValues_CacheValueIsEmptyOrNull() throws DataProcessingException {
         String pType = "testType";
         String key = "testKey";
-        SrteCache.codedValuesMap = new TreeMap<>();
+        SrteCache.codedValuesMap = new HashMap<>();
         Cache cache = mock(Cache.class);
         Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
 
@@ -854,7 +854,7 @@ class CachingValueServiceTest {
 
 
         SrteCache.codedValuesMap.put(key, "");
-        TreeMap<String, String> result = cachingValueService.getCodedValues(pType, key);
+        HashMap<String, String> result = cachingValueService.getCodedValues(pType, key);
 
         assertNotNull(result);
     }
@@ -864,7 +864,7 @@ class CachingValueServiceTest {
     void testGetCodeDescTxtForCd_CacheIsNull() throws DataProcessingException {
         String code = "testCode";
         String codeSetNm = "testCodeSet";
-        SrteCache.codeDescTxtMap = new TreeMap<>();
+        SrteCache.codeDescTxtMap = new HashMap<>();
 
         when(cacheManager.getCache("srte")).thenReturn(null);
 
@@ -877,7 +877,7 @@ class CachingValueServiceTest {
     void testGetCodeDescTxtForCd_CacheValueWrapperIsNull() throws DataProcessingException {
         String code = "testCode";
         String codeSetNm = "testCodeSet";
-        SrteCache.codeDescTxtMap = new TreeMap<>();
+        SrteCache.codeDescTxtMap = new HashMap<>();
         Cache cache = mock(Cache.class);
 
         when(cacheManager.getCache("srte")).thenReturn(cache);
@@ -892,7 +892,7 @@ class CachingValueServiceTest {
     void testGetCodeDescTxtForCd_CacheValueIsEmptyOrNull() throws DataProcessingException {
         String code = "testCode";
         String codeSetNm = "testCodeSet";
-        SrteCache.codeDescTxtMap = new TreeMap<>();
+        SrteCache.codeDescTxtMap = new HashMap<>();
         Cache cache = mock(Cache.class);
         Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
 
@@ -900,7 +900,7 @@ class CachingValueServiceTest {
         when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
         when(valueWrapper.get()).thenReturn(SrteCache.codeDescTxtMap);
 
-        TreeMap<String, String> mockedRepoResponse = new TreeMap<>();
+        HashMap<String, String> mockedRepoResponse = new HashMap<>();
         mockedRepoResponse.put("newCode", "newDesc");
 
         SrteCache.codeDescTxtMap.put(code, "");
@@ -924,7 +924,7 @@ class CachingValueServiceTest {
     void testGetCountyCdByDesc_CacheIsNull() throws DataProcessingException {
         String county = "county";
         String stateCd = "stateCd";
-        SrteCache.countyCodeByDescMap = new TreeMap<>();
+        SrteCache.countyCodeByDescMap = new HashMap<>();
 
         when(cacheManager.getCache("srte")).thenReturn(null);
 
@@ -937,7 +937,7 @@ class CachingValueServiceTest {
     void testGetCountyCdByDesc_CacheValueWrapperIsNull() throws DataProcessingException {
         String county = "county";
         String stateCd = "stateCd";
-        SrteCache.countyCodeByDescMap = new TreeMap<>();
+        SrteCache.countyCodeByDescMap = new HashMap<>();
         Cache cache = mock(Cache.class);
 
         when(cacheManager.getCache("srte")).thenReturn(cache);
@@ -952,7 +952,7 @@ class CachingValueServiceTest {
     void testGetCountyCdByDesc_CacheValueIsEmptyOrNull() throws DataProcessingException {
         String county = "county";
         String stateCd = "stateCd";
-        SrteCache.countyCodeByDescMap = new TreeMap<>();
+        SrteCache.countyCodeByDescMap = new HashMap<>();
         Cache cache = mock(Cache.class);
         Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
 
@@ -960,7 +960,7 @@ class CachingValueServiceTest {
         when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
         when(valueWrapper.get()).thenReturn(SrteCache.countyCodeByDescMap);
 
-        TreeMap<String, String> mockedRepoResponse = new TreeMap<>();
+        HashMap<String, String> mockedRepoResponse = new HashMap<>();
         mockedRepoResponse.put(county.toUpperCase() + " COUNTY", "mockedCode");
 
         SrteCache.countyCodeByDescMap.put(county.toUpperCase() + " COUNTY", "");

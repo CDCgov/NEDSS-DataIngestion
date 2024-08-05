@@ -252,12 +252,12 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 for (NotificationSummaryContainer newVO : retval) {
                     if (newVO.getCaseClassCd() != null
                             && newVO.getCaseClassCd().trim().length() != 0) {
-                        TreeMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
                         newVO.setCaseClassCdTxt((String) map.get(newVO.getCaseClassCd()));
                     }
                     if (newVO.getCd() != null
                             && newVO.getCd().trim().length() != 0) {
-                        TreeMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
                         newVO.setCdTxt((String) map.get(newVO.getCd()));
                     }
 
@@ -310,8 +310,8 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                     dataAccessWhereClause + " ORDER BY notHist.version_ctrl_nbr DESC";
 
             NotificationSummaryContainer notifVO = new NotificationSummaryContainer();
-            TreeMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
-            TreeMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
+            HashMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+            HashMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
 
             for (String s : statement) {

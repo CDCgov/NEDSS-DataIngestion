@@ -147,7 +147,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any())).thenReturn(observationDto);
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataPhc(any());
     }
@@ -770,7 +770,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -818,7 +818,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -867,7 +867,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -917,7 +917,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -967,7 +967,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -1017,7 +1017,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -1067,7 +1067,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
 
 
-        managerService.processDistribution(eventType, data);
+        managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }

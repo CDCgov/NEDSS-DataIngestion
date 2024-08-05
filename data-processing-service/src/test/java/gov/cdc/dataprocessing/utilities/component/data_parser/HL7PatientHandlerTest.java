@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -123,7 +124,7 @@ class HL7PatientHandlerTest {
         exref.setToCode("TO_CODE");
         SrteCache.elrXrefsList.add(exref);
 
-        var map = new TreeMap<String, String>();
+        var map = new HashMap<String, String>();
         map.put("TO_CODE", "CODE");
         when(checkingValueService.getCodedValues(any(), any())).thenReturn(map);
 

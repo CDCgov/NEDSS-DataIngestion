@@ -120,7 +120,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Long publicHealthCaseUid = phcDT.getPublicHealthCaseUid();
 
             Map<Object,Object> subMap = new HashMap<>();
-            TreeMap<String, String> condAndFormCdTreeMap = SrteCache.investigationFormConditionCode;
+            HashMap<String, String> condAndFormCdTreeMap = SrteCache.investigationFormConditionCode;
 
             String investigationFormCd = condAndFormCdTreeMap.get(phcDT.getCd());
             Collection<QuestionRequiredNnd>  notifReqColl;

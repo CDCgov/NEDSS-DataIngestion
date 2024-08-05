@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 @Service
 @Slf4j
@@ -72,8 +72,8 @@ public class CachingValueService implements ICatchingValueService {
 
 
     @Cacheable(cacheNames = "srte", key = "'loinCodeWithComponentName'")
-    public TreeMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = loincCodeRepository.findAll();
             if (!result.isEmpty()) {
@@ -88,8 +88,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'labResulDescWithOrgnismName'")
-    public TreeMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
             if (!result.isEmpty()) {
@@ -106,8 +106,8 @@ public class CachingValueService implements ICatchingValueService {
 
 
     @Cacheable(cacheNames = "srte", key = "'snomedCodeByDesc'")
-    public TreeMap<String, String> getAllSnomedCode() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getAllSnomedCode() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = snomedCodeRepository.findAll();
             if (!result.isEmpty()) {
@@ -125,8 +125,8 @@ public class CachingValueService implements ICatchingValueService {
 
     // getCodedResultDesc
     @Cacheable(cacheNames = "srte", key = "'labResulDesc'")
-    public TreeMap<String, String> getLabResultDesc() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getLabResultDesc() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = labResultRepository.findLabResultByDefaultLabAndOrgNameN();
             if (result.isPresent()) {
@@ -143,8 +143,8 @@ public class CachingValueService implements ICatchingValueService {
 
 
     @Cacheable(cacheNames = "srte", key = "'loincCodes'")
-    public TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String>  getAOELOINCCodes() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = loincCodeRepository.findLoincCodes();
             if (result.isPresent()) {
@@ -159,8 +159,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'raceCodes'")
-    public TreeMap<String, String> getRaceCodes() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getRaceCodes() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = raceCodeRepository.findAllActiveRaceCodes();
             if (result.isPresent()) {
@@ -176,8 +176,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'programAreaCodes'")
-    public TreeMap<String, String> getAllProgramAreaCodes() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getAllProgramAreaCodes() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = programAreaService.getAllProgramAreaCode();
             for (ProgramAreaCode obj :result) {
@@ -191,8 +191,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'programAreaCodesWithNbsUid'")
-    public TreeMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException {
-        TreeMap<String, Integer> map = new TreeMap<>();
+    public HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException {
+        HashMap<String, Integer> map = new HashMap<>();
         try {
             var result = programAreaService.getAllProgramAreaCode();
             for (ProgramAreaCode obj :result) {
@@ -206,8 +206,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCode'")
-    public TreeMap<String, String> getAllJurisdictionCode() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getAllJurisdictionCode() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = jurisdictionService.getJurisdictionCode();
             for (JurisdictionCode obj :result) {
@@ -221,8 +221,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'jurisdictionCodeWithNbsUid'")
-    public TreeMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException {
-        TreeMap<String, Integer> map = new TreeMap<>();
+    public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException {
+        HashMap<String, Integer> map = new HashMap<>();
         try {
             var result = jurisdictionService.getJurisdictionCode();
             for (JurisdictionCode obj :result) {
@@ -246,8 +246,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @Cacheable(cacheNames = "srte", key = "'coInfectionConditionCode'")
-    public TreeMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var result = conditionCodeRepository.findCoInfectionConditionCode();
             if (result.isPresent()) {
@@ -280,15 +280,15 @@ public class CachingValueService implements ICatchingValueService {
     /**
      * Retrieve value from Cache
      * */
-    public TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
+    public HashMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
         var cache = cacheManager.getCache("srte");
         if (cache != null) {
             Cache.ValueWrapper valueWrapper;
             valueWrapper = cache.get("codedValues");
             if (valueWrapper != null) {
                 Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.codedValuesMap = (TreeMap<String, String>) cachedObject;
+                if (cachedObject instanceof HashMap) {
+                    SrteCache.codedValuesMap = (HashMap<String, String>) cachedObject;
                 }
             }
         }
@@ -314,8 +314,8 @@ public class CachingValueService implements ICatchingValueService {
             valueWrapper = cache.get("codeDescTxt");
             if (valueWrapper != null) {
                 Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.codeDescTxtMap = (TreeMap<String, String>) cachedObject;
+                if (cachedObject instanceof HashMap) {
+                    SrteCache.codeDescTxtMap = (HashMap<String, String>) cachedObject;
                 }
             }
         }
@@ -362,8 +362,8 @@ public class CachingValueService implements ICatchingValueService {
             valueWrapper = cache.get("countyCodeByDesc");
             if (valueWrapper != null) {
                 Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof TreeMap) {
-                    SrteCache.countyCodeByDescMap = (TreeMap<String, String>) cachedObject;
+                if (cachedObject instanceof HashMap) {
+                    SrteCache.countyCodeByDescMap = (HashMap<String, String>) cachedObject;
                 }
             }
         }
@@ -395,8 +395,8 @@ public class CachingValueService implements ICatchingValueService {
         return res.orElseGet(ArrayList::new);
     }
 
-    public TreeMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
-        TreeMap<String, String> map;
+    public HashMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
+        HashMap<String, String> map;
         if (pType.equals("S_JURDIC_C")) {
             map = getJurisdictionCode();
         } else {
@@ -405,8 +405,8 @@ public class CachingValueService implements ICatchingValueService {
         return map;
     }
 
-    public TreeMap<String, String> getCodedValue(String code) throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    public HashMap<String, String> getCodedValue(String code) throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             List<CodeValueGeneral> codeValueGeneralList;
             if (code.equals(ELRConstant.ELR_LOG_PROCESS)) {
@@ -435,8 +435,8 @@ public class CachingValueService implements ICatchingValueService {
     }
 
 
-    private TreeMap<String, String> getJurisdictionCode() throws DataProcessingException {
-        TreeMap<String, String> map = new TreeMap<>();
+    private HashMap<String, String> getJurisdictionCode() throws DataProcessingException {
+        HashMap<String, String> map = new HashMap<>();
         try {
             var codes = jurisdictionCodeRepository.findJurisdictionCodeValues();
             if (codes.isPresent()) {
@@ -450,8 +450,8 @@ public class CachingValueService implements ICatchingValueService {
         return map;
     }
 
-    protected TreeMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws DataProcessingException {
-        TreeMap<String, String> codeMap = new TreeMap<>();
+    protected HashMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws DataProcessingException {
+        HashMap<String, String> codeMap = new HashMap<>();
         try {
             Optional<List<StateCountyCodeValue>> result;
             if( stateCd==null || stateCd.trim().equals("")) {

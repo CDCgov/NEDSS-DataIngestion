@@ -14,6 +14,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,20 +42,20 @@ class ManagerCacheServiceTest {
     @BeforeEach
     void setUp() {
         // Initialize the SrteCache to ensure it is empty before each test
-        SrteCache.loincCodesMap = new TreeMap<>();
-        SrteCache.raceCodesMap = new TreeMap<>();
-        SrteCache.programAreaCodesMap = new TreeMap<>();
-        SrteCache.jurisdictionCodeMap = new TreeMap<>();
-        SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
-        SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
+        SrteCache.loincCodesMap = new HashMap<>();
+        SrteCache.raceCodesMap = new HashMap<>();
+        SrteCache.programAreaCodesMap = new HashMap<>();
+        SrteCache.jurisdictionCodeMap = new HashMap<>();
+        SrteCache.jurisdictionCodeMapWithNbsUid = new HashMap<>();
+        SrteCache.programAreaCodesMapWithNbsUid = new HashMap<>();
         SrteCache.elrXrefsList = new ArrayList<>();
-        SrteCache.coInfectionConditionCode = new TreeMap<>();
+        SrteCache.coInfectionConditionCode = new HashMap<>();
         SrteCache.conditionCodes = new ArrayList<>();
-        SrteCache.investigationFormConditionCode = new TreeMap<>();
-        SrteCache.labResultByDescMap = new TreeMap<>();
-        SrteCache.snomedCodeByDescMap = new TreeMap<>();
-        SrteCache.labResultWithOrganismNameIndMap = new TreeMap<>();
-        SrteCache.loinCodeWithComponentNameMap = new TreeMap<>();
+        SrteCache.investigationFormConditionCode = new HashMap<>();
+        SrteCache.labResultByDescMap = new HashMap<>();
+        SrteCache.snomedCodeByDescMap = new HashMap<>();
+        SrteCache.labResultWithOrganismNameIndMap = new HashMap<>();
+        SrteCache.loinCodeWithComponentNameMap = new HashMap<>();
     }
 
     @Test

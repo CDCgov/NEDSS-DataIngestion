@@ -203,7 +203,7 @@ class RetrieveSummaryServiceTests {
 
         when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(10L), any())).thenReturn(notSumCol);
 
-        var map = new TreeMap<String, String>();
+        var map = new HashMap<String, String>();
         map.put("Y", "TXT");
         when(catchingValueService.getCodedValuesCallRepos("PHC_CLASS")).thenReturn(map);
 
@@ -338,7 +338,7 @@ class RetrieveSummaryServiceTests {
                 "Notification"))
                 .thenReturn("BLAH");
 
-        var map = new TreeMap<String, String>();
+        var map = new HashMap<String, String>();
         map.put("1", "1");
         when(catchingValueService.getCodedValuesCallRepos(
                 "PHC_CLASS"))
