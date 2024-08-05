@@ -1,6 +1,0 @@
-Before execute anything, make sure update directory in .py and .sh
-
-python3 py_generate_msg.py
-
-chmod 777 ./request_di.sh
-./request_di.sh

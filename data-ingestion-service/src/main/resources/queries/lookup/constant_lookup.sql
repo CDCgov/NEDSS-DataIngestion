@@ -1,1 +1,0 @@
-SELECT * FROM [NBS_MSGOUTE].[dbo].[ecr_constant_lookup] WHERE {LOOK_UP_COL} = :LOOK_UP_VAL
