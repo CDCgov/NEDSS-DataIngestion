@@ -10,6 +10,7 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
@@ -104,6 +105,7 @@ public class KafkaConsumerService {
     private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
+    private final TimeMetricsBuilder timeMetricsBuilder;
     private final KafkaProducerTransactionService kafkaProducerTransactionService;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
@@ -126,7 +128,7 @@ public class KafkaConsumerService {
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
-            KafkaProducerTransactionService kafkaProducerTransactionService) {
+            TimeMetricsBuilder timeMetricsBuilder, KafkaProducerTransactionService kafkaProducerTransactionService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -140,6 +142,7 @@ public class KafkaConsumerService {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
+        this.timeMetricsBuilder = timeMetricsBuilder;
         this.kafkaProducerTransactionService =kafkaProducerTransactionService;
     }
     //endregion
@@ -189,7 +192,7 @@ public class KafkaConsumerService {
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
                                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
-        customMetricsBuilder.recordElrRawEventTime(() -> {
+        timeMetricsBuilder.recordElrRawEventTime(() -> {
             log.debug(topicDebugLog, message, topic);
             boolean hl7ValidationActivated = false;
 
@@ -240,7 +243,7 @@ public class KafkaConsumerService {
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                        @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
 
-        customMetricsBuilder.recordElrRawXmlEventTime(() -> {
+        timeMetricsBuilder.recordElrRawXmlEventTime(() -> {
             log.debug(topicDebugLog, messageId, topic);
 
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
@@ -293,7 +296,7 @@ public class KafkaConsumerService {
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                              @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
 
-        customMetricsBuilder.recordElrValidatedTime(() -> {
+        timeMetricsBuilder.recordElrValidatedTime(() -> {
             log.debug(topicDebugLog, message, topic);
             try {
                 preparationForConversionHandler(message, dataProcessingEnable);
@@ -311,7 +314,7 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
                                                  @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)  {
-        customMetricsBuilder.recordXmlPrepTime(() -> {
+        timeMetricsBuilder.recordXmlPrepTime(() -> {
             log.debug(topicDebugLog, message, topic);
             xmlConversionHandler(message, operation, dataProcessingEnable);
         });

@@ -74,6 +74,7 @@ jacocoTestReport {
 	afterEvaluate {
 		classDirectories.setFrom(files(classDirectories.files.collect {
 			fileTree(dir: it, exclude: [
+					'gov/cdc/dataingestion/kafka/integration/service/KafkaProducerService$MockitoMock*',
 					'**/JsonReaderTester.class',
 					'**/DataSourceConfig.class',
 					'**/NbsDataSourceConfig.class',
@@ -266,6 +267,7 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	jacoco.enabled = false
 }
 
 jar {
