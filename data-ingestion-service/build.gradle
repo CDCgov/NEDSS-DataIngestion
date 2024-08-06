@@ -120,7 +120,8 @@ jacocoTestReport {
 					'**/TestsType.class',
 					'**/UnstructuredType.class',
 					'**/ValuesType.class',
-					'**/LabReportCommentsType.class'
+					'**/LabReportCommentsType.class',
+					'**/TimeMetricsBuilder.class'
 			])
 		}))
 	}
@@ -309,7 +310,7 @@ sonarqube {
 				" **/config/LogDynamicFileAppenderConfig.config, **/exception/**, ServiceApplication.java," +
 				" **rawmessage/dto/**, **/deadletter/model/**, " +
 				" **/nbs/ecr/**, "  + // <-- Remove this once ECR is completed
-				" **/report/repository/model/**, **/config/**, **/model/**, **/jaxb/**"
+				" **/report/repository/model/**, **/config/**, **/model/**, **/jaxb/**, **/TimeMetricsBuilder.java"
 	}
 }
 
