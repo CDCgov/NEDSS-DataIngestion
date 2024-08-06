@@ -26,7 +26,6 @@ class CustomMetricsBuilderTest {
         customMetricsBuilder = new CustomMetricsBuilder(meterRegistryMock);
     }
 
-
     @Test
     void testIncrementMessagesProcessed() {
         when(meterRegistryMock.counter("custom_messages_processed")).thenReturn(counterMock);
