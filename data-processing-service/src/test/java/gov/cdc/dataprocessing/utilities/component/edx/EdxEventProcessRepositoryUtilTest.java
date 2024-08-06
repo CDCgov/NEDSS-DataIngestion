@@ -46,7 +46,7 @@ class EdxEventProcessRepositoryUtilTest {
         var uidObj = new LocalUidModel();
         uidObj.setGaTypeUid(new LocalUidGeneratorDto());
         uidObj.setClassTypeUid(new LocalUidGeneratorDto());
-        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.NBS_DOCUMENT, true)).thenReturn(uidObj);
+        when(odseIdGeneratorService.getValidLocalUid(eq(LocalIdClass.NBS_DOCUMENT), anyBoolean())).thenReturn(uidObj);
 
         edxEventProcessRepositoryUtil.insertEventProcess(edxEventProcessDto);
 

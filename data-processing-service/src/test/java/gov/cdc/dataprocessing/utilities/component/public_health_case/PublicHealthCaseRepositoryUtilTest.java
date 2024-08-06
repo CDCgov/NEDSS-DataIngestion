@@ -459,7 +459,9 @@ class PublicHealthCaseRepositoryUtilTest {
     void updateCaseManagementWithEPIIDandFRNum_Test() throws DataProcessingException {
         CaseManagementDto caseManagementDto = new CaseManagementDto();
         var localId = new LocalUidModel();
-        when(odseIdGeneratorService.getValidLocalUid(EPILINK, false)).thenReturn(localId);
+        localId.setGaTypeUid(new LocalUidGeneratorDto());
+        localId.setClassTypeUid(new LocalUidGeneratorDto());
+        when(odseIdGeneratorService.getValidLocalUid(eq(EPILINK), anyBoolean())).thenReturn(localId);
 
         publicHealthCaseRepositoryUtil.updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
 
@@ -471,7 +473,9 @@ class PublicHealthCaseRepositoryUtilTest {
         CaseManagementDto caseManagementDto = new CaseManagementDto();
         caseManagementDto.setEpiLinkId("TEST");
         var localId = new LocalUidModel();
-        when(odseIdGeneratorService.getValidLocalUid(EPILINK, false)).thenReturn(localId);
+        localId.setGaTypeUid(new LocalUidGeneratorDto());
+        localId.setClassTypeUid(new LocalUidGeneratorDto());
+        when(odseIdGeneratorService.getValidLocalUid(eq(EPILINK), anyBoolean())).thenReturn(localId);
 
         publicHealthCaseRepositoryUtil.updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
 

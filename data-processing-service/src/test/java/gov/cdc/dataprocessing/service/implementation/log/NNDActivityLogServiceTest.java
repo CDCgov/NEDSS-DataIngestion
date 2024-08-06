@@ -53,7 +53,7 @@ class NNDActivityLogServiceTest {
         id.getGaTypeUid().setUidSuffixCd("SUF");
         id.getGaTypeUid().setUidPrefixCd("PRE");
         id.getGaTypeUid().setSeedValueNbr(1L);
-        when(odseIdGeneratorService.getValidLocalUid(NND_METADATA, true)).thenReturn(id);
+        when(odseIdGeneratorService.getValidLocalUid(eq(NND_METADATA), anyBoolean())).thenReturn(id);
 
         nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
 

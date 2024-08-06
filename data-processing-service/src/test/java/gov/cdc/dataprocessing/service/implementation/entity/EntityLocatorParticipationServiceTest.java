@@ -125,6 +125,8 @@ class EntityLocatorParticipationServiceTest {
         when(entityLocatorParticipationRepository.findByParentUid(10L)).thenReturn(Optional.of(entityPatCol));
 
         LocalUidModel localUid = new LocalUidModel();
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
         when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
         entityLocatorParticipationService.updateEntityLocatorParticipation(locatorCollection, uid);
@@ -179,6 +181,8 @@ class EntityLocatorParticipationServiceTest {
         when(entityLocatorParticipationRepository.findByParentUid(10L)).thenReturn(Optional.of(entityPatCol));
 
         LocalUidModel localUid = new LocalUidModel();
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
         when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
         var phyCol = new ArrayList<PhysicalLocator>();

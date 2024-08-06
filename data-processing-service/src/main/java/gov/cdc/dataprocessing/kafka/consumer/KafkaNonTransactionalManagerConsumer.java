@@ -55,7 +55,7 @@ public class KafkaNonTransactionalManagerConsumer {
         }
     }
 
-    @Scheduled(fixedRate = 5000)  // Run every 5 seconds
+    @Scheduled(fixedRate = 3000)  // Run every 5 seconds
     public void checkBatch() {
         synchronized (messageBatch) {
             if (!messageBatch.isEmpty()) {

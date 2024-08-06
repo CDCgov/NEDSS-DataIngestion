@@ -38,6 +38,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 class NotificationRepositoryUtilTest {
@@ -155,7 +156,7 @@ class NotificationRepositoryUtilTest {
         local.setClassTypeUid(new LocalUidGeneratorDto());
         local.getClassTypeUid().setSeedValueNbr(10L);
         local.getGaTypeUid().setSeedValueNbr(10L);
-        when(odseIdGeneratorService.getValidLocalUid(any(), any())).thenReturn(local);
+        when(odseIdGeneratorService.getValidLocalUid(any(), anyBoolean())).thenReturn(local);
 
 
         var res = notificationRepositoryUtil.setNotification(notificationContainer);
