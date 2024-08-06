@@ -4,10 +4,11 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class EdxEventProcessRepositoryUtilTest {
     private ActRepositoryUtil actRepositoryUtil;
 
     @Mock
-    private OdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     @BeforeEach
     public void setUp() {
@@ -40,19 +41,21 @@ class EdxEventProcessRepositoryUtilTest {
     void testInsertEventProcess() throws DataProcessingException {
         EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
         edxEventProcessDto.setDocEventTypeCd("DOC_TYPE");
-        var uidObj = new LocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NBS_DOCUMENT)).thenReturn(uidObj);
+        var uidObj = new LocalUidModel();
+        uidObj.setGaTypeUid(new LocalUidGeneratorDto());
+        uidObj.setClassTypeUid(new LocalUidGeneratorDto());
+        when(odseIdGeneratorService.getValidLocalUid(eq(LocalIdClass.NBS_DOCUMENT), anyBoolean())).thenReturn(uidObj);
 
         edxEventProcessRepositoryUtil.insertEventProcess(edxEventProcessDto);
 
-        verify(actRepositoryUtil, times(1)).insertActivityId(uidObj.getSeedValueNbr(), edxEventProcessDto.getDocEventTypeCd(), NEDSSConstant.EVENT_MOOD_CODE);
+        verify(actRepositoryUtil, times(1)).insertActivityId(uidObj.getGaTypeUid().getSeedValueNbr(), edxEventProcessDto.getDocEventTypeCd(), NEDSSConstant.EVENT_MOOD_CODE);
         verify(edxEventProcessRepository, times(1)).save(any(EdxEventProcess.class));
     }
 
     @Test
     void testInsertEventProcessThrowsException() throws DataProcessingException {
         EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NBS_DOCUMENT)).thenThrow(new RuntimeException("Test Exception"));
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.NBS_DOCUMENT, true)).thenThrow(new RuntimeException("Test Exception"));
 
         assertThrows(RuntimeException.class, () -> {
             edxEventProcessRepositoryUtil.insertEventProcess(edxEventProcessDto);

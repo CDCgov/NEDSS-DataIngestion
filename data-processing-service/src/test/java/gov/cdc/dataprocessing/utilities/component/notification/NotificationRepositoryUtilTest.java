@@ -8,11 +8,12 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.notification.UpdatedNotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 class NotificationRepositoryUtilTest {
@@ -53,7 +55,7 @@ class NotificationRepositoryUtilTest {
     @Mock
     private  ActRepositoryUtil actRepositoryUtil;
     @Mock
-    private OdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @InjectMocks
     private NotificationRepositoryUtil notificationRepositoryUtil;
     @Mock
@@ -147,9 +149,12 @@ class NotificationRepositoryUtilTest {
 
         notificationContainer.setItNew(true);
 
-        var local = new LocalUidGenerator();
-        local.setSeedValueNbr(10L);
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(any())).thenReturn(local);
+        var local = new LocalUidModel();
+        local.setGaTypeUid(new LocalUidGeneratorDto());
+        local.setClassTypeUid(new LocalUidGeneratorDto());
+        local.getClassTypeUid().setSeedValueNbr(10L);
+        local.getGaTypeUid().setSeedValueNbr(10L);
+        when(odseIdGeneratorService.getValidLocalUid(any(), anyBoolean())).thenReturn(local);
 
 
         var res = notificationRepositoryUtil.setNotification(notificationContainer);

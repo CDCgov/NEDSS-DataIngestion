@@ -10,6 +10,7 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
@@ -104,6 +105,7 @@ public class KafkaConsumerService {
     private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
+    private final TimeMetricsBuilder timeMetricsBuilder;
     private final KafkaProducerTransactionService kafkaProducerTransactionService;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
@@ -126,7 +128,7 @@ public class KafkaConsumerService {
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
-            KafkaProducerTransactionService kafkaProducerTransactionService) {
+            TimeMetricsBuilder timeMetricsBuilder, KafkaProducerTransactionService kafkaProducerTransactionService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -140,6 +142,7 @@ public class KafkaConsumerService {
         this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
+        this.timeMetricsBuilder = timeMetricsBuilder;
         this.kafkaProducerTransactionService =kafkaProducerTransactionService;
     }
     //endregion
@@ -189,13 +192,19 @@ public class KafkaConsumerService {
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
                                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
-        log.debug(topicDebugLog, message, topic);
-        boolean hl7ValidationActivated = false;
+        timeMetricsBuilder.recordElrRawEventTime(() -> {
+            log.debug(topicDebugLog, message, topic);
+            boolean hl7ValidationActivated = false;
 
-        if (messageValidationActive != null && messageValidationActive.equalsIgnoreCase("true")) {
-            hl7ValidationActivated = true;
-        }
-        validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
+            if (messageValidationActive != null && messageValidationActive.equalsIgnoreCase("true")) {
+                hl7ValidationActivated = true;
+            }
+            try {
+                validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
+            } catch (DuplicateHL7FileFoundException | DiHL7Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 
@@ -233,20 +242,35 @@ public class KafkaConsumerService {
                                        @Header(KafkaHeaders.RECEIVED_KEY) String messageId,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                        @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
-        log.debug(topicDebugLog, messageId, topic);
 
-        boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
-        NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
-        log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
+        timeMetricsBuilder.recordElrRawXmlEventTime(() -> {
+            log.debug(topicDebugLog, messageId, topic);
 
-        if (dataProcessingApplied) {
-            Gson gson = new Gson();
-            String strGson = gson.toJson(nbsInterfaceModel);
-            kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_unprocessed", 0); //NOSONAR
-        }
-        else {
-            kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
-        }
+            boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
+            NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
+            log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
+
+            ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+            reportStatusIdData.setRawMessageId(messageId.replaceAll("HL7-xml_", ""));
+            reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+            reportStatusIdData.setCreatedBy("elr_raw_xml");
+            reportStatusIdData.setUpdatedBy("elr_raw_xml");
+            var time = getCurrentTimeStamp();
+            reportStatusIdData.setCreatedOn(time);
+            reportStatusIdData.setUpdatedOn(time);
+
+            iReportStatusRepository.save(reportStatusIdData);
+
+            if (dataProcessingApplied) {
+                Gson gson = new Gson();
+                String strGson = gson.toJson(nbsInterfaceModel);
+                kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_unprocessed", 0); //NOSONAR
+            }
+            else {
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+            }
+        });
+
     }
 
     /**
@@ -281,9 +305,16 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${kafka.validation.topic}")
     public void handleMessageForValidatedElr(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                             @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws ConversionPrepareException {
-        log.debug(topicDebugLog, message, topic);
-        preparationForConversionHandler(message, dataProcessingEnable);
+                                             @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
+
+        timeMetricsBuilder.recordElrValidatedTime(() -> {
+            log.debug(topicDebugLog, message, topic);
+            try {
+                preparationForConversionHandler(message, dataProcessingEnable);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     /**
@@ -294,8 +325,10 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
                                                  @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)  {
-        log.debug(topicDebugLog, message, topic);
-        xmlConversionHandler(message, operation, dataProcessingEnable);
+        timeMetricsBuilder.recordXmlPrepTime(() -> {
+            log.debug(topicDebugLog, message, topic);
+            xmlConversionHandler(message, operation, dataProcessingEnable);
+        });
     }
 
     /**

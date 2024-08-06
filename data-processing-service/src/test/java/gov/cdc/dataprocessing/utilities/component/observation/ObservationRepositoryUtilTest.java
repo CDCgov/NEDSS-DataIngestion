@@ -9,10 +9,11 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.observation.*;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
@@ -21,7 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -68,7 +69,7 @@ class ObservationRepositoryUtilTest {
     @Mock
     private EntityHelper entityHelper;
     @Mock
-    private OdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
     private ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
     @Mock
@@ -225,11 +226,17 @@ class ObservationRepositoryUtilTest {
 
         observationContainer.setItNew(true);
 
-        var localId = new LocalUidGenerator();
-        localId.setSeedValueNbr(10L);
-        localId.setUidPrefixCd("TEST");
-        localId.setUidSuffixCd("TEST");
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.OBSERVATION)).thenReturn(localId);
+        var localId = new LocalUidModel();
+
+        localId.setGaTypeUid(new LocalUidGeneratorDto());
+        localId.setClassTypeUid(new LocalUidGeneratorDto());
+        localId.getClassTypeUid().setSeedValueNbr(1L);
+        localId.getGaTypeUid().setSeedValueNbr(1L);
+        localId.getClassTypeUid().setUidPrefixCd("TEST");
+        localId.getClassTypeUid().setUidSuffixCd("TEST");
+        localId.getGaTypeUid().setUidPrefixCd("TEST");
+        localId.getGaTypeUid().setUidSuffixCd("TEST");
+        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.OBSERVATION, true)).thenReturn(localId);
 
 
 

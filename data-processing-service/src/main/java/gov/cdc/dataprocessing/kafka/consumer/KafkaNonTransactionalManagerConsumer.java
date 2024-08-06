@@ -1,16 +1,11 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
 import com.google.gson.Gson;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,7 +24,7 @@ public class KafkaNonTransactionalManagerConsumer {
 
     private final List<String> messageBatch = new ArrayList<>();
 
-    private static final int BATCH_SIZE = 100;
+    private static final int BATCH_SIZE = 10;
 
     public KafkaNonTransactionalManagerConsumer(KafkaManagerProducer kafkaManagerProducer) {
         this.kafkaManagerProducer = kafkaManagerProducer;

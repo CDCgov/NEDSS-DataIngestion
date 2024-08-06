@@ -58,19 +58,24 @@ public class ReportStatusService {
             msgStatus.getRawInfo().setRawCreatedOn(rawMessageData.get().getCreatedOn());
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
 
-            Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
-            if (!validatedMessageData.isEmpty()) {
-                msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
-                msgStatus.getValidatedInfo().setValidatedMessage(validatedMessageData.get().getRawMessage());
-                msgStatus.getValidatedInfo().setValidatedCreatedOn(validatedMessageData.get().getCreatedOn());
-                msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
+            if (rawMessageData.get().getType().equals("HL7")) {
+                Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
+                if (!validatedMessageData.isEmpty()) {
+                    msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
+                    msgStatus.getValidatedInfo().setValidatedMessage(validatedMessageData.get().getRawMessage());
+                    msgStatus.getValidatedInfo().setValidatedCreatedOn(validatedMessageData.get().getCreatedOn());
+                    msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
 
-                // XML
+                    // XML
+                    setDiXmlTransformationInfo(msgStatus);
+                }
+                else {
+                    setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
+                }
+            } else {
                 setDiXmlTransformationInfo(msgStatus);
             }
-            else {
-                setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
-            }
+
             if(msgStatus.getNbsInfo().getNbsInterfaceStatus() !=null) {
                 List<EdxActivityLogModelView> edxActivityStatusList = iEdxActivityLogRepository.
                         getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));

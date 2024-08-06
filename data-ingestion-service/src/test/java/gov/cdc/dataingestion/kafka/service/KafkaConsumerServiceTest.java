@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConvers
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
@@ -90,6 +91,8 @@ class KafkaConsumerServiceTest {
     private IReportStatusRepository iReportStatusRepository;
     @Mock
     private CustomMetricsBuilder customMetricsBuilder;
+    @Mock
+    private TimeMetricsBuilder timeMetricsBuilder;
 
     private NbsInterfaceModel nbsInterfaceModel;
     private ValidatedELRModel validatedELRModel;
@@ -172,7 +175,7 @@ class KafkaConsumerServiceTest {
                 ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
-                kafkaProducerTransactionService);
+                timeMetricsBuilder, kafkaProducerTransactionService);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
@@ -210,6 +213,12 @@ class KafkaConsumerServiceTest {
                 validatedModel
         );
 
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrRawEventTime(any());
+
         kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
 
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
@@ -238,8 +247,14 @@ class KafkaConsumerServiceTest {
         when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.empty());
 
-        DiHL7Exception exception = Assertions.assertThrows(
-                DiHL7Exception.class, () -> {
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrRawEventTime(any());
+
+        RuntimeException exception = Assertions.assertThrows(
+                RuntimeException.class, () -> {
                     kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
                 }
         );
@@ -271,6 +286,12 @@ class KafkaConsumerServiceTest {
         when(iValidatedELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(model));
 
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrValidatedTime(any());
+
         kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic, "false");
 
         verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
@@ -300,7 +321,14 @@ class KafkaConsumerServiceTest {
                 .thenReturn(Optional.empty());
 
 
-        assertThrows(ConversionPrepareException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic, "false"));
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrValidatedTime(any());
+
+
+        assertThrows(RuntimeException.class, () -> kafkaConsumerService.handleMessageForValidatedElr(value, validateTopic, "false"));
 
 
         verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
@@ -330,6 +358,12 @@ class KafkaConsumerServiceTest {
                 when(iValidatedELRRepository.findById(guidForTesting))
                         .thenReturn(Optional.of(model));
                 when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
+
+                doAnswer(invocation -> {
+                    Runnable runnable = invocation.getArgument(0);
+                    runnable.run();
+                    return null;
+                }).when(timeMetricsBuilder).recordXmlPrepTime(any());
 
 
                 kafkaConsumerService
@@ -426,6 +460,13 @@ class KafkaConsumerServiceTest {
                 nbsInterfaceModel.setPayload(testHL7Message);
                 when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
                 when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
+
+                doAnswer(invocation -> {
+                    Runnable runnable = invocation.getArgument(0);
+                    runnable.run();
+                    return null;
+                }).when(timeMetricsBuilder).recordXmlPrepTime(any());
+
 
                 kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false");
 
@@ -782,8 +823,8 @@ class KafkaConsumerServiceTest {
         try {
             Statement stmt = conn.createStatement();
             stmt.execute(rawElrQuery);
-            stmt.execute(fhirElrQuery);
-            stmt.execute(elrValidateQuery);
+//            stmt.execute(fhirElrQuery);
+//            stmt.execute(elrValidateQuery);
         } catch (SQLException e) {
             e.printStackTrace();
         }

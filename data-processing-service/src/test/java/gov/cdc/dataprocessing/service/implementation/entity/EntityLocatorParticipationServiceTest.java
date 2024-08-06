@@ -7,9 +7,10 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.locator.PhysicalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
@@ -19,7 +20,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorR
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
@@ -47,7 +48,7 @@ class EntityLocatorParticipationServiceTest {
     @Mock
     private  PhysicalLocatorRepository physicalLocatorRepository;
     @Mock
-    private  OdseIdGeneratorService odseIdGeneratorService;
+    private  IOdseIdGeneratorWCacheService IOdseIdGeneratorWCacheService;
 
     @Mock
     private PersonRepository personRepository;
@@ -76,7 +77,7 @@ class EntityLocatorParticipationServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(entityLocatorParticipationRepository, teleLocatorRepository, postalLocatorRepository, physicalLocatorRepository,
-                odseIdGeneratorService, authUtil, personRepository);
+                IOdseIdGeneratorWCacheService, authUtil, personRepository);
     }
 
     @Test
@@ -122,8 +123,10 @@ class EntityLocatorParticipationServiceTest {
 
         when(entityLocatorParticipationRepository.findByParentUid(10L)).thenReturn(Optional.of(entityPatCol));
 
-        LocalUidGenerator localUid = new LocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+        LocalUidModel localUid = new LocalUidModel();
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
+        when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
         entityLocatorParticipationService.updateEntityLocatorParticipation(locatorCollection, uid);
 
@@ -176,8 +179,10 @@ class EntityLocatorParticipationServiceTest {
 
         when(entityLocatorParticipationRepository.findByParentUid(10L)).thenReturn(Optional.of(entityPatCol));
 
-        LocalUidGenerator localUid = new LocalUidGenerator();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+        LocalUidModel localUid = new LocalUidModel();
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
+        when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
         var phyCol = new ArrayList<PhysicalLocator>();
         var phy = new PhysicalLocator();
@@ -247,9 +252,13 @@ class EntityLocatorParticipationServiceTest {
         locator.setTheTeleLocatorDto(teleDto);
         locatorCollection.add(locator);
 
-        LocalUidGenerator localUid = new LocalUidGenerator();
-        localUid.setSeedValueNbr(1L);
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+        LocalUidModel localUid = new LocalUidModel();
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.getClassTypeUid().setSeedValueNbr(1L);
+        localUid.getGaTypeUid().setSeedValueNbr(1L);
+
+        when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
@@ -283,9 +292,13 @@ class EntityLocatorParticipationServiceTest {
         locator.setTheTeleLocatorDto(teleDto);
         locatorCollection.add(locator);
 
-        LocalUidGenerator localUid = new LocalUidGenerator();
-        localUid.setSeedValueNbr(1L);
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+        LocalUidModel localUid = new LocalUidModel();
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.getClassTypeUid().setSeedValueNbr(1L);
+        localUid.getGaTypeUid().setSeedValueNbr(1L);
+
+        when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
@@ -315,9 +328,12 @@ class EntityLocatorParticipationServiceTest {
         locator.setTheTeleLocatorDto(null);
         locatorCollection.add(locator);
 
-        LocalUidGenerator localUid = new LocalUidGenerator();
-        localUid.setSeedValueNbr(1L);
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON)).thenReturn(localUid);
+        LocalUidModel localUid = new LocalUidModel();
+        localUid.setGaTypeUid(new LocalUidGeneratorDto());
+        localUid.setClassTypeUid(new LocalUidGeneratorDto());
+        localUid.getClassTypeUid().setSeedValueNbr(1L);
+        localUid.getGaTypeUid().setSeedValueNbr(1L);
+        when(IOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);

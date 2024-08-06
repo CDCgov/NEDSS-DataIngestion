@@ -2,10 +2,11 @@ package gov.cdc.dataprocessing.service.implementation.log;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +26,7 @@ class NNDActivityLogServiceTest {
     private NNDActivityLogRepository nndActivityLogRepository;
 
     @Mock
-    private OdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
 
     @BeforeEach
@@ -36,13 +37,21 @@ class NNDActivityLogServiceTest {
     @Test
     void testSaveNddActivityLogWithNewUid() throws DataProcessingException {
         NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
-        var id = new LocalUidGenerator();
-        id.setClassNameCd("CLASS");
-        id.setTypeCd("TYPE");
-        id.setUidSuffixCd("SUF");
-        id.setUidPrefixCd("PRE");
-        id.setSeedValueNbr(1L);
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA)).thenReturn(id);
+        var id = new LocalUidModel();
+        id .setGaTypeUid(new LocalUidGeneratorDto());
+        id .setClassTypeUid(new LocalUidGeneratorDto());
+        id.getClassTypeUid().setClassNameCd("CLASS");
+        id.getClassTypeUid().setTypeCd("TYPE");
+        id.getClassTypeUid().setUidSuffixCd("SUF");
+        id.getClassTypeUid().setUidPrefixCd("PRE");
+        id.getClassTypeUid().setSeedValueNbr(1L);
+
+        id.getGaTypeUid().setClassNameCd("CLASS");
+        id.getGaTypeUid().setTypeCd("TYPE");
+        id.getGaTypeUid().setUidSuffixCd("SUF");
+        id.getGaTypeUid().setUidPrefixCd("PRE");
+        id.getGaTypeUid().setSeedValueNbr(1L);
+        when(odseIdGeneratorService.getValidLocalUid(eq(NND_METADATA), anyBoolean())).thenReturn(id);
 
         nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
 
@@ -68,7 +77,7 @@ class NNDActivityLogServiceTest {
     @Test
     void testSaveNddActivityLogException() throws DataProcessingException {
         NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(NND_METADATA)).thenThrow(new RuntimeException("Test Exception"));
+        when(odseIdGeneratorService.getValidLocalUid(NND_METADATA, true)).thenThrow(new RuntimeException("Test Exception"));
 
         assertThrows(RuntimeException.class, () -> {
             nndActivityLogService.saveNddActivityLog(nndActivityLogDto);

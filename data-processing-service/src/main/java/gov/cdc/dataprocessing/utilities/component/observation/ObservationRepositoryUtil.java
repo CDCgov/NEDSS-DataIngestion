@@ -20,7 +20,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -48,7 +48,7 @@ public class ObservationRepositoryUtil {
     private final ActRelationshipRepository actRelationshipRepository;
     private final ParticipationRepository participationRepository;
     private final EntityHelper entityHelper;
-    private final OdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
     private final ActRepository actRepository;
@@ -65,8 +65,7 @@ public class ObservationRepositoryUtil {
                                      ActRelationshipRepository actRelationshipRepository,
                                      ParticipationRepository participationRepository,
                                      EntityHelper entityHelper,
-                                     OdseIdGeneratorService odseIdGeneratorService,
-                                     ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
+                                     IOdseIdGeneratorWCacheService odseIdGeneratorService, ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
                                      ActRepository actRepository) {
         this.observationRepository = observationRepository;
         this.observationReasonRepository = observationReasonRepository;
@@ -693,10 +692,10 @@ public class ObservationRepositoryUtil {
 
     private Long saveNewObservation(ObservationDto observationDto) throws DataProcessingException {
         try {
-            var uid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.OBSERVATION);
+            var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.OBSERVATION, true);
 
             Act act = new Act();
-            act.setActUid(uid.getSeedValueNbr());
+            act.setActUid(uid.getGaTypeUid().getSeedValueNbr());
             act.setClassCode(NEDSSConstant.OBSERVATION_CLASS_CODE);
             act.setMoodCode(NEDSSConstant.EVENT_MOOD_CODE);
 
@@ -709,11 +708,11 @@ public class ObservationRepositoryUtil {
             observation.setVersionCtrlNbr(1);
             //Shared Ind is not Null, existing data are set to T hence set it as T here
             observation.setSharedInd("T");
-            observation.setLocalId(uid.getUidPrefixCd() + uid.getSeedValueNbr() + uid.getUidSuffixCd());
-            observation.setObservationUid(uid.getSeedValueNbr());
+            observation.setLocalId(uid.getClassTypeUid().getUidPrefixCd() + uid.getClassTypeUid().getSeedValueNbr() + uid.getClassTypeUid().getUidSuffixCd());
+            observation.setObservationUid(uid.getGaTypeUid().getSeedValueNbr());
 
             observationRepository.save(observation);
-            return uid.getSeedValueNbr();
+            return uid.getGaTypeUid().getSeedValueNbr();
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }

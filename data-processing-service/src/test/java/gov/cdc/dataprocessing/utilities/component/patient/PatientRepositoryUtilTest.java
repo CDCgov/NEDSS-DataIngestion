@@ -10,11 +10,12 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
@@ -26,7 +27,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceReposit
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
@@ -64,7 +65,7 @@ class PatientRepositoryUtilTest {
     @Mock
     private RoleRepository roleRepository;
     @Mock
-    private IOdseIdGeneratorService odseIdGeneratorService;
+    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
     private IEntityLocatorParticipationService entityLocatorParticipationService;
     @InjectMocks
@@ -115,11 +116,17 @@ class PatientRepositoryUtilTest {
     @Test
     void createPerson_Test() throws DataProcessingException {
         var perCon = new PersonContainer();
-        var id = new LocalUidGenerator();
-        id.setSeedValueNbr(10L);
-        id.setUidPrefixCd("TEST");
-        id.setUidSuffixCd("TEST");
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(any())).thenReturn(id);
+        var id = new LocalUidModel();
+        id.setGaTypeUid(new LocalUidGeneratorDto());
+        id.setClassTypeUid(new LocalUidGeneratorDto());
+        id.getGaTypeUid().setSeedValueNbr(10L);
+        id.getGaTypeUid().setUidPrefixCd("TEST");
+        id.getGaTypeUid().setUidSuffixCd("TEST");
+
+        id.getClassTypeUid().setSeedValueNbr(10L);
+        id.getClassTypeUid().setUidPrefixCd("TEST");
+        id.getClassTypeUid().setUidSuffixCd("TEST");
+        when(odseIdGeneratorService.getValidLocalUid(any(), anyBoolean())).thenReturn(id);
 
         var perDt = new PersonDto();
         perCon.setThePersonDto(perDt);

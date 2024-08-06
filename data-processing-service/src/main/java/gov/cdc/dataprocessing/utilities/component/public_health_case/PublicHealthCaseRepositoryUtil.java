@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityReposito
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -45,7 +46,7 @@ public class PublicHealthCaseRepositoryUtil {
     private final ClinicalDocumentRepository clinicalDocumentRepository;
     private final ReferralRepository referralRepository;
     private final PatientEncounterRepository patientEncounterRepository;
-    private final OdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final ActRepository actRepository;
     private final ActIdRepository actIdRepository;
     private final ConfirmationMethodRepository confirmationMethodRepository;
@@ -68,7 +69,7 @@ public class PublicHealthCaseRepositoryUtil {
                                           ReferralRepository referralRepository,
                                           PatientEncounterRepository patientEncounterRepository,
                                           OdseIdGeneratorService odseIdGeneratorService,
-                                          ActRepository actRepository,
+                                          IOdseIdGeneratorWCacheService odseIdGeneratorService1, ActRepository actRepository,
                                           ActIdRepository actIdRepository,
                                           ConfirmationMethodRepository confirmationMethodRepository,
                                           ActLocatorParticipationRepository actLocatorParticipationRepository,
@@ -88,7 +89,7 @@ public class PublicHealthCaseRepositoryUtil {
         this.clinicalDocumentRepository = clinicalDocumentRepository;
         this.referralRepository = referralRepository;
         this.patientEncounterRepository = patientEncounterRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
+        this.odseIdGeneratorService = odseIdGeneratorService1;
         this.actRepository = actRepository;
         this.actIdRepository = actIdRepository;
         this.confirmationMethodRepository = confirmationMethodRepository;
@@ -274,8 +275,8 @@ public class PublicHealthCaseRepositoryUtil {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
                         .getTime());
-                var epicUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK);
-                String epiLinkId =  epicUid.getUidPrefixCd() + epicUid.getSeedValueNbr() + epicUid.getUidSuffixCd();
+                var epicUid = odseIdGeneratorService.getValidLocalUid(EPILINK, false);
+                String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
 //                TODO: ENV VARIABLE
 //                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
 //                        + epiLinkId.substring(2, epiLinkId.length()-2)
@@ -291,8 +292,8 @@ public class PublicHealthCaseRepositoryUtil {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
                         .getTime());
-                var epicUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(EPILINK);
-                String epiLinkId =  epicUid.getUidPrefixCd() + epicUid.getSeedValueNbr() + epicUid.getUidSuffixCd();
+                var epicUid = odseIdGeneratorService.getValidLocalUid(EPILINK, false);
+                String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
                 //                TODO: ENV VARIABLE
 //                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
 //                        + epiLinkId.substring(2, epiLinkId.length()-2)
@@ -309,7 +310,7 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     private Long insertPublicHealthCase(PublicHealthCaseContainer phcVO) throws DataProcessingException {
-        var uid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PUBLIC_HEALTH_CASE);
+        var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PUBLIC_HEALTH_CASE, true);
         var phcDT = phcVO.getThePublicHealthCaseDto();
         if (phcDT.getCaseTypeCd().equals(NEDSSConstant.I) && (phcDT.getInvestigationStatusCd() == null
                 || phcDT.getInvestigationStatusCd().trim().equals("") || phcDT.getProgAreaCd() == null
@@ -321,8 +322,8 @@ public class PublicHealthCaseRepositoryUtil {
                     + " Investigation Status = " + phcDT.getInvestigationStatusCd();
             throw new DataProcessingException(error);
         }
-        var phcUid = uid.getSeedValueNbr();
-        var phcLocalUid = uid.getUidPrefixCd() + phcUid + uid.getUidSuffixCd();
+        var phcUid = uid.getGaTypeUid().getSeedValueNbr();
+        var phcLocalUid = uid.getClassTypeUid().getUidPrefixCd() + uid.getClassTypeUid().getSeedValueNbr() + uid.getClassTypeUid().getUidSuffixCd();
 
         Act act = new Act();
         act.setActUid(phcUid);
@@ -338,8 +339,8 @@ public class PublicHealthCaseRepositoryUtil {
         String coInfectionGroupID;
         if (phcDT.getCoinfectionId() != null
                 && phcDT.getCoinfectionId().equalsIgnoreCase(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE)) {
-            var coInfectUid = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.COINFECTION_GROUP);
-            coInfectionGroupID = coInfectUid.getSeedValueNbr().toString();
+            var coInfectUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.COINFECTION_GROUP, false);
+            coInfectionGroupID = coInfectUid.getClassTypeUid().getSeedValueNbr().toString();
             phcDT.setCoinfectionId(coInfectionGroupID);
             phc.setCoinfectionId(coInfectionGroupID);
         }

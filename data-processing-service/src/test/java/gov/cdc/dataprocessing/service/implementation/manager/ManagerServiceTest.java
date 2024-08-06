@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
-import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -110,14 +109,10 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
 
 
-     //   managerService.processDistribution(eventType, data);
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
         when(mockedFuture.join()).thenReturn(null); // You can adjust this to simulate different behaviors
@@ -135,6 +130,8 @@ class ManagerServiceTest {
         when(managerAggregationService.processingObservationMatching(any(), any(), any())).thenReturn(edxLabInformationDto);
 
 
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
+
 
         ObservationDto observationDto = new ObservationDto();
         observationDto.setLocalId("LOCAL");
@@ -149,8 +146,7 @@ class ManagerServiceTest {
 
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataPhc(any());
+        verify(kafkaManagerProducer, times(1)).sendDataPhc(any());
     }
 
     @Test
@@ -734,8 +730,7 @@ class ManagerServiceTest {
         String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
+
 
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
@@ -769,12 +764,11 @@ class ManagerServiceTest {
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
@@ -783,9 +777,6 @@ class ManagerServiceTest {
         String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
-
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
@@ -818,23 +809,18 @@ class ManagerServiceTest {
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
     void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
-
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
@@ -868,22 +854,18 @@ class ManagerServiceTest {
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
     void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
 
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
@@ -920,22 +902,17 @@ class ManagerServiceTest {
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
     void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
-
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
@@ -970,12 +947,11 @@ class ManagerServiceTest {
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
@@ -984,9 +960,6 @@ class ManagerServiceTest {
         String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
-
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
@@ -1021,23 +994,18 @@ class ManagerServiceTest {
         SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
     void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
-        Gson gson = new Gson();
-        String data = gson.toJson(labData);
-
 
         CompletableFuture<Void> mockedFuture = mock(CompletableFuture.class);
         when(managerCacheService.loadAndInitCachedValueAsync()).thenReturn(mockedFuture);
@@ -1073,11 +1041,10 @@ class ManagerServiceTest {
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
 
-
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
         managerService.processDistribution(123);
 
-        //TODO: FIX THIS
-        //verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
 }
