@@ -4,7 +4,7 @@ import gov.cdc.dataprocessing.cache.SrteCache;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,8 +14,8 @@ class ProgAreaJurisdictionUtilTest {
     @SuppressWarnings("java:S2699")
     @Test
     void testGetPAJHash_ValidInputs() {
-        SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
-        SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
+        SrteCache.programAreaCodesMapWithNbsUid = new HashMap<>();
+        SrteCache.jurisdictionCodeMapWithNbsUid = new HashMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", 123);
         SrteCache.jurisdictionCodeMapWithNbsUid.put("J1", 456);
 
@@ -49,8 +49,8 @@ class ProgAreaJurisdictionUtilTest {
 
     @Test
     void testGetPAJHash_ExceptionHandling() {
-        SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
-        SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
+        SrteCache.programAreaCodesMapWithNbsUid = new HashMap<>();
+        SrteCache.jurisdictionCodeMapWithNbsUid = new HashMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", null);
 
         long hash = util.getPAJHash("PA1", "J1");
@@ -60,8 +60,8 @@ class ProgAreaJurisdictionUtilTest {
 
     @Test
     void testGetPAJHashList_SingleJurisdiction() {
-        SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
-        SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
+        SrteCache.programAreaCodesMapWithNbsUid = new HashMap<>();
+        SrteCache.jurisdictionCodeMapWithNbsUid = new HashMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", 123);
         SrteCache.jurisdictionCodeMapWithNbsUid.put("J1", 456);
 
@@ -72,8 +72,8 @@ class ProgAreaJurisdictionUtilTest {
 
     @Test
     void testGetPAJHashList_AllJurisdictions() {
-        SrteCache.programAreaCodesMapWithNbsUid = new TreeMap<>();
-        SrteCache.jurisdictionCodeMapWithNbsUid = new TreeMap<>();
+        SrteCache.programAreaCodesMapWithNbsUid = new HashMap<>();
+        SrteCache.jurisdictionCodeMapWithNbsUid = new HashMap<>();
         SrteCache.programAreaCodesMapWithNbsUid.put("PA1", 123);
         SrteCache.jurisdictionCodeMapWithNbsUid.put("J1", 456);
         SrteCache.jurisdictionCodeMapWithNbsUid.put("J2", 789);

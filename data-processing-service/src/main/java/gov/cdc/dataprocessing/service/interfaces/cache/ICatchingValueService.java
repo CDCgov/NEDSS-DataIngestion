@@ -6,31 +6,31 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 public interface ICatchingValueService {
-   // TreeMap<String, String> getCodedValues(String pType) throws DataProcessingException;
-    TreeMap<String, String> getRaceCodes() throws DataProcessingException;
+   // HashMap<String, String> getCodedValues(String pType) throws DataProcessingException;
+    HashMap<String, String> getRaceCodes() throws DataProcessingException;
     String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException;
     String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws DataProcessingException;
     String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException;
-    TreeMap<String, String>  getAOELOINCCodes() throws DataProcessingException;
-    TreeMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException;
+    HashMap<String, String>  getAOELOINCCodes() throws DataProcessingException;
+    HashMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException;
     List<CodeValueGeneral> findCodeValuesByCodeSetNmAndCode(String codeSetNm, String code);
     StateCode findStateCodeByStateNm(String stateNm);
-    TreeMap<String, String> getAllJurisdictionCode() throws DataProcessingException;
-    TreeMap<String, String> getAllProgramAreaCodes() throws DataProcessingException;
-    TreeMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException;
-    TreeMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException;
+    HashMap<String, String> getAllJurisdictionCode() throws DataProcessingException;
+    HashMap<String, String> getAllProgramAreaCodes() throws DataProcessingException;
+    HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException;
+    HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException;
     List<ElrXref> getAllElrXref() throws DataProcessingException;
-    TreeMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException;
+    HashMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException;
     List<ConditionCode> getAllConditionCode() throws DataProcessingException;
-    TreeMap<String, String> getCodedValue(String code) throws DataProcessingException;
+    HashMap<String, String> getCodedValue(String code) throws DataProcessingException;
     List<CodeValueGeneral> getGeneralCodedValue(String code);
-    TreeMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException;
-    TreeMap<String, String> getLabResultDesc() throws DataProcessingException;
-    TreeMap<String, String> getAllSnomedCode() throws DataProcessingException;
-    TreeMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException;
-    TreeMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException;
+    HashMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException;
+    HashMap<String, String> getLabResultDesc() throws DataProcessingException;
+    HashMap<String, String> getAllSnomedCode() throws DataProcessingException;
+    HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException;
+    HashMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException;
 }

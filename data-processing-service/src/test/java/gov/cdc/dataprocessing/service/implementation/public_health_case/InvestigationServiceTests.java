@@ -260,7 +260,7 @@ class InvestigationServiceTests {
 
         when(observationSummaryService.getReportingFacilityName(25L)).thenReturn("25");
         when(observationSummaryService.getSpecimanSource(26L)).thenReturn("26");
-        var treemap = new TreeMap<String, String>();
+        var treemap = new HashMap<String, String>();
         treemap.put("26", "BLAH");
         when(cachingValueService.getCodedValues("SPECMN_SRC", "26")).thenReturn(treemap);
 

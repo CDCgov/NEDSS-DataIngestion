@@ -8,10 +8,11 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
+import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.ManufacturedMaterial;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.Material;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
@@ -23,7 +24,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.MaterialReposit
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.implementation.entity.EntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +51,7 @@ class MaterialServiceTest {
     MaterialRepository materialRepository;
 
     @Mock
-    OdseIdGeneratorService odseIdGeneratorService;
+    IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     @Mock
     EntityHelper entityHelper;
@@ -195,19 +197,28 @@ class MaterialServiceTest {
 
         when(entityHelper.iteratePDTForParticipation(any())).thenReturn(getPartsDto());
 
-        when(odseIdGeneratorService.getLocalIdAndUpdateSeed(any())).thenReturn(getLocalUidGenerator());
+        when(odseIdGeneratorService.getValidLocalUid(any(), eq(true))).thenReturn(getLocalUidGenerator());
 
         Long result = materialService.saveMaterial(getMaterialContainer());
         assertEquals(1L, result);
     }
 
-    private LocalUidGenerator getLocalUidGenerator() {
-        LocalUidGenerator localUidGenerator = new LocalUidGenerator();
-        localUidGenerator.setUidPrefixCd("123");
-        localUidGenerator.setUidPrefixCd("234");
-        localUidGenerator.setTypeCd("type");
-        localUidGenerator.setClassNameCd("class name");
-        localUidGenerator.setSeedValueNbr(1L);
+    private LocalUidModel getLocalUidGenerator() {
+        LocalUidModel localUidGenerator = new LocalUidModel();
+        localUidGenerator.setGaTypeUid(new LocalUidGeneratorDto());
+        localUidGenerator.setClassTypeUid(new LocalUidGeneratorDto());
+
+        localUidGenerator.getGaTypeUid().setUidPrefixCd("123");
+        localUidGenerator.getGaTypeUid().setUidPrefixCd("234");
+        localUidGenerator.getGaTypeUid().setTypeCd("type");
+        localUidGenerator.getGaTypeUid().setClassNameCd("class name");
+        localUidGenerator.getGaTypeUid().setSeedValueNbr(1L);
+
+        localUidGenerator.getClassTypeUid().setUidPrefixCd("123");
+        localUidGenerator.getClassTypeUid().setUidPrefixCd("234");
+        localUidGenerator.getClassTypeUid().setTypeCd("type");
+        localUidGenerator.getClassTypeUid().setClassNameCd("class name");
+        localUidGenerator.getClassTypeUid().setSeedValueNbr(1L);
         return localUidGenerator;
     }
 

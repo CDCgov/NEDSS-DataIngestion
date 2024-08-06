@@ -10,7 +10,7 @@ import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -33,7 +33,7 @@ public class NotificationRepositoryUtil {
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final EntityHelper entityHelper;
     private  final ActRepositoryUtil actRepositoryUtil;
-    private final OdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     public NotificationRepositoryUtil(NotificationRepository notificationRepository,
                                       ActIdRepositoryUtil actIdRepositoryUtil,
@@ -42,7 +42,7 @@ public class NotificationRepositoryUtil {
                                       ParticipationRepositoryUtil participationRepositoryUtil,
                                       EntityHelper entityHelper,
                                       ActRepositoryUtil actRepositoryUtil,
-                                      OdseIdGeneratorService odseIdGeneratorService) {
+                                      IOdseIdGeneratorWCacheService odseIdGeneratorService) {
         this.notificationRepository = notificationRepository;
         this.actIdRepositoryUtil = actIdRepositoryUtil;
         this.actLocatorParticipationRepositoryUtil = actLocatorParticipationRepositoryUtil;
@@ -139,9 +139,9 @@ public class NotificationRepositoryUtil {
     }
 
     private Long createNotification(NotificationContainer notificationContainer) throws DataProcessingException {
-        var uidData = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NOTIFICATION);
-        var uid = uidData.getSeedValueNbr();
-        var localId = uidData.getUidPrefixCd() + uid + uidData.getUidSuffixCd();
+        var uidData = odseIdGeneratorService.getValidLocalUid(LocalIdClass.NOTIFICATION, true);
+        var uid = uidData.getGaTypeUid().getSeedValueNbr();
+        var localId = uidData.getClassTypeUid().getUidPrefixCd() + uidData.getClassTypeUid().getSeedValueNbr() + uidData.getClassTypeUid().getUidSuffixCd();
 
         actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
 

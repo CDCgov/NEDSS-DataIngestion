@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.custommetrics;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -12,6 +13,7 @@ class CustomMetricsBuilderTest {
 
     private MeterRegistry meterRegistryMock;
     private Counter counterMock;
+    private Timer timerMock;
     private CustomMetricsBuilder customMetricsBuilder;
 
     @BeforeEach
@@ -19,6 +21,7 @@ class CustomMetricsBuilderTest {
         MockitoAnnotations.openMocks(this);
         meterRegistryMock = mock(MeterRegistry.class);
         counterMock = mock(Counter.class);
+        timerMock = mock(Timer.class);
 
         customMetricsBuilder = new CustomMetricsBuilder(meterRegistryMock);
     }

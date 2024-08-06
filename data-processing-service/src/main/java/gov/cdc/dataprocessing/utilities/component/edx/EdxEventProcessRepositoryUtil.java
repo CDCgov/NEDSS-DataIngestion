@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import org.springframework.stereotype.Component;
 
@@ -14,19 +14,19 @@ import org.springframework.stereotype.Component;
 public class EdxEventProcessRepositoryUtil {
     private final EdxEventProcessRepository edxEventProcessRepository;
     private final ActRepositoryUtil actRepositoryUtil;
-    private final OdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     public EdxEventProcessRepositoryUtil(EdxEventProcessRepository edxEventProcessRepository,
                                          ActRepositoryUtil actRepositoryUtil,
-                                         OdseIdGeneratorService odseIdGeneratorService) {
+                                         IOdseIdGeneratorWCacheService odseIdGeneratorService1) {
         this.edxEventProcessRepository = edxEventProcessRepository;
         this.actRepositoryUtil = actRepositoryUtil;
-        this.odseIdGeneratorService = odseIdGeneratorService;
+        this.odseIdGeneratorService = odseIdGeneratorService1;
     }
 
     public void insertEventProcess(EDXEventProcessDto edxEventProcessDto) throws DataProcessingException {
-        var uidObj = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.NBS_DOCUMENT);
-        var uid = uidObj.getSeedValueNbr();
+        var uidObj = odseIdGeneratorService.getValidLocalUid(LocalIdClass.NBS_DOCUMENT, false);
+        var uid = uidObj.getClassTypeUid().getSeedValueNbr();
 
         actRepositoryUtil.insertActivityId(uid, edxEventProcessDto.getDocEventTypeCd(),  NEDSSConstant.EVENT_MOOD_CODE );
 

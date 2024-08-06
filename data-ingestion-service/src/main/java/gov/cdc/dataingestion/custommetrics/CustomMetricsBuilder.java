@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.custommetrics;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,6 +16,7 @@ public class CustomMetricsBuilder {
     Counter customXmlConvertedSuccess;
     Counter customXmlConvertedFailure;
     Counter customTokensRequested;
+
 
 
     public CustomMetricsBuilder(MeterRegistry meterRegistry) {
@@ -45,6 +47,7 @@ public class CustomMetricsBuilder {
         this.customTokensRequested = Counter
                 .builder("custom_tokens_requested")
                 .register(meterRegistry);
+
     }
 
     public void incrementMessagesProcessed() {
@@ -74,4 +77,6 @@ public class CustomMetricsBuilder {
     public void incrementTokensRequested() {
         customTokensRequested.increment();
     }
+
+
 }

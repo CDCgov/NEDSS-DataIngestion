@@ -25,6 +25,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import jakarta.transaction.Transactional;
@@ -49,7 +50,7 @@ public class PatientRepositoryUtil {
     private final EntityIdRepository entityIdRepository;
 
     private final RoleRepository roleRepository;
-    private final IOdseIdGeneratorService odseIdGeneratorService;
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
 
@@ -66,7 +67,7 @@ public class PatientRepositoryUtil {
             EntityIdRepository entityIdRepository,
             RoleRepository roleRepository,
             IOdseIdGeneratorService odseIdGeneratorService,
-            IEntityLocatorParticipationService entityLocatorParticipationService) {
+            IOdseIdGeneratorWCacheService odseIdGeneratorService1, IEntityLocatorParticipationService entityLocatorParticipationService) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -74,7 +75,7 @@ public class PatientRepositoryUtil {
         this.personEthnicRepository = personEthnicRepository;
         this.entityIdRepository = entityIdRepository;
         this.roleRepository = roleRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
+        this.odseIdGeneratorService = odseIdGeneratorService1;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
     }
 
@@ -93,9 +94,9 @@ public class PatientRepositoryUtil {
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
-        var localIdModel = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.PERSON);
-        personUid = localIdModel.getSeedValueNbr();
-        localUid = localIdModel.getUidPrefixCd() + personUid + localIdModel.getUidSuffixCd();
+        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+        personUid = localIdModel.getGaTypeUid().getSeedValueNbr();
+        localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
 
         ArrayList<Object>  arrayList = new ArrayList<>();
