@@ -13,7 +13,6 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.ManufacturedMaterial;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.material.Material;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;

@@ -18,7 +18,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.PrepareEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;

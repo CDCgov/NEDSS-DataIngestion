@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import jakarta.transaction.Transactional;

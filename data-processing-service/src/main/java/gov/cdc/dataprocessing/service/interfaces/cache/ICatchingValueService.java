@@ -6,8 +6,8 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
 public interface ICatchingValueService {
    // HashMap<String, String> getCodedValues(String pType) throws DataProcessingException;

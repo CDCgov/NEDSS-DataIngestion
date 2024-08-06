@@ -14,7 +14,6 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
@@ -23,7 +22,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;

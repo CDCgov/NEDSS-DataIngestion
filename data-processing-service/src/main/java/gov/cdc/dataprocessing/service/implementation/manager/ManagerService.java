@@ -47,8 +47,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
-import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
-
 @Service
 @Slf4j
 public class ManagerService implements IManagerService {

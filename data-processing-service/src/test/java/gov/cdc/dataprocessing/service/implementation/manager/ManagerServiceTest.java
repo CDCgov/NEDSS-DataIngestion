@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
-import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;

@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
-import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import org.springframework.stereotype.Component;
