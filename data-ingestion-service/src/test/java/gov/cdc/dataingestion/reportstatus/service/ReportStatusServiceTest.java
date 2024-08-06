@@ -75,6 +75,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
+        rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
@@ -126,7 +127,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
-
+        rawERLModel.setType("HL7");
         ElrDeadLetterModel dltModel = new ElrDeadLetterModel();
         dltModel.setErrorMessageId(id);
         dltModel.setDltStatus("ERROR");
@@ -159,7 +160,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
-
+        rawERLModel.setType("HL7");
 
         when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.
@@ -186,6 +187,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
+        rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
@@ -219,7 +221,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
-
+        rawERLModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
@@ -256,7 +258,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
-
+        rawERLModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
@@ -346,6 +348,7 @@ class ReportStatusServiceTest {
         rawERLModel.setPayload("payload");
         rawERLModel.setCreatedOn(getCurrentTimeStamp());
         rawERLModel.setCreatedBy("admin");
+        rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");

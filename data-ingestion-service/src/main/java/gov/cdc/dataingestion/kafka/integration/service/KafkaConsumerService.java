@@ -250,6 +250,17 @@ public class KafkaConsumerService {
             NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
             log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
 
+            ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+            reportStatusIdData.setRawMessageId(messageId.replaceAll("HL7-xml_", ""));
+            reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+            reportStatusIdData.setCreatedBy("elr_raw_xml");
+            reportStatusIdData.setUpdatedBy("elr_raw_xml");
+            var time = getCurrentTimeStamp();
+            reportStatusIdData.setCreatedOn(time);
+            reportStatusIdData.setUpdatedOn(time);
+
+            iReportStatusRepository.save(reportStatusIdData);
+
             if (dataProcessingApplied) {
                 Gson gson = new Gson();
                 String strGson = gson.toJson(nbsInterfaceModel);
