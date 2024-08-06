@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.custommetrics;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,10 @@ public class CustomMetricsBuilder {
     Counter customXmlConvertedFailure;
     Counter customTokensRequested;
 
+    Timer elrRawEventTimer;
+    Timer elrRawXmlEventTimer;
+    Timer elrValidatedTimer;
+    Timer xmlPrepTimer;
 
     public CustomMetricsBuilder(MeterRegistry meterRegistry) {
         this.customMessagesProcessed = Counter
@@ -45,6 +50,19 @@ public class CustomMetricsBuilder {
         this.customTokensRequested = Counter
                 .builder("custom_tokens_requested")
                 .register(meterRegistry);
+
+        this.elrRawEventTimer = Timer
+                .builder("elr_raw_event_timer")
+                .register(meterRegistry);
+        this.elrRawXmlEventTimer = Timer
+                .builder("elr_raw_xml_event_timer")
+                .register(meterRegistry);
+        this.elrValidatedTimer = Timer
+                .builder("elr_validated_timer")
+                .register(meterRegistry);
+        this.xmlPrepTimer = Timer
+                .builder("xml_prep_timer")
+                .register(meterRegistry);
     }
 
     public void incrementMessagesProcessed() {
@@ -73,5 +91,21 @@ public class CustomMetricsBuilder {
     }
     public void incrementTokensRequested() {
         customTokensRequested.increment();
+    }
+
+    public void recordElrRawEventTime(Runnable task) {
+        elrRawEventTimer.record(task);
+    }
+
+    public void recordElrRawXmlEventTime(Runnable task) {
+        elrRawXmlEventTimer.record(task);
+    }
+
+    public void recordElrValidatedTime(Runnable task) {
+        elrValidatedTimer.record(task);
+    }
+
+    public void recordXmlPrepTime(Runnable task) {
+        xmlPrepTimer.record(task);
     }
 }
