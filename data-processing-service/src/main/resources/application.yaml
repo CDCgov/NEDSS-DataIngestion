@@ -25,7 +25,6 @@ spring:
 
 kafka:
   topic:
-    elr_micro_transaction: elr_unprocessed_transaction
     elr_micro: elr_unprocessed
     elr_health_case: elr_processing_public_health_case
     elr_handle_lab: elr_processing_handle_lab
@@ -64,5 +63,9 @@ spring:
     group-id: data-processing-group
     consumer:
       maxPollIntervalMs: 30000
+
+converterApiUrl: "http://localhost:8081/"
+
+isNbs: false
 
 #K8S Profile goes here
