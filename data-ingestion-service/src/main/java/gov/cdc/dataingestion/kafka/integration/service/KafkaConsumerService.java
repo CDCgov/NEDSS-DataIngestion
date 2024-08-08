@@ -262,9 +262,7 @@ public class KafkaConsumerService {
             iReportStatusRepository.save(reportStatusIdData);
 
             if (dataProcessingApplied) {
-                Gson gson = new Gson();
-                String strGson = gson.toJson(nbsInterfaceModel);
-                kafkaProducerService.sendMessageAfterConvertedToXml(strGson, "elr_unprocessed", 0); //NOSONAR
+                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "elr_unprocessed", 0); //NOSONAR
             }
             else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
