@@ -24,7 +24,7 @@ public class KafkaNonTransactionalManagerConsumer {
 
     private final List<String> messageBatch = new ArrayList<>();
 
-    private static final int BATCH_SIZE = 10;
+    private static final int BATCH_SIZE = 1;
 
     public KafkaNonTransactionalManagerConsumer(KafkaManagerProducer kafkaManagerProducer) {
         this.kafkaManagerProducer = kafkaManagerProducer;
@@ -50,14 +50,14 @@ public class KafkaNonTransactionalManagerConsumer {
         }
     }
 
-    @Scheduled(fixedRate = 3000)  // Run every 5 seconds
-    public void checkBatch() {
-        synchronized (messageBatch) {
-            if (!messageBatch.isEmpty()) {
-                processBatch();
-            }
-        }
-    }
+//    @Scheduled(fixedRate = 3000)  // Run every 5 seconds
+//    public void checkBatch() {
+//        synchronized (messageBatch) {
+//            if (!messageBatch.isEmpty()) {
+//                processBatch();
+//            }
+//        }
+//    }
 
     private void processBatch() {
         logger.info("Processing batch of messages: {}", messageBatch.size());
