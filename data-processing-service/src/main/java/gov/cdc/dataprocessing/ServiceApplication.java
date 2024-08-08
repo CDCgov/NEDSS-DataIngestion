@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableCaching
 @EnableTransactionManagement
-@EnableScheduling
+//@EnableScheduling
 public class ServiceApplication {
     /**
      * Main method for spring boot application.
