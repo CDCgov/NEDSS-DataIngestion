@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
+import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
+
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
@@ -62,18 +65,20 @@ public class ElrReportsController {
                                        @RequestHeader(name = "version", defaultValue = "1") String version) {
         if (type.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
+        } else {
+            type = type.toUpperCase();
         }
 
         RawERLDto rawERLDto = new RawERLDto();
         customMetricsBuilder.incrementMessagesProcessed();
 
-        if (type.equalsIgnoreCase("HL7")) {
+        if (type.equalsIgnoreCase(HL7_ELR)) {
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
             rawERLDto.setValidationActive(true);
             return ResponseEntity.ok(rawELRService.submission(rawERLDto, version));
         }
-        else if (type.equalsIgnoreCase("HL7-XML")) {
+        else if (type.equalsIgnoreCase(XML_ELR)) {
             rawERLDto.setType(type);
             rawERLDto.setPayload(payload);
             rawERLDto.setValidationActive(true);
