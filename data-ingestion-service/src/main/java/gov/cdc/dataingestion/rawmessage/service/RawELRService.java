@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
+import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
 @Service
@@ -31,7 +33,7 @@ public class RawELRService {
 
     public String submission(RawERLDto rawERLDto, String version) {
         RawERLModel created = rawELRRepository.save(convert(rawERLDto));
-        if(rawERLDto.getType().equalsIgnoreCase("HL7")) {
+        if(rawERLDto.getType().equalsIgnoreCase(HL7_ELR)) {
             kafkaProducerService.sendMessageFromController(
                     created.getId(),
                     topicName,
@@ -40,7 +42,7 @@ public class RawELRService {
                     rawERLDto.getValidationActive(),
                     version);
         }
-        if(rawERLDto.getType().equalsIgnoreCase("HL7-XML")) {
+        if(rawERLDto.getType().equalsIgnoreCase(XML_ELR)) {
             kafkaProducerService.sendElrXmlMessageFromController(
                     created.getId(),
                     rawXmlTopicName,
