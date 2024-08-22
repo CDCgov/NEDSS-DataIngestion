@@ -33,7 +33,7 @@ public class NbsRepositoryServiceProvider {
 	private static final String ECR_DOC_TYPE = "PHC236";
 	private static final String ECR_STATUS = "ORIG_QUEUED";
 
-    private NbsInterfaceRepository nbsInterfaceRepo;
+	private NbsInterfaceRepository nbsInterfaceRepo;
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
@@ -68,8 +68,8 @@ public class NbsRepositoryServiceProvider {
 			}
 		}
 	}
-    
-    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage ,  boolean dataProcessingApplied) throws XmlConversionException {
+
+	public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage ,  boolean dataProcessingApplied) throws XmlConversionException {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
@@ -107,8 +107,8 @@ public class NbsRepositoryServiceProvider {
 		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
 		log.debug("{} : Persisted xml to nbs database", msgId);
 
-    	return nbsInterfaceModel;
-    }
+		return nbsInterfaceModel;
+	}
 
 	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg, boolean dataProcessingApplied) {
 
@@ -144,7 +144,49 @@ public class NbsRepositoryServiceProvider {
 	}
 
 	private NbsInterfaceModel savingNbsInterfaceModelHelper(OruR1 oru, NbsInterfaceModel nbsInterface) throws XmlConversionException {
-		return null;
+		String labClia = (oru.getMessageHeader() != null && oru.getMessageHeader().getSendingFacility() != null)
+				? oru.getMessageHeader().getSendingFacility().getUniversalId() : null;
+
+		String filterOrderNumber = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber() != null)
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().getEntityIdentifier() : null;
+
+
+		var orderTestCodeObj = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null)
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() : null;
+
+		String orderTestCode = null;
+		if (orderTestCodeObj != null && orderTestCodeObj.getUniversalServiceIdentifier() != null ) {
+			if (orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier() != null) {
+				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier();
+			}
+			else if (orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier() != null){
+				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier();
+			}
+		}
+
+		String specimenColDateStr = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen() != null
+				&& !oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().isEmpty()
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime() != null
+				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime() != null)
+				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
+
+		savingNbsInterfaceModelTimeStampHelper( specimenColDateStr,
+				nbsInterface);
+
+		nbsInterface.setLabClia(labClia);
+		nbsInterface.setFillerOrderNbr(filterOrderNumber);
+		nbsInterface.setOrderTestCode(orderTestCode);
+		return nbsInterface;
 	}
 
 	@SuppressWarnings({"java:S3776"})
