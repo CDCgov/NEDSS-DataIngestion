@@ -31,6 +31,7 @@ public class NbsRepositoryServiceProvider {
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
 
 	private static final String ECR_DOC_TYPE = "PHC236";
+	private static final String ECR_STATUS = "ORIG_QUEUED";
 
     private NbsInterfaceRepository nbsInterfaceRepo;
 
@@ -143,49 +144,7 @@ public class NbsRepositoryServiceProvider {
 	}
 
 	private NbsInterfaceModel savingNbsInterfaceModelHelper(OruR1 oru, NbsInterfaceModel nbsInterface) throws XmlConversionException {
-		String labClia = (oru.getMessageHeader() != null && oru.getMessageHeader().getSendingFacility() != null)
-				? oru.getMessageHeader().getSendingFacility().getUniversalId() : null;
-
-		String filterOrderNumber = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation() != null
-				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber() != null)
-				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().getEntityIdentifier() : null;
-
-
-		var orderTestCodeObj = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation() != null
-				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() != null)
-				? oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest() : null;
-
-		String orderTestCode = null;
-		if (orderTestCodeObj != null && orderTestCodeObj.getUniversalServiceIdentifier() != null ) {
-			if (orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier() != null) {
-				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getIdentifier();
-			}
-			else if (orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier() != null){
-				orderTestCode = orderTestCodeObj.getUniversalServiceIdentifier().getAlternateIdentifier();
-			}
-		}
-
-			String specimenColDateStr = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation() != null
-				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen() != null
-				&& !oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().isEmpty()
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime() != null
-				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime() != null)
-				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
-
-		savingNbsInterfaceModelTimeStampHelper( specimenColDateStr,
-				 nbsInterface);
-
-		nbsInterface.setLabClia(labClia);
-		nbsInterface.setFillerOrderNbr(filterOrderNumber);
-		nbsInterface.setOrderTestCode(orderTestCode);
-		return nbsInterface;
+		return null;
 	}
 
 	@SuppressWarnings({"java:S3776"})
@@ -237,5 +196,59 @@ public class NbsRepositoryServiceProvider {
 			throw new XmlConversionException(e.getMessage());
 		}
 
+	}
+
+	public NbsInterfaceModel saveIncomingEcrMessageWithoutRR(String payload, String systemNm, String origDocTypeEicr) {
+		log.debug("Processing ecr message: \n {}", payload);
+		NbsInterfaceModel ecrModel = new NbsInterfaceModel();
+
+		ecrModel.setImpExpIndCd(IMPEXP_CD);
+		ecrModel.setRecordStatusCd(ECR_STATUS);
+
+		var time = getCurrentTimeStamp();
+		ecrModel.setRecordStatusTime(time);
+		ecrModel.setAddTime(time);
+
+		ecrModel.setSystemNm(systemNm);
+		ecrModel.setDocTypeCd(ECR_DOC_TYPE);
+		ecrModel.setOriginalPayload(payload);
+		ecrModel.setOriginalDocTypeCd(origDocTypeEicr);
+		ecrModel.setSpecimenCollDate(null);
+		ecrModel.setLabClia(null);
+		ecrModel.setFillerOrderNbr(null);
+		ecrModel.setOrderTestCode(null);
+		ecrModel.setObservationUid(null);
+		ecrModel.setOriginalPayloadRR(null);
+		ecrModel.setOriginalDocTypeCdRR(null);
+
+		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(ecrModel);
+		return nbsInterfaceModel;
+	}
+
+	public NbsInterfaceModel saveIncomingEcrMessageWithRR(String payload, String systemNm, String origDocTypeEicr, String incomingRR, String origDocTypeRR) {
+		log.debug("Processing ecr message: \n {} \n and RR message: \n {}", payload, incomingRR);
+		NbsInterfaceModel ecrModelWithRR = new NbsInterfaceModel();
+
+		ecrModelWithRR.setImpExpIndCd(IMPEXP_CD);
+		ecrModelWithRR.setRecordStatusCd(ECR_STATUS);
+
+		var time = getCurrentTimeStamp();
+		ecrModelWithRR.setRecordStatusTime(time);
+		ecrModelWithRR.setAddTime(time);
+
+		ecrModelWithRR.setSystemNm(systemNm);
+		ecrModelWithRR.setDocTypeCd(ECR_DOC_TYPE);
+		ecrModelWithRR.setOriginalPayload(payload);
+		ecrModelWithRR.setOriginalDocTypeCd(origDocTypeEicr);
+		ecrModelWithRR.setSpecimenCollDate(null);
+		ecrModelWithRR.setLabClia(null);
+		ecrModelWithRR.setFillerOrderNbr(null);
+		ecrModelWithRR.setOrderTestCode(null);
+		ecrModelWithRR.setObservationUid(null);
+		ecrModelWithRR.setOriginalPayloadRR(incomingRR);
+		ecrModelWithRR.setOriginalDocTypeCdRR(origDocTypeRR);
+
+		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(ecrModelWithRR);
+		return nbsInterfaceModel;
 	}
 }

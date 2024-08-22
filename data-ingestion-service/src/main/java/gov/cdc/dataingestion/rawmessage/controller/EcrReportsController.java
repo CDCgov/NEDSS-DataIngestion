@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
-import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,14 +12,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class EcrReportsController {
     }
 
     @Operation(
-            summary = "Submit a PHDC XML to Data Ingestion Service",
+            summary = "Submit a ECR document to Data Ingestion Service",
             parameters = {
                     @Parameter(in = ParameterIn.HEADER,
                             name = "clientid",
@@ -52,18 +50,19 @@ public class EcrReportsController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs/{document-type-code}")
-    public ResponseEntity<String> saveEcr(@RequestBody final String payload, @PathVariable("document-type-code") String parameter) throws EcrCdaXmlException {
-        if(parameter.equalsIgnoreCase("PHC236")) {
-            var result = ecrMsgQueryService.getSelectedEcrRecord();
-            var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
-
-            nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
-                    , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
-            return ResponseEntity.ok(xmlResult);
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs")
+    public ResponseEntity<Integer> saveIncomingEcr(@RequestBody final String payload,
+                                                   @RequestHeader("rr-message") String incomingRR,
+                                                   @RequestHeader("system-nm") String systemNm,
+                                                   @RequestHeader("orig-doc-type-eicr") String origDocTypeEicr,
+                                                   @RequestHeader("orig-doc-type-rr") String origDocTypeRR) {
+        NbsInterfaceModel nbsInterfaceModel;
+        if(incomingRR.equalsIgnoreCase("null") || incomingRR.isEmpty() || incomingRR.isBlank() || incomingRR == null) {
+            nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(payload, systemNm, origDocTypeEicr);
         }
         else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid document type code.");
+            nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithRR(payload, systemNm, origDocTypeEicr, incomingRR, origDocTypeRR);
         }
+        return ResponseEntity.ok(nbsInterfaceModel.getNbsInterfaceUid());
     }
 }
