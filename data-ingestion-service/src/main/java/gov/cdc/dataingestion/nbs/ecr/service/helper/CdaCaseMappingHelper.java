@@ -339,6 +339,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
         String tripletCodedValue;
         PhdcQuestionLookUpDto questionLookUpDto = cdaMapHelper.mapToCodedQuestionType(questionId);
+        if(output.getCode() == null) {
+            output.addNewCode();
+        }
         output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
         output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
         output.getCode().setDisplayName(questionLookUpDto.getQuesDisplayName());
