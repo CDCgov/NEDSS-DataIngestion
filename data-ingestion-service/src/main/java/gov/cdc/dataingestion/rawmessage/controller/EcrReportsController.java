@@ -57,7 +57,7 @@ public class EcrReportsController {
                                                    @RequestHeader("orig-doc-type-eicr") String origDocTypeEicr,
                                                    @RequestHeader("orig-doc-type-rr") String origDocTypeRR) {
         NbsInterfaceModel nbsInterfaceModel;
-        if(incomingRR.equalsIgnoreCase("null") || incomingRR.isEmpty() || incomingRR.isBlank() || incomingRR == null) {
+        if(incomingRR.equalsIgnoreCase("null") || incomingRR.isEmpty() || incomingRR.isBlank()) {
             nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(payload, systemNm, origDocTypeEicr);
         }
         else {

@@ -263,8 +263,7 @@ public class NbsRepositoryServiceProvider {
 		ecrModel.setOriginalPayloadRR(null);
 		ecrModel.setOriginalDocTypeCdRR(null);
 
-		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(ecrModel);
-		return nbsInterfaceModel;
+		return nbsInterfaceRepo.save(ecrModel);
 	}
 
 	public NbsInterfaceModel saveIncomingEcrMessageWithRR(String payload, String systemNm, String origDocTypeEicr, String incomingRR, String origDocTypeRR) {
@@ -290,7 +289,6 @@ public class NbsRepositoryServiceProvider {
 		ecrModelWithRR.setOriginalPayloadRR(incomingRR);
 		ecrModelWithRR.setOriginalDocTypeCdRR(origDocTypeRR);
 
-		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(ecrModelWithRR);
-		return nbsInterfaceModel;
+		return nbsInterfaceRepo.save(ecrModelWithRR);
 	}
 }
