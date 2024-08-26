@@ -66,6 +66,6 @@ spring:
 
 converterApiUrl: "http://localhost:8081/"
 
-isNbs: false
+isDibbs: false
 
 #K8S Profile goes here

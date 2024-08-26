@@ -50,7 +50,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
     @SuppressWarnings("java:S6541")
     @Transactional
-    public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer, boolean isNbs)
+    public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer, boolean isDibbs)
         throws DataProcessingException, InterruptedException {
 
         Long patientUid;
@@ -60,13 +60,13 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
         boolean newPatientCreationApplied = false;
 
-        if (isNbs) {
-            matchFound = nbsMatchService.match(personContainer);
-            edxPatientMatchFoundDT = nbsMatchService.getEdxPatientMatchFoundDT();
-        } else {
-            matchFound = dibbsMatchService.match(personContainer);
-            edxPatientMatchFoundDT = dibbsMatchService.getEdxPatientMatchFoundDT();
-        }
+      if (isDibbs) {
+        matchFound = dibbsMatchService.match(personContainer);
+        edxPatientMatchFoundDT = dibbsMatchService.getEdxPatientMatchFoundDT();
+      } else {
+        matchFound = nbsMatchService.match(personContainer);
+        edxPatientMatchFoundDT = nbsMatchService.getEdxPatientMatchFoundDT();
+      }
 
         // NOTE: Decision, Match Not Found, Start Person Creation
         if (!matchFound) {

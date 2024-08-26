@@ -34,8 +34,8 @@ public class PersonService implements IPersonService {
     private final IProviderMatchingService providerMatchingService;
     private final IUidService uidService;
 
-    @Value("${isNbs}")
-    private boolean isNbs;
+    @Value("${isDibbs}")
+    private boolean isDibbs;
 
     public PersonService(
         PatientMatchingService patientMatchingService,
@@ -86,7 +86,7 @@ public class PersonService implements IPersonService {
                 //NOTE: Mathing Patient
                 //NOTE: This matching also persist patient accordingly
                 //NOTE: Either new or existing patient, it will be processed within this method
-                edxPatientMatchFoundDT= patientMatchingService.getMatchingPatient(personContainer,isNbs);
+                edxPatientMatchFoundDT= patientMatchingService.getMatchingPatient(personContainer,isDibbs);
                 edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
                 personUid = personContainer.getThePersonDto().getPersonUid();
             }
