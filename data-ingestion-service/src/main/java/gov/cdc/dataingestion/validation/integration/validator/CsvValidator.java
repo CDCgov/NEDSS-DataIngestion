@@ -21,16 +21,26 @@ public class CsvValidator implements ICsvValidator {
 
     public ValidatedELRModel validateCSVAgainstCVSSchema(String message) throws IOException, CsvValidationException, DiHL7Exception {
         String[] header;
-        try (CSVReader reader = new CSVReader(new FileReader(schemaPath))) {
+        CSVReader reader = null;
+        try {
+            reader = new CSVReader(new FileReader(schemaPath));
             header = reader.readNext();
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
+
+        if (header == null) {
+            throw new DiHL7Exception("Schema definition is missing or invalid");
+        }
+
         int headerLength = header.length;
         List<List<String>> kafkaMsg = gson.fromJson(message, List.class);
 
-        for(var item : kafkaMsg ){
-            if(item.size() != headerLength) {
-                // do specific expcetion maybe CSV
-                throw new DiHL7Exception("Invalid record, one or more record does not match with schema definition");
+        for (var item : kafkaMsg) {
+            if (item.size() != headerLength) {
+                throw new DiHL7Exception("Invalid record, one or more records do not match the schema definition");
             }
         }
 
@@ -41,4 +51,5 @@ public class CsvValidator implements ICsvValidator {
 
         return model;
     }
+
 }

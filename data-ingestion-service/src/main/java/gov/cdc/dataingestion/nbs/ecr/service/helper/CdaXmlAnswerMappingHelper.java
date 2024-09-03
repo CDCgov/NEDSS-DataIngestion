@@ -10,10 +10,12 @@ import gov.cdc.nedss.phdc.cda.POCDMT000040Component3;
 import org.apache.xmlbeans.XmlObject;
 import org.w3c.dom.Document;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     public CdaXmlAnswerMapper mapToXmlAnswerTop(EcrSelectedRecord input,
@@ -47,14 +49,25 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     private POCDMT000040Component3 mapToExtendedData(EcrMsgXmlAnswerDto in, POCDMT000040Component3 out) throws EcrCdaXmlException {
         try {
             String xmlContent = in.getAnswerXmlTxt();
-            if (!xmlContent.isEmpty() && xmlContent != null) {
+            if (xmlContent != null && !xmlContent.isEmpty()) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(false);
                 factory.setValidating(false);
 
+                // OWASP recommended XXE prevention measures
+                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+                // Additional OWASP recommendations for secure XML processing
+                factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                factory.setXIncludeAware(false);
+                factory.setExpandEntityReferences(false);
+
                 DocumentBuilder builder = factory.newDocumentBuilder();
-                InputStream is = new ByteArrayInputStream(xmlContent.getBytes());
-                Document document = builder.parse((is));
+                InputStream is = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
+                Document document = builder.parse(is);
 
                 XmlObject xmlData = XmlObject.Factory.parse(document.getDocumentElement());
                 out.set(xmlData);
@@ -64,4 +77,5 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
             throw new EcrCdaXmlException(e.getMessage());
         }
     }
+
 }

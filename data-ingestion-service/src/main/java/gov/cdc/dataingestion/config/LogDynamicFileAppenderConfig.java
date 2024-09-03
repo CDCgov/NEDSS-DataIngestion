@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -32,6 +33,23 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
             return;
         }
 
+        // Normalize and validate logFilePath
+        logFilePath = logFilePath.replace("\\", "/"); // Normalize path slashes for consistency
+        Path logDir = Paths.get(System.getProperty("user.dir"), "logs"); // Define a safe directory for logs
+        Path normalizedPath;
+        try {
+            // Resolve and normalize the logFilePath to ensure it's within the safe directory
+            normalizedPath = logDir.resolve(logFilePath).normalize();
+            if (!normalizedPath.startsWith(logDir)) {
+                addError("Log file path is outside the allowed directory");
+                return;
+            }
+        } catch (Exception e) {
+            addError("Failed to resolve log file path", e);
+            return;
+        }
+
+        // Continue with the original date formatting logic (unchanged)
         if (logFilePath.contains("%d{")) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -39,10 +57,8 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
             logFilePath = logFilePath.replace("%d{yyyy-MM-dd_HH-mm-ss}", formattedDate);
         }
 
-        File logFile = new File(logFilePath);
-        if (!logFile.isAbsolute()) {
-            logFile = new File(System.getProperty("user.dir"), logFilePath);
-        }
+        // Create a File object using the validated and normalized path
+        File logFile = normalizedPath.toFile();
 
         try {
             if (!logFile.exists()) {
