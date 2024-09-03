@@ -18,14 +18,14 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
     /**
      * Helper method used by Logback
      * Reading logFilePatch tag from dlt-logback.xml and return value
-     * */
+     */
     public void setLogFilePath(String logFilePath) {
         this.logFilePath = logFilePath;
     }
 
     /**
      * Purpose: Dynamically create log file if not exist
-     * */
+     */
     @Override
     public void start() {
         if (logFilePath == null) {
@@ -33,9 +33,16 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
             return;
         }
 
-        // Normalize and validate logFilePath
-        logFilePath = logFilePath.replace("\\", "/"); // Normalize path slashes for consistency
-        Path logDir = Paths.get(System.getProperty("user.dir"), "logs"); // Define a safe directory for logs
+        // Handle date formatting in the log file path
+        if (logFilePath.contains("%d{")) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String formattedDate = dateFormat.format(new Date());
+            logFilePath = logFilePath.replace("%d{yyyy-MM-dd_HH-mm-ss}", formattedDate);
+        }
+
+        // Normalize and validate the log file path
+        Path logDir = Paths.get(System.getProperty("user.dir")); // Define a safe directory for logs
         Path normalizedPath;
         try {
             // Resolve and normalize the logFilePath to ensure it's within the safe directory
@@ -49,25 +56,19 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
             return;
         }
 
-        // Continue with the original date formatting logic (unchanged)
-        if (logFilePath.contains("%d{")) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            String formattedDate = dateFormat.format(new Date());
-            logFilePath = logFilePath.replace("%d{yyyy-MM-dd_HH-mm-ss}", formattedDate);
-        }
-
         // Create a File object using the validated and normalized path
         File logFile = normalizedPath.toFile();
 
         try {
             if (!logFile.exists()) {
                 Path parentDir = logFile.toPath().getParent();
-                Files.createDirectories(parentDir);
+                if (parentDir != null && !Files.exists(parentDir)) {
+                    Files.createDirectories(parentDir);
+                }
                 Files.createFile(logFile.toPath());
             }
         } catch (IOException e) {
-            addError("Failed to create log file: " + logFilePath, e);
+            addError("Failed to create log file: " + logFile.getAbsolutePath(), e);
             return;
         }
 
