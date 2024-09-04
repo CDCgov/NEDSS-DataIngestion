@@ -40,7 +40,7 @@ class CsvValidatorTest {
         );
 
         // Assert
-        String expectedMessage = "Invalid record, one or more record does not match with schema definition";
+        String expectedMessage = "Invalid record, one or more records do not match the schema definition";
         String actualMessage = exception.getMessage();
         Assertions.assertTrue(actualMessage.contains(expectedMessage));
 
