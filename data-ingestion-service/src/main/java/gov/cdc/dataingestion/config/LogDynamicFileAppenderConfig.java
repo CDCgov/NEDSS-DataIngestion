@@ -42,7 +42,9 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
         }
 
         // Normalize and validate the log file path
-        Path logDir = Paths.get(System.getProperty("user.dir")); // Define a safe directory for logs
+//        Path logDir = Paths.get(System.getProperty("user.dir")); // Define a safe directory for logs
+        Path logDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("dataingestion");
+
         Path normalizedPath;
         try {
             // Resolve and normalize the logFilePath to ensure it's within the safe directory
@@ -51,6 +53,13 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
                 addError("Log file path is outside the allowed directory");
                 return;
             }
+
+            // Ensure the log file path doesn't contain any path traversal sequences (e.g., '../')
+            if (logFilePath.contains("..")) {
+                addError("Invalid log file path: contains path traversal sequences");
+                return;
+            }
+
         } catch (Exception e) {
             addError("Failed to resolve log file path", e);
             return;
