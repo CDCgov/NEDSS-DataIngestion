@@ -42,7 +42,6 @@ public class LogDynamicFileAppenderConfig<E> extends FileAppender<E> {
         }
 
         // Normalize and validate the log file path
-//        Path logDir = Paths.get(System.getProperty("user.dir")); // Define a safe directory for logs
         Path logDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("dataingestion");
 
         Path normalizedPath;
