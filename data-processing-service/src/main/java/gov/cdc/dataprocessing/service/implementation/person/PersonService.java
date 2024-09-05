@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Service
@@ -33,20 +32,23 @@ public class PersonService implements IPersonService {
     private final INokMatchingService nokMatchingService;
     private final IProviderMatchingService providerMatchingService;
     private final IUidService uidService;
+    private final DibbsMatchService dibbsMatchService;
 
     @Value("${isDibbs}")
     private boolean isDibbs;
+
 
     public PersonService(
         PatientMatchingService patientMatchingService,
         INokMatchingService nokMatchingService,
         IProviderMatchingService providerMatchingService,
-        IUidService uidService) {
-
+        IUidService uidService,
+        DibbsMatchService dibbsMatchService) {      
         this.patientMatchingService = patientMatchingService;
         this.nokMatchingService = nokMatchingService;
         this.providerMatchingService = providerMatchingService;
         this.uidService = uidService;
+        this.dibbsMatchService = dibbsMatchService;
     }
 
     @Transactional
@@ -74,21 +76,34 @@ public class PersonService implements IPersonService {
     public PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingException {
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();
-            Long personUid;
+            Long personUid = null;
             EdxPatientMatchDto edxPatientMatchFoundDT = null;
 
             personContainer.setRole(EdxELRConstant.ELR_PATIENT_CD);
-
-            if(edxLabInformationDto.getPatientUid()>0){
-                personUid= edxLabInformationDto.getPatientUid();
-            }
-            else{
-                //NOTE: Mathing Patient
-                //NOTE: This matching also persist patient accordingly
-                //NOTE: Either new or existing patient, it will be processed within this method
-                edxPatientMatchFoundDT= patientMatchingService.getMatchingPatient(personContainer,isDibbs);
-                edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
-                personUid = personContainer.getThePersonDto().getPersonUid();
+            if (edxLabInformationDto.getPatientUid() > 0) {
+                personUid = edxLabInformationDto.getPatientUid();
+            } else {
+                if (isDibbs) {
+                    // Use DibbsMatchService for matching
+                    Map<String, Object> matchResponse = dibbsMatchService.match(personContainer);
+                    String matchType = (String) matchResponse.get("match_type");
+                    if ("EXACT".equals(matchType)) {
+                        // Process exact match
+                        personUid = (Long) matchResponse.get("patient");
+                        handleAutoMerge(personContainer, edxLabInformationDto);
+                    } else if ("HUMAN_REVIEW".equals(matchType)) {
+                        // Handle human review logic (standby for now)
+                        log.info("Human review required for patient matching.");
+                    } else if ("none".equals(matchType)) {
+                        // No match found
+                        edxLabInformationDto.setPatientMatch(false);
+                    }
+                } else {
+                    // Use existing patientMatchingService logic
+                    edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personContainer, isDibbs);
+                    edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
+                    personUid = personContainer.getThePersonDto().getPersonUid();
+                }
             }
 
             if (personUid != null) {
@@ -115,6 +130,7 @@ public class PersonService implements IPersonService {
             throw new DataProcessingException(e.getMessage());
         }
     }
+
 
     @Transactional
     public PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingException {
@@ -154,7 +170,21 @@ public class PersonService implements IPersonService {
         }
         return null;
     }
+    private void handleAutoMerge(PersonContainer personContainer, EdxLabInformationDto edxLabInformationDto) {
+        PersonDto personDto = personContainer.getThePersonDto();
+        if (personDto != null) {
+            // Set the person as not new and mark as dirty after merging
+            personDto.setItNew(false);
+            personDto.setItDirty(true);
+            edxLabInformationDto.setPatientMatch(true);
 
+            // Update person details based on the match
+            PersonNameDto personName = parsingPersonName(personContainer);
+            String lastName = personName.getLastNm();
+            String firstName = personName.getFirstNm();
+            edxLabInformationDto.setEntityName(firstName + " " + lastName);
+        }
+    }
     private PersonNameDto parsingPersonName(PersonContainer personContainer) throws DataProcessingException {
         Collection<PersonNameDto> personNames = personContainer.getThePersonNameDtoCollection();
         for (PersonNameDto personName : personNames) {
