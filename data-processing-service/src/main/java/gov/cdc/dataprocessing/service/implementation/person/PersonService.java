@@ -18,6 +18,9 @@ import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
@@ -80,31 +83,32 @@ public class PersonService implements IPersonService {
             EdxPatientMatchDto edxPatientMatchFoundDT = null;
 
             personContainer.setRole(EdxELRConstant.ELR_PATIENT_CD);
-            if (edxLabInformationDto.getPatientUid() > 0) {
-                personUid = edxLabInformationDto.getPatientUid();
-            } else {
-                if (isDibbs) {
-                    // Use DibbsMatchService for matching
-                    Map<String, Object> matchResponse = dibbsMatchService.match(personContainer);
-                    String matchType = (String) matchResponse.get("match_type");
-                    if ("EXACT".equals(matchType)) {
-                        // Process exact match
-                        personUid = (Long) matchResponse.get("patient");
-                        handleAutoMerge(personContainer, edxLabInformationDto);
-                    } else if ("HUMAN_REVIEW".equals(matchType)) {
-                        // Handle human review logic (standby for now)
-                        log.info("Human review required for patient matching.");
-                    } else if ("none".equals(matchType)) {
-                        // No match found
-                        edxLabInformationDto.setPatientMatch(false);
-                    }
-                } else {
-                    // Use existing patientMatchingService logic
-                    edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personContainer, isDibbs);
-                    edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
-                    personUid = personContainer.getThePersonDto().getPersonUid();
-                }
+                    if (edxLabInformationDto.getPatientUid() > 0) {
+            personUid = edxLabInformationDto.getPatientUid();
+        } else {
+            // Always use Deduplication Service for matching
+            Map<String, Object> matchResponse = dibbsMatchService.match(personContainer);
+            String matchType = (String) matchResponse.get("match_type");
+
+            if ("EXACT".equals(matchType)) {
+                // Process exact match
+                personUid = (Long) matchResponse.get("patient");
+                handleAutoMerge(personContainer, edxLabInformationDto);
+            } else if ("HUMAN_REVIEW".equals(matchType)) {
+                // Handle human review logic
+                // Retrieve the patient ID from the match response
+                personUid = (Long) matchResponse.get("patient");
+                // Call the stored procedure PERSON_GROUP_SP
+                callPersonGroupStoredProcedure();
+            } else if ("none".equals(matchType)) {
+                // No match found
+                edxLabInformationDto.setPatientMatch(false);
             }
+            
+            // Commented out: Use existing patientMatchingService logic
+            // edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personContainer, isDibbs);
+            // edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
+            // personUid = personContainer.getThePersonDto().getPersonUid();
 
             if (personUid != null) {
                 uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, personUid);
@@ -128,6 +132,22 @@ public class PersonService implements IPersonService {
             return personContainer;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage());
+        }
+    }
+
+    /**
+     * Calls the stored procedure PERSON_GROUP_SP to group person records.
+     */
+    private void callPersonGroupStoredProcedure() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
+            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("PERSON_GROUP_SP");
+            query.registerStoredProcedureParameter("p_count", Integer.class, ParameterMode.OUT);
+            query.execute();
+            int count = (int) query.getOutputParameterValue("p_count");
+            log.info("Stored Procedure PERSON_GROUP_SP executed. p_count: " + count);
+        } finally {
+            entityManager.close();
         }
     }
 
