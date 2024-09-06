@@ -26,7 +26,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private String sftpDirectory="/";
     private int sftpPort=22;
     private static final String USER_NAME = "username";
-    private static final String PASSWORD = "password";
+    private static final String PWD_NAME = "password";
     private static final String AUTO_CREATE = "autoCreate";
     private static final String USE_USER_KNOWN_HOSTS_FILE = "useUserKnownHostsFile";
     private static final String TRUE = "true";
@@ -57,7 +57,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .setPort(sftpPort)
                 .setPath(sftpDirectory)
                 .addParameter(USER_NAME, sftpUserName)
-                .addParameter(PASSWORD, sftpPassword)
+                .addParameter(PWD_NAME, sftpPassword)
                 .addParameter(AUTO_CREATE, TRUE)
                 .addParameter(PASSIVE_MODE, TRUE)
                 .addParameter(INITIAL_DELAY, "2000")
@@ -76,7 +76,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .setPort(sftpPort)
                 .setPath(sftpDirectory + "processed")
                 .addParameter(USER_NAME, sftpUserName)
-                .addParameter(PASSWORD, sftpPassword)
+                .addParameter(PWD_NAME, sftpPassword)
                 .addParameter(AUTO_CREATE, TRUE)
                 .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE)
                 .build();
@@ -86,7 +86,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .setPort(sftpPort)
                 .setPath(sftpDirectory + "unprocessed")
                 .addParameter(USER_NAME, sftpUserName)
-                .addParameter(PASSWORD, sftpPassword)
+                .addParameter(PWD_NAME, sftpPassword)
                 .addParameter(AUTO_CREATE, TRUE)
                 .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE)
                 .build();

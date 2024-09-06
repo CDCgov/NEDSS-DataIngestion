@@ -198,8 +198,6 @@ dependencies {
 	implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
 	implementation 'org.springframework.boot:spring-boot-starter-logging'
 	implementation 'org.slf4j:slf4j-api'
-	implementation 'ch.qos.logback:logback-classic'
-	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 	implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.1'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
@@ -264,6 +262,9 @@ dependencies {
 	liquibaseRuntime 'org.liquibase:liquibase-core:4.24.0'
 	liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
 	liquibaseRuntime 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+
+	implementation 'org.hibernate.validator:hibernate-validator'
+
 }
 
 test {
@@ -307,7 +308,7 @@ sonarqube {
 				" **/HierarchicalDesignationType.java, **/HL7NumericType.java, **/HL7OBXValueType.java, **/HL7SNType.java," +
 				" **/HL7TMType.java, **/IdentifiersType.java, **/IdentifierType.java, **/InvestigationInformationType.java, **/LabReportCommentsType.java, **/LabReportType.java, **/NameType.java, **/NoteType.java, **/NumericType.java, **/ObjectFactory.java, **/ObservationsType.java, **/ObservationType.java, **/OrganizationParticipantType.java, **/ParticipantsType.java, **/PatientType.java, **/PostalAddressType.java, **/ProviderNameType.java, **/ProviderParticipantType.java, **/ReferenceRangeType.java, **/ReportingInformationType.java, **/SectionHeaderType.java, **/SpecimenType.java, **/SusceptibilityType.java, **/TelephoneType.java, **/TestResultType.java, **/TestsType.java, **/UnstructuredType.java," +
 				" **/ValuesType.java, " +
-				" **/config/LogDynamicFileAppenderConfig.config, **/exception/**, ServiceApplication.java," +
+				" **/exception/**, ServiceApplication.java," +
 				" **rawmessage/dto/**, **/deadletter/model/**, " +
 				" **/nbs/ecr/**, "  + // <-- Remove this once ECR is completed
 				" **/report/repository/model/**, **/config/**, **/model/**, **/jaxb/**, **/TimeMetricsBuilder.java"
