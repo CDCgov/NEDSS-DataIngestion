@@ -28,10 +28,6 @@ auth:
   token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
   introspect-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token/introspect
 
-logging:
-  #  Only one config can be active at a time
-  config: classpath:logback-config.xml
-LOG_PATH: ${DI_LOG_PATH}
 ---
 spring:
   config:
