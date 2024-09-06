@@ -1,0 +1,91 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+        classpath 'org.owasp:dependency-check-gradle:9.0.3'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'jacoco'
+    id "org.sonarqube" version "4.2.1.3168"
+}
+
+apply plugin: 'org.owasp.dependencycheck'
+
+group = 'gov.cdc.nbsDedup'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+tasks.withType(Jar).all { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+
+if ( isReleaseVersion ) {
+    println "Using staging URL"
+    ext.mavenCentralUploadUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+    println "Using snapshot URL"
+    ext.mavenCentralUploadUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.0'
+    implementation 'org.springframework.kafka:spring-kafka:3.0.12'
+    implementation 'org.apache.kafka:kafka-clients:3.6.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+
+    implementation 'ca.uhn.hapi:hapi-base:2.3'
+    implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
+    implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.0'
+    implementation 'org.simpleframework:simple-xml:2.7.1'
+
+    implementation 'io.prometheus:simpleclient:0.16.0'
+    implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
+    implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
+    implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
+
+    implementation 'org.hibernate.validator:hibernate-validator'
+
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+    runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+}
+test {
+    useJUnitPlatform()
+}
+
+
