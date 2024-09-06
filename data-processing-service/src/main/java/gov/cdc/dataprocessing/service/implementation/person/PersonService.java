@@ -83,32 +83,35 @@ public class PersonService implements IPersonService {
             EdxPatientMatchDto edxPatientMatchFoundDT = null;
 
             personContainer.setRole(EdxELRConstant.ELR_PATIENT_CD);
-                    if (edxLabInformationDto.getPatientUid() > 0) {
-            personUid = edxLabInformationDto.getPatientUid();
-        } else {
-            // Always use Deduplication Service for matching
-            Map<String, Object> matchResponse = dibbsMatchService.match(personContainer);
-            String matchType = (String) matchResponse.get("match_type");
 
-            if ("EXACT".equals(matchType)) {
-                // Process exact match
-                personUid = (Long) matchResponse.get("patient");
-                handleAutoMerge(personContainer, edxLabInformationDto);
-            } else if ("HUMAN_REVIEW".equals(matchType)) {
-                // Handle human review logic
-                // Retrieve the patient ID from the match response
-                personUid = (Long) matchResponse.get("patient");
-                // Call the stored procedure PERSON_GROUP_SP
-                callPersonGroupStoredProcedure();
-            } else if ("none".equals(matchType)) {
-                // No match found
-                edxLabInformationDto.setPatientMatch(false);
+            if (edxLabInformationDto.getPatientUid() > 0) {
+                personUid = edxLabInformationDto.getPatientUid();
+            } else {
+                // Always use Deduplication Service for matching
+                Map<String, Object> matchResponse = dibbsMatchService.match(personContainer);
+                String matchType = (String) matchResponse.get("match_type");
+
+                if ("EXACT".equals(matchType)) {
+                    // Process exact match
+                    personUid = (Long) matchResponse.get("patient");
+                    handleAutoMerge(personContainer, edxLabInformationDto);
+                } else if ("HUMAN_REVIEW".equals(matchType)) {
+                    // Treating as no match
+                    edxLabInformationDto.setPatientMatch(false);
+                    personUid = personContainer.getThePersonDto().getPersonUid(); // This will trigger creation of a new person
+                    // Update new person with group number, group time, and dedup_ind_cd
+                    personContainer.getThePersonDto().setGroupNumber(generateGroupNumber()); // Assuming generateGroupNumber() generates the group number
+                    personContainer.getThePersonDto().setGroupTime(new Timestamp(System.currentTimeMillis()));
+                    personContainer.getThePersonDto().setdedupMatchInd("F");  // dedupMatchInd
+                } else if ("none".equals(matchType)) {
+                    // No match found
+                    edxLabInformationDto.setPatientMatch(false);
+                    personUid = personContainer.getThePersonDto().getPersonUid(); // This will trigger creation of a new person
+                }
             }
-            
-            // Commented out: Use existing patientMatchingService logic
-            // edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personContainer, isDibbs);
-            // edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
-            // personUid = personContainer.getThePersonDto().getPersonUid();
+
+            // Set the role and any additional processing
+            personContainer.setRole(EdxELRConstant.ELR_PATIENT_CD);
 
             if (personUid != null) {
                 uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, personUid);
@@ -122,35 +125,37 @@ public class PersonService implements IPersonService {
                 edxLabInformationDto.setEntityName(firstName + " " + lastName);
             }
 
-            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personContainer.getPatientMatchedFound()) {
+            if (edxPatientMatchFoundDT != null && !edxPatientMatchFoundDT.isMultipleMatch() && personContainer.getPatientMatchedFound()) {
                 edxLabInformationDto.setPatientMatch(true);
             }
-            if(personContainer.getThePersonDto().getPersonParentUid()!=null){
+
+            if (personContainer.getThePersonDto().getPersonParentUid() != null) {
                 edxLabInformationDto.setPersonParentUid(personContainer.getThePersonDto().getPersonParentUid());
             }
 
             return personContainer;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            log.error("Error processing patient: ", e);
+            throw new DataProcessingException("Error processing patient", e);
         }
     }
 
-    /**
-     * Calls the stored procedure PERSON_GROUP_SP to group person records.
-     */
-    private void callPersonGroupStoredProcedure() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("PERSON_GROUP_SP");
-            query.registerStoredProcedureParameter("p_count", Integer.class, ParameterMode.OUT);
-            query.execute();
-            int count = (int) query.getOutputParameterValue("p_count");
-            log.info("Stored Procedure PERSON_GROUP_SP executed. p_count: " + count);
-        } finally {
-            entityManager.close();
+
+    private void handleAutoMerge(PersonContainer personContainer, EdxLabInformationDto edxLabInformationDto) {
+        PersonDto personDto = personContainer.getThePersonDto();
+        if (personDto != null) {
+            // Set the person as not new and mark as dirty after merging
+            personDto.setItNew(false);
+            personDto.setItDirty(true);
+            edxLabInformationDto.setPatientMatch(true);
+
+            // Update person details based on the match
+            PersonNameDto personName = parsingPersonName(personContainer);
+            String lastName = personName.getLastNm();
+            String firstName = personName.getFirstNm();
+            edxLabInformationDto.setEntityName(firstName + " " + lastName);
         }
     }
-
 
     @Transactional
     public PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingException {
@@ -190,21 +195,7 @@ public class PersonService implements IPersonService {
         }
         return null;
     }
-    private void handleAutoMerge(PersonContainer personContainer, EdxLabInformationDto edxLabInformationDto) {
-        PersonDto personDto = personContainer.getThePersonDto();
-        if (personDto != null) {
-            // Set the person as not new and mark as dirty after merging
-            personDto.setItNew(false);
-            personDto.setItDirty(true);
-            edxLabInformationDto.setPatientMatch(true);
 
-            // Update person details based on the match
-            PersonNameDto personName = parsingPersonName(personContainer);
-            String lastName = personName.getLastNm();
-            String firstName = personName.getFirstNm();
-            edxLabInformationDto.setEntityName(firstName + " " + lastName);
-        }
-    }
     private PersonNameDto parsingPersonName(PersonContainer personContainer) throws DataProcessingException {
         Collection<PersonNameDto> personNames = personContainer.getThePersonNameDtoCollection();
         for (PersonNameDto personName : personNames) {
