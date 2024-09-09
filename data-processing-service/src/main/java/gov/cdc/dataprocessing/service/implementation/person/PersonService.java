@@ -27,6 +27,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -98,11 +99,14 @@ public class PersonService implements IPersonService {
                 } else if ("HUMAN_REVIEW".equals(matchType)) {
                     // Treating as no match
                     edxLabInformationDto.setPatientMatch(false);
-                    personUid = personContainer.getThePersonDto().getPersonUid(); // This will trigger creation of a new person
+                    personUid = null; // Indicate that a new person will be created
                     // Update new person with group number, group time, and dedup_ind_cd
-                    personContainer.getThePersonDto().setGroupNumber(generateGroupNumber()); // Assuming generateGroupNumber() generates the group number
+                    personContainer.setItNew(false);
+                    personContainer.setItDirty(false);
+                    String randomGroupNumber = UUID.randomUUID().toString();
+                    personContainer.getThePersonDto().setGroupNumber(randomGroupNumber);
                     personContainer.getThePersonDto().setGroupTime(new Timestamp(System.currentTimeMillis()));
-                    personContainer.getThePersonDto().setdedupMatchInd("F");  // dedupMatchInd
+                    personContainer.getThePersonDto().setDedupMatchInd("F");  // dedupMatchInd
                 } else if ("none".equals(matchType)) {
                     // No match found
                     edxLabInformationDto.setPatientMatch(false);
