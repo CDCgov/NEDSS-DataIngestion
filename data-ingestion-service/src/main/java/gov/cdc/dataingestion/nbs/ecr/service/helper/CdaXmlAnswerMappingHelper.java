@@ -50,8 +50,10 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
         try {
             String xmlContent = in.getAnswerXmlTxt();
             if (xmlContent != null && !xmlContent.isEmpty()) {
+                xmlContent = xmlContent.replaceFirst("sdt:dischargeDispositionCode",
+                        "sdt:dischargeDispositionCode xmlns:sdt=\"urn:hl7-org:sdt\"");
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(false);
+                factory.setNamespaceAware(true);
                 factory.setValidating(false);
 
                 // OWASP recommended XXE prevention measures
