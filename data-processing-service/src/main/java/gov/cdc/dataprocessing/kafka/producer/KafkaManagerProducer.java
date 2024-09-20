@@ -52,11 +52,6 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
         sendMessage(record);
     }
 
-    public void sendUnprocessedData(String msgContent) {
-        String uniqueID = "DP_Unprocessed_ELR_" + UUID.randomUUID();
-        var record = createProducerRecord(unprocessedTopic, uniqueID, msgContent);
-        sendMessage(record);
-    }
 
     private void sendData(String topic, String msgContent) {
         String uniqueID = "DP_ELR_" + UUID.randomUUID();
