@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
-import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
@@ -35,17 +34,19 @@ import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
 @Service
 @Slf4j
@@ -74,7 +75,6 @@ public class ManagerService implements IManagerService {
     private final IInvestigationNotificationService investigationNotificationService;
 
     private final IManagerCacheService managerCacheService;
-    private final Gson gson = new Gson();
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -104,7 +104,7 @@ public class ManagerService implements IManagerService {
         this.managerCacheService = managerCacheService;
     }
 
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional
     public void processDistribution(Integer data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
@@ -115,7 +115,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
@@ -186,13 +186,14 @@ public class ManagerService implements IManagerService {
             }
 
 
-            String trackerString = gson.toJson(trackerView);
+            String trackerString = GSON.toJson(trackerView);
             kafkaManagerProducer.sendDataActionTracker(trackerString);
 
-            String jsonString = gson.toJson(phcContainer);
+            String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataLabHandling(jsonString);
 
         } catch (Exception e) {
+            logger.error("STEP 2 ERROR: {}", e.getMessage());
             detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
@@ -205,7 +206,7 @@ public class ManagerService implements IManagerService {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
@@ -214,7 +215,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
@@ -260,7 +261,6 @@ public class ManagerService implements IManagerService {
 
                 if (publicHealthCaseContainer.getErrorText() != null)
                 {
-                    //TODO: LOGGING
                     requiredFieldError(publicHealthCaseContainer.getErrorText(), edxLabInformationDto);
                 }
 
@@ -289,7 +289,6 @@ public class ManagerService implements IManagerService {
 
                 if(edxLabInformationDto.getAction() != null
                         && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
-                    //TODO: LOGGING
                     EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseContainer, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
@@ -319,6 +318,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            logger.error("STEP 3 ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
@@ -344,7 +344,7 @@ public class ManagerService implements IManagerService {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
 
-                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
@@ -437,7 +437,7 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            String jsonString = gson.toJson(phcContainer);
+            String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
@@ -560,16 +560,13 @@ public class ManagerService implements IManagerService {
                         logger.error("Exception while formatting exception message for Activity Log: "+ex.getMessage(), ex);
                     }
                 }
-
-            //throw new DataProcessingConsumerException(e.getMessage(), result);
-
         }
         finally
         {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }

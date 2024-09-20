@@ -8,22 +8,32 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.GA;
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
 @Service
 public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OdseIdGeneratorWCacheService.class);
+
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
 
     public OdseIdGeneratorWCacheService(LocalUidGeneratorRepository localUidGeneratorRepository, CacheManager cacheManager) {
         this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
+        logger.debug("OdseIdGeneratorWCacheService.getValidLocalUid: {}",  GSON.toJson(LocalUidCacheModel.localUidMap));
         boolean newKeyRequired = false;
         LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
 

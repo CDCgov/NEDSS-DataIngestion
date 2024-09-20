@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dsma_algorithm.*;
@@ -23,10 +24,12 @@ import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
 import gov.cdc.dataprocessing.utilities.component.wds.WdsObjectChecker;
-import jakarta.transaction.Transactional;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -36,6 +39,8 @@ import java.util.*;
 
 @Service
 public class DecisionSupportService implements IDecisionSupportService {
+    private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
+
     private final EdxPhcrDocumentUtil edxPhcrDocumentUtil;
     private final IAutoInvestigationService autoInvestigationService;
     private final ValidateDecisionSupport validateDecisionSupport;
@@ -458,6 +463,12 @@ public class DecisionSupportService implements IDecisionSupportService {
                         String questionId = (String) o;
                         EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) applyMap.get(questionId);
                         NbsQuestionMetadata metaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
+                        if (metaData == null) {
+                            metaData = new NbsQuestionMetadata();
+                        }
+                        else {
+                            logger.error("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
+                        }
                         try {
                             if (metaData.getDataLocation() != null
                                     && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
