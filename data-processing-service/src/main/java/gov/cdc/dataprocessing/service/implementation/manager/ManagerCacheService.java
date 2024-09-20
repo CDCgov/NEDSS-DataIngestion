@@ -5,8 +5,10 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,73 +30,98 @@ public class ManagerCacheService implements IManagerCacheService {
         return CompletableFuture.runAsync(this::loadCache);
     }
 
+    @PostConstruct
+    @Scheduled(fixedRate = 3600000) // Reload every 60 min
+    public void loadAndInitCachedValueSync() throws DataProcessingException {
+        loadCacheSync();
+    }
+    private void loadCacheSync() throws DataProcessingException {
+        SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes(); // ObservationResultRequestHandler
+        SrteCache.raceCodesMap = cachingValueService.getRaceCodes(); //HL7PatientHandler
+        SrteCache.programAreaCodesMap = cachingValueService.getAllProgramAreaCodes(); // ALL
+        SrteCache.jurisdictionCodeMap = cachingValueService.getAllJurisdictionCode(); // ALL
+        SrteCache.jurisdictionCodeMapWithNbsUid = cachingValueService.getAllJurisdictionCodeWithNbsUid(); // ProgAreaJurisdictionutil
+        SrteCache.programAreaCodesMapWithNbsUid = cachingValueService.getAllProgramAreaCodesWithNbsUid(); // ProgAreaJurisdictionutil
+        SrteCache.elrXrefsList = cachingValueService.getAllElrXref(); //HL7PatientHandler
+        SrteCache.coInfectionConditionCode = cachingValueService.getAllOnInfectionConditionCode(); //AutoInvestigationService
+        SrteCache.conditionCodes = cachingValueService.getAllConditionCode();
+        for (ConditionCode obj : SrteCache.conditionCodes) {
+            SrteCache.investigationFormConditionCode.put(obj.getConditionCd(), obj.getInvestigationFormCd()); // Lower Stream
+        }
+        SrteCache.labResultByDescMap = cachingValueService.getLabResultDesc(); // InvestigationService
+        SrteCache.snomedCodeByDescMap = cachingValueService.getAllSnomedCode(); // InvestigationService
+        SrteCache.labResultWithOrganismNameIndMap = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+        SrteCache.loinCodeWithComponentNameMap = cachingValueService.getAllLoinCodeWithComponentName(); // None
+    }
+
     private void loadCache() {
         runWithExceptionHandling(() -> {
             if (SrteCache.loincCodesMap.isEmpty()) {
-                SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes();
+                SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes(); // ObservationResultRequestHandler
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.raceCodesMap.isEmpty()) {
-                SrteCache.raceCodesMap = cachingValueService.getRaceCodes();
+                SrteCache.raceCodesMap = cachingValueService.getRaceCodes(); //HL7PatientHandler
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.programAreaCodesMap.isEmpty()) {
-                SrteCache.programAreaCodesMap = cachingValueService.getAllProgramAreaCodes();
+                SrteCache.programAreaCodesMap = cachingValueService.getAllProgramAreaCodes(); // ALL
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.jurisdictionCodeMap.isEmpty()) {
-                SrteCache.jurisdictionCodeMap = cachingValueService.getAllJurisdictionCode();
+                SrteCache.jurisdictionCodeMap = cachingValueService.getAllJurisdictionCode(); // ALL
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.jurisdictionCodeMapWithNbsUid.isEmpty()) {
-                SrteCache.jurisdictionCodeMapWithNbsUid = cachingValueService.getAllJurisdictionCodeWithNbsUid();
+                SrteCache.jurisdictionCodeMapWithNbsUid = cachingValueService.getAllJurisdictionCodeWithNbsUid(); // ProgAreaJurisdictionutil
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.programAreaCodesMapWithNbsUid.isEmpty()) {
-                SrteCache.programAreaCodesMapWithNbsUid = cachingValueService.getAllProgramAreaCodesWithNbsUid();
+                SrteCache.programAreaCodesMapWithNbsUid = cachingValueService.getAllProgramAreaCodesWithNbsUid(); // ProgAreaJurisdictionutil
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.elrXrefsList.isEmpty()) {
-                SrteCache.elrXrefsList = cachingValueService.getAllElrXref();
+                SrteCache.elrXrefsList = cachingValueService.getAllElrXref(); //HL7PatientHandler
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.coInfectionConditionCode.isEmpty()) {
-                SrteCache.coInfectionConditionCode = cachingValueService.getAllOnInfectionConditionCode();
+                SrteCache.coInfectionConditionCode = cachingValueService.getAllOnInfectionConditionCode(); //AutoInvestigationService
             }
         });
         runWithExceptionHandling(() -> {
+            // condCode -> Manager Cache only
             if (SrteCache.conditionCodes.isEmpty() || SrteCache.investigationFormConditionCode.isEmpty()) {
                 SrteCache.conditionCodes = cachingValueService.getAllConditionCode();
                 for (ConditionCode obj : SrteCache.conditionCodes) {
-                    SrteCache.investigationFormConditionCode.put(obj.getConditionCd(), obj.getInvestigationFormCd());
+                    SrteCache.investigationFormConditionCode.put(obj.getConditionCd(), obj.getInvestigationFormCd()); // Lower Stream
                 }
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.labResultByDescMap.isEmpty()) {
-                SrteCache.labResultByDescMap = cachingValueService.getLabResultDesc();
+                SrteCache.labResultByDescMap = cachingValueService.getLabResultDesc(); // InvestigationService
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.snomedCodeByDescMap.isEmpty()) {
-                SrteCache.snomedCodeByDescMap = cachingValueService.getAllSnomedCode();
+                SrteCache.snomedCodeByDescMap = cachingValueService.getAllSnomedCode(); // InvestigationService
             }
         });
         runWithExceptionHandling(() -> {
-            if (SrteCache.labResultWithOrganismNameIndMap.isEmpty()) {
+            if (SrteCache.labResultWithOrganismNameIndMap.isEmpty()) { // InvestigationService
                 SrteCache.labResultWithOrganismNameIndMap = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
             }
         });
         runWithExceptionHandling(() -> {
             if (SrteCache.loinCodeWithComponentNameMap.isEmpty()) {
-                SrteCache.loinCodeWithComponentNameMap = cachingValueService.getAllLoinCodeWithComponentName();
+                SrteCache.loinCodeWithComponentNameMap = cachingValueService.getAllLoinCodeWithComponentName(); // None
             }
         });
 

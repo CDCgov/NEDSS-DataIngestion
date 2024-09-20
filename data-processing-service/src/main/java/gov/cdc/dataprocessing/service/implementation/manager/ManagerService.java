@@ -102,6 +102,7 @@ public class ManagerService implements IManagerService {
         this.pamService = pamService;
         this.investigationNotificationService = investigationNotificationService;
         this.managerCacheService = managerCacheService;
+
     }
 
     @Transactional
@@ -371,8 +372,6 @@ public class ManagerService implements IManagerService {
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
-            CompletableFuture<Void> cacheLoadingFuture = managerCacheService.loadAndInitCachedValueAsync();
-            cacheLoadingFuture.join();
 
 
             LabResultProxyContainer labResultProxyContainer = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);

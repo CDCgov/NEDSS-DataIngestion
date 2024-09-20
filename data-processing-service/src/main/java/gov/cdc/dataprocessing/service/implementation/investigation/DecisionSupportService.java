@@ -465,8 +465,6 @@ public class DecisionSupportService implements IDecisionSupportService {
                         NbsQuestionMetadata metaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                         if (metaData == null) {
                             metaData = new NbsQuestionMetadata();
-                        }
-                        else {
                             logger.error("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
                         }
                         try {
