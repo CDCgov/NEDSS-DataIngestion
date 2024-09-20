@@ -774,7 +774,6 @@ public class OrganizationRepositoryUtil {
         }
     }
 
-    @Transactional
     public PrepareEntity getPrepareEntityForOrganization(String businessTriggerCd, String moduleCd, Long uid, String tableName) throws DataProcessingException {
         try {
             return prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
