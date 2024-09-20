@@ -262,7 +262,6 @@ public class ManagerService implements IManagerService {
 
                 if (publicHealthCaseContainer.getErrorText() != null)
                 {
-                    //TODO: LOGGING
                     requiredFieldError(publicHealthCaseContainer.getErrorText(), edxLabInformationDto);
                 }
 
@@ -291,7 +290,6 @@ public class ManagerService implements IManagerService {
 
                 if(edxLabInformationDto.getAction() != null
                         && edxLabInformationDto.getAction().equalsIgnoreCase(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE)){
-                    //TODO: LOGGING
                     EDXActivityDetailLogDto edxActivityDetailLogDT = investigationNotificationService.sendNotification(publicHealthCaseContainer, edxLabInformationDto.getNndComment());
                     edxActivityDetailLogDT.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                     edxActivityDetailLogDT.setRecordName(EdxELRConstant.ELR_RECORD_NM);
@@ -563,9 +561,6 @@ public class ManagerService implements IManagerService {
                         logger.error("Exception while formatting exception message for Activity Log: "+ex.getMessage(), ex);
                     }
                 }
-
-            //throw new DataProcessingConsumerException(e.getMessage(), result);
-
         }
         finally
         {
