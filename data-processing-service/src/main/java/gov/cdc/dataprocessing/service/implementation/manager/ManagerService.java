@@ -47,6 +47,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
+
 @Service
 @Slf4j
 public class ManagerService implements IManagerService {
@@ -74,7 +76,6 @@ public class ManagerService implements IManagerService {
     private final IInvestigationNotificationService investigationNotificationService;
 
     private final IManagerCacheService managerCacheService;
-    private final Gson gson = new Gson();
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -186,10 +187,10 @@ public class ManagerService implements IManagerService {
             }
 
 
-            String trackerString = gson.toJson(trackerView);
+            String trackerString = GSON.toJson(trackerView);
             kafkaManagerProducer.sendDataActionTracker(trackerString);
 
-            String jsonString = gson.toJson(phcContainer);
+            String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataLabHandling(jsonString);
 
         } catch (Exception e) {
@@ -206,7 +207,7 @@ public class ManagerService implements IManagerService {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
@@ -346,7 +347,7 @@ public class ManagerService implements IManagerService {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
 
-                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
@@ -439,7 +440,7 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            String jsonString = gson.toJson(phcContainer);
+            String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataPhc(jsonString);
 
             //return result;
@@ -571,7 +572,7 @@ public class ManagerService implements IManagerService {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                String jsonString = gson.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }

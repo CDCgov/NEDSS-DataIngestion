@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.GA;
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
 @Service
 public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheService {
@@ -34,8 +35,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
-//        Gson gson = new Gson();
-//        logger.debug("OdseIdGeneratorWCacheService.getValidLocalUid: {}",  gson.toJson(LocalUidCacheModel.localUidMap));
+        logger.debug("OdseIdGeneratorWCacheService.getValidLocalUid: {}",  GSON.toJson(LocalUidCacheModel.localUidMap));
         boolean newKeyRequired = false;
         LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
 

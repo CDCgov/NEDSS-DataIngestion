@@ -15,16 +15,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
+
 @Service
 @Slf4j
 public class KafkaEdxLogConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaEdxLogConsumer.class);
-    private final IManagerService managerService;
+    private static final Logger logger = LoggerFactory.getLogger(KafkaEdxLogConsumer.class); //NOSONAR
     private final IEdxLogService edxLogService;
 
-    public KafkaEdxLogConsumer(IManagerService managerService,
-                               IEdxLogService edxLogService) {
-        this.managerService = managerService;
+    public KafkaEdxLogConsumer(IEdxLogService edxLogService) {
         this.edxLogService = edxLogService;
     }
 
@@ -34,14 +33,8 @@ public class KafkaEdxLogConsumer {
 
     public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
-        Gson gson = new Gson();
-        EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
+        EDXActivityLogDto edxActivityLogDto = GSON.fromJson(message, EDXActivityLogDto.class);
         edxLogService.saveEdxActivityLogs(edxActivityLogDto);
     }
-//    public void handleMessage(String message,
-//                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
-//        Gson gson = new Gson();
-//        EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
-//        edxLogService.saveEdxActivityLogs(edxActivityLogDto);
-//    }
+
 }

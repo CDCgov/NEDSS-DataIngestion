@@ -13,23 +13,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
+
 @Service
 @Slf4j
 public class KafkaHandleLabConsumer {
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
     @Value("${nbs.user}")
     private String nbsUser = "";
 
-    private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
 
 
-    public KafkaHandleLabConsumer(KafkaManagerProducer kafkaManagerProducer,
+    public KafkaHandleLabConsumer(
                                   IManagerService managerService,
                                   IAuthUserService authUserService) {
-        this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
         this.authUserService = authUserService;
     }
@@ -38,27 +36,14 @@ public class KafkaHandleLabConsumer {
             topics = "${kafka.topic.elr_handle_lab}"
     )
     public void handleMessage(String message) {
-        Gson gson = new Gson();
         try {
             var auth = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(auth);
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-//    public void handleMessage(String message) {
-//        try {
-//            var auth = authUserService.getAuthUserInfo(nbsUser);
-//            AuthUtil.setGlobalAuthUser(auth);
-//            Gson gson = new Gson();
-//            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
-//            managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
-//    }
+
 }

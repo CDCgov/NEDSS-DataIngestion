@@ -17,16 +17,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
+
 @Service
 @Slf4j
 public class KafkaPublicHealthCaseConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
 
-    @Value("${kafka.topic.elr_handle_lab}")
-    private String handleLabTopic = "elr_processing_handle_lab";
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
-    private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
 
@@ -35,10 +32,8 @@ public class KafkaPublicHealthCaseConsumer {
     private String nbsUser = "";
 
     public KafkaPublicHealthCaseConsumer(
-            KafkaManagerProducer kafkaManagerProducer,
             IManagerService managerService, IAuthUserService authUserService) {
 
-        this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
         this.authUserService = authUserService;
 
@@ -49,32 +44,14 @@ public class KafkaPublicHealthCaseConsumer {
     )
     public void handleMessageForPublicHealthCase(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        Gson gson = new Gson();
         try {
             var profile = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
         } catch (Exception e) {
             // Consider using a proper logging framework instead of printStackTrace.
             e.printStackTrace();
         }
     }
-//    public void handleMessageForPublicHealthCase(String message,
-//                                     @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
-//    {
-//        try {
-//
-//            var profile = this.authUserService.getAuthUserInfo(nbsUser);
-//            AuthUtil.setGlobalAuthUser(profile);
-//            Gson gson = new Gson();
-//            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
-//            managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
-//        }
-//        catch (Exception e)
-//        {
-//             e.printStackTrace();
-//        }
-//    }
-
 }

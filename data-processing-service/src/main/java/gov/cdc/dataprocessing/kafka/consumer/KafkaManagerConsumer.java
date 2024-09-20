@@ -23,6 +23,8 @@ import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
+
 @Service
 @Slf4j
 public class KafkaManagerConsumer {
@@ -39,16 +41,12 @@ public class KafkaManagerConsumer {
     private String nbsUser = "";
 
 
-    private final KafkaManagerProducer kafkaManagerProducer;
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
-    private final Gson gson = new Gson();
 
     public KafkaManagerConsumer(
-            KafkaManagerProducer kafkaManagerProducer,
             ManagerService managerService,
             IAuthUserService authUserService) {
-        this.kafkaManagerProducer = kafkaManagerProducer;
         this.managerService = managerService;
         this.authUserService = authUserService;
 
@@ -59,12 +57,12 @@ public class KafkaManagerConsumer {
     )
     public void handleMessage(String messages,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
-            throws DataProcessingException, DataProcessingConsumerException {
+            throws DataProcessingException {
         var profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
 
         try {
-            var nbs = gson.fromJson(messages, Integer.class);
+            var nbs = GSON.fromJson(messages, Integer.class);
             managerService.processDistribution(nbs);
         } catch (Exception e) {
             log.info(e.getMessage());
