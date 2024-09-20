@@ -9,7 +9,7 @@ import gov.cdc.dataprocessing.service.implementation.person.PatientMatchingServi
 import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

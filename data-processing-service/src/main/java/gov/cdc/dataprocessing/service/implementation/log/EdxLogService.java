@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLogRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +41,7 @@ public class EdxLogService implements IEdxLogService {
         EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
         return edxActivityDetailLogResult;
     }
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional()
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         //Check if the activity log has already been created for the source.

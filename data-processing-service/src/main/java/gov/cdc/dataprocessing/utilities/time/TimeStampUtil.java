@@ -35,6 +35,9 @@ public class TimeStampUtil {
     public static Timestamp convertStringToTimestamp(String timestampString) throws DataProcessingException {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            if (!timestampString.contains(":")) {
+                timestampString += " 00:00:00";  // Append default time if time is missing
+            }
             java.util.Date parsedDate = sdf.parse(timestampString);
             return new Timestamp(parsedDate.getTime());
         }catch (Exception e) {

@@ -15,7 +15,7 @@ import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationResultRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.LabResultUtil;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;

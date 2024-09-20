@@ -35,7 +35,7 @@ import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +104,7 @@ public class ManagerService implements IManagerService {
         this.managerCacheService = managerCacheService;
     }
 
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional
     public void processDistribution(Integer data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
@@ -115,7 +115,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
@@ -193,6 +193,7 @@ public class ManagerService implements IManagerService {
             kafkaManagerProducer.sendDataLabHandling(jsonString);
 
         } catch (Exception e) {
+            logger.error("STEP 2 ERROR: {}", e.getMessage());
             detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
@@ -214,7 +215,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
@@ -319,6 +320,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            logger.error("STEP 3 ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
                 nbsInterfaceRepository.save(nbsInterfaceModel);

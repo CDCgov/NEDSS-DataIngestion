@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;

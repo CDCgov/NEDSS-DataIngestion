@@ -32,14 +32,11 @@ public class KafkaEdxLogConsumer {
             topics = "${kafka.topic.elr_edx_log}"
     )
 
-    public void handleMessage(List<String> messages,
+    public void handleMessage(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
         Gson gson = new Gson();
-        logger.info("UNPROCESSED BATCH SIZE: " + messages.size());
-        for (String message : messages) {
-            EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
-            edxLogService.saveEdxActivityLogs(edxActivityLogDto);
-        }
+        EDXActivityLogDto edxActivityLogDto = gson.fromJson(message, EDXActivityLogDto.class);
+        edxLogService.saveEdxActivityLogs(edxActivityLogDto);
     }
 //    public void handleMessage(String message,
 //                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {

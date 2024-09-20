@@ -55,7 +55,7 @@ public class KafkaManagerConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_micro_transaction}"
+            topics = "${kafka.topic.elr_micro}"
     )
     public void handleMessage(String messages,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
@@ -63,18 +63,25 @@ public class KafkaManagerConsumer {
         var profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
 
-        Type listType = new TypeToken<List<String>>() {}.getType();
-        JsonReader reader = new JsonReader(new StringReader(messages));
-        reader.setLenient(true);
-        List<String> list = gson.fromJson(reader, listType);
-        for(var item : list) {
-            try {
-                var nbs = gson.fromJson(item, Integer.class);
-                managerService.processDistribution(nbs);
-            } catch (Exception e) {
-                log.info(e.getMessage());
-            }
+        try {
+            var nbs = gson.fromJson(messages, Integer.class);
+            managerService.processDistribution(nbs);
+        } catch (Exception e) {
+            log.info(e.getMessage());
         }
+
+//        Type listType = new TypeToken<List<String>>() {}.getType();
+//        JsonReader reader = new JsonReader(new StringReader(messages));
+//        reader.setLenient(true);
+//        List<String> list = gson.fromJson(reader, listType);
+//        for(var item : list) {
+//            try {
+//                var nbs = gson.fromJson(item, Integer.class);
+//                managerService.processDistribution(nbs);
+//            } catch (Exception e) {
+//                log.info(e.getMessage());
+//            }
+//        }
 
 
     }

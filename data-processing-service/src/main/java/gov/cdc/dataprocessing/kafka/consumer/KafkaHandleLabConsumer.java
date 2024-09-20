@@ -37,17 +37,15 @@ public class KafkaHandleLabConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_handle_lab}"
     )
-    public void handleMessage(List<String> messages) {
+    public void handleMessage(String message) {
         Gson gson = new Gson();
-        for (String message : messages) {
-            try {
-                var auth = authUserService.getAuthUserInfo(nbsUser);
-                AuthUtil.setGlobalAuthUser(auth);
-                PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
-                managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            var auth = authUserService.getAuthUserInfo(nbsUser);
+            AuthUtil.setGlobalAuthUser(auth);
+            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = gson.fromJson(message, PublicHealthCaseFlowContainer.class);
+            managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 //    public void handleMessage(String message) {
