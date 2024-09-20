@@ -264,10 +264,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     @SuppressWarnings("java:S3776")
     protected void roleAggregation(LabResultProxyContainer labResult) {
-        /**
-         *Roles must be checked for NEW, UPDATED, MARK FOR DELETE buckets.
-         */
-
         Map<Object, RoleDto> mappedExistingRoleCollection  = new HashMap<>();
         Map<Object, RoleDto> mappedNewRoleCollection  = new HashMap<>();
         if(labResult.getTheRoleDtoCollection()!=null){

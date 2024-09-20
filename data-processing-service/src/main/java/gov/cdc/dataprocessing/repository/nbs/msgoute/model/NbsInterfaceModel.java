@@ -59,4 +59,9 @@ public class NbsInterfaceModel {
 
     @Column(name = "OBSERVATION_UID")
     private Integer observationUid;
+
+    @Column(name = "original_payload_RR", nullable = true)
+    private String originalPayloadRR;
+    @Column(name = "original_doc_type_cd_RR", nullable = true)
+    private String originalDocTypeCdRR;
 }
