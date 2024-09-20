@@ -467,6 +467,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                             metaData = new NbsQuestionMetadata();
                             logger.error("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
                         }
+
                         try {
                             if (metaData.getDataLocation() != null
                                     && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
