@@ -1,9 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
-import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.kafka.consumer.KafkaManagerConsumer;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidCacheModel;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;

@@ -1,7 +1,5 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
-import com.google.gson.Gson;
-import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
@@ -12,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 

@@ -15,12 +15,12 @@ import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationResultRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.LabResultUtil;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

@@ -12,9 +12,9 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLogRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

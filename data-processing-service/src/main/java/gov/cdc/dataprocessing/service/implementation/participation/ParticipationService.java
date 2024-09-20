@@ -7,8 +7,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
