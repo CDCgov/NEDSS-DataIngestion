@@ -55,8 +55,7 @@ public class KafkaManagerConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_micro}"
     )
-    public void handleMessage(String messages,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic)
+    public void handleMessage(String messages)
             throws DataProcessingException {
         var profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
@@ -65,31 +64,9 @@ public class KafkaManagerConsumer {
             var nbs = GSON.fromJson(messages, Integer.class);
             managerService.processDistribution(nbs);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error("KafkaManagerConsumer.handleMessage: {}", e.getMessage());
         }
-
-//        Type listType = new TypeToken<List<String>>() {}.getType();
-//        JsonReader reader = new JsonReader(new StringReader(messages));
-//        reader.setLenient(true);
-//        List<String> list = gson.fromJson(reader, listType);
-//        for(var item : list) {
-//            try {
-//                var nbs = gson.fromJson(item, Integer.class);
-//                managerService.processDistribution(nbs);
-//            } catch (Exception e) {
-//                log.info(e.getMessage());
-//            }
-//        }
-
 
     }
 
-//    public void handleMessage(String message,
-//                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-//                              @Header(KafkaCustomHeader.DATA_TYPE) String dataType)
-//            throws DataProcessingException, DataProcessingConsumerException {
-//            var profile = this.authUserService.getAuthUserInfo(nbsUser);
-//            AuthUtil.setGlobalAuthUser(profile);
-//            managerService.processDistribution(dataType,message);
-//    }
 }

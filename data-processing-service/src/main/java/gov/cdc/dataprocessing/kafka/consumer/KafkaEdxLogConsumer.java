@@ -31,10 +31,14 @@ public class KafkaEdxLogConsumer {
             topics = "${kafka.topic.elr_edx_log}"
     )
 
-    public void handleMessage(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EdxLogException {
-        EDXActivityLogDto edxActivityLogDto = GSON.fromJson(message, EDXActivityLogDto.class);
-        edxLogService.saveEdxActivityLogs(edxActivityLogDto);
+    public void handleMessage(String message){
+        try {
+            EDXActivityLogDto edxActivityLogDto = GSON.fromJson(message, EDXActivityLogDto.class);
+            edxLogService.saveEdxActivityLogs(edxActivityLogDto);
+        } catch (Exception e) {
+            logger.error("KafkaEdxLogConsumer.handleMessage: {}", e.getMessage());
+        }
+
     }
 
 }

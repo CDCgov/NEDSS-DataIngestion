@@ -42,16 +42,14 @@ public class KafkaPublicHealthCaseConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_health_case}"
     )
-    public void handleMessageForPublicHealthCase(String message,
-                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+    public void handleMessageForPublicHealthCase(String message) {
         try {
             var profile = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
         } catch (Exception e) {
-            // Consider using a proper logging framework instead of printStackTrace.
-            e.printStackTrace();
+            logger.error("KafkaPublicHealthCaseConsumer.handleMessageForPublicHealthCase: {}", e.getMessage());
         }
     }
 }
