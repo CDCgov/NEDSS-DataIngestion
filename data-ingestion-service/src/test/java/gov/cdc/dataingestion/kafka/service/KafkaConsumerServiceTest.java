@@ -25,6 +25,7 @@ import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.rti.interfaces.IRtiLogService;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -103,6 +104,8 @@ class KafkaConsumerServiceTest {
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
     @Mock
+    private IRtiLogService rtiLogService;
+    @Mock
     private KafkaProducerTransactionService kafkaProducerTransactionService;
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
@@ -166,7 +169,6 @@ class KafkaConsumerServiceTest {
                 iRawELRRepository,
                 kafkaProducerService,
                 iHl7v2Validator,
-                iHl7ToFHIRConversion,
                 iHL7ToFHIRRepository,
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
@@ -175,7 +177,8 @@ class KafkaConsumerServiceTest {
                 ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
-                timeMetricsBuilder, kafkaProducerTransactionService);
+                timeMetricsBuilder,
+                rtiLogService);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
