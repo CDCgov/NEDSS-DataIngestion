@@ -27,7 +27,7 @@ public class ManagerCacheService implements IManagerCacheService, ApplicationCon
         this.cacheManager = cacheManager;
     }
 
-
+    @SuppressWarnings({"java:S2696"})
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         cachingValueService = applicationContext.getBean(ICatchingValueService.class);
