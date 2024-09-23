@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +33,8 @@ class ManagerCacheServiceTest {
 
     @Mock
     private Cache cache;
-
+    @Mock
+    private ApplicationContext applicationContext;
     @Mock
     private Cache.ValueWrapper valueWrapper;
 
@@ -56,6 +58,10 @@ class ManagerCacheServiceTest {
         SrteCache.snomedCodeByDescMap = new HashMap<>();
         SrteCache.labResultWithOrganismNameIndMap = new HashMap<>();
         SrteCache.loinCodeWithComponentNameMap = new HashMap<>();
+
+        when(applicationContext.getBean(ICatchingValueService.class)).thenReturn(catchingValueService);
+        managerCacheService.setApplicationContext(applicationContext);
+
     }
 
     @Test
