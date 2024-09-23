@@ -6,8 +6,11 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.BeansException;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +19,24 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-public class ManagerCacheService implements IManagerCacheService {
+public class ManagerCacheService implements IManagerCacheService, ApplicationContextAware {
     private static ICatchingValueService cachingValueService;
     private final CacheManager cacheManager;
 
-    public ManagerCacheService(ICatchingValueService cachingValueService, CacheManager cacheManager) {
-        ManagerCacheService.cachingValueService = cachingValueService;
+    public ManagerCacheService(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
+    }
+
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        cachingValueService = applicationContext.getBean(ICatchingValueService.class);
+    }
+
+    @PostConstruct
+    @Scheduled(fixedRate = 60000) // Reload every 60 min 3600000
+    public void loadAndInitCachedValueSync() throws DataProcessingException {
+        loadCacheSync();
     }
 
     @SuppressWarnings({"java:S3776", "java:S112", "java:S2696"})
@@ -30,11 +44,7 @@ public class ManagerCacheService implements IManagerCacheService {
         return CompletableFuture.runAsync(this::loadCache);
     }
 
-    @PostConstruct
-    @Scheduled(fixedRate = 3600000) // Reload every 60 min
-    public static void loadAndInitCachedValueSync() throws DataProcessingException {
-        loadCacheSync();
-    }
+
 
     private static void loadCacheSync() throws DataProcessingException {
         SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes(); // ObservationResultRequestHandler
