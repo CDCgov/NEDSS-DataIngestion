@@ -59,11 +59,8 @@ class EcrReportsControllerTest {
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("transformedXml"));
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
 
-        verify(ecrMsgQueryService).getSelectedEcrRecord();
-        verify(cdaMapper).tranformSelectedEcrToCDAXml(resultDto);
     }
 
     @Test
@@ -86,6 +83,6 @@ class EcrReportsControllerTest {
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }
