@@ -21,7 +21,7 @@ public class ManagerCacheService implements IManagerCacheService {
     private final CacheManager cacheManager;
 
     public ManagerCacheService(ICatchingValueService cachingValueService, CacheManager cacheManager) {
-        this.cachingValueService = cachingValueService;
+        ManagerCacheService.cachingValueService = cachingValueService;
         this.cacheManager = cacheManager;
     }
 
@@ -55,6 +55,7 @@ public class ManagerCacheService implements IManagerCacheService {
         SrteCache.loinCodeWithComponentNameMap = cachingValueService.getAllLoinCodeWithComponentName(); // None
     }
 
+    @SuppressWarnings({"java:S2696"})
     private void loadCache() {
         runWithExceptionHandling(() -> {
             if (SrteCache.loincCodesMap.isEmpty()) {
