@@ -25,6 +25,7 @@ import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.rti.interfaces.IRtiLogService;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -103,6 +104,8 @@ class KafkaConsumerServiceTest {
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
     @Mock
+    private IRtiLogService rtiLogService;
+    @Mock
     private KafkaProducerTransactionService kafkaProducerTransactionService;
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
@@ -166,7 +169,6 @@ class KafkaConsumerServiceTest {
                 iRawELRRepository,
                 kafkaProducerService,
                 iHl7v2Validator,
-                iHl7ToFHIRConversion,
                 iHL7ToFHIRRepository,
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
@@ -175,7 +177,8 @@ class KafkaConsumerServiceTest {
                 ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
-                timeMetricsBuilder, kafkaProducerTransactionService);
+                timeMetricsBuilder,
+                rtiLogService);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
@@ -475,100 +478,6 @@ class KafkaConsumerServiceTest {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-    }
-
-    //@Test
-    void fhirPreparationConsumerTest() throws FhirConversionException, DiHL7Exception {
-        // Produce a test message to the topic
-        initialDataInsertionAndSelection(fhirPrepTopic);
-        String message =  guidForTesting;
-        produceMessage(fhirPrepTopic, message, EnumKafkaOperation.INJECTION);
-
-        // Consume the message
-        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-
-        // Perform assertions
-        assertEquals(1, records.count());
-
-        ConsumerRecord<String, String> firstRecord = records.iterator().next();
-        String value = firstRecord.value();
-
-        ValidatedELRModel model = new ValidatedELRModel();
-        model.setId(guidForTesting);
-        model.setRawMessage(testHL7Message);
-
-        when(iValidatedELRRepository.findById(guidForTesting))
-                .thenReturn(Optional.of(model));
-
-
-        kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.INJECTION.name());
-
-        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
-
-    }
-
-    //@Test
-    void fhirPreparationConsumerTest_Exception() {
-        // Produce a test message to the topic
-        initialDataInsertionAndSelection(fhirPrepTopic);
-        String message =  guidForTesting;
-        produceMessage(fhirPrepTopic, message, EnumKafkaOperation.INJECTION);
-
-        // Consume the message
-        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-
-        // Perform assertions
-        assertEquals(1, records.count());
-
-        ConsumerRecord<String, String> firstRecord = records.iterator().next();
-        String value = firstRecord.value();
-
-
-
-        when(iValidatedELRRepository.findById(guidForTesting))
-                .thenReturn(Optional.empty());
-
-
-        assertThrows(FhirConversionException.class, () ->
-                kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.INJECTION.name())
-        );
-
-
-        verify(iValidatedELRRepository, times(1)).findById(guidForTesting);
-
-    }
-
-
-    void fhirPreparationConsumerTestReInjection() throws DiHL7Exception, FhirConversionException {
-        // Produce a test message to the topic
-        initialDataInsertionAndSelection(fhirPrepTopic);
-        String message =  guidForTesting;
-        produceMessage(fhirPrepTopic, message, EnumKafkaOperation.REINJECTION);
-
-        // Consume the message
-        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-
-        // Perform assertions
-        assertEquals(1, records.count());
-
-        ConsumerRecord<String, String> firstRecord = records.iterator().next();
-        String value = firstRecord.value();
-
-        ElrDeadLetterModel model = new ElrDeadLetterModel();
-        model.setErrorMessageId(guidForTesting);
-        model.setMessage(testHL7Message);
-        when(elrDeadLetterRepository.findById(guidForTesting))
-                .thenReturn(Optional.of(model));
-
-        when(iHl7v2Validator.messageStringValidation(testHL7Message))
-                .thenReturn(testHL7Message);
-
-
-        kafkaConsumerService.handleMessageForFhirConversionElr(value, fhirPrepTopic, EnumKafkaOperation.REINJECTION.name());
-
-        verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
-        verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);
-
     }
 
     private String getFormattedExceptionMessage(Throwable throwable) {

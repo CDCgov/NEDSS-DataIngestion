@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.reportstatus.model;
 
+import gov.cdc.dataingestion.rti.model.RtiLogStackDto;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -11,4 +12,5 @@ public class MessageStatus {
     private ValidatedMessageStatus validatedInfo = new ValidatedMessageStatus();
     private NbsMessageStatus nbsInfo = new NbsMessageStatus();
     private List<EdxActivityLogStatus> nbsIngestionInfo=new ArrayList<>();
+    private List<RtiLogStackDto> rtiLogs = new ArrayList<>();
 }

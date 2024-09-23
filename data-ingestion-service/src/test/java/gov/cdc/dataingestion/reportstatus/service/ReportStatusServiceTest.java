@@ -10,6 +10,7 @@ import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.rti.repository.RtiLogRepository;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +28,7 @@ import java.util.Optional;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +45,8 @@ class ReportStatusServiceTest {
     private IElrDeadLetterRepository iElrDeadLetterRepository;
     @Mock
     private IEdxActivityLogRepository iEdxActivityLogRepository;
+    @Mock
+    private RtiLogRepository rtiLogRepository;
     @InjectMocks
     private ReportStatusService reportStatusServiceMock;
     private ReportStatusIdData reportStatusIdData;
@@ -94,6 +98,7 @@ class ReportStatusServiceTest {
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
+        when(rtiLogRepository.getRtiByNbsInterfaceId(any())).thenReturn(new ArrayList<>());
 
         var msgStatus = reportStatusServiceMock.getMessageStatus(id);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
@@ -379,6 +384,7 @@ class ReportStatusServiceTest {
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
         when (iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(nbsId))).thenReturn(edxActivityLogList);
+        when(rtiLogRepository.getRtiByNbsInterfaceId(any())).thenReturn(new ArrayList<>());
 
         var msgStatus = reportStatusServiceMock.getMessageStatus(id);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());

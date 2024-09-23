@@ -76,6 +76,8 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  elr_edx_log_stack_trace:
+    topic: elr_edx_log_stack_trace
   topics: elr_raw,elr_validated
   retry:
       suffix: _retry

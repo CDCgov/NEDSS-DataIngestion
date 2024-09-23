@@ -23,13 +23,13 @@ import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
-import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationNotificationService;
+import gov.cdc.dataprocessing.service.model.log.LogStack;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -44,8 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 
+import static gov.cdc.dataprocessing.utilities.ExceptionUtils.getStackTraceAsString;
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
 @Service
@@ -74,7 +74,6 @@ public class ManagerService implements IManagerService {
     private final IPamService pamService;
     private final IInvestigationNotificationService investigationNotificationService;
 
-    private final IManagerCacheService managerCacheService;
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -87,8 +86,7 @@ public class ManagerService implements IManagerService {
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
                           IPamService pamService,
-                          IInvestigationNotificationService investigationNotificationService,
-                          IManagerCacheService managerCacheService) {
+                          IInvestigationNotificationService investigationNotificationService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.dataExtractionService = dataExtractionService;
@@ -101,7 +99,6 @@ public class ManagerService implements IManagerService {
         this.pageService = pageService;
         this.pamService = pamService;
         this.investigationNotificationService = investigationNotificationService;
-        this.managerCacheService = managerCacheService;
     }
 
     @Transactional
@@ -117,6 +114,7 @@ public class ManagerService implements IManagerService {
     @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
+        String exceptionStackTrace = null;
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         String detailedMsg = "";
@@ -192,7 +190,10 @@ public class ManagerService implements IManagerService {
             String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataLabHandling(jsonString);
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
+            exceptionStackTrace = getStackTraceAsString(e);
             logger.error("STEP 2 ERROR: {}", e.getMessage());
             detailedMsg = e.getMessage();
             if (nbsInterfaceModel != null) {
@@ -208,7 +209,16 @@ public class ManagerService implements IManagerService {
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+                if (exceptionStackTrace != null && !exceptionStackTrace.isEmpty()) {
+                    LogStack stack = new LogStack();
+                    stack.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+                    stack.setStackTrace(exceptionStackTrace);
+                    stack.setStep("RTI_STEP_2");
+                    String stackString = GSON.toJson(stack);
+                    kafkaManagerProducer.sendDataEdxActivityLogDetailStackTrace(stackString, stack.getNbsInterfaceId());
+                }
             }
+
         }
 
         logger.info("Completed 2nd Step");
@@ -217,6 +227,7 @@ public class ManagerService implements IManagerService {
     @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
+        String exceptionStackTrace = null;
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
         try {
@@ -318,6 +329,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            exceptionStackTrace = getStackTraceAsString(e);
             logger.error("STEP 3 ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
@@ -339,14 +351,27 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
                 }
             }
-        }finally {
+        }
+        finally
+        {
             if(nbsInterfaceModel != null) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
 
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+
+                if (exceptionStackTrace != null && !exceptionStackTrace.isEmpty()) {
+                    LogStack stack = new LogStack();
+                    stack.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+                    stack.setStackTrace(exceptionStackTrace);
+                    stack.setStep("RTI_STEP_3");
+                    String stackString = GSON.toJson(stack);
+                    kafkaManagerProducer.sendDataEdxActivityLogDetailStackTrace(stackString, stack.getNbsInterfaceId());
+                }
             }
+
+
         }
 
         logger.info("Completed 3rd Step");
@@ -354,6 +379,7 @@ public class ManagerService implements IManagerService {
 
     @SuppressWarnings("java:S6541")
     private void processingELR(Integer data) {
+        String exceptionStackTrace = null;
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
@@ -371,8 +397,6 @@ public class ManagerService implements IManagerService {
 
             edxLabInformationDto.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
 
-            CompletableFuture<Void> cacheLoadingFuture = managerCacheService.loadAndInitCachedValueAsync();
-            cacheLoadingFuture.join();
 
 
             LabResultProxyContainer labResultProxyContainer = dataExtractionService.parsingDataToObject(nbsInterfaceModel, edxLabInformationDto);
@@ -439,11 +463,10 @@ public class ManagerService implements IManagerService {
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
             String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataPhc(jsonString);
-
-            //return result;
         }
         catch (Exception e)
         {
+            exceptionStackTrace = getStackTraceAsString(e);
             logger.error("DP ERROR: " + e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
@@ -567,7 +590,16 @@ public class ManagerService implements IManagerService {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
+
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+                if (exceptionStackTrace != null && !exceptionStackTrace.isEmpty()) {
+                    LogStack stack = new LogStack();
+                    stack.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+                    stack.setStackTrace(exceptionStackTrace);
+                    stack.setStep("RTI_STEP_1");
+                    String stackString = GSON.toJson(stack);
+                    kafkaManagerProducer.sendDataEdxActivityLogDetailStackTrace(stackString, stack.getNbsInterfaceId());
+                }
             }
         }
         logger.info("Completed 1st Step");

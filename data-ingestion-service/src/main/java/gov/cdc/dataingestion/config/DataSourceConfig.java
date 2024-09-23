@@ -28,7 +28,8 @@ import java.util.HashMap;
                 "gov.cdc.dataingestion.report.repository",
                 "gov.cdc.dataingestion.conversion.repository",
                 "gov.cdc.dataingestion.deadletter.repository",
-                "gov.cdc.dataingestion.reportstatus.repository"
+                "gov.cdc.dataingestion.reportstatus.repository",
+                "gov.cdc.dataingestion.rti.repository"
         }
 )
 @Configuration
@@ -80,7 +81,8 @@ public class DataSourceConfig {
                           "gov.cdc.dataingestion.conversion.repository.model",
                           "gov.cdc.dataingestion.deadletter.repository.model",
                           "gov.cdc.dataingestion.security.model",
-                          "gov.cdc.dataingestion.reportstatus.model")
+                          "gov.cdc.dataingestion.reportstatus.model",
+                          "gov.cdc.dataingestion.rti.repository.model")
                 .persistenceUnit("ingest")
                 .build();
     }

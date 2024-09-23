@@ -5,7 +5,6 @@ import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dsma_algorithm.*;
@@ -465,10 +464,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                         NbsQuestionMetadata metaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                         if (metaData == null) {
                             metaData = new NbsQuestionMetadata();
-                        }
-                        else {
                             logger.error("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
                         }
+
                         try {
                             if (metaData.getDataLocation() != null
                                     && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
