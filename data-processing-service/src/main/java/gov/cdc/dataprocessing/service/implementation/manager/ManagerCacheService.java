@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ManagerCacheService implements IManagerCacheService {
-    private final ICatchingValueService cachingValueService;
+    private static ICatchingValueService cachingValueService;
     private final CacheManager cacheManager;
 
     public ManagerCacheService(ICatchingValueService cachingValueService, CacheManager cacheManager) {
@@ -32,10 +32,11 @@ public class ManagerCacheService implements IManagerCacheService {
 
     @PostConstruct
     @Scheduled(fixedRate = 3600000) // Reload every 60 min
-    public void loadAndInitCachedValueSync() throws DataProcessingException {
+    public static void loadAndInitCachedValueSync() throws DataProcessingException {
         loadCacheSync();
     }
-    private void loadCacheSync() throws DataProcessingException {
+
+    private static void loadCacheSync() throws DataProcessingException {
         SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes(); // ObservationResultRequestHandler
         SrteCache.raceCodesMap = cachingValueService.getRaceCodes(); //HL7PatientHandler
         SrteCache.programAreaCodesMap = cachingValueService.getAllProgramAreaCodes(); // ALL

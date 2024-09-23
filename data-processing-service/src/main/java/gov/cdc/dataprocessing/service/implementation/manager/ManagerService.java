@@ -23,7 +23,6 @@ import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
-import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
@@ -44,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
@@ -74,7 +72,6 @@ public class ManagerService implements IManagerService {
     private final IPamService pamService;
     private final IInvestigationNotificationService investigationNotificationService;
 
-    private final IManagerCacheService managerCacheService;
     @Autowired
     public ManagerService(IObservationService observationService,
                           IEdxLogService edxLogService,
@@ -87,8 +84,7 @@ public class ManagerService implements IManagerService {
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
                           IPamService pamService,
-                          IInvestigationNotificationService investigationNotificationService,
-                          IManagerCacheService managerCacheService) {
+                          IInvestigationNotificationService investigationNotificationService) {
         this.observationService = observationService;
         this.edxLogService = edxLogService;
         this.dataExtractionService = dataExtractionService;
@@ -101,8 +97,6 @@ public class ManagerService implements IManagerService {
         this.pageService = pageService;
         this.pamService = pamService;
         this.investigationNotificationService = investigationNotificationService;
-        this.managerCacheService = managerCacheService;
-
     }
 
     @Transactional
