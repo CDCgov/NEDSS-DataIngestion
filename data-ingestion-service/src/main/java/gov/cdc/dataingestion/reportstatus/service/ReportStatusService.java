@@ -12,6 +12,9 @@ import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.rti.model.RtiLogStackDto;
+import gov.cdc.dataingestion.rti.repository.RtiLogRepository;
+import gov.cdc.dataingestion.rti.repository.model.RtiLog;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class ReportStatusService {
     private final IValidatedELRRepository iValidatedELRRepository;
     private final IElrDeadLetterRepository iElrDeadLetterRepository;
     private final IEdxActivityLogRepository iEdxActivityLogRepository;
+    private final RtiLogRepository rtiLogRepository;
     private static final String MSG_STATUS_SUCCESS = "COMPLETED";
     private static final String MSG_STATUS_FAILED = "FAILED";
     private static final String MSG_STATUS_PROGRESS = "IN PROGRESS";
@@ -41,13 +45,15 @@ public class ReportStatusService {
                                IRawELRRepository iRawELRRepository,
                                IValidatedELRRepository iValidatedELRRepository,
                                IElrDeadLetterRepository iElrDeadLetterRepository,
-                               IEdxActivityLogRepository iEdxActivityLogRepository) {
+                               IEdxActivityLogRepository iEdxActivityLogRepository,
+                               RtiLogRepository rtiLogRepository) {
         this.iReportStatusRepository = iReportStatusRepository;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iElrDeadLetterRepository = iElrDeadLetterRepository;
         this.iEdxActivityLogRepository=iEdxActivityLogRepository;
+        this.rtiLogRepository = rtiLogRepository;
     }
 
     public MessageStatus getMessageStatus(String rawMessageID) {
@@ -85,6 +91,14 @@ public class ReportStatusService {
                     for(EdxActivityLogModelView edxActivityLogModel:edxActivityStatusList){
                         EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
                         msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
+                    }
+                }
+
+                List<RtiLog> rtiLogList = rtiLogRepository.getRtiByNbsInterfaceId(msgStatus.getNbsInfo().getNbsInterfaceId().toString());
+                if (!rtiLogList.isEmpty()) {
+                    for(RtiLog rti: rtiLogList){
+                        RtiLogStackDto rtiLog = new RtiLogStackDto(rti);
+                        msgStatus.getRtiLogs().add(rtiLog);
                     }
                 }
             }
