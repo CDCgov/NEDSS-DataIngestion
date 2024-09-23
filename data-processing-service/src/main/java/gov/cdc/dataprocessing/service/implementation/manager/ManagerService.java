@@ -463,8 +463,6 @@ public class ManagerService implements IManagerService {
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
             String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataPhc(jsonString);
-
-            //return result;
         }
         catch (Exception e)
         {

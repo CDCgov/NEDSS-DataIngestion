@@ -7,7 +7,6 @@ import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
-import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
 import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
@@ -27,6 +26,7 @@ import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.rti.interfaces.IRtiLogService;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -95,7 +95,6 @@ public class KafkaConsumerService {
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
-    private final IHL7ToFHIRConversion iHl7ToFHIRConversion; //NOSONAR
     private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
@@ -107,7 +106,7 @@ public class KafkaConsumerService {
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
-    private final KafkaProducerTransactionService kafkaProducerTransactionService;
+    private final IRtiLogService rtiLogService;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -120,7 +119,6 @@ public class KafkaConsumerService {
             IRawELRRepository iRawELRRepository,
             KafkaProducerService kafkaProducerService,
             IHL7v2Validator iHl7v2Validator,
-            IHL7ToFHIRConversion ihl7ToFHIRConversion,
             IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
@@ -129,12 +127,12 @@ public class KafkaConsumerService {
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
-            TimeMetricsBuilder timeMetricsBuilder, KafkaProducerTransactionService kafkaProducerTransactionService) {
+            TimeMetricsBuilder timeMetricsBuilder,
+            IRtiLogService rtiLogService) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
         this.iHl7v2Validator = iHl7v2Validator;
-        this.iHl7ToFHIRConversion = ihl7ToFHIRConversion;
         this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
@@ -144,7 +142,7 @@ public class KafkaConsumerService {
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
         this.timeMetricsBuilder = timeMetricsBuilder;
-        this.kafkaProducerTransactionService =kafkaProducerTransactionService;
+        this.rtiLogService = rtiLogService;
     }
     //endregion
 
@@ -369,6 +367,44 @@ public class KafkaConsumerService {
     }
 
 
+    @RetryableTopic(
+            attempts = "${kafka.consumer.max-retry}",
+            autoCreateTopics = "false",
+            dltStrategy = DltStrategy.FAIL_ON_ERROR,
+            retryTopicSuffix = "${kafka.retry.suffix}",
+            dltTopicSuffix = "${kafka.dlt.suffix}",
+            // retry topic name, such as topic-retry-1, topic-retry-2, etc
+            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
+            // time to wait before attempting to retry
+            backoff = @Backoff(delay = 1000, multiplier = 2.0),
+            // if these exceptions occur, skip retry then push message to DLQ
+            exclude = {
+                    SerializationException.class,
+                    DeserializationException.class,
+                    DuplicateHL7FileFoundException.class,
+                    DiHL7Exception.class,
+                    HL7Exception.class,
+                    XmlConversionException.class,
+                    JAXBException.class
+            }
+
+    )
+    @KafkaListener(
+            topics = "${kafka.elr_edx_log_stack_trace.topic}"
+    )
+    public void handleMessageForRtiStackTrace(String message) {
+        timeMetricsBuilder.recordElrRawEventTime(() -> {
+            try {
+                persistingRtiStackTrace(message);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private void persistingRtiStackTrace(String message) {
+        rtiLogService.persistingRtiLog(message);
+    }
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
