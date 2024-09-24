@@ -27,9 +27,6 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/webjars/**",
             "/v3/api-docs/**",
-            "/actuator/**",
-            "/actuator/prometheus",
-            "/actuator/prometheus/**",
             "/swagger-ui/**",
             "/api/auth/token"
     };

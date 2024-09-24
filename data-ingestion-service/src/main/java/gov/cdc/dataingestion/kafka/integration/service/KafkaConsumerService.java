@@ -52,6 +52,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
 
+import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
 @Service
@@ -251,7 +252,7 @@ public class KafkaConsumerService {
             log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
 
             ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-            reportStatusIdData.setRawMessageId(messageId.replaceAll("HL7-xml_", ""));
+            reportStatusIdData.setRawMessageId(messageId.replaceAll(XML_ELR + "_", ""));
             reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
             reportStatusIdData.setCreatedBy("elr_raw_xml");
             reportStatusIdData.setUpdatedBy("elr_raw_xml");

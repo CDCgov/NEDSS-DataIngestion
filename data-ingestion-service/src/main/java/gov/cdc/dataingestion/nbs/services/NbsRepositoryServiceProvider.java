@@ -31,8 +31,9 @@ public class NbsRepositoryServiceProvider {
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
 
 	private static final String ECR_DOC_TYPE = "PHC236";
+	private static final String ECR_STATUS = "ORIG_QUEUED";
 
-    private NbsInterfaceRepository nbsInterfaceRepo;
+	private NbsInterfaceRepository nbsInterfaceRepo;
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
@@ -67,8 +68,8 @@ public class NbsRepositoryServiceProvider {
 			}
 		}
 	}
-    
-    public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage ,  boolean dataProcessingApplied) throws XmlConversionException {
+
+	public NbsInterfaceModel saveXmlMessage(String msgId, String xmlMsg, HL7ParsedMessage<OruR1> hl7ParsedMessage ,  boolean dataProcessingApplied) throws XmlConversionException {
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		log.debug("{} : Xml being persisted to NBS Legacy database", msgId);
@@ -106,8 +107,8 @@ public class NbsRepositoryServiceProvider {
 		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
 		log.debug("{} : Persisted xml to nbs database", msgId);
 
-    	return nbsInterfaceModel;
-    }
+		return nbsInterfaceModel;
+	}
 
 	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg, boolean dataProcessingApplied) {
 
@@ -170,7 +171,7 @@ public class NbsRepositoryServiceProvider {
 			}
 		}
 
-			String specimenColDateStr = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
+		String specimenColDateStr = (oru.getPatientResult() != null && !oru.getPatientResult().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation() != null
 				&& !oru.getPatientResult().get(0).getOrderObservation().isEmpty()
 				&& oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen() != null
@@ -180,7 +181,7 @@ public class NbsRepositoryServiceProvider {
 				? oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime() : null;
 
 		savingNbsInterfaceModelTimeStampHelper( specimenColDateStr,
-				 nbsInterface);
+				nbsInterface);
 
 		nbsInterface.setLabClia(labClia);
 		nbsInterface.setFillerOrderNbr(filterOrderNumber);
@@ -237,5 +238,57 @@ public class NbsRepositoryServiceProvider {
 			throw new XmlConversionException(e.getMessage());
 		}
 
+	}
+
+	public NbsInterfaceModel saveIncomingEcrMessageWithoutRR(String payload, String systemNm, String origDocTypeEicr) {
+		log.debug("Processing ecr message: \n {}", payload);
+		NbsInterfaceModel ecrModel = new NbsInterfaceModel();
+
+		ecrModel.setImpExpIndCd(IMPEXP_CD);
+		ecrModel.setRecordStatusCd(ECR_STATUS);
+
+		var time = getCurrentTimeStamp();
+		ecrModel.setRecordStatusTime(time);
+		ecrModel.setAddTime(time);
+
+		ecrModel.setSystemNm(systemNm);
+		ecrModel.setDocTypeCd(ECR_DOC_TYPE);
+		ecrModel.setOriginalPayload(payload);
+		ecrModel.setOriginalDocTypeCd(origDocTypeEicr);
+		ecrModel.setSpecimenCollDate(null);
+		ecrModel.setLabClia(null);
+		ecrModel.setFillerOrderNbr(null);
+		ecrModel.setOrderTestCode(null);
+		ecrModel.setObservationUid(null);
+		ecrModel.setOriginalPayloadRR(null);
+		ecrModel.setOriginalDocTypeCdRR(null);
+
+		return nbsInterfaceRepo.save(ecrModel);
+	}
+
+	public NbsInterfaceModel saveIncomingEcrMessageWithRR(String payload, String systemNm, String origDocTypeEicr, String incomingRR, String origDocTypeRR) {
+		log.debug("Processing ecr message: \n {} \n and RR message: \n {}", payload, incomingRR);
+		NbsInterfaceModel ecrModelWithRR = new NbsInterfaceModel();
+
+		ecrModelWithRR.setImpExpIndCd(IMPEXP_CD);
+		ecrModelWithRR.setRecordStatusCd(ECR_STATUS);
+
+		var time = getCurrentTimeStamp();
+		ecrModelWithRR.setRecordStatusTime(time);
+		ecrModelWithRR.setAddTime(time);
+
+		ecrModelWithRR.setSystemNm(systemNm);
+		ecrModelWithRR.setDocTypeCd(ECR_DOC_TYPE);
+		ecrModelWithRR.setOriginalPayload(payload);
+		ecrModelWithRR.setOriginalDocTypeCd(origDocTypeEicr);
+		ecrModelWithRR.setSpecimenCollDate(null);
+		ecrModelWithRR.setLabClia(null);
+		ecrModelWithRR.setFillerOrderNbr(null);
+		ecrModelWithRR.setOrderTestCode(null);
+		ecrModelWithRR.setObservationUid(null);
+		ecrModelWithRR.setOriginalPayloadRR(incomingRR);
+		ecrModelWithRR.setOriginalDocTypeCdRR(origDocTypeRR);
+
+		return nbsInterfaceRepo.save(ecrModelWithRR);
 	}
 }
