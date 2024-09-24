@@ -234,7 +234,7 @@ dependencies {
 	testImplementation 'org.testcontainers:testcontainers:1.20.1'
 	testImplementation 'org.testcontainers:kafka:1.20.1'
 	testImplementation 'org.testcontainers:mssqlserver:1.20.1'
-	testImplementation 'org.testcontainers:junit-jupiter1.20.1'
+	testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
 	testImplementation 'org.springframework.security:spring-security-test:6.3.3'
 	testImplementation 'org.apache.camel:camel-test-spring-junit5:4.0.0'
