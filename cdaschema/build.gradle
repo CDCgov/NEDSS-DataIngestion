@@ -4,7 +4,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 group = 'gov.cdc.dataingestion'
@@ -40,7 +40,7 @@ task generateXmlBeans(type: JavaExec) {
     args "-src", "${buildDir}/generated-src"
     args "src/main/resources/xsd/cda/config.xsdconfig"
     args "src/main/resources/xsd/cda/CDA_SDTC.xsd"
-    args "-javasource", "17"
+    args "-javasource", "21"
 
 }
 

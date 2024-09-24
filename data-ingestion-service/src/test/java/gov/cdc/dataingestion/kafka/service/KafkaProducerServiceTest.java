@@ -89,16 +89,6 @@ class KafkaProducerServiceTest {
     }
 
     @Test
-    void testSendMessageAfterConvertedToFhirMessage()  {
-        String topic = "test-topic";
-        HL7ToFHIRModel model = new HL7ToFHIRModel();
-        model.setId("test");
-        kafkaProducerService.sendMessageAfterConvertedToFhirMessage(model, topic,
-                1 );
-        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
-    }
-
-    @Test
     void sendMessageDlt()  {
         String topic = "test-topic";
         kafkaProducerService.sendMessageDlt("test","test", topic, 1,

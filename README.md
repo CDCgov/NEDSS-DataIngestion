@@ -3,7 +3,7 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
 
 # Running Application inside Docker
 - Requirement
-  - Java 17
+  - Java 21
     - Docker
       - Gradle
 

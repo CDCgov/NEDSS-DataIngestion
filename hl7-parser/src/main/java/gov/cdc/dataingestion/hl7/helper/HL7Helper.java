@@ -5,17 +5,14 @@ package gov.cdc.dataingestion.hl7.helper;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
 import gov.cdc.dataingestion.hl7.helper.integration.HL7Parser;
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiFhirException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.integration.interfaces.IHL7Parser;
-import gov.cdc.dataingestion.hl7.helper.model.FhirConvertedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 
 public class HL7Helper {
 
     private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
-    //private IFhirConverter fhirConverter = new FhirConverter(new HL7ToFHIRConverter());//NOSONAR
 
     /**
      * HL7 string validator, replacing "\n" by "\r"
@@ -40,17 +37,6 @@ public class HL7Helper {
         return parser.convert231To251(message, null);
     }
 
-    /**
-     * @deprecated This method is no longer needed as FHIR format is not being used.
-     * Also, FhirConverter caused the out of memory problem.
-     * Deprecated code should eventually be removed.
-     * Convert HL7 message into fhir
-     * */
-    @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S1133")
-    public FhirConvertedMessage convertHl7ToFhir(String message) throws DiFhirException {
-        return null;//fhirConverter.hL7ToFHIRConversion(message);//NOSONAR
-    }
 
     public String hl7Validation(String message) throws DiHL7Exception{
         message = parser.processFhsMessage(message);

@@ -7,8 +7,6 @@ import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
-import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
@@ -95,8 +93,6 @@ public class KafkaConsumerService {
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
-    private final IHL7ToFHIRConversion iHl7ToFHIRConversion; //NOSONAR
-    private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
@@ -120,8 +116,6 @@ public class KafkaConsumerService {
             IRawELRRepository iRawELRRepository,
             KafkaProducerService kafkaProducerService,
             IHL7v2Validator iHl7v2Validator,
-            IHL7ToFHIRConversion ihl7ToFHIRConversion,
-            IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             IElrDeadLetterRepository elrDeadLetterRepository,
@@ -134,8 +128,6 @@ public class KafkaConsumerService {
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
         this.iHl7v2Validator = iHl7v2Validator;
-        this.iHl7ToFHIRConversion = ihl7ToFHIRConversion;
-        this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterRepository = elrDeadLetterRepository;
@@ -472,11 +464,7 @@ public class KafkaConsumerService {
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
                 throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
-                var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
-                elrDeadLetterDto.setMessage(message.getFhirMessage());
-            } else {
+            else {
                 throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
 
