@@ -59,7 +59,7 @@ public class CdaMapHelper implements ICdaMapHelper {
             clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
             clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
             clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);
-            clinicalDocument.getTitle().set(mapToStringData(CLINICAL_TITLE));
+            clinicalDocument.getTitle().set(mapToPCData(CLINICAL_TITLE));
         }
 
         var model = mapActParticipantArray(clinicalDocument);
@@ -76,11 +76,25 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public XmlObject mapToCData(String data) throws EcrCdaXmlException {
         try {
-            return XmlObject.Factory.parse("<CDATA>"+data+"</CDATA>");
+            String escapedString = data.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;")
+                    .replace("'", "&apos;");
+
+            return XmlObject.Factory.parse("<CDATA>"+escapedString+"</CDATA>");
         } catch (Exception e) {
             throw new EcrCdaXmlException(e.getMessage());
         }
 
+    }
+
+    public XmlObject mapToPCData(String data) throws EcrCdaXmlException {
+        try {
+            return XmlObject.Factory.parse("<STRING>"+data+"</STRING>");
+        } catch (Exception e) {
+            throw new EcrCdaXmlException(e.getMessage());
+        }
     }
 
     public ActParticipantArray mapActParticipantArray(POCDMT000040Section section) {
@@ -130,7 +144,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     public ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerDto in) throws EcrCdaXmlException {
         XmlCursor cursor = element.newCursor();
         cursor.toFirstChild();
-        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
+        cursor.setAttributeText(new QName(NAME_SPACE_URL, "xsi:type"), "TS");
         cursor.setAttributeText(new QName("", value), null);
         String newValue = mapToTsType(in.getAnswerTxt()).toString();
         cursor.setAttributeText(new QName("", value), newValue);
@@ -159,16 +173,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         mapStruct.setClinicalDocument(clinicalDocument);
         mapStruct.setC(c);
         return mapStruct;
-    }
-
-
-    public XmlObject mapToStringData(String data) throws EcrCdaXmlException {
-        try {
-            return XmlObject.Factory.parse("<STRING>"+data+"</STRING>");
-        } catch (Exception e) {
-            throw new EcrCdaXmlException(e.getMessage());
-        }
-
     }
 
     public XmlObject mapToUsableTSElement(String data, XmlObject output, String name) throws EcrCdaXmlException {
@@ -345,19 +349,24 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public POCDMT000040CustodianOrganization mapToElementValue(String data, POCDMT000040CustodianOrganization output, String name) {
         XmlCursor cursor = output.newCursor();
-        cursor.toFirstChild();
+
+        // Counter is set to 4 here to move it to the next element of id as the batch requires
+        // name to be the second element in the representedCustodianOrganization section
+        int counter = 4;
+        while (counter > 0) {
+            cursor.toNextToken();
+            counter--;
+        }
         cursor.beginElement(name, XML_NAME_SPACE_HOLDER);
         cursor.insertChars(data);
         cursor.dispose();
-
         return output;
     }
 
 
-    //TODO: Check if we need to fix the Zulu time zone
     public String getCurrentUtcDateTimeInCdaFormat() {
         ZonedDateTime utcNow = ZonedDateTime.now(ZoneId.of("UTC"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         return utcNow.format(formatter);
     }
 
@@ -459,16 +468,20 @@ public class CdaMapHelper implements ICdaMapHelper {
                     observation.addNewCode();
                 }
 
-                ANY any = ANY.Factory.parse(VALUE_TAG);
-                XmlCursor cursor = any.newCursor();
-                cursor.toFirstAttribute();
-                cursor.toNextToken();
-                cursor.insertAttributeWithValue("type", "II");
+                II id = II.Factory.newInstance();
+
+//                ANY any = ANY.Factory.parse(VALUE_TAG);
+//                XmlCursor cursor = any.newCursor();
+//                cursor.toFirstAttribute();
+//                cursor.toNextToken();
+//                cursor.setAttributeText(new QName(NAME_SPACE_URL, "xsi:type"), "II");
                 var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
-                cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
-                cursor.insertAttributeWithValue("extension", data);
-                cursor.dispose();
-                observation.setValueArray(0, any); // THIS
+//                cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
+//                cursor.insertAttributeWithValue("extension", data);
+//                cursor.dispose();
+                id.setRoot(val.getQuesCodeSystemCd());
+                id.setExtension(data);
+                observation.setValueArray(0, id); // THIS
             }
             else if (result.getDataType().equalsIgnoreCase("DATE")) {
                 var ts = mapToTsType(data);
@@ -478,14 +491,25 @@ public class CdaMapHelper implements ICdaMapHelper {
             else {
                 observation.addNewValue();
 
-                ANY any = ANY.Factory.parse(VALUE_TAG);
-                XmlCursor cursor = any.newCursor();
-                cursor.toFirstAttribute();
+                ST st = ST.Factory.newInstance();
+                XmlCursor cursor = st.newCursor();
                 cursor.toNextToken();
-                cursor.insertAttributeWithValue("type", "ST");
-                cursor.insertChars(data);
+                cursor.insertChars(CDATA + data + CDATA);
                 cursor.dispose();
-                observation.setValueArray(0, any);
+
+//                ANY any = ANY.Factory.parse(VALUE_TAG);
+//                XmlCursor cursor = any.newCursor();
+////                cursor.toFirstAttribute();
+//                cursor.toNextToken();
+//                cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
+//
+//                if (cursor.toChild("value")) {
+//                    cursor.insertChars(CDATA + data + CDATA);
+//                }
+////                cursor.insertChars(CDATA + data + CDATA);
+//                cursor.dispose();
+//                observation.setValueArray(0, any);
+                observation.setValueArray(0, st);
 
             }
         } catch (Exception e) {
@@ -572,9 +596,9 @@ public class CdaMapHelper implements ICdaMapHelper {
         XmlCursor cursor = output.newCursor();
 
         if (cursor.toChild(new QName(VALUE_NAME))) {
-            cursor.insertAttributeWithValue("type", "ST");
+            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
             cursor.toNextToken();
-            cursor.insertChars(input);
+            cursor.insertChars(CDATA + input + CDATA);
         }
 
         cursor.dispose();
@@ -582,14 +606,19 @@ public class CdaMapHelper implements ICdaMapHelper {
     }
 
     public XmlObject mapToObservationPlace(String in, XmlObject out) {
-        XmlCursor cursor = out.newCursor();
-        cursor.toFirstChild();
-        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "II");
-        cursor.setAttributeText(new QName("", "root"), "2.3.3.3.322.23.34");
-        cursor.setAttributeText(new QName("", "extension"), in);
-        cursor.dispose();
 
-        return out;
+        II id = II.Factory.newInstance();
+        id.setRoot("2.3.3.3.322.23.34");
+        id.setExtension(in);
+
+//        XmlCursor cursor = out.newCursor();
+//        cursor.toFirstChild();
+//        cursor.setAttributeText(new QName(NAME_SPACE_URL, "xsi:type"), "II");
+//        cursor.setAttributeText(new QName("", "root"), "2.3.3.3.322.23.34");
+//        cursor.setAttributeText(new QName("", "extension"), in);
+//        cursor.dispose();
+
+        return id;
     }
 
     public POCDMT000040Participant2 mapToPSN(EcrMsgProviderDto in, POCDMT000040Participant2 out)
@@ -859,10 +888,11 @@ public class CdaMapHelper implements ICdaMapHelper {
     private void mapToPSNSuffix(String suffix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-        } else {
-            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
-        var mapVal = mapToCData(suffix);
+//        else {
+//            out.getParticipantRole().addNewPlayingEntity().addNewName();
+//        }
+        var mapVal = mapToPCData(suffix);
         EnSuffix enG = EnSuffix.Factory.newInstance();
         enG.set(mapVal);
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewSuffix();
@@ -875,10 +905,11 @@ public class CdaMapHelper implements ICdaMapHelper {
     private void mapToPSNPrefix(String prefix,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-        } else {
-            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
-        var mapVal = mapToCData(prefix);
+//        else {
+//            out.getParticipantRole().addNewPlayingEntity().addNewName();
+//        }
+        var mapVal = mapToPCData(prefix);
         EnPrefix enG = EnPrefix.Factory.newInstance();
         enG.set(mapVal);
         out.getParticipantRole().getPlayingEntity().getNameArray(0).addNewPrefix();
@@ -904,9 +935,10 @@ public class CdaMapHelper implements ICdaMapHelper {
     private void mapToPSNLastName(String lastName,  POCDMT000040Participant2 out) throws EcrCdaXmlException {
         if (out.getParticipantRole() == null) {
             out.addNewParticipantRole().addNewPlayingEntity().addNewName();
-        } else {
-            out.getParticipantRole().addNewPlayingEntity().addNewName();
         }
+//        else {
+//            out.getParticipantRole().addNewPlayingEntity().addNewName();
+//        }
         var mapVal = mapToCData(lastName);
         EnFamily enG = EnFamily.Factory.newInstance();
         enG.set(mapVal);

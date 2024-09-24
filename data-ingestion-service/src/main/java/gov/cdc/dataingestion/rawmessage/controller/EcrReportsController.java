@@ -50,7 +50,7 @@ public class EcrReportsController {
     public ResponseEntity<Integer> saveIncomingEcr(@RequestBody final String payload,
                                                    @RequestHeader("systemNm") String systemNm,
                                                    @RequestHeader("origDocTypeEicr") String origDocTypeEicr,
-                                                   @RequestHeader("origDocTypeRR, required = false") String origDocTypeRR) {
+                                                   @RequestHeader(value = "origDocTypeRR", required = false) String origDocTypeRR) {
         try {
             String eicrXml = extractXmlContent(payload, "<eICRXML>", "</eICRXML>");
             String rrXml = extractXmlContent(payload, "<RRXML>", "</RRXML>");
@@ -70,7 +70,7 @@ public class EcrReportsController {
 
     private String extractXmlContent(String textInput, String startTag, String endTag) {
         int startIndex = textInput.indexOf(startTag) + startTag.length();
-        int endIndex = textInput.indexOf(endTag);
+        int endIndex = textInput.indexOf(endTag, startIndex);;
         if (startIndex < 0 || endIndex < 0 || startIndex >= endIndex) {
             throw new IllegalArgumentException("XML tags not found or malformed input");
         }

@@ -13,9 +13,7 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseAnswerDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgCaseParticipantDto;
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpDto;
 import gov.cdc.nedss.phdc.cda.*;
-import org.apache.xmlbeans.XmlCursor;
 
-import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +53,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystem(CODE_SYSTEM);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setCodeSystemName(CODE_SYSTEM_NAME);
                         clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getCode().setDisplayName("Clinical Information");
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToStringData("CLINICAL INFORMATION"));
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToPCData("CLINICAL INFORMATION"));
 
                         componentCounter = c;
 
@@ -528,12 +526,16 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
             var element = out.getSection().getEntryArray(counter).getObservation().getValueArray(0);
 
-            XmlCursor cursor = element.newCursor();
-            cursor.toFirstAttribute();
-            cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "type"), "TS");
+            TS ts = TS.Factory.newInstance();
+
+//            XmlCursor cursor = element.newCursor();
+//            cursor.toFirstAttribute();
+//            cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "xsi:type"), "TS");
             var ot = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-            cursor.insertAttributeWithValue("value", ot);
-            cursor.dispose();
+//            cursor.insertAttributeWithValue("value", ot);
+//            cursor.dispose();
+            ts.setValue(ot);
+            element.set(ts);
         }
 
     }
@@ -618,7 +620,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         out.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
         out.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
         out.getCode().setDisplayName("Generic Repeating Questions Section");
-        out.getTitle().set(cdaMapHelper.mapToStringData("REPEATING QUESTIONS"));
+        out.getTitle().set(cdaMapHelper.mapToPCData("REPEATING QUESTIONS"));
         int componentCounter = 0;
         String dataType="DATE";
         int questionGroupSeqNbr = 0;

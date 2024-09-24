@@ -23,7 +23,6 @@ public interface ICdaMapHelper {
                                                      int performerComponentCounter) throws EcrCdaXmlException;
     ActParticipantArray mapActParticipantArray(POCDMT000040Section section);
     XmlObject mapToCData(String data) throws EcrCdaXmlException;
-    XmlObject mapToStringData(String data) throws EcrCdaXmlException;
     XmlObject mapToUsableTSElement(String data, XmlObject output, String name) throws EcrCdaXmlException;
     TS mapToTsType(String data) throws EcrCdaXmlException;
     String mapToQuestionId(String data) throws EcrCdaXmlException;
@@ -53,4 +52,6 @@ public interface ICdaMapHelper {
     MapStructure mapToStructureBodyCheck(POCDMT000040ClinicalDocument1 clinicalDocument);
     MapParticipantRole mapToParticipantRoleCheck(POCDMT000040SubstanceAdministration output);
     ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerDto in) throws EcrCdaXmlException;
+
+    XmlObject mapToPCData(String data) throws EcrCdaXmlException;
 }
