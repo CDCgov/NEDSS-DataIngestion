@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.kafka.service;
 
 import gov.cdc.dataingestion.constant.TopicPreparationType;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;

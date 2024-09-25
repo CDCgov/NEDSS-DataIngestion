@@ -322,45 +322,6 @@ public class KafkaConsumerService {
         });
     }
 
-    /**
-     * FHIR Conversion
-     * @deprecated This method is no longer needed as FHIR format is not being used.
-     * Also, FhirConverter caused the out of memory problem.
-     * Deprecated code should eventually be removed.
-     * */
-    @RetryableTopic(
-            attempts = "${kafka.consumer.max-retry}",
-            autoCreateTopics = "false",
-            dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            retryTopicSuffix = "${kafka.retry.suffix}",
-            dltTopicSuffix = "${kafka.dlt.suffix}",
-            // retry topic name, such as topic-retry-1, topic-retry-2, etc
-            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-            // time to wait before attempting to retry
-            backoff = @Backoff(delay = 1000, multiplier = 2.0),
-            // if these exceptions occur, skip retry then push message to DLQ
-            exclude = {
-                    SerializationException.class,
-                    DeserializationException.class,
-                    DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class,
-                    HL7Exception.class,
-                    XmlConversionException.class,
-                    JAXBException.class
-            }
-    )
-    @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S1133")
-    @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
-    public void handleMessageForFhirConversionElr(String message,
-                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
-        //log.debug(topicDebugLog, message, topic);//NOSONAR
-        //conversionHandlerForFhir(message, operation);//NOSONAR
-
-    }
-
-
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
