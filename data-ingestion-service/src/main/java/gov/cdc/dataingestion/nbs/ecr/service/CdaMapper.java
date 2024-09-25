@@ -286,7 +286,7 @@ public class CdaMapper implements ICdaMapper {
     }
 
     private static String formatDateTime(OffsetDateTime dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssZ");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         return dateTime.format(formatter);
     }
 
@@ -315,6 +315,7 @@ public class CdaMapper implements ICdaMapper {
             xmlOutput = xmlOutput.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ XML_NAME_SPACE_HOLDER +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+XML_NAME_SPACE_HOLDER +" CDA_SDTC.xsd\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("<section xmlns=\"\">", "<section>");// NOSONAR
 
 
             xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR

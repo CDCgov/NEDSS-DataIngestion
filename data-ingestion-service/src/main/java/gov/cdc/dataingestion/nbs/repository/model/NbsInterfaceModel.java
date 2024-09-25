@@ -60,7 +60,13 @@ public class NbsInterfaceModel {
     private String orderTestCode;
     
     @Column(name = "OBSERVATION_UID")
-    private Integer observationUid;      
+    private Integer observationUid;
+
+    @Column(name = "original_payload_RR")
+    private String originalPayloadRR;
+
+    @Column(name = "original_doc_type_cd_RR")
+    private String originalDocTypeCdRR;
 
     @Override
     public String toString() {

@@ -18,11 +18,11 @@ import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 

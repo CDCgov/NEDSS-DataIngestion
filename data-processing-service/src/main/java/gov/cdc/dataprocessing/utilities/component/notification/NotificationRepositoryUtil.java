@@ -17,8 +17,8 @@ import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryU
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 

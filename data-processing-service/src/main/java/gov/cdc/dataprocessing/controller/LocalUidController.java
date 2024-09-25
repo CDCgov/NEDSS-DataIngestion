@@ -5,7 +5,7 @@
 //import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 //import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 //import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
-//import jakarta.transaction.Transactional;
+//import org.springframework.transaction.annotation.Transactional;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.http.ResponseEntity;

@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
+
 @Service
 public class ReportStatusService {
     private final IReportStatusRepository iReportStatusRepository;
@@ -58,7 +60,7 @@ public class ReportStatusService {
             msgStatus.getRawInfo().setRawCreatedOn(rawMessageData.get().getCreatedOn());
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
 
-            if (rawMessageData.get().getType().equals("HL7")) {
+            if (rawMessageData.get().getType().equalsIgnoreCase(HL7_ELR)) {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
                 if (!validatedMessageData.isEmpty()) {
                     msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
@@ -107,7 +109,11 @@ public class ReportStatusService {
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_SUCCESS);
             setNbsInfo(msgStatus);
         } else {
-            setDltInfo(msgStatus.getValidatedInfo().getValidatedMessageId(), msgStatus, DLT_ORIGIN_VALIDATED);
+            if (msgStatus.getValidatedInfo().getValidatedMessageId() == null) {
+                setDltInfo(msgStatus.getRawInfo().getRawMessageId(), msgStatus, DLT_ORIGIN_RAW);
+            } else {
+                setDltInfo(msgStatus.getValidatedInfo().getValidatedMessageId(), msgStatus, DLT_ORIGIN_VALIDATED);
+            }
         }
         return msgStatus;
     }
