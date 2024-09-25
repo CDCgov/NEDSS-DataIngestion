@@ -68,7 +68,6 @@ jacocoTestReport {
 		csv.required = false
 		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
 	}
-//	getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
 	executionData = fileTree(dir: "$buildDir", includes: [
 			"jacoco/*.exec",  // Standard Jacoco exec file for unit tests
 			"outputs/code-coverage/**/*.exec"  // In case different directory structure

@@ -100,7 +100,7 @@ public class KafkaProducerService {
 
         sendMessage(prodRecord);
     }
-
+    @SuppressWarnings({"java:S6880"})
     public void sendMessagePreparationTopic(ValidatedELRModel msg, String topic, TopicPreparationType topicType, Integer dltOccurrence, String dataProcessingEnable) throws ConversionPrepareException {
 
         String uniqueId;

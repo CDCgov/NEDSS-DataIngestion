@@ -137,7 +137,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.3.4'
     implementation 'org.springframework.kafka:spring-kafka:3.0.12'
     implementation 'org.apache.kafka:kafka-clients:3.6.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
     implementation 'com.zaxxer:HikariCP:5.0.1'
 
