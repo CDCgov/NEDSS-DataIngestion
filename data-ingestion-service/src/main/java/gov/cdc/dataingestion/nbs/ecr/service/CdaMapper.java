@@ -8,9 +8,7 @@ import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.services.interfaces.ICdaLookUpService;
 import gov.cdc.nedss.phdc.cda.*;
-import org.apache.commons.lang.StringUtils;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,12 +17,6 @@ import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 
@@ -163,36 +155,6 @@ public class CdaMapper implements ICdaMapper {
         cursor.dispose();
         //endregion
 
-        List<XmlError> validationErrors = new ArrayList<>();
-        XmlOptions validationOptions = new XmlOptions();
-        validationOptions.setErrorListener(validationErrors);
-
-        ClinicalDocumentDocument1 clinicalDocumentRoot = null;
-
-        clinicalDocumentRoot = rootDocument;
-
-        boolean isValid = clinicalDocumentRoot.validate(validationOptions);
-
-        if (!isValid) {
-            // If validation fails, print out detailed error information
-            XmlError xmlError22 = validationErrors.get(0);
-            XmlError xmlError23 = validationErrors.get(1);
-//            for (XmlError error : validationErrors) {
-                System.err.println("Error: " + xmlError22.getMessage());
-                System.err.println("Line: " + xmlError22.getCursorLocation().xmlText());
-                System.out.println("--------------------------------------------------");
-//            }
-            System.err.println("Error: " + xmlError23.getMessage());
-            System.err.println("Line: " + xmlError23.getCursorLocation().xmlText());
-            System.out.println("--------------------------------------------------");
-
-        } else {
-            System.out.println("XML is valid.");
-        }
-
-        // Print the errors
-        System.out.println(isValid);
-
         return convertXmlToString(rootDocument);
 
     }
@@ -330,26 +292,15 @@ public class CdaMapper implements ICdaMapper {
 
     private String convertXmlToString(ClinicalDocumentDocument1 clinicalDocument) {
             XmlOptions options = new XmlOptions();
-            //options.setSavePrettyPrint();
-            //options.setSavePrettyPrintIndent(4);  // Set indentation
             // Use a default namespace instead of a prefixed one (like urn:)
             options.setUseDefaultNamespace();
-            // Set to always use full tags instead of self-closing tags
-            //options.setSaveNoXmlDecl();
-            //options.setSaveOuter();
-
 
             String xmlOutput = clinicalDocument.xmlText(options);
-            String clinicalDocumentString = clinicalDocument.toString();
-            System.err.println(StringUtils.difference(clinicalDocumentString, xmlOutput));
-
-            System.err.println("clinicalDocumentString.equals(xmlOutput)" +clinicalDocumentString.equals(xmlOutput));
 
             xmlOutput = xmlOutput.replaceAll("<STRING[^>]*>([^<]+)</STRING>", "$1");// NOSONAR // remove string tag
             xmlOutput = xmlOutput.replaceAll("\\[CDATA\\](.*?)\\[CDATA\\]", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
             xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
             xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", "");// NOSONAR // remove empty <tag></tag>
-            //xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", "");// NOSONAR // remove empty <tag/>
             xmlOutput = xmlOutput.replaceAll("<STUD xmlns=\"\">STUD</STUD>", "");// NOSONAR // remove STUD tag
             xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", "");// NOSONAR // remove STUD tag
             xmlOutput = xmlOutput.replaceAll("(?m)^\\s*$[\n\r]{1,}", "");// NOSONAR // remove new line
@@ -370,51 +321,12 @@ public class CdaMapper implements ICdaMapper {
             xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:II\"", "xsi:type=\"II\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:TS\"", "xsi:type=\"TS\"");// NOSONAR
 
-
-        xmlOutput = xmlOutput.replaceAll("<tr\\s+ID=\"[^\"]*\"", "<tr");
-
-
-
-        xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("NOT_MAPPED","");// NOSONAR
 
             xmlOutput = "<?xml version=\"1.0\"?>\n" + xmlOutput;
-            String updatedXml = replaceDuplicateIds(xmlOutput);
             return xmlOutput;
     }
-
-    public static String replaceDuplicateIds(String xmlOutput) {
-        // Pattern to match id attributes
-        Pattern idPattern = Pattern.compile("ID=\"(.*?)\"");
-        Matcher matcher = idPattern.matcher(xmlOutput);
-
-        // Set to store unique IDs
-        HashSet<String> uniqueIds = new HashSet<>();
-
-        StringBuffer result = new StringBuffer();
-
-        while (matcher.find()) {
-            String id = matcher.group(1);  // Extract the current ID value
-
-            // Check if the ID is a duplicate
-            if (uniqueIds.contains(id)) {
-                // Generate a new unique ID using UUID
-                String newId = "id_" + UUID.randomUUID().toString().toLowerCase() + "_ref";
-
-                // Replace the duplicate ID with the new one
-                matcher.appendReplacement(result, "id=\"" + newId + "\"");
-            } else {
-                // Add the unique ID to the set
-                uniqueIds.add(id);
-                matcher.appendReplacement(result, matcher.group(0));  // No change
-            }
-        }
-        matcher.appendTail(result);
-
-        // Return the modified XML output
-        return result.toString();
-    }
-
 
     private String mapToTranslatedValue(String input) throws EcrCdaXmlException {
         var res = ecrLookUpService.fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", input);
