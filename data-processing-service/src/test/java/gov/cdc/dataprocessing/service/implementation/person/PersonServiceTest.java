@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -122,7 +123,8 @@ class PersonServiceTest {
         assertNotNull(personContainerResult);
     }
     @Test
-    void processingPatient_personid_PatientMatchedFound() throws DataProcessingException {
+    void processingPatient_personid_PatientMatchedFound()
+        throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer=new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setPersonParentUid(123L);
@@ -143,7 +145,7 @@ class PersonServiceTest {
         edxPatientMatchFoundDT.setPatientUid(0L);
         edxPatientMatchFoundDT.setMultipleMatch(false);
 
-        when(patientMatchingServiceMock.getMatchingPatient(personContainer)).thenReturn(edxPatientMatchFoundDT);
+        when(patientMatchingServiceMock.getMatchingPatient(personContainer,true)).thenReturn(edxPatientMatchFoundDT);
         when(patientMatchingServiceMock.getMultipleMatchFound()).thenReturn(false);
 
         PersonContainer personContainerResult=personService.processingPatient(labResultProxyContainer,edxLabInformationDto,personContainer);
