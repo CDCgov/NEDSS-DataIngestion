@@ -7,8 +7,6 @@ import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
-import gov.cdc.dataingestion.conversion.integration.interfaces.IHL7ToFHIRConversion;
-import gov.cdc.dataingestion.conversion.repository.IHL7ToFHIRRepository;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
@@ -95,8 +93,6 @@ public class KafkaConsumerService {
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawELRRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
-    private final IHL7ToFHIRConversion iHl7ToFHIRConversion; //NOSONAR
-    private final IHL7ToFHIRRepository iHL7ToFHIRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
@@ -120,8 +116,6 @@ public class KafkaConsumerService {
             IRawELRRepository iRawELRRepository,
             KafkaProducerService kafkaProducerService,
             IHL7v2Validator iHl7v2Validator,
-            IHL7ToFHIRConversion ihl7ToFHIRConversion,
-            IHL7ToFHIRRepository iHL7ToFHIRepository,
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             IElrDeadLetterRepository elrDeadLetterRepository,
@@ -134,8 +128,6 @@ public class KafkaConsumerService {
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
         this.iHl7v2Validator = iHl7v2Validator;
-        this.iHl7ToFHIRConversion = ihl7ToFHIRConversion;
-        this.iHL7ToFHIRRepository = iHL7ToFHIRepository;
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterRepository = elrDeadLetterRepository;
@@ -330,45 +322,6 @@ public class KafkaConsumerService {
         });
     }
 
-    /**
-     * FHIR Conversion
-     * @deprecated This method is no longer needed as FHIR format is not being used.
-     * Also, FhirConverter caused the out of memory problem.
-     * Deprecated code should eventually be removed.
-     * */
-    @RetryableTopic(
-            attempts = "${kafka.consumer.max-retry}",
-            autoCreateTopics = "false",
-            dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            retryTopicSuffix = "${kafka.retry.suffix}",
-            dltTopicSuffix = "${kafka.dlt.suffix}",
-            // retry topic name, such as topic-retry-1, topic-retry-2, etc
-            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-            // time to wait before attempting to retry
-            backoff = @Backoff(delay = 1000, multiplier = 2.0),
-            // if these exceptions occur, skip retry then push message to DLQ
-            exclude = {
-                    SerializationException.class,
-                    DeserializationException.class,
-                    DuplicateHL7FileFoundException.class,
-                    DiHL7Exception.class,
-                    HL7Exception.class,
-                    XmlConversionException.class,
-                    JAXBException.class
-            }
-    )
-    @Deprecated(since = "7.3",forRemoval = true)
-    @SuppressWarnings("java:S1133")
-    @KafkaListener(topics = "${kafka.fhir-conversion-prep.topic}")
-    public void handleMessageForFhirConversionElr(String message,
-                                                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation) throws FhirConversionException, DiHL7Exception {
-        //log.debug(topicDebugLog, message, topic);//NOSONAR
-        //conversionHandlerForFhir(message, operation);//NOSONAR
-
-    }
-
-
 
     @RetryableTopic(
             attempts = "${kafka.consumer.max-retry}",
@@ -472,11 +425,7 @@ public class KafkaConsumerService {
             else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToXmlTopic)) {
                 throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
-            else if (elrDeadLetterDto.getErrorMessageSource().equalsIgnoreCase(convertedToFhirTopic)) {
-                var message = this.iHL7ToFHIRRepository.findById(elrDeadLetterDto.getErrorMessageId())
-                        .orElseThrow(() -> new DeadLetterTopicException(processDltErrorMessage + elrDeadLetterDto.getErrorMessageId()));
-                elrDeadLetterDto.setMessage(message.getFhirMessage());
-            } else {
+            else {
                 throw new DeadLetterTopicException("Unsupported Topic; topic: " + elrDeadLetterDto.getErrorMessageSource());
             }
 

@@ -1,9 +1,9 @@
 package gov.cdc.dataingestion.rawmessage.controller;
+
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
-import gov.cdc.dataingestion.rawmessage.controller.ElrReportsController;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

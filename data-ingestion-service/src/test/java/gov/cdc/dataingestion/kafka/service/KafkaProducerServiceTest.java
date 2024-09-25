@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.kafka.service;
 
 import gov.cdc.dataingestion.constant.TopicPreparationType;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
@@ -85,16 +84,6 @@ class KafkaProducerServiceTest {
         kafkaProducerService.sendMessagePreparationTopic(model, topic,
                 topicType,
                 1, "false");
-        verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
-    }
-
-    @Test
-    void testSendMessageAfterConvertedToFhirMessage()  {
-        String topic = "test-topic";
-        HL7ToFHIRModel model = new HL7ToFHIRModel();
-        model.setId("test");
-        kafkaProducerService.sendMessageAfterConvertedToFhirMessage(model, topic,
-                1 );
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
