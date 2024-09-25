@@ -8,7 +8,6 @@ buildscript {
 	}
 	dependencies {
 		classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
-		classpath "org.liquibase:liquibase-gradle-plugin:2.2.0"
 		classpath 'org.owasp:dependency-check-gradle:9.0.3'
 	}
 }
@@ -20,8 +19,6 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
 	id "org.sonarqube" version "4.2.1.3168"
-	id 'org.liquibase.gradle' version '2.2.0'
-//	id 'checkstyle'
 }
 
 apply plugin: 'org.owasp.dependencycheck'
@@ -62,7 +59,8 @@ jacoco {
 }
 
 test {
-	finalizedBy jacocoTestReport // report is always generated after tests run
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
 }
 jacocoTestReport {
 	reports {
@@ -70,7 +68,12 @@ jacocoTestReport {
 		csv.required = false
 		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
 	}
-	getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+//	getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+	executionData = fileTree(dir: "$buildDir", includes: [
+			"jacoco/*.exec",  // Standard Jacoco exec file for unit tests
+			"outputs/code-coverage/**/*.exec"  // In case different directory structure
+	])
+
 	afterEvaluate {
 		classDirectories.setFrom(files(classDirectories.files.collect {
 			fileTree(dir: it, exclude: [
@@ -254,7 +257,7 @@ dependencies {
 
 test {
 	useJUnitPlatform()
-	jacoco.enabled = false
+	finalizedBy jacocoTestReport
 }
 
 jar {
@@ -297,18 +300,5 @@ sonarqube {
 				" **rawmessage/dto/**, **/deadletter/model/**, " +
 				" **/nbs/ecr/**, "  + // <-- Remove this once ECR is completed
 				" **/report/repository/model/**, **/config/**, **/model/**, **/jaxb/**, **/TimeMetricsBuilder.java"
-	}
-}
-
-apply plugin: "org.liquibase.gradle"
-
-liquibase {
-	activities {
-		main {
-			changelogFile './src/main/resources/db/changelog.xml'
-			url "jdbc:sqlserver://${System.env.DI_DBSERVER};databaseName=${System.env.DI_DBNAME};encrypt=true;trustServerCertificate=true"
-			username  "${System.env.DI_USERNAME}"
-			password "${System.env.DI_PASSWORD}"
-		}
 	}
 }
