@@ -1,4 +1,4 @@
-FROM amazoncorretto:17 as builder
+FROM amazoncorretto:21 as builder
 
 #Copy project config
 COPY gradle /usr/src/dataprocessing/gradle
@@ -16,7 +16,7 @@ WORKDIR /usr/src/dataprocessing
 #Build report service along with any required libraries
 RUN ./gradlew :data-processing-service:buildNeeded -x test --no-daemon
 
-FROM amazoncorretto:17
+FROM amazoncorretto:21
 
 COPY --from=builder /usr/src/dataprocessing/data-processing-service/build/libs/data-processing-service*.jar data-processing-service.jar
 
