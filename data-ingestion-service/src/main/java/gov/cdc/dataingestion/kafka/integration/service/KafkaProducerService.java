@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
-import gov.cdc.dataingestion.conversion.repository.model.HL7ToFHIRModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -101,7 +100,7 @@ public class KafkaProducerService {
 
         sendMessage(prodRecord);
     }
-
+    @SuppressWarnings({"java:S6880"})
     public void sendMessagePreparationTopic(ValidatedELRModel msg, String topic, TopicPreparationType topicType, Integer dltOccurrence, String dataProcessingEnable) throws ConversionPrepareException {
 
         String uniqueId;
@@ -143,14 +142,6 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
 
-
-    public void sendMessageAfterConvertedToFhirMessage(HL7ToFHIRModel msg, String topic, Integer dltOccurrence) {
-        String uniqueID = PREFIX_MSG_FHIR + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, msg.getId());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        sendMessage(prodRecord);
-    }
 
 
     public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) {

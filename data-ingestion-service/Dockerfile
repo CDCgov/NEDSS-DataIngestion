@@ -1,4 +1,4 @@
-FROM amazoncorretto:17 as builder
+FROM amazoncorretto:21 as builder
 
 
 #Copy project config
@@ -19,7 +19,7 @@ WORKDIR /usr/src/dataingestion
 #Build report service along with any required libraries
 RUN ./gradlew :data-ingestion-service:buildNeeded -x test --no-daemon
 
-FROM amazoncorretto:17
+FROM amazoncorretto:21
 
 COPY --from=builder /usr/src/dataingestion/data-ingestion-service/build/libs/data-ingestion-service*.jar data-ingestion-service.jar
 
