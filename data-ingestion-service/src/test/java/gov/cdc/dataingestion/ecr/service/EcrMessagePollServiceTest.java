@@ -28,7 +28,7 @@ class EcrMessagePollServiceTest {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
     @Mock
-    EcrMsgContainerDto ecrMsgContainerDto = mock(EcrMsgContainerDto.class);;
+    EcrMsgContainerDto ecrMsgContainerDto = mock(EcrMsgContainerDto.class);
 
     @InjectMocks
     private EcrMessagePollService ecrMessagePollService;
