@@ -7,15 +7,12 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgXmlAnswerDto;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 import gov.cdc.nedss.phdc.cda.POCDMT000040Component3;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.w3c.dom.Document;
+import org.apache.xmlbeans.XmlOptions;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     public CdaXmlAnswerMapper mapToXmlAnswerTop(EcrSelectedRecord input,
@@ -65,12 +62,35 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
                 factory.setXIncludeAware(false);
                 factory.setExpandEntityReferences(false);
 
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                InputStream is = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
-                Document document = builder.parse(is);
+                if(xmlContent.contains("sdt:") && xmlContent.contains("xsi:")) {
+                    String wrappedXmlContent = "<wrapper xmlns:sdt=\"urn:hl7-org:sdtc\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + xmlContent + "</wrapper>";
 
-                XmlObject xmlData = XmlObject.Factory.parse(document.getDocumentElement());
-                out.set(xmlData);
+                    XmlOptions options = new XmlOptions();
+                    options.setCompileNoValidation();
+
+                    XmlObject xmlData = XmlObject.Factory.parse(wrappedXmlContent, options);
+                    XmlObject parsedXmlData = extractSection(xmlData);
+                    out.set(parsedXmlData);
+                }
+                else if(xmlContent.contains("sdt:")) {
+                    String wrappedXmlContent = "<wrapper xmlns:sdt=\"urn:hl7-org:sdtc\">" + xmlContent + "</wrapper>";
+
+                    XmlOptions options = new XmlOptions();
+                    options.setCompileNoValidation();
+
+                    XmlObject xmlData = XmlObject.Factory.parse(wrappedXmlContent, options);
+                    XmlObject parsedXmlData = extractSection(xmlData);
+                    out.set(parsedXmlData);
+                }
+                else {
+                    String wrappedXmlContent = "<wrapper xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + xmlContent + "</wrapper>";
+                    XmlOptions options = new XmlOptions();
+                    options.setCompileNoValidation();
+
+                    XmlObject xmlData = XmlObject.Factory.parse(wrappedXmlContent, options);
+                    XmlObject parsedXmlData = extractSection(xmlData);
+                    out.set(parsedXmlData);
+                }
             }
             return out;
         } catch (Exception e) {
@@ -78,4 +98,20 @@ public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
         }
     }
 
+    public XmlObject extractSection(XmlObject xmlObject) {
+        XmlCursor cursor = xmlObject.newCursor();
+
+        cursor.toStartDoc();
+        cursor.selectPath("./*");
+        if (cursor.toFirstChild()) {
+            cursor.selectPath("./wrapper");
+            XmlObject section = cursor.getObject().copy();
+            cursor.dispose();
+            return section;
+        }
+        cursor.dispose();
+        return null;
+    }
+
 }
+

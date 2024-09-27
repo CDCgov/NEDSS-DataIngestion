@@ -31,7 +31,7 @@ public class EcrMsgQueryService implements IEcrMsgQueryService {
             selectedRecord = new EcrSelectedRecord();
 
             // Commented out for testing right now and will need to be uncommented during the unit tests stage
-            // this.ecrMsgQueryRepository.updateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid()); //NOSONAR
+             this.ecrMsgQueryRepository.updateMatchEcrRecordForProcessing(msgContainer.getMsgContainerUid()); //NOSONAR
 
             List<EcrMsgPatientDto> msgPatients = this.ecrMsgQueryRepository.fetchMsgPatientForApplicableEcr(msgContainer.getMsgContainerUid());
 

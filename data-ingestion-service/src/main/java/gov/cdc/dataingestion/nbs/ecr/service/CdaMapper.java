@@ -198,7 +198,7 @@ public class CdaMapper implements ICdaMapper {
         clinicalDocument.getCode().setDisplayName("Public Health Case Report - PHRI");
         clinicalDocument.setTitle(ST.Factory.newInstance());
 
-        clinicalDocument.getTitle().set(cdaMapHelper.mapToStringData("Public Health Case Report - Data from Legacy System to CDA"));
+        clinicalDocument.getTitle().set(cdaMapHelper.mapToPCData("Public Health Case Report - Data from Legacy System to CDA"));
 
         clinicalDocument.setEffectiveTime(TS.Factory.newInstance());
         clinicalDocument.getEffectiveTime().setValue(this.cdaMapHelper.getCurrentUtcDateTimeInCdaFormat());
@@ -237,28 +237,28 @@ public class CdaMapper implements ICdaMapper {
 
         custodianValue = mapToTranslatedValue("CUS103");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
         k = k+1;
         custodianValue = mapToTranslatedValue("CUS104");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
 
         k = 0;
         custodianValue = mapToTranslatedValue("CUS105");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCity();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCityArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
 
         custodianValue = mapToTranslatedValue("CUS106");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewState();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getStateArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
 
         custodianValue = mapToTranslatedValue("CUS107");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewPostalCode();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getPostalCodeArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
 
         custodianValue = mapToTranslatedValue("CUS108");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().addNewCountry();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(cdaMapHelper.mapToCData(custodianValue));
+        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr().getCountryArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
 
         custodianValue = mapToTranslatedValue("CUS109");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom().setValue(custodianValue);
@@ -277,7 +277,7 @@ public class CdaMapper implements ICdaMapper {
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewAssignedPerson().addNewName();
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewFamily();
         value = mapToTranslatedValue("AUT102");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(cdaMapHelper.mapToCData(value));
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0).set(cdaMapHelper.mapToPCData(value));
 
         OffsetDateTime now = OffsetDateTime.now();
         String formattedDateTime = formatDateTime(now);
@@ -292,21 +292,15 @@ public class CdaMapper implements ICdaMapper {
 
     private String convertXmlToString(ClinicalDocumentDocument1 clinicalDocument) {
             XmlOptions options = new XmlOptions();
-            options.setSavePrettyPrint();
-            options.setSavePrettyPrintIndent(4);  // Set indentation
             // Use a default namespace instead of a prefixed one (like urn:)
             options.setUseDefaultNamespace();
-            // Set to always use full tags instead of self-closing tags
-            options.setSaveNoXmlDecl();
-            options.setSaveOuter();
-
 
             String xmlOutput = clinicalDocument.xmlText(options);
 
             xmlOutput = xmlOutput.replaceAll("<STRING[^>]*>([^<]+)</STRING>", "$1");// NOSONAR // remove string tag
-            xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "$1");// NOSONAR // replace CDATA with real CDATA
+            xmlOutput = xmlOutput.replaceAll("\\[CDATA\\](.*?)\\[CDATA\\]", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
+            xmlOutput = xmlOutput.replaceAll("<CDATA[^>]*>(.*?)</CDATA>", "<![CDATA[$1]]>");// NOSONAR // replace CDATA with real CDATA
             xmlOutput = xmlOutput.replaceAll("<(\\w+)></\\1>", "");// NOSONAR // remove empty <tag></tag>
-            xmlOutput = xmlOutput.replaceAll("<(\\w+)/>", "");// NOSONAR // remove empty <tag/>
             xmlOutput = xmlOutput.replaceAll("<STUD xmlns=\"\">STUD</STUD>", "");// NOSONAR // remove STUD tag
             xmlOutput = xmlOutput.replaceAll("<stud xmlns=\"\">stud</stud>", "");// NOSONAR // remove STUD tag
             xmlOutput = xmlOutput.replaceAll("(?m)^\\s*$[\n\r]{1,}", "");// NOSONAR // remove new line
@@ -314,9 +308,18 @@ public class CdaMapper implements ICdaMapper {
             xmlOutput = xmlOutput.replaceAll("sdtcxmlnamespaceholder=\""+ XML_NAME_SPACE_HOLDER +"\"", "xmlns:sdtcxmlnamespaceholder=\""+XML_NAME_SPACE_HOLDER+"\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("sdt=\"urn:hl7-org:sdtc\"", "xmlns:sdt=\"urn:hl7-org:sdtc\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xmlns:xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xmlns:xmlns", "xmlns");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xmlns:urn=\"urn:hl7-org:v3\"", "");// NOSONAR
+
             xmlOutput = xmlOutput.replaceAll("schemaLocation=\""+ XML_NAME_SPACE_HOLDER +" CDA_SDTC.xsd\"", "xsi:schemaLocation=\""+XML_NAME_SPACE_HOLDER +" CDA_SDTC.xsd\"");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("<section xmlns=\"\">", "<section>");// NOSONAR
-
+            xmlOutput = xmlOutput.replaceAll("<xmlns=\"\">", "");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xmlns=\"\"", "");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:CE\"", "xsi:type=\"CE\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:ST\"", "xsi:type=\"ST\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:II\"", "xsi:type=\"II\"");// NOSONAR
+            xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:TS\"", "xsi:type=\"TS\"");// NOSONAR
 
             xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR
             xmlOutput = xmlOutput.replaceAll("NOT_MAPPED","");// NOSONAR
