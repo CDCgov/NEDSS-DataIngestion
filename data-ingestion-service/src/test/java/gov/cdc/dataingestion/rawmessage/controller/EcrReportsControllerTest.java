@@ -1,11 +1,6 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
-import gov.cdc.dataingestion.nbs.ecr.service.CdaMapper;
-import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedCase;
-import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgPatientDto;
-import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Collections;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @WebMvcTest(EcrReportsController.class)
 @ActiveProfiles("test")
@@ -31,61 +24,64 @@ class EcrReportsControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private EcrMsgQueryService ecrMsgQueryService;
-
-    @MockBean
-    private CdaMapper cdaMapper;
-
-    @MockBean
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
     @Test
-    void testSaveEcrMessagePHC236() throws Exception {
-        String documentTypeCode = "PHC236";
-        String payload = "dummyPayload";
+    void testSaveIncomingEcr_WithRR() throws Exception {
+        String payload = "<eICRXML>eicrContent</eICRXML><RRXML>rrContent</RRXML>";
+        NbsInterfaceModel mockModel = new NbsInterfaceModel();
+        mockModel.setNbsInterfaceUid(123456);
 
-        EcrSelectedRecord resultDto = new EcrSelectedRecord();
-        EcrMsgContainerDto ecrMsgContainerDto = new EcrMsgContainerDto();
-        ecrMsgContainerDto.setMsgContainerUid(1);
-        ecrMsgContainerDto.setNbsInterfaceUid(1234);
-        resultDto.setMsgContainer(ecrMsgContainerDto);
-        resultDto.setMsgCases(Collections.singletonList(new EcrSelectedCase()));
-        resultDto.setMsgPatients(Collections.singletonList(new EcrMsgPatientDto()));
+        when(nbsRepositoryServiceProvider.saveIncomingEcrMessageWithRR(anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(mockModel);
 
-        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(resultDto);
-        when(cdaMapper.tranformSelectedEcrToCDAXml(resultDto)).thenReturn("transformedXml");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/ecrs/{document-type-code}", documentTypeCode)
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/ecrs")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(payload)
+                        .header("systemNm", "testSystem")
+                        .header("origDocTypeEicr", "EICR")
+                        .header("origDocTypeRR", "RR")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("transformedXml"));
+                .andExpect(MockMvcResultMatchers.content().string("123456"));
 
-        verify(ecrMsgQueryService).getSelectedEcrRecord();
-        verify(cdaMapper).tranformSelectedEcrToCDAXml(resultDto);
+        verify(nbsRepositoryServiceProvider).saveIncomingEcrMessageWithRR("eicrContent", "testSystem", "EICR", "rrContent", "RR");
     }
 
     @Test
-    void testSaveEcrMessageNonPHC236() throws Exception {
-        String documentTypeCode = "notPHC236";
-        String payload = "dummyPayload";
+    void testSaveIncomingEcr_WithoutRR() throws Exception {
+        String payload = "<eICRXML>eicrContent</eICRXML><RRXML>null</RRXML>";
+        NbsInterfaceModel mockModel = new NbsInterfaceModel();
+        mockModel.setNbsInterfaceUid(123456);
 
-        EcrSelectedRecord resultDto = new EcrSelectedRecord();
-        EcrMsgContainerDto ecrMsgContainerDto = new EcrMsgContainerDto();
-        ecrMsgContainerDto.setMsgContainerUid(1);
-        ecrMsgContainerDto.setNbsInterfaceUid(1234);
-        resultDto.setMsgContainer(ecrMsgContainerDto);
-        resultDto.setMsgCases(Collections.singletonList(new EcrSelectedCase()));
-        resultDto.setMsgPatients(Collections.singletonList(new EcrMsgPatientDto()));
+        when(nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(anyString(), anyString(), anyString()))
+                .thenReturn(mockModel);
 
-        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(resultDto);
-        when(cdaMapper.tranformSelectedEcrToCDAXml(resultDto)).thenReturn("transformedXml");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/ecrs/{document-type-code}", documentTypeCode)
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/ecrs")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(payload)
+                        .header("systemNm", "testSystem")
+                        .header("origDocTypeEicr", "EICR")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("123456"));
+
+        verify(nbsRepositoryServiceProvider).saveIncomingEcrMessageWithoutRR("eicrContent", "testSystem", "EICR");
+    }
+
+    @Test
+    void testSaveIncomingEcr_WithMalformedXml_ShouldReturnInternalServerError() throws Exception {
+        String payload = "invalidXmlContent";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/ecrs")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content(payload)
+                        .header("systemNm", "testSystem")
+                        .header("origDocTypeEicr", "EICR")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+        verify(nbsRepositoryServiceProvider, never()).saveIncomingEcrMessageWithRR(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(nbsRepositoryServiceProvider, never()).saveIncomingEcrMessageWithoutRR(anyString(), anyString(), anyString());
     }
 }

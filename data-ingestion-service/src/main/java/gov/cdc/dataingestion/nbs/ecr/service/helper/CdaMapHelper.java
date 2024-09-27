@@ -144,7 +144,7 @@ public class CdaMapHelper implements ICdaMapHelper {
     public ANY mapMultiSelectDateMapXmlElement(ANY element, String value, EcrMsgCaseAnswerDto in) throws EcrCdaXmlException {
         XmlCursor cursor = element.newCursor();
         cursor.toFirstChild();
-        cursor.setAttributeText(new QName(NAME_SPACE_URL, "xsi:type"), "TS");
+        cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
         cursor.setAttributeText(new QName("", value), null);
         String newValue = mapToTsType(in.getAnswerTxt()).toString();
         cursor.setAttributeText(new QName("", value), newValue);
@@ -470,15 +470,7 @@ public class CdaMapHelper implements ICdaMapHelper {
 
                 II id = II.Factory.newInstance();
 
-//                ANY any = ANY.Factory.parse(VALUE_TAG);
-//                XmlCursor cursor = any.newCursor();
-//                cursor.toFirstAttribute();
-//                cursor.toNextToken();
-//                cursor.setAttributeText(new QName(NAME_SPACE_URL, "xsi:type"), "II");
                 var val = ecrLookUpService.fetchPhdcQuestionByCriteriaWithColumn("Question_Identifier", defaultQuestionIdentifier);
-//                cursor.insertAttributeWithValue("root",  val.getQuesCodeSystemCd());
-//                cursor.insertAttributeWithValue("extension", data);
-//                cursor.dispose();
                 id.setRoot(val.getQuesCodeSystemCd());
                 id.setExtension(data);
                 observation.setValueArray(0, id); // THIS
@@ -496,19 +488,6 @@ public class CdaMapHelper implements ICdaMapHelper {
                 cursor.toNextToken();
                 cursor.insertChars(CDATA + data + CDATA);
                 cursor.dispose();
-
-//                ANY any = ANY.Factory.parse(VALUE_TAG);
-//                XmlCursor cursor = any.newCursor();
-////                cursor.toFirstAttribute();
-//                cursor.toNextToken();
-//                cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "ST");
-//
-//                if (cursor.toChild("value")) {
-//                    cursor.insertChars(CDATA + data + CDATA);
-//                }
-////                cursor.insertChars(CDATA + data + CDATA);
-//                cursor.dispose();
-//                observation.setValueArray(0, any);
                 observation.setValueArray(0, st);
 
             }

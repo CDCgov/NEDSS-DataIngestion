@@ -528,12 +528,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
             TS ts = TS.Factory.newInstance();
 
-//            XmlCursor cursor = element.newCursor();
-//            cursor.toFirstAttribute();
-//            cursor.insertAttributeWithValue(new QName(NAME_SPACE_URL, "xsi:type"), "TS");
             var ot = cdaMapHelper.mapToTsType(in.getAnswerTxt()).toString();
-//            cursor.insertAttributeWithValue("value", ot);
-//            cursor.dispose();
             ts.setValue(ot);
             element.set(ts);
         }

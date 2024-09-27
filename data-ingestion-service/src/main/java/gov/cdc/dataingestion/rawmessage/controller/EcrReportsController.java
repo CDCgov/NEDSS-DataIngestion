@@ -70,9 +70,9 @@ public class EcrReportsController {
 
     private String extractXmlContent(String textInput, String startTag, String endTag) {
         int startIndex = textInput.indexOf(startTag) + startTag.length();
-        int endIndex = textInput.indexOf(endTag, startIndex);;
+        int endIndex = textInput.indexOf(endTag, startIndex);
         if (startIndex < 0 || endIndex < 0 || startIndex >= endIndex) {
-            throw new IllegalArgumentException("XML tags not found or malformed input");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed XML content: missing or incorrect tags");
         }
         return textInput.substring(startIndex, endIndex).trim();
     }
