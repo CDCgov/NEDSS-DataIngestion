@@ -92,7 +92,7 @@ public class CdaTreatmentMappingHelper implements ICdaTreatmentMappingHelper {
             if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewTitle();
             }
-            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToStringData("TREATMENT INFORMATION"));
+            clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToPCData("TREATMENT INFORMATION"));
 
             if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getText() == null) {
                 clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewText();

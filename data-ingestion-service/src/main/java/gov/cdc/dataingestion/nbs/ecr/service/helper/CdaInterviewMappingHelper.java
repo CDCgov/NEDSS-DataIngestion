@@ -47,7 +47,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
                         if (clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle() == null) {
                             clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().addNewTitle();
                         }
-                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToStringData("INTERVIEW SECTION"));
+                        clinicalDocument.getComponent().getStructuredBody().getComponentArray(c).getSection().getTitle().set(cdaMapHelper.mapToPCData("INTERVIEW SECTION"));
                     }
 
                     POCDMT000040Component3 ot = clinicalDocument.getComponent().getStructuredBody().getComponentArray(c);
@@ -818,7 +818,7 @@ public class CdaInterviewMappingHelper implements ICdaInterviewMappingHelper {
         if(name.equals(COL_ANS_TXT) && !in.getAnswerTxt().isEmpty()){
             var element = out.getEntryRelationshipArray(counter).getObservation().getValueArray(0);
             XmlCursor cursor = element.newCursor();
-            cursor.setAttributeText(new QName(NAME_SPACE_URL, "type"), "TS");
+            cursor.setAttributeText(new QName(NAME_SPACE_URL, "xsi:type"), "TS");
             cursor.setAttributeText(new QName("name"), value);  // This is an assumption based on the original code
 
             if(!in.getAnswerTxt().isEmpty()){

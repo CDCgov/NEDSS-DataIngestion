@@ -20,7 +20,7 @@ public class NbsInterfaceModel {
 	@Column(name="nbs_interface_uid")
     private Integer nbsInterfaceUid;
 
-    @Column(name = "payload", length = 2048, nullable = false)
+    @Column(name = "payload", length = 2048, nullable = true)
     private String payload;
     
     @Column(name = "imp_exp_ind_cd", length = 8, nullable = true)
@@ -62,10 +62,10 @@ public class NbsInterfaceModel {
     @Column(name = "OBSERVATION_UID")
     private Integer observationUid;
 
-    @Column(name = "original_payload_RR")
+    @Column(name = "original_payload_RR", length = 1024, nullable = true)
     private String originalPayloadRR;
 
-    @Column(name = "original_doc_type_cd_RR")
+    @Column(name = "original_doc_type_cd_RR", length = 100, nullable = true)
     private String originalDocTypeCdRR;
 
     @Override

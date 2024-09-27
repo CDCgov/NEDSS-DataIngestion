@@ -37,11 +37,12 @@ public class NbsRepositoryServiceProvider {
 
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
-		Optional<NbsInterfaceModel>  response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), ECR_DOC_TYPE);
+		Optional<NbsInterfaceModel> response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), ECR_DOC_TYPE);
 		var time = getCurrentTimeStamp();
 		NbsInterfaceModel model = new NbsInterfaceModel();
 		if (response.isPresent()) {
 			model = response.get();
+			model.setRecordStatusCd(STATUS_UNPROCESSED);
 			model.setRecordStatusTime(time);
 			model.setPayload(xmlMsg);
 			nbsInterfaceRepo.save(model);

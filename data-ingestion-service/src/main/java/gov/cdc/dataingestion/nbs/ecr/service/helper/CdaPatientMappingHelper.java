@@ -294,7 +294,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
             AdxpCounty county = AdxpCounty.Factory.newInstance();
 
             XmlCursor cursor = county.newCursor();
-            cursor.setTextValue(CDATA + val + CDATA);
+            cursor.setTextValue("<STRING>" + val + "</STRING>");
             cursor.dispose();
 
             AdxpCounty[] countyArr = {county};
@@ -1032,7 +1032,6 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         component3.getSection().getEntryArray(counter).setObservation(observation);
         return component3;
     }
-    
     private boolean isFieldValid(String fieldValue) {
         return fieldValue != null && !fieldValue.isEmpty();
     }

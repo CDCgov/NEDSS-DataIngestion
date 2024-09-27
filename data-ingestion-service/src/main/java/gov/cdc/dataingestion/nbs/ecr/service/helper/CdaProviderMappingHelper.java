@@ -98,7 +98,7 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
                 clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
                 clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
                 clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);
-                clinicalDocument.getTitle().set(cdaMapHelper.mapToStringData(CLINICAL_TITLE));
+                clinicalDocument.getTitle().set(cdaMapHelper.mapToPCData(CLINICAL_TITLE));
             }
 
             if ( clinicalDocument.getEntryArray().length == 0) {

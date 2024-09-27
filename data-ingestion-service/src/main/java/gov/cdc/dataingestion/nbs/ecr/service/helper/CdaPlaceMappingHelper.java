@@ -352,7 +352,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         out.getParticipantRole().getAddrArray(0).addNewCensusTract();
 
         out.getParticipantRole().getAddrArray(0).setCensusTractArray(0,  AdxpCensusTract.Factory.newInstance());
-        out.getParticipantRole().getAddrArray(0).getCensusTractArray(0).set(cdaMapHelper.mapToCData(censusTract));
+        out.getParticipantRole().getAddrArray(0).getCensusTractArray(0).set(cdaMapHelper.mapToPCData(censusTract));
     }
 
     private void mapToPlaceFieldCheckP2Country(String country,POCDMT000040Participant2 out ) throws EcrCdaXmlException {
@@ -378,7 +378,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         out.getParticipantRole().getAddrArray(0).addNewPostalCode();
 
         out.getParticipantRole().getAddrArray(0).setPostalCodeArray(0,  AdxpPostalCode.Factory.newInstance());
-        out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(cdaMapHelper.mapToCData(zip   ));
+        out.getParticipantRole().getAddrArray(0).getPostalCodeArray(0).set(cdaMapHelper.mapToPCData(zip   ));
     }
 
     private void mapToPlaceFieldCheckP2County(String county,POCDMT000040Participant2 out ) throws EcrCdaXmlException {
