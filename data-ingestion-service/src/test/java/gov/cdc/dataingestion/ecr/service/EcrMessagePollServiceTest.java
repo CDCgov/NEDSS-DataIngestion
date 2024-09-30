@@ -39,7 +39,7 @@ class EcrMessagePollServiceTest {
     }
 
     @Test
-    void fetchMessageContainerData_WithValidResult_ShouldProcessAndSave() throws EcrCdaXmlException {
+    void testFetchMessageContainerDataWithValidResult() throws EcrCdaXmlException {
         EcrSelectedRecord mockRecord = mock(EcrSelectedRecord.class);
         when(mockRecord.getMsgContainer()).thenReturn(ecrMsgContainerDto);
         when(mockRecord.getMsgContainer().getNbsInterfaceUid()).thenReturn(123456);
@@ -54,7 +54,7 @@ class EcrMessagePollServiceTest {
     }
 
     @Test
-    void fetchMessageContainerData_WithNullResult_ShouldNotProcess() throws EcrCdaXmlException {
+    void testFetchMessageContainerDataWithNullResult() throws EcrCdaXmlException {
         when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(null);
 
         ecrMessagePollService.fetchMessageContainerData();
@@ -64,7 +64,7 @@ class EcrMessagePollServiceTest {
     }
 
     @Test
-    void fetchMessageContainerData_WithEcrCdaXmlException_ShouldThrow() throws EcrCdaXmlException {
+    void testFetchMessageContainerDataWithEcrCdaXmlException() throws EcrCdaXmlException {
         EcrSelectedRecord mockRecord = mock(EcrSelectedRecord.class);
         when(mockRecord.getMsgContainer()).thenReturn(ecrMsgContainerDto);
         when(mockRecord.getMsgContainer().getNbsInterfaceUid()).thenReturn(123456);

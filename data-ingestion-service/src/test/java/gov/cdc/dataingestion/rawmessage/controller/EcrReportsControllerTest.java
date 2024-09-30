@@ -27,7 +27,7 @@ class EcrReportsControllerTest {
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
     @Test
-    void testSaveIncomingEcr_WithRR() throws Exception {
+    void testSaveIncomingEcrWithRR() throws Exception {
         String payload = "<eICRXML>eicrContent</eICRXML><RRXML>rrContent</RRXML>";
         NbsInterfaceModel mockModel = new NbsInterfaceModel();
         mockModel.setNbsInterfaceUid(123456);
@@ -49,7 +49,7 @@ class EcrReportsControllerTest {
     }
 
     @Test
-    void testSaveIncomingEcr_WithoutRR() throws Exception {
+    void testSaveIncomingEcrWithoutRR() throws Exception {
         String payload = "<eICRXML>eicrContent</eICRXML><RRXML>null</RRXML>";
         NbsInterfaceModel mockModel = new NbsInterfaceModel();
         mockModel.setNbsInterfaceUid(123456);
@@ -70,7 +70,7 @@ class EcrReportsControllerTest {
     }
 
     @Test
-    void testSaveIncomingEcr_WithMalformedXml_ShouldReturnInternalServerError() throws Exception {
+    void testSaveIncomingEcrWithMalformedXml() throws Exception {
         String payload = "invalidXmlContent";
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/ecrs")
