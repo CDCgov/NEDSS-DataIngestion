@@ -38,8 +38,12 @@ public class EdxLogService implements IEdxLogService {
     @Override
     public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
-        EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
-        return edxActivityDetailLogResult;
+        var checkDetailLogList = edxActivityDetailLogRepository.findIdsByEdxActivityLogUidAndLogComment(edxActivityDetailLog.getEdxActivityLogUid(), edxActivityDetailLog.getLogComment());
+        if (checkDetailLogList.isEmpty()){
+            EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
+            return edxActivityDetailLogResult;
+        }
+        return new EdxActivityDetailLog();
     }
     @Transactional()
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {

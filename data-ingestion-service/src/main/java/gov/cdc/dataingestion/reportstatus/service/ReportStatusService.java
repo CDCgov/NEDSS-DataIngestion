@@ -16,8 +16,10 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 
@@ -82,9 +84,14 @@ public class ReportStatusService {
                 List<EdxActivityLogModelView> edxActivityStatusList = iEdxActivityLogRepository.
                         getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
                 if(!edxActivityStatusList.isEmpty()) {
+                    Set<String> seenComments = new HashSet<>();
                     for(EdxActivityLogModelView edxActivityLogModel:edxActivityStatusList){
-                        EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
-                        msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
+                        String logComment = edxActivityLogModel.getLogComment();
+                        if (seenComments.add(logComment)) {
+                            EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
+                            msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
+                        }
+
                     }
                 }
             }
