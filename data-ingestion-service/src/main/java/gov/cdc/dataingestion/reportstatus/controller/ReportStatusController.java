@@ -95,7 +95,6 @@ public class ReportStatusController {
         List<MessageStatus> statusList = messageIdList.stream()
                 .map(reportStatusService::getMessageStatus)
                 .collect(Collectors.toList());
-        // var info = reportStatusService.getMessageStatus(rawMessageId);
         return ResponseEntity.ok(statusList);
     }
 
