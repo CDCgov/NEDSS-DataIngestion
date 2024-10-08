@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,10 +39,10 @@ class ReportStatusControllerTest {
                 status
         );
 
-        ResponseEntity<MessageStatus> jsonResponse = reportStatusController.getMessageStatus(rawId);
+        ResponseEntity<List<MessageStatus>> jsonResponse = reportStatusController.getMessageStatus(rawId);
         verify(reportStatusServiceMock, times(1)).getMessageStatus(rawId);
 
-        assertEquals(rawId, jsonResponse.getBody().getRawInfo().getRawMessageId());
+        assertEquals(rawId, jsonResponse.getBody().get(0).getRawInfo().getRawMessageId());
     }
 
     @Test
