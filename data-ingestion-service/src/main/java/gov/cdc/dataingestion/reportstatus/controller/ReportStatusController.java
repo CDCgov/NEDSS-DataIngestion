@@ -94,8 +94,11 @@ public class ReportStatusController {
         List<String> messageIdList = Arrays.asList(rawMessageId.split(","));
         List<MessageStatus> statusList = messageIdList.stream()
                 .map(reportStatusService::getMessageStatus)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(statusList);
+                .toList();
+
+        List<MessageStatus> unmodifiableStatusList = List.copyOf(statusList);
+
+        return ResponseEntity.ok(unmodifiableStatusList);
     }
 
     private boolean isValidUUID(String id) {
