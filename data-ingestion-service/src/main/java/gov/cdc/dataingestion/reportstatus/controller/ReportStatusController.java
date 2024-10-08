@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "bearer-key")
@@ -87,9 +90,13 @@ public class ReportStatusController {
                     schema = @Schema(type = "string"))}
             )
     @GetMapping(path = "/api/elrs/status-details/{elr-id}")
-    public ResponseEntity<MessageStatus> getMessageStatus(@PathVariable("elr-id") String rawMessageId)  {
-        var info = reportStatusService.getMessageStatus(rawMessageId);
-        return ResponseEntity.ok(info);
+    public ResponseEntity<List<MessageStatus>> getMessageStatus(@PathVariable("elr-id") String rawMessageId)  {
+        List<String> messageIdList = Arrays.asList(rawMessageId.split(","));
+        List<MessageStatus> statusList = messageIdList.stream()
+                .map(reportStatusService::getMessageStatus)
+                .collect(Collectors.toList());
+        // var info = reportStatusService.getMessageStatus(rawMessageId);
+        return ResponseEntity.ok(statusList);
     }
 
     private boolean isValidUUID(String id) {
