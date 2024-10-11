@@ -19,6 +19,9 @@ public class OpenAPIConfig {
     @Value("${diserver.host}")
     private String serverhost;
 
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
     @Bean
     public OpenAPI myOpenAPI() throws Exception{
         String serverUrl = "";
@@ -31,6 +34,7 @@ public class OpenAPIConfig {
         URI uriBuilder = new URIBuilder()
                 .setScheme(scheme)
                 .setHost(serverhost)
+                .setPath(contextPath)
                 .build();
         serverUrl=uriBuilder.toString();
 
