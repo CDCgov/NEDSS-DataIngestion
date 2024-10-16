@@ -20,6 +20,7 @@ import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +33,15 @@ public class PersonService implements IPersonService {
     private final INokMatchingService nokMatchingService;
     private final IProviderMatchingService providerMatchingService;
     private final IUidService uidService;
+
+    @Value("${isDibbs}")
+    private boolean isDibbs;
+
     public PersonService(
-            PatientMatchingService patientMatchingService,
-            INokMatchingService nokMatchingService,
-            IProviderMatchingService providerMatchingService,
-            IUidService uidService) {
+        PatientMatchingService patientMatchingService,
+        INokMatchingService nokMatchingService,
+        IProviderMatchingService providerMatchingService,
+        IUidService uidService) {
 
         this.patientMatchingService = patientMatchingService;
         this.nokMatchingService = nokMatchingService;
@@ -81,7 +86,7 @@ public class PersonService implements IPersonService {
                 //NOTE: Mathing Patient
                 //NOTE: This matching also persist patient accordingly
                 //NOTE: Either new or existing patient, it will be processed within this method
-                edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personContainer);
+                edxPatientMatchFoundDT= patientMatchingService.getMatchingPatient(personContainer,isDibbs);
                 edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
                 personUid = personContainer.getThePersonDto().getPersonUid();
             }

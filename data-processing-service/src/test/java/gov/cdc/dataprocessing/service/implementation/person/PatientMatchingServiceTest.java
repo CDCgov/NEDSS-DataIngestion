@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +41,10 @@ class PatientMatchingServiceTest {
     private CachingValueService cachingValueService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
+    @Mock
+    private NbsMatchService nbsMatchService;
+    @Mock
+    private  DibbsMatchService dibbsMatchService;
 
     @InjectMocks
     private PatientMatchingService patientMatchingService;
@@ -56,10 +61,12 @@ class PatientMatchingServiceTest {
         Mockito.reset(patientRepositoryUtil);
         Mockito.reset(cachingValueService);
         Mockito.reset(prepareAssocModelHelper);
+        Mockito.reset(nbsMatchService);
+        Mockito.reset(dibbsMatchService);
     }
 
     @Test
-    void getMatchingPatient_localid() throws DataProcessingException {
+    void getMatchingPatient_localid() throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setCd("TEST");
@@ -68,9 +75,9 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(false);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
         //call test method
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer,true);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -83,11 +90,12 @@ class PatientMatchingServiceTest {
         personContainer.setRole(EdxELRConstant.ELR_PATIENT_ROLE_CD);
 
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
+        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer,true));
     }
 
     @Test
-    void getMatchingPatient_localid_MultipleMatch_true() throws DataProcessingException {
+    void getMatchingPatient_localid_MultipleMatch_true()
+        throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setCd("TEST");
@@ -97,7 +105,7 @@ class PatientMatchingServiceTest {
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(false);
         edxPatientMatchFoundDT.setPatientUid(222L);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
         Person person = new Person();
         person.setPersonUid(222L);
         person.setPersonParentUid(222L);
@@ -111,7 +119,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer,true);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -124,12 +132,12 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(true);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
-        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
+        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer,true));
     }
 
     @Test
-    void getMatchingPatient_identifier() throws DataProcessingException {
+    void getMatchingPatient_identifier() throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.setItNew(false);
@@ -159,7 +167,7 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(true);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
 
         Person person = new Person();
         person.setPersonUid(222L);
@@ -174,12 +182,13 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer,true);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
     @Test
-    void getMatchingPatient_identifier_multimatch_false() throws DataProcessingException {
+    void getMatchingPatient_identifier_multimatch_false()
+        throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.setItNew(false);
@@ -209,7 +218,7 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(false);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
 
         Person person = new Person();
         person.setPersonUid(222L);
@@ -224,12 +233,12 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer,true);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
     @Test
-    void getMatchingPatient_LNmFnmDobCurSexStr() throws DataProcessingException {
+    void getMatchingPatient_LNmFnmDobCurSexStr() throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setCd(NEDSSConstant.PAT);
@@ -248,7 +257,7 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(false);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
 
         Person person = new Person();
         person.setPersonUid(222L);
@@ -263,12 +272,13 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer,true);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
     @Test
-    void getMatchingPatient_LNmFnmDobCurSexStr_multimatch_true() throws DataProcessingException {
+    void getMatchingPatient_LNmFnmDobCurSexStr_multimatch_true()
+        throws DataProcessingException, IOException, InterruptedException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
         personContainer.thePersonDto.setCd(NEDSSConstant.PAT);
@@ -287,7 +297,7 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(true);
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
 
         Person person = new Person();
         person.setPersonUid(222L);
@@ -302,7 +312,7 @@ class PatientMatchingServiceTest {
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
-        EdxPatientMatchDto edxPatientMatchDtoResult= patientMatchingService.getMatchingPatient(personContainer);
+        EdxPatientMatchDto edxPatientMatchDtoResult= patientMatchingService.getMatchingPatient(personContainer,true);
         assertNotNull(edxPatientMatchDtoResult);
     }
 
@@ -325,10 +335,10 @@ class PatientMatchingServiceTest {
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+        when(nbsMatchService.getEdxPatientMatchFoundDT()).thenReturn(edxPatientMatchFoundDT);
 
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(anyString(), anyString())).thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
+        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer,true));
     }
 
     @Test
