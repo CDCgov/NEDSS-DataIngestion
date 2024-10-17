@@ -6,13 +6,6 @@ CREATE TABLE token (
     created_on DATETIME NOT NULL DEFAULT getdate()
 );
 
-CREATE TABLE report_uuid (
-    id int IDENTITY(1,1) PRIMARY KEY,
-    uuid_from_data_ingestion UNIQUEIDENTIFIER NOT NULL,
-    injected_report_name NVARCHAR(255) NOT NULL,
-    created_on DATETIME NOT NULL DEFAULT getdate()
-);
-
 CREATE TABLE nbs_interface_uid(
     id int IDENTITY(1,1) NOT NULL,
     nbs_interface_uid] bigint NOT NULL,
