@@ -13,13 +13,6 @@ CREATE TABLE report_uuid (
     created_on DATETIME NOT NULL DEFAULT getdate()
 );
 
-CREATE TABLE nbs_interface_uid(
-    id int IDENTITY(1,1) NOT NULL,
-    nbs_interface_uid] bigint NOT NULL,
-    injected_report_name] nvarchar(255) NOT NULL,
-    created_on datetime NOT NULL DEFAULT getdate()
-);
-
 
 CREATE LOGIN rhapsodyuser
 WITH PASSWORD='ReplaceThisPasswordWithYourPassword123$'
