@@ -109,7 +109,7 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    private void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
+    protected void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
         switch (errorText) {
             case EdxELRConstant.ELR_MASTER_LOG_ID_1:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_1);
