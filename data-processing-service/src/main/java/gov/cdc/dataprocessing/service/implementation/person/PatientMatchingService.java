@@ -32,9 +32,9 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_MATCH
  3776 - Complex complaint
  6204 - Forcing convert to stream to list complaint
  1141 - Nested complaint
- 6809 - TEST
+ 1118 - Private constructor complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118"})
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class);
     private boolean multipleMatchFound = false;

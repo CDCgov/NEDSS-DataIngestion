@@ -44,9 +44,9 @@ import static gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil
  3776 - Complex complaint
  6204 - Forcing convert to stream to list complaint
  1141 - Nested complaint
- 6809 - TEST
+ 1118 - Private constructor complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118"})
 public class DecisionSupportService implements IDecisionSupportService {
     private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
 

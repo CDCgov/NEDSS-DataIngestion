@@ -35,9 +35,9 @@ import java.util.List;
  3776 - Complex complaint
  6204 - Forcing convert to stream to list complaint
  1141 - Nested complaint
- 6809 - TEST
+ 1118 - Private constructor complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118"})
 public class DataExtractionService implements IDataExtractionService {
     private static final Logger logger = LoggerFactory.getLogger(DataExtractionService.class);
 
@@ -170,7 +170,7 @@ public class DataExtractionService implements IDataExtractionService {
                 {
 
                     edxLabInformationDto.setMultipleOBR(true);
-                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is null for the OBR "+(j+1)+".Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
+                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is null for the OBR {} .Please check message with NBS_INTERFACE_UID:-{}",(j+1), nbsInterfaceModel.getNbsInterfaceUid());
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.MULTIPLE_OBR);
                 }
