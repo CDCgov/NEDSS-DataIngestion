@@ -29,6 +29,14 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_MATCH
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+ 6809 - TEST
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;

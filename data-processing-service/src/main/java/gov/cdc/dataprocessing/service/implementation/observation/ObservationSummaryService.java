@@ -21,6 +21,14 @@ import static gov.cdc.dataprocessing.constant.ComplexQueries.ASSOCIATED_INV_QUER
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+ 6809 - TEST
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
 public class ObservationSummaryService implements IObservationSummaryService {
 
     private final Observation_SummaryRepository observationSummaryRepository;

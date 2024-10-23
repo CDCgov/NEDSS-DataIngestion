@@ -38,6 +38,14 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+ 6809 - TEST
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
 public class PublicHealthCaseRepositoryUtil {
     private final PublicHealthCaseRepository publicHealthCaseRepository;
     private final EntityGroupRepository entityGroupRepository;

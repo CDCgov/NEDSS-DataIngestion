@@ -3,6 +3,14 @@ package gov.cdc.dataprocessing.constant.elr;
 import java.sql.Timestamp;
 import java.util.Date;
 
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+ 6809 - TEST
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S6809"})
 public class NEDSSConstant {
     public static final String STATE_STR = "state";
     public static final String CT_SHARED_IND_CD = "CT_CONTACT.shared_ind_cd";
