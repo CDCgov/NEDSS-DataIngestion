@@ -18,3 +18,5 @@ public class Coded {
     private String codesetTableName;
     private boolean flagNotFound;//this has been created as a fix for eicr ND-11745
 }
+
+

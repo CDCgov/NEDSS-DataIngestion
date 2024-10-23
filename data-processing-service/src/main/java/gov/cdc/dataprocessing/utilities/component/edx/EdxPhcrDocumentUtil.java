@@ -83,7 +83,7 @@ public class EdxPhcrDocumentUtil {
 
     @SuppressWarnings("java:S3776")
 
-    public static String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
+    public String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
         //
         String requireFieldError = null;
         Iterator<Object> iter = (requiredQuestionIdentifierMap.keySet()).iterator();
