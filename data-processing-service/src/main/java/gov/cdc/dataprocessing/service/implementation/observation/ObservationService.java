@@ -54,6 +54,15 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Service
 @Slf4j
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
 public class ObservationService implements IObservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
@@ -313,6 +322,7 @@ public class ObservationService implements IObservationService {
      * Values from Participation
      * Was: retrievePersonVOsForProxyVO
      * */
+    @SuppressWarnings("java:S3776")
     protected Map<DataProcessingMapKey, Object> retrievePersonAndRoleFromParticipation(Collection<ParticipationDto> partColl)
     {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
@@ -406,6 +416,7 @@ public class ObservationService implements IObservationService {
      * Retrieving Observation and the assoc Organization
      * was: retrieveObservationVOsForProxyVO
      * */
+    @SuppressWarnings("java:S3776")
     private Map<DataProcessingMapKey, Object>  retrieveObservationFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
@@ -489,6 +500,8 @@ public class ObservationService implements IObservationService {
     /**
      * was: retrieveReflexObservations
      */
+    @SuppressWarnings("java:S3776")
+
     private Collection<ObservationContainer>  retrieveReflexObservationsFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
         Collection<ObservationContainer>  reflexObsVOCollection  = null;
@@ -810,7 +823,7 @@ public class ObservationService implements IObservationService {
 
         return nndActivityLogDto;
     }
-
+    @SuppressWarnings("java:S3776")
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
         //Set flag for type of processing
@@ -986,7 +999,7 @@ public class ObservationService implements IObservationService {
                                     dt.getSubjectEntityUid());
                         }
                     } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage());
+                        throw new DataProcessingException(e.getMessage(),e);
                     } 
                 }
             }
@@ -1004,7 +1017,7 @@ public class ObservationService implements IObservationService {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        throw new DataProcessingException(e.getMessage());
+                        throw new DataProcessingException(e.getMessage(), e);
                     }
                 }
             }
@@ -1318,7 +1331,7 @@ public class ObservationService implements IObservationService {
 
 
     }
-
+    @SuppressWarnings("java:S3776")
     private Long storeObservationVOCollection(BaseContainer proxyVO) throws DataProcessingException {
         try {
             //Iterates the observation collection and process each observation vo

@@ -13,8 +13,17 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
 public class EdxPhcrDocumentUtil {
-    public static final String _REQUIRED = "_REQUIRED";
+    public static final String REQUIRED = "_REQUIRED";
 
     private final ILookupService lookupService;
 
@@ -23,6 +32,7 @@ public class EdxPhcrDocumentUtil {
         this.lookupService = lookupService;
     }
 
+    @SuppressWarnings("java:S3776")
     public Map<Object, Object> loadQuestions(String conditionCode)
     {
         Map<Object, Object> questionMap;
@@ -80,8 +90,9 @@ public class EdxPhcrDocumentUtil {
     }
 
 
+    @SuppressWarnings("java:S3776")
 
-    public static String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
+    public String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
         //
         String requireFieldError = null;
         Iterator<Object> iter = (requiredQuestionIdentifierMap.keySet()).iterator();

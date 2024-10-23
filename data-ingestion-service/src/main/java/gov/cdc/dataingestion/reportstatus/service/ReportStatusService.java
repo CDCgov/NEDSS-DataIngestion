@@ -49,6 +49,7 @@ public class ReportStatusService {
         this.iEdxActivityLogRepository=iEdxActivityLogRepository;
     }
 
+    @SuppressWarnings("java:S3776")
     public MessageStatus getMessageStatus(String rawMessageID) {
         MessageStatus msgStatus = new MessageStatus();
         Optional<RawERLModel> rawMessageData = iRawELRRepository.findById(rawMessageID);

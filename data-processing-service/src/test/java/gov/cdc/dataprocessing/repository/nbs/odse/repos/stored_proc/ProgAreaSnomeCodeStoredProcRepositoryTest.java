@@ -12,6 +12,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Map;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.COUNT_LOWERCASE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,12 +46,12 @@ class ProgAreaSnomeCodeStoredProcRepositoryTest {
         when(storedProcedureQuery.registerStoredProcedureParameter(anyString(), eq(Integer.class), eq(ParameterMode.OUT))).thenReturn(storedProcedureQuery);
         when(storedProcedureQuery.setParameter(anyString(), anyString())).thenReturn(storedProcedureQuery);
         when(storedProcedureQuery.getOutputParameterValue("loinc_snomed")).thenReturn("testLoincSnomed");
-        when(storedProcedureQuery.getOutputParameterValue("count")).thenReturn(123);
+        when(storedProcedureQuery.getOutputParameterValue(COUNT_LOWERCASE)).thenReturn(123);
 
         Map<String, Object> result = repository.getSnomed(code, type, clia);
 
         assertEquals("testLoincSnomed", result.get("LOINC"));
-        assertEquals(123, result.get("COUNT"));
+        assertEquals(123, result.get(SELECT_COUNT));
     }
 
     @Test
@@ -74,12 +76,12 @@ class ProgAreaSnomeCodeStoredProcRepositoryTest {
         when(storedProcedureQuery.registerStoredProcedureParameter(anyString(), eq(Integer.class), eq(ParameterMode.OUT))).thenReturn(storedProcedureQuery);
         when(storedProcedureQuery.setParameter(anyString(), anyString())).thenReturn(storedProcedureQuery);
         when(storedProcedureQuery.getOutputParameterValue("prog_area")).thenReturn("testProgArea");
-        when(storedProcedureQuery.getOutputParameterValue("count")).thenReturn(456);
+        when(storedProcedureQuery.getOutputParameterValue(COUNT_LOWERCASE)).thenReturn(456);
 
         Map<String, Object> result = repository.getProgAreaCd(code, type, clia);
 
         assertEquals("testProgArea", result.get("PROGRAM"));
-        assertEquals(456, result.get("COUNT"));
+        assertEquals(456, result.get(SELECT_COUNT));
     }
 
     @Test

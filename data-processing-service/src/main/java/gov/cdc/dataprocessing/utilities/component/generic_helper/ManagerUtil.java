@@ -17,6 +17,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
 public class ManagerUtil {
 
     private final IPersonService patientService;
@@ -59,7 +68,7 @@ public class ManagerUtil {
     }
 
 
-
+    @SuppressWarnings("java:S3776")
     public PersonAggContainer patientAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
@@ -99,6 +108,8 @@ public class ManagerUtil {
      * This wont work in this @Transactional architecture
      * As we update the person and its assoc tables serveral time, so we must keep the @Transactional as synchronous flow
      * */
+    @SuppressWarnings("java:S3776")
+
     public PersonAggContainer personAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonAggContainer container = new PersonAggContainer();
         CompletableFuture<PersonContainer> patientFuture = null;

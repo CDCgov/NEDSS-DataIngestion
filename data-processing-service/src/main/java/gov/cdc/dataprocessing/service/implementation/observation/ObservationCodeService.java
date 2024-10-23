@@ -19,7 +19,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
 public class ObservationCodeService implements IObservationCodeService {
 
     private final ISrteCodeObsService srteCodeObsService;
@@ -36,16 +47,13 @@ public class ObservationCodeService implements IObservationCodeService {
     }
 
 
+    @SuppressWarnings("java:S3776")
     public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
         Collection<ParticipationDto>  partColl = null;
         if (proxy instanceof LabResultProxyContainer)
         {
             partColl = ( (LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
         }
-//            if (proxy instanceof MorbidityProxyVO)
-//            {
-//                partColl = ( (MorbidityProxyVO) proxy).getTheParticipationDTCollection();
-//            }
 
         //Get the reporting lab
         Long reportingLabUid = observationUtil.getUid(partColl, null,
@@ -144,6 +152,8 @@ public class ObservationCodeService implements IObservationCodeService {
         return derivedConditionList;
     }
 
+    @SuppressWarnings("java:S3776")
+
     private ArrayList<String> getDerivedConditionList(String reportingLabCLIA,
                                                       Collection<ObservationContainer> observationContainerCollection,
                                                       String electronicInd) throws DataProcessingException {
@@ -232,6 +242,8 @@ public class ObservationCodeService implements IObservationCodeService {
         return returnList;
     } // end of ConditionList
 
+    @SuppressWarnings("java:S3776")
+
     private String getReportingLabCLIAId(Collection<ParticipationDto> partColl) throws DataProcessingException {
         // Get the reporting lab
         Long reportingLabUid = observationUtil.getUid(
@@ -285,6 +297,8 @@ public class ObservationCodeService implements IObservationCodeService {
      * @return ArrayList<string>
      */
     // AK - 7/25/04
+    @SuppressWarnings("java:S3776")
+
     private ArrayList<String> getConditionsFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
 
         ArrayList<String> snomedConditionList = new ArrayList<>();
@@ -312,7 +326,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 if (!codeSystemCd.equals(ELRConstant.ELR_SNOMED_CD)) {
                     Map<String, Object> snomedMap = srteCodeObsService.getSnomed(obsValueCodedDto.getCode(), ELRConstant.TYPE, reportingLabCLIA);
 
-                    if (snomedMap.containsKey("COUNT") && (Integer) snomedMap.get("COUNT") == 1) {
+                    if (snomedMap.containsKey(SELECT_COUNT) && (Integer) snomedMap.get(SELECT_COUNT) == 1) {
                         snomedCd = (String) snomedMap.get("LOINC");
                     } else {
                         continue;
@@ -370,7 +384,7 @@ public class ObservationCodeService implements IObservationCodeService {
         {
             Map<String, Object> snomedMap =  srteCodeObsService.getSnomed(obsCode, "LT", reportingLabCLIA);
 
-            if(snomedMap.containsKey("COUNT") && (Integer) snomedMap.get("COUNT") == 1) {
+            if(snomedMap.containsKey(SELECT_COUNT) && (Integer) snomedMap.get(SELECT_COUNT) == 1) {
                 loincCd = (String) snomedMap.get("LOINC");
             }
         }

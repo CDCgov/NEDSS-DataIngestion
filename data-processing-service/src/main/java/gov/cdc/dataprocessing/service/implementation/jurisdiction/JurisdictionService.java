@@ -23,7 +23,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
 public class JurisdictionService implements IJurisdictionService {
     private StringBuffer detailError= null;
     private final PatientRepositoryUtil patientRepositoryUtil;
@@ -73,18 +84,13 @@ public class JurisdictionService implements IJurisdictionService {
 
 
 
+    @SuppressWarnings("java:S3776")
     public String deriveJurisdictionCd(BaseContainer proxyVO, ObservationDto rootObsDT) throws DataProcessingException {
         try {
             //Retieve provider uid and patient uid
             Collection<ParticipationDto>  partColl = null;
             boolean isLabReport = false;
             String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                isMorbReport = true;
-//                partColl = ( (MorbidityProxyVO) proxyVO).getTheParticipationDtoCollection();
-//            }
-
 
             if (proxyVO instanceof LabResultProxyContainer)
             {
@@ -214,9 +220,9 @@ public class JurisdictionService implements IJurisdictionService {
 
 
             //Return errors if any
-            if (jMap != null && jMap.containsKey("ERROR"))
+            if (jMap != null && jMap.containsKey(ERROR))
             {
-                return jMap.get("ERROR");
+                return jMap.get(ERROR);
             }
             else
             {
@@ -232,6 +238,7 @@ public class JurisdictionService implements IJurisdictionService {
      * Description: this method find jurisdiction associated with patient, provider, organization.
      * Jurisdiction is identified based on Postal locator
      * */
+    @SuppressWarnings("java:S3776")
     private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer patientContainer,
                                                                  PersonContainer providerContainer,
                                                                  OrganizationContainer organizationContainer,
@@ -331,6 +338,7 @@ public class JurisdictionService implements IJurisdictionService {
         }
     }
 
+    @SuppressWarnings("java:S3776")
     private Collection<String> findJurisdiction(Collection<EntityLocatorParticipationDto> entityLocatorPartColl, String useCd, String classCd)
     {
             PostalLocatorDto postalDt;

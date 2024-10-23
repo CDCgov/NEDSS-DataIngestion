@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.utilities;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -8,6 +10,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
 public class DynamicBeanBinding {
     private static Map<Object, Object> beanMethodMap = new HashMap<>();
 
@@ -71,10 +82,10 @@ public class DynamicBeanBinding {
 //                logger.debug("Successfully called methodName for bean " + bean
 //                        + " with value " + colVal);
             } catch (Exception e) {
-                throw new Exception(e);
+                throw new DataProcessingException(e.getMessage(), e);
             }
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -90,7 +101,7 @@ public class DynamicBeanBinding {
             }
             return sb.toString();
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -113,7 +124,7 @@ public class DynamicBeanBinding {
             }
             return (Map<Object, Object>) beanMethodMap.get(beanClass);
         } catch (SecurityException e) {
-            throw new Exception(e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
