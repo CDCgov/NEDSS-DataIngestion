@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.utilities;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -71,10 +73,10 @@ public class DynamicBeanBinding {
 //                logger.debug("Successfully called methodName for bean " + bean
 //                        + " with value " + colVal);
             } catch (Exception e) {
-                throw new Exception(e);
+                throw new DataProcessingException(e.getMessage(), e);
             }
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -90,7 +92,7 @@ public class DynamicBeanBinding {
             }
             return sb.toString();
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -113,7 +115,7 @@ public class DynamicBeanBinding {
             }
             return (Map<Object, Object>) beanMethodMap.get(beanClass);
         } catch (SecurityException e) {
-            throw new Exception(e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 

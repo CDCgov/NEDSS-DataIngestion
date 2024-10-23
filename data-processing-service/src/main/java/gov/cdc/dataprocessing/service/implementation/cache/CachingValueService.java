@@ -141,6 +141,7 @@ public class CachingValueService implements ICatchingValueService {
         }
     }
 
+    @SuppressWarnings("java:S2696")
     public HashMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
         Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -159,6 +160,7 @@ public class CachingValueService implements ICatchingValueService {
         return SrteCache.codedValuesMap;
     }
 
+    @SuppressWarnings("java:S2696")
     public String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
         Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -185,6 +187,7 @@ public class CachingValueService implements ICatchingValueService {
         }
     }
 
+    @SuppressWarnings("java:S2696")
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
         if (county == null || stateCd == null) {
             return null;

@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
+
 @Service
 public class JurisdictionService implements IJurisdictionService {
     private StringBuffer detailError= null;
@@ -73,18 +75,13 @@ public class JurisdictionService implements IJurisdictionService {
 
 
 
+    @SuppressWarnings("java:S3776")
     public String deriveJurisdictionCd(BaseContainer proxyVO, ObservationDto rootObsDT) throws DataProcessingException {
         try {
             //Retieve provider uid and patient uid
             Collection<ParticipationDto>  partColl = null;
             boolean isLabReport = false;
             String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                isMorbReport = true;
-//                partColl = ( (MorbidityProxyVO) proxyVO).getTheParticipationDtoCollection();
-//            }
-
 
             if (proxyVO instanceof LabResultProxyContainer)
             {
@@ -214,9 +211,9 @@ public class JurisdictionService implements IJurisdictionService {
 
 
             //Return errors if any
-            if (jMap != null && jMap.containsKey("ERROR"))
+            if (jMap != null && jMap.containsKey(ERROR))
             {
-                return jMap.get("ERROR");
+                return jMap.get(ERROR);
             }
             else
             {
@@ -232,6 +229,7 @@ public class JurisdictionService implements IJurisdictionService {
      * Description: this method find jurisdiction associated with patient, provider, organization.
      * Jurisdiction is identified based on Postal locator
      * */
+    @SuppressWarnings("java:S3776")
     private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer patientContainer,
                                                                  PersonContainer providerContainer,
                                                                  OrganizationContainer organizationContainer,
@@ -331,6 +329,7 @@ public class JurisdictionService implements IJurisdictionService {
         }
     }
 
+    @SuppressWarnings("java:S3776")
     private Collection<String> findJurisdiction(Collection<EntityLocatorParticipationDto> entityLocatorPartColl, String useCd, String classCd)
     {
             PostalLocatorDto postalDt;

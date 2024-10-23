@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PROGRAM_JUS_OID;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.QUERY_HELPER_1;
+
 @Component
 public class QueryHelper {
 
@@ -40,7 +43,7 @@ public class QueryHelper {
 
 //        if (paSecured && jSecured)
 //        {
-            columnName = "program_jurisdiction_oid";
+            columnName = PROGRAM_JUS_OID;
             ownerList = getHashedPAJList(businessObjLookupName, operation, false);
             guestList = getHashedPAJList(businessObjLookupName, operation, true);
             whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
@@ -148,11 +151,11 @@ public class QueryHelper {
         if (ownerList != null && ownerList.trim().length() != 0) {
 
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseOwner = "(" + columnName + " in (" + ownerList +
+                whereClauseOwner = "(" + columnName + QUERY_HELPER_1 + ownerList +
                         "))";
             }
             else {
-                whereClauseOwner = "(" + alias + "." + columnName + " in (" +
+                whereClauseOwner = "(" + alias + "." + columnName + QUERY_HELPER_1 +
                         ownerList + "))";
             }
         }
@@ -172,14 +175,14 @@ public class QueryHelper {
 
         if (guestList != null && guestList.trim().length() != 0) {
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseGuest = "(("+ columnName + " in (" + guestList +
+                whereClauseGuest = "(("+ columnName + QUERY_HELPER_1 + guestList +
                         ")) and  shared_ind = '" +
                         "T" +
                         "')";
             }
             else {
                 whereClauseGuest = "((" + alias + "." + columnName +
-                        " in (" + guestList +
+                        QUERY_HELPER_1 + guestList +
                         ")) and " + alias + ".shared_ind = '" +
                         "T" +
                         "')";

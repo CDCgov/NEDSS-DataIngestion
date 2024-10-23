@@ -38,7 +38,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
-
+    @SuppressWarnings("java:S3776")
     protected String telePhoneTxtProvider(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
@@ -62,6 +62,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
         return nameTeleStr;
     }
+    @SuppressWarnings("java:S3776")
     // Creating string for name and address for providers
     protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
@@ -119,7 +120,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             }
             return personUid;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
     protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
@@ -169,11 +170,12 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return personUID;
 
     }
+    @SuppressWarnings("java:S3776")
     protected void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
 
         Long entityUid = personContainer.getThePersonDto().getPersonUid();

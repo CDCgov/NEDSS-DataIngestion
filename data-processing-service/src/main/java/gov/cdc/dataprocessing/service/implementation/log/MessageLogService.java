@@ -29,7 +29,7 @@ public class MessageLogService implements IMessageLogService {
                 }
             }
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 }

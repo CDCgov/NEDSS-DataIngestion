@@ -61,7 +61,7 @@ public class PersonService implements IPersonService {
             }
             return personContainer;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -107,7 +107,7 @@ public class PersonService implements IPersonService {
 
             return personContainer;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -145,7 +145,7 @@ public class PersonService implements IPersonService {
 
         } catch (Exception e) {
             edxLabInformationDto.setProvider(false);
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return null;
     }
@@ -174,7 +174,7 @@ public class PersonService implements IPersonService {
         }
         return matchedPersonUid;
     }
-
+    @SuppressWarnings("java:S3776")
     public void updatePersonELRUpdate(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO){
         PersonDto matchedPersonDT;
         Long matchedPersonUid = null;

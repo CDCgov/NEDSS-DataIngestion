@@ -169,7 +169,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             List<EntityLocatorParticipation> physicalLocators;
             List<EntityLocatorParticipation> postalLocators;
             List<EntityLocatorParticipation> teleLocators;
-
             physicalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
                             .equalsIgnoreCase(NEDSSConstant.PHYSICAL))
                     .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
@@ -182,7 +181,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             .equalsIgnoreCase(NEDSSConstant.TELE))
                     .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
                     .collect(Collectors.toList());
-
             // This remove to be deleted entity from the Participation
             deleteEntityLocatorParticipation(locatorCollection, patientUid);
             StringBuilder comparingString = new StringBuilder();

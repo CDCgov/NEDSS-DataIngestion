@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -167,7 +169,7 @@ class InvestigationNotificationServiceTests {
         colRetri = new QuestionRequiredNnd();
         colRetri.setNbsQuestionUid(18L);
         colRetri.setDataLocation("act_id.actUid");
-        colRetri.setQuestionLabel("state");
+        colRetri.setQuestionLabel(STATE_STR);
         colRetri.setQuestionIdentifier("18");
         colRetriQuest.add(colRetri);
         colRetri = new QuestionRequiredNnd();
@@ -228,7 +230,7 @@ class InvestigationNotificationServiceTests {
         var test = investigationNotificationService.sendNotification(obj, nndComment);
 
         assertNotNull(test);
-        assertEquals("PHCR_IMPORT", test.getRecordName());
+        assertEquals(PHCR_IMPORT_SRT, test.getRecordName());
     }
 
 

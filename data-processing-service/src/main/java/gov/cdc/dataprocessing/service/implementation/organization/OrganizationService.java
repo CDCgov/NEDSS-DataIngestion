@@ -26,7 +26,7 @@ public class OrganizationService implements IOrganizationService {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
         this.uidService = uidService;
     }
-
+    @SuppressWarnings("java:S3776")
     public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
 
         OrganizationContainer orderingFacilityVO = null;

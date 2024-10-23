@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.Map;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.COUNT_LOWERCASE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
+
 @Repository
 public class ProgAreaSnomeCodeStoredProcRepository {
 
@@ -18,7 +21,6 @@ public class ProgAreaSnomeCodeStoredProcRepository {
     private EntityManager entityManager;
 
     public Map<String, Object> getSnomed(String code, String type, String clia) throws DataProcessingException {
-        EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         Map<String, Object> map = new HashMap<>();
         try {
 
@@ -29,7 +31,7 @@ public class ProgAreaSnomeCodeStoredProcRepository {
             storedProcedure.registerStoredProcedureParameter("type", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("clia", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("loinc_snomed", String.class, ParameterMode.OUT);
-            storedProcedure.registerStoredProcedureParameter("count", Integer.class, ParameterMode.OUT);
+            storedProcedure.registerStoredProcedureParameter(COUNT_LOWERCASE, Integer.class, ParameterMode.OUT);
 
 
             // Set the parameter values
@@ -42,12 +44,12 @@ public class ProgAreaSnomeCodeStoredProcRepository {
 
             // Get the output parameters
             String loincScnome = (String) storedProcedure.getOutputParameterValue("loinc_snomed");
-            Integer count = (Integer) storedProcedure.getOutputParameterValue("count");
+            Integer count = (Integer) storedProcedure.getOutputParameterValue(COUNT_LOWERCASE);
 
             map.put("LOINC", loincScnome);
-            map.put("COUNT", count);
+            map.put(SELECT_COUNT, count);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return map;
 
@@ -55,7 +57,6 @@ public class ProgAreaSnomeCodeStoredProcRepository {
 
 
     public Map<String, Object> getProgAreaCd(String code, String type, String clia) throws DataProcessingException {
-        EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         Map<String, Object> map = new HashMap<>();
         try {
 
@@ -66,7 +67,7 @@ public class ProgAreaSnomeCodeStoredProcRepository {
             storedProcedure.registerStoredProcedureParameter("type", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("clia", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("prog_area", String.class, ParameterMode.OUT);
-            storedProcedure.registerStoredProcedureParameter("count", Integer.class, ParameterMode.OUT);
+            storedProcedure.registerStoredProcedureParameter(COUNT_LOWERCASE, Integer.class, ParameterMode.OUT);
 
 
             // Set the parameter values
@@ -79,12 +80,12 @@ public class ProgAreaSnomeCodeStoredProcRepository {
 
             // Get the output parameters
             String progArea = (String) storedProcedure.getOutputParameterValue("prog_area");
-            Integer count = (Integer) storedProcedure.getOutputParameterValue("count");
+            Integer count = (Integer) storedProcedure.getOutputParameterValue(COUNT_LOWERCASE);
 
             map.put("PROGRAM", progArea);
-            map.put("COUNT", count);
+            map.put(SELECT_COUNT, count);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return map;
 

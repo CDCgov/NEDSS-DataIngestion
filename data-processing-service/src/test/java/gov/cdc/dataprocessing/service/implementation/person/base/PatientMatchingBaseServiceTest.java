@@ -61,7 +61,7 @@ class PatientMatchingBaseServiceTest {
         Mockito.reset(cachingValueService);
         Mockito.reset(prepareAssocModelHelper);
     }
-
+    @SuppressWarnings("java:S2699")
     @Test
     void setPatientRevision_new_pat() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
@@ -103,7 +103,7 @@ class PatientMatchingBaseServiceTest {
         //call test
         patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.PAT);
     }
-
+    @SuppressWarnings("java:S2699")
     @Test
     void setPatientRevision_new_nok() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
@@ -145,6 +145,7 @@ class PatientMatchingBaseServiceTest {
         patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.NOK);
     }
 
+    @SuppressWarnings("java:S2699")
 
     @Test
     void getLNmFnmDobCurSexStr() {

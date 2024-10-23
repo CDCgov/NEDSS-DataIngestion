@@ -263,7 +263,7 @@ public class AnswerService implements IAnswerService {
                 }
             }
         } catch(Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -317,7 +317,7 @@ public class AnswerService implements IAnswerService {
                 }
             }
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 

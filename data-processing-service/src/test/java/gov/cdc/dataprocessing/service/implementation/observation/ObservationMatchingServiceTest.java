@@ -28,6 +28,8 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_SENT_MESSAGE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -136,7 +138,7 @@ class ObservationMatchingServiceTest {
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
         });
-        var msg = "Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + "123" + " was sent after a corrected report was received.";
+        var msg = LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + "123" + LOG_SENT_MESSAGE;
 
         assertEquals(msg, thrown.getMessage());
 

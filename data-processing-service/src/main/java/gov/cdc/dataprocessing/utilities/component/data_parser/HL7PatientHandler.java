@@ -77,7 +77,7 @@ public class HL7PatientHandler {
             }
         return labResultProxyContainer;
     }
-
+    @SuppressWarnings("java:S3776")
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,
                                               EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -370,6 +370,7 @@ public class HL7PatientHandler {
      *  - Person Object
      *  - Role Object (part of Lab Result, this is a list)
      * */
+    @SuppressWarnings("java:S3776")
     public PersonContainer parseToPersonObject(LabResultProxyContainer labResultProxyContainer,
                                                       EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonContainer personContainer = new PersonContainer();

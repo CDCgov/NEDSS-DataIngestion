@@ -28,6 +28,7 @@ public class EntityIdUtil {
     /**
      * This method process then parse data from Person into EntityId Object
      * */
+    @SuppressWarnings("java:S3776")
     public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null) {

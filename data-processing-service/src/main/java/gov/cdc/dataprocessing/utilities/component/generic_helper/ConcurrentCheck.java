@@ -13,7 +13,10 @@ public class ConcurrentCheck {
 
 
     public ConcurrentCheck() {
+        // UNIT TEST
     }
+    @SuppressWarnings("java:S3776")
+
     public boolean dataConcurrenceCheck(RootDtoInterface theRootDTInterface, String tableName, Integer existingVersion) throws DataProcessingException
     {
 

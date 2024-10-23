@@ -350,7 +350,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personId;
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     protected String getLNmFnmDobCurSexStr(PersonContainer personContainer) {
         String namedobcursexStr = null;
         String carrot = "^";

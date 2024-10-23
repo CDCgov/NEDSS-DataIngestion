@@ -41,7 +41,7 @@ public class PamRepositoryUtil {
                 }
             }
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return pamEntityDTCollection;
     }
@@ -58,7 +58,7 @@ public class PamRepositoryUtil {
                 }
             }
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return nbsAnswerDTCollection;
 

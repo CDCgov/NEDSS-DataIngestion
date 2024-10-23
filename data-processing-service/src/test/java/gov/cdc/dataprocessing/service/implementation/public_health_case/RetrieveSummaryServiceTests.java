@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_SET_NM;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -204,7 +205,7 @@ class RetrieveSummaryServiceTests {
 
         var map = new HashMap<String, String>();
         map.put("Y", "TXT");
-        when(catchingValueService.getCodedValuesCallRepos("PHC_CLASS")).thenReturn(map);
+        when(catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM)).thenReturn(map);
 
         when(catchingValueService.getCodeDescTxtForCd(NEDSSConstant.CLASS_CD_NOTF,"NBS_DOC_PURPOSE" ))
                 .thenReturn("TEST");

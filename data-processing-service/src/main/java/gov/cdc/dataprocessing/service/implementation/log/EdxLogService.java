@@ -65,7 +65,7 @@ public class EdxLogService implements IEdxLogService {
             Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList= edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
             for (EDXActivityDetailLogDto eDXActivityDetailLogDto: edxActivityDetailLogsList) {
                 eDXActivityDetailLogDto.setEdxActivityLogUid(activityLogId);
-                saveEdxActivityDetailLog(eDXActivityDetailLogDto);
+                this.saveEdxActivityDetailLog(eDXActivityDetailLogDto);
             }
         }
 
@@ -184,7 +184,7 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     public void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =

@@ -63,7 +63,7 @@ public class ParticipationRepositoryUtil {
             else if (dt.isItDirty())
                 participationRepository.save(data);
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 

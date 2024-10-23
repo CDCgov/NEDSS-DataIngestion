@@ -254,7 +254,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error(" Exception while inserting " +
                     "Organization names into ORGINIZATION_NAME_TABLE: \n", ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         logger.debug("OrganizationRepositoryUtil - Done inserting all Organization names");
     }//end of inserting Organization names
@@ -338,8 +338,9 @@ public class OrganizationRepositoryUtil {
         }
         return organizationUID;
     }
-
-    private Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
+    @SuppressWarnings("java:S3776")
+    @Transactional
+    public Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID;
         try {
             logger.debug("\n\n Inside set");
@@ -390,31 +391,12 @@ public class OrganizationRepositoryUtil {
 
                 this.prepareOrganizationNameBeforePersistence(organizationContainer);
 
-//                Organization organization = null;
-//                NedssUtils nedssUtils = new NedssUtils();
-//                Object obj = nedssUtils.lookupBean(JNDINames.ORGANIZATIONEJB);
-//                logger.debug("EntityControllerEJB.setOrganization - lookup = "
-//                        + obj.toString());
-//                OrganizationHome home = (OrganizationHome) PortableRemoteObject
-//                        .narrow(obj, OrganizationHome.class);
-//                logger.debug("EntityControllerEJB.setOrganization - Found OrganizationHome: "
-//                        + home);
-
                 if (organizationContainer.isItNew()) {
-//                    organization = home.create(organizationContainer);
-                    organizationUID = createOrganization(organizationContainer);
+                    organizationUID = this.createOrganization(organizationContainer);
                     logger.debug(" OrganizationRepositoryUtil.setOrganization -  Organization Created");
                     logger.debug("OrganizationRepositoryUtil.setOrganization {}", organizationUID);
-//                    organizationUID = organization.getOrganizationVO()
-//                            .getTheOrganizationDto().getOrganizationUid();
                 } else {
-//                    organization = home.findByPrimaryKey(organizationContainer
-//                            .getTheOrganizationDto().getOrganizationUid());
-//                    organization.setOrganizationVO(organizationContainer);
-//                    logger.debug(" EntityControllerEJB.setOrganization -  Organization Updated");
-//                    organizationUID = organization.getOrganizationVO()
-//                            .getTheOrganizationDto().getOrganizationUid();
-                    updateOrganization(organizationContainer);
+                    this.updateOrganization(organizationContainer);
                     organizationUID = organizationContainer
                             .getTheOrganizationDto().getOrganizationUid();
                     logger.debug(" OrganizationRepositoryUtil.setOrganizationInternal -  Organization Updated");
@@ -465,6 +447,7 @@ public class OrganizationRepositoryUtil {
      * the participation to have a substantial amount of Reporting labs with the same
      * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
      */
+    @Transactional
     public OrganizationContainer loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
         OrganizationContainer ovo = new OrganizationContainer();
 
@@ -512,18 +495,19 @@ public class OrganizationRepositoryUtil {
         return ovo;
     }
 
-    private OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
+    @Transactional
+    public OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
         OrganizationDto organizationDto;
         /**
          * Selects organization from organization table
          */
         try {
-            Organization organizatioModel = findOrganizationByUid(organizationUID);
+            Organization organizatioModel = this.findOrganizationByUid(organizationUID);
             organizationDto = new OrganizationDto(organizatioModel);
             organizationDto.setItNew(false);
             organizationDto.setItDirty(false);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         logger.debug("return organization object");
         return organizationDto;
@@ -550,7 +534,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception while selection " +
                     "Organization names; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -578,10 +562,10 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception while selection " +
                     "entity ids; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
-
+    @SuppressWarnings("java:S3776")
     private Collection<EntityLocatorParticipationDto> selectEntityLocatorParticipations(long organizationUID)
             throws DataProcessingException {
         Collection<EntityLocatorParticipationDto> entityLocatorParticipationList = new ArrayList<>();
@@ -667,7 +651,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception selectEntityLocatorParticipations " +
                     "entity id; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return entityLocatorParticipationList;
     }

@@ -31,6 +31,7 @@ public class HL7SpecimenUtil {
         this.nbsObjectConverter = nbsObjectConverter;
     }
 
+    @SuppressWarnings("java:S3776")
     public void process251Specimen(HL7PatientResultSPMType hL7PatientResultSPMType, LabResultProxyContainer labResultProxyContainer,
                                    ObservationDto observationDto, PersonContainer collectorVO, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {

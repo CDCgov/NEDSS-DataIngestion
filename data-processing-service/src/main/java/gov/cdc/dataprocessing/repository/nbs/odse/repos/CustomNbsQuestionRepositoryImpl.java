@@ -28,7 +28,7 @@ public class CustomNbsQuestionRepositoryImpl implements CustomNbsQuestionReposit
             "AND (nnd.investigation_form_cd = :investigationFormCode)";
 
     public CustomNbsQuestionRepositoryImpl() {
-
+        // For Unit Test
     }
 
     public  Collection<QuestionRequiredNnd> retrieveQuestionRequiredNnd(String formCd) {
