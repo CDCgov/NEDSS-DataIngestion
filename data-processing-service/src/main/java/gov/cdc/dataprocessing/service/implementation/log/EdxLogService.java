@@ -109,55 +109,79 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    private void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
+    protected void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
         switch (errorText) {
             case EdxELRConstant.ELR_MASTER_LOG_ID_1:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_1);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_2:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_2);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_3:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_3);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_4:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_4);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_5:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_5);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_6:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_6);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_7:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_7);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_8:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_8);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_9:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_9);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_10:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_10);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_11:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_11);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_12:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_12);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_13:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_13);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_14:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_14);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_15:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_15);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_16:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_16);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_17:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_17);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_18:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_18);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_19:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_19);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_20:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_20);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_21:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_21);
+                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_22:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_22);
+                break;
             default:
-                //return;
+                // Handle cases where no match is found (if needed)
+                break;
         }
+
     }
 
     @SuppressWarnings("java:S6541")

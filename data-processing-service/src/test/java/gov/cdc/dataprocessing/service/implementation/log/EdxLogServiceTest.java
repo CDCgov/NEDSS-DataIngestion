@@ -32,8 +32,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -969,4 +968,168 @@ class EdxLogServiceTest {
 
         assertDoesNotThrow(() -> edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "Detailed message"));
     }
+
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case1() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_1);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_1, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case2() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_2);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_2, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case3() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_3);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_3, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case4() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_4);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_4, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case5() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_5);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_5, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case6() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_6);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_6, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case7() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_7);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_7, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case8() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_8);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_8, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case9() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_9);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_9, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case10() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_10);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_10, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case11() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_11);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_11, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case12() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_12);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_12, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case13() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_13);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_13, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case14() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_14);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_14, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case15() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_15);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_15, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case16() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_16);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_16, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case17() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_17);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_17, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case18() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_18);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_18, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case19() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_19);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_19, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case20() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_20);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_20, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case21() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_21);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_21, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_Case22() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, EdxELRConstant.ELR_MASTER_LOG_ID_22);
+        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_22, edxActivityLogDto.getExceptionTxt());
+    }
+
+    @Test
+    void testSetActivityLogExceptionTxt_DefaultCase() {
+        EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
+        edxLogService.setActivityLogExceptionTxt(edxActivityLogDto, "UNKNOWN_ERROR_CODE");
+        assertNull(edxActivityLogDto.getExceptionTxt());
+    }
+
+
 }
