@@ -19,7 +19,7 @@ public class CommonLabUtil {
             return writer.toString();
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -32,7 +32,7 @@ public class CommonLabUtil {
 
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 

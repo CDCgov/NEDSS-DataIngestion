@@ -254,7 +254,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error(" Exception while inserting " +
                     "Organization names into ORGINIZATION_NAME_TABLE: \n", ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         logger.debug("OrganizationRepositoryUtil - Done inserting all Organization names");
     }//end of inserting Organization names
@@ -507,7 +507,7 @@ public class OrganizationRepositoryUtil {
             organizationDto.setItNew(false);
             organizationDto.setItDirty(false);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         logger.debug("return organization object");
         return organizationDto;
@@ -534,7 +534,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception while selection " +
                     "Organization names; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -562,7 +562,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception while selection " +
                     "entity ids; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
     @SuppressWarnings("java:S3776")
@@ -651,7 +651,7 @@ public class OrganizationRepositoryUtil {
         } catch (Exception ex) {
             logger.error("Exception selectEntityLocatorParticipations " +
                     "entity id; uid = " + organizationUID, ex);
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return entityLocatorParticipationList;
     }

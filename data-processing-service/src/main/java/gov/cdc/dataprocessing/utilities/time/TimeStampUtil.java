@@ -41,7 +41,7 @@ public class TimeStampUtil {
             java.util.Date parsedDate = sdf.parse(timestampString);
             return new Timestamp(parsedDate.getTime());
         }catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }

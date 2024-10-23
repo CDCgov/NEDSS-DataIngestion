@@ -399,7 +399,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         if (missingFields.size() == 0)

@@ -176,12 +176,10 @@ public class DecisionSupportService implements IDecisionSupportService {
         boolean elrAlgorithmsPresent;
         // Validating existing WDS Algorithm
         try {
-            List<WdsReport> wdsReportList = new ArrayList<>();
             WdsReport report = new WdsReport();
             Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
             if (algorithmCollection == null || algorithmCollection.isEmpty())  {
                 //no algorithms defined
-                elrAlgorithmsPresent = false;
                 report.setAlgorithmMatched(false);
                 report.setMessage("No WDS Algorithm found");
                 edxLabInformationDT.getWdsReports().add(report);
@@ -320,11 +318,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                         && algorithmDocument.getAction().getMarkAsReviewed() == null
         )
                 || (
-                (
-                        algorithmDocument.getAction() != null
-                                && algorithmDocument.getAction().getMarkAsReviewed() != null
-                                && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
-                )
+                    algorithmDocument.getAction() != null
+                            && algorithmDocument.getAction().getMarkAsReviewed() != null
+                            && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
         );
     }
     /**
@@ -510,7 +506,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                 if (edxRuleManageDT.getParticipationTypeCode() == null
                                         || edxRuleManageDT.getParticipationUid() == null
                                         || edxRuleManageDT.getParticipationClassCode() == null) {
-                                    throw new Exception("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
+                                    throw new DataProcessingException("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
                                 }
                             }
                         } catch (Exception e) {

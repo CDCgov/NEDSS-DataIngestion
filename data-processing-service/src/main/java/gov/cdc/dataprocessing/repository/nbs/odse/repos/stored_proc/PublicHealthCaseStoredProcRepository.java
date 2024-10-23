@@ -133,7 +133,7 @@ public class PublicHealthCaseStoredProcRepository {
             }
             return models;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }
@@ -170,7 +170,7 @@ public class PublicHealthCaseStoredProcRepository {
             }
             return eventProcessMap;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }

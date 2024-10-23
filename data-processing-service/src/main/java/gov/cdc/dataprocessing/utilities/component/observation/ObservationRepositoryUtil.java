@@ -165,7 +165,7 @@ public class ObservationRepositoryUtil {
             obVO.setItDirty(false);
             return obVO;
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -497,7 +497,7 @@ public class ObservationRepositoryUtil {
             }
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
     }

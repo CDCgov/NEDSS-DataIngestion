@@ -57,7 +57,7 @@ public class PrepareEntityStoredProcRepository {
             entity.setRecordStatusState(recordStatusState);
             entity.setObjectStatusState(objectStatusState);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return entity;
 

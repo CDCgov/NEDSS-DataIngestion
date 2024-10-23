@@ -249,7 +249,7 @@ public class InvestigationService implements IInvestigationService {
         catch(Exception e)
         {
             e.printStackTrace();
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -1044,7 +1044,7 @@ public class InvestigationService implements IInvestigationService {
                 }
             }
             catch (Exception ex) {
-                throw new DataProcessingException(ex.getMessage());
+                throw new DataProcessingException(ex.getMessage(), ex);
             }
         }
 

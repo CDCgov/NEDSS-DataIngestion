@@ -500,7 +500,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                 pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
             }
         } catch (Exception e) {
-            throw new Exception(e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 

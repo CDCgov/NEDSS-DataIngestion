@@ -990,7 +990,7 @@ public class ObservationService implements IObservationService {
                                     dt.getSubjectEntityUid());
                         }
                     } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage());
+                        throw new DataProcessingException(e.getMessage(),e);
                     } 
                 }
             }
@@ -1008,7 +1008,7 @@ public class ObservationService implements IObservationService {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        throw new DataProcessingException(e.getMessage());
+                        throw new DataProcessingException(e.getMessage(), e);
                     }
                 }
             }

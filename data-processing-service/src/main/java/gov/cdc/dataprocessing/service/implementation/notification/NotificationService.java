@@ -176,7 +176,7 @@ public class NotificationService implements INotificationService {
         }
         catch (Exception e)
         {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
 

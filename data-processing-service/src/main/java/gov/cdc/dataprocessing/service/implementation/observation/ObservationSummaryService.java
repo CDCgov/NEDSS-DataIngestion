@@ -62,7 +62,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             vals = customRepository.getLabParticipations(observationUID);
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return vals;
     }
@@ -77,7 +77,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
 
@@ -94,7 +94,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return orderProviderInfo;
@@ -109,7 +109,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return actIdDetails;
@@ -123,7 +123,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
            orgName = customRepository.getReportingFacilityName(organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return orgName;
     }
@@ -133,7 +133,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             specSource = customRepository.getSpecimanSource(materialUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return specSource;
     }
@@ -151,7 +151,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -168,7 +168,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         }catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -178,7 +178,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -189,7 +189,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
 
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -273,7 +273,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return assocoiatedInvMap;

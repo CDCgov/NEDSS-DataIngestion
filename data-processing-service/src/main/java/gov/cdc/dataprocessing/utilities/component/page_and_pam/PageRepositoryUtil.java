@@ -628,7 +628,7 @@ public class PageRepositoryUtil {
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -667,7 +667,7 @@ public class PageRepositoryUtil {
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return returnMap;
     }
@@ -707,7 +707,7 @@ public class PageRepositoryUtil {
             }
 
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -929,7 +929,7 @@ public class PageRepositoryUtil {
                     actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
                     logger.debug("Got into The ActRelationship, The ActUid is " + actRelationshipDT.getTargetActUid());
                 } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage());
+                    throw new DataProcessingException(e.getMessage(), e);
                 }
             }
         }
@@ -948,7 +948,7 @@ public class PageRepositoryUtil {
                     }
                     participationRepositoryUtil.storeParticipation(item);
                 } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage());
+                    throw new DataProcessingException(e.getMessage(), e);
                 }
             }
         }
@@ -1041,7 +1041,7 @@ public class PageRepositoryUtil {
                 nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(nbsDocVO);
             }
             catch (Exception e) {
-                throw new DataProcessingException(e.getMessage());
+                throw new DataProcessingException(e.getMessage(), e);
             }
         }
 

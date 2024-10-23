@@ -120,7 +120,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             }
             return personUid;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
     protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
@@ -170,7 +170,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return personUID;
 

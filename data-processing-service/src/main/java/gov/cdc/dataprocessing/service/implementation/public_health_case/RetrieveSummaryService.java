@@ -402,7 +402,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return assocoiatedDocMap;

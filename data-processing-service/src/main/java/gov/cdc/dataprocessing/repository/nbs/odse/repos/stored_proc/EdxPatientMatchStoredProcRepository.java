@@ -46,7 +46,7 @@ public class EdxPatientMatchStoredProcRepository {
             edxPatientMatchDto.setTypeCd(typeCd);
             edxPatientMatchDto.setMatchString(matchString);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return edxPatientMatchDto;
 
@@ -81,7 +81,7 @@ public class EdxPatientMatchStoredProcRepository {
             edxEntityMatchDto.setTypeCd(typeCd);
             edxEntityMatchDto.setMatchString(matchString);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return edxEntityMatchDto;
 

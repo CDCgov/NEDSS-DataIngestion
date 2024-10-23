@@ -49,7 +49,7 @@ public class ProgAreaSnomeCodeStoredProcRepository {
             map.put("LOINC", loincScnome);
             map.put(SELECT_COUNT, count);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return map;
 
@@ -85,7 +85,7 @@ public class ProgAreaSnomeCodeStoredProcRepository {
             map.put("PROGRAM", progArea);
             map.put(SELECT_COUNT, count);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return map;
 
