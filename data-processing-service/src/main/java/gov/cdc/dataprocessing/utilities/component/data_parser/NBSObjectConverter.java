@@ -118,7 +118,7 @@ public class NBSObjectConverter {
         }
         return personContainer;
     }
-
+    @SuppressWarnings("java:S3776")
     public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null ) {
@@ -469,7 +469,7 @@ public class NBSObjectConverter {
 
         return ethnicGroupDT;
     }
-
+    @SuppressWarnings("java:S3776")
     public Timestamp processHL7TSType(HL7TSType time, String itemDescription) throws DataProcessingException {
         String timeStr = "";
         try {
@@ -805,6 +805,8 @@ public class NBSObjectConverter {
 
         return personContainer;
     }
+    @SuppressWarnings("java:S3776")
+
     public Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";
         try {

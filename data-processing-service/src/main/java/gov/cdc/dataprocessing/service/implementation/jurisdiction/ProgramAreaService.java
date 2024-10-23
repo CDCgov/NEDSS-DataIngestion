@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
+
 @Service
 @Slf4j
 public class ProgramAreaService implements IProgramAreaService {
@@ -82,7 +84,7 @@ public class ProgramAreaService implements IProgramAreaService {
             }
         }
 
-        if (paResults != null && paResults.containsKey("ERROR"))
+        if (paResults != null && paResults.containsKey(ERROR))
         {
             observationRequest.getTheObservationDto().setProgAreaCd(null);
         }
@@ -96,6 +98,7 @@ public class ProgramAreaService implements IProgramAreaService {
     /**
      * Description: method getting program area given CLIA and Observation Requests
      * */
+    @SuppressWarnings("java:S3776")
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
                                                          Collection<ObservationContainer> observationResults,
                                                          String electronicInd) throws DataProcessingException {
@@ -103,7 +106,7 @@ public class ProgramAreaService implements IProgramAreaService {
         HashMap<String, String> returnMap = new HashMap<>();
         if (reportingLabCLIA == null)
         {
-            returnMap.put(NEDSSConstant.ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
+            returnMap.put(ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
             return returnMap;
         }
 
@@ -218,7 +221,7 @@ public class ProgramAreaService implements IProgramAreaService {
 
         if(paHTBL.size() == 0)
         {
-            returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_2);
+            returnMap.put(ERROR, ELRConstant.PROGRAM_ASSIGN_2);
         }
         else if (paHTBL.size() == 1)
         {
@@ -226,11 +229,12 @@ public class ProgramAreaService implements IProgramAreaService {
         }
         else
         {
-            returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_1);
+            returnMap.put(ERROR, ELRConstant.PROGRAM_ASSIGN_1);
         }
         return returnMap;
     } //end of getProgramArea
 
+    @SuppressWarnings("java:S3776")
     public String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
         //Gathering the result tests
         Collection<ObservationContainer>  resultTests = new ArrayList<> ();
@@ -279,9 +283,9 @@ public class ProgramAreaService implements IProgramAreaService {
                 orderTest.getTheObservationDto().setProgAreaCd(null);
             }
 
-            if (paResults != null && paResults.containsKey("ERROR"))
+            if (paResults != null && paResults.containsKey(ERROR))
             {
-                return (String) paResults.get("ERROR");
+                return (String) paResults.get(ERROR);
             }
             else
             {

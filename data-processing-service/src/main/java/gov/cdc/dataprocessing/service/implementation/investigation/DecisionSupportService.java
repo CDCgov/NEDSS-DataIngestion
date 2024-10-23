@@ -67,6 +67,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
     final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
 
+    @SuppressWarnings("java:S3776")
     @Transactional
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
@@ -522,10 +523,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                 autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainer, pamProxyVO, personVOCollection, orderedTestObservationVO, entityMapCollection, questionIdentifierMap);
 
                 if (questionIdentifierMap != null
-                        && questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED) != null)
+                        && questionIdentifierMap.get(edxPhcrDocumentUtil.REQUIRED) != null)
                 {
                     Map<Object, Object> nbsAnswerMap = pamVO.getPamAnswerDTMap();
-                    Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED);
+                    Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(edxPhcrDocumentUtil.REQUIRED);
                     String errorText = edxPhcrDocumentUtil.requiredFieldCheck(requireMap, nbsAnswerMap);
                     publicHealthCaseContainer.setErrorText(errorText);
                 }

@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_ENTITY_PATIENT;
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_MATCHING_PATIENT;
+
 @Service
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class);
@@ -37,7 +40,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
     public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
@@ -72,8 +75,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                     matchFound = true;
                 }
             } catch (Exception ex) {
-                logger.error("Error in geting the  matching Patient");
-                throw new DataProcessingException("Error in geting the  matching Patient" + ex.getMessage(), ex);
+                logger.error(LOG_ERROR_MATCHING_PATIENT);
+                throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
             }
 
             if (localId != null) {
@@ -145,8 +148,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                             matchFound = true;
                         }
                     } catch (Exception ex) {
-                        logger.error("Error in geting the  matching Patient");
-                        throw new DataProcessingException("Error in geting the  matching Patient" + ex.getMessage(), ex);
+                        logger.error(LOG_ERROR_MATCHING_PATIENT);
+                        throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
                     }
                 }
             }
@@ -174,8 +177,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                         newPatientCreationApplied = true;
                     }
                 } catch (Exception e) {
-                    logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
-                    throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
+                    logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
+                    throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
                 }
                 personContainer.setPatientMatchedFound(false);
             }
@@ -212,21 +215,9 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
                 //END REVISION
 
-//
-//                if (!newPatientCreationApplied && personContainer.getPatientMatchedFound()) {
-//                    personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-//                    patientPersonUid = updateExistingPerson(personContainer, NEDSSConstant.PAT_CR, personContainer.getThePersonDto().getPersonParentUid());
-//
-//                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-//                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-//                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
-//                }
-//                else if (newPatientCreationApplied) {
-//                    setPersonHashCdPatient(personContainer);
-//                }
             } catch (Exception e) {
-                logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
-                throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
+                logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage());
+                throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
             }
 
         }

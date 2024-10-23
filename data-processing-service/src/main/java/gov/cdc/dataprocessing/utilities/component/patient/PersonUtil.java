@@ -34,6 +34,7 @@ public class PersonUtil {
         this.uidService = uidService;
     }
 
+    @SuppressWarnings("java:S3776")
 
     @Transactional
     public Long processLabPersonContainerCollection(Collection<PersonContainer> personContainerCollection, boolean morbidityApplied,

@@ -28,6 +28,7 @@ public class ManagerCacheService implements IManagerCacheService {
         return CompletableFuture.runAsync(this::loadCache);
     }
 
+    @SuppressWarnings({"java:S2696", "java:S3776"})
     private void loadCache() {
         runWithExceptionHandling(() -> {
             if (SrteCache.loincCodesMap.isEmpty()) {

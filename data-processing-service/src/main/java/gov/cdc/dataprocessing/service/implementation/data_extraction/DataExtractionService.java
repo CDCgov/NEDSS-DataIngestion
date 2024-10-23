@@ -57,6 +57,7 @@ public class DataExtractionService implements IDataExtractionService {
         this.nbsInterfaceStoredProcRepository = nbsInterfaceStoredProcRepository;
     }
 
+    @SuppressWarnings("java:S3776")
     @Transactional
     public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
 

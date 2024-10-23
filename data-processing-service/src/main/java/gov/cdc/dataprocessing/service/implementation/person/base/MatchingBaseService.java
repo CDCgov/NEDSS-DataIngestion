@@ -53,7 +53,7 @@ public class MatchingBaseService  {
         return localId;
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     protected List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> returnList;
@@ -134,6 +134,7 @@ public class MatchingBaseService  {
         }
         return returnList;
     }
+    @SuppressWarnings("java:S3776")
 
     protected String getNamesStr(PersonContainer personContainer) {
         String namesStr = null;

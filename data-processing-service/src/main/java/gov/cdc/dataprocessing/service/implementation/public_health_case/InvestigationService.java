@@ -45,6 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LABORATORY_UID;
+
 @Service
 public class InvestigationService implements IInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(InvestigationService.class);
@@ -69,7 +72,6 @@ public class InvestigationService implements IInvestigationService {
     private final CachingValueService cachingValueService;
     private final ILdfService ldfService;
     private final LabTestRepository labTestRepository;
-    private static final String AND_STRING = " AND ";
     private static final String LAB_EVENT_LIST = "labEventList";
 
 
@@ -281,7 +283,7 @@ public class InvestigationService implements IInvestigationService {
         updateAutoResendNotifications(v);
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 
@@ -400,14 +402,14 @@ public class InvestigationService implements IInvestigationService {
                     .getDataAccessWhereClause(
                             NBSBOLookup.OBSERVATIONLABREPORT,
                             "VIEW", "obs");
-            labReportViewClause = labReportViewClause != null ? AND_STRING
+            labReportViewClause = labReportViewClause != null ? AND_UPPERCASE
                     + labReportViewClause : "";
 
             Collection<UidSummaryContainer> LabReportUidSummarVOs =  observationSummaryService
                     .findAllActiveLabReportUidListForManage(
                             publicHealthCaseUID, labReportViewClause);
 
-            String uidType = "LABORATORY_UID";
+            String uidType = LABORATORY_UID;
             Collection<?> labReportSummaryVOCollection;
             LabReportSummaryContainer labReportSummaryVOs;
             if (LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty()) {
@@ -596,7 +598,7 @@ public class InvestigationService implements IInvestigationService {
 
         return getInvestigationProxyLite(publicHealthCaseUID, false);
     }
-
+    @SuppressWarnings("java:S3776")
     private InvestigationContainer getInvestigationProxyLite(Long publicHealthCaseUID, boolean lite) throws DataProcessingException {
         var investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseDto thePublicHealthCaseDto;
@@ -811,10 +813,10 @@ public class InvestigationService implements IInvestigationService {
             if (!lite)
             {
                 String labReportViewClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs");
-                labReportViewClause = labReportViewClause != null? AND_STRING + labReportViewClause:"";
+                labReportViewClause = labReportViewClause != null? AND_UPPERCASE + labReportViewClause:"";
 
                 Collection<UidSummaryContainer>  LabReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
-                String uidType = "LABORATORY_UID";
+                String uidType = LABORATORY_UID;
                 Collection<?>  labReportSummaryVOCollection;
                 LabReportSummaryContainer labReportSummaryVOs;
 
@@ -880,7 +882,7 @@ public class InvestigationService implements IInvestigationService {
         HashMap<Object, Object> labReportSummarMap = getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
         return labReportSummarMap;
     }
-
+    @SuppressWarnings("java:S3776")
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         ArrayList<Object>  labSummList = new ArrayList<> ();
         ArrayList<Object>  labEventList = new ArrayList<> ();
@@ -895,7 +897,7 @@ public class InvestigationService implements IInvestigationService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = AND_STRING + dataAccessWhereClause;
+                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
             }
 
             LabReportSummaryContainer labVO = new LabReportSummaryContainer();
@@ -916,7 +918,7 @@ public class InvestigationService implements IInvestigationService {
 
                         }
                     }
-                    else if(uidType.equals("LABORATORY_UID"))
+                    else if(uidType.equals(LABORATORY_UID))
                     {
                         UidSummaryContainer vo = (UidSummaryContainer) itLabId.next();
                         Long observationUid = vo.getUid();

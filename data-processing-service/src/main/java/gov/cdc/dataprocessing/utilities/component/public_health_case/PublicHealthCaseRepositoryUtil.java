@@ -542,6 +542,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         return lst;
     }
+    @SuppressWarnings("java:S3776")
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
         NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
         ArrayList<Object> PamAnswerDTCollection;

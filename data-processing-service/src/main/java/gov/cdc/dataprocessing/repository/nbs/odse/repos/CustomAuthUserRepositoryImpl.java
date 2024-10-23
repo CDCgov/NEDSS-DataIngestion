@@ -39,7 +39,7 @@ public class CustomAuthUserRepositoryImpl implements CustomAuthUserRepository {
             " and UPPER(SU.user_id) = UPPER(:userId)";
 
     public CustomAuthUserRepositoryImpl() {
-
+        // For Unit Test
     }
 
     public Collection<AuthUserRealizedRole> getAuthUserRealizedRole(String userId) {

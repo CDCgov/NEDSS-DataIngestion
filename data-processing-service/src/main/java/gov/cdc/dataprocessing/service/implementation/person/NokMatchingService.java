@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_ENTITY_PATIENT;
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_MATCHING_PATIENT;
+
 @Service
 public class NokMatchingService  extends NokMatchingBaseService implements INokMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(NokMatchingService.class);
@@ -35,7 +38,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional
     public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
@@ -102,8 +105,8 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                                 matchFound = true;
                             }
                         } catch (Exception ex) {
-                            logger.error("Error in geting the  matching Patient");
-                            throw new DataProcessingException("Error in geting the  matching Patient" + ex.getMessage(), ex);
+                            logger.error(LOG_ERROR_MATCHING_PATIENT);
+                            throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
                         }
                     }
                 }
@@ -133,8 +136,8 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
 
                 }
             } catch (Exception e) {
-                logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
-                throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
+                logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage());
+                throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
             }
             personContainer.setPatientMatchedFound(false);
         }
@@ -156,8 +159,8 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
 
 
         } catch (Exception e) {
-            logger.error("Error in getting the entity Controller or Setting the Patient" + e.getMessage());
-            throw new DataProcessingException("Error in getting the entity Controller or Setting the Patient" + e.getMessage(), e);
+            logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage());
+            throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
         }
         return edxPatientMatchFoundDT;
     }

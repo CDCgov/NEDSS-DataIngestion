@@ -50,7 +50,7 @@ public class RoleService implements IRoleService {
                 }
 
                 roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
-                saveRole(roleDT);
+                this.saveRole(roleDT);
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);

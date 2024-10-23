@@ -19,7 +19,9 @@ public class ObservationUtil {
 
 
     public ObservationUtil() {
+        // UNIT TEST
     }
+    @SuppressWarnings("java:S3776")
 
     public Long getUid(Collection<ParticipationDto> participationDtoCollection,
                         Collection<ActRelationshipDto> actRelationshipDtoCollection,

@@ -214,7 +214,7 @@ public class PatientRepositoryUtil {
         }
 
     }
-
+    @SuppressWarnings("java:S3776")
     public PersonContainer loadPerson(Long personUid) {
         PersonContainer personContainer = new PersonContainer();
 
@@ -602,7 +602,7 @@ public class PatientRepositoryUtil {
     }
 
 
-    @SuppressWarnings("java:S1871")
+    @SuppressWarnings({"java:S1871","java:S3776"})
     @Transactional
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         try {

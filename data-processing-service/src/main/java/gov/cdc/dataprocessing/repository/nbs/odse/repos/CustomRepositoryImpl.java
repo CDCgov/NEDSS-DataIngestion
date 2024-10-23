@@ -25,6 +25,12 @@ import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
 public class CustomRepositoryImpl implements CustomRepository {
     @PersistenceContext(unitName = "odse")
     protected EntityManager entityManager;
+    private static final String TARGET_ACT_UID = "TargetActUid";
+    private static final String SOURCE_CLASS_CODE = "SourceClassCd";
+    private static final String TARGET_CLASS_CODE = "TargetClassCd";
+    private static final String PHC_UID = "PhcUid";
+    private static final String TYPE_CODE = "TypeCode";
+
     private final PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository;
 
     public CustomRepositoryImpl(PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository) {
@@ -54,13 +60,12 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-
     public Map<Object, Object> getAssociatedDocumentList(Long uid, String targetClassCd, String sourceClassCd, String theQuery) {
         Map<Object, Object> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
-        query.setParameter("TargetActUid", uid);
-        query.setParameter("SourceClassCd", sourceClassCd);
-        query.setParameter("TargetClassCd", targetClassCd);
+        query.setParameter(TARGET_ACT_UID, uid);
+        query.setParameter(SOURCE_CLASS_CODE, sourceClassCd);
+        query.setParameter(TARGET_CLASS_CODE, targetClassCd);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -84,7 +89,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
         Map<String, EDXEventProcessDto> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(docQuery);
-        query.setParameter("TargetActUid", publicHealthCaseUid);
+        query.setParameter(TARGET_ACT_UID, publicHealthCaseUid);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -108,10 +113,11 @@ public class CustomRepositoryImpl implements CustomRepository {
         return map;
     }
 
+
     public Map<Object, Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) {
         Map<Object,Object> map= new HashMap<Object,Object> ();
         Query query = entityManager.createNativeQuery(DOCUMENT_FOR_A_PHC);
-        query.setParameter("PhcUid", publicHealthUID);
+        query.setParameter(PHC_UID, publicHealthUID);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -135,7 +141,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     public List<NotificationSummaryContainer> retrieveNotificationSummaryListForInvestigation(Long publicHealthUID, String theQuery) {
         List<NotificationSummaryContainer> map= new ArrayList<> ();
         Query query = entityManager.createNativeQuery(theQuery);
-        query.setParameter("PhcUid", publicHealthUID);
+        query.setParameter(PHC_UID, publicHealthUID);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -167,7 +173,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     public Map<Object, Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID, String theQuery) {
         Map<Object,Object> map= new HashMap<Object,Object> ();
         Query query = entityManager.createNativeQuery(theQuery);
-        query.setParameter("PhcUid", publicHealthUID);
+        query.setParameter(PHC_UID, publicHealthUID);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -209,8 +215,8 @@ public class CustomRepositoryImpl implements CustomRepository {
     public ArrayList<ResultedTestSummaryContainer> getSusceptibilityResultedTestSummary(String typeCode, Long observationUid) {
         String theSelect = SELECT_LABSUSCEPTIBILITES_REFLEXTEST_SUMMARY_FORWORKUP_SQLSERVER;
         Query query = entityManager.createNativeQuery(theSelect);
-        query.setParameter("TypeCode", typeCode);
-        query.setParameter("TargetActUid",observationUid);
+        query.setParameter(TYPE_CODE, typeCode);
+        query.setParameter(TARGET_ACT_UID,observationUid);
 
         ArrayList<ResultedTestSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
@@ -246,8 +252,8 @@ public class CustomRepositoryImpl implements CustomRepository {
     {
         String theSelect = GET_SOURCE_ACT_UID_FOR_SUSCEPTIBILITES_SQL;
         Query query = entityManager.createNativeQuery(theSelect);
-        query.setParameter("TypeCode", typeCode);
-        query.setParameter("TargetActUid",observationUid);
+        query.setParameter(TYPE_CODE, typeCode);
+        query.setParameter(TARGET_ACT_UID,observationUid);
         ArrayList<UidSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
@@ -263,8 +269,8 @@ public class CustomRepositoryImpl implements CustomRepository {
     public ArrayList<ResultedTestSummaryContainer> getTestAndSusceptibilities(String typeCode, Long observationUid, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm) {
         String theSelect = SELECT_LABRESULTED_REFLEXTEST_SUMMARY_FORWORKUP_SQL;
         Query query = entityManager.createNativeQuery(theSelect);
-        query.setParameter("TypeCode", typeCode);
-        query.setParameter("TargetActUid",observationUid);
+        query.setParameter(TYPE_CODE, typeCode);
+        query.setParameter(TARGET_ACT_UID,observationUid);
         ArrayList<ResultedTestSummaryContainer> lst = new ArrayList<>();
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
@@ -462,6 +468,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return vals;
     }
 
+    @SuppressWarnings("java:S1192")
     public  Map<Object,Object> getLabParticipations(Long observationUID) {
         String QUICK_FIND_PATIENT_MSQL = "SELECT ";
         String QUICK_FIND_PATIENT =  "participation.subject_class_cd \"classCd\", "

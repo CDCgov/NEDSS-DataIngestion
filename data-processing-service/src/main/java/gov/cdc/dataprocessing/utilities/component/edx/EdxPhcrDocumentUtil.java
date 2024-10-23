@@ -14,7 +14,7 @@ import java.util.*;
 
 @Component
 public class EdxPhcrDocumentUtil {
-    public static final String _REQUIRED = "_REQUIRED";
+    public static final String REQUIRED = "_REQUIRED";
 
     private final ILookupService lookupService;
 
@@ -23,6 +23,7 @@ public class EdxPhcrDocumentUtil {
         this.lookupService = lookupService;
     }
 
+    @SuppressWarnings("java:S3776")
     public Map<Object, Object> loadQuestions(String conditionCode)
     {
         Map<Object, Object> questionMap;
@@ -80,6 +81,7 @@ public class EdxPhcrDocumentUtil {
     }
 
 
+    @SuppressWarnings("java:S3776")
 
     public static String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
         //

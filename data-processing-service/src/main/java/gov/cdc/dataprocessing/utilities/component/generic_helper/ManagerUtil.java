@@ -59,7 +59,7 @@ public class ManagerUtil {
     }
 
 
-
+    @SuppressWarnings("java:S3776")
     public PersonAggContainer patientAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
@@ -99,6 +99,8 @@ public class ManagerUtil {
      * This wont work in this @Transactional architecture
      * As we update the person and its assoc tables serveral time, so we must keep the @Transactional as synchronous flow
      * */
+    @SuppressWarnings("java:S3776")
+
     public PersonAggContainer personAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonAggContainer container = new PersonAggContainer();
         CompletableFuture<PersonContainer> patientFuture = null;

@@ -71,6 +71,8 @@ public class MaterialService implements IMaterialService {
         this.entityLocatorParticipationService = entityLocatorParticipationService;
     }
 
+    @SuppressWarnings("java:S3776")
+
     public MaterialContainer loadMaterialObject(Long materialUid) {
         MaterialContainer materialContainer = new MaterialContainer();
 

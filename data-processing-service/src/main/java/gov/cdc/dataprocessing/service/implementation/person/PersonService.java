@@ -174,7 +174,7 @@ public class PersonService implements IPersonService {
         }
         return matchedPersonUid;
     }
-
+    @SuppressWarnings("java:S3776")
     public void updatePersonELRUpdate(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO){
         PersonDto matchedPersonDT;
         Long matchedPersonUid = null;

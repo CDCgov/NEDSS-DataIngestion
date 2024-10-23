@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_SET_NM;
 
 @Service
 public class RetrieveSummaryService implements IRetrieveSummaryService {
@@ -102,6 +104,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         return documentSummaryVOColl;
     } // retrieveDocumentSummaryList
 
+    @SuppressWarnings("java:S3776")
 
     public Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseContainer publicHealthCaseContainer, Object object) throws DataProcessingException {
 
@@ -252,12 +255,12 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 for (NotificationSummaryContainer newVO : retval) {
                     if (newVO.getCaseClassCd() != null
                             && newVO.getCaseClassCd().trim().length() != 0) {
-                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
                         newVO.setCaseClassCdTxt((String) map.get(newVO.getCaseClassCd()));
                     }
                     if (newVO.getCd() != null
                             && newVO.getCd().trim().length() != 0) {
-                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
                         newVO.setCdTxt((String) map.get(newVO.getCd()));
                     }
 
@@ -299,7 +302,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = " AND " + dataAccessWhereClause;
+                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
 
             }
             String statement[] = new String[2];
@@ -310,7 +313,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                     dataAccessWhereClause + " ORDER BY notHist.version_ctrl_nbr DESC";
 
             NotificationSummaryContainer notifVO = new NotificationSummaryContainer();
-            HashMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
+            HashMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
             HashMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
 
@@ -379,7 +382,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = " AND " + dataAccessWhereClause;
+                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
             }
 
             String ASSOCIATED_DOC_QUERY =

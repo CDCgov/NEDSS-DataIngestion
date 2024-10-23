@@ -338,7 +338,7 @@ public class OrganizationRepositoryUtil {
         }
         return organizationUID;
     }
-
+    @SuppressWarnings("java:S3776")
     private Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID;
         try {
@@ -390,31 +390,12 @@ public class OrganizationRepositoryUtil {
 
                 this.prepareOrganizationNameBeforePersistence(organizationContainer);
 
-//                Organization organization = null;
-//                NedssUtils nedssUtils = new NedssUtils();
-//                Object obj = nedssUtils.lookupBean(JNDINames.ORGANIZATIONEJB);
-//                logger.debug("EntityControllerEJB.setOrganization - lookup = "
-//                        + obj.toString());
-//                OrganizationHome home = (OrganizationHome) PortableRemoteObject
-//                        .narrow(obj, OrganizationHome.class);
-//                logger.debug("EntityControllerEJB.setOrganization - Found OrganizationHome: "
-//                        + home);
-
                 if (organizationContainer.isItNew()) {
-//                    organization = home.create(organizationContainer);
-                    organizationUID = createOrganization(organizationContainer);
+                    organizationUID = this.createOrganization(organizationContainer);
                     logger.debug(" OrganizationRepositoryUtil.setOrganization -  Organization Created");
                     logger.debug("OrganizationRepositoryUtil.setOrganization {}", organizationUID);
-//                    organizationUID = organization.getOrganizationVO()
-//                            .getTheOrganizationDto().getOrganizationUid();
                 } else {
-//                    organization = home.findByPrimaryKey(organizationContainer
-//                            .getTheOrganizationDto().getOrganizationUid());
-//                    organization.setOrganizationVO(organizationContainer);
-//                    logger.debug(" EntityControllerEJB.setOrganization -  Organization Updated");
-//                    organizationUID = organization.getOrganizationVO()
-//                            .getTheOrganizationDto().getOrganizationUid();
-                    updateOrganization(organizationContainer);
+                    this.updateOrganization(organizationContainer);
                     organizationUID = organizationContainer
                             .getTheOrganizationDto().getOrganizationUid();
                     logger.debug(" OrganizationRepositoryUtil.setOrganizationInternal -  Organization Updated");
@@ -518,7 +499,7 @@ public class OrganizationRepositoryUtil {
          * Selects organization from organization table
          */
         try {
-            Organization organizatioModel = findOrganizationByUid(organizationUID);
+            Organization organizatioModel = this.findOrganizationByUid(organizationUID);
             organizationDto = new OrganizationDto(organizatioModel);
             organizationDto.setItNew(false);
             organizationDto.setItDirty(false);
@@ -581,7 +562,7 @@ public class OrganizationRepositoryUtil {
             throw new DataProcessingException(ex.getMessage());
         }
     }
-
+    @SuppressWarnings("java:S3776")
     private Collection<EntityLocatorParticipationDto> selectEntityLocatorParticipations(long organizationUID)
             throws DataProcessingException {
         Collection<EntityLocatorParticipationDto> entityLocatorParticipationList = new ArrayList<>();

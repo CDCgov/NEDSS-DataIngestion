@@ -88,7 +88,7 @@ public class PageRepositoryUtil {
         this.patientMatchingBaseService = patientMatchingBaseService;
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541","java:S3776"})
     public Long setPageActProxyVO(PageActProxyContainer pageProxyVO) throws DataProcessingException {
         try {
             PageActProxyContainer pageActProxyContainer = pageProxyVO;
@@ -109,18 +109,6 @@ public class PageRepositoryUtil {
                     investigationService.updateAutoResendNotificationsAsync(pageActProxyContainer);
                 } catch (Exception e) {
                     //TODO: LOGGING NND LOG
-//                    NNDActivityLogDto nndActivityLogDT = new NNDActivityLogDto();
-//                    String phcLocalId = pageActProxyContainer.getPublicHealthCaseContainer()
-//                            .getThePublicHealthCaseDto().getLocalId();
-//                    nndActivityLogDT.setErrorMessageTxt(e.toString());
-//                    if (phcLocalId != null)
-//                        nndActivityLogDT.setLocalId(phcLocalId);
-//                    else
-//                        nndActivityLogDT.setLocalId("N/A");
-//                    // catch & store auto resend notifications exceptions in
-//                    // NNDActivityLog table
-//                    nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
-//                    e.printStackTrace();
                 }
             }
 
@@ -596,7 +584,7 @@ public class PageRepositoryUtil {
             throw new DataProcessingException(e.getMessage() ,e);
         }
     }
-
+    @SuppressWarnings("java:S3776")
     private void updatePageProxyVOInterface(PageActProxyContainer proxyActVO, Timestamp lastChgTime, Long lastChgUserId) throws DataProcessingException {
         try {
             proxyActVO.setRenterant(true);
@@ -723,7 +711,7 @@ public class PageRepositoryUtil {
         }
     }
 
-
+    @SuppressWarnings("java:S3776")
     private void processingParticipationPatTypeForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {
         if (pageActProxyContainer.isItNew() && (!pageActProxyContainer.isItDirty()))
         {
@@ -753,7 +741,7 @@ public class PageRepositoryUtil {
         }
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     private PageActPatient processingPersonContainerForPageAct(PageActProxyContainer pageActProxyContainer,
                                                                PublicHealthCaseDto phcDT) throws DataProcessingException
     {
@@ -849,7 +837,7 @@ public class PageRepositoryUtil {
 
         return pageActPatient;
     }
-    @SuppressWarnings("java:S3457")
+    @SuppressWarnings({"java:S3457","java:S3776"})
     private PageActPhc processingPhcContainerForPageAct(
             PageActProxyContainer pageActProxyContainer,
             boolean isCoInfectionCondition) throws DataProcessingException
@@ -965,7 +953,7 @@ public class PageRepositoryUtil {
             }
         }
     }
-
+    @SuppressWarnings("java:S3776")
     private void processingNotificationSummaryForPageAct(PageActProxyContainer pageActProxyContainer, PublicHealthCaseDto phcDT) throws DataProcessingException {
         if (pageActProxyContainer.getTheNotificationSummaryVOCollection() != null)
         {

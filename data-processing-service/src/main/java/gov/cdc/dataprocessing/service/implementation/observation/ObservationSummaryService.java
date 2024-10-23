@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.ASSOCIATED_INV_QUERY;
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 
 @Service
 public class ObservationSummaryService implements IObservationSummaryService {
@@ -262,7 +263,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = " AND " + dataAccessWhereClause;
+                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
 
             }
 

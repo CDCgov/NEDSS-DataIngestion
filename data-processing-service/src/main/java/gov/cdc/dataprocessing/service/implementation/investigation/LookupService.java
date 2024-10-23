@@ -29,6 +29,8 @@ public class LookupService implements ILookupService {
     private final WAQuestionRepository waQuestionRepository;
     private final ICatchingValueService catchingValueService;
 
+    private static final String EXCEPTION_APPENDING_MSG = " in form cd :";
+
     public LookupService(LookupMappingRepository lookupMappingRepository,
                          NbsUiMetaDataRepository nbsUiMetaDataRepository,
                          WAQuestionRepository waQuestionRepository,
@@ -149,6 +151,7 @@ public class LookupService implements ILookupService {
         return lst;
     }
 
+    @SuppressWarnings("java:S3776")
     private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws Exception {
         int count = 0;
         int loopcount = 0;
@@ -231,7 +234,7 @@ public class LookupService implements ILookupService {
             }
         } catch (Exception ex) {
             throw new DataProcessingException("The from prepop caching failed due to question label :"
-                    + qMetadata.getFromQuestionIdentifier() + " in form cd :" + qMetadata.getFromFormCd());
+                    + qMetadata.getFromQuestionIdentifier() + EXCEPTION_APPENDING_MSG + qMetadata.getFromFormCd());
         }
 
     }
@@ -333,26 +336,13 @@ public class LookupService implements ILookupService {
             }
         } catch (Exception ex) {
             throw new DataProcessingException("The to prepop caching failed due to question Identifier :"
-                    + qMetadata.getToQuestionIdentifier() + " in form cd :" + qMetadata.getToFormCd());
+                    + qMetadata.getToQuestionIdentifier() + EXCEPTION_APPENDING_MSG + qMetadata.getToFormCd());
         }
 
     }
 
 
-//    public QuestionMap getQuestionMapEJBRef() throws Exception {
-//        if (qMap == null) {
-//            NedssUtils nu = new NedssUtils();
-//            Object objref = nu.lookupBean(JNDINames.QUESTION_MAP_EJB);
-//            if (objref != null) {
-//                QuestionMapHome home = (QuestionMapHome) PortableRemoteObject
-//                        .narrow(objref, QuestionMapHome.class);
-//                qMap = home.create();
-//            }
-//        }
-//        return qMap;
-//    }
-
-
+    @SuppressWarnings("java:S3776")
     private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
         TreeMap<Object, Object> qCodeMap = new TreeMap<>();
         int count =0;
@@ -427,7 +417,7 @@ public class LookupService implements ILookupService {
             }
         }
         catch(Exception ex){
-            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel()+" in form cd :"+ qMetadata.getInvestigationFormCd());
+            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel()+ EXCEPTION_APPENDING_MSG + qMetadata.getInvestigationFormCd());
         }
 
         return qCodeMap;

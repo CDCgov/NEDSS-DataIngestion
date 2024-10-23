@@ -18,7 +18,14 @@ public class EdxELRConstant {
     public static final String EI_TYPE="EI_TYPE";
     public static final String ELR_LAB_CD="LAB214";
 
-
+    public static final String LOG_RECORD_STATUS_NULL = "RecordStatusCd is null";
+    public static final String LOG_RECORD = "   statusCode--------";
+    public static final String LOG_RECORD_2 = "RecordStatusCd -----2----";
+    public static final String LOG_RECORD_STATUS_CD_NOT_ACTIVE = "RecordStatusCd is not active or inactive";
+    public static final String LOG_OBSERVATION_COLLECTION_ERROR = "Exception thrown at ObservationRequest.getCollectorVO:";
+    public static final String LOG_RECORD_STATUS_CD_NOT_NULL = "RecordStatusCd or statusCode is not null";
+    public static final String LOG_RECORD_MODIFIED_BY_OTHER_USER = "NEDSSConcurrentDataException: The data has been modified by other user, please verify!";
+    public static final String LOG_DT_PREPARED = "DT Prepared";
     public static final String ELR_PATIENT_ALTERNATE_DESC="Alternate Person Number�";
     public static final String ELR_CLIA_DESC="Clinical Laboratory Improvement Amendment";
     public static final String ELR_CLIA_CD="CLIA";
@@ -232,6 +239,12 @@ public class EdxELRConstant {
             "Patient match not found; New Patient created: %1, %2 (UID: %3).";
     public static final String DET_MSG_PATIENT_MULTIPLE_FOUND =
             "Multiple patient matches found; New Patient created: %1, %2 (UID: %3).";
+    public static final String AND_UPPERCASE = " AND " ;
+    public static final String LOG_ERROR_MATCHING_PROVIDER = "Error in geting the  matching Provider";
+    public static final String LOG_ERROR_MATCHING_PATIENT = "Error in geting the  matching Patient";
+    public static final String LOG_ERROR_ENTITY_PATIENT = "Error in getting the entity Controller or Setting the Patient";
+    public static final String LOG_ERROR_MATCHING_ORG = "Error in geting the  matching Organization";
+    public static final String LOG_SENT_MESSAGE = " was sent after a corrected report was received.";
     public static final String FINAL_POST_CORRECTED =
             "Lab report %1 was not updated.  Final report with Accession # %2 was sent after a corrected report was received.";
     public static final String PRELIMINARY_POST_FINAL =

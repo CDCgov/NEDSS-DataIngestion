@@ -206,13 +206,13 @@ public class ObservationRepositoryUtil {
             if (observationContainer.isItNew())
             {
                 //observation = home.create(observationContainer);
-                observationUid = createNewObservation(observationContainer);
+                observationUid = this.createNewObservation(observationContainer);
             }
             else
             {
                 if (observationContainer.getTheObservationDto() != null) // make sure it is not null
                 {
-                    updateObservation(observationContainer);
+                    this.updateObservation(observationContainer);
                     observationUid = observationContainer.getTheObservationDto().getObservationUid();
                 }
             }
@@ -339,8 +339,9 @@ public class ObservationRepositoryUtil {
 
         observationVO.setTheObservationDto(observationDto);
         observationVO.setItDirty(true);
-        saveObservation(observationVO);
+        this.saveObservation(observationVO);
     }
+    @SuppressWarnings("java:S3776")
 
     public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
 
