@@ -21,7 +21,6 @@ public class ProgAreaSnomeCodeStoredProcRepository {
     private EntityManager entityManager;
 
     public Map<String, Object> getSnomed(String code, String type, String clia) throws DataProcessingException {
-        EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         Map<String, Object> map = new HashMap<>();
         try {
 
@@ -58,7 +57,6 @@ public class ProgAreaSnomeCodeStoredProcRepository {
 
 
     public Map<String, Object> getProgAreaCd(String code, String type, String clia) throws DataProcessingException {
-        EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
         Map<String, Object> map = new HashMap<>();
         try {
 

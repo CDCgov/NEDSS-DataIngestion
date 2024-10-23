@@ -97,14 +97,14 @@ public class DataExtractionService implements IDataExtractionService {
             if(HL7PatientResultArray == null || HL7PatientResultArray.size() == 0){
                 edxLabInformationDto.setNoSubject(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-" + nbsInterfaceModel.getNbsInterfaceUid());
+                logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.NO_SUBJECT);
             }
             // ENSURE HL7 Patient Result Array only has 1 record
             else if(HL7PatientResultArray.size() > 1){
                 edxLabInformationDto.setMultipleSubject(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                logger.error("HL7CommonLabUtil.processELR error thrown as multiple patient segment is found.Please check message with NBS_INTERFACE_UID:-" + nbsInterfaceModel.getNbsInterfaceUid());
+                logger.error("HL7CommonLabUtil.processELR error thrown as multiple patient segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.MULTIPLE_SUBJECT);
             }
 
@@ -118,7 +118,7 @@ public class DataExtractionService implements IDataExtractionService {
 
             if(hl7OrderObservationArray==null || hl7OrderObservationArray.size() == 0){
                 edxLabInformationDto.setOrderTestNameMissing(true);
-                logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+                logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);
             }
 
@@ -140,7 +140,7 @@ public class DataExtractionService implements IDataExtractionService {
                 {
                     edxLabInformationDto.setOrderOBRWithParent(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is \"NOT NULL\" for the first OBR section.Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is \"NOT NULL\" for the first OBR section.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
                     throw new DataProcessingException(EdxELRConstant.ORDER_OBR_WITH_PARENT);
 
                 }
@@ -162,7 +162,7 @@ public class DataExtractionService implements IDataExtractionService {
                 {
 
                     edxLabInformationDto.setMultipleOBR(true);
-                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is null for the OBR "+(j+1)+".Please check message with NBS_INTERFACE_UID:-"+ nbsInterfaceModel.getNbsInterfaceUid());
+                    logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is null for the OBR "+(j+1)+".Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.MULTIPLE_OBR);
                 }
