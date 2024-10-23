@@ -201,10 +201,8 @@ public class CustomRepositoryImpl implements CustomRepository {
         if (resultValidCheck(results)) {
             for(var item : results) {
                 assocoiatedInvMap.put(item[0].toString(), item[1].toString());
-                if (sourceClassCd.equalsIgnoreCase(NEDSSConstant.CLASS_CD_OBS)) {
-                    if (dataNotNull(item[2])) {
-                        assocoiatedInvMap.put(item[0].toString() + "-" + item[1].toString(), item[2].toString());
-                    }
+                if (sourceClassCd.equalsIgnoreCase(NEDSSConstant.CLASS_CD_OBS) && dataNotNull(item[2])) {
+                    assocoiatedInvMap.put(item[0].toString() + "-" + item[1].toString(), item[2].toString());
                 }
             }
         }

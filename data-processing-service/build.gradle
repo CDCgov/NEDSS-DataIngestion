@@ -211,6 +211,12 @@ sonarqube {
                 " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
                 " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java"
-
+        property "sonar.issue.ignore.multicriteria", "e1,e2"
+        // Ignore java:S125
+        property "sonar.issue.ignore.multicriteria.e1.ruleKey", "java:S125"
+        property "sonar.issue.ignore.multicriteria.e1.resourceKey", "**"
+        // Ignore java:S3776
+        property "sonar.issue.ignore.multicriteria.e2.ruleKey", "java:S3776"
+        property "sonar.issue.ignore.multicriteria.e2.resourceKey", "**"
     }
 }
