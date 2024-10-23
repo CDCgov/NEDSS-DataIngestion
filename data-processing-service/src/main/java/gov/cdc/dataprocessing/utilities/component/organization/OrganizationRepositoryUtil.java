@@ -339,7 +339,8 @@ public class OrganizationRepositoryUtil {
         return organizationUID;
     }
     @SuppressWarnings("java:S3776")
-    private Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
+    @Transactional
+    public Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID;
         try {
             logger.debug("\n\n Inside set");
@@ -493,7 +494,8 @@ public class OrganizationRepositoryUtil {
         return ovo;
     }
 
-    private OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
+    @Transactional
+    public OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
         OrganizationDto organizationDto;
         /**
          * Selects organization from organization table

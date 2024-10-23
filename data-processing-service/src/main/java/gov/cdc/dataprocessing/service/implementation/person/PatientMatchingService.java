@@ -216,7 +216,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
                 //END REVISION
 
             } catch (Exception e) {
-                logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage());
+                logger.error("{}: {}", LOG_ERROR_ENTITY_PATIENT, e.getMessage(), e);
                 throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
             }
 

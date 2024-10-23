@@ -189,7 +189,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     /**
      * Returns the list of Fields that are required (and not filled) to Create Notification from PAM Cases
      */
-    @SuppressWarnings({"java:S3776", "java:S6541"})
+    @SuppressWarnings({"java:S3776", "java:S6541", "java:S1871"})
     protected Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
                                                                                   Map<Object, Object>  reqFields, String formCd) throws DataProcessingException {
 

@@ -136,7 +136,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
 
                 }
             } catch (Exception e) {
-                logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage());
+                logger.error("{}: {}", LOG_ERROR_ENTITY_PATIENT, e.getMessage(), e);
                 throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
             }
             personContainer.setPatientMatchedFound(false);
@@ -159,7 +159,7 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
 
 
         } catch (Exception e) {
-            logger.error(LOG_ERROR_ENTITY_PATIENT + e.getMessage());
+            logger.error("{}: {}", LOG_ERROR_ENTITY_PATIENT, e.getMessage(), e);
             throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
         }
         return edxPatientMatchFoundDT;

@@ -37,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil.REQUIRED;
+
 @Service
 public class DecisionSupportService implements IDecisionSupportService {
     private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
@@ -523,10 +525,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                 autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainer, pamProxyVO, personVOCollection, orderedTestObservationVO, entityMapCollection, questionIdentifierMap);
 
                 if (questionIdentifierMap != null
-                        && questionIdentifierMap.get(edxPhcrDocumentUtil.REQUIRED) != null)
+                        && questionIdentifierMap.get(REQUIRED) != null)
                 {
                     Map<Object, Object> nbsAnswerMap = pamVO.getPamAnswerDTMap();
-                    Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(edxPhcrDocumentUtil.REQUIRED);
+                    Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(REQUIRED);
                     String errorText = edxPhcrDocumentUtil.requiredFieldCheck(requireMap, nbsAnswerMap);
                     publicHealthCaseContainer.setErrorText(errorText);
                 }
