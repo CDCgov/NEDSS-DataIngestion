@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
-@SuppressWarnings("java:S1118")
 /**
  125 - Comment complaint
  3776 - Complex complaint
