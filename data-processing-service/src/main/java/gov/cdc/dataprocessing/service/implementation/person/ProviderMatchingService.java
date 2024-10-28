@@ -23,7 +23,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_MATCHING_PROVIDER;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ProviderMatchingService extends ProviderMatchingBaseService implements IProviderMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingService.class);
 
@@ -35,6 +48,9 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
+
+    @SuppressWarnings("java:S3776")
+
     @Transactional
     public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
@@ -58,13 +74,13 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                     edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-                    edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
+                    edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                     edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                     return edxActivityDetailLogDto;
                 }
             } catch (Exception ex) {
-                logger.error("Error in geting the  matching Provider");
-                throw new DataProcessingException("Error in geting the  matching Provider" + ex.getMessage(), ex);
+                logger.error(LOG_ERROR_MATCHING_PROVIDER);
+                throw new DataProcessingException(LOG_ERROR_MATCHING_PROVIDER + ex.getMessage(), ex);
             }
         }
 
@@ -100,13 +116,13 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                         edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
                         edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-                        edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
+                        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                         edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                         return edxActivityDetailLogDto;
                     }
                 } catch (Exception ex) {
-                    logger.error("Error in geting the  matching Provider");
-                    throw new DataProcessingException("Error in geting the  matching Provider" + ex.getMessage(), ex);
+                    logger.error(LOG_ERROR_MATCHING_PROVIDER);
+                    throw new DataProcessingException(LOG_ERROR_MATCHING_PROVIDER + ex.getMessage(), ex);
                 }
                 if (identifier != null) {
                     EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
@@ -140,13 +156,13 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                         edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
                         edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-                        edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
+                        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                         edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                         return edxActivityDetailLogDto;
                     }
                 } catch (Exception ex) {
-                    logger.error("Error in geting the  matching Provider");
-                    throw new DataProcessingException("Error in geting the  matching Provider" + ex.getMessage(), ex);
+                    logger.error(LOG_ERROR_MATCHING_PROVIDER);
+                    throw new DataProcessingException(LOG_ERROR_MATCHING_PROVIDER + ex.getMessage(), ex);
                 }
             }
         }
@@ -171,13 +187,13 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                     edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-                    edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
+                    edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                     edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
                     return edxActivityDetailLogDto;
                 }
             } catch (Exception ex) {
-                logger.error("Error in geting the  matching Provider");
-                throw new DataProcessingException("Error in geting the  matching Provider" + ex.getMessage(), ex);
+                logger.error(LOG_ERROR_MATCHING_PROVIDER);
+                throw new DataProcessingException(LOG_ERROR_MATCHING_PROVIDER + ex.getMessage(), ex);
             }
 
         }
@@ -243,7 +259,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         edxActivityDetailLogDto.setRecordId(String.valueOf(entityUid));
         edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_FAIL_NEW + edxActivityDetailLogDto.getRecordId());
         edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-        edxActivityDetailLogDto.setRecordName("PHCR_IMPORT");
+        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
         edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
         return edxActivityDetailLogDto;
     }

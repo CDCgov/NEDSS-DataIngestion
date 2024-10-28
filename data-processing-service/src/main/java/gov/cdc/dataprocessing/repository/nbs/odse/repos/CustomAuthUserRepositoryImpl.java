@@ -12,11 +12,21 @@ import java.util.Collection;
 import java.util.List;
 
 @Repository
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+ 1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class CustomAuthUserRepositoryImpl implements CustomAuthUserRepository {
     @PersistenceContext(unitName = "odse")
     private EntityManager entityManager;
 
-    private String SELECT_REALIZED_ROLES_FOR_USER_ID = "" +
+    private static final String SELECT_REALIZED_ROLES_FOR_USER_ID = "" +
             "SELECT PS.perm_set_nm \"permSetNm\" "
             +",SUR.auth_user_role_uid \"authUserRoleUid\" "
             +",SUR.auth_role_nm \"authRoleNm\" "
@@ -39,7 +49,7 @@ public class CustomAuthUserRepositoryImpl implements CustomAuthUserRepository {
             " and UPPER(SU.user_id) = UPPER(:userId)";
 
     public CustomAuthUserRepositoryImpl() {
-
+        // For Unit Test
     }
 
     public Collection<AuthUserRealizedRole> getAuthUserRealizedRole(String userId) {

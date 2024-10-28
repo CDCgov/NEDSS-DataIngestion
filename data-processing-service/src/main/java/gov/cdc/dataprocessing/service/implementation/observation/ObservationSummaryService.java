@@ -18,8 +18,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.ASSOCIATED_INV_QUERY;
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ObservationSummaryService implements IObservationSummaryService {
 
     private final Observation_SummaryRepository observationSummaryRepository;
@@ -61,7 +72,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             vals = customRepository.getLabParticipations(observationUID);
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return vals;
     }
@@ -76,7 +87,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
 
@@ -93,7 +104,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return orderProviderInfo;
@@ -108,7 +119,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return actIdDetails;
@@ -122,7 +133,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
            orgName = customRepository.getReportingFacilityName(organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return orgName;
     }
@@ -132,7 +143,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             specSource = customRepository.getSpecimanSource(materialUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return specSource;
     }
@@ -150,7 +161,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -167,7 +178,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         }catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -177,7 +188,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -188,7 +199,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
 
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return providerDataForPrintVO;
     }
@@ -262,7 +273,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = " AND " + dataAccessWhereClause;
+                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
 
             }
 
@@ -272,7 +283,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
         return assocoiatedInvMap;

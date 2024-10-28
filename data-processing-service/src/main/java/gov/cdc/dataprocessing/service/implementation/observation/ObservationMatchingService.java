@@ -21,7 +21,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_SENT_MESSAGE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ObservationMatchingService implements IObservationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(ObservationMatchingService.class);
 
@@ -33,6 +46,8 @@ public class ObservationMatchingService implements IObservationMatchingService {
         this.observationMatchStoredProcRepository = observationMatchStoredProcRepository;
         this.observationRepository = observationRepository;
     }
+
+    @SuppressWarnings("java:S3776")
 
     @Transactional
     public ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -93,7 +108,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
             }
             else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
@@ -101,7 +116,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 edxLabInformationDto.setPreliminaryPostFinal(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
             }
             else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
@@ -109,14 +124,14 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 edxLabInformationDto.setPreliminaryPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
             }
             else {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
             }
         }
 
@@ -124,6 +139,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         return null;
     }
 
+    @SuppressWarnings("java:S3776")
     public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
                                       LabResultProxyContainer matchedlabResultProxyVO,
                                       EdxLabInformationDto edxLabInformationDT) {

@@ -40,7 +40,19 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHC_PHYSICIAN;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class AutoInvestigationService implements IAutoInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
@@ -111,6 +123,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
     }
 
+    @SuppressWarnings("java:S3776")
     public Object transferValuesTOActProxyVO(PageActProxyContainer pageActProxyContainer, PamProxyContainer pamActProxyVO,
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
@@ -160,7 +173,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     participationDT.setSubjectClassCd(edxRuleManageDT.getParticipationClassCode());
                     if (participationDT.getTypeCd().equals("OrgAsReporterOfPHC")) {
                         isOrgAsReporterOfPHCPartDT = true;
-                    } else if (participationDT.getTypeCd().equals("PhysicianOfPHC")) {
+                    } else if (participationDT.getTypeCd().equals(PHC_PHYSICIAN)) {
                         isPhysicianOfPHCDT = true;
                     }
 
@@ -178,12 +191,12 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     }
                     if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
                         createActEntity = true;
-                        partDT.setTypeCd("PhysicianOfPHC");
+                        partDT.setTypeCd(PHC_PHYSICIAN);
                     }
                     //gst- ND-4326 Physician not getting populated..
                     if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
                         createActEntity = true;
-                        partDT.setTypeCd("PhysicianOfPHC");
+                        partDT.setTypeCd(PHC_PHYSICIAN);
                     }
                     //Transfer the ordering facility over if it is on the PageBuilder page
                     if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) &&
@@ -379,6 +392,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
+    @SuppressWarnings("java:S3776")
     private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyContainer pageActProxyContainer)
             throws Exception {
         try {
@@ -496,7 +510,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                 pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
             }
         } catch (Exception e) {
-            throw new Exception(e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 

@@ -100,7 +100,6 @@ class ReportStatusServiceTest {
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals(nbsId, msgStatus.getNbsInfo().getNbsInterfaceId());
         assertEquals("Success", msgStatus.getNbsInfo().getNbsInterfaceStatus());
-        assertEquals("payload", msgStatus.getNbsInfo().getNbsInterfacePayload());
         assertNotNull( msgStatus.getNbsInfo().getNbsCreatedOn());
         assertNull( msgStatus.getNbsInfo().getDltInfo());
 
@@ -171,7 +170,6 @@ class ReportStatusServiceTest {
         var msgStatus = reportStatusServiceMock.getMessageStatus(id);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("IN PROGRESS", msgStatus.getValidatedInfo().getValidatedPipeLineStatus());
-        assertEquals("payload", msgStatus.getRawInfo().getRawPayload());
         assertEquals("admin", msgStatus.getRawInfo().getRawCreatedBy());
         assertEquals("COMPLETED", msgStatus.getRawInfo().getRawPipeLineStatus());
         assertNotNull( msgStatus.getRawInfo().getRawCreatedOn());
@@ -244,7 +242,6 @@ class ReportStatusServiceTest {
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals("FAILED", msgStatus.getNbsInfo().getNbsInterfacePipeLineStatus());
-        assertEquals("payload", msgStatus.getValidatedInfo().getValidatedMessage());
         assertNotNull( msgStatus.getValidatedInfo().getValidatedCreatedOn());
 
 

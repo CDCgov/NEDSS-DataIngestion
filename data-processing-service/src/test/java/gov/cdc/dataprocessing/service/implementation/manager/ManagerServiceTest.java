@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -525,7 +526,7 @@ class ManagerServiceTest {
         var phcConn = new PublicHealthCaseContainer();
         var phcDt = new PublicHealthCaseDto();
         phcConn.setThePublicHealthCaseDto(phcDt);
-        phcConn.setErrorText("ERROR");
+        phcConn.setErrorText(ERROR);
         pageAct.setPublicHealthCaseContainer(phcConn);
         edxLabInfoDto.setPageActContainer(pageAct);
         edxLabInfoDto.setAction(DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE);
@@ -575,7 +576,7 @@ class ManagerServiceTest {
         var phcConn = new PublicHealthCaseContainer();
         var phcDt = new PublicHealthCaseDto();
         phcConn.setThePublicHealthCaseDto(phcDt);
-        phcConn.setErrorText("ERROR");
+        phcConn.setErrorText(ERROR);
         pageAct.setPublicHealthCaseContainer(phcConn);
         edxLabInfoDto.setPamContainer(pageAct);
         edxLabInfoDto.setInvestigationSuccessfullyCreated(true);

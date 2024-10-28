@@ -9,11 +9,24 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ConcurrentCheck {
 
 
     public ConcurrentCheck() {
+        // UNIT TEST
     }
+    @SuppressWarnings("java:S3776")
+
     public boolean dataConcurrenceCheck(RootDtoInterface theRootDTInterface, String tableName, Integer existingVersion) throws DataProcessingException
     {
 

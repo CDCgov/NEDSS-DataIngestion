@@ -13,7 +13,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class SrteCodeObsService implements ISrteCodeObsService {
     private boolean programAreaDerivationExcludeFlag = false; //NOSONAR
     private final ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
@@ -247,6 +259,8 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return Vector
      */
     // AK - 7/25/04
+    @SuppressWarnings("java:S3776")
+
     public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
         Vector<Object> snomedVector = new Vector<>();
         if (reportingLabCLIA == null)
@@ -275,7 +289,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                     // If local code and it is not excluded from PA Derivation, attempt to retrieve corresponding SNOMED code
                     if (!removePADerivationExcludedLabResultCodes(obsCode, reportingLabCLIA)) {
                         Map<String, Object> snomedList = getSnomed(codedDt.getCode(), ELRConstant.TYPE, reportingLabCLIA);
-                        if (snomedList.containsKey("COUNT") && (Integer) snomedList.get("COUNT") == 1) {
+                        if (snomedList.containsKey(SELECT_COUNT) && (Integer) snomedList.get(SELECT_COUNT) == 1) {
                             snomedVector.addElement(snomedList.get("LOINC"));
                         }
                     } else {
@@ -371,7 +385,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 // The above method returns the count of PAs found at
                 // index 1 and program area at index 0
                 // Return null if we got more than one PA
-                if (!progAreaCdList.containsKey("COUNT")) {
+                if (!progAreaCdList.containsKey(SELECT_COUNT)) {
                     return null;
                 }
                 String currentPAcode = (String) progAreaCdList.get("PROGRAM");
@@ -439,7 +453,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
 
             Map<String, Object> loincList =  progAreaSnomeCodeStoredProcRepository.getSnomed(obsCode, "LT", reportingLabCLIA);
-            if ( loincList.containsKey ("COUNT") && (Integer) loincList.get("COUNT") == 1)
+            if ( loincList.containsKey (SELECT_COUNT) && (Integer) loincList.get(SELECT_COUNT) == 1)
             {
                 loincVector.addElement(loincList.get("LOINC"));
             }
@@ -479,6 +493,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return progrAreaCd : String
      */
     // AK - 7/25/04
+    @SuppressWarnings("java:S3776")
     public String getPAFromLocalResultCode(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) {
         String lastProgAreaCd = null;
         String progAreaCd;

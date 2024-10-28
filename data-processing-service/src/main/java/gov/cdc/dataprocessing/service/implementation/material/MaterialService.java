@@ -37,6 +37,16 @@ import java.util.Iterator;
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class MaterialService implements IMaterialService {
     private final MaterialRepository materialRepository;
     private final EntityIdRepository entityIdRepository;
@@ -70,6 +80,8 @@ public class MaterialService implements IMaterialService {
         this.entityRepository = entityRepository;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
     }
+
+    @SuppressWarnings("java:S3776")
 
     public MaterialContainer loadMaterialObject(Long materialUid) {
         MaterialContainer materialContainer = new MaterialContainer();

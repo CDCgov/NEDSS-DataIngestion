@@ -33,6 +33,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ObservationRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRepositoryUtil.class); // NOSONAR
 
@@ -165,7 +175,7 @@ public class ObservationRepositoryUtil {
             obVO.setItDirty(false);
             return obVO;
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -206,13 +216,13 @@ public class ObservationRepositoryUtil {
             if (observationContainer.isItNew())
             {
                 //observation = home.create(observationContainer);
-                observationUid = createNewObservation(observationContainer);
+                observationUid = this.createNewObservation(observationContainer);
             }
             else
             {
                 if (observationContainer.getTheObservationDto() != null) // make sure it is not null
                 {
-                    updateObservation(observationContainer);
+                    this.updateObservation(observationContainer);
                     observationUid = observationContainer.getTheObservationDto().getObservationUid();
                 }
             }
@@ -339,8 +349,9 @@ public class ObservationRepositoryUtil {
 
         observationVO.setTheObservationDto(observationDto);
         observationVO.setItDirty(true);
-        saveObservation(observationVO);
+        this.saveObservation(observationVO);
     }
+    @SuppressWarnings("java:S3776")
 
     public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
 
@@ -496,7 +507,7 @@ public class ObservationRepositoryUtil {
             }
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
 
     }

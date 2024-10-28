@@ -18,8 +18,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
+import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.*;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ContactSummaryService implements IContactSummaryService {
 
     private final QueryHelper queryHelper;
@@ -44,6 +56,7 @@ public class ContactSummaryService implements IContactSummaryService {
         return coll;
     }
 
+    @SuppressWarnings("java:S5361")
     private Collection<Object> getPHCContactNamedByPatientSummDTColl(Long publicHealthCaseUID) {
         String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT,"VIEW", "");
 
@@ -51,9 +64,9 @@ public class ContactSummaryService implements IContactSummaryService {
             dataAccessWhereClause = "";
         }
         else {
-            dataAccessWhereClause = " AND " + dataAccessWhereClause;
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll("program_jurisdiction_oid", "CT_CONTACT.program_jurisdiction_oid");
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll("shared_ind", "CT_CONTACT.shared_ind_cd");
+            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+            dataAccessWhereClause = dataAccessWhereClause.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
+            dataAccessWhereClause = dataAccessWhereClause.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
         }
 
         String dataAccessWhereClause1 = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
@@ -62,9 +75,9 @@ public class ContactSummaryService implements IContactSummaryService {
             dataAccessWhereClause1 = "";
         }
         else {
-            dataAccessWhereClause1 = " AND " + dataAccessWhereClause1;
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("program_jurisdiction_oid", "contact.program_jurisdiction_oid");
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("shared_ind", "contact.shared_ind");
+            dataAccessWhereClause1 = AND_UPPERCASE + dataAccessWhereClause1;
+            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, "contact.program_jurisdiction_oid");
+            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, "contact.shared_ind");
         }
         Collection<Object>  PHCcTContactNameByPatientSummDTColl;
         String sql  =SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1 + dataAccessWhereClause1
@@ -73,24 +86,25 @@ public class ContactSummaryService implements IContactSummaryService {
         return PHCcTContactNameByPatientSummDTColl;
     }
 
+    @SuppressWarnings("java:S5361")
     private Collection<Object> getPHCPatientNamedAsContactSummDTColl(Long publicHealthCaseUID) throws DataProcessingException {
         String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
         if (dataAccessWhereClause == null) {
             dataAccessWhereClause = "";
         }
         else {
-            dataAccessWhereClause = " AND " + dataAccessWhereClause;
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll("program_jurisdiction_oid", "subject.program_jurisdiction_oid");
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll("shared_ind", "subject.shared_ind");
+            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+            dataAccessWhereClause = dataAccessWhereClause.replaceAll(PROGRAM_JUS_OID, "subject.program_jurisdiction_oid");
+            dataAccessWhereClause = dataAccessWhereClause.replaceAll(SHARED_IND, "subject.shared_ind");
         }
         String dataAccessWhereClause1 = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT, "VIEW", "");
         if (dataAccessWhereClause1 == null) {
             dataAccessWhereClause1 = "";
         }
         else {
-            dataAccessWhereClause1 = " AND " + dataAccessWhereClause1;
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("program_jurisdiction_oid", "CT_CONTACT.program_jurisdiction_oid");
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("shared_ind", "CT_CONTACT.shared_ind_cd");
+            dataAccessWhereClause1 = AND_UPPERCASE + dataAccessWhereClause1;
+            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
+            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
         }
         Collection<Object>  PHCcTContactNameByPatientSummDTColl;
         String sql  = SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION +publicHealthCaseUID
@@ -99,16 +113,16 @@ public class ContactSummaryService implements IContactSummaryService {
         return PHCcTContactNameByPatientSummDTColl;
     }
 
-
+    @SuppressWarnings("java:S5361")
     private Collection<Object> getPHCPatientOtherNamedAsContactSummDTColl(Long publicHealthCaseUID) throws DataProcessingException {
         String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
         if (dataAccessWhereClause == null) {
             dataAccessWhereClause = "";
         }
         else {
-            dataAccessWhereClause = " AND " + dataAccessWhereClause;
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll("program_jurisdiction_oid", "subject.program_jurisdiction_oid");
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll("shared_ind", "subject.shared_ind");
+            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+            dataAccessWhereClause = dataAccessWhereClause.replaceAll(PROGRAM_JUS_OID, "subject.program_jurisdiction_oid");
+            dataAccessWhereClause = dataAccessWhereClause.replaceAll(SHARED_IND, "subject.shared_ind");
         }
         String dataAccessWhereClause1 = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT, "VIEW", "");
 
@@ -116,9 +130,9 @@ public class ContactSummaryService implements IContactSummaryService {
             dataAccessWhereClause1 = "";
         }
         else {
-            dataAccessWhereClause1 = " AND " + dataAccessWhereClause1;
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("program_jurisdiction_oid", "CT_CONTACT.program_jurisdiction_oid");
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll("shared_ind", "CT_CONTACT.shared_ind_cd");
+            dataAccessWhereClause1 = AND_UPPERCASE + dataAccessWhereClause1;
+            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
+            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
         }
         Collection<Object>  PHCcTContactNameByPatientSummDTColl;
         String sql  =SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION + publicHealthCaseUID
@@ -154,8 +168,8 @@ public class ContactSummaryService implements IContactSummaryService {
                 for (Object o : contactNameColl) {
                     PersonNameDto personNameDT = new PersonNameDto( (PersonName) o);
                     if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                        String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
-                        String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                        String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
+                        String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
                         String personName = lastName + ", " + firstName;
                         cTContactSumyDT.setName(personName);
                         cTContactSumyDT.setContactName(personName);
@@ -175,8 +189,8 @@ public class ContactSummaryService implements IContactSummaryService {
                     for (PersonName name : ctOtherNameColl) {
                         PersonNameDto personNameDT = new PersonNameDto(name);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                            String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                            String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
+                            String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
                             String personName = lastName + ", " + firstName;
                             cTContactSumyDT.setOtherInfectedPatientName(personName);
                             break;
@@ -205,6 +219,7 @@ public class ContactSummaryService implements IContactSummaryService {
         return returnCTContactNameByPatientSummDTColl;
     }
 
+    @SuppressWarnings("java:S3776")
 
     private Collection<Object> getPatientNamedAsContactSummDTColl(String sql, boolean otherInfected) throws  DataProcessingException {
         ArrayList<CTContactSummaryDto>  ctNameByPatientSummDTColl;
@@ -238,8 +253,8 @@ public class ContactSummaryService implements IContactSummaryService {
                 for (PersonName name : subjectNameColl) {
                     PersonNameDto personNameDT = new PersonNameDto(name);
                     if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                        String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
-                        String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                        String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
+                        String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
                         String personName = lastName + ", " + firstName;
                         cTContactSumyDT.setNamedBy(personName);
                         cTContactSumyDT.setSubjectName(personName);
@@ -265,8 +280,8 @@ public class ContactSummaryService implements IContactSummaryService {
                     for (PersonName name : contactNameColl) {
                         PersonNameDto personNameDT = new PersonNameDto(name);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                            String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                            String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
+                            String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
                             String personName = lastName + ", " + firstName;
                             cTContactSumyDT.setContactName(personName);
                             break;
@@ -287,8 +302,8 @@ public class ContactSummaryService implements IContactSummaryService {
                     for (PersonName name : ctOtherNameColl) {
                         PersonNameDto personNameDT = new PersonNameDto(name);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                            String lastName = (personNameDT.getLastNm() == null) ? "No Last" : personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm() == null) ? "No First" : personNameDT.getFirstNm();
+                            String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
+                            String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
                             String personName = lastName + ", " + firstName;
                             cTContactSumyDT.setOtherInfectedPatientName(personName);
                             break;

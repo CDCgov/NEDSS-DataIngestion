@@ -31,7 +31,20 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
     private final IInvestigationService investigationService;
     private final INotificationService notificationService;
@@ -103,14 +116,14 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         return sendProxyToEJB(notProxyVO, pageObj);
     }
 
-
+    @SuppressWarnings("java:S3776")
     private EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)
     {
         HashMap<Object,Object> nndRequiredMap = new HashMap<>();
         EDXActivityDetailLogDto eDXActivityDetailLogDT = new EDXActivityDetailLogDto();
 
         eDXActivityDetailLogDT.setRecordType(EdxPHCRConstants.MSG_TYPE.Notification.name());
-        eDXActivityDetailLogDT.setRecordName("PHCR_IMPORT");
+        eDXActivityDetailLogDT.setRecordName(PHCR_IMPORT_SRT);
         eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success.name());
 
         try {
@@ -186,7 +199,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     /**
      * Returns the list of Fields that are required (and not filled) to Create Notification from PAM Cases
      */
-    @SuppressWarnings({"java:S3776", "java:S6541"})
+    @SuppressWarnings({"java:S3776", "java:S6541", "java:S1871"})
     protected Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
                                                                                   Map<Object, Object>  reqFields, String formCd) throws DataProcessingException {
 
@@ -353,14 +366,14 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             for (ActIdDto adt : actIdColl) {
                                 String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
                                 String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
-                                if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().contains("state"))) {
+                                if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().contains(STATE_STR))) {
                                     Map<Object, Object> methodMap = getMethods(adt.getClass());
                                     Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                     Object obj = method.invoke(adt, (Object[]) null);
                                     checkObject(obj, missingFields, metaData);
                                 } else if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD)
                                         && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                                        && (label.toLowerCase().contains("state"))) {
+                                        && (label.toLowerCase().contains(STATE_STR))) {
                                     Map<Object, Object> methodMap = getMethods(adt.getClass());
                                     Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                     Object obj = method.invoke(adt, (Object[]) null);
@@ -374,7 +387,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                                 }
                             }
                         } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                                && (label.toLowerCase().contains("state"))) {
+                                && (label.toLowerCase().contains(STATE_STR))) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
                     }
@@ -396,7 +409,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         if (missingFields.size() == 0)
@@ -438,7 +451,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
         }
     }
-
+    @SuppressWarnings("java:S3776")
     private PersonContainer getPersonVO(String type_cd, Collection<ParticipationDto> participationDTCollection,
                                         Collection<PersonContainer> personVOCollection)  {
         ParticipationDto participationDT;

@@ -32,6 +32,16 @@ import java.util.List;
 import static gov.cdc.dataprocessing.cache.SrteCache.findRecordForElrXrefsList;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class HL7PatientHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7PatientHandler.class);
 
@@ -77,7 +87,7 @@ public class HL7PatientHandler {
             }
         return labResultProxyContainer;
     }
-
+    @SuppressWarnings("java:S3776")
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,
                                               EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -370,6 +380,7 @@ public class HL7PatientHandler {
      *  - Person Object
      *  - Role Object (part of Lab Result, this is a list)
      * */
+    @SuppressWarnings("java:S3776")
     public PersonContainer parseToPersonObject(LabResultProxyContainer labResultProxyContainer,
                                                       EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         PersonContainer personContainer = new PersonContainer();

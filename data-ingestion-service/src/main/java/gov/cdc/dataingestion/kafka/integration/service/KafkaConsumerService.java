@@ -78,12 +78,6 @@ public class KafkaConsumerService {
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
-    @Value("${kafka.raw.xml-topic}")
-    private String rawXmlTopicName = "elr_raw_xml";
-
-    @Value("${kafka.elr-duplicate.topic}")
-    private String validatedElrDuplicateTopic = "";
-
     @Value("${kafka.xml-conversion-prep.topic}")
     private String prepXmlTopic = "xml_prep";
 

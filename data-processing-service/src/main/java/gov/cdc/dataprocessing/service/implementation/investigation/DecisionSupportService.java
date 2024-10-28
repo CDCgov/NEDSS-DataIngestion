@@ -5,7 +5,6 @@ import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dsma_algorithm.*;
@@ -37,7 +36,19 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil.REQUIRED;
+
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class DecisionSupportService implements IDecisionSupportService {
     private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
 
@@ -67,6 +78,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
     final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
 
+    @SuppressWarnings("java:S3776")
     @Transactional
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
@@ -174,12 +186,10 @@ public class DecisionSupportService implements IDecisionSupportService {
         boolean elrAlgorithmsPresent;
         // Validating existing WDS Algorithm
         try {
-            List<WdsReport> wdsReportList = new ArrayList<>();
             WdsReport report = new WdsReport();
             Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
             if (algorithmCollection == null || algorithmCollection.isEmpty())  {
                 //no algorithms defined
-                elrAlgorithmsPresent = false;
                 report.setAlgorithmMatched(false);
                 report.setMessage("No WDS Algorithm found");
                 edxLabInformationDT.getWdsReports().add(report);
@@ -318,11 +328,9 @@ public class DecisionSupportService implements IDecisionSupportService {
                         && algorithmDocument.getAction().getMarkAsReviewed() == null
         )
                 || (
-                (
-                        algorithmDocument.getAction() != null
-                                && algorithmDocument.getAction().getMarkAsReviewed() != null
-                                && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
-                )
+                    algorithmDocument.getAction() != null
+                            && algorithmDocument.getAction().getMarkAsReviewed() != null
+                            && !algorithmDocument.getAction().getMarkAsReviewed().getOnFailureToMarkAsReviewed().getCode().equals("2")
         );
     }
     /**
@@ -508,7 +516,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                 if (edxRuleManageDT.getParticipationTypeCode() == null
                                         || edxRuleManageDT.getParticipationUid() == null
                                         || edxRuleManageDT.getParticipationClassCode() == null) {
-                                    throw new Exception("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
+                                    throw new DataProcessingException("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
                                 }
                             }
                         } catch (Exception e) {
@@ -522,10 +530,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                 autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainer, pamProxyVO, personVOCollection, orderedTestObservationVO, entityMapCollection, questionIdentifierMap);
 
                 if (questionIdentifierMap != null
-                        && questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED) != null)
+                        && questionIdentifierMap.get(REQUIRED) != null)
                 {
                     Map<Object, Object> nbsAnswerMap = pamVO.getPamAnswerDTMap();
-                    Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(edxPhcrDocumentUtil._REQUIRED);
+                    Map<Object, Object> requireMap = (Map<Object, Object>) questionIdentifierMap.get(REQUIRED);
                     String errorText = edxPhcrDocumentUtil.requiredFieldCheck(requireMap, nbsAnswerMap);
                     publicHealthCaseContainer.setErrorText(errorText);
                 }
