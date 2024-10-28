@@ -8,8 +8,9 @@ package gov.cdc.dataprocessing.constant;
  1141 - Nested complaint
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class EdxPHCRConstants {
 
     public static final String SUM_MSG_INVESTIGATION_FAIL = "Error creating investigation.  See Activity Details.";

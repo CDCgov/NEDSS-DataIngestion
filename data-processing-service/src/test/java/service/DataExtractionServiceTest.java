@@ -7,7 +7,7 @@
 // 1141 - Nested complaint
 // 6809 - TEST
 
-//VOIDED @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186"})
+//VOIDED @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 //VOIDED public class DataExtractionServiceTest {
 //
 //    @InjectMocks
