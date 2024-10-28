@@ -2,8 +2,10 @@ package gov.cdc.dataingestion.nbs.converter;
 
 /**
  1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
  * */
-@SuppressWarnings({"java:S1118",""})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 public class TestData {
     public static String randomGenerated251WithDataInAllFieldV1 = "MSH|^~\\&|SendingApp|SendingFac|ReceivApp|ReceivFac|20230615120000|20230615|ORU^R01^ORU_R01|123456789|P|2.5.1|20230615|20230615|20230615|20230615|20230615|20230615|20230615|20230615|20230615\r" +
             "SFT|20230615|20230615|20230615|20230615|20230615|20230615\r" +

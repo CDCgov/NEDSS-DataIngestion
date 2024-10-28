@@ -5,7 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 class ControllerExceptionHandlerTest {
     private ControllerExceptionHandler handler;
     private Exception exception;

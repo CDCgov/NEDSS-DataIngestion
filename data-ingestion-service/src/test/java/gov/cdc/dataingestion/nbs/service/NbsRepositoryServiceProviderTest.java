@@ -24,7 +24,12 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 class NbsRepositoryServiceProviderTest {
     @Mock
     private NbsInterfaceRepository nbsInterfaceRepo;

@@ -8,7 +8,12 @@ import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2V
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 class HL7v2ValidatorTests
 {
     private IHL7v2Validator target;

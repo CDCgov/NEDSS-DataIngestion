@@ -28,8 +28,10 @@ import java.util.Map;
 @Tag(name = "ELR Status", description = "ELR Status API")
 /**
  1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
  * */
-@SuppressWarnings({"java:S1118",""})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 public class ReportStatusController {
     private static Logger logger = LoggerFactory.getLogger(ReportStatusController.class);
 

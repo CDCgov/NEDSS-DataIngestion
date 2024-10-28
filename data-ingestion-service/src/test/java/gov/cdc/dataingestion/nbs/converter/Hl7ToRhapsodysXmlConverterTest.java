@@ -32,7 +32,12 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 class Hl7ToRhapsodysXmlConverterTest {
     Hl7ToRhapsodysXmlConverter target = new Hl7ToRhapsodysXmlConverter();
     HL7Helper hl7Helper = new HL7Helper();

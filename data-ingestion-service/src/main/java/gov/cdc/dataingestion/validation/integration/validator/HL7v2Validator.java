@@ -9,8 +9,10 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 
 /**
  1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
  * */
-@SuppressWarnings({"java:S1118",""})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 public class HL7v2Validator implements IHL7v2Validator {
     private final HL7Helper hl7Helper;
     public HL7v2Validator(HL7Helper hl7Helper) {

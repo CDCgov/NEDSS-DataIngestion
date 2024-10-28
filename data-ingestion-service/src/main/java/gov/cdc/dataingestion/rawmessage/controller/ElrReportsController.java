@@ -31,8 +31,10 @@ import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
 @Tag(name = "ELR Ingestion", description = "ELR Ingestion API")
 /**
  1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
  * */
-@SuppressWarnings({"java:S1118",""})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
 public class ElrReportsController {
 
     private final RawELRService rawELRService;
@@ -49,6 +51,7 @@ public class ElrReportsController {
     }
 
 
+    @SuppressWarnings("java:S1871")
     @Operation(
             summary = "Submit a plain text or XML converted HL7 message",
             description = "Submit a plain text or XML converted HL7 message with msgType header",
