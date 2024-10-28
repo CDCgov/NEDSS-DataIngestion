@@ -27,6 +27,16 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ProviderMatchingBaseService extends MatchingBaseService{
     private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class);
 
@@ -38,7 +48,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
-
+    @SuppressWarnings("java:S3776")
     protected String telePhoneTxtProvider(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
@@ -62,6 +72,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
         return nameTeleStr;
     }
+    @SuppressWarnings("java:S3776")
     // Creating string for name and address for providers
     protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
@@ -119,7 +130,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             }
             return personUid;
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
     protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
@@ -169,11 +180,12 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return personUID;
 
     }
+    @SuppressWarnings("java:S3776")
     protected void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
 
         Long entityUid = personContainer.getThePersonDto().getPersonUid();

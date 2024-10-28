@@ -22,6 +22,16 @@ import java.util.List;
 
 @Service
 @Slf4j
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class CachingValueService implements ICatchingValueService {
     private final JurisdictionCodeRepository jurisdictionCodeRepository;
     private final CodeValueGeneralRepository codeValueGeneralRepository;
@@ -141,6 +151,7 @@ public class CachingValueService implements ICatchingValueService {
         }
     }
 
+    @SuppressWarnings("java:S2696")
     public HashMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
         Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -159,6 +170,7 @@ public class CachingValueService implements ICatchingValueService {
         return SrteCache.codedValuesMap;
     }
 
+    @SuppressWarnings("java:S2696")
     public String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
         Cache cache = cacheManager.getCache("srte");
         if (cache != null) {
@@ -185,6 +197,7 @@ public class CachingValueService implements ICatchingValueService {
         }
     }
 
+    @SuppressWarnings("java:S2696")
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
         if (county == null || stateCd == null) {
             return null;

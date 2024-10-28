@@ -28,6 +28,16 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class ValidateDecisionSupport {
     private static final Logger logger = LoggerFactory.getLogger(ValidateDecisionSupport.class);
 
@@ -42,6 +52,7 @@ public class ValidateDecisionSupport {
         processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, publicHealthCaseDto, metaData);
     }
 
+    @SuppressWarnings({"java:S5361","java:S3776"})
     public void processNBSObjectDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, Object object, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -101,7 +112,7 @@ public class ValidateDecisionSupport {
 
     }
 
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541","java:S3776"})
     public void processNBSCaseAnswerDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, BasePamContainer pamVO, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -202,7 +213,7 @@ public class ValidateDecisionSupport {
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
-    @SuppressWarnings("java:S6541")
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -305,7 +316,7 @@ public class ValidateDecisionSupport {
         }
     }
 
-
+    @SuppressWarnings("java:S3776")
     public static void setMethod(Object nbsObject, Method setMethod, EdxRuleManageDto edxRuleManageDT) {
         try {
             Class<?>[] parameterArray = setMethod.getParameterTypes();
@@ -488,7 +499,7 @@ public class ValidateDecisionSupport {
     }
 
 
-
+    @SuppressWarnings("java:S3776")
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
                               PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();

@@ -38,6 +38,16 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class PublicHealthCaseRepositoryUtil {
     private final PublicHealthCaseRepository publicHealthCaseRepository;
     private final EntityGroupRepository entityGroupRepository;
@@ -222,7 +232,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
             }
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -305,7 +315,7 @@ public class PublicHealthCaseRepositoryUtil {
             }
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -525,7 +535,7 @@ public class PublicHealthCaseRepositoryUtil {
             Collection<NbsActEntityDto>  pamCaseEntityDTCollection= getActEntityDTCollection(publicHealthCaseUID);
             pamVO.setActEntityDTCollection(pamCaseEntityDTCollection);
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return pamVO;
     }
@@ -542,6 +552,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         return lst;
     }
+    @SuppressWarnings("java:S3776")
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
         NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
         ArrayList<Object> PamAnswerDTCollection;
@@ -625,7 +636,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         catch (Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage());
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         nbsReturnAnswerMap.put(NEDSSConstant.NON_REPEATING_QUESTION, nbsAnswerMap);
         nbsReturnAnswerMap.put(NEDSSConstant.REPEATING_QUESTION, nbsRepeatingAnswerMap);

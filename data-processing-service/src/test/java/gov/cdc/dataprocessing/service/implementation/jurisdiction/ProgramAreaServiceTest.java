@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -260,7 +261,7 @@ class ProgramAreaServiceTest {
 
         HashMap<Object, Object> paResults=new HashMap<>();
         paResults.put(ELRConstant.PROGRAM_AREA_HASHMAP_KEY, "TEST_PA");
-        paResults.put("ERROR", "ERROR_PA");
+        paResults.put(ERROR, "ERROR_PA");
 
         when(srteCodeObsService.getProgramArea(any(), any(), any())).thenReturn(paResults);
 

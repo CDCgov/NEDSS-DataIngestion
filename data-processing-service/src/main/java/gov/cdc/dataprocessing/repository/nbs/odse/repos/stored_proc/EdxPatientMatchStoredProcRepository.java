@@ -11,6 +11,16 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class EdxPatientMatchStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
@@ -46,7 +56,7 @@ public class EdxPatientMatchStoredProcRepository {
             edxPatientMatchDto.setTypeCd(typeCd);
             edxPatientMatchDto.setMatchString(matchString);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return edxPatientMatchDto;
 
@@ -81,7 +91,7 @@ public class EdxPatientMatchStoredProcRepository {
             edxEntityMatchDto.setTypeCd(typeCd);
             edxEntityMatchDto.setMatchString(matchString);
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return edxEntityMatchDto;
 

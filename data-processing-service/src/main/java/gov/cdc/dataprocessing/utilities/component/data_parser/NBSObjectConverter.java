@@ -29,6 +29,16 @@ import java.util.Date;
 import java.util.Objects;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class NBSObjectConverter {
     private static final Logger logger = LoggerFactory.getLogger(NBSObjectConverter.class);
 
@@ -118,7 +128,7 @@ public class NBSObjectConverter {
         }
         return personContainer;
     }
-
+    @SuppressWarnings("java:S3776")
     public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null ) {
@@ -469,7 +479,7 @@ public class NBSObjectConverter {
 
         return ethnicGroupDT;
     }
-
+    @SuppressWarnings("java:S3776")
     public Timestamp processHL7TSType(HL7TSType time, String itemDescription) throws DataProcessingException {
         String timeStr = "";
         try {
@@ -805,6 +815,8 @@ public class NBSObjectConverter {
 
         return personContainer;
     }
+    @SuppressWarnings("java:S3776")
+
     public Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";
         try {

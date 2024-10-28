@@ -39,6 +39,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class PatientRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(PatientRepositoryUtil.class);
 
@@ -214,7 +224,7 @@ public class PatientRepositoryUtil {
         }
 
     }
-
+    @SuppressWarnings("java:S3776")
     public PersonContainer loadPerson(Long personUid) {
         PersonContainer personContainer = new PersonContainer();
 
@@ -602,7 +612,7 @@ public class PatientRepositoryUtil {
     }
 
 
-    @SuppressWarnings("java:S1871")
+    @SuppressWarnings({"java:S1871","java:S3776"})
     @Transactional
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         try {

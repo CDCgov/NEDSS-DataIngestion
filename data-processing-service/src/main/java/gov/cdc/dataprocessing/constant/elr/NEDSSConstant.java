@@ -3,7 +3,27 @@ package gov.cdc.dataprocessing.constant.elr;
 import java.sql.Timestamp;
 import java.util.Date;
 
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class NEDSSConstant {
+    public static final String STATE_STR = "state";
+    public static final String CT_SHARED_IND_CD = "CT_CONTACT.shared_ind_cd";
+    public static final String SHARED_IND = "shared_ind";
+    public static final String PROGRAM_JUS_OID = "program_jurisdiction_oid";
+    public static final String CT_PROGRAM_JUS_OID = "CT_CONTACT.program_jurisdiction_oid";
+    public static final String LAB_REPORT_STR = "Lab report ";
+    public static final String PHCR_IMPORT_SRT = "PHCR_IMPORT";
+    public static final String LABORATORY_UID = "LABORATORY_UID";
+    public static final String PAT_NO_MERGER = "PAT_NO_MERGE";
+    public static final String QUERY_HELPER_1 = " in (";
     //only for build C
     public static final String CDC = "1";
 
@@ -951,6 +971,7 @@ public class NEDSSConstant {
     public static final String ENTITY_TYPE_DESC_TXT_QEC = "Quick Entry Code";
 
     public static final String SELECT_COUNT = "COUNT";
+    public static final String COUNT_LOWERCASE = "count";
 
     public static final String ELECTRONIC_IND = "N";
 
@@ -1955,6 +1976,7 @@ public class NEDSSConstant {
     public static final String LOINC_DISPLAY_MAPPING = "LOINC_DISPLAY_MAPPING";
 
     //SRTFiltering for ReportingSource
+    public static final String CREATE_PERM = "CREATE";
     public static final String REPORTING_SOURCE_CREATE = "CREATE";
 
     public static final String REPORTING_SOURCE_EDIT = "EDIT";

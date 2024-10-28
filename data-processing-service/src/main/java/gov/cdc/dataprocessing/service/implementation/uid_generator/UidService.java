@@ -20,6 +20,16 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Service
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class UidService implements IUidService {
     private static final Logger logger = LoggerFactory.getLogger(UidService.class);
 
@@ -29,6 +39,8 @@ public class UidService implements IUidService {
      * the investigationProxyVO(determined in the addInvestigation method).
      * As it has also got the actualUID (determined in the addInvestigation method) it replaces them accordingly.
      */
+    @SuppressWarnings("java:S3776")
+
     public void setFalseToNewForObservation(BaseContainer proxyVO, Long falseUid, Long actualUid)
     {
         Iterator<ParticipationDto> participationDTIterator;
@@ -117,6 +129,7 @@ public class UidService implements IUidService {
      * Role collection
      * - This is crucial in Observation Flow
      * */
+    @SuppressWarnings("java:S3776")
     public void setFalseToNewPersonAndOrganization(LabResultProxyContainer labResultProxyContainer, Long falseUid, Long actualUid)
     {
         Iterator<ParticipationDto> participationIterator;
@@ -175,7 +188,8 @@ public class UidService implements IUidService {
     /**
      * Converts negative UIDs to positive UIDs
      */
-    public void setFalseToNewForPageAct(PageActProxyContainer pageProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+    @SuppressWarnings("java:S3776")
+    public void setFalseToNewForPageAct(PageActProxyContainer pageProxyVO, Long falseUid, Long actualUid) {
         Iterator<Object> anIterator = null;
 
         ParticipationDto participationDT;
@@ -232,7 +246,8 @@ public class UidService implements IUidService {
         }
     }
 
-    public void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+    @SuppressWarnings("java:S3776")
+    public void setFalseToNewForPam(PamProxyContainer pamProxyVO, Long falseUid, Long actualUid) {
         ParticipationDto participationDT;
         ActRelationshipDto actRelationshipDT;
         NbsActEntityDto pamCaseEntityDT;

@@ -9,7 +9,20 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PROGRAM_JUS_OID;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.QUERY_HELPER_1;
+
 @Component
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+  1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public class QueryHelper {
 
     private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
@@ -40,7 +53,7 @@ public class QueryHelper {
 
 //        if (paSecured && jSecured)
 //        {
-            columnName = "program_jurisdiction_oid";
+            columnName = PROGRAM_JUS_OID;
             ownerList = getHashedPAJList(businessObjLookupName, operation, false);
             guestList = getHashedPAJList(businessObjLookupName, operation, true);
             whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
@@ -148,11 +161,11 @@ public class QueryHelper {
         if (ownerList != null && ownerList.trim().length() != 0) {
 
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseOwner = "(" + columnName + " in (" + ownerList +
+                whereClauseOwner = "(" + columnName + QUERY_HELPER_1 + ownerList +
                         "))";
             }
             else {
-                whereClauseOwner = "(" + alias + "." + columnName + " in (" +
+                whereClauseOwner = "(" + alias + "." + columnName + QUERY_HELPER_1 +
                         ownerList + "))";
             }
         }
@@ -172,14 +185,14 @@ public class QueryHelper {
 
         if (guestList != null && guestList.trim().length() != 0) {
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseGuest = "(("+ columnName + " in (" + guestList +
+                whereClauseGuest = "(("+ columnName + QUERY_HELPER_1 + guestList +
                         ")) and  shared_ind = '" +
                         "T" +
                         "')";
             }
             else {
                 whereClauseGuest = "((" + alias + "." + columnName +
-                        " in (" + guestList +
+                        QUERY_HELPER_1 + guestList +
                         ")) and " + alias + ".shared_ind = '" +
                         "T" +
                         "')";
