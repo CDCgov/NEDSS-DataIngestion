@@ -42,8 +42,9 @@ import java.util.regex.Pattern;
  1118 - require constructor complaint
  125 - comment complaint
  6126 - String block complaint
+ 1135 - todos complaint
  * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class Hl7ToRhapsodysXmlConverter {
     private static final Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
     private static final Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();
@@ -2304,7 +2305,7 @@ public class Hl7ToRhapsodysXmlConverter {
             } else
             {
                 while (subStrTimeZone.length() < 5) {
-                    subStrTimeZone += "0";
+                    subStrTimeZone += "0"; //NOSONAR
                 }
             }
             ts = appendingTimeStamp(subStr) + subStrTimeZone;

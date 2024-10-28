@@ -59,8 +59,9 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
  1118 - require constructor complaint
  125 - comment complaint
  6126 - String block complaint
+ 1135 - todos complaint
  * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class KafkaConsumerService {
 
     //region VARIABLE
@@ -593,7 +594,7 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:
-                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment
+                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment //NOSONAR
                 break;
             default:
                 break;

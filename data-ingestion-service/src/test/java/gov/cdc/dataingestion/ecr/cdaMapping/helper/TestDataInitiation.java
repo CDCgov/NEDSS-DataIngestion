@@ -13,8 +13,9 @@ import java.io.Reader;
  1118 - require constructor complaint
  125 - comment complaint
  6126 - String block complaint
+ 1135 - todos complaint
  * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126"})
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class TestDataInitiation {
     private static EcrSelectedRecord initTestData(EcrSelectedRecord ecrObject) throws EcrCdaXmlException {
         for(int i = 0; i < ecrObject.getMsgCases().get(0).getMsgCaseAnswers().size(); i++) {
