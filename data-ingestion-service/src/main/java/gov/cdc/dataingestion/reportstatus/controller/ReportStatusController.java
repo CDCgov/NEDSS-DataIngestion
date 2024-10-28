@@ -63,8 +63,6 @@ public class ReportStatusController {
         // Sanitize elrId (ensure it's alphanumeric or whatever format you expect)
         String sanitizedElrId = StringUtils.replaceChars(elrId, "[]{}()", "");
 
-        logger.debug("Status requested for record with id: '{}'", sanitizedElrId);
-
         if(sanitizedElrId == null || sanitizedElrId.isEmpty() || !isValidUUID(sanitizedElrId)) {
             logger.error("Invalid 'UUID' parameter provided.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid 'UUID' parameter provided.");
