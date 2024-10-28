@@ -71,7 +71,7 @@ public class NbsDocumentRepositoryUtil {
     }
 
 
-    public Long updateDocumentWithOutthePatient(NbsDocumentContainer nbsDocVO) throws Exception {
+    public Long updateDocumentWithOutthePatient(NbsDocumentContainer nbsDocVO) throws DataProcessingException {
         Long nbsDocUid = null;
 
         try {

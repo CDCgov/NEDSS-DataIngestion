@@ -10,6 +10,16 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
+/**
+ 125 - Comment complaint
+ 3776 - Complex complaint
+ 6204 - Forcing convert to stream to list complaint
+ 1141 - Nested complaint
+ 1118 - Private constructor complaint
+ 1186 - Add nested comment for empty constructor complaint
+ 6809 - Calling transactional method with This. complaint
+ */
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
 public interface NbsCaseAnswerRepository  extends JpaRepository<NbsCaseAnswer, Long> {
 
 //    private final String SELECT_NBS_ANSWER_COLLECTION = "SELECT nbs_case_answer_uid \"nbsCaseAnswerUid\", seq_nbr \"seqNbr\", add_time \"addTime\", add_user_id \"addUserId\", answer_txt \"answerTxt\", last_chg_time \"lastChgTime\", last_chg_user_id \"lastChgUserId\", nbs_question_uid \"nbsQuestionUid\", act_uid \"actUid\", nbs_question_version_ctrl_nbr \"nbsQuestionVersionCtrlNbr\", answer_large_txt \"answerLargeTxt\",nbs_table_metadata_uid \"nbsTableMetadataUid\", answer_group_seq_nbr \"answerGroupSeqNbr\" FROM "

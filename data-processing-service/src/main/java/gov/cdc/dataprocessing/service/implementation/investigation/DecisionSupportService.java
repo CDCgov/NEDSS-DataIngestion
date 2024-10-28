@@ -574,7 +574,7 @@ public class DecisionSupportService implements IDecisionSupportService {
 
 
     private Algorithm parseAlgorithmXml(String xmlPayLoadContent)
-            throws Exception {
+            throws DataProcessingException {
         Algorithm algorithmDocument;
         try {
 
@@ -594,7 +594,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action in available
      * */
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "javaS3740"})
     protected boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,
                                                      EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
@@ -672,7 +672,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                         }
                     }
                 }else{
-                    isdateLogicValidForNewInv= true;
+                    isdateLogicValidForNewInv= true; //NOSONAR
                 }
             }
         }
@@ -692,6 +692,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         return isdateLogicValidForNewInv;
     }
 
+    @SuppressWarnings("java:S1871")
     protected boolean specimenDateTimeCheck(String comparatorCode, int daysDifference,
                                             int value, boolean isdateLogicValidWithThisInv) {
         if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
@@ -855,7 +856,7 @@ public class DecisionSupportService implements IDecisionSupportService {
             }
             else if (actionType.getDeleteDocument() != null)
             {
-                DeleteDocumentType specificActionType = actionType.getDeleteDocument();
+                DeleteDocumentType specificActionType = actionType.getDeleteDocument(); //NOSONAR
             }
 
             if (applicationMap.size() > 0)

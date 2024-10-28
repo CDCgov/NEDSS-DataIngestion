@@ -394,7 +394,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
     @SuppressWarnings("java:S3776")
     private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyContainer pageActProxyContainer)
-            throws Exception {
+            throws DataProcessingException {
         try {
             PublicHealthCaseDto phcDT = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
             var res = conditionCodeRepository.findProgramAreaConditionCode(

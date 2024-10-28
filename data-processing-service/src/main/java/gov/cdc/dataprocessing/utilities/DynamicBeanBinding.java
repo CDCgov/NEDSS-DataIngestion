@@ -30,7 +30,7 @@ public class DynamicBeanBinding {
      * returns
      */
     public static void populateBean(Object bean, String colNm, String colVal)
-            throws Exception {
+            throws DataProcessingException {
 
         try {
 
@@ -90,7 +90,7 @@ public class DynamicBeanBinding {
         }
     }
 
-    private static String getSetterName(String columnName) throws Exception {
+    private static String getSetterName(String columnName) throws DataProcessingException {
         try {
             StringBuilder sb = new StringBuilder("set");
             StringTokenizer st = new StringTokenizer(columnName, "_");
@@ -109,7 +109,7 @@ public class DynamicBeanBinding {
 
     @SuppressWarnings("unchecked")
     private static Map<Object, Object> getMethods(Class<?> beanClass)
-            throws Exception {
+            throws DataProcessingException {
         try {
             if (beanMethodMap.get(beanClass) == null) {
                 Method[] gettingMethods = beanClass.getMethods();

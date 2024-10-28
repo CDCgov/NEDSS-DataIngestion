@@ -97,7 +97,7 @@ class NbsDocumentRepositoryUtilTest {
     }
 
     @Test
-    void updateDocumentWithOutthePatient_Test() throws Exception {
+    void updateDocumentWithOutthePatient_Test() throws DataProcessingException {
         NbsDocumentContainer doc = new NbsDocumentContainer();
         doc.getNbsDocumentDT().setNbsDocumentMetadataUid(10L);
         doc.getNbsDocumentDT().setRecordStatusCd( NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE);

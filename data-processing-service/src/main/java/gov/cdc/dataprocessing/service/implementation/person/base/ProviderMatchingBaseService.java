@@ -186,7 +186,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
     }
     @SuppressWarnings("java:S3776")
-    protected void setProvidertoEntityMatch(PersonContainer personContainer) throws Exception {
+    protected void setProvidertoEntityMatch(PersonContainer personContainer) throws DataProcessingException {
 
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
         String identifier ;

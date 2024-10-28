@@ -162,7 +162,7 @@ public class LookupService implements ILookupService {
     }
 
     @SuppressWarnings("java:S3776")
-    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws Exception {
+    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
@@ -353,7 +353,7 @@ public class LookupService implements ILookupService {
 
 
     @SuppressWarnings("java:S3776")
-    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
+    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws DataProcessingException{
         TreeMap<Object, Object> qCodeMap = new TreeMap<>();
         int count =0;
         int loopcount=0;
