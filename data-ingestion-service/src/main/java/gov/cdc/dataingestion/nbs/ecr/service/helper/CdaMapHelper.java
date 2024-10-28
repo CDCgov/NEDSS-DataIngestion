@@ -28,6 +28,10 @@ import java.util.Map;
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforePipe;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaMapHelper implements ICdaMapHelper {
 
     private final ICdaLookUpService ecrLookUpService;

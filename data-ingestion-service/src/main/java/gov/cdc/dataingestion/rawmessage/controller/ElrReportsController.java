@@ -29,6 +29,10 @@ import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ELR Ingestion", description = "ELR Ingestion API")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ElrReportsController {
 
     private final RawELRService rawELRService;

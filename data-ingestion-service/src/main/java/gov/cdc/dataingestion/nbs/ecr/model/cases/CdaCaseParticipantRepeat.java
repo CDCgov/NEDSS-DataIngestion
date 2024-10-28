@@ -7,6 +7,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaCaseParticipantRepeat extends  CdaCaseParticipant{
     int repeatComponentCounter;
     int answerGroupCounter;

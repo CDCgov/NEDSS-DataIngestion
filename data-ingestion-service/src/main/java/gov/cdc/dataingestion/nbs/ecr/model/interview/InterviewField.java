@@ -8,6 +8,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class InterviewField {
     POCDMT000040Component3 out;
     int entryCounter;

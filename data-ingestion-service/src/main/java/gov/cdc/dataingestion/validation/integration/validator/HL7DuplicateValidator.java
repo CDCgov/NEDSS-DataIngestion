@@ -16,6 +16,10 @@ import java.util.Optional;
 
 @Component
 @Slf4j
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class HL7DuplicateValidator implements IHL7DuplicateValidator {
 
     private final IValidatedELRRepository iValidatedELRRepository;

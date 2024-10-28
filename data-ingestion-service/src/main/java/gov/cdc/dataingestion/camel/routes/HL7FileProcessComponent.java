@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class HL7FileProcessComponent {
     private static Logger logger = LoggerFactory.getLogger(HL7FileProcessComponent.class);
     String msgType = "HL7";

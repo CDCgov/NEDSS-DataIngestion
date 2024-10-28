@@ -27,6 +27,10 @@ import java.util.HashMap;
                 "gov.cdc.dataingestion.nbs.repository"
         }
 )
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class NbsDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;

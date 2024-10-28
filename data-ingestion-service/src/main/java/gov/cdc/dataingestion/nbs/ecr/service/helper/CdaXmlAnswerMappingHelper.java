@@ -14,6 +14,10 @@ import org.apache.xmlbeans.XmlOptions;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaXmlAnswerMappingHelper implements ICdaXmlAnswerMappingHelper {
     public CdaXmlAnswerMapper mapToXmlAnswerTop(EcrSelectedRecord input,
                                                 POCDMT000040ClinicalDocument1 clinicalDocument,

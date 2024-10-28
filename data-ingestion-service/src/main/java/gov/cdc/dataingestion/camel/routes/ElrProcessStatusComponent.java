@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ElrProcessStatusComponent {
     private static Logger logger = LoggerFactory.getLogger(ElrProcessStatusComponent.class);
     private ReportStatusService reportStatusService;

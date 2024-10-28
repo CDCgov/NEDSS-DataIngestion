@@ -14,6 +14,10 @@ import java.util.Map;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class EcrMsgOrganizationDto {
     private String orgLocalId;
     private String orgAuthorId;

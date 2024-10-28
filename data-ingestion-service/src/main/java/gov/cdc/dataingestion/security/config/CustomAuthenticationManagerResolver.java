@@ -11,6 +11,10 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CustomAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
     @Value("${auth.introspect-uri}")
     String introspectionUri;

@@ -21,6 +21,10 @@ import java.time.format.DateTimeFormatter;
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 
 @Service
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaMapper implements ICdaMapper {
     
     private final ICdaLookUpService ecrLookUpService;

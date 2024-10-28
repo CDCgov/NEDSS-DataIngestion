@@ -13,6 +13,10 @@ import java.util.regex.Pattern;
 
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ElrDeadLetterDto {
 
     private String errorMessageId;

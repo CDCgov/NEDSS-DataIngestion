@@ -26,6 +26,10 @@ import java.util.Map;
 @RestController
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ELR Status", description = "ELR Status API")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ReportStatusController {
     private static Logger logger = LoggerFactory.getLogger(ReportStatusController.class);
 

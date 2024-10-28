@@ -7,6 +7,10 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "elr_validated")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ValidatedELRModel {
 
     @Id

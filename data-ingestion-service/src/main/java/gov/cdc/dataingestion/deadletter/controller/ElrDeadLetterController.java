@@ -20,6 +20,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ELR Dead Letter", description = "Elr Dead Letter Messages")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ElrDeadLetterController {
 
     private final ElrDeadLetterService elrDeadLetterService;

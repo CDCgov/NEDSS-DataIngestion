@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class KafkaProducerTransactionService {
     private static final String PREFIX_MSG_XML = "XML_";
 

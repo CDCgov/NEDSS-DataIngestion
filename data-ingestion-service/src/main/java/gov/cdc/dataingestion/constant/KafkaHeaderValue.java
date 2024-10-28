@@ -1,5 +1,9 @@
 package gov.cdc.dataingestion.constant;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class KafkaHeaderValue {
     private KafkaHeaderValue() {
 

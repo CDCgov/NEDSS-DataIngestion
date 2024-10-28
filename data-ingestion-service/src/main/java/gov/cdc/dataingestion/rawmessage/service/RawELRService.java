@@ -18,6 +18,10 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 @Service
 @RequiredArgsConstructor
 @Slf4j
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class RawELRService {
 
     private static final String CREATED_BY = "admin";

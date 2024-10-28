@@ -13,6 +13,10 @@ import java.util.Map;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class EcrMsgCaseAnswerDto {
     // NEW
     private String questionGroupSeqNbr;

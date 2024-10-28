@@ -10,6 +10,10 @@ import gov.cdc.nedss.phdc.cda.POCDMT000040Section;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaOrgMappingHelper implements ICdaOrgMappingHelper {
     ICdaMapHelper cdaMapHelper;
     public CdaOrgMappingHelper(ICdaMapHelper cdaMapHelper) {

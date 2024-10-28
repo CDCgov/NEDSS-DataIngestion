@@ -28,6 +28,10 @@ import java.util.HashMap;
                 "gov.cdc.dataingestion.odse.repository",
         }
 )
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class OdseDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;

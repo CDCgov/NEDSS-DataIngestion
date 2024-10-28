@@ -20,6 +20,10 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 
 @Service
 @AllArgsConstructor
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class NbsRepositoryServiceProvider {
 	private static Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
 

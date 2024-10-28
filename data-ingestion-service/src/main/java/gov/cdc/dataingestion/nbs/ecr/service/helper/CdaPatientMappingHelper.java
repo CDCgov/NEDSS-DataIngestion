@@ -21,6 +21,10 @@ import java.util.List;
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 import static gov.cdc.dataingestion.nbs.ecr.service.helper.CdaMapStringHelper.getStringsBeforePipe;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
     ICdaMapHelper cdaMapHelper;
     public CdaPatientMappingHelper(ICdaMapHelper cdaMapHelper) {

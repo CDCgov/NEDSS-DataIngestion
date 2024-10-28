@@ -13,6 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class RhapsodysXmlToHl7Converter {
     private static final String NEWLINE = "\n";
     private static final String COLUMNS_SEPARATOR = "|";

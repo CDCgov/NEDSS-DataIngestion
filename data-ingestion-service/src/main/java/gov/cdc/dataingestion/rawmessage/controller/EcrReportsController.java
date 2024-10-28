@@ -23,6 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ECR Ingestion", description = "ECR Ingestion API")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class EcrReportsController {
 
     private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;

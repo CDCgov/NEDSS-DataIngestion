@@ -15,6 +15,10 @@ import java.util.Map;
 
 import static gov.cdc.dataingestion.nbs.ecr.constant.CdaConstantValue.*;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
     ICdaMapHelper cdaMapHelper;
     public CdaPlaceMappingHelper(ICdaMapHelper cdaMapHelper) {

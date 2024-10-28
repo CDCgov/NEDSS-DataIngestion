@@ -13,6 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class EcrSelectedTreatment {
     private EcrMsgTreatmentDto msgTreatment;
     private List<EcrMsgProviderDto> msgTreatmentProviders = new ArrayList<>();

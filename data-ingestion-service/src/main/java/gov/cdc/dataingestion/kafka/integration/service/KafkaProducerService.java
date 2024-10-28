@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class KafkaProducerService {
     private static final String PREFIX_MSG_PREP = "PREP_";
     private static final String PREFIX_MSG_XML = "XML_";

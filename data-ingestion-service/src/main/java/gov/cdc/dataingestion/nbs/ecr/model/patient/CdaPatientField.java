@@ -7,6 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 /// TO USE LATER FOR REFACTOR
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class CdaPatientField {
     public CdaPatientField(POCDMT000040ClinicalDocument1 clinicalDocument,
                            int phoneCounter)

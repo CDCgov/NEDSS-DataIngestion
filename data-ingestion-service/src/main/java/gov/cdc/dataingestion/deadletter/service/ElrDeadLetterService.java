@@ -26,6 +26,10 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 
 @Service
 @Slf4j
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ElrDeadLetterService {
     private final IElrDeadLetterRepository dltRepository;
     private final IRawELRRepository rawELRRepository;

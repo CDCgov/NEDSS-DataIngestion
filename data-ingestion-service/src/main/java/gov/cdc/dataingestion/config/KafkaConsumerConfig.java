@@ -17,6 +17,10 @@ import java.util.Map;
 @Slf4j
 @EnableKafka
 @Configuration
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class KafkaConsumerConfig {
     @Value("${spring.kafka.group-id}")
     private String groupId = "";

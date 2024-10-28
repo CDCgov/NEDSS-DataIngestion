@@ -9,6 +9,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class TreatmentMapper {
     private POCDMT000040SubstanceAdministration component;
     private StrucDocText list;

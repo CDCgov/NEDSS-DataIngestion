@@ -12,6 +12,10 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "EDX_activity_detail_log")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class EdxActivityDetailLog {
     @Id
     @Column(name = "edx_activity_detail_log_uid", nullable = false)

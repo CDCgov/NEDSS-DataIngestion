@@ -11,6 +11,10 @@ import java.sql.Timestamp;
 @Table(name = "elr_record_status_id")
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ReportStatusIdData {
     @Id
     @GenericGenerator(name = "generator", strategy = "guid", parameters = {})

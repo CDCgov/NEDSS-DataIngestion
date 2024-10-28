@@ -12,6 +12,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class NbsInterfaceModel {
 	private static final String TOSTRING_COLUMN_SPACER = ", ";
 	

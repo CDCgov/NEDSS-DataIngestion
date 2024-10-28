@@ -32,6 +32,10 @@ import java.util.HashMap;
         }
 )
 @Configuration
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class DataSourceConfig {
     private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 

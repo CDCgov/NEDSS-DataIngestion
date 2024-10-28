@@ -13,6 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class KafkaProducerTransactionConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers = "";

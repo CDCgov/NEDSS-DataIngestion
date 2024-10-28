@@ -20,6 +20,10 @@ import org.springframework.web.client.RestTemplate;
 @Tag(name = "Token API", description = "Token API to create the JWT Token")
 @RestController
 @Slf4j
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class TokenController {
     @Value("${auth.token-uri}")
     String authTokenUri;

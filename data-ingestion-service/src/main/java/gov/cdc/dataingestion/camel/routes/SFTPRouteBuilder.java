@@ -14,6 +14,10 @@ import java.net.URI;
 
 @Component
 @ConditionalOnProperty(name = "sftp.enabled", havingValue = "enabled")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class SFTPRouteBuilder extends RouteBuilder {
     private static Logger logger = LoggerFactory.getLogger(SFTPRouteBuilder.class);
     @Value("${sftp.host}")

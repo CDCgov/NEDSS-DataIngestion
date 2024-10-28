@@ -5,6 +5,10 @@ import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class TimeMetricsBuilder {
     Timer elrRawEventTimer;
     Timer elrRawXmlEventTimer;

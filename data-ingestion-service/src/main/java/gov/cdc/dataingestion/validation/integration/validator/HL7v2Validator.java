@@ -7,6 +7,10 @@ import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class HL7v2Validator implements IHL7v2Validator {
     private final HL7Helper hl7Helper;
     public HL7v2Validator(HL7Helper hl7Helper) {

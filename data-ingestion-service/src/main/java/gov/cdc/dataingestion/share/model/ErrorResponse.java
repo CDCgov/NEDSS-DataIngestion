@@ -5,6 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ErrorResponse {
     private int statusCode;
     private String message;

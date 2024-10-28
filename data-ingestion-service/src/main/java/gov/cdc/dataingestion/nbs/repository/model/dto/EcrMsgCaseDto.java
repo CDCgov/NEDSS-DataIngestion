@@ -12,6 +12,10 @@ import java.util.Map;
 
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class EcrMsgCaseDto {
     private String invLocalId;
     private String patLocalId;

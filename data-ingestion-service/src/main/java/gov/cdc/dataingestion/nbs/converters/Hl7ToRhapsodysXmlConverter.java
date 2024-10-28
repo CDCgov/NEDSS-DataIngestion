@@ -38,6 +38,10 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class Hl7ToRhapsodysXmlConverter {
     private static final Logger log = LoggerFactory.getLogger(Hl7ToRhapsodysXmlConverter.class);
     private static final Hl7ToRhapsodysXmlConverter instance = new Hl7ToRhapsodysXmlConverter();

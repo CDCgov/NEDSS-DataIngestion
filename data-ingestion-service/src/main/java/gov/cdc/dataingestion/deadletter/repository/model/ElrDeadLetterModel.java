@@ -10,6 +10,10 @@ import java.sql.Timestamp;
 @Setter
 @Entity
 @Table(name = "elr_dlt")
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ElrDeadLetterModel {
 
     @Id

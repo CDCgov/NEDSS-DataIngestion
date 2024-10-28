@@ -7,6 +7,10 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class RawMessageStatus {
     private String rawMessageId;
     private String rawPayload;

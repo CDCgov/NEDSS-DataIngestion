@@ -9,6 +9,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class MapParticipantRole {
     POCDMT000040SubstanceAdministration output;
     POCDMT000040Participant2 participant2;

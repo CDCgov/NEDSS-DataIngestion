@@ -21,6 +21,10 @@ import java.util.*;
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 
 @Service
+/**
+ 1118 - require constructor complaint
+ * */
+@SuppressWarnings({"java:S1118",""})
 public class ReportStatusService {
     private final IReportStatusRepository iReportStatusRepository;
     private final NbsInterfaceRepository nbsInterfaceRepository;
