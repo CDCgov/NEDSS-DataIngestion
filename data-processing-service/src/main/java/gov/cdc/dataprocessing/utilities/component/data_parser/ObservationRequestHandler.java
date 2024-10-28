@@ -306,7 +306,7 @@ public class ObservationRequestHandler {
         return labResultProxyContainer;
 
     }
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S2692"})
     private void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                       LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
