@@ -656,7 +656,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     setPersonToMatchEntityNok(personContainer);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.info(e.getMessage());
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);

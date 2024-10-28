@@ -132,7 +132,7 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
 
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
@@ -183,7 +183,7 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
 //                if(!nbsSecurityObj.getEntryID().equals(""))
 //                {
@@ -242,7 +242,7 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
@@ -511,7 +511,7 @@ public class PrepareAssocModelHelper {
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -571,7 +571,7 @@ public class PrepareAssocModelHelper {
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -678,7 +678,7 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);

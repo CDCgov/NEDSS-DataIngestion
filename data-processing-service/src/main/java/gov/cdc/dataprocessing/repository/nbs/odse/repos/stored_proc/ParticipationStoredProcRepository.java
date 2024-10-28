@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -22,6 +24,8 @@ import java.sql.Timestamp;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class ParticipationStoredProcRepository {
+    private static final Logger logger = LoggerFactory.getLogger(ParticipationStoredProcRepository.class); // NOSONAR
+
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
@@ -93,7 +97,7 @@ public class ParticipationStoredProcRepository {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
 
     }

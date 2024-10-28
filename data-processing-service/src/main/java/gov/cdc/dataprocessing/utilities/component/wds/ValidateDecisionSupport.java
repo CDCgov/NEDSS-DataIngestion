@@ -107,7 +107,7 @@ public class ValidateDecisionSupport {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         } 
 
 
@@ -347,7 +347,7 @@ public class ValidateDecisionSupport {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
     }
     @SuppressWarnings({"java:S3776", "java:S6541"})

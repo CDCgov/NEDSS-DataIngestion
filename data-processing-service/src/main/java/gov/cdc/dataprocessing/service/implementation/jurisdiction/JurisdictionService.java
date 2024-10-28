@@ -19,6 +19,8 @@ import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionServi
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,6 +40,8 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class JurisdictionService implements IJurisdictionService {
+    private static final Logger logger = LoggerFactory.getLogger(JurisdictionService.class); // NOSONAR
+
     private StringBuffer detailError= null;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
@@ -335,7 +339,7 @@ public class JurisdictionService implements IJurisdictionService {
             detailError= null;
             return map;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             throw new DataProcessingException(e.getMessage(), e);
         }
     }

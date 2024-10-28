@@ -17,6 +17,8 @@ import gov.cdc.dataprocessing.service.model.wds.WdsValueNumericReport;
 import gov.cdc.dataprocessing.service.model.wds.WdsValueTextReport;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -35,6 +37,8 @@ import java.util.*;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class DsmLabMatchHelper {
+    private static final Logger logger = LoggerFactory.getLogger(DsmLabMatchHelper.class); // NOSONAR
+
     static final String NULL_STRING = "null";
     //hold quick access values for this Workflow Decision Support algorithm
     private Map<String,String> systemNameMap = new HashMap<String,String>(); //name-OID
@@ -157,7 +161,7 @@ public class DsmLabMatchHelper {
                                     BigDecimal algorithmNumericValue1 = new BigDecimal(elrCriteria.getElrNumericResultValue().getValue1());
                                     thisNumericValue.setValue1(algorithmNumericValue1);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    logger.info(e.getMessage());
                                 }
                             }
                             //separator
@@ -169,7 +173,7 @@ public class DsmLabMatchHelper {
                                     BigDecimal algorithmNumericValue2 = new BigDecimal(elrCriteria.getElrNumericResultValue().getValue2());
                                     thisNumericValue.setValue2(algorithmNumericValue2);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    logger.info(e.getMessage());
                                 }
                             //units
                             if (elrCriteria.getElrNumericResultValue().getUnit() != null) {
@@ -248,7 +252,7 @@ public class DsmLabMatchHelper {
             wdsReport = testIfAlgorthmMatchesLab(resultedTestColl, resultedTestCodedValueList, resultedTestTextValueList, resultedTestNumericValueList);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         return wdsReport;
     }

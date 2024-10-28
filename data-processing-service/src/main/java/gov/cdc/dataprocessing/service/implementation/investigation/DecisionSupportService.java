@@ -226,7 +226,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                     }
                 } catch (Exception e) {
                     //if one fails to parse - continue processing with error
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
 
 

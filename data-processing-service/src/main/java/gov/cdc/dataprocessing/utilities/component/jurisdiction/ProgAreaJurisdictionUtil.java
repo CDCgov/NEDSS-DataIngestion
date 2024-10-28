@@ -1,6 +1,8 @@
 package gov.cdc.dataprocessing.utilities.component.jurisdiction;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import java.util.Set;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class ProgAreaJurisdictionUtil {
+    private static final Logger logger = LoggerFactory.getLogger(ProgAreaJurisdictionUtil.class); // NOSONAR
+
     public long getPAJHash(String programAreaCode, String jurisdictionCode)
     {
         long hashCode = 0;
@@ -33,7 +37,7 @@ public class ProgAreaJurisdictionUtil {
             }
             catch(Exception e)
             {
-                e.printStackTrace();
+                logger.info(e.getMessage());
             }
         }
         return hashCode;

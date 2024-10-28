@@ -15,6 +15,8 @@ import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationCodeService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,6 +36,7 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class ObservationCodeService implements IObservationCodeService {
+    private static final Logger logger = LoggerFactory.getLogger(ObservationCodeService.class); // NOSONAR
 
     private final ISrteCodeObsService srteCodeObsService;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
@@ -348,7 +351,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 try {
                     conditionCd = srteCodeObsService.getConditionForSnomedCode(snomedCd);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
                 if (conditionCd != null && !conditionCd.isEmpty()) {
                     snomedConditionList.add(conditionCd);
@@ -401,7 +404,7 @@ public class ObservationCodeService implements IObservationCodeService {
         try {
             conditionCd = srteCodeObsService.getConditionForLoincCode(loincCd);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         return (conditionCd);
 

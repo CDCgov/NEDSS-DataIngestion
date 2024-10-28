@@ -767,7 +767,7 @@ public class ObservationService implements IObservationService {
             lrProxyVO.setPageVO(pageContainer);
         } catch (Exception e) {
             logger.error("Exception while getting data from NBS Answer for Lab");
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
 
         return lrProxyVO;
@@ -820,7 +820,7 @@ public class ObservationService implements IObservationService {
             //catch & store auto resend notifications exceptions in NNDActivityLog table
             nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
             logger.error("Exception occurred while calling nndMessageSenderHelper.updateAutoResendNotificationsAsync");
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
 
         return nndActivityLogDto;
@@ -1018,7 +1018,7 @@ public class ObservationService implements IObservationService {
                             actRelationshipService.saveActRelationship(actRelationshipDto);
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.info(e.getMessage());
                         throw new DataProcessingException(e.getMessage(), e);
                     }
                 }

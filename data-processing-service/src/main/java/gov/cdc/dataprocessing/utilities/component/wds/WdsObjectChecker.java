@@ -4,6 +4,8 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.utilities.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -22,6 +24,8 @@ import java.sql.Timestamp;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class WdsObjectChecker {
+    private static final Logger logger = LoggerFactory.getLogger(WdsObjectChecker.class); // NOSONAR
+
     @SuppressWarnings("java:S6541")
     public boolean checkNbsObject(EdxRuleManageDto edxRuleManageDT, Object object, NbsQuestionMetadata metaData) {
         String dataLocation = metaData.getDataLocation();
@@ -151,7 +155,7 @@ public class WdsObjectChecker {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         return false;
     }

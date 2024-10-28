@@ -10,6 +10,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ import java.util.Collection;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
 public class PersonContainer extends LdfBaseContainer implements Serializable {
+    private static final Logger logger = LoggerFactory.getLogger(PersonContainer.class); // NOSONAR
+
     public PersonDto thePersonDto = new PersonDto();
     public Collection<PersonNameDto> thePersonNameDtoCollection =new ArrayList<>();
     public Collection<PersonRaceDto> thePersonRaceDtoCollection =new ArrayList<>();
@@ -68,7 +72,7 @@ public class PersonContainer extends LdfBaseContainer implements Serializable {
             ObjectInputStream ois = new ObjectInputStream(bis);
             return (PersonContainer) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             return null;
         }
     }
