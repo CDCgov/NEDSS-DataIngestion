@@ -24,7 +24,7 @@ class HL7FileProcessComponentTest {
     }
 
     @Test
-    void testSaveHL7Message() throws Exception {
+    void testSaveHL7Message() {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
 

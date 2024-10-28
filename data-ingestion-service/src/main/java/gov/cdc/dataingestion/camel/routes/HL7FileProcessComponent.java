@@ -19,7 +19,7 @@ public class HL7FileProcessComponent {
         this.rawELRService=rawELRService;
     }
     @Handler
-    public String process(String body) throws Exception {
+    public String process(String body) {
         String elrId = "";
         String version="1";
         try {

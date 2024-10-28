@@ -19,7 +19,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new SFTPRouteBuilder();
     }
 
@@ -34,7 +34,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                 context,
                 new AdviceWithRouteBuilder() {
                     @Override
-                    public void configure() throws Exception {
+                    public void configure() {
                         replaceFromWith("direct:fromSftpRoute");
                         weaveByToUri("sftp:/*").replace().to("mock:result");
 
@@ -45,7 +45,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                 context,
                 new AdviceWithRouteBuilder() {
                     @Override
-                    public void configure() throws Exception {
+                    public void configure() {
                         replaceFromWith("direct:sftpUnzipFileRoute");
                         weaveByToUri("file:files/sftpTextFileDir").replace().to("mock:sftpUnzipFileResult");
                     }
@@ -55,7 +55,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                 context,
                 new AdviceWithRouteBuilder() {
                     @Override
-                    public void configure() throws Exception {
+                    public void configure()   {
                         replaceFromWith("direct:sftpReadFromUnzipDirRoute");
                         weaveByToUri("seda:processfiles").replace().to("mock:sftpReadFromUnzippedFilesResult");
                     }
@@ -65,7 +65,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                 context,
                 new AdviceWithRouteBuilder() {
                     @Override
-                    public void configure() throws Exception {
+                    public void configure()   {
                         replaceFromWith("seda:sedaProcessFilesRoute");
                         weaveAddLast().to("mock:processBodyResult");
 

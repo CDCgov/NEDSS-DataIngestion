@@ -114,7 +114,7 @@ class ElrProcessStatusComponentTest {
         Assertions.assertTrue(processStatus.contains("Status:"));
     }
     @Test
-    void testProcessForNbsValidationFailed() throws Exception {
+    void testProcessForNbsValidationFailed() {
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 
