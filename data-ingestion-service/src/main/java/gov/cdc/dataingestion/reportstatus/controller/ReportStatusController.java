@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -59,17 +60,20 @@ public class ReportStatusController {
     )
     @GetMapping("/api/elrs/status/{elr-id}")
     public ResponseEntity<String> getReportStatus(@PathVariable("elr-id") String elrId) throws JsonProcessingException {
-        logger.debug("Status requested for record with id: '{}'", elrId);
+        // Sanitize elrId (ensure it's alphanumeric or whatever format you expect)
+        String sanitizedElrId = StringUtils.replaceChars(elrId, "[]{}()", "");
 
-        if(elrId == null || elrId.isEmpty() || !isValidUUID(elrId)) {
+        logger.debug("Status requested for record with id: '{}'", sanitizedElrId);
+
+        if(sanitizedElrId == null || sanitizedElrId.isEmpty() || !isValidUUID(sanitizedElrId)) {
             logger.error("Invalid 'UUID' parameter provided.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid 'UUID' parameter provided.");
         }
 
-        String status = reportStatusService.getStatusForReport(elrId);
+        String status = reportStatusService.getStatusForReport(sanitizedElrId);
 
         Map<String, String> returnJson = new HashMap<>();
-        returnJson.put("id", elrId);
+        returnJson.put("id", sanitizedElrId);
         if(status.equals("Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.") || status.equals("Couldn't find status for the requested ID.")) {
             returnJson.put("error_message", status);
         }
