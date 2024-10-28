@@ -1425,8 +1425,6 @@ public class RhapsodysXmlToHl7Converter {
     //TODO Dead Code
     @SuppressWarnings("java:S3776")
     private MessageHeader buildMessageHeader() {
-        MessageHeader mh = new MessageHeader();
-
-        return mh;
+        return new MessageHeader();
     }
 }
