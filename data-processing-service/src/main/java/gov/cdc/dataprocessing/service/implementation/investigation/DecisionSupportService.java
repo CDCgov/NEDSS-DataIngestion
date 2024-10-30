@@ -48,8 +48,19 @@ import static gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class DecisionSupportService implements IDecisionSupportService {
     private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
 
@@ -76,10 +87,10 @@ public class DecisionSupportService implements IDecisionSupportService {
         this.wdsObjectChecker = wdsObjectChecker;
     }
     /*sort PublicHealthCaseDTs by add_time descending*/
-    final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime());
-    final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm());
+    final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime()); //NOSONAR
+    final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm()); //NOSONAR
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S135"})
     @Transactional
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
@@ -465,7 +476,7 @@ public class DecisionSupportService implements IDecisionSupportService {
 
                 Map<Object, Object> applyMap = edxLabInformationDT.getEdxRuleApplyDTMap();
                 Collection<Object> entityMapCollection = new ArrayList<>();
-                if (applyMap != null && applyMap.size() > 0 && questionIdentifierMap != null) {
+                if (applyMap != null && !applyMap.isEmpty() && questionIdentifierMap != null) {
                     Set<Object> set = applyMap.keySet();
                     for (Object o : set)
                     {
@@ -643,7 +654,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository
                         .associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
 
-                if(associatedPhcDTCollection!=null && associatedPhcDTCollection.size()>0){
+                if(associatedPhcDTCollection!=null && !associatedPhcDTCollection.isEmpty()){
                     for (PublicHealthCaseDto publicHealthCaseDto : associatedPhcDTCollection) {
                         boolean isdateLogicValidWithThisInv = true;
                         long dateCompare;
@@ -678,7 +689,7 @@ public class DecisionSupportService implements IDecisionSupportService {
             }
         }
         if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
-                && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size() > 0)
+                && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
         {
             List phclist = new ArrayList<Object>(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl());
             phclist.sort(ADDTIME_ORDER);
@@ -742,12 +753,12 @@ public class DecisionSupportService implements IDecisionSupportService {
              * return false, so that new investigation can be created.
              */
             if(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
-                    && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size()>0)
+                    && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
             {
                 for (PublicHealthCaseDto phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
 
                     if (advanceInvCriteriaMap != null
-                            && advanceInvCriteriaMap.size() > 0)
+                            && !advanceInvCriteriaMap.isEmpty())
                     {
                         Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
 
@@ -801,7 +812,7 @@ public class DecisionSupportService implements IDecisionSupportService {
              * PublicHealthCaseUid to -1, it might have been set by time criteria
              */
             if(!isAdvancedInvCriteriaMet && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
-                    && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size()>0)
+                    && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
             {
                 edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
             }
@@ -860,7 +871,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 DeleteDocumentType specificActionType = actionType.getDeleteDocument(); //NOSONAR
             }
 
-            if (applicationMap.size() > 0)
+            if (!applicationMap.isEmpty())
                 edxRuleAlgorothmManagerDT.setEdxRuleApplyDTMap(applicationMap);
 
         } catch (Exception e) {
@@ -897,7 +908,8 @@ public class DecisionSupportService implements IDecisionSupportService {
              * advanceInvCriteriaMap is empty
              */
             if (
-                    (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size() > 0)
+                    (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
+                            && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
                     && (advanceInvCriteriaMap == null || advanceInvCriteriaMap.size() == 0)
             )
             {
@@ -911,13 +923,13 @@ public class DecisionSupportService implements IDecisionSupportService {
              * return true)
              */
             if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
-                    && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size() > 0
+                    && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty()
             )
             {
                 for (Object phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
 
                     if (advanceInvCriteriaMap != null
-                            && advanceInvCriteriaMap.size() > 0) {
+                            && !advanceInvCriteriaMap.isEmpty()) {
                         Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
                         Iterator<String> criteriaIterator = criteriaSet.iterator();
 

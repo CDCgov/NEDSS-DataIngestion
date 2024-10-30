@@ -463,7 +463,7 @@ class InvestigationServiceTests {
         orgConn.setTheOrganizationNameDtoCollection(orgNameCol);
         when(organizationRepositoryUtil.loadObject(20L, null)).thenReturn(orgConn);
 
-        var actIdCol = new ArrayList<Object>();
+        var actIdCol = new ArrayList<>();
         actIdCol.add("19");
         when(observationSummaryService.getActIdDetails(18L)).thenReturn(actIdCol);
 
@@ -518,7 +518,7 @@ class InvestigationServiceTests {
         phcDt.setCd("CODE");
         phcConn.setThePublicHealthCaseDto(phcDt);
         pageProx.setThePublicHealthCaseContainer(phcConn);
-        var notSummaryCol = new ArrayList<Object>();
+        var notSummaryCol = new ArrayList<>();
         var notSum = new NotificationSummaryContainer();
         notSum.setIsHistory("F");
         notSum.setAutoResendInd("T");
@@ -628,7 +628,7 @@ class InvestigationServiceTests {
 
     @Test
     void populateDescTxtFromCachedValues_Test() throws DataProcessingException {
-        var reportCol = new ArrayList<Object>();
+        var reportCol = new ArrayList<>();
         var report = new LabReportSummaryContainer();
         report.setProgramArea("TEST");
         report.setJurisdiction("TEST");

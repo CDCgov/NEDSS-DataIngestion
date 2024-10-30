@@ -77,7 +77,6 @@ class ObservationMatchingServiceTest {
         var obs = new Observation();
         obs.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD_NEW);
         obs.setActivityToTime(TimeStampUtil.getCurrentTimeStampPlusOneHour());
-        var obsDT = new ObservationDto(obs);
         when(observationRepository.findById(1L)).thenReturn(Optional.of(obs));
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -104,7 +103,6 @@ class ObservationMatchingServiceTest {
         var obs = new Observation();
         obs.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD_NEW);
         obs.setActivityToTime(null);
-        var obsDT = new ObservationDto(obs);
         when(observationRepository.findById(1L)).thenReturn(Optional.of(obs));
 
         var test = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);

@@ -59,14 +59,25 @@ import java.util.stream.Collectors;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class OrganizationRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationRepositoryUtil.class);
     /**
      * Organization Entity Code
      */
-    public final static String ORG = "ORG";
+    public static final String ORG = "ORG";
     private final OrganizationRepository organizationRepository;
     private final OrganizationNameRepository organizationNameRepository;
     private final EntityRepository entityRepository;
@@ -166,7 +177,7 @@ public class OrganizationRepositoryUtil {
             organizationContainer.getTheOrganizationDto().setOrganizationUid(oldOrgUid);
 
         } catch (Exception ex) {
-            logger.error("Error while creating Organization", ex);
+            logger.error("Error while creating Organization {}", ex.getMessage());
             throw new DataProcessingException(ex.getMessage(), ex);
         }
         return organizationUid;
@@ -201,7 +212,7 @@ public class OrganizationRepositoryUtil {
             }
 
         } catch (Exception ex) {
-            logger.error("Error while creating Organization", ex);
+            logger.error("Error while creating Organization {}", ex.getMessage());
             throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
@@ -222,12 +233,10 @@ public class OrganizationRepositoryUtil {
             entityRepository.save(entityModel);
             organizationDto.setCd(entityModel.getClassCd());
 
-            if (organizationDto != null) {
-                Organization organization = new Organization(organizationDto);
-                organizationRepository.save(organization);
-                organizationDto.setItNew(false);
-                organizationDto.setItDirty(false);
-            }
+            Organization organization = new Organization(organizationDto);
+            organizationRepository.save(organization);
+            organizationDto.setItNew(false);
+            organizationDto.setItDirty(false);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
@@ -263,8 +272,7 @@ public class OrganizationRepositoryUtil {
                 }
             }
         } catch (Exception ex) {
-            logger.error(" Exception while inserting " +
-                    "Organization names into ORGINIZATION_NAME_TABLE: \n", ex);
+            logger.error(" Exception while inserting Organization names into ORGINIZATION_NAME_TABLE: {}", ex.getMessage());
             throw new DataProcessingException(ex.getMessage(), ex);
         }
         logger.debug("OrganizationRepositoryUtil - Done inserting all Organization names");
@@ -326,15 +334,10 @@ public class OrganizationRepositoryUtil {
 
     /**
      * Sets the organization values in the databse based on the businessTrigger
-<<<<<<< HEAD
-=======
      *
      * @param organizationContainer the OrganizationContainer
      * @param businessTriggerCd     the String
      * @return organizationUID the Long
-     * @roseuid 3E6E4E05003E
-     * @J2EE_METHOD -- setOrganization
->>>>>>> main
      */
     @Transactional
     public Long setOrganization(OrganizationContainer organizationContainer,
@@ -344,7 +347,7 @@ public class OrganizationRepositoryUtil {
         try {
             organizationUID = setOrganizationInternal(organizationContainer, businessTriggerCd);
         } catch (Exception e) {
-            logger.error("OrganizationRepositoryUtil.setOrganization: Exception: " + e.getMessage(), e);
+            logger.error("OrganizationRepositoryUtil.setOrganization: Exception: {}", e.getMessage());
             throw new DataProcessingException(e.getMessage(), e);
         }
         return organizationUID;
@@ -443,11 +446,11 @@ public class OrganizationRepositoryUtil {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Exception setting the Organization Name: " + selectedName);
+                    logger.error("Exception setting the Organization Name: {}", selectedName);
                 }
             }
         } catch (Exception e) {
-            logger.error("prepareOrganizationNameBeforePersistence: " + e.getMessage(), e);
+            logger.error("prepareOrganizationNameBeforePersistence: {}", e.getMessage());
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -728,8 +731,6 @@ public class OrganizationRepositoryUtil {
     /**
      * This method is used to prepare Dirty Acts,Dirty Entities,New Acts And New Entities depending
      * you want to edit,delete or create records
-<<<<<<< HEAD
-=======
      *
      * @param organizationDto   -- The DT to be prepared
      * @param businessTriggerCd
@@ -737,14 +738,13 @@ public class OrganizationRepositoryUtil {
      * @param moduleCd
      * @return RootDTInterface -- the prepared DT(System attribute Set)
      * @throws DataProcessingException
->>>>>>> main
      */
     public OrganizationDto prepareVO(OrganizationDto organizationDto, String businessTriggerCd, String tableName, String moduleCd) throws DataProcessingException {
         try {
-            if (organizationDto.isItNew() == false && organizationDto.isItDirty() == false && organizationDto.isItDelete() == false) {
+            if (!organizationDto.isItNew() && !organizationDto.isItDirty() && !organizationDto.isItDelete()) {
                 throw new DataProcessingException("Error while calling prepareVO method in PrepareVOUtils");
             }
-            logger.debug("(Boolean.FALSE).equals(new Boolean(theRootDTInterface.tableName)?:" + tableName + ":theRootDTInterface.moduleCd:" + moduleCd + ":businessTriggerCd:" + businessTriggerCd);
+            logger.debug("(Boolean.FALSE).equals(new Boolean(theRootDTInterface.tableName)?: {}:theRootDTInterface.moduleCd: {}:businessTriggerCd: {}",tableName, moduleCd, businessTriggerCd);
 
             if (organizationDto.isItNew() || organizationDto.isItDirty()) {
                 long userId = AuthUtil.authUser.getNedssEntryId();

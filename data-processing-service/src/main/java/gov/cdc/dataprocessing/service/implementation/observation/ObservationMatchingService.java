@@ -34,8 +34,19 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ObservationMatchingService implements IObservationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(ObservationMatchingService.class);
 
@@ -63,7 +74,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             obsDT = matchingObservation(edxLabInformationDto);
         } else {
             edxLabInformationDto.setObservationMatch(false);
-            logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
+            logger.error("Error!! masterObsVO not available for fillerNbr: {}", edxLabInformationDto.getFillerNumber());
             return null;
         }
 
@@ -75,7 +86,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             if (msgStatus == null || odsStatus == null) //NOSONAR
             {
                 edxLabInformationDto.setObservationMatch(false);
-                logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                logger.error("Error!! null status cd: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
                 return null;
             }
             if (
@@ -130,7 +141,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
             else {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
+                logger.error(" Error!! Invalid status combination: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
                 throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
             }

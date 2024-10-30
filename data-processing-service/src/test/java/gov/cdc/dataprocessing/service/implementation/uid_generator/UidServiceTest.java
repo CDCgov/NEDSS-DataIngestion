@@ -115,7 +115,7 @@ class UidServiceTest {
 
     @SuppressWarnings("java:S2699")
     @Test
-    void setFalseToNewForPageAct_Test() throws DataProcessingException {
+    void setFalseToNewForPageAct_Test() {
         var proxyVO = new PageActProxyContainer();
 
         var patCol = new ArrayList<ParticipationDto>();
@@ -151,7 +151,7 @@ class UidServiceTest {
 
     @SuppressWarnings("java:S2699")
     @Test
-    void setFalseToNewForPam_Test() throws DataProcessingException {
+    void setFalseToNewForPam_Test() {
         var proxyVO = new PamProxyContainer();
 
         var patCol = new ArrayList<ParticipationDto>();
@@ -192,7 +192,7 @@ class UidServiceTest {
         var proxyVO = new NotificationProxyContainer();
 
 
-        var actCol = new ArrayList<Object>();
+        var actCol = new ArrayList<>();
         var act = new ActRelationshipDto();
         act.setTargetActUid(-1L);
         act.setSourceActUid(-1L);
@@ -400,7 +400,7 @@ class UidServiceTest {
 
 
     @Test
-    void testSetFalseToNewForPageAct_ParticipationCollNull() throws DataProcessingException {
+    void testSetFalseToNewForPageAct_ParticipationCollNull()  {
         PageActProxyContainer proxyVO = mock(PageActProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDtoCollection()).thenReturn(null);
@@ -417,7 +417,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForPageAct_ParticipationCollEmpty() throws DataProcessingException {
+    void testSetFalseToNewForPageAct_ParticipationCollEmpty()  {
         PageActProxyContainer proxyVO = mock(PageActProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDtoCollection()).thenReturn(Collections.emptyList());
@@ -434,7 +434,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForPageAct_ActRelationShipCollNull() throws DataProcessingException {
+    void testSetFalseToNewForPageAct_ActRelationShipCollNull()  {
         PageActProxyContainer proxyVO = mock(PageActProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDtoCollection()).thenReturn(new ArrayList<>());
@@ -451,7 +451,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForPageAct_ActRelationShipCollEmpty() throws DataProcessingException {
+    void testSetFalseToNewForPageAct_ActRelationShipCollEmpty()  {
         PageActProxyContainer proxyVO = mock(PageActProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDtoCollection()).thenReturn(new ArrayList<>());
@@ -472,7 +472,7 @@ class UidServiceTest {
     // Tests for setFalseToNewForPam
 
     @Test
-    void testSetFalseToNewForPam_ParticipationCollNull() throws DataProcessingException {
+    void testSetFalseToNewForPam_ParticipationCollNull()  {
         PamProxyContainer proxyVO = mock(PamProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDTCollection()).thenReturn(null);
@@ -489,7 +489,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForPam_ParticipationCollEmpty() throws DataProcessingException {
+    void testSetFalseToNewForPam_ParticipationCollEmpty()  {
         PamProxyContainer proxyVO = mock(PamProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDTCollection()).thenReturn(Collections.emptyList());
@@ -506,7 +506,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForPam_ActRelationShipCollNull() throws DataProcessingException {
+    void testSetFalseToNewForPam_ActRelationShipCollNull()  {
         PamProxyContainer proxyVO = mock(PamProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDTCollection()).thenReturn(new ArrayList<>());
@@ -523,7 +523,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForPam_ActRelationShipCollEmpty() throws DataProcessingException {
+    void testSetFalseToNewForPam_ActRelationShipCollEmpty()  {
         PamProxyContainer proxyVO = mock(PamProxyContainer.class);
         PublicHealthCaseContainer publicHealthCaseContainer = mock(PublicHealthCaseContainer.class);
         when(proxyVO.getTheParticipationDTCollection()).thenReturn(new ArrayList<>());

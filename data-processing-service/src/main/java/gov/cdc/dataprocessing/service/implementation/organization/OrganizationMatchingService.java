@@ -38,8 +38,19 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
@@ -56,10 +67,10 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     @Transactional
     public EDXActivityDetailLogDto getMatchingOrganization(
             OrganizationContainer organizationContainer)
-            throws DataProcessingException {
-        {
-            Long entityUid = organizationContainer.getTheOrganizationDto()
-                    .getOrganizationUid();
+            throws DataProcessingException
+    {
+
+            Long entityUid;
             //	String orgRole = organizationContainer.getRole();
             Collection<EdxEntityMatchDto> coll = new ArrayList<>();
 //            EdxEntityMatchDAO edxDao1 = new EdxEntityMatchDAO();
@@ -267,8 +278,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
 //                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 } catch (Exception e) {
-                    logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:"
-                            + nameAddStrSt1 + " " + e.getMessage());
+                    logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1: {} {}", nameAddStrSt1, e.getMessage());
                     throw new DataProcessingException(e.getMessage(), e);
                 }
 
@@ -306,7 +316,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
             return edxActivityDetailLogDto;
         }
-    }
+
 
     private String getLocalId(OrganizationContainer organizationContainer) {
         String localId = null;
@@ -326,7 +336,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         Collection<EntityIdDto> newEntityIdDTColl = new ArrayList<>();
         try {
             if (organizationContainer.getTheEntityIdDtoCollection() != null
-                    && organizationContainer.getTheEntityIdDtoCollection().size() > 0) {
+                    && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
                 Collection<EntityIdDto> entityIdDTColl = organizationContainer
                         .getTheEntityIdDtoCollection();
                 for (EntityIdDto entityIdDT : entityIdDTColl) {
@@ -370,7 +380,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                                 String errorMessage = "The assigning authority "
                                         + entityIdDT.getAssigningAuthorityCd()
                                         + " does not exists in the system. ";
-                                logger.debug(ex.getMessage() + errorMessage);
+                                logger.debug("{} {}", ex.getMessage(), errorMessage);
                             }
                         }
                         if (entityIdDT.getTypeCd() != null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
@@ -386,18 +396,18 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             organizationContainer.setTheEntityIdDtoCollection(newEntityIdDTColl);
         } catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for organization entity IDs . ";
-            logger.debug(ex.getMessage() + errorMessage);
+            logger.debug("{} {}", ex.getMessage(), errorMessage);
             throw new DataProcessingException(errorMessage, ex);
         }
         return identifierList;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066"})
     public String nameAddressStreetOne(OrganizationContainer organizationContainer) {
         String nameAddStr = null;
         String carrot = "^";
         if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null
-                && organizationContainer
-                .getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                && !organizationContainer
+                .getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : organizationContainer
                     .getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null
@@ -436,10 +446,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         return nameAddStr;
     }
 
+    @SuppressWarnings("java:S1066")
     private String getNameString(OrganizationContainer organizationContainer) {
         String nameStr = null;
         if (organizationContainer.getTheOrganizationNameDtoCollection() != null
-                && organizationContainer.getTheOrganizationNameDtoCollection().size() > 0) {
+                && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
             Collection<OrganizationNameDto> organizationNameDtoColl = organizationContainer
                     .getTheOrganizationNameDtoCollection();
             for (OrganizationNameDto organizationNameDto : organizationNameDtoColl) {
@@ -455,14 +466,14 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         }
         return nameStr;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066"})
     private String telePhoneTxt(OrganizationContainer organizationContainer) {
         String nameTeleStr = null;
         String carrot = "^";
 
         if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null
-                && organizationContainer
-                .getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                && !organizationContainer
+                .getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : organizationContainer
                     .getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null

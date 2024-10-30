@@ -35,8 +35,19 @@ import java.util.*;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class AnswerService implements IAnswerService {
     private static final Logger logger = LoggerFactory.getLogger(AnswerService.class); //NOSONAR
 
@@ -115,7 +126,7 @@ public class AnswerService implements IAnswerService {
                      nbsQuestionUid, coll,
                      nbsAnswerMap);
 
-            if (!it.hasNext() && coll.size() > 0)
+            if (!it.hasNext() && !coll.isEmpty())
             {
                 nbsAnswerMap.put(pageAnsDT.getNbsQuestionUid(), coll);
             }
@@ -152,7 +163,7 @@ public class AnswerService implements IAnswerService {
         }
         else if (pageAnsDT.getSeqNbr() != null && pageAnsDT.getSeqNbr() > 0)
         {
-            if (coll.size() > 0)
+            if (!coll.isEmpty())
             {
                 nbsAnswerMap.put(nbsQuestionUid, coll);
                 coll = new ArrayList<>();
@@ -161,7 +172,7 @@ public class AnswerService implements IAnswerService {
         }
         else
         {
-            if (coll.size() > 0)
+            if (!coll.isEmpty())
             {
                 nbsAnswerMap.put(nbsQuestionUid, coll);
             }
@@ -175,12 +186,12 @@ public class AnswerService implements IAnswerService {
     public void insertPageVO(PageContainer pageContainer, ObservationDto rootDTInterface) throws DataProcessingException{
         if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
             Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
-            if(answerDTColl.size()>0) {
+            if(!answerDTColl.isEmpty()) {
                 storeAnswerDTCollection(answerDTColl, rootDTInterface);
             }
             if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
                 Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
-                if(interviewRepeatingAnswerDTColl.size()>0) {
+                if(!interviewRepeatingAnswerDTColl.isEmpty()) {
                     storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
                 }
             }
@@ -310,6 +321,7 @@ public class AnswerService implements IAnswerService {
         }
 
     }
+
 
     protected void insertAnswerHistoryDTCollection(Collection<Object> oldAnswerDTCollection) throws DataProcessingException {
         try {

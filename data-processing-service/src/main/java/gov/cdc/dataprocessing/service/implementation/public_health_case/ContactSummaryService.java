@@ -31,8 +31,19 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.*;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ContactSummaryService implements IContactSummaryService {
 
     private final QueryHelper queryHelper;
@@ -144,7 +155,6 @@ public class ContactSummaryService implements IContactSummaryService {
 
     @SuppressWarnings("java:S3776")
     private  Collection<Object> getContactNamedByPatientDTColl(String sql) {
-        CTContactSummaryDto cTContactSummaryDto = new CTContactSummaryDto();
         ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl ;
         ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<> ();
         cTContactNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
@@ -152,10 +162,6 @@ public class ContactSummaryService implements IContactSummaryService {
             cTContactSumyDT.setContactNamedByPatient(true);
             Long contactEntityUid = cTContactSumyDT.getContactEntityUid();
             var lst = personNameRepository.findByParentUid(contactEntityUid);
-            Collection personNameColl = new ArrayList<>();
-            if (lst.isPresent()) {
-                personNameColl = lst.get();
-            }
 
             //add the contact summary dt
             returnCTContactNameByPatientSummDTColl.add(cTContactSumyDT);
@@ -165,7 +171,7 @@ public class ContactSummaryService implements IContactSummaryService {
                 contactNameColl = lst.get();
             }
 
-            if (contactNameColl.size() > 0) {
+            if (!contactNameColl.isEmpty()) {
                 for (Object o : contactNameColl) {
                     PersonNameDto personNameDT = new PersonNameDto( (PersonName) o);
                     if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
@@ -186,7 +192,7 @@ public class ContactSummaryService implements IContactSummaryService {
                 if (lst3.isPresent()) {
                     ctOtherNameColl = lst3.get();
                 }
-                if (ctOtherNameColl.size() > 0) {
+                if (!ctOtherNameColl.isEmpty()) {
                     for (PersonName name : ctOtherNameColl) {
                         PersonNameDto personNameDT = new PersonNameDto(name);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
@@ -250,7 +256,7 @@ public class ContactSummaryService implements IContactSummaryService {
                 subjectNameColl = lst.get();
             }
 
-            if (subjectNameColl.size() > 0) {
+            if (!subjectNameColl.isEmpty()) {
                 for (PersonName name : subjectNameColl) {
                     PersonNameDto personNameDT = new PersonNameDto(name);
                     if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
@@ -270,14 +276,12 @@ public class ContactSummaryService implements IContactSummaryService {
                 Collection<PersonName> contactNameColl = new ArrayList<>();
 
                 var lst2 = personNameRepository.findByParentUid(contactEntityUid);
-                if (lst2.isPresent()) {
-                    if (lst.isPresent()) {
-                        contactNameColl = lst.get();
-                    }
+                if (lst2.isPresent() && lst.isPresent()) {
+                    contactNameColl = lst.get();
                 }
 
 
-                if (contactNameColl.size() > 0) {
+                if (!contactNameColl.isEmpty()) {
                     for (PersonName name : contactNameColl) {
                         PersonNameDto personNameDT = new PersonNameDto(name);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
@@ -299,7 +303,7 @@ public class ContactSummaryService implements IContactSummaryService {
                     ctOtherNameColl = lst3.get();
                 }
 
-                if (ctOtherNameColl.size() > 0) {
+                if (!ctOtherNameColl.isEmpty()) {
                     for (PersonName name : ctOtherNameColl) {
                         PersonNameDto personNameDT = new PersonNameDto(name);
                         if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {

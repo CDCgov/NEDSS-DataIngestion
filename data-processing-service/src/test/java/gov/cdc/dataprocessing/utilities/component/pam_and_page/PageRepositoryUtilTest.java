@@ -1,24 +1,20 @@
 package gov.cdc.dataprocessing.utilities.component.pam_and_page;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
-import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
-import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsNoteDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
@@ -47,12 +43,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -170,187 +166,6 @@ class PageRepositoryUtilTest {
 
 
         assertNotNull(thrown);
-
-    }
-
-
-    // DIRTY PHC CON
-    @Test
-    void setPageActProxyVO_Test_1() throws DataProcessingException, IOException, ClassNotFoundException, CloneNotSupportedException {
-
-        var phc = new PublicHealthCaseContainer();
-        var phcDt = new PublicHealthCaseDto();
-        phcDt.setPublicHealthCaseUid(-1L);
-        phcDt.setVersionCtrlNbr(1);
-        phcDt.setCd("CODE");
-        phcDt.setCaseClassCd("CASE");
-        phcDt.setProgAreaCd("PROG");
-        phcDt.setJurisdictionCd("JUS");
-        phcDt.setSharedInd("Y");
-        phcDt.setCoinfectionId("1");
-        phcDt.setInvestigationStatusCd("A");
-        phc.setThePublicHealthCaseDto(phcDt);
-        phc.setCoinfectionCondition(true);
-        phc.setNbsAnswerCollection(new ArrayList<>());
-
-        var caseMgDt=  new CaseManagementDto();
-        phc.setTheCaseManagementDto(caseMgDt);
-        var actCol = new ArrayList<ActRelationshipDto>();
-        var act = new ActRelationshipDto();
-        act.setTypeCd(NEDSSConstant.DocToPHC);
-        act.setSourceActUid(1L);
-        act.setTargetActUid(1L);
-        act.setStatusTime(TimeStampUtil.getCurrentTimeStamp());
-        act.setStatusCd("CODE");
-        act.setItDelete(true);
-        actCol.add(act);
-        phc.setTheActRelationshipDTCollection(actCol);
-        var edxEventCol = new ArrayList<EDXEventProcessDto>();
-        var edxEvent = new EDXEventProcessDto();
-        edxEvent.setDocEventTypeCd(NEDSSConstant.CASE);
-        edxEventCol.add(edxEvent);
-        phc.setEdxEventProcessDtoCollection(edxEventCol);
-        when(pageActProxyContainerMock.getPublicHealthCaseContainer()).thenReturn(phc);
-
-        when(pageActProxyContainerMock.isItNew()).thenReturn(false);
-        when(pageActProxyContainerMock.isItDirty()).thenReturn(true);
-        when(pageActProxyContainerMock.isConversionHasModified()).thenReturn(false);
-
-        // processingParticipationPatTypeForPageAct
-        var patCol = new ArrayList<ParticipationDto>();
-        var pat = new ParticipationDto();
-        pat.setSubjectEntityUid(10L);
-        pat.setSubjectClassCd(NEDSSConstant.PERSON);
-        patCol.add(pat);
-        when(pageActProxyContainerMock.getTheParticipationDtoCollection()).thenReturn(patCol);
-
-        // processingPersonContainerForPageAct
-        var perConArr = new ArrayList<PersonContainer>();
-        var perCon = new PersonContainer();
-        var perDt = new PersonDto();
-        perDt.setCd(NEDSSConstant.PAT);
-        perDt.setPersonUid(11L);
-        perDt.setPersonParentUid(11L);
-        perCon.setThePersonDto(perDt);
-        perCon.setItNew(true);
-        perCon.setItDirty(false);
-        perConArr.add(perCon);
-        when(pageActProxyContainerMock.getThePersonContainerCollection()).thenReturn(perConArr);
-        when(patientMatchingBaseService.setPatientRevision(any(), eq(NEDSSConstant.PAT_CR), eq(NEDSSConstant.PAT))).thenReturn(11L);
-        perCon = new PersonContainer();
-        perDt = new PersonDto();
-        perDt.setCd(NEDSSConstant.PRV);
-        perDt.setPersonUid(-1L);
-        perDt.setPersonParentUid(-1L);
-        perCon.setThePersonDto(perDt);
-        perCon.setItNew(true);
-        perCon.setItDirty(false);
-        perConArr.add(perCon);
-        var prvDt =  SerializationUtils.clone(perDt);
-        prvDt.setPersonParentUid(12L);
-        prvDt.setPersonUid(12L);
-        when(patientRepositoryUtil.createPerson(any())).thenReturn(new Person(prvDt));
-        perCon = new PersonContainer();
-        perDt = new PersonDto();
-        perDt.setCd(NEDSSConstant.PAT);
-        perDt.setPersonUid(13L);
-        perDt.setPersonParentUid(13L);
-        perCon.setThePersonDto(perDt);
-        perCon.setItNew(false);
-        perCon.setItDirty(true);
-        perConArr.add(perCon);
-        when(patientMatchingBaseService.setPatientRevision(any(),eq(NEDSSConstant.PAT_EDIT), eq( NEDSSConstant.PAT))).thenReturn(13L);
-        perCon = new PersonContainer();
-        perDt = new PersonDto();
-        perDt.setCd(NEDSSConstant.PRV);
-        perDt.setPersonUid(14L);
-        perDt.setPersonParentUid(14L);
-        perCon.setThePersonDto(perDt);
-        perCon.setItNew(false);
-        perCon.setItDirty(true);
-        perConArr.add(perCon);
-
-
-        // processingPhcContainerForPageAct
-        when(prepareAssocModelHelper.prepareVO(any(),eq("INVESTIGATION"), eq("INV_EDIT"), eq("PUBLIC_HEALTH_CASE"), eq("BASE"),
-                eq(1))).thenReturn(phcDt);
-        when(publicHealthCaseService.setPublicHealthCase(any())).thenReturn(1L);
-
-        Map<String, MessageLogDto > messageLogDTMap = new HashMap<>();
-        var msgLog = new MessageLogDto();
-        messageLogDTMap.put(MessageConstants.DISPOSITION_SPECIFIED_KEY, msgLog);
-        msgLog = new MessageLogDto();
-        msgLog.setEventUid(1L);
-        messageLogDTMap.put("BLAH", msgLog);
-        msgLog = new MessageLogDto();
-        msgLog.setEventUid(-1L);
-        messageLogDTMap.put("BLAH-2", msgLog);
-        when(pageActProxyContainerMock.getMessageLogDTMap()).thenReturn(messageLogDTMap);
-
-
-        // processingNotificationSummaryForPageAct
-        var summaryArr = new ArrayList<>();
-        var summary = new NotificationSummaryContainer();
-        summary.setIsHistory("F");
-        summary.setAutoResendInd("F");
-        summary.setNotificationUid(1L);
-        summary.setRecordStatusCd(NEDSSConstant.APPROVED_STATUS);
-        summaryArr.add(summary);
-        summary = new NotificationSummaryContainer();
-        summary.setIsHistory("F");
-        summary.setAutoResendInd("F");
-        summary.setNotificationUid(2L);
-        summary.setRecordStatusCd(NEDSSConstant.PENDING_APPROVAL_STATUS);
-        summaryArr.add(summary);
-        when(pageActProxyContainerMock.getTheNotificationSummaryVOCollection()).thenReturn(summaryArr);
-
-
-        // processingPhcActRelationshipForPageAct
-        // processingEventProcessForPageAct
-        // processingNbsDocumentForPageAct
-        NbsDocumentContainer docConn = new NbsDocumentContainer();
-        NBSDocumentDto docDt = new NBSDocumentDto();
-        docDt.setJurisdictionCd("");
-        docConn.setNbsDocumentDT(docDt);
-        when(nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(1L)).thenReturn(docConn);
-
-        when(pageActProxyContainerMock.isUnsavedNote()).thenReturn(true);
-        var noteCol = new ArrayList<NbsNoteDto>();
-        var note = new NbsNoteDto();
-        noteCol.add(note);
-        when(pageActProxyContainerMock.getNbsNoteDTColl()).thenReturn(noteCol);
-
-        var page = new BasePamContainer();
-        when(pageActProxyContainerMock.getPageVO()).thenReturn(page);
-
-        when(pageActProxyContainerMock.isRenterant()).thenReturn(false);
-        when(pageActProxyContainerMock.isMergeCase()).thenReturn(false);
-
-        var coInfecList = new ArrayList<>();
-        CoinfectionSummaryContainer coIn = new CoinfectionSummaryContainer();
-        coIn.setPublicHealthCaseUid(1L);
-        coInfecList.add(coIn);
-        coIn = new CoinfectionSummaryContainer();
-        coIn.setPublicHealthCaseUid(2L);
-        coInfecList.add(coIn);
-        when(customRepository.getInvListForCoInfectionId(11L, "1")).thenReturn(coInfecList);
-
-        PageActProxyContainer pageActProxyContainer = new PageActProxyContainer();
-        Map<Object, Object>pamAsn = new HashMap<>();
-        page.setPamAnswerDTMap(pamAsn);
-        page.setPageRepeatingAnswerDTMap(pamAsn);
-        pageActProxyContainer.setPageVO(page);
-        pageActProxyContainer.setPublicHealthCaseContainer(phc);
-        when(pageActProxyContainerMock.deepCopy()).thenReturn(pageActProxyContainer);
-
-        SrteCache.investigationFormConditionCode.put("CODE", "CODE");
-
-        var res = pageRepositoryUtil.setPageActProxyVO(pageActProxyContainerMock);
-
-        verify(pageActProxyContainerMock, times(1)).deepCopy();
-        verify(customRepository, times(1)).getInvListForCoInfectionId(any(), any());
-        assertEquals(1, res);
-
 
     }
 

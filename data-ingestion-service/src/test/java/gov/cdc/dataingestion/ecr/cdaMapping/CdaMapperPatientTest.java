@@ -69,7 +69,6 @@ class CdaMapperPatientTest {
                 "  </urn:recordTarget>\n" +
                 "</xml-fragment>";
 
-        POCDMT000040ClinicalDocument1 doc = POCDMT000040ClinicalDocument1.Factory.parse(document);
-        return doc;
+        return POCDMT000040ClinicalDocument1.Factory.parse(document);
     }
 }
