@@ -37,12 +37,13 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
 public class JurisdictionService implements IJurisdictionService {
     private static final Logger logger = LoggerFactory.getLogger(JurisdictionService.class); // NOSONAR
 
-    private StringBuffer detailError= null;
+    private StringBuilder detailError= null;
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final JurisdictionParticipationRepository jurisdictionParticipationRepository;
@@ -254,7 +255,7 @@ public class JurisdictionService implements IJurisdictionService {
             Collection<String> providerJurisdictionCollection;
             Collection<String> organizationJurisdictionCollection = null;
             HashMap<String, String> map = new HashMap<>();
-            detailError = new StringBuffer();
+            detailError = new StringBuilder();
             String jurisdiction =null;
             //Initial value was not set in the first implementation.
             detailError.append("Patient: ");
@@ -423,7 +424,7 @@ public class JurisdictionService implements IJurisdictionService {
                 //this will remove the trailing ","
                 String detail = detailError.substring(0,(detailError.toString().length() - 2));
                 detail = detail + " ";
-                detailError = new StringBuffer(detail);
+                detailError = new StringBuilder(detail);
             }
             return coll;
     }
