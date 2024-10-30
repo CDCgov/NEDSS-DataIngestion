@@ -1,24 +1,20 @@
 package gov.cdc.dataprocessing.utilities.component.pam_and_page;
 
 import gov.cdc.dataprocessing.cache.SrteCache;
-import gov.cdc.dataprocessing.constant.MessageConstants;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
-import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.model.dto.nbs.NbsNoteDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
@@ -47,12 +43,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
