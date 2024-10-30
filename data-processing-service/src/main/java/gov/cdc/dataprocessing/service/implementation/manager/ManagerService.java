@@ -67,9 +67,11 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ManagerService implements IManagerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
@@ -196,12 +198,12 @@ public class ManagerService implements IManagerService {
             if (edxLabInformationDto.getPageActContainer() != null
             || edxLabInformationDto.getPamContainer() != null) {
                 if (edxLabInformationDto.getPageActContainer() != null) {
-                    var pageActProxyVO = (PageActProxyContainer) edxLabInformationDto.getPageActContainer();
+                    var pageActProxyVO = edxLabInformationDto.getPageActContainer();
                     trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                 }
                 else
                 {
-                    var pamProxyVO = (PamProxyContainer)edxLabInformationDto.getPamContainer();
+                    var pamProxyVO = edxLabInformationDto.getPamContainer();
                     trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
                 }
             }

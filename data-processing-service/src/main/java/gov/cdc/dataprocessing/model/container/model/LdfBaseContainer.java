@@ -29,9 +29,11 @@ import java.util.List;
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class LdfBaseContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
     private Collection<Object> ldfUids;
@@ -43,8 +45,8 @@ public class LdfBaseContainer extends BaseContainer {
     /* Read all input ldfs. Descard one with no value entered by user */
     public void setTheStateDefinedFieldDataDTCollection(List<StateDefinedFieldDataDto> newLdfs) {
         if(newLdfs != null && !newLdfs.isEmpty()){
-            ldfs = new ArrayList<Object> ();
-            ldfUids = new ArrayList<Object>();
+            ldfs = new ArrayList<> ();
+            ldfUids = new ArrayList<>();
             Iterator<StateDefinedFieldDataDto> itr = newLdfs.iterator();
             while (itr.hasNext()) {
                 StateDefinedFieldDataDto dt = (StateDefinedFieldDataDto) itr.next();

@@ -44,9 +44,11 @@ import java.util.*;
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PersonService implements IPersonService {
     private final IPatientMatchingService patientMatchingService;
     private final INokMatchingService nokMatchingService;
@@ -118,7 +120,8 @@ public class PersonService implements IPersonService {
                 edxLabInformationDto.setEntityName(firstName + " " + lastName);
             }
 
-            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personContainer.getPatientMatchedFound()) {
+            if(edxPatientMatchFoundDT!=null && !edxPatientMatchFoundDT.isMultipleMatch() && personContainer.getPatientMatchedFound()) // NOSONAR
+            {
                 edxLabInformationDto.setPatientMatch(true);
             }
             if(personContainer.getThePersonDto().getPersonParentUid()!=null){
@@ -135,9 +138,6 @@ public class PersonService implements IPersonService {
     public PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingException {
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();
-            Long personUid;
-            EdxPatientMatchDto edxPatientMatchFoundDT = null;
-
 
             if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
                 orderingProviderIndicator = true;

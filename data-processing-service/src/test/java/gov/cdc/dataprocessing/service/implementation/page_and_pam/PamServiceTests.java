@@ -146,7 +146,7 @@ class PamServiceTests {
         noteCol.add(note);
         pamProxyVO.setNbsNoteDTColl(noteCol);
 
-        var noteSumCol = new ArrayList<Object>();
+        var noteSumCol = new ArrayList<>();
         var noteSumConn = new NotificationSummaryContainer();
         noteSumConn.setIsHistory("F");
         noteSumConn.setAutoResendInd("F");
@@ -262,7 +262,7 @@ class PamServiceTests {
         noteCol.add(note);
         pamProxyVO.setNbsNoteDTColl(noteCol);
 
-        var noteSumCol = new ArrayList<Object>();
+        var noteSumCol = new ArrayList<>();
         var noteSumConn = new NotificationSummaryContainer();
         noteSumConn.setIsHistory("F");
         noteSumConn.setAutoResendInd("F");

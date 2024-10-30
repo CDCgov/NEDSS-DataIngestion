@@ -206,7 +206,7 @@ class NbsRepositoryServiceProviderTest {
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
     @Test
-    void saveToNbsTestWithFractionOfSecondFiveThrowsException() throws XmlConversionException {
+    void saveToNbsTestWithFractionOfSecondFiveThrowsException()  {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
@@ -467,7 +467,7 @@ class NbsRepositoryServiceProviderTest {
 
 
     @Test
-    void saveToNbsTestThrowTimeParseException() throws XmlConversionException {
+    void saveToNbsTestThrowTimeParseException() {
         String id = "whatever";
         String xmlMsg =  testXmlData;
         HL7ParsedMessage parsedMessage = new HL7ParsedMessage();

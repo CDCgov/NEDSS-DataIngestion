@@ -46,9 +46,11 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
@@ -65,8 +67,9 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     @Transactional
     public EDXActivityDetailLogDto getMatchingOrganization(
             OrganizationContainer organizationContainer)
-            throws DataProcessingException {
-        {
+            throws DataProcessingException
+    {
+
             Long entityUid;
             //	String orgRole = organizationContainer.getRole();
             Collection<EdxEntityMatchDto> coll = new ArrayList<>();
@@ -313,7 +316,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
             return edxActivityDetailLogDto;
         }
-    }
+
 
     private String getLocalId(OrganizationContainer organizationContainer) {
         String localId = null;

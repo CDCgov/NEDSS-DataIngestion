@@ -71,9 +71,11 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ObservationService implements IObservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
@@ -241,6 +243,7 @@ public class ObservationService implements IObservationService {
     /**
      * Retrieving assoc data from Participation: PERSON, ORG, MATERIAL, ROLE
      * */
+    @SuppressWarnings("java:S1640")
     private Map<DataProcessingMapKey, Object>  retrieveEntityFromParticipationForContainer(Collection<ParticipationDto> partColl) throws DataProcessingException {
         Map<DataProcessingMapKey, Object> entityHolder = new HashMap<>();
 
@@ -330,7 +333,7 @@ public class ObservationService implements IObservationService {
      * Values from Participation
      * Was: retrievePersonVOsForProxyVO
      * */
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S1640"})
     protected Map<DataProcessingMapKey, Object> retrievePersonAndRoleFromParticipation(Collection<ParticipationDto> partColl)
     {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
@@ -405,6 +408,7 @@ public class ObservationService implements IObservationService {
     /**
      * was: retrieveActForProxyVO
      * */
+    @SuppressWarnings("java:S1640")
     Map<DataProcessingMapKey, Object> retrieveActForLabResultContainer(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
 
@@ -424,7 +428,7 @@ public class ObservationService implements IObservationService {
      * Retrieving Observation and the assoc Organization
      * was: retrieveObservationVOsForProxyVO
      * */
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1640", "java:S135"})
     private Map<DataProcessingMapKey, Object>  retrieveObservationFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
         Map<DataProcessingMapKey, Object> mapper = new HashMap<>();
@@ -508,7 +512,7 @@ public class ObservationService implements IObservationService {
     /**
      * was: retrieveReflexObservations
      */
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S135"})
 
     private Collection<ObservationContainer>  retrieveReflexObservationsFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
@@ -563,6 +567,7 @@ public class ObservationService implements IObservationService {
      * Retrieves the Reflex Result Test
      * was: retrieveReflexRTs
      */
+    @SuppressWarnings("java:S135")
     private Collection<ObservationContainer>  retrieveReflexRTsAkaObservationFromActRelationship(Collection<ActRelationshipDto> actRelColl) throws DataProcessingException
     {
         Collection<ObservationContainer>  reflexRTCollection  = null;
@@ -606,6 +611,7 @@ public class ObservationService implements IObservationService {
     /**
      * was: retrievePerformingLab
      * */
+    @SuppressWarnings("java:S135")
     private OrganizationContainer retrievePerformingLabAkaOrganizationFromParticipation(Collection<ParticipationDto> partColl) throws DataProcessingException
     {
         OrganizationContainer lab = null;
@@ -832,11 +838,11 @@ public class ObservationService implements IObservationService {
 
         return nndActivityLogDto;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1199"})
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
         //Set flag for type of processing
-        boolean ELR_PROCESSING = false;
+        boolean ELR_PROCESSING = false; // NOSONAR
 
         // We need specific auth User for elr processing, but probably wont applicable for data processing
         if (AuthUtil.authUser != null || (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT)))
@@ -848,9 +854,6 @@ public class ObservationService implements IObservationService {
         Map<Object, Object> returnVal = new HashMap<>();
         Long falseUid;
         Long realUid ;
-        boolean valid = false;
-
-
 
             //Process PersonVOCollection  and adds the patient mpr uid to the return
             Long patientMprUid = personUtil.processLabPersonContainerCollection(
@@ -1082,6 +1085,7 @@ public class ObservationService implements IObservationService {
 
 
         }
+
         return returnVal;
     }
 

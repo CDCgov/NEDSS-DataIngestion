@@ -41,9 +41,11 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class RetrieveSummaryService implements IRetrieveSummaryService {
     private static final Logger logger = LoggerFactory.getLogger(RetrieveSummaryService.class); // NOSONAR
 
@@ -242,7 +244,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * investigationUID to papulate the Notification summary on investigation page
      * @return Collection<Object>  -- Collection<Object>  of NotificationSummaryVO for the passed publicHealthCaseDT
      */
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S1197"})
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
@@ -294,7 +296,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         return theNotificationSummaryVOCollection;
     }
-    @SuppressWarnings({"unchecked","java:S3776"})
+    @SuppressWarnings({"unchecked","java:S3776","java:S1197"})
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
@@ -419,7 +421,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                                            String jurisdictionCd,
                                            String sharedInd) throws DataProcessingException {
 
-        Collection<Object>  notificationVOCollection  = null;
         try
         {
 

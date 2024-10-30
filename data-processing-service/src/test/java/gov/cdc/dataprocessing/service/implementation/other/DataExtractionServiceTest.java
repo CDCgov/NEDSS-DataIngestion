@@ -71,7 +71,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectSuccess() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void testParsingDataToObjectSuccess() throws JAXBException, DataProcessingException {
         Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = null;
         nbsInterfaceModel = gson.fromJson(getData(), NbsInterfaceModel.class);
@@ -340,13 +340,11 @@ class DataExtractionServiceTest {
     }
 
     private IdentifiersType getIdentifiersType() {
-        IdentifiersType identifiersType = new IdentifiersType();
-        return identifiersType;
+        return new IdentifiersType();
     }
 
     private NoteType getNotesType() {
-        NoteType notes = new NoteType();
-        return notes;
+        return new NoteType();
     }
 
     private NameType getNameType() {

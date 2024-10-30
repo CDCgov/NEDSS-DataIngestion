@@ -66,9 +66,11 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LABORATORY_UID;
  1135 - Todos complaint
  6201 - instanceof check
  1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class InvestigationService implements IInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(InvestigationService.class);
 
@@ -130,7 +132,7 @@ public class InvestigationService implements IInvestigationService {
         this.labTestRepository = labTestRepository;
     }
 
-    @SuppressWarnings("java:S125")
+    @SuppressWarnings({"java:S125","java:S5411"})
     @Transactional
     public void setAssociations(Long investigationUID,
                                 Collection<LabReportSummaryContainer>  reportSumVOCollection,
@@ -554,7 +556,6 @@ public class InvestigationService implements IInvestigationService {
         String businessTriggerCd;
         businessTriggerCd = NEDSSConstant.NOT_CR_APR;
 
-        Collection<Object>  notificationVOCollection  = null;
 
         var notification = notificationService.getNotificationById(notificationUid);
         NotificationContainer notificationContainer = new NotificationContainer();
@@ -884,8 +885,7 @@ public class InvestigationService implements IInvestigationService {
     }
 
     private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
-        HashMap<Object, Object> labReportSummarMap = getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
-        return labReportSummarMap;
+        return getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
     }
     @SuppressWarnings("java:S3776")
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
@@ -924,7 +924,7 @@ public class InvestigationService implements IInvestigationService {
                     }
                     else if(uidType.equals(LABORATORY_UID))
                     {
-                        UidSummaryContainer vo = (UidSummaryContainer) itLabId.next();
+                        UidSummaryContainer vo =  itLabId.next();
                         Long observationUid = vo.getUid();
                         fromTime = vo.getAddTime();
                         if(vo.getStatusTime()!=null && vo.getStatusTime().compareTo(fromTime)==0){
@@ -1094,14 +1094,11 @@ public class InvestigationService implements IInvestigationService {
     protected void populateDescTxtFromCachedValues(Collection<Object> reportSummaryVOCollection) throws DataProcessingException {
         ReportSummaryInterface sumVO ;
         LabReportSummaryContainer labVO;
-        LabReportSummaryContainer labMorbVO = null;
         ResultedTestSummaryContainer resVO;
         Iterator<ResultedTestSummaryContainer> resItor;
-        Iterator<Object> labMorbItor = null;
         ResultedTestSummaryContainer susVO;
         Iterator<Object> susItor;
         Collection<Object> susColl ;
-        Collection<Object> labMorbColl = null;
         String tempStr = null;
 
         for (Object o : reportSummaryVOCollection) {
@@ -1127,7 +1124,7 @@ public class InvestigationService implements IInvestigationService {
                         !labVO.getTheResultedTestSummaryVOCollection().isEmpty()) {
                     resItor = labVO.getTheResultedTestSummaryVOCollection().iterator();
                     while (resItor.hasNext()) {
-                        resVO = (ResultedTestSummaryContainer) resItor.next();
+                        resVO =  resItor.next();
 
 
                         if (resVO.getCtrlCdUserDefined1() != null) {
