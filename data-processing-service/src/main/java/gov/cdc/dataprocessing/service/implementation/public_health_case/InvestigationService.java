@@ -62,9 +62,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LABORATORY_UID;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class InvestigationService implements IInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(InvestigationService.class);
 
@@ -143,7 +146,7 @@ public class InvestigationService implements IInvestigationService {
                  invVO = getInvestigationProxy(investigationUID);
                 updateAutoResendNotificationsAsync(invVO);
             }
-            if(reportSumVOCollection!=null && reportSumVOCollection.size()>0){
+            if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty()){
                 retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(investigationUID, reportSumVOCollection);
             }
         }
@@ -281,7 +284,7 @@ public class InvestigationService implements IInvestigationService {
             String moduleCd = NEDSSConstant.BASE;
             Collection<ActRelationshipDto> actRelColl = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(reportSumVO.getObservationUid(), "LabReport");
             businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
-            if (actRelColl != null && actRelColl.size() > 0)
+            if (actRelColl != null && !actRelColl.isEmpty())
             {
                 businessTriggerCd = NEDSSConstant.OBS_LAB_DIS_ASC;
             }
@@ -445,7 +448,7 @@ public class InvestigationService implements IInvestigationService {
             }
             Map<Long, LabReportSummaryContainer> labMapfromDOC =  new HashMap<>();
 
-            if(labMapfromDOC!=null && labMapfromDOC.size()>0)
+            if(labMapfromDOC!=null && !labMapfromDOC.isEmpty())
             {
                 labSumVOCol.addAll(labMapfromDOC.values());
             }
@@ -515,7 +518,7 @@ public class InvestigationService implements IInvestigationService {
                                 || vo instanceof PageActProxyContainer
                 )
                 {
-                    if(notSumVOColl!=null && notSumVOColl.size()>0){
+                    if(notSumVOColl!=null && !notSumVOColl.isEmpty()){
                         for (Object o : notSumVOColl) {
                             NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer) o;
                             if (notSummaryVO.getIsHistory().equals("F") && !notSummaryVO.getAutoResendInd().equals("F")) {
@@ -822,7 +825,7 @@ public class InvestigationService implements IInvestigationService {
                 Collection<?>  labReportSummaryVOCollection;
                 LabReportSummaryContainer labReportSummaryVOs;
 
-                if(LabReportUidSummarVOs != null && LabReportUidSummarVOs.size() > 0)
+                if(LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty())
                 {
                     labSumVOMap = retrieveLabReportSummaryRevisited(LabReportUidSummarVOs,false, uidType);
                     if(labSumVOMap.containsKey(LAB_EVENT_LIST))
@@ -1017,13 +1020,13 @@ public class InvestigationService implements IInvestigationService {
                             observationSummaryService.getProviderInformation(providerDetails, labRepSumm);
 
 
-                            if (actIdDetails != null && actIdDetails.size() > 0 && labRepEvent != null) {
+                            if (actIdDetails != null && !actIdDetails.isEmpty() && labRepEvent != null) {
                                 Object[] accessionNumber = actIdDetails.toArray();
                                 if (accessionNumber[0] != null) {
                                     labRepEvent.setAccessionNumber((String) accessionNumber[0]);
                                 }
                             }
-                            if (actIdDetails != null && actIdDetails.size() > 0 && labRepSumm != null) {
+                            if (actIdDetails != null && !actIdDetails.isEmpty() && labRepSumm != null) {
                                 Object[] accessionNumber = actIdDetails.toArray();
                                 if (accessionNumber[0] != null) {
                                     labRepSumm.setAccessionNumber((String) accessionNumber[0]);
@@ -1120,7 +1123,7 @@ public class InvestigationService implements IInvestigationService {
                         labVO.setStatus(tempStr);
                 }
                 if (labVO.getTheResultedTestSummaryVOCollection() != null &&
-                        labVO.getTheResultedTestSummaryVOCollection().size() > 0) {
+                        !labVO.getTheResultedTestSummaryVOCollection().isEmpty()) {
                     resItor = labVO.getTheResultedTestSummaryVOCollection().iterator();
                     while (resItor.hasNext()) {
                         resVO = (ResultedTestSummaryContainer) resItor.next();
@@ -1206,7 +1209,7 @@ public class InvestigationService implements IInvestigationService {
                         }
                         // End  ER16368
                         susColl = resVO.getTheSusTestSummaryVOColl();
-                        if (susColl != null && susColl.size() > 0) {
+                        if (susColl != null && !susColl.isEmpty()) {
                             susItor = susColl.iterator();
                             while (susItor.hasNext()) {
                                 susVO = (ResultedTestSummaryContainer) susItor.next();

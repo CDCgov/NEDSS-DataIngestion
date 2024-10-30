@@ -47,9 +47,12 @@ import java.util.*;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class PatientMatchingBaseService extends MatchingBaseService{
     private static final Logger logger = LoggerFactory.getLogger(PatientMatchingBaseService.class);
 
@@ -303,7 +306,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     {
             PersonContainer mpr = mprUpdateVO.getMpr();
             Collection<EntityLocatorParticipationDto>  col = mpr.getTheEntityLocatorParticipationDtoCollection();
-            if(col!=null && col.size()>0)
+            if(col!=null && !col.isEmpty())
             {
                 for (EntityLocatorParticipationDto entityLocatorParticipationDT : col) {
                     if ((entityLocatorParticipationDT.getThePhysicalLocatorDto() != null

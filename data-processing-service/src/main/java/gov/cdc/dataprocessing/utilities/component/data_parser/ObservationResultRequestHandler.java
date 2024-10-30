@@ -46,9 +46,12 @@ import java.util.StringTokenizer;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class ObservationResultRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationResultRequestHandler.class);
 
@@ -616,7 +619,7 @@ public class ObservationResultRequestHandler {
     protected ObservationContainer getObsReqNotes(List<HL7NTEType> noteArray, ObservationContainer observationContainer) throws DataProcessingException {
         try {
             for (HL7NTEType notes : noteArray) {
-                if (notes.getHL7Comment() != null && notes.getHL7Comment().size() > 0) {
+                if (notes.getHL7Comment() != null && !notes.getHL7Comment().isEmpty()) {
                     for (int j = 0; j < notes.getHL7Comment().size(); j++) {
                         String note = notes.getHL7Comment().get(j);
                         ObsValueTxtDto obsValueTxtDto = new ObsValueTxtDto();

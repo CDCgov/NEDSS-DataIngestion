@@ -37,9 +37,12 @@ import java.util.TreeMap;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class LookupService implements ILookupService {
     private static final Logger logger = LoggerFactory.getLogger(LookupService.class); // NOSONAR
 
@@ -75,7 +78,7 @@ public class LookupService implements ILookupService {
     public TreeMap<Object,Object>  getQuestionMap() {
         TreeMap<Object,Object> questionMap = null;
 
-        if (OdseCache.map != null && OdseCache.map.size() > 0) {
+        if (OdseCache.map != null && !OdseCache.map.isEmpty()) {
             return (TreeMap<Object,Object>) OdseCache.map;
 
         }
@@ -181,7 +184,7 @@ public class LookupService implements ILookupService {
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
         try {
-            if (coll.size() > 0) {
+            if (!coll.isEmpty()) {
                 for (LookupMappingDto lookupMappingDto : coll) {
                     sizecount++;
                     qMetadata = new PrePopMappingDto(lookupMappingDto);
@@ -269,7 +272,7 @@ public class LookupService implements ILookupService {
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
         try {
-            if (coll.size() > 0) {
+            if (!coll.isEmpty()) {
                 for (LookupMappingDto lookupMappingDto : coll) {
                     sizecount++;
                     qMetadata = new PrePopMappingDto(lookupMappingDto);
@@ -373,7 +376,7 @@ public class LookupService implements ILookupService {
         map = new TreeMap[coll.size()];
         NbsQuestionMetadata qMetadata = null;
         try{
-            if (coll.size() > 0) {
+            if (!coll.isEmpty()) {
                 for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
                     sizecount++;
                     qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
@@ -463,7 +466,7 @@ public class LookupService implements ILookupService {
     private TreeMap<Object,Object> createQuestionMap(Collection<Object>  coll) {
         TreeMap<Object,Object> qCodeMap = new TreeMap<>();
         TreeMap<Object,Object> qInvFormRVCTMap = new TreeMap<>();
-        if (coll != null && coll.size() > 0) {
+        if (coll != null && !coll.isEmpty()) {
             for (Object o : coll) {
                 NbsQuestionMetadata qMetadata = (NbsQuestionMetadata) o;
                 if (qMetadata.getInvestigationFormCd().equals(NBSConstantUtil.INV_FORM_RVCT))

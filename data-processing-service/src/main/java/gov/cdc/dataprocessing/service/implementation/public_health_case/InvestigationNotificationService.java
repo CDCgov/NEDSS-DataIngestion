@@ -51,9 +51,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
 
@@ -150,7 +153,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
             notifReqColl = customNbsQuestionRepository.retrieveQuestionRequiredNnd(investigationFormCd);
 
-            if(notifReqColl != null && notifReqColl.size() > 0) {
+            if(notifReqColl != null && !notifReqColl.isEmpty()) {
                 for (QuestionRequiredNnd questionRequiredNnd : notifReqColl) {
                     NbsQuestionMetadata metaData = new NbsQuestionMetadata(questionRequiredNnd);
                     subMap.put(metaData.getNbsQuestionUid(), metaData);
@@ -160,7 +163,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Map<?,?> result;
             result= validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj, publicHealthCaseUid, subMap,investigationFormCd);
             StringBuilder errorText =new StringBuilder(20);
-            if(result!=null && result.size()>0){
+            if(result!=null && !result.isEmpty()){
                 int i =  result.size();
                 Collection<?> coll =result.values();
                 Iterator<?> it= coll.iterator();
@@ -322,7 +325,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
                         if (personVO != null
                                 && personVO.getTheEntityLocatorParticipationDtoCollection() != null
-                                && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                                && !personVO.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
                             for (EntityLocatorParticipationDto elp : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                                 if (elp.getThePostalLocatorDto() != null) {
                                     //check if this is the correct entity locator to check
@@ -352,7 +355,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
                         if (personVO != null
                                 && personVO.getThePersonRaceDtoCollection() != null
-                                && personVO.getThePersonRaceDtoCollection().size() > 0) {
+                                && !personVO.getThePersonRaceDtoCollection().isEmpty()) {
                             for (PersonRaceDto personRaceDto : personVO.getThePersonRaceDtoCollection()) {
                                 personRace = personRaceDto;
                                 Object obj = method.invoke(personRace, (Object[]) null);
@@ -366,7 +369,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                     {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
                         String getterNm = createGetterMethod(attrToChk);
-                        if (actIdColl != null && actIdColl.size() > 0) {
+                        if (actIdColl != null && !actIdColl.isEmpty()) {
                             for (ActIdDto adt : actIdColl) {
                                 String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
                                 String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();

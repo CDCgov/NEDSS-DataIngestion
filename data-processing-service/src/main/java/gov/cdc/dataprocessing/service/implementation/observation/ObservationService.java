@@ -67,9 +67,12 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class ObservationService implements IObservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
@@ -356,7 +359,7 @@ public class ObservationService implements IObservationService {
                         patientRollCollection.addAll(vo.getTheRoleDtoCollection());
                     }
                     Collection<PersonContainer> scopedPersons = retrieveScopedPersons(vo.getThePersonDto().getPersonUid());
-                    if (scopedPersons != null && scopedPersons.size() > 0) {
+                    if (scopedPersons != null && !scopedPersons.isEmpty()) {
                         for (var person : scopedPersons) {
                             if (person.getTheRoleDtoCollection() != null && !person.getTheRoleDtoCollection().isEmpty()) {
                                 patientRollCollection.addAll(person.getTheRoleDtoCollection());
@@ -676,7 +679,7 @@ public class ObservationService implements IObservationService {
 
 
             Collection<ActRelationshipDto> col = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(observationId, NEDSSConstant.LAB_REPORT);
-            if (col != null && col.size() > 0)
+            if (col != null && !col.isEmpty())
             {
                 lrProxyVO.setAssociatedInvInd(true);
             }
@@ -723,7 +726,7 @@ public class ObservationService implements IObservationService {
 
             //Adds the performing lab(if any) to the organization cellection
             Collection<OrganizationContainer>  labColl = (Collection<OrganizationContainer>) allAct.get(DataProcessingMapKey.ORGANIZATION);
-            if (labColl != null && labColl.size() > 0)
+            if (labColl != null && !labColl.isEmpty())
             {
                 lrProxyVO.getTheOrganizationContainerCollection().addAll(labColl);
             }
@@ -784,7 +787,8 @@ public class ObservationService implements IObservationService {
 
             //TODO: EMAIL NOTIFICATION IS FLAGGED HERE
 
-            if(labResultProxyVO.getMessageLogDCollection()!=null && labResultProxyVO.getMessageLogDCollection().size()>0){
+            if(labResultProxyVO.getMessageLogDCollection()!=null
+                    && !labResultProxyVO.getMessageLogDCollection().isEmpty()){
                 try {
                     messageLogService.saveMessageLog(labResultProxyVO.getMessageLogDCollection());
                 } catch (Exception e) {
@@ -1048,7 +1052,7 @@ public class ObservationService implements IObservationService {
 
             Collection<EDXDocumentDto> edxDocumentCollection = labResultProxyVO.getEDXDocumentCollection();
             ObservationDto rootDT = observationUtil.getRootObservationDto(labResultProxyVO);
-            if (edxDocumentCollection != null && edxDocumentCollection.size() > 0 && rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
+            if (edxDocumentCollection != null && !edxDocumentCollection.isEmpty() && rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
                 for (EDXDocumentDto eDXDocumentDto : edxDocumentCollection) {
                     if (eDXDocumentDto.getPayload() != null) {
                         String payload = eDXDocumentDto.getPayload();
@@ -1344,7 +1348,7 @@ public class ObservationService implements IObservationService {
             ObservationContainer observationContainer ;
             Long returnObsVal = null;
 
-            if (obsVOColl != null && obsVOColl.size() > 0)
+            if (obsVOColl != null && !obsVOColl.isEmpty())
             {
                 for (ObservationContainer item : obsVOColl) {
                     observationContainer = item;

@@ -50,9 +50,12 @@ import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class PublicHealthCaseRepositoryUtil {
     private final PublicHealthCaseRepository publicHealthCaseRepository;
     private final EntityGroupRepository entityGroupRepository;
@@ -582,7 +585,7 @@ public class PublicHealthCaseRepositoryUtil {
                 if (pamAnsDT.getNbsQuestionUid() != null
                         && nbsQuestionUid != 0
                         && pamAnsDT.getNbsQuestionUid().longValue() != nbsQuestionUid
-                        .longValue() && coll.size() > 0) {
+                        .longValue() && !coll.isEmpty()) {
                     nbsAnswerMap.put(nbsQuestionUid, coll);
                     coll = new ArrayList<>();
                 }
@@ -614,7 +617,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
                 else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr() > 0)
                 {
-                    if (coll.size() > 0)
+                    if (!coll.isEmpty())
                     {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                         coll = new ArrayList<>();
@@ -623,7 +626,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
                 else
                 {
-                    if (coll.size() > 0)
+                    if (!coll.isEmpty())
                     {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                     }
@@ -631,7 +634,7 @@ public class PublicHealthCaseRepositoryUtil {
                     coll = new ArrayList<>();
                 }
                 nbsQuestionUid = pamAnsDT.getNbsQuestionUid();
-                if (!it.hasNext() && coll.size() > 0)
+                if (!it.hasNext() && !coll.isEmpty())
                 {
                     nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), coll);
                 }

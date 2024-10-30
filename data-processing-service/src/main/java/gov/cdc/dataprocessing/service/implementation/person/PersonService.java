@@ -40,9 +40,12 @@ import java.util.*;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class PersonService implements IPersonService {
     private final IPatientMatchingService patientMatchingService;
     private final INokMatchingService nokMatchingService;
@@ -219,7 +222,7 @@ public class PersonService implements IPersonService {
                     matchedVersionCtNo = matchedPersonDT.getVersionCtrlNbr();
                 }
                 if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
-                    if (personVO.getThePersonNameDtoCollection() != null && personVO.getThePersonNameDtoCollection().size() > 0) {
+                    if (personVO.getThePersonNameDtoCollection() != null && !personVO.getThePersonNameDtoCollection().isEmpty()) {
                         for (PersonNameDto personNameDT : personVO.getThePersonNameDtoCollection()) {
                             personNameDT.setItDelete(true);
                             personNameDT.setItDirty(false);
@@ -230,7 +233,7 @@ public class PersonService implements IPersonService {
                             updatedPersonNameCollection.add(personNameDT);
                         }
                     }
-                    if (personVO.getThePersonRaceDtoCollection() != null && personVO.getThePersonRaceDtoCollection().size() > 0) {
+                    if (personVO.getThePersonRaceDtoCollection() != null && !personVO.getThePersonRaceDtoCollection().isEmpty()) {
                         for (PersonRaceDto personRaceDT : personVO.getThePersonRaceDtoCollection()) {
                             personRaceDT.setItDelete(true);
                             personRaceDT.setItDirty(false);
@@ -243,7 +246,7 @@ public class PersonService implements IPersonService {
 
 
 
-                    if (personVO.getThePersonEthnicGroupDtoCollection() != null && personVO.getThePersonEthnicGroupDtoCollection().size() > 0) {
+                    if (personVO.getThePersonEthnicGroupDtoCollection() != null && !personVO.getThePersonEthnicGroupDtoCollection().isEmpty()) {
                         for (PersonEthnicGroupDto personEthnicGroupDT : personVO.getThePersonEthnicGroupDtoCollection()) {
                             personEthnicGroupDT.setItDelete(true);
                             personEthnicGroupDT.setItDirty(false);
@@ -252,7 +255,7 @@ public class PersonService implements IPersonService {
                             updatedPersonEthnicGroupCollection.add(personEthnicGroupDT);
                         }
                     }
-                    if (personVO.getTheEntityIdDtoCollection() != null && personVO.getTheEntityIdDtoCollection().size() > 0) {
+                    if (personVO.getTheEntityIdDtoCollection() != null && !personVO.getTheEntityIdDtoCollection().isEmpty()) {
                         for (EntityIdDto entityIDDT : personVO.getTheEntityIdDtoCollection()) {
                             entityIDDT.setItDelete(true);
                             entityIDDT.setItDirty(false);
@@ -263,7 +266,7 @@ public class PersonService implements IPersonService {
                             updatedtheEntityIdDTCollection.add(entityIDDT);
                         }
                     }
-                    if (personVO.getTheEntityLocatorParticipationDtoCollection() != null && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                    if (personVO.getTheEntityLocatorParticipationDtoCollection() != null && !personVO.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
                         for (EntityLocatorParticipationDto entityLocPartDT : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                             entityLocPartDT.setItDelete(true);
                             entityLocPartDT.setItDirty(false);
@@ -306,7 +309,7 @@ public class PersonService implements IPersonService {
                     personVO.setItDirty(true);
 
                     if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
-                        if (personVO.getThePersonNameDtoCollection() != null && personVO.getThePersonNameDtoCollection().size() > 0) {
+                        if (personVO.getThePersonNameDtoCollection() != null && !personVO.getThePersonNameDtoCollection().isEmpty()) {
                             for (PersonNameDto personNameDT : personVO.getThePersonNameDtoCollection()) {
                                 personNameDT.setItNew(true);
                                 personNameDT.setItDirty(false);
@@ -320,7 +323,7 @@ public class PersonService implements IPersonService {
                         }
                         personVO.getThePersonNameDtoCollection().addAll(updatedPersonNameCollection);
 
-                        if (personVO.getThePersonRaceDtoCollection() != null && personVO.getThePersonRaceDtoCollection().size() > 0) {
+                        if (personVO.getThePersonRaceDtoCollection() != null && !personVO.getThePersonRaceDtoCollection().isEmpty()) {
                             for (PersonRaceDto personRaceDT : personVO.getThePersonRaceDtoCollection()) {
                                 if (hm.get(personRaceDT.getRaceCd()) != null) {
                                     personRaceDT.setItDirty(true);
@@ -342,7 +345,7 @@ public class PersonService implements IPersonService {
                         while (it2.hasNext()) {
                             Map.Entry pair = (Map.Entry) it2.next();
                             PersonRaceDto personRaceDT2 = (PersonRaceDto) pair.getValue();
-                            if (personRaceCollection != null && personRaceCollection.size() > 0) {
+                            if (personRaceCollection != null && !personRaceCollection.isEmpty()) {
                                 for (PersonRaceDto personRaceDT : personRaceCollection) {
                                     if (personRaceDT2.getRaceCd().equals(personRaceDT.getRaceCd())) {
                                         found = true;
@@ -366,7 +369,7 @@ public class PersonService implements IPersonService {
                             personVO.setThePersonRaceDtoCollection(new ArrayList<>());
                             personVO.getThePersonRaceDtoCollection().addAll(updatedPersonRaceCollection);
                         }
-                        if (personVO.getThePersonEthnicGroupDtoCollection() != null && personVO.getThePersonEthnicGroupDtoCollection().size() > 0) {
+                        if (personVO.getThePersonEthnicGroupDtoCollection() != null && !personVO.getThePersonEthnicGroupDtoCollection().isEmpty()) {
                             for (PersonEthnicGroupDto personEthnicGroupDT : personVO.getThePersonEthnicGroupDtoCollection()) {
                                 if (ethnicGroupHm.get(personEthnicGroupDT.getEthnicGroupCd()) != null) {
                                     personEthnicGroupDT.setItDirty(true);
@@ -390,7 +393,7 @@ public class PersonService implements IPersonService {
                             personVO.setThePersonEthnicGroupDtoCollection(new ArrayList<>());
                             personVO.getThePersonEthnicGroupDtoCollection().addAll(updatedPersonEthnicGroupCollection);
                         }
-                        if (personVO.getTheEntityIdDtoCollection() != null && personVO.getTheEntityIdDtoCollection().size() > 0) {
+                        if (personVO.getTheEntityIdDtoCollection() != null && !personVO.getTheEntityIdDtoCollection().isEmpty()) {
                             for (EntityIdDto entityIDDT : personVO.getTheEntityIdDtoCollection()) {
                                 entityIDDT.setItNew(true);
                                 entityIDDT.setItDirty(false);
@@ -407,7 +410,7 @@ public class PersonService implements IPersonService {
 
                         var cloneEntityLocatorForParentUid = new ArrayList<EntityLocatorParticipationDto>();
                         if (personVO.getTheEntityLocatorParticipationDtoCollection() != null
-                            && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0
+                            && !personVO.getTheEntityLocatorParticipationDtoCollection().isEmpty()
                         ) {
                             for (EntityLocatorParticipationDto entityLocPartDT : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                                 entityLocPartDT.setItNew(true);

@@ -42,9 +42,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
  1149 - replacing HashTable complaint
  112 - throwing dedicate exception complaint
  107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107"})
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201"})
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
@@ -329,7 +332,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         Collection<EntityIdDto> newEntityIdDTColl = new ArrayList<>();
         try {
             if (organizationContainer.getTheEntityIdDtoCollection() != null
-                    && organizationContainer.getTheEntityIdDtoCollection().size() > 0) {
+                    && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
                 Collection<EntityIdDto> entityIdDTColl = organizationContainer
                         .getTheEntityIdDtoCollection();
                 for (EntityIdDto entityIdDT : entityIdDTColl) {
@@ -399,8 +402,8 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         String nameAddStr = null;
         String carrot = "^";
         if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null
-                && organizationContainer
-                .getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                && !organizationContainer
+                .getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : organizationContainer
                     .getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null
@@ -443,7 +446,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     private String getNameString(OrganizationContainer organizationContainer) {
         String nameStr = null;
         if (organizationContainer.getTheOrganizationNameDtoCollection() != null
-                && organizationContainer.getTheOrganizationNameDtoCollection().size() > 0) {
+                && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
             Collection<OrganizationNameDto> organizationNameDtoColl = organizationContainer
                     .getTheOrganizationNameDtoCollection();
             for (OrganizationNameDto organizationNameDto : organizationNameDtoColl) {
@@ -465,8 +468,8 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         String carrot = "^";
 
         if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null
-                && organizationContainer
-                .getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                && !organizationContainer
+                .getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : organizationContainer
                     .getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null
