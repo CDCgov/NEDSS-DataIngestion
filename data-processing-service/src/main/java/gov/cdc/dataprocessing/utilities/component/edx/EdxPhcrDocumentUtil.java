@@ -24,8 +24,19 @@ import java.util.*;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxPhcrDocumentUtil {
     private static final Logger logger = LoggerFactory.getLogger(EdxPhcrDocumentUtil.class); // NOSONAR
 
@@ -41,7 +52,6 @@ public class EdxPhcrDocumentUtil {
     @SuppressWarnings("java:S3776")
     public Map<Object, Object> loadQuestions(String conditionCode)
     {
-        Map<Object, Object> questionMap;
         String invFormCd = "";
         if (SrteCache.investigationFormConditionCode.containsKey(conditionCode))
         {
@@ -51,7 +61,6 @@ public class EdxPhcrDocumentUtil {
         {
             invFormCd= DecisionSupportConstants.CORE_INV_FORM;
         }
-        ArrayList<Object> questionList = new ArrayList<> ();
         Map<Object,Object> tempMap = new HashMap<>();
         Map<Object,Object> generalMap = new HashMap<>();
 
@@ -96,7 +105,7 @@ public class EdxPhcrDocumentUtil {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066"})
 
     public String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
         //
@@ -121,7 +130,7 @@ public class EdxPhcrDocumentUtil {
         } catch (Exception e) {
             logger.info(e.getMessage());
         }
-        if(errorTextColl!=null && errorTextColl.size()>0){
+        if(errorTextColl!=null && !errorTextColl.isEmpty()){
             Iterator<Object> iterator = errorTextColl.iterator();
             StringBuilder errorTextString = new StringBuilder();
             while(iterator.hasNext()){

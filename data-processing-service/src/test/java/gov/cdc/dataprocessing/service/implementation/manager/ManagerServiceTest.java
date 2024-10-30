@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -728,7 +727,6 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
 
@@ -775,7 +773,6 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
 
@@ -958,7 +955,6 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
 

@@ -27,8 +27,19 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class SrteCodeObsService implements ISrteCodeObsService {
     private static final Logger logger = LoggerFactory.getLogger(SrteCodeObsService.class); // NOSONAR
 
@@ -264,7 +275,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return Vector
      */
     // AK - 7/25/04
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S135"})
 
     public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
         Vector<Object> snomedVector = new Vector<>();
@@ -380,7 +391,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
 
         Map<String, Object> progAreaCdList;
-        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
 
         try {
@@ -543,8 +553,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     } //end of method
 
-    private String findLocalResultDefaultConditionProgramAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<>();
+    @SuppressWarnings("java:S1172")
+    private String findLocalResultDefaultConditionProgramAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup)
+    {
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
@@ -576,8 +587,8 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         return lastPACode;
     } //end of getProgAreaCdLocalDefault(...)
 
+    @SuppressWarnings("java:S1854")
     private String findLocalResultDefaultConditionProgramAreaCdFromLabResult(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
@@ -649,8 +660,8 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
     } //end of method
 
+    @SuppressWarnings("java:S1172")
     private String findLocalResultDefaultConditionProgramAreaCdFromLabTest(Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
@@ -682,10 +693,9 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         return lastPACode;
     } //end of getProgAreaCdLocalDefault(...)
 
-    @SuppressWarnings({"java:S1149", "java:S1172"})
+    @SuppressWarnings({"java:S1149", "java:S1172","java:S1854"})
     protected String findLocalResultDefaultConditionProgramAreaCdFromLabTestWithoutJoin(
             Vector<Object> codeVector, String reportingLabCLIA, String nextLookup) {
-        Vector<Object> toReturn = new Vector<>();
         String lastPACode = null;
         try {
             for (int k = 0; k < codeVector.size(); k++) {
@@ -725,16 +735,10 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     private String getLocalTestCode(ObservationDto obsDt)
     {
         String code = null;
-        if (obsDt != null)
+        if (obsDt != null && obsDt.getCdSystemCd() != null && (obsDt.getCd() != null && !obsDt.getCd().equals("") &&
+                !obsDt.getCd().equals(" ")))
         {
-            if (obsDt.getCdSystemCd() != null)
-            {
-                if (obsDt.getCd() != null && !obsDt.getCd().equals("") &&
-                        !obsDt.getCd().equals(" "))
-                {
-                    code = obsDt.getCd();
-                }
-            } //end of if
+            code = obsDt.getCd();
         } //end of if
         return code;
     } //end of getLocalTestColl

@@ -36,8 +36,19 @@ import java.util.List;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ProviderMatchingBaseService extends MatchingBaseService{
     private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class);
 
@@ -49,13 +60,13 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             PrepareAssocModelHelper prepareAssocModelHelper) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066"})
     protected String telePhoneTxtProvider(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
 
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null
-                && personContainer.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             for (EntityLocatorParticipationDto entLocPartDT : personContainer.getTheEntityLocatorParticipationDtoCollection()) {
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)) {
                     if (entLocPartDT.getCd() != null && entLocPartDT.getCd().equals(NEDSSConstant.PHONE)) {
@@ -73,7 +84,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         }
         return nameTeleStr;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066"})
     // Creating string for name and address for providers
     protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
@@ -107,6 +118,8 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             nameAddStr = getNameStringForProvider(personContainer) + nameAddStr;
         return nameAddStr;
     }
+
+    @SuppressWarnings("java:S1172")
     protected Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
         try {
             boolean callOrgHashCode= false;
@@ -125,7 +138,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                      * */
                     setProvidertoEntityMatch(personContainer);
                 } catch (Exception e) {
-                    logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
+                    logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria: {}", e.getMessage());
                     throw new DataProcessingException("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
                 }
             }
@@ -134,15 +147,15 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
+    @SuppressWarnings("java:S1172")
     protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
         Long personUID ;
         String localId ;
-        boolean isELRCase = false;
         try {
             localId = personContainer.getThePersonDto().getLocalId();
             if (localId == null) {
                 personContainer.getThePersonDto().setEdxInd("Y");
-                isELRCase = true;
             }
 
             Collection<EntityLocatorParticipationDto> collParLocator ;
@@ -210,7 +223,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                     try {
                         getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
                     } catch (Exception e) {
-                        logger.error("Error in creating the EdxEntityMatchDT with identifier:" + identifier + " " + e.getMessage());
+                        logger.error("Error in creating the EdxEntityMatchDT with identifier: {} {}", identifier, e.getMessage());
                         throw new DataProcessingException(e.getMessage(), e);
                     }
                 }
@@ -248,7 +261,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             try {
                 getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
             } catch (Exception e) {
-                logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1:" + nameAddStrSt1 + " " + e.getMessage());
+                logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1: {} {}", nameAddStrSt1, e.getMessage());
                 throw new DataProcessingException(e.getMessage(), e);
             }
 
@@ -333,7 +346,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                                 String errorMessage = "The assigning authority "
                                         + entityIdDto.getAssigningAuthorityCd()
                                         + " does not exists in the system. ";
-                                logger.debug(ex.getMessage() + errorMessage);
+                                logger.debug("{} {}", ex.getMessage(), errorMessage);
                             }
                         }
                         if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
@@ -352,7 +365,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
         }catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
-            logger.debug(ex.getMessage() + errorMessage);
+            logger.debug("{} {}", ex.getMessage(), errorMessage);
             throw new DataProcessingException(errorMessage, ex);
         }
         return identifierList;
@@ -361,16 +374,16 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     @SuppressWarnings("java:S3776")
     protected String getNameStringForProvider(PersonContainer personContainer) {
         String nameStr = null;
-        if (personContainer.getThePersonNameDtoCollection() != null && personContainer.getThePersonNameDtoCollection().size() > 0) {
+        if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
             Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
             for (PersonNameDto personNameDto : personNameDtoColl) {
                 if (personNameDto.getNmUseCd() == null) {
                     String Message = "personNameDT.getNmUseCd() is null";
                     logger.debug(Message);
                 }
-                if (personNameDto.getNmUseCd() != null && personNameDto.getNmUseCd().equals(NEDSSConstant.LEGAL)) {
-                    if (personNameDto.getLastNm() != null || personNameDto.getFirstNm() != null)
-                        nameStr = personNameDto.getLastNm() + personNameDto.getFirstNm();
+                if (personNameDto.getNmUseCd() != null && personNameDto.getNmUseCd().equals(NEDSSConstant.LEGAL) &&
+                        personNameDto.getLastNm() != null || personNameDto.getFirstNm() != null) {
+                    nameStr = personNameDto.getLastNm() + personNameDto.getFirstNm();
                 }
             }
         }

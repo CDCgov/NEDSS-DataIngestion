@@ -72,7 +72,7 @@ class Hl7ToRhapsodysXmlConverterTest {
     }
 
     @Test
-    void buildHL7LabReportTypeAllMissingConditionalWithTimeOfMessageException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void buildHL7LabReportTypeAllMissingConditionalWithTimeOfMessageException()  {
         var parentClass = new Hl7ToRhapsodysXmlConverter();
         HL7ParsedMessage<OruR1> model = new HL7ParsedMessage();
         model.setParsedMessage(new OruR1());

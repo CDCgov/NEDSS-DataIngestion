@@ -41,8 +41,19 @@ import static gov.cdc.dataprocessing.cache.SrteCache.findRecordForElrXrefsList;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class HL7PatientHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7PatientHandler.class);
 
@@ -255,7 +266,7 @@ public class HL7PatientHandler {
             }
 
             //Setup Person Maiden Mother Name
-            if(hl7PIDType.getMothersMaidenName() != null && (hl7PIDType.getMothersMaidenName().size() > 0)){
+            if(hl7PIDType.getMothersMaidenName() != null && (!hl7PIDType.getMothersMaidenName().isEmpty())){
                 String surname = "";
                 if(hl7PIDType.getMothersMaidenName().get(0).getHL7FamilyName()!=null) {
                     surname = hl7PIDType.getMothersMaidenName().get(0).getHL7FamilyName().getHL7Surname();
@@ -360,7 +371,7 @@ public class HL7PatientHandler {
                         }
                         raceColl.add(raceDT);
                     } catch (Exception e) {
-                        logger.error("Exception thrown by HL7PatientProcessor.getPatientVO  getting race information" + e);
+                        logger.error("Exception thrown by HL7PatientProcessor.getPatientVO  getting race information {}", e.getMessage());
                         throw new DataProcessingException(
                                 "Exception thrown at HL7PatientProcessor.getPatientVO getting race information:" + e);
                     }// end of catch
@@ -531,7 +542,7 @@ public class HL7PatientHandler {
 
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessor.personVO " + e);
-            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO:"+ e);
+            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO: {}"+ e.getMessage());
         }
         return personContainer;
     }
@@ -575,8 +586,7 @@ public class HL7PatientHandler {
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7PatientProcessor.getNextOfKinVO "
-                    + e);
+            logger.error("Exception thrown by HL7PatientProcessor.getNextOfKinVO {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getNextOfKinVO:"+ e);
         }
         return labResultProxyContainer;

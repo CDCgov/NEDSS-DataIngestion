@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.other;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
@@ -71,7 +70,7 @@ class DataExtractionServiceTest {
     }
 
     @Test
-    void testParsingDataToObjectSuccess() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void testParsingDataToObjectSuccess() throws JAXBException, DataProcessingException {
         Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = null;
         nbsInterfaceModel = gson.fromJson(getData(), NbsInterfaceModel.class);
@@ -340,13 +339,11 @@ class DataExtractionServiceTest {
     }
 
     private IdentifiersType getIdentifiersType() {
-        IdentifiersType identifiersType = new IdentifiersType();
-        return identifiersType;
+        return new IdentifiersType();
     }
 
     private NoteType getNotesType() {
-        NoteType notes = new NoteType();
-        return notes;
+        return new NoteType();
     }
 
     private NameType getNameType() {

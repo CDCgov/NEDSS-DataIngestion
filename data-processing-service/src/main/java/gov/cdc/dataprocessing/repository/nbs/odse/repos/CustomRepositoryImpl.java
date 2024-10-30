@@ -31,8 +31,19 @@ import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class CustomRepositoryImpl implements CustomRepository {
     @PersistenceContext(unitName = "odse")
     protected EntityManager entityManager;
@@ -126,7 +137,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
 
     public Map<Object, Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) {
-        Map<Object,Object> map= new HashMap<Object,Object> ();
+        Map<Object,Object> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(DOCUMENT_FOR_A_PHC);
         query.setParameter(PHC_UID, publicHealthUID);
         List<Object[]> results = query.getResultList();
@@ -182,7 +193,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public Map<Object, Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID, String theQuery) {
-        Map<Object,Object> map= new HashMap<Object,Object> ();
+        Map<Object,Object> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter(PHC_UID, publicHealthUID);
         List<Object[]> results = query.getResultList();
@@ -204,7 +215,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd, String theQuery) {
-        Map<Object,Object> assocoiatedInvMap= new HashMap<Object,Object> ();
+        Map<Object,Object> assocoiatedInvMap= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("ClassCd", sourceClassCd);
         query.setParameter("ActUid",uid);
@@ -257,7 +268,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-    public ArrayList<UidSummaryContainer> getSusceptibilityUidSummary(ResultedTestSummaryContainer RVO, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm, String typeCode, Long observationUid)
+    public ArrayList<UidSummaryContainer> getSusceptibilityUidSummary(ResultedTestSummaryContainer rvo, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm, String typeCode, Long observationUid)
     {
         String theSelect = GET_SOURCE_ACT_UID_FOR_SUSCEPTIBILITES_SQL;
         Query query = entityManager.createNativeQuery(theSelect);
@@ -409,7 +420,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public ArrayList<Object>  getActIdDetails(Long observationUID) {
-        ArrayList<Object> vals= new ArrayList<Object> ();
+        ArrayList<Object> vals= new ArrayList<> ();
         String theSelect = "SELECT Act_id.root_extension_txt \"rootExtTxt\" " +
                 "FROM Act_id with (nolock) " +
                 "WHERE Act_id.Act_uid = " + observationUID;
@@ -424,10 +435,10 @@ public class CustomRepositoryImpl implements CustomRepository {
         return vals;
     }
     public  ArrayList<Object>  getProviderInfo(Long observationUID,String partTypeCd) {
-        ArrayList<Object> vals = new ArrayList<Object> ();
+        ArrayList<Object> vals = new ArrayList<> ();
         //per Pete Varnell - use optimizer hint on select
-        String ORD_PROVIDER_MSQL = "SELECT ";
-        String ORD_PROVIDER = "person_name.person_uid \"providerUid\",person_name.last_nm \"lastNm\", person_name.nm_degree \"degree\", " +
+        String ORD_PROVIDER_MSQL = "SELECT "; // NOSONAR
+        String ORD_PROVIDER = "person_name.person_uid \"providerUid\",person_name.last_nm \"lastNm\", person_name.nm_degree \"degree\", " + //NOSONAR
                 "person_name.first_nm \"firstNm\" , person_name.nm_prefix \"prefix\" ,  person_name.nm_suffix \"suffix\" " +
                 "FROM person_name with (nolock) , observation with (nolock), " +
                 "participation with (nolock) WHERE person_name.person_uid = participation.subject_entity_uid " +
@@ -453,7 +464,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     public ArrayList<Object> getPatientPersonInfo(Long observationUID) {
-        ArrayList<Object> vals= new ArrayList<Object> ();
+        ArrayList<Object> vals= new ArrayList<> ();
         String theSelect = "SELECT person_name.last_nm \"lastNm\", " +
                 "person_name.first_nm \"firstNm\", observation.ctrl_cd_display_form \"ctrlCdDisplayForm\", " +
                 "person.person_parent_uid \"personParentUid\" " +
@@ -479,8 +490,8 @@ public class CustomRepositoryImpl implements CustomRepository {
 
     @SuppressWarnings("java:S1192")
     public  Map<Object,Object> getLabParticipations(Long observationUID) {
-        String QUICK_FIND_PATIENT_MSQL = "SELECT ";
-        String QUICK_FIND_PATIENT =  "participation.subject_class_cd \"classCd\", "
+        String QUICK_FIND_PATIENT_MSQL = "SELECT "; // NOSONAR
+        String QUICK_FIND_PATIENT =  "participation.subject_class_cd \"classCd\", " // NOSONAR
                 + "participation.type_cd \"typeCd\", "
                 + "participation.subject_entity_uid \"subjectEntityUid\" "
                 + "from observation with (nolock), participation with (nolock)"
@@ -493,7 +504,7 @@ public class CustomRepositoryImpl implements CustomRepository {
                 + "AND observation.observation_uid = " + observationUID.toString();
         String theSelect=  QUICK_FIND_PATIENT_MSQL+QUICK_FIND_PATIENT;
 
-        Map<Object,Object> vals = new HashMap<Object,Object>();
+        Map<Object,Object> vals = new HashMap<>();
         Query query = entityManager.createNativeQuery(theSelect);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {

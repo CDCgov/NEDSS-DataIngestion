@@ -138,7 +138,6 @@ class ObservationServiceTest {
     // getObservationToLabResultContainer
     @Test
     void getObservationToLabResultContainer_ReturnData_ELRisTrue() throws DataProcessingException {
-        String actType = "OBS";
         long obsUid = 1L;
 
         // loadingObservationToLabResultContainer

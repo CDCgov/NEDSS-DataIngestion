@@ -47,8 +47,19 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
+ 3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
+ 1195 - duplicate complaint
+ 1135 - Todos complaint
+ 6201 - instanceof check
+ 1192 - duplicate literal
+ 135 - for loop
+ 117 - naming
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
 
@@ -125,7 +136,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     @SuppressWarnings("java:S3776")
     private EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)
     {
-        HashMap<Object,Object> nndRequiredMap = new HashMap<>();
         EDXActivityDetailLogDto eDXActivityDetailLogDT = new EDXActivityDetailLogDto();
 
         eDXActivityDetailLogDT.setRecordType(EdxPHCRConstants.MSG_TYPE.Notification.name());
@@ -146,7 +156,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
             notifReqColl = customNbsQuestionRepository.retrieveQuestionRequiredNnd(investigationFormCd);
 
-            if(notifReqColl != null && notifReqColl.size() > 0) {
+            if(notifReqColl != null && !notifReqColl.isEmpty()) {
                 for (QuestionRequiredNnd questionRequiredNnd : notifReqColl) {
                     NbsQuestionMetadata metaData = new NbsQuestionMetadata(questionRequiredNnd);
                     subMap.put(metaData.getNbsQuestionUid(), metaData);
@@ -156,7 +166,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Map<?,?> result;
             result= validatePAMNotficationRequiredFieldsGivenPageProxy(pageObj, publicHealthCaseUid, subMap,investigationFormCd);
             StringBuilder errorText =new StringBuilder(20);
-            if(result!=null && result.size()>0){
+            if(result!=null && !result.isEmpty()){
                 int i =  result.size();
                 Collection<?> coll =result.values();
                 Iterator<?> it= coll.iterator();
@@ -256,7 +266,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 pageProxyVO = (PageActProxyContainer) pageObj;
             }
             PageActProxyContainer pageActProxyContainer =pageProxyVO;
-            pamVO= pageActProxyContainer.getPageVO();
 
             answerMap = (pageProxyVO).getPageVO().getPamAnswerDTMap();
             if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
@@ -278,12 +287,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         if (personVO != null) {
             personDT = personVO.getThePersonDto();
         }
-
-
-        String programAreaCode = publicHealthCaseDto.getProgAreaCd();
-        String jurisdictionCode = publicHealthCaseDto.getJurisdictionCd();
-        String shared = publicHealthCaseDto.getSharedInd();
-
+        
         try {
             for (Object o : reqFields.keySet()) {
                 Long key = (Long) o;
@@ -324,7 +328,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
                         if (personVO != null
                                 && personVO.getTheEntityLocatorParticipationDtoCollection() != null
-                                && personVO.getTheEntityLocatorParticipationDtoCollection().size() > 0) {
+                                && !personVO.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
                             for (EntityLocatorParticipationDto elp : personVO.getTheEntityLocatorParticipationDtoCollection()) {
                                 if (elp.getThePostalLocatorDto() != null) {
                                     //check if this is the correct entity locator to check
@@ -354,7 +358,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         Method method = (Method) methodMap.get(getterNm.toLowerCase());
                         if (personVO != null
                                 && personVO.getThePersonRaceDtoCollection() != null
-                                && personVO.getThePersonRaceDtoCollection().size() > 0) {
+                                && !personVO.getThePersonRaceDtoCollection().isEmpty()) {
                             for (PersonRaceDto personRaceDto : personVO.getThePersonRaceDtoCollection()) {
                                 personRace = personRaceDto;
                                 Object obj = method.invoke(personRace, (Object[]) null);
@@ -368,7 +372,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                     {
                         String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
                         String getterNm = createGetterMethod(attrToChk);
-                        if (actIdColl != null && actIdColl.size() > 0) {
+                        if (actIdColl != null && !actIdColl.isEmpty()) {
                             for (ActIdDto adt : actIdColl) {
                                 String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
                                 String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
@@ -405,11 +409,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
                     }
-                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)))
+                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)) &&
+                            answerMap == null || Objects.requireNonNull(answerMap).size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null))
                     {
-                        if (answerMap == null || answerMap.size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
-                            missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
-                        }
+                        missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                     }
 
                 }
@@ -420,7 +423,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
         if (missingFields.size() == 0)
         {
-            return null;
+            return null; // NOSONAR
         }
         else
         {
@@ -453,11 +456,11 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
     private void checkObject(Object obj,  Map<Object, Object>  missingFields, NbsQuestionMetadata metaData)  {
         String value = obj == null ? "" : obj.toString();
-        if(value == null || (value != null && value.trim().length() == 0)) {
+        if(value == null || value.trim().length() == 0) {
             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
         }
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S3626"})
     private PersonContainer getPersonVO(String type_cd, Collection<ParticipationDto> participationDTCollection,
                                         Collection<PersonContainer> personVOCollection)  {
         ParticipationDto participationDT;
