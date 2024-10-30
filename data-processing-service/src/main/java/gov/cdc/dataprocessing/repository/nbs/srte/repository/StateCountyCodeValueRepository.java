@@ -24,9 +24,9 @@ import java.util.Optional;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
- 6541 - brain method complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public interface StateCountyCodeValueRepository extends JpaRepository<StateCountyCodeValue, String> {
     @Query(value = "SELECT * FROM State_county_code_value  WHERE INDENT_LEVEL_NBR='2' ", nativeQuery = true)
     Optional<List<StateCountyCodeValue>> findByIndentLevelNbr();

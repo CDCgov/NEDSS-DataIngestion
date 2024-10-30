@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
- 6541 - brain method complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class NokMatchingBaseService extends PatientMatchingBaseService {
 
     public NokMatchingBaseService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
