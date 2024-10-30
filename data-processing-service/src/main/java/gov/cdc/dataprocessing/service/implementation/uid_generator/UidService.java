@@ -30,8 +30,12 @@ import java.util.Iterator;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class UidService implements IUidService {
     private static final Logger logger = LoggerFactory.getLogger(UidService.class);
 
@@ -111,12 +115,9 @@ public class UidService implements IUidService {
                     roleDT.setSubjectEntityUid(actualUid);
 
                 }
-                if (roleDT.getScopingEntityUid() != null)
+                if (roleDT.getScopingEntityUid() != null && falseUid != null && roleDT.getScopingEntityUid().compareTo(falseUid) == 0)
                 {
-                    if (falseUid != null && roleDT.getScopingEntityUid().compareTo(falseUid) == 0)
-                    {
-                        roleDT.setScopingEntityUid(actualUid);
-                    }
+                    roleDT.setScopingEntityUid(actualUid);
                 }
 
             }
@@ -176,10 +177,8 @@ public class UidService implements IUidService {
                 if (roleDto.getSubjectEntityUid().compareTo(falseUid) == 0) {
                     roleDto.setSubjectEntityUid(actualUid);
                 }
-                if (roleDto.getScopingEntityUid() != null) {
-                    if (roleDto.getScopingEntityUid().compareTo(falseUid) == 0) {
-                        roleDto.setScopingEntityUid(actualUid);
-                    }
+                if (roleDto.getScopingEntityUid() != null && roleDto.getScopingEntityUid().compareTo(falseUid) == 0) {
+                    roleDto.setScopingEntityUid(actualUid);
                 }
 
             }
@@ -226,13 +225,11 @@ public class UidService implements IUidService {
 
                 if (actRelationshipDT.getTargetActUid().compareTo(falseUid) == 0) {
                     actRelationshipDT.setTargetActUid(actualUid);
-                    eventUid=actRelationshipDT.getTargetActUid();
                 }
                 if (actRelationshipDT.getSourceActUid().compareTo(falseUid) == 0) {
                     actRelationshipDT.setSourceActUid(actualUid);
                 }
-                logger.debug("ActRelationShipDT: falseUid "
-                        + falseUid+ " actualUid: " + actualUid);
+                logger.debug("ActRelationShipDT: falseUid {} actualUid: {}",falseUid, actualUid);
             }
         }
 

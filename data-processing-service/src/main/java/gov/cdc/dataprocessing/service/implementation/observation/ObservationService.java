@@ -64,8 +64,12 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ObservationService implements IObservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
@@ -222,12 +226,9 @@ public class ObservationService implements IObservationService {
     private BaseContainer getAbstractObjectForObservationOrIntervention(String actType, Long anUid) throws DataProcessingException
     {
         BaseContainer obj = null;
-        if (anUid != null)
+        if (anUid != null && actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
         {
-            if (actType.equalsIgnoreCase(NEDSSConstant.OBSERVATION_CLASS_CODE))
-            {
-                obj = observationRepositoryUtil.loadObject(anUid);
-            }
+            obj = observationRepositoryUtil.loadObject(anUid);
         }
         return obj;
     }
@@ -787,7 +788,7 @@ public class ObservationService implements IObservationService {
                 try {
                     messageLogService.saveMessageLog(labResultProxyVO.getMessageLogDCollection());
                 } catch (Exception e) {
-                    logger.error("Unable to store the Error message for = "+ labResultProxyVO.getMessageLogDCollection());
+                    logger.error("Unable to store the Error message for = {}", labResultProxyVO.getMessageLogDCollection());
                 }
             }
             return returnVal;
@@ -910,7 +911,7 @@ public class ObservationService implements IObservationService {
                         );
                         organizationContainer.setTheOrganizationDto(newOrganizationDto);
                         falseUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
-                        logger.debug("false organizationUID: " + falseUid);
+                        logger.debug("false organizationUID: {}", falseUid);
 
                         realUid = organizationRepositoryUtil.setOrganization(organizationContainer, null);
                         if (falseUid.intValue() < 0) {
@@ -940,7 +941,7 @@ public class ObservationService implements IObservationService {
                 for (MaterialContainer vo : labResultProxyVO.getTheMaterialContainerCollection()) {
                     materialContainer = vo;
                     MaterialDto newMaterialDto;
-                    logger.debug("materialUID: " + materialContainer.getTheMaterialDto().getMaterialUid());
+                    logger.debug("materialUID: {}", materialContainer.getTheMaterialDto().getMaterialUid());
 
                     Integer eixstVerNum = null;
                     if(materialContainer.getTheMaterialDto().getMaterialUid() > 0) {
@@ -974,7 +975,7 @@ public class ObservationService implements IObservationService {
                         materialContainer.setTheMaterialDto(newMaterialDto);
 
                         realUid = materialService.saveMaterial(materialContainer);
-                        logger.debug("exisiting but updated material's UID: " + realUid);
+                        logger.debug("exisiting but updated material's UID: {}", realUid);
                     }
                 }
             }
@@ -986,7 +987,7 @@ public class ObservationService implements IObservationService {
                 logger.debug("Iniside participation Collection<Object>  Loop - Lab");
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
 
-                    logger.debug("Inside loop size of participations: " + labResultProxyVO.getTheParticipationDtoCollection().size());
+                    logger.debug("Inside loop size of participations: {}", labResultProxyVO.getTheParticipationDtoCollection().size());
                     try {
                         if (dt != null) {
                             if (dt.isItDelete()) {
@@ -996,9 +997,9 @@ public class ObservationService implements IObservationService {
                             participationService.saveParticipation(dt);
 
 
-                            logger.debug("got the participationDto, the ACTUID is " +
+                            logger.debug("got the participationDto, the ACTUID is {}",
                                     dt.getActUid());
-                            logger.debug("got the participationDto, the subjectEntityUid is " +
+                            logger.debug("got the participationDto, the subjectEntityUid is {}",
                                     dt.getSubjectEntityUid());
                         }
                     } catch (Exception e) {
@@ -1012,7 +1013,7 @@ public class ObservationService implements IObservationService {
 
             if (labResultProxyVO.getTheActRelationshipDtoCollection() != null)
             {
-                logger.debug("Act relationship size: " + labResultProxyVO.getTheActRelationshipDtoCollection().size());
+                logger.debug("Act relationship size: {}", labResultProxyVO.getTheActRelationshipDtoCollection().size());
                 for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
                     try {
                         if (actRelationshipDto != null) {
@@ -1047,19 +1048,17 @@ public class ObservationService implements IObservationService {
 
             Collection<EDXDocumentDto> edxDocumentCollection = labResultProxyVO.getEDXDocumentCollection();
             ObservationDto rootDT = observationUtil.getRootObservationDto(labResultProxyVO);
-            if (edxDocumentCollection != null && edxDocumentCollection.size() > 0) {
-                if (rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
-                    for (EDXDocumentDto eDXDocumentDto : edxDocumentCollection) {
-                        if (eDXDocumentDto.getPayload() != null) {
-                            String payload = eDXDocumentDto.getPayload();
-                            int containerIndex = payload.indexOf("<Container");
-                            eDXDocumentDto.setPayload(payload.substring(containerIndex));
-                        }
-                        if (eDXDocumentDto.isItNew()) {
-                            eDXDocumentDto.setActUid(observationUid);
-                        }
-                        edxDocumentService.saveEdxDocument(eDXDocumentDto);
+            if (edxDocumentCollection != null && edxDocumentCollection.size() > 0 && rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
+                for (EDXDocumentDto eDXDocumentDto : edxDocumentCollection) {
+                    if (eDXDocumentDto.getPayload() != null) {
+                        String payload = eDXDocumentDto.getPayload();
+                        int containerIndex = payload.indexOf("<Container");
+                        eDXDocumentDto.setPayload(payload.substring(containerIndex));
                     }
+                    if (eDXDocumentDto.isItNew()) {
+                        eDXDocumentDto.setActUid(observationUid);
+                    }
+                    edxDocumentService.saveEdxDocument(eDXDocumentDto);
                 }
             }
             rootDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
@@ -1156,15 +1155,6 @@ public class ObservationService implements IObservationService {
                 if (observationContainer == null) {
                     continue;
                 }
-
-                //For ordered test and resulted tests
-                ObservationDto currentDT = observationContainer.getTheObservationDto();
-                String obsDomainCdSt1 = currentDT.getObsDomainCdSt1();
-                boolean isOrderedTest = (obsDomainCdSt1 != null
-                        && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD))
-                        && currentDT.getCd().equalsIgnoreCase("LAB112");
-                boolean isResultedTest = obsDomainCdSt1 != null
-                        && obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.RESULTED_TEST_OBS_DOMAIN_CD);
 
                 // NOTE: data toward DP will never be manual lab
                 if (isMannualLab) {

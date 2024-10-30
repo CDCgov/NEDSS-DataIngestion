@@ -41,8 +41,12 @@ import java.util.Iterator;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class PamService implements IPamService {
     private static final Logger logger = LoggerFactory.getLogger(PamService.class);
 
@@ -101,23 +105,12 @@ public class PamService implements IPamService {
 
     public void insertPamVO(BasePamContainer pamVO, PublicHealthCaseContainer publichHealthCaseVO)
             throws DataProcessingException{
-        Collection<Object>  pamDTCollection  =new ArrayList<> ();
-        Collection<Object>  repeatingAnswerDTCollection  =new ArrayList<> ();
-        if(pamVO.getPamAnswerDTMap()!=null){
-            pamDTCollection= pamVO.getPamAnswerDTMap().values();
-        }
-
-        //NOTE: PAM IS EMPTY IN RELEVANT FLOW
-        //storePamAnswerDTCollection(pamDTCollection, publichHealthCaseVO);
-        if(pamVO.getPageRepeatingAnswerDTMap()!=null){
-            repeatingAnswerDTCollection= pamVO.getPageRepeatingAnswerDTMap().values();
-        }
         //NOTE: PAM IS EMPTY IN RELEVANT FLOW
         answerService.storeActEntityDTCollectionWithPublicHealthCase(pamVO.getActEntityDTCollection(),  publichHealthCaseVO.getThePublicHealthCaseDto());
     }
 
 
-    @SuppressWarnings({"java:S1135", "java:S3776"})
+    @SuppressWarnings({"java:S1135", "java:S3776", "java:S1871"})
     private Long setPamProxy(PamProxyContainer pamProxyVO) throws DataProcessingException {
 
         PublicHealthCaseDto phcDT = pamProxyVO.getPublicHealthCaseContainer()
@@ -224,7 +217,6 @@ public class PamService implements IPamService {
                         else if (personVO.getThePersonDto().getCd().equals(
                                 NEDSSConstant.PRV))
                         { // Provider
-                            String businessTriggerCd = NEDSSConstant.PRV_CR;
                             var data = patientRepositoryUtil.createPerson(personVO);
                             realUid = data.getPersonParentUid();
                         } // end of else if
@@ -246,7 +238,6 @@ public class PamService implements IPamService {
                         else if (personVO.getThePersonDto().getCd().equals(
                                 NEDSSConstant.PRV))
                         { // Provider
-                            String businessTriggerCd = NEDSSConstant.PRV_EDIT;
                             var data = patientRepositoryUtil.createPerson(personVO);
                             realUid = data.getPersonParentUid();
                         } // end of else
@@ -278,16 +269,13 @@ public class PamService implements IPamService {
                         .getThePublicHealthCaseDto().getPublicHealthCaseUid();
                 actualUid = publicHealthCaseService.setPublicHealthCase(
                         publicHealthCaseContainer);
-                logger.debug("actualUid.intValue() = " + actualUid.intValue());
+                logger.debug("actualUid.intValue() = {}", actualUid.intValue());
                 if (falsePublicHealthCaseUid.intValue() < 0) {
                     uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
                     publicHealthCaseContainer.getThePublicHealthCaseDto()
                             .setPublicHealthCaseUid(actualUid);
                 }
-                Long publicHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
-
-                logger.debug("falsePublicHealthCaseUid.intValue() = "
-                        + falsePublicHealthCaseUid.intValue());
+                logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
             }
             if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && pamProxyVO.getNbsNoteDTColl().size()>0){
                 nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());

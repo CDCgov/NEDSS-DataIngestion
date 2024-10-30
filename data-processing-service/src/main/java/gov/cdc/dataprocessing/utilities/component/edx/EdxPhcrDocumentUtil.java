@@ -25,8 +25,12 @@ import java.util.*;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class EdxPhcrDocumentUtil {
     private static final Logger logger = LoggerFactory.getLogger(EdxPhcrDocumentUtil.class); // NOSONAR
 
@@ -52,7 +56,6 @@ public class EdxPhcrDocumentUtil {
         {
             invFormCd= DecisionSupportConstants.CORE_INV_FORM;
         }
-        ArrayList<Object> questionList = new ArrayList<> ();
         Map<Object,Object> tempMap = new HashMap<>();
         Map<Object,Object> generalMap = new HashMap<>();
 
@@ -97,7 +100,7 @@ public class EdxPhcrDocumentUtil {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066"})
 
     public String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
         //

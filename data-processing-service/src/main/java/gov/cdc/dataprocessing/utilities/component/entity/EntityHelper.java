@@ -26,8 +26,12 @@ import java.util.Iterator;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class EntityHelper {
     private static final Logger logger = LoggerFactory.getLogger(EntityHelper.class);
     private  final PrepareAssocModelHelper prepareAssocModel;
@@ -51,7 +55,7 @@ public class EntityHelper {
         Collection<EntityLocatorParticipationDto> collection;
         Iterator<EntityLocatorParticipationDto> anIterator;
         collection = dtCol;
-        logger.debug("Collection<Object> size before iteration in iterateELPDT " + collection.size());
+        logger.debug("Collection<Object> size before iteration in iterateELPDT {}", collection.size());
         try {
             for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
                 EntityLocatorParticipationDto elpDT =  anIterator.next();
@@ -62,10 +66,10 @@ public class EntityHelper {
                 retCol.add(elpDT);
             }
         } catch (Exception e) {
-            logger.error("EntityControllerEJB.iterateELPDT: " + e.getMessage(), e);
+            logger.error("EntityControllerEJB.iterateELPDT: {}", e.getMessage());
             throw new DataProcessingException(e.getMessage(), e);
         }
-        logger.debug("Collection<Object> size after iteration in iterateELPDT " + retCol.size());
+        logger.debug("Collection<Object> size after iteration in iterateELPDT {}", retCol.size());
         return retCol;
 
     }
@@ -86,27 +90,22 @@ public class EntityHelper {
         Collection<RoleDto> collection;
         Iterator<RoleDto> anIterator ;
         collection = dtCol;
-        logger.debug("Collection<Object> size before iteration in iterateRDT " + collection.size());
-        if (collection != null) {
-            try {
-                for (anIterator = collection.iterator(); anIterator.hasNext();) {
-                    RoleDto rDT =  anIterator.next();
-                    if (rDT.isItDirty() || rDT.isItNew() || rDT.isItDelete()) {
-                        logger.debug("EntityController:rdT.IsItDelete"
-                                + rDT.isItDelete() + "rdt.IsItNew:"
-                                + rDT.isItNew() + "rdt.IsItDirty:"
-                                + rDT.isItDirty());
-                        RoleDto assocDTInterface = rDT;
-                        rDT =  prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
-                        retCol.add(rDT);
-                    }
+        logger.debug("Collection<Object> size before iteration in iterateRDT {}", collection.size());
+        try {
+            for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
+                RoleDto rDT = anIterator.next();
+                if (rDT.isItDirty() || rDT.isItNew() || rDT.isItDelete()) {
+                    logger.debug("EntityController:rdT.IsItDelete {} rdt.IsItNew: {} rdt.IsItDirty: {}", rDT.isItDelete(), rDT.isItNew(), rDT.isItDirty());
+                    RoleDto assocDTInterface = rDT;
+                    rDT = prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
+                    retCol.add(rDT);
                 }
-            } catch (Exception e) {
-                logger.error("EntityControllerEJB.iterateRDT: " + e.getMessage(), e);
-                throw new DataProcessingException(e.getMessage(), e);
             }
+        } catch (Exception e) {
+            logger.error("EntityControllerEJB.iterateRDT: {}", e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
-        logger.debug("Collection<Object> size after iteration in iterateRDT " + retCol.size());
+        logger.debug("Collection<Object> size after iteration in iterateRDT {}", retCol.size());
         return retCol;
 
     }

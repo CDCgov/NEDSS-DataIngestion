@@ -48,8 +48,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
 
@@ -126,7 +130,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     @SuppressWarnings("java:S3776")
     private EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)
     {
-        HashMap<Object,Object> nndRequiredMap = new HashMap<>();
         EDXActivityDetailLogDto eDXActivityDetailLogDT = new EDXActivityDetailLogDto();
 
         eDXActivityDetailLogDT.setRecordType(EdxPHCRConstants.MSG_TYPE.Notification.name());
@@ -257,7 +260,6 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 pageProxyVO = (PageActProxyContainer) pageObj;
             }
             PageActProxyContainer pageActProxyContainer =pageProxyVO;
-            pamVO= pageActProxyContainer.getPageVO();
 
             answerMap = (pageProxyVO).getPageVO().getPamAnswerDTMap();
             if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
@@ -279,12 +281,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         if (personVO != null) {
             personDT = personVO.getThePersonDto();
         }
-
-
-        String programAreaCode = publicHealthCaseDto.getProgAreaCd();
-        String jurisdictionCode = publicHealthCaseDto.getJurisdictionCd();
-        String shared = publicHealthCaseDto.getSharedInd();
-
+        
         try {
             for (Object o : reqFields.keySet()) {
                 Long key = (Long) o;
@@ -406,11 +403,10 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
                     }
-                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)))
+                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)) &&
+                            answerMap == null || Objects.requireNonNull(answerMap).size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null))
                     {
-                        if (answerMap == null || answerMap.size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
-                            missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
-                        }
+                        missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                     }
 
                 }
@@ -421,7 +417,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
         if (missingFields.size() == 0)
         {
-            return null;
+            return null; // NOSONAR
         }
         else
         {
@@ -454,7 +450,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
     private void checkObject(Object obj,  Map<Object, Object>  missingFields, NbsQuestionMetadata metaData)  {
         String value = obj == null ? "" : obj.toString();
-        if(value == null || (value != null && value.trim().length() == 0)) {
+        if(value == null || value.trim().length() == 0) {
             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
         }
     }

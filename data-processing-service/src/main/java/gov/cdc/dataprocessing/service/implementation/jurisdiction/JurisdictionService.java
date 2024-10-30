@@ -38,8 +38,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class JurisdictionService implements IJurisdictionService {
     private static final Logger logger = LoggerFactory.getLogger(JurisdictionService.class); // NOSONAR
 
@@ -277,17 +281,13 @@ public class JurisdictionService implements IJurisdictionService {
                 {
                     detailError.append("Provider: ");
                     providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
-                    if(!(providerJurisdictionCollection.size()==0))
-                        // Check to see the provider size.  Only proceed if the provider size is not greater than 1.
-                        if (providerJurisdictionCollection.size() == 1)
-                        {
-                            // Check the result to make sure that there is a value for the provider's jurisdiction.
-                            // If not then go and find the jurisdiction based on the provider
-                            Iterator<String> iter = providerJurisdictionCollection.iterator();
-                            jurisdiction = iter.next();
-                            map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-
-                        }
+                    if(providerJurisdictionCollection.size() == 1) {
+                        // Check the result to make sure that there is a value for the provider's jurisdiction.
+                        // If not then go and find the jurisdiction based on the provider
+                        Iterator<String> iter = providerJurisdictionCollection.iterator();
+                        jurisdiction = iter.next();
+                        map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+                    }
                 }
 
                 if(jurisdiction==null){
@@ -296,20 +296,13 @@ public class JurisdictionService implements IJurisdictionService {
                         detailError.append("Ordering Facility: ");
                         organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
-                    if (organizationJurisdictionCollection != null)
+                    if (organizationJurisdictionCollection != null && organizationJurisdictionCollection.size() == 1)
                     {
-                        // Check to see the organization size.  Only proceed if the organization size is not greater than 1.
-                        if (organizationJurisdictionCollection.size() <= 1)
-                        {
-                            // Check the result to make sure that there is a value for the organization's jurisdiction.
-                            // If not then go and find the jurisdiction based on the organization
-                            if (organizationJurisdictionCollection.size() == 1)
-                            {
-                                Iterator<String> iter = organizationJurisdictionCollection.iterator();
-                                jurisdiction = iter.next();
-                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                            }
-                        }
+                        // Check the result to make sure that there is a value for the organization's jurisdiction.
+                        // If not then go and find the jurisdiction based on the organization
+                        Iterator<String> iter = organizationJurisdictionCollection.iterator();
+                        jurisdiction = iter.next();
+                        map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                     }
                 }
 
@@ -319,20 +312,16 @@ public class JurisdictionService implements IJurisdictionService {
                         detailError.append("Ordering Facility: ");
                         organizationJurisdictionCollection = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                     }
-                    if (organizationJurisdictionCollection != null) {
+                    if (organizationJurisdictionCollection != null && organizationJurisdictionCollection.size() == 1) {
                         // Check to see the organization size. Only proceed if the
                         // organization size is not greater than 1.
-                        if (organizationJurisdictionCollection.size() <= 1) {
-                            // Check the result to make sure that there is a value
-                            // for the organization's jurisdiction.
-                            // If not then go and find the jurisdiction based on the
-                            // organization
-                            if (organizationJurisdictionCollection.size() == 1) {
-                                Iterator<String> iter = organizationJurisdictionCollection.iterator();
-                                jurisdiction = iter.next();
-                                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                            }
-                        }
+                        // Check the result to make sure that there is a value
+                        // for the organization's jurisdiction.
+                        // If not then go and find the jurisdiction based on the
+                        // organization
+                        Iterator<String> iter = organizationJurisdictionCollection.iterator();
+                        jurisdiction = iter.next();
+                        map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                     }
                 }
             }
@@ -352,67 +341,61 @@ public class JurisdictionService implements IJurisdictionService {
             Collection<String> coll = new ArrayList<>();
 
             // Check to make sure that you are able to get a locator participation
-            if (entityLocatorPartColl != null)
+            if (entityLocatorPartColl != null && !entityLocatorPartColl.isEmpty())
             {
+                for (EntityLocatorParticipationDto dt : entityLocatorPartColl) {
+                    // for subject the use code	= "H" class cd = "PST"
+                    // for provider the use code = "W" class cd = "PST"
+                    if (dt.getUseCd().equals(useCd) && dt.getClassCd().equals(classCd)) {
+                        postalDt = dt.getThePostalLocatorDto();
 
-                // If there is a locator participation then proceed.
-                if (!entityLocatorPartColl.isEmpty())
-                {
+                        // Parse the zip if is valid.
+                        if (postalDt != null) {
 
-                    for (EntityLocatorParticipationDto dt : entityLocatorPartColl) {
-                        // for subject the use code	= "H" class cd = "PST"
-                        // for provider the use code = "W" class cd = "PST"
-                        if (dt.getUseCd().equals(useCd) && dt.getClassCd().equals(classCd)) {
-                            postalDt = dt.getThePostalLocatorDto();
+                            String searchZip;
+                            searchZip = parseZip(postalDt.getZipCd());
 
-                            // Parse the zip if is valid.
-                            if (postalDt != null) {
+                            if (searchZip == null) {
+                                searchZip = "NO ZIP";
+                            }
+                            detailError.append(searchZip);
+                            detailError.append(", ");
 
-                                String searchZip;
-                                searchZip = parseZip(postalDt.getZipCd());
 
-                                if (searchZip == null) {
-                                    searchZip = "NO ZIP";
+                            // Attempt to find the jurisicition by zip code.  if you do not retrieve any
+                            // data then attempt to retriece by county.  If no data then retrieve
+                            // by city.
+
+                            var res = jurisdictionParticipationRepository.findJurisdiction(searchZip, "Z");
+                            if (res.isPresent()) {
+                                coll = res.get();
+                            }
+                            if (coll.size() < 1) {
+                                String cityDesc = postalDt.getCityDescTxt();
+                                if (cityDesc == null)
+                                {
+                                    cityDesc = "NO CITY";
                                 }
-                                detailError.append(searchZip);
+                                detailError.append(cityDesc);
+                                detailError.append(", ");
+                                if (postalDt.getCityDescTxt() != null) {
+                                    var resCity = jurisdictionParticipationRepository.findJurisdictionForCity(postalDt.getCityDescTxt(), postalDt.getStateCd(), "C");
+                                    if (resCity.isPresent()) {
+                                        coll = resCity.get();
+                                    }
+
+                                }
+                                String countyDesc = postalDt.getCntyDescTxt();
+                                if (countyDesc == null) {
+                                    countyDesc = "NO COUNTY";
+                                }
+                                detailError.append(countyDesc);
                                 detailError.append(", ");
 
-
-                                // Attempt to find the jurisicition by zip code.  if you do not retrieve any
-                                // data then attempt to retriece by county.  If no data then retrieve
-                                // by city.
-
-                                var res = jurisdictionParticipationRepository.findJurisdiction(searchZip, "Z");
-                                if (res.isPresent()) {
-                                    coll = res.get();
-                                }
                                 if (coll.size() < 1) {
-                                    String cityDesc = postalDt.getCityDescTxt();
-                                    if (cityDesc == null)
-                                    {
-                                        cityDesc = "NO CITY";
-                                    }
-                                    detailError.append(cityDesc);
-                                    detailError.append(", ");
-                                    if (postalDt.getCityDescTxt() != null) {
-                                        var resCity = jurisdictionParticipationRepository.findJurisdictionForCity(postalDt.getCityDescTxt(), postalDt.getStateCd(), "C");
-                                        if (resCity.isPresent()) {
-                                            coll = resCity.get();
-                                        }
-
-                                    }
-                                    String countyDesc = postalDt.getCntyDescTxt();
-                                    if (countyDesc == null) {
-                                        countyDesc = "NO COUNTY";
-                                    }
-                                    detailError.append(countyDesc);
-                                    detailError.append(", ");
-
-                                    if (coll.size() < 1) {
-                                        var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
-                                        if (resJus.isPresent()) {
-                                            coll = resJus.get();
-                                        }
+                                    var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
+                                    if (resJus.isPresent()) {
+                                        coll = resJus.get();
                                     }
                                 }
                             }

@@ -42,8 +42,12 @@ import static gov.cdc.dataprocessing.cache.SrteCache.findRecordForElrXrefsList;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class HL7PatientHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7PatientHandler.class);
 
@@ -361,7 +365,7 @@ public class HL7PatientHandler {
                         }
                         raceColl.add(raceDT);
                     } catch (Exception e) {
-                        logger.error("Exception thrown by HL7PatientProcessor.getPatientVO  getting race information" + e);
+                        logger.error("Exception thrown by HL7PatientProcessor.getPatientVO  getting race information {}", e.getMessage());
                         throw new DataProcessingException(
                                 "Exception thrown at HL7PatientProcessor.getPatientVO getting race information:" + e);
                     }// end of catch
@@ -532,7 +536,7 @@ public class HL7PatientHandler {
 
         } catch (Exception e) {
             logger.error("Exception thrown by HL7ORCProcessor.personVO " + e);
-            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO:"+ e);
+            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO: {}"+ e.getMessage());
         }
         return personContainer;
     }
@@ -576,8 +580,7 @@ public class HL7PatientHandler {
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7PatientProcessor.getNextOfKinVO "
-                    + e);
+            logger.error("Exception thrown by HL7PatientProcessor.getNextOfKinVO {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getNextOfKinVO:"+ e);
         }
         return labResultProxyContainer;

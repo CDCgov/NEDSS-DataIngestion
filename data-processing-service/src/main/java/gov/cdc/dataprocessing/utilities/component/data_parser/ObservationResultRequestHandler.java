@@ -43,8 +43,12 @@ import java.util.StringTokenizer;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ObservationResultRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationResultRequestHandler.class);
 
@@ -71,12 +75,12 @@ public class ObservationResultRequestHandler {
                     getObsReqNotes(hl7OBSERVATIONType.getNotesAndComments(), observationContainer);
                     labResultProxyContainer.getTheObservationContainerCollection().add(observationContainer);
                 } catch (Exception e) {
-                    logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!!" + e.getMessage(), e);
+                    logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!! {}", e.getMessage());
                     throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest while oricessing observationRequestArray:" + e.getMessage());
                 }
             }
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
+            logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest:"+ e.getMessage());
         }
         return labResultProxyContainer;
@@ -257,16 +261,15 @@ public class ObservationResultRequestHandler {
                     observationDto.setAltCdSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
                 }
 
-                if(edxLabInformationDto.isParentObsInd()){
-                    if(observationContainer.getTheObservationDto().getCd() == null || observationContainer.getTheObservationDto().getCd().trim().equals("")) {
-                        edxLabInformationDto.setDrugNameMissing(true);
-                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                        throw new DataProcessingException(EdxELRConstant.NO_DRUG_NAME);
-                    }
+                if(edxLabInformationDto.isParentObsInd() &&
+                        observationContainer.getTheObservationDto().getCd() == null || observationContainer.getTheObservationDto().getCd().trim().equals("")){
+                    edxLabInformationDto.setDrugNameMissing(true);
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+                    throw new DataProcessingException(EdxELRConstant.NO_DRUG_NAME);
                 }
             }
             else{
-                logger.error("ObservationResultRequest.getObservationResult The Resulted Test ObservationCd  can't be set to null. Please check." + observationDto.getCd());
+                logger.error("ObservationResultRequest.getObservationResult The Resulted Test ObservationCd  can't be set to null. Please check. {}", observationDto.getCd());
                 throw new DataProcessingException("ObservationResultRequest.getObservationResult The Resulted Test ObservationCd  can't be set to null. Please check." + observationDto.getCd());
             }
 
@@ -315,7 +318,7 @@ public class ObservationResultRequestHandler {
             observationContainer = processingObservationMethod(methodArray, edxLabInformationDto, observationContainer);
 
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getObservationResult Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
+            logger.error("ObservationResultRequest.getObservationResult Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResult:"+ e.getMessage());
         }
 
@@ -425,14 +428,14 @@ public class ObservationResultRequestHandler {
             }
 
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getPerformingFacility Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
+            logger.error("ObservationResultRequest.getPerformingFacility Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getPerformingFacility:"+ e.getMessage());
 
         }
         return organizationContainer;
     }
 
-    @SuppressWarnings({"java:S3776", "java:S6541", "java:S125"})
+    @SuppressWarnings({"java:S3776", "java:S6541", "java:S125", "java:S1854"})
     protected void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
         String type = "";
         try {
@@ -603,7 +606,7 @@ public class ObservationResultRequestHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.formatValue Exception thrown while observation value. Please check!!!"+e.getMessage(), e);
+            logger.error("ObservationResultRequest.formatValue Exception thrown while observation value. Please check!!! {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.formatValue for text:\""+text+"\" and for type:\""+ type+"\"."+e.getMessage());
         }
 
@@ -649,7 +652,7 @@ public class ObservationResultRequestHandler {
 
             }
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getObsReqNotes Exception thrown while parsing XML document. Please check!!!"+e.getMessage(), e);
+            logger.error("ObservationResultRequest.getObsReqNotes Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
             throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObsReqNotes:"+ e.getMessage());
 
         }

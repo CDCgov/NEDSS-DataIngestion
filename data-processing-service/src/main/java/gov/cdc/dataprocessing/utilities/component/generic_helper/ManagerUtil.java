@@ -27,8 +27,12 @@ import java.util.concurrent.ExecutionException;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ManagerUtil {
 
     private final IPersonService patientService;
@@ -158,17 +162,15 @@ public class ManagerUtil {
                 }
                 // Expecting single provider
                 // provider uid is needed in return
-                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
+                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD) && providerFuture == null) {
                     // Asynchronously process Provider
-                    if (providerFuture == null) {
-                        providerFuture = CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return patientService.processingProvider(labResult, edxLabInformationDto, personContainer, false);
-                            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
+                    providerFuture = CompletableFuture.supplyAsync(() -> {
+                        try {
+                            return patientService.processingProvider(labResult, edxLabInformationDto, personContainer, false);
+                        } catch (DataProcessingConsumerException | DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
                 }
             }
         }

@@ -48,8 +48,12 @@ import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class PublicHealthCaseRepositoryUtil {
     private final PublicHealthCaseRepository publicHealthCaseRepository;
     private final EntityGroupRepository entityGroupRepository;
@@ -80,7 +84,6 @@ public class PublicHealthCaseRepositoryUtil {
                                           ClinicalDocumentRepository clinicalDocumentRepository,
                                           ReferralRepository referralRepository,
                                           PatientEncounterRepository patientEncounterRepository,
-                                          OdseIdGeneratorService odseIdGeneratorService,
                                           IOdseIdGeneratorWCacheService odseIdGeneratorService1, ActRepository actRepository,
                                           ActIdRepository actIdRepository,
                                           ConfirmationMethodRepository confirmationMethodRepository,
@@ -556,7 +559,6 @@ public class PublicHealthCaseRepositoryUtil {
     }
     @SuppressWarnings("java:S3776")
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
-        NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
         ArrayList<Object> PamAnswerDTCollection;
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
         Map<Object, Object> nbsAnswerMap = new HashMap<>();

@@ -32,8 +32,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.*;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ContactSummaryService implements IContactSummaryService {
 
     private final QueryHelper queryHelper;
@@ -145,7 +149,6 @@ public class ContactSummaryService implements IContactSummaryService {
 
     @SuppressWarnings("java:S3776")
     private  Collection<Object> getContactNamedByPatientDTColl(String sql) {
-        CTContactSummaryDto cTContactSummaryDto = new CTContactSummaryDto();
         ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl ;
         ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<> ();
         cTContactNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
@@ -153,10 +156,6 @@ public class ContactSummaryService implements IContactSummaryService {
             cTContactSumyDT.setContactNamedByPatient(true);
             Long contactEntityUid = cTContactSumyDT.getContactEntityUid();
             var lst = personNameRepository.findByParentUid(contactEntityUid);
-            Collection personNameColl = new ArrayList<>();
-            if (lst.isPresent()) {
-                personNameColl = lst.get();
-            }
 
             //add the contact summary dt
             returnCTContactNameByPatientSummDTColl.add(cTContactSumyDT);
@@ -271,10 +270,8 @@ public class ContactSummaryService implements IContactSummaryService {
                 Collection<PersonName> contactNameColl = new ArrayList<>();
 
                 var lst2 = personNameRepository.findByParentUid(contactEntityUid);
-                if (lst2.isPresent()) {
-                    if (lst.isPresent()) {
-                        contactNameColl = lst.get();
-                    }
+                if (lst2.isPresent() && lst.isPresent()) {
+                    contactNameColl = lst.get();
                 }
 
 

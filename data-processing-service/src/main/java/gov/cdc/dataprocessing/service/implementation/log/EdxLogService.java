@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.log;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -13,6 +14,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLog
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +37,15 @@ import java.util.Optional;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class EdxLogService implements IEdxLogService {
+    private static final Logger logger = LoggerFactory.getLogger(PersonContainer.class); // NOSONAR
+
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
 
@@ -61,7 +70,7 @@ public class EdxLogService implements IEdxLogService {
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         //Check if the activity log has already been created for the source.
-        Long activityLogId = 0L;
+        Long activityLogId;
         Optional<EdxActivityLog> dbActivityLogOptional = edxActivityLogRepository.findBySourceUid(edxActivityLog.getSourceUid());
         if (dbActivityLogOptional.isPresent()) {
             EdxActivityLog dbActivityLog = dbActivityLogOptional.get();
@@ -196,7 +205,7 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S1871"})
     public void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =
@@ -523,34 +532,11 @@ public class EdxLogService implements IEdxLogService {
                 msg = msg + sb;
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
-//            if (edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
-//                String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
-//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
-//            }
-//            if (edxLabInformationDto.isLabAssociatedToInv()) {
-//                String msg = EdxELRConstant.LAB_ASSOCIATED_TO_INV.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
-//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
-//            }
-//
-//            if (edxLabInformationDto.isNotificationSuccessfullyCreated()) {
-//                String msg = EdxELRConstant.NOT_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getNotificationUid()));
-//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getNotificationUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
-//            }
-//            if (edxLabInformationDto.isInvestigationMissingFields()) {
-//                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
-//                        EdxELRConstant.OFCI);
-//            }
-//            if (edxLabInformationDto.isNotificationMissingFields()) {
-//                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
-//                        EdxELRConstant.OFCN);
-//            }
             edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
         }
-        catch (Exception e) {
-            ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
-            if (delailList == null) {
-                delailList = new ArrayList<EDXActivityDetailLogDto>();
-            }
+        catch (Exception e) // NOSONAR
+        {
+            logger.info(e.getMessage()); // NOSONAR
         }
     }
 

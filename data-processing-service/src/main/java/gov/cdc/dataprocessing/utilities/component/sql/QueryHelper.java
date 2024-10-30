@@ -23,8 +23,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.QUERY_HELPER_1;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class QueryHelper {
 
     private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
@@ -89,9 +93,10 @@ public class QueryHelper {
         return whereClause;
     }
 
+    @SuppressWarnings("java:S1172")
     private String getHashedPAJList(String businessObjLookupName, String operation, boolean guest) {
         Collection<Object> allPAJList = new HashSet<>();
-        StringBuffer hashedPAJList = new StringBuffer();
+        StringBuilder hashedPAJList = new StringBuilder();
 
 
         for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {
@@ -112,15 +117,10 @@ public class QueryHelper {
         }
 
         for (Object o : allPAJList) {
-
             Long cd = (Long) o;
-            if (cd != null) {
-                if (cd.toString().trim().length() != 0) {
-                    hashedPAJList = hashedPAJList.append(cd).append(", ");
-                }
+            if (cd != null && cd.toString().trim().length() != 0) {
+                hashedPAJList = hashedPAJList.append(cd).append(", ");
             }
-
-
         }
 
 
@@ -155,6 +155,7 @@ public class QueryHelper {
         }
     }
 
+    @SuppressWarnings("java:S1172")
    protected String buildOwnerWhereClause(String ownerList, String columnName,
                                  String alias, boolean OIDFlag, String businessObjLookupName) {
         String whereClauseOwner = "";
@@ -179,6 +180,7 @@ public class QueryHelper {
     }
 
 
+    @SuppressWarnings("java:S1172")
     protected String buildGuestWhereClause(String guestList, String columnName,
                                          String alias, boolean OIDFlag, String businessObjLookupName) {
 

@@ -60,8 +60,12 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ManagerService implements IManagerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
@@ -457,7 +461,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
-            logger.error("DP ERROR: " + e.getMessage());
+            logger.error("DP ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
                 nbsInterfaceRepository.save(nbsInterfaceModel);
@@ -495,7 +499,7 @@ public class ManagerService implements IManagerService {
 
             // error check function in here to create the details message
 
-                logger.error("Exception EdxLabHelper.getUnProcessedELR processing exception: " + e, e);
+                logger.error("Exception EdxLabHelper.getUnProcessedELR processing exception: {}", e.getMessage());
 
                 if(edxLabInformationDto.getErrorText()==null){
                     //if error text is null, that means lab was not created due to unexpected error.
@@ -520,7 +524,7 @@ public class ManagerService implements IManagerService {
                             detailedMsg = "SQLException while inserting into "+tableName+"\n "+accessionNumberToAppend+"\n "+exceptionMessage;
                             detailedMsg = detailedMsg.substring(0,Math.min(detailedMsg.length(), 2000));
                         }catch(Exception ex){
-                            logger.error(LOG_EXCEPTION_MESSAGE +ex.getMessage(), ex);
+                            logger.error("{} {}", LOG_EXCEPTION_MESSAGE, ex.getMessage());
                         }
                     } else if (e.getMessage().contains(EdxELRConstant.DATE_VALIDATION)) {
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_20);
@@ -538,7 +542,7 @@ public class ManagerService implements IManagerService {
                             detailedMsg = problemDateInfoSubstring+"\n "+accessionNumberToAppend+"\n"+e.getMessage();
                             detailedMsg = detailedMsg.substring(0,Math.min(detailedMsg.length(), 2000));
                         }catch(Exception ex){
-                            logger.error("Exception while formatting date exception message for Activity Log: "+ex.getMessage(), ex);
+                            logger.error("Exception while formatting date exception message for Activity Log: {}", ex.getMessage());
                         }
                     }else{
                         edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_16);
@@ -552,7 +556,7 @@ public class ManagerService implements IManagerService {
                             String exceptionMessage = accessionNumberToAppend+"\n"+errors;
                             detailedMsg = exceptionMessage.substring(0,Math.min(exceptionMessage.length(), 2000));
                         }catch(Exception ex){
-                            logger.error(LOG_EXCEPTION_MESSAGE +ex.getMessage(), ex);
+                            logger.error("{} {}", LOG_EXCEPTION_MESSAGE, ex.getMessage());
                         }
                     }
                 }
@@ -570,7 +574,7 @@ public class ManagerService implements IManagerService {
                         detailedMsg = "Blank identifiers in segments "+exceptionMsg.substring(exceptionMsg.indexOf(textToLookFor)+textToLookFor.length())+"\n\n"+accessionNumberToAppend;
                         detailedMsg = detailedMsg.substring(0,Math.min(detailedMsg.length(), 2000));
                     }catch(Exception ex){
-                        logger.error(LOG_EXCEPTION_MESSAGE+ex.getMessage(), ex);
+                        logger.error("{} {}", LOG_EXCEPTION_MESSAGE, ex.getMessage());
                     }
                 }
         }

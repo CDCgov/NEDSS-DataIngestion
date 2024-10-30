@@ -728,7 +728,6 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
 
@@ -775,7 +774,6 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
 
@@ -958,7 +956,6 @@ class ManagerServiceTest {
     @Test
     void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
         var test = new TestDataReader();
-        String eventType = EVENT_ELR;
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
 

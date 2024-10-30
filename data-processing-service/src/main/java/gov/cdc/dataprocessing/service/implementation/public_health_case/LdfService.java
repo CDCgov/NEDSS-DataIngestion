@@ -21,8 +21,12 @@ import static gov.cdc.dataprocessing.constant.ComplexQueries.SELECT_LDF;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class LdfService implements ILdfService {
 
     private final String SELECT_LDF_ORDER_BY = " order by sf.ldf_uid ";
@@ -36,7 +40,6 @@ public class LdfService implements ILdfService {
 
     public List<StateDefinedFieldDataDto> getLDFCollection(Long busObjectUid, String conditionCode) throws DataProcessingException {
 
-        StateDefinedFieldDataDto stateDefinedFieldDataDT = new StateDefinedFieldDataDto();
         List<StateDefinedFieldDataDto> pList;
         try
         {

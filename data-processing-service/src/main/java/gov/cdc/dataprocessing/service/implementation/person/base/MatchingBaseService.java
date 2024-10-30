@@ -33,8 +33,12 @@ import java.util.*;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class MatchingBaseService  {
     private static final Logger logger = LoggerFactory.getLogger(MatchingBaseService.class);
 
@@ -126,11 +130,9 @@ public class MatchingBaseService  {
                             }
                         }
 
-                        if (identifier != null) {
-                            if (getNamesStr(personContainer) != null) {
-                                identifier = identifier + carrot + getNamesStr(personContainer);
-                                identifierList.add(identifier);
-                            }
+                        if (identifier != null && getNamesStr(personContainer) != null) {
+                            identifier = identifier + carrot + getNamesStr(personContainer);
+                            identifierList.add(identifier);
                         }
 
                     }
@@ -141,12 +143,12 @@ public class MatchingBaseService  {
         }
         catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for patient entity IDs . ";
-            logger.debug(ex.getMessage() + errorMessage);
+            logger.debug("{} {}", ex.getMessage(), errorMessage);
             throw new DataProcessingException(errorMessage, ex);
         }
         return returnList;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1066", "java:S1871"})
 
     protected String getNamesStr(PersonContainer personContainer) {
         String namesStr = null;

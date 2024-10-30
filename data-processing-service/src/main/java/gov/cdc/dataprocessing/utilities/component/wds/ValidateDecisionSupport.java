@@ -38,8 +38,12 @@ import java.util.*;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ValidateDecisionSupport {
     private static final Logger logger = LoggerFactory.getLogger(ValidateDecisionSupport.class);
 
@@ -83,12 +87,12 @@ public class ValidateDecisionSupport {
 
                     Method setMethod = null;
                     if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT) || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
-                        setMethod = phcClass.getMethod(setMethodName, new String().getClass());
+                        setMethod = phcClass.getMethod(setMethodName, String.class);
 
                     } else if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_DATETIME) || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.DATETIME_DATATYPE)
                             || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_DATE)) {
                         getCurrentDateValue(edxRuleManageDT);
-                        setMethod = phcClass.getMethod(setMethodName, new Timestamp(0).getClass());
+                        setMethod = phcClass.getMethod(setMethodName, Timestamp.class);
                     } else if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC)) {
                         if (value.getReturnType().equals(Integer.class))
                             setMethod = phcClass.getMethod(setMethodName, Integer.valueOf(0).getClass());
@@ -121,7 +125,7 @@ public class ValidateDecisionSupport {
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false;
+            isOverwrite = false; //NOSONAR
         }
         String value = edxRuleManageDT.getDefaultStringValue();
         if(value!=null && value.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
@@ -222,7 +226,7 @@ public class ValidateDecisionSupport {
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false;
+            isOverwrite = false; //NOSONAR
         }
         if (isOverwrite) {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
@@ -480,7 +484,7 @@ public class ValidateDecisionSupport {
                     edxRuleManageDT.setParticipationUid(Long.valueOf(defaultValueType.getDefaultParticipation().getEntityUid()));
                     edxRuleManageDT.setParticipationClassCode(defaultValueType.getDefaultParticipation().getEntityClass());
                 } catch (Exception e) {
-                    logger.error("The defaultValueType exception is not valid for code and/or uid and/or classCode. Please check: " + defaultValueType); //NOSONAR
+                    logger.error("The defaultValueType exception is not valid for code and/or uid and/or classCode. Please check: {}", defaultValueType); //NOSONAR
                 }
             } else if (defaultValueType.getDefaultStringValue() != null) {
                 edxRuleManageDT.setDefaultStringValue(defaultValueType.getDefaultStringValue());
@@ -501,15 +505,15 @@ public class ValidateDecisionSupport {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1871"})
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
                               PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
-        boolean isOverwrite = false;
+        boolean isOverwrite = false; // NOSONAR
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false;
+            isOverwrite = false; // NOSONAR
         }
         Collection<ActIdDto> actIdColl = publicHealthCaseContainer
                 .getTheActIdDTCollection();

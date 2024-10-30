@@ -31,8 +31,12 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class ObservationSummaryService implements IObservationSummaryService {
 
     private final Observation_SummaryRepository observationSummaryRepository;
@@ -153,13 +157,6 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
-
-        String ORG_NAME_QUERY = "select street_addr1 \"streetAddr1\", street_addr2 \"streetAddr2\", city_desc_txt \"cityDescTxt\", state_cd \"stateCd\", zip_cd \"zipCd\" from Postal_locator with (nolock) where postal_locator_uid in ("
-                + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in (?)and cd='O' and class_cd='PST')";
-        /**
-         * Get the OrgAddress
-         */
-
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
@@ -170,13 +167,6 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
-
-        String ORG_NAME_QUERY = "select phone_nbr_txt \"phoneNbrTxt\", extension_txt \"extensionTxt\" from TELE_locator with (nolock) where TELE_locator_uid in ("
-                +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= ? and cd='PH' and class_cd='TELE')  ";
-        /**
-         * Get the OrgPhone
-         */
-
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         }catch (Exception ex) {
@@ -242,7 +232,6 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public void getTestAndSusceptibilities(String typeCode, Long observationUid, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
     {
-        ResultedTestSummaryContainer testVO = new ResultedTestSummaryContainer();
         ArrayList<ResultedTestSummaryContainer>  testList;
 
         testList = customRepository.getTestAndSusceptibilities(typeCode, observationUid, labRepEvent, labRepSumm);
@@ -292,17 +281,13 @@ public class ObservationSummaryService implements IObservationSummaryService {
     }
 
 
+    @SuppressWarnings("java:S2589")
     private void setSusceptibility(ResultedTestSummaryContainer RVO, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
     {
-
-        ResultedTestSummaryContainer susVO = new ResultedTestSummaryContainer();
-        int countResult = 0;
         int countSus = 0;
-        UidSummaryContainer sourceActUidVO = new UidSummaryContainer();
         ArrayList<UidSummaryContainer>  susList;
 
         Long sourceActUid = RVO.getSourceActUid();
-        countResult = countResult + 1;
 
 
         susList = customRepository.getSusceptibilityUidSummary(RVO, labRepEvent, labRepSumm, "REFR", sourceActUid);

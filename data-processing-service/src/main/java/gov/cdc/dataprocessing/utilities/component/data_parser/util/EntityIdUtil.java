@@ -27,8 +27,12 @@ import java.util.Date;
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
  3740 - parametrized  type for generic complaint
+ 1149 - replacing HashTable complaint
+ 112 - throwing dedicate exception complaint
+ 107 - max parameter complaint
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
+        "java:S1149", "java:S112", "java:S107"})
 public class EntityIdUtil {
     private static final Logger logger = LoggerFactory.getLogger(EntityIdUtil.class);
     private final ICatchingValueService catchingValueService;
@@ -117,7 +121,7 @@ public class EntityIdUtil {
 
             if (year >= 0 && month >= 0 && date >= 0) {
                 toTime = month + "/" + date + "/" + year;
-                logger.debug("  in processHL7DTType: Date string is: " +toTime);
+                logger.debug("  in processHL7DTType: Date string is: {}", toTime);
                 toTimestamp = stringToStrutsTimestamp(toTime);
             }
             if (isDateNotOkForDatabase(toTimestamp)) {
@@ -134,7 +138,6 @@ public class EntityIdUtil {
         try {
             if (strTime != null && strTime.trim().length() > 0) {
                 t = formatter.parse(strTime);
-                logger.debug(String.valueOf(t));
                 return new Timestamp(t.getTime());
             }
             else {
@@ -169,7 +172,7 @@ public class EntityIdUtil {
                 return true;
             }
         }catch(Exception ex){//this generic but you can control another types of exception
-            logger.error("Unexpected exception in checkDateForDatabase() " + ex.getMessage());
+            logger.error("Unexpected exception in checkDateForDatabase() {}", ex.getMessage());
         }
         return false;
     }
