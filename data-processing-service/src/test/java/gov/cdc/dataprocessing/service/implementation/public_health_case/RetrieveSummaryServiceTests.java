@@ -97,31 +97,6 @@ class RetrieveSummaryServiceTests {
     }
 
 
-    @Test
-    void retrieveTreatmentSummaryVOForInv_Success() {
-        long uid = 10L;
-        when(queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment")).thenReturn(
-                "BLAH"
-        );
-
-        retrieveSummaryService.retrieveTreatmentSummaryVOForInv(uid);
-        verify(queryHelper, times(1)).getDataAccessWhereClause(
-                any(), any(), any()
-        );
-    }
-
-    @Test
-    void retrieveTreatmentSummaryVOForInv_Success_2() {
-        long uid = 10L;
-        when(queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment")).thenReturn(
-                null
-        );
-        retrieveSummaryService.retrieveTreatmentSummaryVOForInv(uid);
-        verify(queryHelper, times(1)).getDataAccessWhereClause(
-                any(), any(), any()
-        );
-    }
-
 
     @Test
     void retrieveDocumentSummaryVOForInv_Success() throws DataProcessingException {

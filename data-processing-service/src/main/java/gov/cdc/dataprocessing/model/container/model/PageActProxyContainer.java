@@ -93,7 +93,7 @@ public class PageActProxyContainer extends BaseContainer {
     private ExportReceivingFacilityDto exportReceivingFacilityDto;
     private Map<String, MessageLogDto> messageLogDTMap  = new HashMap<String, MessageLogDto>();
 
-    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException
+    public Object deepCopy() throws IOException, ClassNotFoundException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
