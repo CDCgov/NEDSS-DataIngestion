@@ -10,8 +10,9 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class ComplexQueries {
     public static final String DMB_QUESTION_OID_METADATA_SQL = "SELECT "
             + "NBS_UI_METADATA.nbs_question_uid, "

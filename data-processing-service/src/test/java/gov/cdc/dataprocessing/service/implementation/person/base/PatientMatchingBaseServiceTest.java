@@ -524,9 +524,7 @@ class PatientMatchingBaseServiceTest {
         personDto.setPersonParentUid(12345L);
         personDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         personContainer.setThePersonDto(personDto);
-        PatientMatchingBaseService spyService = spy(patientMatchingBaseService);
         doNothing().when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
-        doNothing().when(spyService).setPersonToMatchEntityPatient(personContainer);
 
         // Act
         patientMatchingBaseService.setPersonHashCdPatient(personContainer);

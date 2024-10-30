@@ -10,7 +10,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.when;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class HL7FileProcessComponentTest {
     @Mock
     private RawELRService rawELRService;
@@ -24,7 +30,7 @@ class HL7FileProcessComponentTest {
     }
 
     @Test
-    void testSaveHL7Message() throws Exception {
+    void testSaveHL7Message() {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
 

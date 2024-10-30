@@ -8,6 +8,8 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -21,9 +23,12 @@ import java.util.*;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class EdxPhcrDocumentUtil {
+    private static final Logger logger = LoggerFactory.getLogger(EdxPhcrDocumentUtil.class); // NOSONAR
+
     public static final String REQUIRED = "_REQUIRED";
 
     private final ILookupService lookupService;
@@ -114,7 +119,7 @@ public class EdxPhcrDocumentUtil {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         if(errorTextColl!=null && errorTextColl.size()>0){
             Iterator<Object> iterator = errorTextColl.iterator();

@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.constant.EdxPHCRConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.kafka.consumer.KafkaPublicHealthCaseConsumer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
@@ -24,6 +25,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomNbsQuestionReposit
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationNotificationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.PrintWriter;
@@ -43,9 +46,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
+
     private final IInvestigationService investigationService;
     private final INotificationService notificationService;
     private final CustomNbsQuestionRepository customNbsQuestionRepository;
@@ -184,7 +190,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));

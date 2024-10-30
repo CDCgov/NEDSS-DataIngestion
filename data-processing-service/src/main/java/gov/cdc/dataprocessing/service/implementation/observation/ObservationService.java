@@ -62,8 +62,9 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class ObservationService implements IObservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
@@ -766,7 +767,7 @@ public class ObservationService implements IObservationService {
             lrProxyVO.setPageVO(pageContainer);
         } catch (Exception e) {
             logger.error("Exception while getting data from NBS Answer for Lab");
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
 
         return lrProxyVO;
@@ -819,7 +820,7 @@ public class ObservationService implements IObservationService {
             //catch & store auto resend notifications exceptions in NNDActivityLog table
             nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
             logger.error("Exception occurred while calling nndMessageSenderHelper.updateAutoResendNotificationsAsync");
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
 
         return nndActivityLogDto;
@@ -1017,7 +1018,7 @@ public class ObservationService implements IObservationService {
                             actRelationshipService.saveActRelationship(actRelationshipDto);
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.info(e.getMessage());
                         throw new DataProcessingException(e.getMessage(), e);
                     }
                 }

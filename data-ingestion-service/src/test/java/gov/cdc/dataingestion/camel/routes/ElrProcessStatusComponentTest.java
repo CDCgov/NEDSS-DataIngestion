@@ -14,7 +14,13 @@ import org.mockito.MockitoAnnotations;
 import java.sql.Timestamp;
 
 import static org.mockito.Mockito.when;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class ElrProcessStatusComponentTest {
     @Mock
     private ReportStatusService reportStatusServiceMock;
@@ -114,7 +120,7 @@ class ElrProcessStatusComponentTest {
         Assertions.assertTrue(processStatus.contains("Status:"));
     }
     @Test
-    void testProcessForNbsValidationFailed() throws Exception {
+    void testProcessForNbsValidationFailed() {
         String body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 

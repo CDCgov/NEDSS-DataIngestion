@@ -13,6 +13,8 @@ import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocMod
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,9 +32,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class RetrieveSummaryService implements IRetrieveSummaryService {
+    private static final Logger logger = LoggerFactory.getLogger(RetrieveSummaryService.class); // NOSONAR
+
     private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     private final QueryHelper queryHelper;
     private final CustomRepository customRepository;
@@ -66,7 +71,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 //TODO: LOGGING PIPELINE
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
     }
 

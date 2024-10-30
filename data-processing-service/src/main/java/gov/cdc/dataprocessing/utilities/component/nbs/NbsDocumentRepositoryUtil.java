@@ -26,8 +26,9 @@ import org.springframework.stereotype.Component;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class NbsDocumentRepositoryUtil {
     private final CustomRepository customRepository;
     private final PatientRepositoryUtil patientRepositoryUtil;
@@ -71,7 +72,7 @@ public class NbsDocumentRepositoryUtil {
     }
 
 
-    public Long updateDocumentWithOutthePatient(NbsDocumentContainer nbsDocVO) throws Exception {
+    public Long updateDocumentWithOutthePatient(NbsDocumentContainer nbsDocVO) throws DataProcessingException {
         Long nbsDocUid = null;
 
         try {

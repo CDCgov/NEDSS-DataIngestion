@@ -9,6 +9,8 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.ProgAreaSnomeCodeStoredProcRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ISrteCodeObsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,9 +26,12 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class SrteCodeObsService implements ISrteCodeObsService {
+    private static final Logger logger = LoggerFactory.getLogger(SrteCodeObsService.class); // NOSONAR
+
     private boolean programAreaDerivationExcludeFlag = false; //NOSONAR
     private final ProgAreaSnomeCodeStoredProcRepository progAreaSnomeCodeStoredProcRepository;
     private final SnomedConditionRepository snomedConditionRepository;
@@ -565,7 +570,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
         return lastPACode;
@@ -598,7 +603,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
         return lastPACode;
@@ -671,7 +676,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
         return lastPACode;
@@ -706,7 +711,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
         return lastPACode;

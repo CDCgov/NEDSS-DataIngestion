@@ -41,8 +41,9 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_OBSERVATION
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class ObservationRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRequestHandler.class);
 
@@ -306,7 +307,7 @@ public class ObservationRequestHandler {
         return labResultProxyContainer;
 
     }
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S2692"})
     private void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                       LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {

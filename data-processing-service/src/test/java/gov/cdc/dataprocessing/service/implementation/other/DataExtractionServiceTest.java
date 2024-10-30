@@ -33,6 +33,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
+import static gov.cdc.dataprocessing.test_data.TestDataReader.gsonForTest;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -71,7 +72,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectSuccess() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = null;
         nbsInterfaceModel = gson.fromJson(getData(), NbsInterfaceModel.class);
         utility = new DataExtractionServiceUtility();
@@ -92,7 +93,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsDataProcessingException() throws JAXBException {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowsException(), NbsInterfaceModel.class);
 
         utility = mock(DataExtractionServiceUtility.class);
@@ -111,7 +112,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsMoreThanOnePatientException() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataThrowGreaterThanOnePatientException(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -128,7 +129,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForParentResultNotNull() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForParentResultException(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -145,7 +146,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForMultipleOBRException() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForMultipleOBRException(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -162,7 +163,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForMultipleOBRException2() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForParentNotNull(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -179,7 +180,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForMultipleOBRException3() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForParentObsValueDesc(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -196,7 +197,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForMultipleOBRException4() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForHL7PatientID(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -213,7 +214,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForMultipleOBRException5() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForAlternateId(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();
@@ -230,7 +231,7 @@ class DataExtractionServiceTest {
 
     @Test
     void testParsingDataToObjectThrowsForMultipleOBRException6() {
-        Gson gson = new Gson();
+        Gson gson = gsonForTest();
         NbsInterfaceModel nbsInterfaceModel = gson.fromJson(getDataForAlternateId2(), NbsInterfaceModel.class);
 
         utility = new DataExtractionServiceUtility();

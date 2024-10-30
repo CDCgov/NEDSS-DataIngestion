@@ -18,8 +18,9 @@ import java.util.StringTokenizer;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class DynamicBeanBinding {
     private static Map<Object, Object> beanMethodMap = new HashMap<>();
 
@@ -30,7 +31,7 @@ public class DynamicBeanBinding {
      * returns
      */
     public static void populateBean(Object bean, String colNm, String colVal)
-            throws Exception {
+            throws DataProcessingException {
 
         try {
 
@@ -90,7 +91,7 @@ public class DynamicBeanBinding {
         }
     }
 
-    private static String getSetterName(String columnName) throws Exception {
+    private static String getSetterName(String columnName) throws DataProcessingException {
         try {
             StringBuilder sb = new StringBuilder("set");
             StringTokenizer st = new StringTokenizer(columnName, "_");
@@ -109,7 +110,7 @@ public class DynamicBeanBinding {
 
     @SuppressWarnings("unchecked")
     private static Map<Object, Object> getMethods(Class<?> beanClass)
-            throws Exception {
+            throws DataProcessingException {
         try {
             if (beanMethodMap.get(beanClass) == null) {
                 Method[] gettingMethods = beanClass.getMethods();

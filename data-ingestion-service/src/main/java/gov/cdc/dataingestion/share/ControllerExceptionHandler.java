@@ -9,6 +9,13 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class, ResponseStatusException.class})
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
