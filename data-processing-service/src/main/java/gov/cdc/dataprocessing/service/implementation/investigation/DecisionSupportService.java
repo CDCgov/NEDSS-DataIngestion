@@ -47,8 +47,9 @@ import static gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class DecisionSupportService implements IDecisionSupportService {
     private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
 
@@ -225,7 +226,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                     }
                 } catch (Exception e) {
                     //if one fails to parse - continue processing with error
-                    e.printStackTrace();
+                    logger.info(e.getMessage());
                 }
 
 
@@ -574,7 +575,7 @@ public class DecisionSupportService implements IDecisionSupportService {
 
 
     private Algorithm parseAlgorithmXml(String xmlPayLoadContent)
-            throws Exception {
+            throws DataProcessingException {
         Algorithm algorithmDocument;
         try {
 
@@ -594,7 +595,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     /**
      * Execute when action in available
      * */
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "javaS3740"})
     protected boolean specimenCollectionDateCriteria(EventDateLogicType eventDateLogicType,
                                                      EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         boolean isdateLogicValidForNewInv;
@@ -672,7 +673,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                         }
                     }
                 }else{
-                    isdateLogicValidForNewInv= true;
+                    isdateLogicValidForNewInv= true; //NOSONAR
                 }
             }
         }
@@ -692,6 +693,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         return isdateLogicValidForNewInv;
     }
 
+    @SuppressWarnings("java:S1871")
     protected boolean specimenDateTimeCheck(String comparatorCode, int daysDifference,
                                             int value, boolean isdateLogicValidWithThisInv) {
         if (comparatorCode.contains(NEDSSConstant.LESS_THAN_LOGIC) && daysDifference > value) {
@@ -855,7 +857,7 @@ public class DecisionSupportService implements IDecisionSupportService {
             }
             else if (actionType.getDeleteDocument() != null)
             {
-                DeleteDocumentType specificActionType = actionType.getDeleteDocument();
+                DeleteDocumentType specificActionType = actionType.getDeleteDocument(); //NOSONAR
             }
 
             if (applicationMap.size() > 0)

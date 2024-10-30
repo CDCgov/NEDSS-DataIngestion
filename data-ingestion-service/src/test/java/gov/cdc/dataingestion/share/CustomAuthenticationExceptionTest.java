@@ -4,7 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class CustomAuthenticationExceptionTest {
     @Test
     void test_exception_custom() {

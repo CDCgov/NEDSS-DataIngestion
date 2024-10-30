@@ -9,6 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class HL7FileProcessComponent {
     private static Logger logger = LoggerFactory.getLogger(HL7FileProcessComponent.class);
     String msgType = "HL7";
@@ -19,7 +26,7 @@ public class HL7FileProcessComponent {
         this.rawELRService=rawELRService;
     }
     @Handler
-    public String process(String body) throws Exception {
+    public String process(String body) {
         String elrId = "";
         String version="1";
         try {

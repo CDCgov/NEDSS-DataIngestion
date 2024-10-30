@@ -16,7 +16,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static gov.cdc.dataingestion.ecr.cdaMapping.helper.TestDataInitiation.getTestData;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class CdaMapperPatientTest {
 
     @Mock
@@ -44,6 +50,7 @@ class CdaMapperPatientTest {
         Assertions.assertNotNull(result);
     }
 
+    @SuppressWarnings("java:S6126")
     private POCDMT000040ClinicalDocument1 getPatientDocument() throws XmlException {
         String document = "<xml-fragment xmlns:urn=\"urn:hl7-org:v3\">\n" +
                 "  <urn:realmCode code=\"US\"/>\n" +

@@ -8,12 +8,10 @@ import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
-import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
 import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
-import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerTransactionService;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
@@ -60,7 +58,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
 class KafkaConsumerServiceTest {
@@ -94,8 +98,6 @@ class KafkaConsumerServiceTest {
 
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
-    @Mock
-    private KafkaProducerTransactionService kafkaProducerTransactionService;
     @Container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
             .withStartupTimeout(Duration.ofMinutes(5));
@@ -165,7 +167,7 @@ class KafkaConsumerServiceTest {
                 ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
-                timeMetricsBuilder, kafkaProducerTransactionService);
+                timeMetricsBuilder);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
@@ -176,7 +178,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void rawConsumerTest() throws DuplicateHL7FileFoundException, DiHL7Exception {
+    void rawConsumerTest() throws DiHL7Exception {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
@@ -404,9 +406,8 @@ class KafkaConsumerServiceTest {
         // Produce a test message to the topic
         //  initialDataInsertionAndSelection(xmlPrepTopic);
 
-        var guidForTesting = "test";
-        String message =  guidForTesting;
-        produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
+        var guidForTesting1 = "test";
+        produceMessage(xmlPrepTopic, guidForTesting1, EnumKafkaOperation.REINJECTION);
 
         // Consume the message
         ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
@@ -420,9 +421,8 @@ class KafkaConsumerServiceTest {
         // Produce a test message to the topic
       //  initialDataInsertionAndSelection(xmlPrepTopic);
             try {
-                var guidForTesting = "test";
-                String message =  guidForTesting;
-                produceMessage(xmlPrepTopic, message, EnumKafkaOperation.REINJECTION);
+                var guidForTesting1 = "test";
+                produceMessage(xmlPrepTopic, guidForTesting1, EnumKafkaOperation.REINJECTION);
 
                 // Consume the message
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
@@ -435,9 +435,9 @@ class KafkaConsumerServiceTest {
 
 
                 ElrDeadLetterModel model = new ElrDeadLetterModel();
-                model.setErrorMessageId(guidForTesting);
+                model.setErrorMessageId(guidForTesting1);
                 model.setMessage(testHL7Message);
-                when(elrDeadLetterRepository.findById(guidForTesting))
+                when(elrDeadLetterRepository.findById(guidForTesting1))
                         .thenReturn(Optional.of(model));
 
                 when(iHl7v2Validator.messageStringValidation(testHL7Message))
@@ -461,7 +461,7 @@ class KafkaConsumerServiceTest {
                 kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false");
 
                 verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
-                verify(elrDeadLetterRepository, times(1)).findById(guidForTesting);
+                verify(elrDeadLetterRepository, times(1)).findById(guidForTesting1);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

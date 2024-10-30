@@ -55,6 +55,13 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 
 @Service
 @Slf4j
+/**
+ 1118 - require constructor complaint
+ 125 - comment complaint
+ 6126 - String block complaint
+ 1135 - todos complaint
+ * */
+@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class KafkaConsumerService {
 
     //region VARIABLE
@@ -97,7 +104,6 @@ public class KafkaConsumerService {
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
-    private final KafkaProducerTransactionService kafkaProducerTransactionService;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -117,7 +123,7 @@ public class KafkaConsumerService {
             IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
-            TimeMetricsBuilder timeMetricsBuilder, KafkaProducerTransactionService kafkaProducerTransactionService) {
+            TimeMetricsBuilder timeMetricsBuilder) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -130,7 +136,6 @@ public class KafkaConsumerService {
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
         this.timeMetricsBuilder = timeMetricsBuilder;
-        this.kafkaProducerTransactionService =kafkaProducerTransactionService;
     }
     //endregion
 
@@ -178,7 +183,7 @@ public class KafkaConsumerService {
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
-                                @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
+                                @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
         timeMetricsBuilder.recordElrRawEventTime(() -> {
             log.debug(topicDebugLog, message, topic);
             boolean hl7ValidationActivated = false;
@@ -189,7 +194,7 @@ public class KafkaConsumerService {
             try {
                 validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
             } catch (DuplicateHL7FileFoundException | DiHL7Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); //NOSONAR
             }
         });
     }
@@ -297,7 +302,7 @@ public class KafkaConsumerService {
             try {
                 preparationForConversionHandler(message, dataProcessingEnable);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); //NOSONAR
             }
         });
     }
@@ -525,9 +530,6 @@ public class KafkaConsumerService {
             }
 
             if (dataProcessingApplied) {
-                Gson gson = new Gson();
-                String strGson = gson.toJson(nbsInterfaceModel);
-
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "elr_unprocessed", 0); //NOSONAR
             } else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
@@ -592,7 +594,7 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterValidatingMessage(hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
                 break;
             case KafkaHeaderValue.MESSAGE_TYPE_CSV:
-                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment
+                // TODO: implement csv validation, this is not in the scope of data ingestion at the moment //NOSONAR
                 break;
             default:
                 break;

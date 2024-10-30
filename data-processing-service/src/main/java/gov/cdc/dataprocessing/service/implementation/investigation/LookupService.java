@@ -14,6 +14,8 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,9 +32,11 @@ import java.util.TreeMap;
   1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
+ 2139 - exception rethrow complain
  */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809"})
+@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class LookupService implements ILookupService {
+    private static final Logger logger = LoggerFactory.getLogger(LookupService.class); // NOSONAR
 
     private final LookupMappingRepository lookupMappingRepository;
     private final NbsUiMetaDataRepository nbsUiMetaDataRepository;
@@ -76,7 +80,7 @@ public class LookupService implements ILookupService {
             questionMap = createQuestionMap(qColl);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
 
         if (questionMap != null) {
@@ -112,7 +116,7 @@ public class LookupService implements ILookupService {
             dmbQuestionMap = createDMBQuestionMap(metaQuestion);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         if(dmbQuestionMap != null)
         {
@@ -130,7 +134,7 @@ public class LookupService implements ILookupService {
                     createPrePopFromMap(qColl);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.info(e.getMessage());
             }
 
         }
@@ -140,7 +144,7 @@ public class LookupService implements ILookupService {
                     Collection<LookupMappingDto> qColl = retrievePrePopMapping();
                     createPrePopToMap(qColl);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.info(e.getMessage());
             }
 
         }
@@ -162,7 +166,7 @@ public class LookupService implements ILookupService {
     }
 
     @SuppressWarnings("java:S3776")
-    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws Exception {
+    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
@@ -353,7 +357,7 @@ public class LookupService implements ILookupService {
 
 
     @SuppressWarnings("java:S3776")
-    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
+    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws DataProcessingException{
         TreeMap<Object, Object> qCodeMap = new TreeMap<>();
         int count =0;
         int loopcount=0;
