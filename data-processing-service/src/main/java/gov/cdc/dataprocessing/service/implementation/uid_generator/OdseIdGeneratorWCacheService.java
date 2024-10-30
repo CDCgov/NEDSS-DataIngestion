@@ -10,7 +10,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGenerato
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.GA;
-import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
 @Service
 /**

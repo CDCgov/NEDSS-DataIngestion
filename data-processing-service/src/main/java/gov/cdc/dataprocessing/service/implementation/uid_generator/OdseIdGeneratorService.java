@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorService;
 import org.springframework.stereotype.Service;
 

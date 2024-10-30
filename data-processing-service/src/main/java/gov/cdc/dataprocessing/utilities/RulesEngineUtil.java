@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities;
 
-import gov.cdc.dataprocessing.utilities.component.public_health_case.CdaPhcProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

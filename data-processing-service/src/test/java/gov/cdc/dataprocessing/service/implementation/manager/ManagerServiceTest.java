@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static gov.cdc.dataprocessing.constant.ManagerEvent.EVENT_ELR;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

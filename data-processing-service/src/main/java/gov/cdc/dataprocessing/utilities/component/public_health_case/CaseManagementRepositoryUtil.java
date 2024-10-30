@@ -5,9 +5,6 @@ import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.CaseManagementRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 @Component
 
 /**
