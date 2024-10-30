@@ -1,5 +1,9 @@
 package gov.cdc.dataprocessing.utilities;
 
+import gov.cdc.dataprocessing.utilities.component.public_health_case.CdaPhcProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,6 +20,8 @@ import java.util.Date;
  */
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139"})
 public class RulesEngineUtil {
+    private static final Logger logger = LoggerFactory.getLogger(RulesEngineUtil.class); //NOSONAR
+
     public static int[] CalcMMWR(String pDate)
     {
         //  Create return variable.
@@ -143,7 +149,7 @@ public class RulesEngineUtil {
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            logger.info(ex.getMessage()); // NOSONAR
         }
         //  Return result.
         return r;
