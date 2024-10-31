@@ -405,10 +405,6 @@ public class PublicHealthCaseRepositoryUtil {
                         confirmationMethod.setItNew(false);
                         confirmationMethod.setItDirty(false);
                     }
-                    else
-                    {
-                        continue;
-                    }
                 }
             }
             catch(Exception ex)
@@ -439,7 +435,7 @@ public class PublicHealthCaseRepositoryUtil {
             var caseMag = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
             container.setTheCaseManagementDto(caseMag);
 
-            var actIdLst = actIdRepositoryUtil.GetActIdCollection(phcUid);
+            var actIdLst = actIdRepositoryUtil.getActIdCollection(phcUid);
             container.setTheActIdDTCollection(actIdLst);
 
             var actLoc = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(phcUid);

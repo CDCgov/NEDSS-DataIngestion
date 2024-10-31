@@ -540,7 +540,7 @@ public class ValidateDecisionSupport {
                 if (isOverwrite)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
-                else if (!isOverwrite && actIdDT.getRootExtensionTxt() == null)
+                else if (actIdDT.getRootExtensionTxt() == null)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
             }

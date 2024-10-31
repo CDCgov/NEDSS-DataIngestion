@@ -459,7 +459,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
             Map<Object, Object> questionMap = (Map<Object, Object>) OdseCache.dmbMap.get(investigationFormCd);
 
-            if (prePopMap == null || prePopMap.size() == 0)
+            if (prePopMap == null || prePopMap.isEmpty())
                 return;
             TreeMap<Object, Object> toPrePopMap = lookupService.getToPrePopFormMapping(investigationFormCd);
             if (toPrePopMap != null && !toPrePopMap.isEmpty()) {

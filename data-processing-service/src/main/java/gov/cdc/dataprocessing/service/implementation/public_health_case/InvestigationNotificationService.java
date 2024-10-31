@@ -405,12 +405,12 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                             && !(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
                             || formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)))
                     {
-                        if (answerMap == null || answerMap.size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
+                        if (answerMap == null || answerMap.isEmpty() || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
                             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                         }
                     }
                     else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)) &&
-                            answerMap == null || Objects.requireNonNull(answerMap).size() == 0 || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null))
+                            answerMap == null || Objects.requireNonNull(answerMap).isEmpty() || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null))
                     {
                         missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                     }
@@ -421,7 +421,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             throw new DataProcessingException(e.getMessage(), e);
         }
 
-        if (missingFields.size() == 0)
+        if (missingFields.isEmpty())
         {
             return null; // NOSONAR
         }

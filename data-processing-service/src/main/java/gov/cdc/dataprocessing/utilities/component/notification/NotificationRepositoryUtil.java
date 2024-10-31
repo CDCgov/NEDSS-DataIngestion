@@ -86,7 +86,7 @@ public class NotificationRepositoryUtil {
         notificationDto.setItDirty(false);
         notificationContainer.setTheNotificationDT(notificationDto);
 
-        var actIdCollection = actIdRepositoryUtil.GetActIdCollection(uid);
+        var actIdCollection = actIdRepositoryUtil.getActIdCollection(uid);
         if (!actIdCollection.isEmpty()) {
             notificationContainer.setTheActIdDTCollection(actIdCollection);
         }
