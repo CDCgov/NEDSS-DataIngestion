@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import static gov.cdc.dataingestion.hl7.helper.unitTest.Hl7TestData.*;
 
+@SuppressWarnings({"java:S6126", "java:S1117"})
 class HL7HelperTest {
     private HL7Helper target;
     private String data = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5\r"

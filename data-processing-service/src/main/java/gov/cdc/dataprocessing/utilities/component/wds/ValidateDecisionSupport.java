@@ -515,12 +515,7 @@ public class ValidateDecisionSupport {
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
                               PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
-        boolean isOverwrite = false; // NOSONAR
-        if (behavior.equalsIgnoreCase("1")) {
-            isOverwrite = true;
-        } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false; // NOSONAR
-        }
+        boolean isOverwrite = behavior.equalsIgnoreCase("1"); // NOSONAR
         Collection<ActIdDto> actIdColl = publicHealthCaseContainer
                 .getTheActIdDTCollection();
         if (actIdColl != null && !actIdColl.isEmpty()) {
@@ -535,7 +530,7 @@ public class ValidateDecisionSupport {
                 if (isOverwrite)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
-                else if (!isOverwrite && actIdDT.getRootExtensionTxt() == null)
+                else if (actIdDT.getRootExtensionTxt() == null)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
             } else if (actIdDT.getTypeCd() != null

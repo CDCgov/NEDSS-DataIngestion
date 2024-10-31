@@ -334,7 +334,7 @@ public class PageRepositoryUtil {
             {
                 updatePageProxyVOInterface(proxyVO,lastChgTime,lastChgUserId);
                 setPageActProxyVO( proxyVO);
-                logger.debug("updateCoInfectionInvest method call completed for coinfectionIdToUpdate:"+ coinfectionIdToUpdate);
+                logger.debug("updateCoInfectionInvest method call completed for coinfectionIdToUpdate: {}", coinfectionIdToUpdate);
             }
 
         }catch(Exception e) {
@@ -432,7 +432,7 @@ public class PageRepositoryUtil {
      *
      * Updates coinfection question's values in tables other than NBS_Case_Answer
      */
-    @SuppressWarnings({"java:S1172", "java:S1871"})
+    @SuppressWarnings({"java:S1172", "java:S1871","java:S2864"})
     private  void updateCoInfectionInvestForOtherTables(PageActProxyContainer pageActProxyVOofCoinfection,
                                                         Map<Object, Object> updateValueInOtherTablesMap,
                                                         PageActProxyContainer pageActProxyContainer,
@@ -575,7 +575,6 @@ public class PageRepositoryUtil {
                     }
                     else if (personVO.getThePersonDto().getCd() != null && personVO.getThePersonDto().getCd().equals(NEDSSConstant.PRV))
                     {
-                        String businessTriggerCd = NEDSSConstant.PRV_EDIT;
                         try {
                             patientRepositoryUtil.updateExistingPerson(personVO);
                             realUid = personVO.getThePersonDto().getPersonParentUid();
@@ -613,11 +612,12 @@ public class PageRepositoryUtil {
             PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
             if(publicHealthCaseContainer.getNbsAnswerCollection()!=null)
             {
-                logger.debug("********#publicHealthCaseContainer.getNbsAnswerCollection() size from history table: "+ publicHealthCaseContainer.getNbsAnswerCollection().size());
+                logger.debug("********#publicHealthCaseContainer.getNbsAnswerCollection() size from history table: {}",
+                        publicHealthCaseContainer.getNbsAnswerCollection().size());
             }
             if(publicHealthCaseDto.getPublicHealthCaseUid()!=null && publicHealthCaseDto.getVersionCtrlNbr()!=null)
             {
-                logger.debug("********#Public Health Case Uid: "+ publicHealthCaseDto.getPublicHealthCaseUid() +" Version: "+ publicHealthCaseDto.getVersionCtrlNbr());
+                logger.debug("********#Public Health Case Uid: {} Version: {}",publicHealthCaseDto.getPublicHealthCaseUid(), publicHealthCaseDto.getVersionCtrlNbr());
             }
 
             RootDtoInterface rootDTInterface = publicHealthCaseDto;
@@ -644,15 +644,15 @@ public class PageRepositoryUtil {
             falsePublicHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
             actualUid = publicHealthCaseService.setPublicHealthCase(publicHealthCaseContainer);
             phcUid= actualUid;
-            logger.debug("actualUid.intValue() = " + actualUid.intValue());
+            logger.debug("actualUid.intValue() = {}", actualUid.intValue());
             if (falsePublicHealthCaseUid.intValue() < 0)
             {
-                logger.debug("falsePublicHealthCaseUid.intValue() = " + falsePublicHealthCaseUid.intValue());
+                logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
                 uidService.setFalseToNewForPageAct(pageActProxyContainer, falsePublicHealthCaseUid, actualUid);
                 publicHealthCaseContainer.getThePublicHealthCaseDto().setPublicHealthCaseUid(actualUid);
             }
 
-            logger.debug("falsePublicHealthCaseUid.intValue() = " + falsePublicHealthCaseUid.intValue());
+            logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
         }
 
         pageActPhc.setPhcUid(phcUid);
@@ -673,8 +673,8 @@ public class PageRepositoryUtil {
                 {
                     docUid = actRelationshipDT.getSourceActUid();
                 }
-                logger.debug("the actRelationshipDT statusTime is " + actRelationshipDT.getStatusTime());
-                logger.debug("the actRelationshipDT statusCode is " + actRelationshipDT.getStatusCd());
+                logger.debug("the actRelationshipDT statusTime is {}", actRelationshipDT.getStatusTime());
+                logger.debug("the actRelationshipDT statusCode is {}", actRelationshipDT.getStatusCd());
                 logger.debug("Got into The ActRelationship loop");
 
                 try {
@@ -682,7 +682,7 @@ public class PageRepositoryUtil {
                         actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
                     }
                     actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
-                    logger.debug("Got into The ActRelationship, The ActUid is " + actRelationshipDT.getTargetActUid());
+                    logger.debug("Got into The ActRelationship, The ActUid is {}", actRelationshipDT.getTargetActUid());
                 } catch (Exception e) {
                     throw new DataProcessingException(e.getMessage(), e);
                 }
@@ -772,7 +772,7 @@ public class PageRepositoryUtil {
                     processDT.setNbsEventUid(phcUid);
                 }
                 edxEventProcessRepositoryUtil.insertEventProcess(processDT);
-                logger.debug("Inserted the event Process for sourceId: " + processDT.getSourceEventId());
+                logger.debug("Inserted the event Process for sourceId: {}", processDT.getSourceEventId());
             }
         }
     }

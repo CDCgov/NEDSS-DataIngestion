@@ -258,18 +258,18 @@ public class OrganizationRepositoryUtil {
                 OrganizationNameDto orgNameDT = anIterator.next();
 
                 if (orgNameDT.getOrganizationNameSeq() == null)
+                {
                     orgNameDT.setOrganizationNameSeq(3);
-
-                if (orgNameDT != null) {
-                    orgNameDT.setOrganizationUid(organizationUID);
-                    OrganizationName orgName = new OrganizationName(orgNameDT);
-                    // Save Organization Name records
-                    organizationNameRepository.save(orgName);
-
-                    orgNameDT.setOrganizationUid(organizationUID);
-                    orgNameDT.setItNew(false);
-                    orgNameDT.setItDirty(false);
                 }
+
+                orgNameDT.setOrganizationUid(organizationUID);
+                OrganizationName orgName = new OrganizationName(orgNameDT);
+                // Save Organization Name records
+                organizationNameRepository.save(orgName);
+
+                orgNameDT.setOrganizationUid(organizationUID);
+                orgNameDT.setItNew(false);
+                orgNameDT.setItDirty(false);
             }
         } catch (Exception ex) {
             logger.error(" Exception while inserting Organization names into ORGINIZATION_NAME_TABLE: {}", ex.getMessage());
@@ -421,8 +421,7 @@ public class OrganizationRepositoryUtil {
 
         }
 
-        logger.debug("EntityControllerEJB.setOrganization - ouid  =  "
-                + organizationUID);
+        logger.debug("EntityControllerEJB.setOrganization - ouid  =  {}", organizationUID);
         return organizationUID;
     }
 
