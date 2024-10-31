@@ -772,7 +772,7 @@ public class OrganizationRepositoryUtil {
         try {
             return prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
         } catch (Exception ex) {
-            logger.error("Exception in getPrepareEntityForOrganization for businessTriggerCd=" + businessTriggerCd + " moduleCd=" + moduleCd + " uid:" + uid + " tableName=" + tableName + ": ERROR = " + ex);
+            logger.error("Exception in getPrepareEntityForOrganization for businessTriggerCd={} moduleCd={} uid:{} tableName={}: ERROR = {}",businessTriggerCd,moduleCd, uid,tableName, ex.getMessage());
             throw new DataProcessingException(ex.getMessage(), ex);
         }
     }

@@ -269,7 +269,7 @@ class PublicHealthCaseRepositoryUtilTest {
         when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.of(phcDt));
         when(confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid)).thenReturn(new ArrayList<>());
         when(caseManagementRepositoryUtil.getCaseManagementPhc(phcUid)).thenReturn(new CaseManagementDto());
-        when(actIdRepositoryUtil.GetActIdCollection(phcUid)).thenReturn(new ArrayList<>());
+        when(actIdRepositoryUtil.getActIdCollection(phcUid)).thenReturn(new ArrayList<>());
         when(actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(phcUid)).thenReturn(new ArrayList<>());
         when(actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(phcUid)).thenReturn(new ArrayList<>());
         when(participationRepositoryUtil.getParticipationsByActUid(phcUid)).thenReturn(new ArrayList<>());

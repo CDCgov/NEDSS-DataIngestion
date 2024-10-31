@@ -166,14 +166,10 @@ public class PageRepositoryUtil {
                         MessageLogDto messageLogDT = pageProxyVO.getMessageLogDTMap().get(key);
 
                         messageLogDT.setPersonUid(patientRevisionUid);
-                        if (messageLogDT.getEventUid() != null && messageLogDT.getEventUid() > 0)
-                        {
-                            continue;
-                        }
-                        else
-                        {
+                        if (messageLogDT.getEventUid() == null || messageLogDT.getEventUid() <= 0) {
                             messageLogDT.setEventUid(phcUid);
                         }
+
 
                     }
                 }

@@ -90,7 +90,7 @@ class NotificationRepositoryUtilTest {
         var actIdCol = new ArrayList<ActIdDto>();
         var actId = new ActIdDto();
         actIdCol.add(actId);
-        when(actIdRepositoryUtil.GetActIdCollection(uid)).thenReturn(actIdCol);
+        when(actIdRepositoryUtil.getActIdCollection(uid)).thenReturn(actIdCol);
 
         var actLocCol = new ArrayList<ActivityLocatorParticipationDto>();
         var actLoc = new ActivityLocatorParticipationDto();

@@ -241,7 +241,7 @@ public class ProgramAreaService implements IProgramAreaService {
             }
         } //end of while
 
-        if(paHTBL.size() == 0)
+        if(paHTBL.isEmpty())
         {
             returnMap.put(ERROR, ELRConstant.PROGRAM_ASSIGN_2);
         }

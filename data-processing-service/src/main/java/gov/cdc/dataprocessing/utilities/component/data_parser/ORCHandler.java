@@ -117,7 +117,7 @@ public class ORCHandler {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         try {
             List<HL7XADType> addressArray = hl7ORCType.getOrderingFacilityAddress();
-            if(addressArray!=null && addressArray.size() !=0){
+            if(addressArray!=null && !addressArray.isEmpty()){
                 OrganizationDto organizationDto = new OrganizationDto();
                 organizationContainer.setItNew(true);
                 organizationContainer.setItDirty(false);

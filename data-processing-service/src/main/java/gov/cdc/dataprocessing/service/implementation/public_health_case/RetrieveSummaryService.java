@@ -255,7 +255,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 List<NotificationSummaryContainer> retval;
 
                 retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
-                if (retval.size() == 0) {
+                if (retval.isEmpty()) {
                     break;
                 }
                 for (NotificationSummaryContainer newVO : retval) {
@@ -330,7 +330,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
 
                 //break out of loop if there is no existing Notification
-                if (retval.size() == 0) {
+                if (retval.isEmpty()) {
                     break;
                 }
                 for (NotificationSummaryContainer newVO : retval) {

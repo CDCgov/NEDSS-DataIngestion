@@ -363,9 +363,7 @@ public class PersonService implements IPersonService {
                         }
 
 
-                        if (personVO.getThePersonRaceDtoCollection() == null
-                            || (personVO.getThePersonRaceDtoCollection() != null
-                            && personVO.getThePersonRaceDtoCollection().size() == 0)
+                        if (personVO.getThePersonRaceDtoCollection() == null || personVO.getThePersonRaceDtoCollection().isEmpty()
                         ) {
                             personVO.setThePersonRaceDtoCollection(new ArrayList<>());
                             personVO.getThePersonRaceDtoCollection().addAll(updatedPersonRaceCollection);
@@ -387,9 +385,7 @@ public class PersonService implements IPersonService {
                             }
                         }
 
-                        if (personVO.getThePersonEthnicGroupDtoCollection() == null
-                            || (personVO.getThePersonEthnicGroupDtoCollection() != null
-                            && personVO.getThePersonEthnicGroupDtoCollection().size() == 0)
+                        if (personVO.getThePersonEthnicGroupDtoCollection() == null || personVO.getThePersonEthnicGroupDtoCollection().isEmpty()
                         ) {
                             personVO.setThePersonEthnicGroupDtoCollection(new ArrayList<>());
                             personVO.getThePersonEthnicGroupDtoCollection().addAll(updatedPersonEthnicGroupCollection);

@@ -139,7 +139,7 @@ public class LookupService implements ILookupService {
 
     public void fillPrePopMap() {
 
-        if (OdseCache.fromPrePopFormMapping == null || OdseCache.fromPrePopFormMapping.size() == 0) {
+        if (OdseCache.fromPrePopFormMapping == null || OdseCache.fromPrePopFormMapping.isEmpty()) {
             try {
                     Collection<LookupMappingDto> qColl = retrievePrePopMapping();
                     createPrePopFromMap(qColl);
@@ -150,7 +150,7 @@ public class LookupService implements ILookupService {
 
         }
 
-        if (OdseCache.toPrePopFormMapping == null || OdseCache.toPrePopFormMapping.size() == 0) {
+        if (OdseCache.toPrePopFormMapping == null || OdseCache.toPrePopFormMapping.isEmpty()) {
             try {
                     Collection<LookupMappingDto> qColl = retrievePrePopMapping();
                     createPrePopToMap(qColl);

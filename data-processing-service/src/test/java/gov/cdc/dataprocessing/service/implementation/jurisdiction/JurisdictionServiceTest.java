@@ -96,16 +96,16 @@ class JurisdictionServiceTest {
 
         Collection<EntityLocatorParticipationDto> entityLocatorPartColl = new ArrayList<>();
 
-        EntityLocatorParticipationDto entityLocatorDT_po_1 = new EntityLocatorParticipationDto();
-        entityLocatorDT_po_1.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po_1.setUseCd("H");
+        EntityLocatorParticipationDto entityLocatorDTPo1 = new EntityLocatorParticipationDto();
+        entityLocatorDTPo1.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo1.setUseCd("H");
         PostalLocatorDto postalDt1 = new PostalLocatorDto();
         postalDt1.setZipCd("22275-9998");
         postalDt1.setAddReasonCd("TEST_REASON_CD");
         postalDt1.setAddUserId(12345L);
         postalDt1.setCityDescTxt("test_city_desc_text");
-        entityLocatorDT_po_1.setThePostalLocatorDto(postalDt1);
-        entityLocatorPartColl.add(entityLocatorDT_po_1);
+        entityLocatorDTPo1.setThePostalLocatorDto(postalDt1);
+        entityLocatorPartColl.add(entityLocatorDTPo1);
         patientContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
 
         Collection<String> jurisdictionsList = new ArrayList<>();
@@ -125,16 +125,16 @@ class JurisdictionServiceTest {
 
         Collection<EntityLocatorParticipationDto> entityLocatorPartColl = new ArrayList<>();
 
-        EntityLocatorParticipationDto entityLocatorDT_po_1 = new EntityLocatorParticipationDto();
-        entityLocatorDT_po_1.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po_1.setUseCd("H");
+        EntityLocatorParticipationDto entityLocatorDTPo1 = new EntityLocatorParticipationDto();
+        entityLocatorDTPo1.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo1.setUseCd("H");
         PostalLocatorDto postalDt1 = new PostalLocatorDto();
 
         postalDt1.setAddReasonCd("TEST_REASON_CD");
         postalDt1.setAddUserId(12345L);
         postalDt1.setCityDescTxt("test_city_desc_text");
-        entityLocatorDT_po_1.setThePostalLocatorDto(postalDt1);
-        entityLocatorPartColl.add(entityLocatorDT_po_1);
+        entityLocatorDTPo1.setThePostalLocatorDto(postalDt1);
+        entityLocatorPartColl.add(entityLocatorDTPo1);
         patientContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
 
         Collection<String> jurisdictionsList = new ArrayList<>();
@@ -153,16 +153,16 @@ class JurisdictionServiceTest {
         ObservationContainer observationRequest = new ObservationContainer();
 
         Collection<EntityLocatorParticipationDto> entityLocatorPartColl = new ArrayList<>();
-        EntityLocatorParticipationDto entityLocatorDT_po_2 = new EntityLocatorParticipationDto();
-        entityLocatorDT_po_2.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po_2.setUseCd("WP");
+        EntityLocatorParticipationDto entityLocatorDTPo2 = new EntityLocatorParticipationDto();
+        entityLocatorDTPo2.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo2.setUseCd("WP");
         PostalLocatorDto postalDt2 = new PostalLocatorDto();
         postalDt2.setZipCd("22275");
         postalDt2.setAddReasonCd("TEST_REASON_CD");
         postalDt2.setAddUserId(12345L);
         postalDt2.setCityDescTxt("test_city_desc_text");
-        entityLocatorDT_po_2.setThePostalLocatorDto(postalDt2);
-        entityLocatorPartColl.add(entityLocatorDT_po_2);
+        entityLocatorDTPo2.setThePostalLocatorDto(postalDt2);
+        entityLocatorPartColl.add(entityLocatorDTPo2);
         providerContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
 
         Collection<String> jurisdictionsList = new ArrayList<>();
@@ -181,16 +181,16 @@ class JurisdictionServiceTest {
         ObservationContainer observationRequest = new ObservationContainer();
 
         Collection<EntityLocatorParticipationDto> entityLocatorPartColl = new ArrayList<>();
-        EntityLocatorParticipationDto entityLocatorDT_po = new EntityLocatorParticipationDto();
-        entityLocatorDT_po.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po.setUseCd("WP");
+        EntityLocatorParticipationDto entityLocatorDTPo = new EntityLocatorParticipationDto();
+        entityLocatorDTPo.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo.setUseCd("WP");
         PostalLocatorDto postalDt = new PostalLocatorDto();
         postalDt.setZipCd("22275");
         postalDt.setAddReasonCd("TEST_REASON_CD");
         postalDt.setAddUserId(12345L);
         postalDt.setCityDescTxt("test_city_desc_text");
-        entityLocatorDT_po.setThePostalLocatorDto(postalDt);
-        entityLocatorPartColl.add(entityLocatorDT_po);
+        entityLocatorDTPo.setThePostalLocatorDto(postalDt);
+        entityLocatorPartColl.add(entityLocatorDTPo);
         organizationContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
 
         Collection<String> jurisdictionsList = new ArrayList<>();
@@ -210,17 +210,17 @@ class JurisdictionServiceTest {
 
         Collection<EntityLocatorParticipationDto> entityLocatorPartColl = new ArrayList<>();
 
-        EntityLocatorParticipationDto entityLocatorDT_po = new EntityLocatorParticipationDto();
-        entityLocatorDT_po.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po.setUseCd("H");
+        EntityLocatorParticipationDto entityLocatorDTPo = new EntityLocatorParticipationDto();
+        entityLocatorDTPo.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo.setUseCd("H");
 
         PostalLocatorDto postalDt = new PostalLocatorDto();
         postalDt.setZipCd("22275-9998");
         postalDt.setAddReasonCd("TEST_REASON_CD");
         postalDt.setAddUserId(12345L);
         postalDt.setCityDescTxt("test_city_desc_text");
-        entityLocatorDT_po.setThePostalLocatorDto(postalDt);
-        entityLocatorPartColl.add(entityLocatorDT_po);
+        entityLocatorDTPo.setThePostalLocatorDto(postalDt);
+        entityLocatorPartColl.add(entityLocatorDTPo);
         patientContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
 
         Collection<String> jurisdictionsList = new ArrayList<>();//Empty
@@ -248,26 +248,26 @@ class JurisdictionServiceTest {
         partDT.setSubjectClassCd(NEDSSConstant.PERSON_CLASS_CODE);
         partDT.setSubjectEntityUid(123L);
         //patient
-        ParticipationDto partDT_patient = new ParticipationDto();
-        partDT_patient.setTypeCd(NEDSSConstant.PAR110_TYP_CD);
-        partDT_patient.setSubjectEntityUid(123L);
+        ParticipationDto partDTPatient = new ParticipationDto();
+        partDTPatient.setTypeCd(NEDSSConstant.PAR110_TYP_CD);
+        partDTPatient.setSubjectEntityUid(123L);
         //ordering facility
-        ParticipationDto partDT_of = new ParticipationDto();
-        partDT_of.setTypeCd(NEDSSConstant.PAR102_TYP_CD);
-        partDT_of.setSubjectEntityUid(123L);
+        ParticipationDto partDTOf = new ParticipationDto();
+        partDTOf.setTypeCd(NEDSSConstant.PAR102_TYP_CD);
+        partDTOf.setSubjectEntityUid(123L);
         //reporting facility
-        ParticipationDto partDT_rf = new ParticipationDto();
-        partDT_rf.setTypeCd(NEDSSConstant.PAR111_TYP_CD);
-        partDT_rf.setSubjectClassCd(NEDSSConstant.PAR111_SUB_CD);
-        partDT_rf.setSubjectEntityUid(123L);
+        ParticipationDto partDTRf = new ParticipationDto();
+        partDTRf.setTypeCd(NEDSSConstant.PAR111_TYP_CD);
+        partDTRf.setSubjectClassCd(NEDSSConstant.PAR111_SUB_CD);
+        partDTRf.setSubjectEntityUid(123L);
         rootObsDT.setCtrlCdDisplayForm(NEDSSConstant.LAB_REPORT);
         rootObsDT.setElectronicInd(NEDSSConstant.EXTERNAL_USER_IND);
 
         Collection<ParticipationDto> partColl = new ArrayList<>();
         partColl.add(partDT);
-        partColl.add(partDT_patient);
-        partColl.add(partDT_of);
-        partColl.add(partDT_rf);
+        partColl.add(partDTPatient);
+        partColl.add(partDTOf);
+        partColl.add(partDTRf);
         labResultProxyContainer.setTheParticipationDtoCollection(partColl);
 
         PersonContainer personContainer = new PersonContainer();
@@ -276,26 +276,26 @@ class JurisdictionServiceTest {
         personContainer.setThePersonDto(personDto1);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(personContainer);
         //patient
-        PersonContainer personContainer_patent = new PersonContainer();
+        PersonContainer personContainerPatent = new PersonContainer();
         PersonDto personDto = new PersonDto();
         personDto.setPersonUid(123L);
-        personContainer_patent.setThePersonDto(personDto);
+        personContainerPatent.setThePersonDto(personDto);
         Collection<PersonContainer> personContainerCol = new ArrayList<>();
-        personContainerCol.add(personContainer_patent);
+        personContainerCol.add(personContainerPatent);
         labResultProxyContainer.setThePersonContainerCollection(personContainerCol);
         //ordering facility
         OrganizationContainer organizationContainer2 = new OrganizationContainer();
         Collection<EntityLocatorParticipationDto> entityLocatorPartColl = new ArrayList<>();
-        EntityLocatorParticipationDto entityLocatorDT_po = new EntityLocatorParticipationDto();
-        entityLocatorDT_po.setClassCd(NEDSSConstant.POSTAL);
-        entityLocatorDT_po.setUseCd("WP");
+        EntityLocatorParticipationDto entityLocatorDTPo = new EntityLocatorParticipationDto();
+        entityLocatorDTPo.setClassCd(NEDSSConstant.POSTAL);
+        entityLocatorDTPo.setUseCd("WP");
         PostalLocatorDto postalDt = new PostalLocatorDto();
         postalDt.setZipCd("22275");
         postalDt.setAddReasonCd("TEST_REASON_CD");
         postalDt.setAddUserId(12345L);
         postalDt.setCityDescTxt("test_city_desc_text");
-        entityLocatorDT_po.setThePostalLocatorDto(postalDt);
-        entityLocatorPartColl.add(entityLocatorDT_po);
+        entityLocatorDTPo.setThePostalLocatorDto(postalDt);
+        entityLocatorPartColl.add(entityLocatorDTPo);
         organizationContainer2.setTheEntityLocatorParticipationDtoCollection(entityLocatorPartColl);
         when(organizationRepositoryUtil.loadObject(any(), any())).thenReturn(organizationContainer2);
 
