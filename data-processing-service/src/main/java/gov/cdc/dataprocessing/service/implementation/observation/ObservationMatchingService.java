@@ -81,8 +81,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         if (obsDT != null) // find a match is it a correction?
         {
             String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
-            String odsStatus = obsDT.getStatusCd();
-            odsStatus = "N";
+            String odsStatus = "N";
             if (msgStatus == null || odsStatus == null) //NOSONAR
             {
                 edxLabInformationDto.setObservationMatch(false);

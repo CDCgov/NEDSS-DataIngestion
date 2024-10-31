@@ -395,6 +395,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is New(Create)
      * and check null for record Status State and set the System attributes in the rootDTInterface
      */
+    @SuppressWarnings("java:S1172")
     protected RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
@@ -455,9 +456,9 @@ public class PrepareAssocModelHelper {
     {
         try
         {
-            logger.debug("prepareNewEntityVO uid = " + theRootDTInterface.getUid());
+            logger.debug("prepareNewEntityVO uid = {}", theRootDTInterface.getUid());
             Long uid = theRootDTInterface.getUid();
-            logger.debug("prepareDirtyEntityVO uid = " + uid);
+            logger.debug("prepareDirtyEntityVO uid = {}", uid);
 
             PrepareEntity prepareVOUtilsHelper = prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
             String localId = prepareVOUtilsHelper.getLocalId();//7
@@ -469,8 +470,8 @@ public class PrepareAssocModelHelper {
                 throw new DataProcessingException(LOG_RECORD_MODIFIED_BY_OTHER_USER);
             }
 
-            logger.debug("recordStatusState state in prepareDirtyEntityVO = " + recordStatusState);
-            logger.debug("objectStatusState state in prepareDirtyEntityVO = " + objectStatusState);
+            logger.debug("recordStatusState state in prepareDirtyEntityVO = {}", recordStatusState);
+            logger.debug("objectStatusState state in prepareDirtyEntityVO = {}", objectStatusState);
             java.util.Date dateTime = new java.util.Date();
             Timestamp systemTime = new Timestamp(dateTime.getTime());
             theRootDTInterface.setLocalId(localId);
@@ -570,6 +571,7 @@ public class PrepareAssocModelHelper {
      * This method prepares the Entity value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
+    @SuppressWarnings("java:S1172")
     protected RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
                                                  String businessObjLookupName, String businessTriggerCd,
                                                  String tableName, String moduleCd)

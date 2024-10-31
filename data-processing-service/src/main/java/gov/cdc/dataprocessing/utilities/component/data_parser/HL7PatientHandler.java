@@ -541,7 +541,7 @@ public class HL7PatientHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessor.personVO " + e);
+            logger.error("Exception thrown by HL7ORCProcessor.personVO {}", e.getMessage()  );
             throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO: {}"+ e.getMessage());
         }
         return personContainer;

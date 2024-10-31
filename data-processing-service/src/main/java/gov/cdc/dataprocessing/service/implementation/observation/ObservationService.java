@@ -1258,9 +1258,7 @@ public class ObservationService implements IObservationService {
         try
         {
             //Find observation local id
-            if(localIds == null) {
-                localIds = new HashMap<> ();
-            }
+            localIds = new HashMap<>();
             var resObs = observationRepository.findById(observationUid);
             ObservationDto obsDT = new ObservationDto();
             if (resObs.isPresent()) {

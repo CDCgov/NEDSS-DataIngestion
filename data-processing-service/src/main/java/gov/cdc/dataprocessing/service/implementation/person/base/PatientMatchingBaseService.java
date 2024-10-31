@@ -463,8 +463,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     setPersonToMatchEntityPatient(personContainer);
                 }
             } catch (Exception e) {
-                logger.warn("Unable to setPatientHashCd for personUid: "+personUid);
-                logger.warn("Exception in setPatientToEntityMatch -> unhandled exception: " +e.getMessage());
+                logger.error("Unable to setPatientHashCd for personUid: {}", personUid);
+                logger.error("Exception in setPatientToEntityMatch -> unhandled exception: {}", e.getMessage());
             }
         } catch (Exception e) {
             logger.error("EntityControllerEJB.setPatientHashCd: {}", e.getMessage());
