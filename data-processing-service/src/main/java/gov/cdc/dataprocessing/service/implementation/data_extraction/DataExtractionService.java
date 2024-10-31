@@ -116,7 +116,7 @@ public class DataExtractionService implements IDataExtractionService {
             List<HL7PATIENTRESULTType> HL7PatientResultArray = hl7LabReportType.getHL7PATIENTRESULT(); // NOSONAR
             HL7PatientResultSPMType hl7PatientResultSPMType = null;
 
-            if(HL7PatientResultArray == null || HL7PatientResultArray.size() == 0){
+            if(HL7PatientResultArray == null || HL7PatientResultArray.isEmpty()){
                 edxLabInformationDto.setNoSubject(true);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
@@ -138,7 +138,7 @@ public class DataExtractionService implements IDataExtractionService {
 
             List<HL7OrderObservationType> hl7OrderObservationArray = hl7PATIENTRESULTType.getORDEROBSERVATION();
 
-            if(hl7OrderObservationArray==null || hl7OrderObservationArray.size() == 0){
+            if(hl7OrderObservationArray==null || hl7OrderObservationArray.isEmpty()){
                 edxLabInformationDto.setOrderTestNameMissing(true);
                 logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
                 throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);

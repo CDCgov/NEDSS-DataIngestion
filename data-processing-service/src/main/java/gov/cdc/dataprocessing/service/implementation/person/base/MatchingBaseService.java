@@ -80,14 +80,14 @@ public class MatchingBaseService  {
         String carrot = "^";
         List<String> returnList;
         List<String> identifierList = new ArrayList<>();
-        String identifier ;
+        StringBuilder identifier = new StringBuilder();
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
                     && !personContainer.getTheEntityIdDtoCollection().isEmpty())
             {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto idDto : entityIdDtoColl) {
-                    identifier = null;
+                    identifier.setLength(0);
                     if (((idDto.getStatusCd() != null && idDto
                             .getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))
                             && idDto.getRecordStatusCd() != null
@@ -104,12 +104,15 @@ public class MatchingBaseService  {
                                 && (idDto.getAssigningAuthorityCd() != null)
                                 && (idDto.getAssigningAuthorityDescTxt() != null)
                                 && (idDto.getAssigningAuthorityIdType() != null)) {
-                            identifier = idDto.getRootExtensionTxt()
-                                    + carrot + idDto.getTypeCd() + carrot
-                                    + idDto.getAssigningAuthorityCd()
-                                    + carrot
-                                    + idDto.getAssigningAuthorityDescTxt()
-                                    + carrot + idDto.getAssigningAuthorityIdType();
+                            identifier.append(idDto.getRootExtensionTxt())
+                                    .append(carrot)
+                                    .append(idDto.getTypeCd())
+                                    .append(carrot)
+                                    .append(idDto.getAssigningAuthorityCd())
+                                    .append(carrot)
+                                    .append(idDto.getAssigningAuthorityDescTxt())
+                                    .append(carrot)
+                                    .append(idDto.getAssigningAuthorityIdType());
                         }
                         // NOTE: Person matching doesn't seem to hit this
                         else {
@@ -128,17 +131,21 @@ public class MatchingBaseService  {
                                     && coded.getCode() != null
                                     && coded.getCodeDescription() != null
                                     && coded.getCodeSystemCd() != null) {
-                                identifier = idDto.getRootExtensionTxt()
-                                        + carrot + idDto.getTypeCd() + carrot
-                                        + coded.getCode() + carrot
-                                        + coded.getCodeDescription() + carrot
-                                        + coded.getCodeSystemCd();
+                                identifier.append(idDto.getRootExtensionTxt())
+                                        .append(carrot)
+                                        .append(idDto.getTypeCd())
+                                        .append(carrot)
+                                        .append(coded.getCode())
+                                        .append(carrot)
+                                        .append(coded.getCodeDescription())
+                                        .append(carrot)
+                                        .append(coded.getCodeSystemCd());
                             }
                         }
 
-                        if (identifier != null && getNamesStr(personContainer) != null) {
-                            identifier = identifier + carrot + getNamesStr(personContainer);
-                            identifierList.add(identifier);
+                        if (identifier.length() > 0 && getNamesStr(personContainer) != null) {
+                            identifier.append(carrot).append(getNamesStr(personContainer));
+                            identifierList.add(identifier.toString());
                         }
 
                     }

@@ -253,7 +253,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         } //end of while
 
-        if(paHTBL.size() == 0)
+        if(paHTBL.isEmpty())
         {
             returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_2);
         }
@@ -385,7 +385,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     // AK 7/25/04
     @SuppressWarnings("java:S1149")
     protected String getProgAreaCd(Vector<Object> codeVector, String reportingLabCLIA, String nextLookUp, String type) {
-        if (codeVector == null || codeVector.size() == 0)
+        if (codeVector == null || codeVector.isEmpty())
         {
             return null;
         }
@@ -648,8 +648,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
         Vector<Object> codeVector = new Vector<>();
         codeVector.addElement(code);
-
-        String codeSql = null;
 
         progAreaCd = findLocalResultDefaultConditionProgramAreaCdFromLabTest(codeVector, reportingLabCLIA, "NEXT");
 

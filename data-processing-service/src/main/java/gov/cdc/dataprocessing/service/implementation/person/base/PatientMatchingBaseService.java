@@ -276,6 +276,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return setMPR(mpr, businessTriggerCd, personType) != null;
     }
 
+    @SuppressWarnings("java:S1199")
     private Long setMPR(PersonContainer personVO, String businessTriggerCd, String personType) throws
             DataProcessingException {
         Long personUID = null;

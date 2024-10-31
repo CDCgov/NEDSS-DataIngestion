@@ -738,9 +738,9 @@ public class DecisionSupportService implements IDecisionSupportService {
              * advanceInvCriteriaMap is empty
              */
             if ((edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null
-                    || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size() == 0)
+                    || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
                     && advanceInvCriteriaMap == null
-                    || advanceInvCriteriaMap.size() == 0)
+                    || advanceInvCriteriaMap.isEmpty())
             {
                 isAdvancedInvCriteriaMet = true;
             }
@@ -895,9 +895,9 @@ public class DecisionSupportService implements IDecisionSupportService {
              */
             if (
                     (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null
-                            || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().size() == 0)
+                            || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
                     && (advanceInvCriteriaMap == null
-                            || advanceInvCriteriaMap.size() == 0)
+                            || advanceInvCriteriaMap.isEmpty())
             )
             {
                 return true;
@@ -910,7 +910,7 @@ public class DecisionSupportService implements IDecisionSupportService {
             if (
                     (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
                             && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
-                    && (advanceInvCriteriaMap == null || advanceInvCriteriaMap.size() == 0)
+                    && (advanceInvCriteriaMap == null || advanceInvCriteriaMap.isEmpty())
             )
             {
                 return false;

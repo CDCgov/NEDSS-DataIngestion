@@ -36,7 +36,7 @@ class ActIdRepositoryUtilTest {
         actIds.add(actId);
         when(actIdRepository.findRecordsById(actUid)).thenReturn(Optional.of(actIds));
 
-        Collection<ActIdDto> result = actIdRepositoryUtil.GetActIdCollection(actUid);
+        Collection<ActIdDto> result = actIdRepositoryUtil.getActIdCollection(actUid);
 
         assertEquals(1, result.size());
         for (ActIdDto dto : result) {
@@ -51,7 +51,7 @@ class ActIdRepositoryUtilTest {
         Long actUid = 1L;
         when(actIdRepository.findRecordsById(actUid)).thenReturn(Optional.empty());
 
-        Collection<ActIdDto> result = actIdRepositoryUtil.GetActIdCollection(actUid);
+        Collection<ActIdDto> result = actIdRepositoryUtil.getActIdCollection(actUid);
 
         assertTrue(result.isEmpty());
         verify(actIdRepository, times(1)).findRecordsById(actUid);

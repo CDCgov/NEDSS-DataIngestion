@@ -38,7 +38,7 @@ public class ActIdRepositoryUtil {
         this.actIdRepository = actIdRepository;
     }
 
-    public Collection<ActIdDto> GetActIdCollection(Long actUid) {
+    public Collection<ActIdDto> getActIdCollection(Long actUid) {
         var actIds = actIdRepository.findRecordsById(actUid);
         Collection<ActIdDto> actIdCollection = new ArrayList<>();
         if (actIds.isPresent()) {

@@ -733,6 +733,7 @@ public class NBSObjectConverter {
         return newFormatedNbr;
     }// End of formatPhoneNbr
 
+    @SuppressWarnings("java:S1319")
     public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
 
         boolean incorrectLength = false;

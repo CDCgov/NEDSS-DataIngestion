@@ -114,7 +114,7 @@ public class JurisdictionService implements IJurisdictionService {
                 isLabReport = true;
                 partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
             }
-            if (partColl == null || partColl.size() == 0)
+            if (partColl == null || partColl.isEmpty())
             {
                 throw new DataProcessingException("Participation collection is null or empty, it is: " + partColl);
             }
@@ -376,7 +376,7 @@ public class JurisdictionService implements IJurisdictionService {
                             if (res.isPresent()) {
                                 coll = res.get();
                             }
-                            if (coll.size() < 1) {
+                            if (coll.isEmpty()) {
                                 String cityDesc = postalDt.getCityDescTxt();
                                 if (cityDesc == null)
                                 {
@@ -398,7 +398,7 @@ public class JurisdictionService implements IJurisdictionService {
                                 detailError.append(countyDesc);
                                 detailError.append(", ");
 
-                                if (coll.size() < 1) {
+                                if (coll.isEmpty()) {
                                     var resJus = jurisdictionParticipationRepository.findJurisdiction(postalDt.getCntyCd(), "N");
                                     if (resJus.isPresent()) {
                                         coll = resJus.get();
