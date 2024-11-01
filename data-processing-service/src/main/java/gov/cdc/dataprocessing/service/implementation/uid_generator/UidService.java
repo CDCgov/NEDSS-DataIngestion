@@ -110,7 +110,7 @@ public class UidService implements IUidService {
 
         }
 
-        if (roleColl != null && roleColl.size() != 0)
+        if (roleColl != null && !roleColl.isEmpty())
         {
             for (roleDtoIterator = roleColl.iterator(); roleDtoIterator.hasNext(); )
             {
