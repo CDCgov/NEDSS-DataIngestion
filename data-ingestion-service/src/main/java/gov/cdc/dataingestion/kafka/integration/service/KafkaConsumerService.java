@@ -239,7 +239,12 @@ public class KafkaConsumerService {
             log.debug(topicDebugLog, messageId, topic);
 
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
-            NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
+            NbsInterfaceModel nbsInterfaceModel = null;
+            try {
+                nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
+            } catch (XmlConversionException e) {
+                throw new RuntimeException(e);
+            }
             log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
 
             ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
