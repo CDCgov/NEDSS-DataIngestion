@@ -262,7 +262,7 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "elr_unprocessed", 0); //NOSONAR
             }
             else {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0); //NOSONAR
             }
         });
 

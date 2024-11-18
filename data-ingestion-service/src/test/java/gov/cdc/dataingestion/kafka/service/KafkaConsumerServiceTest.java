@@ -214,8 +214,6 @@ class KafkaConsumerServiceTest {
 
         kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
 
-        kafkaConsumerService.handleMessageForElrXml(value, rawXmlTopic, "false", "false");
-
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
     }
@@ -256,6 +254,41 @@ class KafkaConsumerServiceTest {
 
         String expectedMessage = "Raw ELR record is empty for Id: ";
         Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
+
+    }
+
+    @Test
+    void rawXmlConsumerTest() {
+        // Produce a test message to the topic
+        initialDataInsertionAndSelection(rawXmlTopic);
+        String message =  guidForTesting;
+        produceMessage(rawXmlTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        RawERLModel rawModel = new RawERLModel();
+        rawModel.setId(guidForTesting);
+        rawModel.setType("HL7-XML");
+
+        when(iRawELRRepository.findById(guidForTesting))
+                .thenReturn(Optional.of(rawModel));
+
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrRawEventTime(any());
+
+        kafkaConsumerService.handleMessageForElrXml(value, message, rawXmlTopic, "false");
+
+        verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
     }
 
