@@ -150,7 +150,7 @@ class KafkaConsumerServiceTest {
         consumer = new KafkaConsumer<>(consumerProperties);
 
         // Subscribe to the test topic
-        consumer.subscribe(Arrays.asList(rawTopic, validateTopic, xmlPrepTopic,  fhirPrepTopic));
+        consumer.subscribe(Arrays.asList(rawTopic, rawXmlTopic, validateTopic, xmlPrepTopic,  fhirPrepTopic));
     }
 
     @BeforeEach
@@ -258,7 +258,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void rawXmlConsumerTest() {
+    void rawXmlConsumerTest_dataProcessingNotApplied() throws XmlConversionException {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(rawXmlTopic);
         String message =  guidForTesting;
@@ -273,23 +273,46 @@ class KafkaConsumerServiceTest {
         ConsumerRecord<String, String> firstRecord = records.iterator().next();
         String value = firstRecord.value();
 
-        RawERLModel rawModel = new RawERLModel();
-        rawModel.setId(guidForTesting);
-        rawModel.setType("HL7-XML");
-
-        when(iRawELRRepository.findById(guidForTesting))
-                .thenReturn(Optional.of(rawModel));
+        nbsInterfaceModel.setNbsInterfaceUid(12345);
 
         doAnswer(invocation -> {
             Runnable runnable = invocation.getArgument(0);
             runnable.run();
             return null;
-        }).when(timeMetricsBuilder).recordElrRawEventTime(any());
+        }).when(timeMetricsBuilder).recordElrRawXmlEventTime(any());
+
+        when(nbsRepositoryServiceProvider.saveElrXmlMessage(anyString(), anyString(), eq(false))).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.handleMessageForElrXml(value, message, rawXmlTopic, "false");
+    }
 
-        verify(iRawELRRepository, times(1)).findById(guidForTesting);
+    @Test
+    void rawXmlConsumerTest_dataProcessingApplied() throws XmlConversionException {
+        // Produce a test message to the topic
+        initialDataInsertionAndSelection(rawXmlTopic);
+        String message =  guidForTesting;
+        produceMessage(rawXmlTopic, message, EnumKafkaOperation.INJECTION);
 
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        nbsInterfaceModel.setNbsInterfaceUid(12345);
+
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrRawXmlEventTime(any());
+
+        when(nbsRepositoryServiceProvider.saveElrXmlMessage(anyString(), anyString(), eq(true))).thenReturn(nbsInterfaceModel);
+
+        kafkaConsumerService.handleMessageForElrXml(value, message, rawXmlTopic, "true");
     }
 
     @Test
