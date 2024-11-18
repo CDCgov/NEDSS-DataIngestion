@@ -500,7 +500,6 @@ class NbsRepositoryServiceProviderTest {
     void testSaveElrXmlMessage() throws Exception {
         String messageId = "12345";
         String xmlMsg =  testXmlData;
-        //String xmlMsg = "<Container><HL7LabReport><HL7MSH><SendingFacility><HL7UniversalID>123</HL7UniversalID></SendingFacility></HL7MSH></HL7LabReport></Container>";
         boolean dataProcessingApplied = true;
         NbsInterfaceModel savedItem = new NbsInterfaceModel();
         when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(savedItem);
@@ -521,6 +520,20 @@ class NbsRepositoryServiceProviderTest {
         assertThrows(XmlConversionException.class, () -> {
             target.saveElrXmlMessage(messageId, invalidXml, dataProcessingApplied);
         });
+    }
+
+    @Test
+    void testSaveElrXmlMessage_NullOrderCode() throws XmlConversionException {
+        String messageId = "12345";
+        String xmlMsg = "<Container></Container>";
+        boolean dataProcessingApplied = true;
+        NbsInterfaceModel savedItem = new NbsInterfaceModel();
+        when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(savedItem);
+
+        NbsInterfaceModel result = target.saveElrXmlMessage(messageId, xmlMsg, dataProcessingApplied);
+
+        assertNotNull(result);
+        assertNull(result.getOrderTestCode());
     }
 
     @Test

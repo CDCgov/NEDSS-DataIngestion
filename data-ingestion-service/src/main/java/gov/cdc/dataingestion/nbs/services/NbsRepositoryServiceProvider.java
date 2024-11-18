@@ -229,7 +229,7 @@ public class NbsRepositoryServiceProvider {
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			return (Node) xPath.evaluate(xpathExpression, doc, XPathConstants.NODE);
 		} catch (Exception e) {
-			return null;
+			return null; //NOSONAR
 		}
 	}
 
