@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -158,11 +159,23 @@ public class NbsRepositoryServiceProvider {
 		return nbsInterfaceModel;
 	}
 
-	private NbsInterfaceModel savingElrXmlNbsInterfaceModelHelper(String xmlMsg, NbsInterfaceModel item) throws XmlConversionException {
+	public NbsInterfaceModel savingElrXmlNbsInterfaceModelHelper(String xmlMsg, NbsInterfaceModel item) throws XmlConversionException {
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(new InputSource(new StringReader(xmlMsg)));
+
+			// OWASP recommended XXE prevention measures
+			dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+			// Additional OWASP recommendations for secure XML processing
+			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			dbFactory.setXIncludeAware(false);
+			dbFactory.setExpandEntityReferences(false);
+
 
 			String labClia = getNodeValue(doc, "/Container/HL7LabReport/HL7MSH/SendingFacility/HL7UniversalID");
 
@@ -185,7 +198,7 @@ public class NbsRepositoryServiceProvider {
 		return item;
 	}
 
-	private String getSpecimenCollectionDateStr(Document doc) {
+	public String getSpecimenCollectionDateStr(Document doc) {
 		String year = getNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/year");
 		String month = getPaddedNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/month");
 		String day = getPaddedNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/day");
@@ -198,7 +211,7 @@ public class NbsRepositoryServiceProvider {
 		return year + month + day + hours + minutes;
 	}
 
-	private String getPaddedNodeValue(Document doc, String xpathExpr) {
+	public String getPaddedNodeValue(Document doc, String xpathExpr) {
 		String value = getNodeValue(doc, xpathExpr);
 		if (value != null && !value.isEmpty()) {
 			return value.length() == 1 ? "0" + value : value;
@@ -206,7 +219,7 @@ public class NbsRepositoryServiceProvider {
 		return null;
 	}
 
-	private String getNodeValue(Document doc, String path) {
+	public String getNodeValue(Document doc, String path) {
 		Node node = getNode(doc, path);
 		return (node != null) ? node.getTextContent() : null;
 	}

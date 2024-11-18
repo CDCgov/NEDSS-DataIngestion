@@ -17,10 +17,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Optional;
 
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -488,6 +494,110 @@ class NbsRepositoryServiceProviderTest {
                     target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
                 }
         );
+    }
+
+    @Test
+    void testSaveElrXmlMessage() throws Exception {
+        String messageId = "12345";
+        String xmlMsg =  testXmlData;
+        //String xmlMsg = "<Container><HL7LabReport><HL7MSH><SendingFacility><HL7UniversalID>123</HL7UniversalID></SendingFacility></HL7MSH></HL7LabReport></Container>";
+        boolean dataProcessingApplied = true;
+        NbsInterfaceModel savedItem = new NbsInterfaceModel();
+        when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(savedItem);
+
+        NbsInterfaceModel result = target.saveElrXmlMessage(messageId, xmlMsg, dataProcessingApplied);
+
+        assertNotNull(result);
+        assertTrue(result instanceof NbsInterfaceModel);
+        verify(nbsInterfaceRepo, times(1)).save(any(NbsInterfaceModel.class));
+    }
+
+    @Test
+    void testSaveElrXmlMessage_InvalidXml_ThrowsException() {
+        String messageId = "12345";
+        String invalidXml = "<Container><InvalidXml></Container>";
+        boolean dataProcessingApplied = true;
+
+        assertThrows(XmlConversionException.class, () -> {
+            target.saveElrXmlMessage(messageId, invalidXml, dataProcessingApplied);
+        });
+    }
+
+    @Test
+    void testSavingElrXmlNbsInterfaceModelHelper_ValidXml() throws Exception {
+        String xmlMsg =  testXmlData;
+        NbsInterfaceModel item = new NbsInterfaceModel();
+
+        NbsInterfaceModel result = target.savingElrXmlNbsInterfaceModelHelper(xmlMsg, item);
+
+        assertNotNull(result);
+        assertEquals("123", result.getLabClia());
+    }
+
+    @Test
+    void testGetSpecimenCollectionDateStr_ValidDocument() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        String xmlMsg = "<Container><HL7LabReport><HL7PATIENT_RESULT><ORDER_OBSERVATION>" +
+                "<PatientResultOrderSPMObservation><SPECIMEN><SPECIMEN>" +
+                "<SpecimenCollectionDateTime><HL7RangeStartDateTime>" +
+                "<year>2024</year><month>11</month><day>18</day>" +
+                "<hours>08</hours><minutes>30</minutes>" +
+                "</HL7RangeStartDateTime></SpecimenCollectionDateTime>" +
+                "</SPECIMEN></SPECIMEN></PatientResultOrderSPMObservation></ORDER_OBSERVATION></HL7PATIENT_RESULT></HL7LabReport></Container>";
+        Document doc = builder.parse(new InputSource(new StringReader(xmlMsg)));
+
+        String result = target.getSpecimenCollectionDateStr(doc);
+
+        assertEquals("202411180830", result);
+    }
+
+    @Test
+    void testGetPaddedNodeValue_SingleDigit() throws Exception {
+        String xmlMsg = "<Container><year>9</year></Container>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlMsg)));
+
+        String result = target.getPaddedNodeValue(doc, "/Container/year");
+
+        assertEquals("09", result);
+    }
+
+    @Test
+    void testGetPaddedNodeValue_NoValue() throws Exception {
+        String xmlMsg = "<Container></Container>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlMsg)));
+
+        String result = target.getPaddedNodeValue(doc, "/Container/year");
+
+        assertNull(result);
+    }
+
+    @Test
+    void testGetNodeValue_ValidNode() throws Exception {
+        String xmlMsg =  testXmlData;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlMsg)));
+
+        String result = target.getNodeValue(doc, "/Container/HL7LabReport/HL7MSH/SendingFacility/HL7UniversalID");
+
+        assertEquals("123", result);
+    }
+
+    @Test
+    void testGetNodeValue_InvalidNode() throws Exception {
+        String xmlMsg = "<Container></Container>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlMsg)));
+
+        String result = target.getNodeValue(doc, "/Container/HL7UniversalID");
+
+        assertNull(result);
     }
 
     @Test
