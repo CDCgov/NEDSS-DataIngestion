@@ -9,7 +9,17 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.StringReader;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -118,7 +128,7 @@ public class NbsRepositoryServiceProvider {
 		return nbsInterfaceModel;
 	}
 
-	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg, boolean dataProcessingApplied) {
+	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg, boolean dataProcessingApplied) throws XmlConversionException {
 
 		log.debug("Processing Elr xml: \n {} \n with an uid: {}", xmlMsg, messageId);
 		NbsInterfaceModel item = new NbsInterfaceModel();
@@ -139,16 +149,88 @@ public class NbsRepositoryServiceProvider {
 		item.setDocTypeCd(DOCUMENT_TYPE_CODE);
 		item.setOriginalPayload(null);
 		item.setOriginalDocTypeCd(null);
-		item.setSpecimenCollDate(null);
-		item.setLabClia(null);
-		item.setFillerOrderNbr(null);
-		item.setOrderTestCode(null);
+		item = savingElrXmlNbsInterfaceModelHelper(xmlMsg, item);
+		
 		item.setObservationUid(null);
 
 		NbsInterfaceModel nbsInterfaceModel = nbsInterfaceRepo.save(item);
 		log.debug("Persisted the following Elr xml to NBS_interface table: {}", xmlMsg);
 
 		return nbsInterfaceModel;
+	}
+
+	public NbsInterfaceModel savingElrXmlNbsInterfaceModelHelper(String xmlMsg, NbsInterfaceModel item) throws XmlConversionException {
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(new InputSource(new StringReader(xmlMsg)));
+
+			// OWASP recommended XXE prevention measures
+			dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+			// Additional OWASP recommendations for secure XML processing
+			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			dbFactory.setXIncludeAware(false);
+			dbFactory.setExpandEntityReferences(false);
+
+
+			String labClia = getNodeValue(doc, "/Container/HL7LabReport/HL7MSH/SendingFacility/HL7UniversalID");
+
+			String fillerOrderNumber = getNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/ObservationRequest/FillerOrderNumber/HL7EntityIdentifier");
+
+			String orderTestCode = getNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/ObservationRequest/UniversalServiceIdentifier/HL7Identifier");
+			if (orderTestCode == null) {
+				orderTestCode = getNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/ObservationRequest/UniversalServiceIdentifier/HL7AlternateIdentifier");
+			}
+
+			String specimenColDateStr = getSpecimenCollectionDateStr(doc);
+			savingNbsInterfaceModelTimeStampHelper(specimenColDateStr, item);
+
+			item.setLabClia(labClia);
+			item.setFillerOrderNbr(fillerOrderNumber);
+			item.setOrderTestCode(orderTestCode);
+		} catch (Exception e) {
+			throw new XmlConversionException(e.getMessage());
+		}
+		return item;
+	}
+
+	public String getSpecimenCollectionDateStr(Document doc) {
+		String year = getNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/year");
+		String month = getPaddedNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/month");
+		String day = getPaddedNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/day");
+		String hours = getPaddedNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/hours");
+		String minutes = getPaddedNodeValue(doc, "/Container/HL7LabReport/HL7PATIENT_RESULT/ORDER_OBSERVATION/PatientResultOrderSPMObservation/SPECIMEN/SPECIMEN/SpecimenCollectionDateTime/HL7RangeStartDateTime/minutes");
+
+		if (year == null || month == null || day == null || hours == null || minutes == null) {
+			return null;
+		}
+		return year + month + day + hours + minutes;
+	}
+
+	public String getPaddedNodeValue(Document doc, String xpathExpr) {
+		String value = getNodeValue(doc, xpathExpr);
+		if (value != null && !value.isEmpty()) {
+			return value.length() == 1 ? "0" + value : value;
+		}
+		return null;
+	}
+
+	public String getNodeValue(Document doc, String path) {
+		Node node = getNode(doc, path);
+		return (node != null) ? node.getTextContent() : null;
+	}
+
+	private Node getNode(Document doc, String xpathExpression) {
+		try {
+			XPath xPath = XPathFactory.newInstance().newXPath();
+			return (Node) xPath.evaluate(xpathExpression, doc, XPathConstants.NODE);
+		} catch (Exception e) {
+			return null; //NOSONAR
+		}
 	}
 
 	private NbsInterfaceModel savingNbsInterfaceModelHelper(OruR1 oru, NbsInterfaceModel nbsInterface) throws XmlConversionException {

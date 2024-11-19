@@ -128,6 +128,7 @@ class KafkaConsumerServiceTest {
 
     private String errorMessage = "java.lang.RuntimeException: The HL7 version 2.5.1\\rPID is not recognized \tat gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService.handleMessageForXmlConversionElr(KafkaConsumerService.java:242) \tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) \tat java.base/java.lang.reflect.Method.invoke(Method.java:577) \tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:169) \tat org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119) \tat org.springframework.kafka.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:56) \tat org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:366) \t... 18 more ";
     private static String rawTopic = "elr_raw";
+    private static String rawXmlTopic = "elr_raw_xml";
     private static String validateTopic = "elr_validated";
     private static String xmlPrepTopic = "xml_prep";
     private static String fhirPrepTopic = "fhir_prep";
@@ -149,7 +150,7 @@ class KafkaConsumerServiceTest {
         consumer = new KafkaConsumer<>(consumerProperties);
 
         // Subscribe to the test topic
-        consumer.subscribe(Arrays.asList(rawTopic, validateTopic, xmlPrepTopic,  fhirPrepTopic));
+        consumer.subscribe(Arrays.asList(rawTopic, rawXmlTopic, validateTopic, xmlPrepTopic,  fhirPrepTopic));
     }
 
     @BeforeEach
@@ -254,6 +255,64 @@ class KafkaConsumerServiceTest {
         String expectedMessage = "Raw ELR record is empty for Id: ";
         Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
 
+    }
+
+    @Test
+    void rawXmlConsumerTest_dataProcessingNotApplied() throws XmlConversionException {
+        // Produce a test message to the topic
+        initialDataInsertionAndSelection(rawXmlTopic);
+        String message =  guidForTesting;
+        produceMessage(rawXmlTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        nbsInterfaceModel.setNbsInterfaceUid(12345);
+
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrRawXmlEventTime(any());
+
+        when(nbsRepositoryServiceProvider.saveElrXmlMessage(anyString(), anyString(), eq(false))).thenReturn(nbsInterfaceModel);
+
+        kafkaConsumerService.handleMessageForElrXml(value, message, rawXmlTopic, "false");
+    }
+
+    @Test
+    void rawXmlConsumerTest_dataProcessingApplied() throws XmlConversionException {
+        // Produce a test message to the topic
+        initialDataInsertionAndSelection(rawXmlTopic);
+        String message =  guidForTesting;
+        produceMessage(rawXmlTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        nbsInterfaceModel.setNbsInterfaceUid(12345);
+
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(timeMetricsBuilder).recordElrRawXmlEventTime(any());
+
+        when(nbsRepositoryServiceProvider.saveElrXmlMessage(anyString(), anyString(), eq(true))).thenReturn(nbsInterfaceModel);
+
+        kafkaConsumerService.handleMessageForElrXml(value, message, rawXmlTopic, "true");
     }
 
     @Test
