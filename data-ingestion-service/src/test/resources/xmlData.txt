@@ -9,6 +9,7 @@
             </SendingApplication>
             <SendingFacility>
                 <HL7NamespaceID>SendingFac</HL7NamespaceID>
+                <HL7UniversalID>123</HL7UniversalID>
             </SendingFacility>
             <ReceivingApplication>
                 <HL7NamespaceID>ReceivApp</HL7NamespaceID>

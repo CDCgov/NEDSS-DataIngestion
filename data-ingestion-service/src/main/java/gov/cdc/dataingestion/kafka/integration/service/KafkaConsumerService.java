@@ -239,7 +239,12 @@ public class KafkaConsumerService {
             log.debug(topicDebugLog, messageId, topic);
 
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
-            NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
+            NbsInterfaceModel nbsInterfaceModel = null;
+            try {
+                nbsInterfaceModel = nbsRepositoryServiceProvider.saveElrXmlMessage(messageId, message, dataProcessingApplied);
+            } catch (XmlConversionException e) {
+                throw new RuntimeException(e); //NOSONAR
+            }
             log.debug("Saved Elr xml to NBS_interface table with uid: {}", nbsInterfaceModel.getNbsInterfaceUid());
 
             ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
@@ -254,7 +259,7 @@ public class KafkaConsumerService {
             iReportStatusRepository.save(reportStatusIdData);
 
             if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "elr_unprocessed", 0); //NOSONAR
+                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "elr_unprocessed", 0);
             }
             else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
