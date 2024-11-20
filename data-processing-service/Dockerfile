@@ -21,5 +21,6 @@ FROM amazoncorretto:21
 COPY --from=builder /usr/src/dataprocessing/data-processing-service/build/libs/data-processing-service*.jar data-processing-service.jar
 
 # Run jar
-ENTRYPOINT ["java", "-jar", "data-processing-service.jar"]
-CMD ["java", "-jar", "data-processing-service.jar"]
+#ENTRYPOINT ["java", "-jar", "data-processing-service.jar"]
+#CMD ["java", "-jar", "data-processing-service.jar"]
+ENTRYPOINT ["java", "-Xms4g", "-Xmx4g", "-jar", "data-processing-service.jar"]
