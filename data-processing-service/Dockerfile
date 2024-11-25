@@ -23,4 +23,7 @@ COPY --from=builder /usr/src/dataprocessing/data-processing-service/build/libs/d
 # Run jar
 #ENTRYPOINT ["java", "-jar", "data-processing-service.jar"]
 #CMD ["java", "-jar", "data-processing-service.jar"]
-ENTRYPOINT ["java", "-Xms4g", "-Xmx4g", "-jar", "data-processing-service.jar"]
+ENV JAVA_XMS=1024m
+ENV JAVA_XMX=2048m
+
+ENTRYPOINT ["sh", "-c", "java -Xms$JAVA_XMS -Xmx$JAVA_XMX -jar data-processing-service.jar"]
