@@ -57,3 +57,5 @@ hl7-parser/.gradle/*
 
 ### env ###
 *.env
+
+.vscode/*
