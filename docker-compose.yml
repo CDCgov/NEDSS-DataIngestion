@@ -48,6 +48,19 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
     networks:
       - dataingestion
+  deduplication-db:
+    build: 
+      context: ./deduplication/db
+      args:
+          - DATABASE_PASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
+    container_name: deduplication-mssql
+    ports:
+      - 1434:1433
+    environment:
+      - ACCEPT_EULA=1
+      - SQLCMDPASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
+      - MSSQL_SA_PASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
+
 networks:
   dataingestion:
     name: dataingestion
