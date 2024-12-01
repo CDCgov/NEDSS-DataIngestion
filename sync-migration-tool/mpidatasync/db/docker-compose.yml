@@ -1,0 +1,16 @@
+
+services:
+  seyncer-mssql:
+    build: .
+    container_name: seyncer-mssql
+    ports:
+      - 1434:1433
+    volumes:
+      - seyncer-mssql-data:/var/opt/mssql
+    environment:
+      - ACCEPT_EULA=1
+      - SQLCMDPASSWORD=P@ssw0rd
+      - SA_PASSWORD=P@ssw0rd 
+volumes:
+  seyncer-mssql-data:
+
