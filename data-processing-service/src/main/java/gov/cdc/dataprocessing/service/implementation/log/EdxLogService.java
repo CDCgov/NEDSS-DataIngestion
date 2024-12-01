@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.log;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -14,8 +13,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLog
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,31 +24,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxLogService implements IEdxLogService {
-    private static final Logger logger = LoggerFactory.getLogger(PersonContainer.class); // NOSONAR
-
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
 
@@ -65,17 +38,14 @@ public class EdxLogService implements IEdxLogService {
     @Override
     public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
-        var checkDetailLogList = edxActivityDetailLogRepository.findIdsByEdxActivityLogUidAndLogComment(edxActivityDetailLog.getEdxActivityLogUid(), edxActivityDetailLog.getLogComment());
-        if (checkDetailLogList.isEmpty()){
-            return edxActivityDetailLogRepository.save(edxActivityDetailLog);
-        }
-        return new EdxActivityDetailLog();
+        EdxActivityDetailLog edxActivityDetailLogResult = edxActivityDetailLogRepository.save(edxActivityDetailLog);
+        return edxActivityDetailLogResult;
     }
     @Transactional()
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         //Check if the activity log has already been created for the source.
-        Long activityLogId;
+        Long activityLogId = 0L;
         Optional<EdxActivityLog> dbActivityLogOptional = edxActivityLogRepository.findBySourceUid(edxActivityLog.getSourceUid());
         if (dbActivityLogOptional.isPresent()) {
             EdxActivityLog dbActivityLog = dbActivityLogOptional.get();
@@ -91,7 +61,7 @@ public class EdxLogService implements IEdxLogService {
             Collection<EDXActivityDetailLogDto> edxActivityDetailLogsList= edxActivityLogDto.getEDXActivityLogDTWithVocabDetails();
             for (EDXActivityDetailLogDto eDXActivityDetailLogDto: edxActivityDetailLogsList) {
                 eDXActivityDetailLogDto.setEdxActivityLogUid(activityLogId);
-                this.saveEdxActivityDetailLog(eDXActivityDetailLogDto);
+                saveEdxActivityDetailLog(eDXActivityDetailLogDto);
             }
         }
 
@@ -135,82 +105,58 @@ public class EdxLogService implements IEdxLogService {
 
     }
 
-    protected void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
+    private void setActivityLogExceptionTxt(EDXActivityLogDto edxActivityLogDto, String errorText) {
         switch (errorText) {
             case EdxELRConstant.ELR_MASTER_LOG_ID_1:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_1);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_2:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_2);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_3:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_3);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_4:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_4);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_5:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_5);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_6:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_6);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_7:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_7);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_8:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_8);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_9:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_9);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_10:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_10);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_11:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_11);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_12:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_12);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_13:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_13);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_14:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_14);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_15:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_15);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_16:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_16);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_17:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_17);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_18:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_18);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_19:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_19);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_20:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_20);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_21:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_21);
-                break;
             case EdxELRConstant.ELR_MASTER_LOG_ID_22:
                 edxActivityLogDto.setExceptionTxt(EdxELRConstant.ELR_MASTER_MSG_ID_22);
-                break;
             default:
-                // Handle cases where no match is found (if needed)
-                break;
+                //return;
         }
-
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776", "java:S1871"})
+    @SuppressWarnings("java:S6541")
     public void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg) {
         try{
             ArrayList<EDXActivityDetailLogDto> detailList =
@@ -537,11 +483,34 @@ public class EdxLogService implements IEdxLogService {
                 msg = msg + sb;
                 setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
             }
+//            if (edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+//                String msg = EdxELRConstant.INV_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
+//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+//            }
+//            if (edxLabInformationDto.isLabAssociatedToInv()) {
+//                String msg = EdxELRConstant.LAB_ASSOCIATED_TO_INV.replace("%1", String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()));
+//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getPublicHealthCaseUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+//            }
+//
+//            if (edxLabInformationDto.isNotificationSuccessfullyCreated()) {
+//                String msg = EdxELRConstant.NOT_SUCCESS_CREATED.replace("%1", String.valueOf(edxLabInformationDto.getNotificationUid()));
+//                setActivityDetailLog(detailList, String.valueOf(edxLabInformationDto.getNotificationUid()), EdxRuleAlgorothmManagerDto.STATUS_VAL.Success, msg);
+//            }
+//            if (edxLabInformationDto.isInvestigationMissingFields()) {
+//                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
+//                        EdxELRConstant.OFCI);
+//            }
+//            if (edxLabInformationDto.isNotificationMissingFields()) {
+//                setActivityDetailLog(detailList, id, EdxRuleAlgorothmManagerDto.STATUS_VAL.Success,
+//                        EdxELRConstant.OFCN);
+//            }
             edxLabInformationDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(detailList);
         }
-        catch (Exception e) // NOSONAR
-        {
-            logger.info(e.getMessage()); // NOSONAR
+        catch (Exception e) {
+            ArrayList<EDXActivityDetailLogDto> delailList = (ArrayList<EDXActivityDetailLogDto>)edxLabInformationDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
+            if (delailList == null) {
+                delailList = new ArrayList<EDXActivityDetailLogDto>();
+            }
         }
     }
 

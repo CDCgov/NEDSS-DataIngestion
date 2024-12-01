@@ -34,28 +34,6 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PatientMatchingBaseService extends MatchingBaseService{
     private static final Logger logger = LoggerFactory.getLogger(PatientMatchingBaseService.class);
 
@@ -234,7 +212,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         //Retrieve a mpr with the mprUID
         PersonContainer mpr = getPatientRepositoryUtil().loadPerson(mprUID);
 
-        logger.debug("mpr is: {}", mpr);
+        logger.debug("mpr is: " + mpr);
 
         if(mpr != null) //With the MPR, update...
         {
@@ -276,7 +254,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return setMPR(mpr, businessTriggerCd, personType) != null;
     }
 
-    @SuppressWarnings("java:S1199")
     private Long setMPR(PersonContainer personVO, String businessTriggerCd, String personType) throws
             DataProcessingException {
         Long personUID = null;
@@ -284,11 +261,15 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         if(personVO.isExt()){
             personVO.setItNew(false);
             personVO.setItDirty(false);
-            if(personVO.isExt() && personVO.getThePersonNameDtoCollection()!=null){
-                Collection<PersonNameDto> coll = personVO.getThePersonNameDtoCollection();
-                for (PersonNameDto personNameDT : coll) {
-                    personNameDT.setItDirty(true);
-                    personNameDT.setItNew(false);
+            if(personVO.isExt()){
+                if(personVO.getThePersonNameDtoCollection()!=null){
+                    Collection<PersonNameDto> coll = personVO.getThePersonNameDtoCollection();
+                    for (PersonNameDto personNameDT : coll) {
+                        personNameDT.setItDirty(true);
+                        personNameDT.setItNew(false);
+
+
+                    }
                 }
             }
         }
@@ -310,7 +291,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     {
             PersonContainer mpr = mprUpdateVO.getMpr();
             Collection<EntityLocatorParticipationDto>  col = mpr.getTheEntityLocatorParticipationDtoCollection();
-            if(col!=null && !col.isEmpty())
+            if(col!=null && col.size()>0)
             {
                 for (EntityLocatorParticipationDto entityLocatorParticipationDT : col) {
                     if ((entityLocatorParticipationDT.getThePhysicalLocatorDto() != null
@@ -369,7 +350,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return personId;
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776", "java:S1066"})
+    @SuppressWarnings("java:S6541")
     protected String getLNmFnmDobCurSexStr(PersonContainer personContainer) {
         String namedobcursexStr = null;
         String carrot = "^";
@@ -464,11 +445,11 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     setPersonToMatchEntityPatient(personContainer);
                 }
             } catch (Exception e) {
-                logger.error("Unable to setPatientHashCd for personUid: {}", personUid);
-                logger.error("Exception in setPatientToEntityMatch -> unhandled exception: {}", e.getMessage());
+                logger.warn("Unable to setPatientHashCd for personUid: "+personUid);
+                logger.warn("Exception in setPatientToEntityMatch -> unhandled exception: " +e.getMessage());
             }
         } catch (Exception e) {
-            logger.error("EntityControllerEJB.setPatientHashCd: {}", e.getMessage());
+            logger.error("EntityControllerEJB.setPatientHashCd: " + e.getMessage(), e);
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -617,7 +598,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                         try {
                             getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                         } catch (Exception e) {
-                            logger.error("Error in creating the setEdxPatientMatchDT with identifierStr: {} {}", identifierStr, e.getMessage());
+                            logger.error("Error in creating the setEdxPatientMatchDT with identifierStr:"
+                                    + identifierStr + " " + e.getMessage());
                             throw new DataProcessingException(e.getMessage(), e);
                         }
 
@@ -645,7 +627,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 try {
                     getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
                 } catch (Exception e) {
-                    logger.error("Error in creating the setEdxPatientMatchDT with namesdobcursexStr: {} {}", namesdobcursexStr, e.getMessage());
+                    logger.error("Error in creating the setEdxPatientMatchDT with namesdobcursexStr:" + namesdobcursexStr + " " + e.getMessage());
                     throw new DataProcessingException(e.getMessage(), e);
                 }
 
@@ -663,7 +645,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     setPersonToMatchEntityNok(personContainer);
                 }
             } catch (Exception e) {
-                logger.info(e.getMessage());
+                e.printStackTrace();
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);

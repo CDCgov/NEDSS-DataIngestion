@@ -29,28 +29,6 @@ import java.util.Date;
 import java.util.Objects;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class NBSObjectConverter {
     private static final Logger logger = LoggerFactory.getLogger(NBSObjectConverter.class);
 
@@ -140,7 +118,7 @@ public class NBSObjectConverter {
         }
         return personContainer;
     }
-    @SuppressWarnings("java:S3776")
+
     public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null ) {
@@ -318,7 +296,7 @@ public class NBSObjectConverter {
 
             elp.setThePostalLocatorDto(pl);
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter. Error thrown: {}", e.getMessage());
+            logger.error("Hl7ToNBSObjectConverter. Error thrown: "+ e);
         }
         return elp;
     }
@@ -426,12 +404,12 @@ public class NBSObjectConverter {
                 }
                 if (year >= 0 && month >= 0 && date >= 0) {
                     toTime = month + "/" + date + "/" + year;
-                    logger.debug("  in processHL7TSTypeForDOBWithoutTime: Date string is: {}", toTime);
+                    logger.debug("  in processHL7TSTypeForDOBWithoutTime: Date string is: " +toTime);
                     toTimestamp = entityIdUtil.stringToStrutsTimestamp(toTime); //if can't process returns null
                 }
             }
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right. Please check.! {}", toTime);
+            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right. Please check.!"+ toTime);
             throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeForDOBWithoutTime failed as the date format is not right."+
                     EdxELRConstant.DATE_VALIDATION_PID_PATIENT_BIRTH_DATE_NO_TIME_MSG+toTime+"<--");
         }
@@ -491,7 +469,7 @@ public class NBSObjectConverter {
 
         return ethnicGroupDT;
     }
-    @SuppressWarnings("java:S3776")
+
     public Timestamp processHL7TSType(HL7TSType time, String itemDescription) throws DataProcessingException {
         String timeStr = "";
         try {
@@ -520,7 +498,7 @@ public class NBSObjectConverter {
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 timeStr = year+"-"+month+"-"+day+" "+hourOfDay+":"+minute+":"+second;
-                logger.debug("  in processHL7TSType: Date string is: {}", timeStr);
+                logger.debug("  in processHL7TSType: Date string is: " +timeStr);
                 date2 = sdf.parse(timeStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
                 if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
@@ -529,7 +507,7 @@ public class NBSObjectConverter {
             }
             return toTimestamp;
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. Please check.! {}", timeStr);
+            logger.error("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. Please check.!"+ timeStr);
             throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSType failed as the date format is not right. "+ itemDescription+timeStr);
         }
     }
@@ -577,7 +555,6 @@ public class NBSObjectConverter {
         return raceDT;
     }
 
-    @SuppressWarnings("java:S1172")
     public EntityLocatorParticipationDto telePhoneType(
             HL7XTNType hl7XTNType, String role) {
         EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
@@ -673,13 +650,11 @@ public class NBSObjectConverter {
         return elp;
     }
 
-    @SuppressWarnings("java:S1319")
     public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType HL7Type){
 
 
         boolean incorrectLength = false;
-        String areaCode;
-        String number;
+        String areaCode, number;
 
         if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
             String areaCodeString = HL7Type.getHL7Numeric().toString();
@@ -733,12 +708,10 @@ public class NBSObjectConverter {
         return newFormatedNbr;
     }// End of formatPhoneNbr
 
-    @SuppressWarnings("java:S1319")
     public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
 
         boolean incorrectLength = false;
-        String areaCode;
-        String number;
+        String areaCode, number;
         if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
 
             String areaCodeString =HL7Type.getHL7Numeric().toString();
@@ -814,7 +787,7 @@ public class NBSObjectConverter {
         personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime());
         personNameDto.setLastChgUserId(personContainer.getThePersonDto().getLastChgUserId());
         int seq = 0;
-        if (!personContainer.getThePersonNameDtoCollection().isEmpty()) {
+        if (personContainer.getThePersonNameDtoCollection().size() > 0) {
             seq = personContainer.getThePersonNameDtoCollection().size();
         }
         personNameDto.setPersonNameSeq(seq + 1);
@@ -832,8 +805,6 @@ public class NBSObjectConverter {
 
         return personContainer;
     }
-    @SuppressWarnings("java:S3776")
-
     public Timestamp processHL7TSTypeWithMillis(HL7TSType time, String itemDescription) throws DataProcessingException {
         String dateStr = "";
         try {
@@ -865,7 +836,7 @@ public class NBSObjectConverter {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 java.util.Date date2;
                 dateStr = year+"-"+month+"-"+day+" "+hourOfDay+":"+minute+":"+second+"."+millis;
-                logger.debug("  in processHL7TSTypeWithMillis: Date string is: {}", dateStr);
+                logger.debug("  in processHL7TSTypeWithMillis: Date string is: " +dateStr);
                 date2 = sdf.parse(dateStr);
                 toTimestamp = new java.sql.Timestamp(date2.getTime());
                 if (entityIdUtil.isDateNotOkForDatabase(toTimestamp)) {
@@ -875,7 +846,7 @@ public class NBSObjectConverter {
             }
             return toTimestamp;
         } catch (Exception e) {
-            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right. Please check.! {}", dateStr);
+            logger.error("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right. Please check.!"+ dateStr);
             throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7TSTypeWithMillis failed as the date format is not right."+ itemDescription+dateStr);
         }
     }

@@ -47,7 +47,7 @@ class ProviderMatchingBaseServiceTest {
         MockitoAnnotations.openMocks(this);
     }
     @Test
-    void testProcessingProvider_ValidData() throws DataProcessingException {
+    void testProcessingProvider_ValidData() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -71,7 +71,7 @@ class ProviderMatchingBaseServiceTest {
     }
 
     @Test
-    void testProcessingProvider_ExceptionHandling() throws DataProcessingException {
+    void testProcessingProvider_ExceptionHandling() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -91,7 +91,7 @@ class ProviderMatchingBaseServiceTest {
     }
 
     @Test
-    void testProcessingProvider_CallOrgHashCodeTrue() throws DataProcessingException {
+    void testProcessingProvider_CallOrgHashCodeTrue() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -122,7 +122,7 @@ class ProviderMatchingBaseServiceTest {
     }
 
     @Test
-    void testProcessingProvider_CallOrgHashCodeTrue_Exception() throws DataProcessingException {
+    void testProcessingProvider_CallOrgHashCodeTrue_Exception() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -152,7 +152,7 @@ class ProviderMatchingBaseServiceTest {
     }
 
     @Test
-    void testPersistingProvider_NewPerson() throws DataProcessingException {
+    void testPersistingProvider_NewPerson() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -174,7 +174,7 @@ class ProviderMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetProvidertoEntityMatch_Success() throws DataProcessingException {
+    void testSetProvidertoEntityMatch_Success() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -201,7 +201,7 @@ class ProviderMatchingBaseServiceTest {
 
 
     @Test
-    void testSetProvidertoEntityMatch_SaveEdxEntityMatchException_First() throws DataProcessingException {
+    void testSetProvidertoEntityMatch_SaveEdxEntityMatchException_First() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);
@@ -228,7 +228,7 @@ class ProviderMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetProvidertoEntityMatch_SaveEdxEntityMatchException_Second() throws DataProcessingException {
+    void testSetProvidertoEntityMatch_SaveEdxEntityMatchException_Second() throws Exception {
         // Mock the PersonContainer and PersonDto
         PersonContainer personContainer = mock(PersonContainer.class);
         PersonDto personDto = mock(PersonDto.class);

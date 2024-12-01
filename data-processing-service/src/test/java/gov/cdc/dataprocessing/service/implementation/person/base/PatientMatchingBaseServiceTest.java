@@ -61,7 +61,7 @@ class PatientMatchingBaseServiceTest {
         Mockito.reset(cachingValueService);
         Mockito.reset(prepareAssocModelHelper);
     }
-    @SuppressWarnings("java:S2699")
+
     @Test
     void setPatientRevision_new_pat() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
@@ -103,7 +103,7 @@ class PatientMatchingBaseServiceTest {
         //call test
         patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.PAT);
     }
-    @SuppressWarnings("java:S2699")
+
     @Test
     void setPatientRevision_new_nok() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
@@ -145,7 +145,6 @@ class PatientMatchingBaseServiceTest {
         patientMatchingBaseService.setPatientRevision(personContainer,"",NEDSSConstant.NOK);
     }
 
-    @SuppressWarnings("java:S2699")
 
     @Test
     void getLNmFnmDobCurSexStr() {
@@ -524,7 +523,9 @@ class PatientMatchingBaseServiceTest {
         personDto.setPersonParentUid(12345L);
         personDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         personContainer.setThePersonDto(personDto);
+        PatientMatchingBaseService spyService = spy(patientMatchingBaseService);
         doNothing().when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
+        doNothing().when(spyService).setPersonToMatchEntityPatient(personContainer);
 
         // Act
         patientMatchingBaseService.setPersonHashCdPatient(personContainer);

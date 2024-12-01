@@ -2,28 +2,6 @@ package gov.cdc.dataprocessing.constant.elr;
 
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxELRConstant {
     public static String PATIENT_LDF = "PAT";
 
@@ -40,14 +18,7 @@ public class EdxELRConstant {
     public static final String EI_TYPE="EI_TYPE";
     public static final String ELR_LAB_CD="LAB214";
 
-    public static final String LOG_RECORD_STATUS_NULL = "RecordStatusCd is null";
-    public static final String LOG_RECORD = "   statusCode--------";
-    public static final String LOG_RECORD_2 = "RecordStatusCd -----2----";
-    public static final String LOG_RECORD_STATUS_CD_NOT_ACTIVE = "RecordStatusCd is not active or inactive";
-    public static final String LOG_OBSERVATION_COLLECTION_ERROR = "Exception thrown at ObservationRequest.getCollectorVO:";
-    public static final String LOG_RECORD_STATUS_CD_NOT_NULL = "RecordStatusCd or statusCode is not null";
-    public static final String LOG_RECORD_MODIFIED_BY_OTHER_USER = "NEDSSConcurrentDataException: The data has been modified by other user, please verify!";
-    public static final String LOG_DT_PREPARED = "DT Prepared";
+
     public static final String ELR_PATIENT_ALTERNATE_DESC="Alternate Person Number�";
     public static final String ELR_CLIA_DESC="Clinical Laboratory Improvement Amendment";
     public static final String ELR_CLIA_CD="CLIA";
@@ -261,12 +232,6 @@ public class EdxELRConstant {
             "Patient match not found; New Patient created: %1, %2 (UID: %3).";
     public static final String DET_MSG_PATIENT_MULTIPLE_FOUND =
             "Multiple patient matches found; New Patient created: %1, %2 (UID: %3).";
-    public static final String AND_UPPERCASE = " AND " ;
-    public static final String LOG_ERROR_MATCHING_PROVIDER = "Error in geting the  matching Provider";
-    public static final String LOG_ERROR_MATCHING_PATIENT = "Error in geting the  matching Patient";
-    public static final String LOG_ERROR_ENTITY_PATIENT = "Error in getting the entity Controller or Setting the Patient";
-    public static final String LOG_ERROR_MATCHING_ORG = "Error in geting the  matching Organization";
-    public static final String LOG_SENT_MESSAGE = " was sent after a corrected report was received.";
     public static final String FINAL_POST_CORRECTED =
             "Lab report %1 was not updated.  Final report with Accession # %2 was sent after a corrected report was received.";
     public static final String PRELIMINARY_POST_FINAL =

@@ -9,32 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PROGRAM_JUS_OID;
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.QUERY_HELPER_1;
-
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class QueryHelper {
 
     private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
@@ -65,7 +40,7 @@ public class QueryHelper {
 
 //        if (paSecured && jSecured)
 //        {
-            columnName = PROGRAM_JUS_OID;
+            columnName = "program_jurisdiction_oid";
             ownerList = getHashedPAJList(businessObjLookupName, operation, false);
             guestList = getHashedPAJList(businessObjLookupName, operation, true);
             whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
@@ -99,10 +74,9 @@ public class QueryHelper {
         return whereClause;
     }
 
-    @SuppressWarnings("java:S1172")
     private String getHashedPAJList(String businessObjLookupName, String operation, boolean guest) {
         Collection<Object> allPAJList = new HashSet<>();
-        StringBuilder hashedPAJList = new StringBuilder();
+        StringBuffer hashedPAJList = new StringBuffer();
 
 
         for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {
@@ -123,10 +97,15 @@ public class QueryHelper {
         }
 
         for (Object o : allPAJList) {
+
             Long cd = (Long) o;
-            if (cd != null && cd.toString().trim().length() != 0) {
-                hashedPAJList = hashedPAJList.append(cd).append(", ");
+            if (cd != null) {
+                if (cd.toString().trim().length() != 0) {
+                    hashedPAJList = hashedPAJList.append(cd).append(", ");
+                }
             }
+
+
         }
 
 
@@ -161,7 +140,6 @@ public class QueryHelper {
         }
     }
 
-    @SuppressWarnings("java:S1172")
    protected String buildOwnerWhereClause(String ownerList, String columnName,
                                  String alias, boolean OIDFlag, String businessObjLookupName) {
         String whereClauseOwner = "";
@@ -170,11 +148,11 @@ public class QueryHelper {
         if (ownerList != null && ownerList.trim().length() != 0) {
 
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseOwner = "(" + columnName + QUERY_HELPER_1 + ownerList +
+                whereClauseOwner = "(" + columnName + " in (" + ownerList +
                         "))";
             }
             else {
-                whereClauseOwner = "(" + alias + "." + columnName + QUERY_HELPER_1 +
+                whereClauseOwner = "(" + alias + "." + columnName + " in (" +
                         ownerList + "))";
             }
         }
@@ -186,7 +164,6 @@ public class QueryHelper {
     }
 
 
-    @SuppressWarnings("java:S1172")
     protected String buildGuestWhereClause(String guestList, String columnName,
                                          String alias, boolean OIDFlag, String businessObjLookupName) {
 
@@ -195,14 +172,14 @@ public class QueryHelper {
 
         if (guestList != null && guestList.trim().length() != 0) {
             if (alias == null || alias.trim().length() == 0) {
-                whereClauseGuest = "(("+ columnName + QUERY_HELPER_1 + guestList +
+                whereClauseGuest = "(("+ columnName + " in (" + guestList +
                         ")) and  shared_ind = '" +
                         "T" +
                         "')";
             }
             else {
                 whereClauseGuest = "((" + alias + "." + columnName +
-                        QUERY_HELPER_1 + guestList +
+                        " in (" + guestList +
                         ")) and " + alias + ".shared_ind = '" +
                         "T" +
                         "')";

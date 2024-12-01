@@ -47,7 +47,7 @@ class EdxPhcrDocumentUtilTest {
 
         Map<Object, Object> nbsCaseAnswerMap = new HashMap<>();
 
-        String result = edxPhcrDocumentUtil.requiredFieldCheck(requiredQuestionIdentifierMap, nbsCaseAnswerMap);
+        String result = EdxPhcrDocumentUtil.requiredFieldCheck(requiredQuestionIdentifierMap, nbsCaseAnswerMap);
 
         assertNotNull(result);
         assertTrue(result.contains("QuestionLabel"));
@@ -63,7 +63,7 @@ class EdxPhcrDocumentUtilTest {
         Map<Object, Object> nbsCaseAnswerMap = new HashMap<>();
         nbsCaseAnswerMap.put("key", new Object());
 
-        String result = edxPhcrDocumentUtil.requiredFieldCheck(requiredQuestionIdentifierMap, nbsCaseAnswerMap);
+        String result = EdxPhcrDocumentUtil.requiredFieldCheck(requiredQuestionIdentifierMap, nbsCaseAnswerMap);
 
         assertNull(result);
     }

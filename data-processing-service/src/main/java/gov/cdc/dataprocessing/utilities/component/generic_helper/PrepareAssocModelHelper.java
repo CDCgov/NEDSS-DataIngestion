@@ -19,32 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.*;
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PAT_NO_MERGER;
-
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PrepareAssocModelHelper {
     private static final Logger logger = LoggerFactory.getLogger(PrepareAssocModelHelper.class);
 
@@ -70,24 +45,24 @@ public class PrepareAssocModelHelper {
             EntityLocatorParticipationDto aDTInterface ;
             String recStatusCd = assocDTInterface.getRecordStatusCd();
             String statusCd = assocDTInterface.getStatusCd();
-            logger.debug("AssocDTInterface.Statuscode = {}",statusCd);
-            logger.debug("AssocDTInterface.recStatusCd = {}",recStatusCd);
+            logger.debug("AssocDTInterface.Statuscode = "+statusCd);
+            logger.debug("AssocDTInterface.recStatusCd = "+recStatusCd);
             boolean isRealDirty = assocDTInterface.isItDirty();
 
             if(recStatusCd == null)
             {
-                logger.debug(LOG_RECORD_STATUS_NULL);
-                throw new DataProcessingException(LOG_RECORD_2+ null +LOG_RECORD+statusCd);
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
 
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                logger.debug(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
             {
-                    logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
+                    logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
                     java.util.Date dateTime = new java.util.Date();
@@ -98,7 +73,7 @@ public class PrepareAssocModelHelper {
 
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
-                logger.debug(LOG_DT_PREPARED);
+                logger.debug("DT Prepared");
             }
             if(!isRealDirty) {
                 aDTInterface.setItDirty(false);
@@ -118,21 +93,21 @@ public class PrepareAssocModelHelper {
             boolean isRealDirty = assocDTInterface.isItDirty();
             if(recStatusCd == null)
             {
-                logger.debug(LOG_RECORD_STATUS_NULL);
-                throw new DataProcessingException(LOG_RECORD_2+ null +LOG_RECORD+statusCd);
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
 
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                logger.debug(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
             {
                 try
                 {
 
-                    logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
+                    logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
                     java.util.Date dateTime = new java.util.Date();
@@ -143,14 +118,14 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    logger.info(e.getMessage());
+                    e.printStackTrace();
                 }
 
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
 
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
-                logger.debug(LOG_DT_PREPARED);
+                logger.debug("DT Prepared");
             }
             if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
             return aDTInterface;
@@ -169,21 +144,21 @@ public class PrepareAssocModelHelper {
 
             if(recStatusCd == null)
             {
-                logger.debug(LOG_RECORD_STATUS_NULL);
-                throw new DataProcessingException(LOG_RECORD_2+ null +LOG_RECORD+statusCd);
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
 
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                logger.debug(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
             {
                 try
                 {
 
-                    logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
+                    logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
                     java.util.Date dateTime = new java.util.Date();
@@ -194,11 +169,21 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    logger.info(e.getMessage());
+                    e.printStackTrace();
                 }
+//                if(!nbsSecurityObj.getEntryID().equals(""))
+//                {
+//                    logger.debug("nbsSecurityObj.getEntryID() = " + nbsSecurityObj.getEntryID());
+//                    assocDTInterface.setLastChgUserId(new Long(nbsSecurityObj.getEntryID()));
+//                }
+//                else
+//                {
+//                    logger.debug("nbsSecurityObj.getEntryID() is NULL ");
+//                    throw new NEDSSSystemException("nbsSecurityObj.getEntryID() is NULL ");
+//                }
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
-                logger.debug(LOG_DT_PREPARED);
+                logger.debug("DT Prepared");
             }
             if(!isRealDirty) {
                 aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
@@ -218,21 +203,21 @@ public class PrepareAssocModelHelper {
 
             if(recStatusCd == null)
             {
-                throw new DataProcessingException(LOG_RECORD_2+ null +LOG_RECORD+statusCd);
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
             else if(
                     !(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE)
                     || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE))
             )
             {
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
             {
                 try
                 {
 
-                    logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
+                    logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
                     java.util.Date dateTime = new java.util.Date();
@@ -243,7 +228,7 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    logger.info(e.getMessage());
+                    e.printStackTrace();
                 }
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
@@ -274,11 +259,11 @@ public class PrepareAssocModelHelper {
 
             if(recStatusCd == null)
             {
-                throw new DataProcessingException(LOG_RECORD_2+ null +LOG_RECORD+statusCd);
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
             else
             {
@@ -311,12 +296,12 @@ public class PrepareAssocModelHelper {
 
             if(recStatusCd == null)
             {
-                throw new DataProcessingException(LOG_RECORD_2 + null +LOG_RECORD+statusCd);
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
 
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
 
             else
@@ -358,7 +343,7 @@ public class PrepareAssocModelHelper {
                 boolean result = concurrentCheck.dataConcurrenceCheck(theRootDTInterface, tableName, existingVersion);
                 if(result)
                 {
-                    logger.debug("result in prepareVOUtil is : {}", true);
+                    logger.debug("result in prepareVOUtil is :" + result);
                     //no concurrent dataAccess has occured, hence can continue!
                 }
                 else
@@ -395,31 +380,34 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is New(Create)
      * and check null for record Status State and set the System attributes in the rootDTInterface
      */
-    @SuppressWarnings("java:S1172")
     protected RootDtoInterface prepareNewActVO(RootDtoInterface theRootDTInterface, String businessObjLookupName, String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
         try
         {
             Long uid = theRootDTInterface.getUid();
-            logger.debug("prepareNewActVO uid = {}", uid);
+            logger.debug("prepareNewActVO uid = " + uid);
 
             PrepareEntity prepareVOUtilsHelper = prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
+            String localId = prepareVOUtilsHelper.getLocalId();//7
+            Long addUserId =prepareVOUtilsHelper.getAddUserId();//8
+            Timestamp addUserTime = prepareVOUtilsHelper.getAddUserTime();//9
             String recordStatusState = prepareVOUtilsHelper.getRecordStatusState();//12
             String objectStatusState = prepareVOUtilsHelper.getObjectStatusState();//13
             if(recordStatusState==null)
             {
-                throw new DataProcessingException("prepareNewActVO - recordStatusState = " + null + "- objectStatusState = " + objectStatusState);
+                throw new DataProcessingException("prepareNewActVO - recordStatusState = " + recordStatusState + "- objectStatusState = " + objectStatusState);
             }
 
-            if(theRootDTInterface.getProgAreaCd()!=null && theRootDTInterface.getJurisdictionCd()!=null)
+            if(!(theRootDTInterface.getProgAreaCd()==null) && !(theRootDTInterface.getJurisdictionCd()==null))
             {
                 String progAreaCd = theRootDTInterface.getProgAreaCd();
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
-                Long aProgramJurisdictionOid = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
-                logger.debug("aProgramJurisdictionOid is : {}", aProgramJurisdictionOid);
+                long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                Long aProgramJurisdictionOid = pajHash;
+                logger.debug("aProgramJurisdictionOid is : " + aProgramJurisdictionOid);
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
-                logger.debug("aProgramJurisdictionOid from obj  is : {}", theRootDTInterface.getProgramJurisdictionOid());
+                logger.debug("aProgramJurisdictionOid from obj  is : " + theRootDTInterface.getProgramJurisdictionOid());
 
             }
 
@@ -449,29 +437,30 @@ public class PrepareAssocModelHelper {
     /**
      * This method prepares the Entity value object if it is New(Create)
      */
-    @SuppressWarnings("java:S1172")
     protected RootDtoInterface prepareNewEntityVO(RootDtoInterface theRootDTInterface, String businessObjLookupName,
                                                 String businessTriggerCd, String tableName, String moduleCd)
             throws DataProcessingException
     {
         try
         {
-            logger.debug("prepareNewEntityVO uid = {}", theRootDTInterface.getUid());
+            logger.debug("prepareNewEntityVO uid = " + theRootDTInterface.getUid());
             Long uid = theRootDTInterface.getUid();
-            logger.debug("prepareDirtyEntityVO uid = {}", uid);
+            logger.debug("prepareDirtyEntityVO uid = " + uid);
 
             PrepareEntity prepareVOUtilsHelper = prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
             String localId = prepareVOUtilsHelper.getLocalId();//7
+            Long addUserId =prepareVOUtilsHelper.getAddUserId();//8
+            Timestamp addUserTime = prepareVOUtilsHelper.getAddUserTime();//9
             String recordStatusState = prepareVOUtilsHelper.getRecordStatusState();//12
             String objectStatusState = prepareVOUtilsHelper.getObjectStatusState();//13
             //We decided to set the status_cd and status_time also for entities 08/01/2005
             if(recordStatusState==null ||objectStatusState==null)
             {
-                throw new DataProcessingException(LOG_RECORD_MODIFIED_BY_OTHER_USER);
+                throw new DataProcessingException("NEDSSConcurrentDataException: The data has been modified by other user, please verify!");
             }
 
-            logger.debug("recordStatusState state in prepareDirtyEntityVO = {}", recordStatusState);
-            logger.debug("objectStatusState state in prepareDirtyEntityVO = {}", objectStatusState);
+            logger.debug("recordStatusState state in prepareDirtyEntityVO = " + recordStatusState);
+            logger.debug("objectStatusState state in prepareDirtyEntityVO = " + objectStatusState);
             java.util.Date dateTime = new java.util.Date();
             Timestamp systemTime = new Timestamp(dateTime.getTime());
             theRootDTInterface.setLocalId(localId);
@@ -485,25 +474,30 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
-            if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals(PAT_NO_MERGER)) &&
-                    theRootDTInterface instanceof PersonDto)
+            if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals("PAT_NO_MERGE")))
             {
-                ((PersonDto)theRootDTInterface).setDedupMatchInd(null);
-                ((PersonDto)theRootDTInterface).setGroupNbr(null);
-                ((PersonDto)theRootDTInterface).setGroupTime(null);
+                if(theRootDTInterface instanceof PersonDto)
+                {
+                    ((PersonDto)theRootDTInterface).setDedupMatchInd(null);
+                    ((PersonDto)theRootDTInterface).setGroupNbr(null);
+                    ((PersonDto)theRootDTInterface).setGroupTime(null);
+                }
             }
 
-            if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals(PAT_NO_MERGER) && theRootDTInterface instanceof PersonDto)
+            if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals("PAT_NO_MERGE"))
             {
-                ((PersonDto)theRootDTInterface).setGroupNbr(null);
-                ((PersonDto)theRootDTInterface).setGroupTime(null);
+                if(theRootDTInterface instanceof PersonDto)
+                {
+                    ((PersonDto)theRootDTInterface).setGroupNbr(null);
+                    ((PersonDto)theRootDTInterface).setGroupTime(null);
+                }
             }
 
             return theRootDTInterface;
         }
         catch(Exception e)
         {
-            logger.info(e.getMessage());
+            e.printStackTrace();
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -512,7 +506,6 @@ public class PrepareAssocModelHelper {
      * This method prepares the Act value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
-    @SuppressWarnings("java:S1172")
     protected RootDtoInterface prepareDirtyActVO(RootDtoInterface theRootDTInterface,
                                               String businessObjLookupName, String businessTriggerCd, String tableName,
                                               String moduleCd)
@@ -525,23 +518,26 @@ public class PrepareAssocModelHelper {
             Long uid = theRootDTInterface.getUid();
 
             PrepareEntity prepareVOUtilsHelper = prepareEntityStoredProcRepository.getPrepareEntity(businessTriggerCd, moduleCd, uid, tableName);
+            String localId = prepareVOUtilsHelper.getLocalId();//7
 
             Long addUserId =prepareVOUtilsHelper.getAddUserId();//8
             Timestamp addUserTime = prepareVOUtilsHelper.getAddUserTime();//9
             String recordStatusState = prepareVOUtilsHelper.getRecordStatusState();//12
+            String objectStatusState = prepareVOUtilsHelper.getObjectStatusState();//13
 
             if(recordStatusState==null)
             {
-                throw new DataProcessingException(LOG_RECORD_MODIFIED_BY_OTHER_USER);
+                throw new DataProcessingException("NEDSSConcurrentDataException: The data has been modified by other user, please verify!");
             }
 
 
-            if(theRootDTInterface.getProgAreaCd()!=null && theRootDTInterface.getJurisdictionCd()!=null)
+            if(!(theRootDTInterface.getProgAreaCd()==null) && !(theRootDTInterface.getJurisdictionCd()==null))
             {
                 String progAreaCd = theRootDTInterface.getProgAreaCd();
                 String jurisdictionCd = theRootDTInterface.getJurisdictionCd();
 
-                Long aProgramJurisdictionOid = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                long pajHash = progAreaJurisdictionUtil.getPAJHash(progAreaCd, jurisdictionCd);
+                Long aProgramJurisdictionOid = pajHash;
                 theRootDTInterface.setProgramJurisdictionOid(aProgramJurisdictionOid);
             }
 
@@ -561,7 +557,7 @@ public class PrepareAssocModelHelper {
         }
         catch(Exception e)
         {
-            logger.info(e.getMessage());
+            e.printStackTrace();
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
@@ -571,7 +567,6 @@ public class PrepareAssocModelHelper {
      * This method prepares the Entity value object if it is Dirty(Edit,update or Delete)
      * and check null for record Status State and set the System attribures in the rootDTInterface
      */
-    @SuppressWarnings("java:S1172")
     protected RootDtoInterface prepareDirtyEntityVO(RootDtoInterface theRootDTInterface,
                                                  String businessObjLookupName, String businessTriggerCd,
                                                  String tableName, String moduleCd)
@@ -590,7 +585,7 @@ public class PrepareAssocModelHelper {
             String objectStatusState = prepareVOUtilsHelper.getObjectStatusState();//13
             if(recordStatusState==null ||objectStatusState==null)
             {
-                throw new DataProcessingException(LOG_RECORD_MODIFIED_BY_OTHER_USER);
+                throw new DataProcessingException("NEDSSConcurrentDataException: The data has been modified by other user, please verify!");
             }
 
             java.util.Date dateTime = new java.util.Date();
@@ -606,17 +601,23 @@ public class PrepareAssocModelHelper {
             theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setLastChgReasonCd(null);
 
-            if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals(PAT_NO_MERGER)) && theRootDTInterface instanceof PersonDto)
+            if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals("PAT_NO_MERGE")))
             {
-                ((PersonDto)theRootDTInterface).setDedupMatchInd(null);
-                ((PersonDto)theRootDTInterface).setGroupNbr(null);
-                ((PersonDto)theRootDTInterface).setGroupTime(null);
+                if(theRootDTInterface instanceof PersonDto)
+                {
+                    ((PersonDto)theRootDTInterface).setDedupMatchInd(null);
+                    ((PersonDto)theRootDTInterface).setGroupNbr(null);
+                    ((PersonDto)theRootDTInterface).setGroupTime(null);
+                }
             }
 
-            if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals(PAT_NO_MERGER) && theRootDTInterface instanceof PersonDto)
+            if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals("PAT_NO_MERGE"))
             {
-                ((PersonDto)theRootDTInterface).setGroupNbr(null);
-                ((PersonDto)theRootDTInterface).setGroupTime(null);
+                if(theRootDTInterface instanceof PersonDto)
+                {
+                    ((PersonDto)theRootDTInterface).setGroupNbr(null);
+                    ((PersonDto)theRootDTInterface).setGroupTime(null);
+                }
             }
 
             return theRootDTInterface;
@@ -637,14 +638,14 @@ public class PrepareAssocModelHelper {
 
             if(recStatusCd == null)
             {
-                logger.debug(LOG_RECORD_STATUS_NULL);
-                throw new DataProcessingException(LOG_RECORD_2+ null +LOG_RECORD+statusCd);
+                logger.debug("RecordStatusCd is null");
+                throw new DataProcessingException("RecordStatusCd -----2----"+recStatusCd+"   statusCode--------"+statusCd);
             }
 
             else if(!(recStatusCd.equals(NEDSSConstant.RECORD_STATUS_ACTIVE) || recStatusCd.equals(NEDSSConstant.RECORD_STATUS_INACTIVE)))
             {
-                logger.debug(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
-                throw new DataProcessingException(LOG_RECORD_STATUS_CD_NOT_ACTIVE);
+                logger.debug("RecordStatusCd is not active or inactive");
+                throw new DataProcessingException("RecordStatusCd is not active or inactive");
             }
 
             else
@@ -652,7 +653,7 @@ public class PrepareAssocModelHelper {
                 try
                 {
 
-                    logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
+                    logger.debug("RecordStatusCd or statusCode is not null");
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
                     java.util.Date dateTime = new java.util.Date();
@@ -663,12 +664,12 @@ public class PrepareAssocModelHelper {
                 }
                 catch(Exception e)
                 {
-                    logger.info(e.getMessage());
+                    e.printStackTrace();
                 }
                 assocDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 assocDTInterface.setLastChgReasonCd(null);
                 aDTInterface = assocDTInterface;
-                logger.debug(LOG_DT_PREPARED);
+                logger.debug("DT Prepared");
             }
             if(!isRealDirty) aDTInterface.setItDirty(false);//Re-set the flag to original value if necessary
             return aDTInterface;

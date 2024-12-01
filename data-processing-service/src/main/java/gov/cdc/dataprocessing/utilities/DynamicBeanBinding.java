@@ -1,7 +1,5 @@
 package gov.cdc.dataprocessing.utilities;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
-
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -10,28 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class DynamicBeanBinding {
     private static Map<Object, Object> beanMethodMap = new HashMap<>();
 
@@ -42,7 +18,7 @@ public class DynamicBeanBinding {
      * returns
      */
     public static void populateBean(Object bean, String colNm, String colVal)
-            throws DataProcessingException {
+            throws Exception {
 
         try {
 
@@ -95,14 +71,14 @@ public class DynamicBeanBinding {
 //                logger.debug("Successfully called methodName for bean " + bean
 //                        + " with value " + colVal);
             } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
+                throw new Exception(e);
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new Exception(e);
         }
     }
 
-    private static String getSetterName(String columnName) throws DataProcessingException {
+    private static String getSetterName(String columnName) throws Exception {
         try {
             StringBuilder sb = new StringBuilder("set");
             StringTokenizer st = new StringTokenizer(columnName, "_");
@@ -114,14 +90,14 @@ public class DynamicBeanBinding {
             }
             return sb.toString();
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new Exception(e);
         }
     }
 
 
     @SuppressWarnings("unchecked")
     private static Map<Object, Object> getMethods(Class<?> beanClass)
-            throws DataProcessingException {
+            throws Exception {
         try {
             if (beanMethodMap.get(beanClass) == null) {
                 Method[] gettingMethods = beanClass.getMethods();
@@ -137,7 +113,7 @@ public class DynamicBeanBinding {
             }
             return (Map<Object, Object>) beanMethodMap.get(beanClass);
         } catch (SecurityException e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new Exception(e);
         }
     }
 

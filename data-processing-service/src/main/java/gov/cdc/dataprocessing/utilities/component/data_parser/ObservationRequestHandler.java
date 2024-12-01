@@ -30,31 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_OBSERVATION_COLLECTION_ERROR;
-
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ObservationRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRequestHandler.class);
 
@@ -80,7 +56,7 @@ public class ObservationRequestHandler {
      * Description: This method parsing OBR and SPM into Lab result Object.
      * OBR & SPM.
      * */
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings("java:S6541")
     public LabResultProxyContainer getObservationRequest(HL7OBRType hl7OBRType, HL7PatientResultSPMType hl7PatientResultSPMType,
                                                          LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
@@ -309,7 +285,7 @@ public class ObservationRequestHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getObservationRequest: {}", e.getMessage());
+            logger.error("Exception thrown at ObservationRequest.getObservationRequest:"+e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at ObservationRequest.getObservationRequest:"+ e.getMessage());
         }
 
@@ -318,7 +294,7 @@ public class ObservationRequestHandler {
         return labResultProxyContainer;
 
     }
-    @SuppressWarnings({"java:S6541", "java:S3776", "java:S2692"})
+    @SuppressWarnings("java:S6541")
     private void processSusOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                       LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         try {
@@ -429,7 +405,7 @@ public class ObservationRequestHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.processSusOBR: {}", e.getMessage());
+            logger.error("Exception thrown at ObservationRequest.processSusOBR:"+e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at ObservationRequest.processSusOBR:"+ e);
         }
 
@@ -440,7 +416,7 @@ public class ObservationRequestHandler {
      *  PROVIDER info
      *  other obs info
      * */
-    @SuppressWarnings({"java:S6541","java:S3776"})
+    @SuppressWarnings("java:S6541")
     private void processRootOBR(HL7OBRType hl7OBRType, ObservationDto observationDto,
                                        LabResultProxyContainer labResultProxyContainer, HL7PatientResultSPMType hl7PatientResultSPMType,
                                        EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
@@ -544,7 +520,7 @@ public class ObservationRequestHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error(" Exception thrown at ObservationRequest.processRootOBR: {}", e.getMessage());
+            logger.error(" Exception thrown at ObservationRequest.processRootOBR:"+e.getMessage(), e);
             throw new DataProcessingException("Exception thrown at ObservationRequest.processRootOBR:"+ e.getMessage() +e);
         }
 
@@ -614,8 +590,8 @@ public class ObservationRequestHandler {
             labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
             
         } catch (Exception e) {
-            logger.error("{} {}" , LOG_OBSERVATION_COLLECTION_ERROR, e.getMessage());
-            throw new DataProcessingException(LOG_OBSERVATION_COLLECTION_ERROR+ e);
+            logger.error("Exception thrown at ObservationRequest.getCollectorVO:"+e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.getCollectorVO:"+ e);
         }
 
         return personContainer;
@@ -695,8 +671,8 @@ public class ObservationRequestHandler {
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
-            logger.error("{} {}", LOG_OBSERVATION_COLLECTION_ERROR, e.getMessage());
-            throw new DataProcessingException(LOG_OBSERVATION_COLLECTION_ERROR+ e);
+            logger.error("Exception thrown at ObservationRequest.getCollectorVO:"+e.getMessage(), e);
+            throw new DataProcessingException("Exception thrown at ObservationRequest.getCollectorVO:"+ e);
         }
         return personContainer;
     }
@@ -763,7 +739,7 @@ public class ObservationRequestHandler {
             personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getOrderingProviderVO: {}", e.getMessage());
+            logger.error("Exception thrown at ObservationRequest.getOrderingProviderVO:"+e);
             throw new DataProcessingException("Exception thrown at ObservationRequest.getOrderingProviderVO:"+ e);
 
         }

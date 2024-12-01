@@ -314,7 +314,7 @@ class EntityIdUtilTest {
     }
 
     @Test
-    void testIsDateNotOkForDatabase_ExceptionHandling() throws Exception { //NOSONAR
+    void testIsDateNotOkForDatabase_ExceptionHandling() throws Exception {
         // Arrange
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         SimpleDateFormat mockDateFormat = spy(new SimpleDateFormat("yyyy-MM-dd"));

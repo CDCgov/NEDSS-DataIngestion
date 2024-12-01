@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -261,7 +260,7 @@ class ObservationCodeServiceTest {
         codedCol.add(codedObs);
 
         var mapSnomed = new HashMap<String, Object>();
-        mapSnomed.put(SELECT_COUNT, 1);
+        mapSnomed.put("COUNT", 1);
         mapSnomed.put("LOINC", "LOINC");
         when(srteCodeObsService.getSnomed(eq("CODE_2"), any(), any())).thenReturn(mapSnomed);
         when(srteCodeObsService.getConditionForSnomedCode("LOINC")).thenReturn("LOINC");
@@ -320,7 +319,7 @@ class ObservationCodeServiceTest {
         obsConn.setTheObservationDto(obsDt);
 
         var mapSnomed = new HashMap<String, Object>();
-        mapSnomed.put(SELECT_COUNT, 1);
+        mapSnomed.put("COUNT", 1);
         mapSnomed.put("LOINC", "LOINC");
         when(srteCodeObsService.getSnomed(eq("CODE"), any(), any())).thenReturn(mapSnomed);
         when(srteCodeObsService.getConditionForLoincCode("LOINC")).thenReturn("LOINC");

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_SET_NM;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -96,6 +95,31 @@ class RetrieveSummaryServiceTests {
         verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
     }
 
+
+    @Test
+    void retrieveTreatmentSummaryVOForInv_Success() {
+        long uid = 10L;
+        when(queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment")).thenReturn(
+                "BLAH"
+        );
+
+        retrieveSummaryService.retrieveTreatmentSummaryVOForInv(uid);
+        verify(queryHelper, times(1)).getDataAccessWhereClause(
+                any(), any(), any()
+        );
+    }
+
+    @Test
+    void retrieveTreatmentSummaryVOForInv_Success_2() {
+        long uid = 10L;
+        when(queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment")).thenReturn(
+                null
+        );
+        retrieveSummaryService.retrieveTreatmentSummaryVOForInv(uid);
+        verify(queryHelper, times(1)).getDataAccessWhereClause(
+                any(), any(), any()
+        );
+    }
 
 
     @Test
@@ -180,7 +204,7 @@ class RetrieveSummaryServiceTests {
 
         var map = new HashMap<String, String>();
         map.put("Y", "TXT");
-        when(catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM)).thenReturn(map);
+        when(catchingValueService.getCodedValuesCallRepos("PHC_CLASS")).thenReturn(map);
 
         when(catchingValueService.getCodeDescTxtForCd(NEDSSConstant.CLASS_CD_NOTF,"NBS_DOC_PURPOSE" ))
                 .thenReturn("TEST");

@@ -25,7 +25,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.*;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -270,7 +269,7 @@ class SrteCodeObsServiceTest {
                 .thenReturn(Optional.of(labResultLst));
 
         var snomedMap = new HashMap<String, Object>();
-        snomedMap.put(SELECT_COUNT, 1);
+        snomedMap.put("COUNT", 1);
         snomedMap.put("LOINC", "TEST");
 
         when(progAreaSnomeCodeStoredProcRepository.getSnomed("CODE", "LR" ,"CLIA"))
@@ -290,7 +289,7 @@ class SrteCodeObsServiceTest {
                 .thenReturn(Optional.of(snomedLst));
 
         var progMap = new HashMap<String, Object>();
-        progMap.put(SELECT_COUNT, 1);
+        progMap.put("COUNT", 1);
         progMap.put("PROGRAM", "TEST");
         when(progAreaSnomeCodeStoredProcRepository.getProgAreaCd(any(), any(), any()))
                 .thenReturn(progMap);
@@ -354,7 +353,7 @@ class SrteCodeObsServiceTest {
                 .thenReturn(Optional.of(snomedLst));
 
         var progMap = new HashMap<String, Object>();
-        progMap.put(SELECT_COUNT, 1);
+        progMap.put("COUNT", 1);
         progMap.put("PROGRAM", "TEST");
         when(progAreaSnomeCodeStoredProcRepository.getProgAreaCd(any(), any(), any()))
                 .thenReturn(progMap);

@@ -8,39 +8,13 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxPhcrDocumentUtil {
-    private static final Logger logger = LoggerFactory.getLogger(EdxPhcrDocumentUtil.class); // NOSONAR
-
-    public static final String REQUIRED = "_REQUIRED";
+    public static final String _REQUIRED = "_REQUIRED";
 
     private final ILookupService lookupService;
 
@@ -49,9 +23,9 @@ public class EdxPhcrDocumentUtil {
         this.lookupService = lookupService;
     }
 
-    @SuppressWarnings("java:S3776")
     public Map<Object, Object> loadQuestions(String conditionCode)
     {
+        Map<Object, Object> questionMap;
         String invFormCd = "";
         if (SrteCache.investigationFormConditionCode.containsKey(conditionCode))
         {
@@ -61,6 +35,7 @@ public class EdxPhcrDocumentUtil {
         {
             invFormCd= DecisionSupportConstants.CORE_INV_FORM;
         }
+        ArrayList<Object> questionList = new ArrayList<> ();
         Map<Object,Object> tempMap = new HashMap<>();
         Map<Object,Object> generalMap = new HashMap<>();
 
@@ -105,9 +80,8 @@ public class EdxPhcrDocumentUtil {
     }
 
 
-    @SuppressWarnings({"java:S3776", "java:S1066"})
 
-    public String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
+    public static String requiredFieldCheck(Map<Object, Object> requiredQuestionIdentifierMap, Map<Object, Object> nbsCaseAnswerMap) {
         //
         String requireFieldError = null;
         Iterator<Object> iter = (requiredQuestionIdentifierMap.keySet()).iterator();
@@ -128,9 +102,9 @@ public class EdxPhcrDocumentUtil {
                 }
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         }
-        if(errorTextColl!=null && !errorTextColl.isEmpty()){
+        if(errorTextColl!=null && errorTextColl.size()>0){
             Iterator<Object> iterator = errorTextColl.iterator();
             StringBuilder errorTextString = new StringBuilder();
             while(iterator.hasNext()){

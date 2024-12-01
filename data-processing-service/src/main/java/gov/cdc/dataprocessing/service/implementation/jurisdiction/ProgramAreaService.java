@@ -16,32 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
-
 @Service
 @Slf4j
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ProgramAreaService implements IProgramAreaService {
     boolean programAreaDerivationExcludeFlag;
 
@@ -106,7 +82,7 @@ public class ProgramAreaService implements IProgramAreaService {
             }
         }
 
-        if (paResults != null && paResults.containsKey(ERROR))
+        if (paResults != null && paResults.containsKey("ERROR"))
         {
             observationRequest.getTheObservationDto().setProgAreaCd(null);
         }
@@ -120,7 +96,6 @@ public class ProgramAreaService implements IProgramAreaService {
     /**
      * Description: method getting program area given CLIA and Observation Requests
      * */
-    @SuppressWarnings({"java:S3776","java:S1149", "java:S135"})
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
                                                          Collection<ObservationContainer> observationResults,
                                                          String electronicInd) throws DataProcessingException {
@@ -128,7 +103,7 @@ public class ProgramAreaService implements IProgramAreaService {
         HashMap<String, String> returnMap = new HashMap<>();
         if (reportingLabCLIA == null)
         {
-            returnMap.put(ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
+            returnMap.put(NEDSSConstant.ERROR, NEDSSConstant.REPORTING_LAB_CLIA_NULL);
             return returnMap;
         }
 
@@ -241,9 +216,9 @@ public class ProgramAreaService implements IProgramAreaService {
             }
         } //end of while
 
-        if(paHTBL.isEmpty())
+        if(paHTBL.size() == 0)
         {
-            returnMap.put(ERROR, ELRConstant.PROGRAM_ASSIGN_2);
+            returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_2);
         }
         else if (paHTBL.size() == 1)
         {
@@ -251,12 +226,11 @@ public class ProgramAreaService implements IProgramAreaService {
         }
         else
         {
-            returnMap.put(ERROR, ELRConstant.PROGRAM_ASSIGN_1);
+            returnMap.put(NEDSSConstant.ERROR, ELRConstant.PROGRAM_ASSIGN_1);
         }
         return returnMap;
     } //end of getProgramArea
 
-    @SuppressWarnings("java:S3776")
     public String deriveProgramAreaCd(LabResultProxyContainer labResultProxyVO, ObservationContainer orderTest) throws DataProcessingException {
         //Gathering the result tests
         Collection<ObservationContainer>  resultTests = new ArrayList<> ();
@@ -287,7 +261,7 @@ public class ProgramAreaService implements IProgramAreaService {
         //Get program area
         if(!orderTest.getTheObservationDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)){
             Map<Object, Object> paResults = null;
-            if (!resultTests.isEmpty())
+            if (resultTests.size() > 0)
             {
                 paResults = srteCodeObsService.getProgramArea(reportingLabCLIA, resultTests, orderTest.getTheObservationDto().getElectronicInd());
             }
@@ -305,9 +279,9 @@ public class ProgramAreaService implements IProgramAreaService {
                 orderTest.getTheObservationDto().setProgAreaCd(null);
             }
 
-            if (paResults != null && paResults.containsKey(ERROR))
+            if (paResults != null && paResults.containsKey("ERROR"))
             {
-                return (String) paResults.get(ERROR);
+                return (String) paResults.get("ERROR");
             }
             else
             {

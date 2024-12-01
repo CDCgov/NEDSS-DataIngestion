@@ -13,42 +13,14 @@ import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocMod
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_SET_NM;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class RetrieveSummaryService implements IRetrieveSummaryService {
-    private static final Logger logger = LoggerFactory.getLogger(RetrieveSummaryService.class); // NOSONAR
-
     private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     private final QueryHelper queryHelper;
     private final CustomRepository customRepository;
@@ -82,7 +54,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 //TODO: LOGGING PIPELINE
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -94,8 +66,28 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      */
     @SuppressWarnings("java:S1135")
     public Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) {
+        String aQuery = null;
+
+        String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.TREATMENT, "VIEW", "Treatment");
+
+        if (dataAccessWhereClause == null) {
+            dataAccessWhereClause = "";
+        }
+        else {
+            dataAccessWhereClause = "AND " + dataAccessWhereClause;
+
+        }
+
+        aQuery = TREATMENTS_FOR_A_PHC_ORACLE + dataAccessWhereClause;
+
+        Map<Object,Object> treatmentsSummaryVOHashMap = new HashMap<>();
+        //TreeMap<Object, Object> treatmentsSummaryVOTreeMap = new TreeMap<Object, Object>();
+        Map<Object,Object> map = null;
+        TreatmentContainer treatmentSummaryVO = new TreatmentContainer();
+
         //TODO: DIFFER FLOW
-        return new HashMap<>();
+
+        return treatmentsSummaryVOHashMap;
     } // retrieveTreatmentSummaryList
 
 
@@ -110,7 +102,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         return documentSummaryVOColl;
     } // retrieveDocumentSummaryList
 
-    @SuppressWarnings({"java:S3776","java:S1066"})
 
     public Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseContainer publicHealthCaseContainer, Object object) throws DataProcessingException {
 
@@ -244,7 +235,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * investigationUID to papulate the Notification summary on investigation page
      * @return Collection<Object>  -- Collection<Object>  of NotificationSummaryVO for the passed publicHealthCaseDT
      */
-    @SuppressWarnings({"java:S3776","java:S1197"})
+    @SuppressWarnings("java:S3776")
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
@@ -255,18 +246,18 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 List<NotificationSummaryContainer> retval;
 
                 retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
-                if (retval.isEmpty()) {
+                if (retval.size() == 0) {
                     break;
                 }
                 for (NotificationSummaryContainer newVO : retval) {
                     if (newVO.getCaseClassCd() != null
                             && newVO.getCaseClassCd().trim().length() != 0) {
-                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
+                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
                         newVO.setCaseClassCdTxt((String) map.get(newVO.getCaseClassCd()));
                     }
                     if (newVO.getCd() != null
                             && newVO.getCd().trim().length() != 0) {
-                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
+                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
                         newVO.setCdTxt((String) map.get(newVO.getCd()));
                     }
 
@@ -296,7 +287,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         return theNotificationSummaryVOCollection;
     }
-    @SuppressWarnings({"unchecked","java:S3776","java:S1197"})
+    @SuppressWarnings({"unchecked","java:S3776"})
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
@@ -308,7 +299,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+                dataAccessWhereClause = " AND " + dataAccessWhereClause;
 
             }
             String statement[] = new String[2];
@@ -318,7 +309,8 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             statement[1] = SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL1 +
                     dataAccessWhereClause + " ORDER BY notHist.version_ctrl_nbr DESC";
 
-            HashMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
+            NotificationSummaryContainer notifVO = new NotificationSummaryContainer();
+            HashMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos("PHC_CLASS");
             HashMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
 
@@ -330,7 +322,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
 
                 //break out of loop if there is no existing Notification
-                if (retval.isEmpty()) {
+                if (retval.size() == 0) {
                     break;
                 }
                 for (NotificationSummaryContainer newVO : retval) {
@@ -387,7 +379,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+                dataAccessWhereClause = " AND " + dataAccessWhereClause;
             }
 
             String ASSOCIATED_DOC_QUERY =
@@ -407,7 +399,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return assocoiatedDocMap;
@@ -421,6 +413,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                                            String jurisdictionCd,
                                            String sharedInd) throws DataProcessingException {
 
+        Collection<Object>  notificationVOCollection  = null;
         try
         {
 
@@ -444,7 +437,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             //replace old NotificationDT in NotificationContainer with the new NotificationDT
             notificationContainer.setTheNotificationDT(newNotificationDT);
 
-            notificationRepositoryUtil.setNotification(notificationContainer);
+            Long newNotficationUid = notificationRepositoryUtil.setNotification(notificationContainer);
         }catch (Exception e){
             throw new DataProcessingException("Error in calling ActControllerEJB.setNotification() " + e.getMessage());
         }

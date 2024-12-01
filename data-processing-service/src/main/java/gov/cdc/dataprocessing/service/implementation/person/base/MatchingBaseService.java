@@ -23,28 +23,6 @@ import java.util.*;
 
 @Getter
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class MatchingBaseService  {
     private static final Logger logger = LoggerFactory.getLogger(MatchingBaseService.class);
 
@@ -75,19 +53,19 @@ public class MatchingBaseService  {
         return localId;
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings("java:S6541")
     protected List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> returnList;
         List<String> identifierList = new ArrayList<>();
-        StringBuilder identifier = new StringBuilder();
+        String identifier ;
         try{
             if (personContainer.getTheEntityIdDtoCollection() != null
                     && !personContainer.getTheEntityIdDtoCollection().isEmpty())
             {
                 Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
                 for (EntityIdDto idDto : entityIdDtoColl) {
-                    identifier.setLength(0);
+                    identifier = null;
                     if (((idDto.getStatusCd() != null && idDto
                             .getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))
                             && idDto.getRecordStatusCd() != null
@@ -104,15 +82,12 @@ public class MatchingBaseService  {
                                 && (idDto.getAssigningAuthorityCd() != null)
                                 && (idDto.getAssigningAuthorityDescTxt() != null)
                                 && (idDto.getAssigningAuthorityIdType() != null)) {
-                            identifier.append(idDto.getRootExtensionTxt())
-                                    .append(carrot)
-                                    .append(idDto.getTypeCd())
-                                    .append(carrot)
-                                    .append(idDto.getAssigningAuthorityCd())
-                                    .append(carrot)
-                                    .append(idDto.getAssigningAuthorityDescTxt())
-                                    .append(carrot)
-                                    .append(idDto.getAssigningAuthorityIdType());
+                            identifier = idDto.getRootExtensionTxt()
+                                    + carrot + idDto.getTypeCd() + carrot
+                                    + idDto.getAssigningAuthorityCd()
+                                    + carrot
+                                    + idDto.getAssigningAuthorityDescTxt()
+                                    + carrot + idDto.getAssigningAuthorityIdType();
                         }
                         // NOTE: Person matching doesn't seem to hit this
                         else {
@@ -131,21 +106,19 @@ public class MatchingBaseService  {
                                     && coded.getCode() != null
                                     && coded.getCodeDescription() != null
                                     && coded.getCodeSystemCd() != null) {
-                                identifier.append(idDto.getRootExtensionTxt())
-                                        .append(carrot)
-                                        .append(idDto.getTypeCd())
-                                        .append(carrot)
-                                        .append(coded.getCode())
-                                        .append(carrot)
-                                        .append(coded.getCodeDescription())
-                                        .append(carrot)
-                                        .append(coded.getCodeSystemCd());
+                                identifier = idDto.getRootExtensionTxt()
+                                        + carrot + idDto.getTypeCd() + carrot
+                                        + coded.getCode() + carrot
+                                        + coded.getCodeDescription() + carrot
+                                        + coded.getCodeSystemCd();
                             }
                         }
 
-                        if (identifier.length() > 0 && getNamesStr(personContainer) != null) {
-                            identifier.append(carrot).append(getNamesStr(personContainer));
-                            identifierList.add(identifier.toString());
+                        if (identifier != null) {
+                            if (getNamesStr(personContainer) != null) {
+                                identifier = identifier + carrot + getNamesStr(personContainer);
+                                identifierList.add(identifier);
+                            }
                         }
 
                     }
@@ -156,12 +129,11 @@ public class MatchingBaseService  {
         }
         catch (Exception ex) {
             String errorMessage = "Exception while creating hashcode for patient entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
+            logger.debug(ex.getMessage() + errorMessage);
             throw new DataProcessingException(errorMessage, ex);
         }
         return returnList;
     }
-    @SuppressWarnings({"java:S3776", "java:S1066", "java:S1871"})
 
     protected String getNamesStr(PersonContainer personContainer) {
         String namesStr = null;

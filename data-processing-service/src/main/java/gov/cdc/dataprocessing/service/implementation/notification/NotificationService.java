@@ -23,31 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CREATE_PERM;
-
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class NotificationService implements INotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -167,12 +143,17 @@ public class NotificationService implements INotificationService {
                 }
 
         }
+//            else if (vo instanceof VaccinationProxyVO) {
+//            // the vaccination UID
+//            return ((VaccinationProxyVO) vo)
+//                    .theInterventionVO
+//                    .getTheInterventionDto()
+//                    .getInterventionUid();
+//        }
         return null;
     }
 
 
-
-    @SuppressWarnings("java:S3776")
 
     public Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException
     {
@@ -187,12 +168,34 @@ public class NotificationService implements INotificationService {
             {
                 throw new DataProcessingException("notificationproxyVO is null ");
             }
-            permissionFlag = CREATE_PERM;
 
+            String programeAreaCode = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd();
+            String jurisdictionCode = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd();
+            String shared = notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getSharedInd();
+
+
+            permissionFlag = "CREATE";
+
+//            if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATE, programeAreaCode, jurisdictionCode, shared))
+//            {
+//
+//                if (!nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL, programeAreaCode, jurisdictionCode, shared))
+//                {
+//                    throw new DataProcessingException("NO CREATE PERMISSIONS for setNotificationProxy");
+//                }
+//                else
+//                {
+//                    permissionFlag = "CREATENEEDSAPPROVAL";
+//                }
+//            }
+//            else
+//            {
+//                permissionFlag = "CREATE";
+//            }
         }
         catch (Exception e)
         {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage());
         }
 
 
@@ -207,7 +210,7 @@ public class NotificationService implements INotificationService {
         notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd());
         notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 
-        if (permissionFlag.equals(CREATE_PERM))
+        if (permissionFlag.equals("CREATE"))
         {
             notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
         }
@@ -216,7 +219,7 @@ public class NotificationService implements INotificationService {
         {
             String boLookup = NBSBOLookup.NOTIFICATION;
             String triggerCd = "";
-            if (permissionFlag.equals(CREATE_PERM))
+            if (permissionFlag.equals("CREATE"))
             {
                 triggerCd = NEDSSConstant.NOT_CR_APR;
             }

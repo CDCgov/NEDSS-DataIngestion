@@ -18,31 +18,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.ASSOCIATED_INV_QUERY;
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ObservationSummaryService implements IObservationSummaryService {
 
     private final Observation_SummaryRepository observationSummaryRepository;
@@ -84,7 +61,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             vals = customRepository.getLabParticipations(observationUID);
 
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return vals;
     }
@@ -99,7 +76,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
 
 
@@ -116,7 +93,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return orderProviderInfo;
@@ -131,7 +108,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return actIdDetails;
@@ -145,7 +122,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
            orgName = customRepository.getReportingFacilityName(organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return orgName;
     }
@@ -155,7 +132,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             specSource = customRepository.getSpecimanSource(materialUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return specSource;
     }
@@ -163,20 +140,34 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
+
+        String ORG_NAME_QUERY = "select street_addr1 \"streetAddr1\", street_addr2 \"streetAddr2\", city_desc_txt \"cityDescTxt\", state_cd \"stateCd\", zip_cd \"zipCd\" from Postal_locator with (nolock) where postal_locator_uid in ("
+                + "select locator_uid from Entity_locator_participation with (nolock) where entity_uid in (?)and cd='O' and class_cd='PST')";
+        /**
+         * Get the OrgAddress
+         */
+
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
 
     public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
+
+        String ORG_NAME_QUERY = "select phone_nbr_txt \"phoneNbrTxt\", extension_txt \"extensionTxt\" from TELE_locator with (nolock) where TELE_locator_uid in ("
+                +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= ? and cd='PH' and class_cd='TELE')  ";
+        /**
+         * Get the OrgPhone
+         */
+
         try {
             providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         }catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -186,7 +177,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
         try {
             providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
         } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -197,7 +188,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
         }  catch (Exception ex) {
 
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return providerDataForPrintVO;
     }
@@ -207,7 +198,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
         Long providerUid = null;
 
-        if (providerDetails != null && !providerDetails.isEmpty() && labRep != null) {
+        if (providerDetails != null && providerDetails.size() > 0 && labRep != null) {
             Object[] orderProvider = providerDetails.toArray();
 
             if (orderProvider[0] != null) {
@@ -238,6 +229,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public void getTestAndSusceptibilities(String typeCode, Long observationUid, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
     {
+        ResultedTestSummaryContainer testVO = new ResultedTestSummaryContainer();
         ArrayList<ResultedTestSummaryContainer>  testList;
 
         testList = customRepository.getTestAndSusceptibilities(typeCode, observationUid, labRepEvent, labRepSumm);
@@ -270,7 +262,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
                 dataAccessWhereClause = "";
             }
             else {
-                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+                dataAccessWhereClause = " AND " + dataAccessWhereClause;
 
             }
 
@@ -280,20 +272,24 @@ public class ObservationSummaryService implements IObservationSummaryService {
         }
         catch(Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
 
         return assocoiatedInvMap;
     }
 
 
-    @SuppressWarnings("java:S2589")
     private void setSusceptibility(ResultedTestSummaryContainer RVO, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
     {
+
+        ResultedTestSummaryContainer susVO = new ResultedTestSummaryContainer();
+        int countResult = 0;
         int countSus = 0;
+        UidSummaryContainer sourceActUidVO = new UidSummaryContainer();
         ArrayList<UidSummaryContainer>  susList;
 
         Long sourceActUid = RVO.getSourceActUid();
+        countResult = countResult + 1;
 
 
         susList = customRepository.getSusceptibilityUidSummary(RVO, labRepEvent, labRepSumm, "REFR", sourceActUid);

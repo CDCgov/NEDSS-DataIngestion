@@ -25,9 +25,6 @@ import org.mockito.Spy;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_RECORD_MODIFIED_BY_OTHER_USER;
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_RECORD_STATUS_CD_NOT_ACTIVE;
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PAT_NO_MERGER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 class PrepareAssocModelHelperTest {
@@ -360,7 +357,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareAssocDTForActivityLocatorParticipation(assocDTInterface1);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
 
 
@@ -429,7 +426,7 @@ class PrepareAssocModelHelperTest {
         // Arrange
         PersonDto theRootDTInterface = new PersonDto();
         String businessObjLookupName = "businessObjLookupName";
-        String businessTriggerCd = PAT_NO_MERGER;
+        String businessTriggerCd = "PAT_NO_MERGE";
         String tableName = NEDSSConstant.PATIENT;
         String moduleCd = "moduleCd";
 
@@ -646,7 +643,7 @@ class PrepareAssocModelHelperTest {
         // Arrange
         PersonDto theRootDTInterface = new PersonDto();
         String businessObjLookupName = "businessObjLookupName";
-        String businessTriggerCd = PAT_NO_MERGER;
+        String businessTriggerCd = "PAT_NO_MERGE";
         String tableName = NEDSSConstant.PATIENT;
         String moduleCd = "moduleCd";
 
@@ -860,7 +857,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_MODIFIED_BY_OTHER_USER));
+        assertTrue(exception.getMessage().contains("NEDSSConcurrentDataException: The data has been modified by other user, please verify!"));
     }
 
     @SuppressWarnings("java:S4144")
@@ -869,7 +866,7 @@ class PrepareAssocModelHelperTest {
         // Arrange
         PersonDto theRootDTInterface = new PersonDto();
         String businessObjLookupName = "businessObjLookupName";
-        String businessTriggerCd = PAT_NO_MERGER;
+        String businessTriggerCd = "PAT_NO_MERGE";
         String tableName = NEDSSConstant.PATIENT;
         String moduleCd = "moduleCd";
 
@@ -952,7 +949,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface1);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
 
     @Test
@@ -996,7 +993,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareAssocDTForActRelationship(assocDTInterface);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
 
 
@@ -1049,7 +1046,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareAssocDTForRole(roleInterface);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
     
 
@@ -1120,7 +1117,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareAssocDTForParticipation(participationInterface);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
 
     @Test
@@ -1190,7 +1187,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
 
     @Test
@@ -1277,7 +1274,7 @@ class PrepareAssocModelHelperTest {
             prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
         });
 
-        assertTrue(exception.getMessage().contains(LOG_RECORD_STATUS_CD_NOT_ACTIVE));
+        assertTrue(exception.getMessage().contains("RecordStatusCd is not active or inactive"));
     }
 
     @Test

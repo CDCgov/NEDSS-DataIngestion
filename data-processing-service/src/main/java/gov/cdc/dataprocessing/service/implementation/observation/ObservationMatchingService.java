@@ -21,32 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_SENT_MESSAGE;
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;
-
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ObservationMatchingService implements IObservationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(ObservationMatchingService.class);
 
@@ -58,8 +33,6 @@ public class ObservationMatchingService implements IObservationMatchingService {
         this.observationMatchStoredProcRepository = observationMatchStoredProcRepository;
         this.observationRepository = observationRepository;
     }
-
-    @SuppressWarnings("java:S3776")
 
     @Transactional
     public ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -74,18 +47,19 @@ public class ObservationMatchingService implements IObservationMatchingService {
             obsDT = matchingObservation(edxLabInformationDto);
         } else {
             edxLabInformationDto.setObservationMatch(false);
-            logger.error("Error!! masterObsVO not available for fillerNbr: {}", edxLabInformationDto.getFillerNumber());
+            logger.error("Error!! masterObsVO not available for fillerNbr:" + edxLabInformationDto.getFillerNumber());
             return null;
         }
 
         if (obsDT != null) // find a match is it a correction?
         {
             String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
-            String odsStatus = "N";
+            String odsStatus = obsDT.getStatusCd();
+            odsStatus = "N";
             if (msgStatus == null || odsStatus == null) //NOSONAR
             {
                 edxLabInformationDto.setObservationMatch(false);
-                logger.error("Error!! null status cd: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
+                logger.error("Error!! null status cd: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
                 return null;
             }
             if (
@@ -119,7 +93,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
             }
             else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
@@ -127,7 +101,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 edxLabInformationDto.setPreliminaryPostFinal(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
             }
             else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
                     && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
@@ -135,14 +109,14 @@ public class ObservationMatchingService implements IObservationMatchingService {
                 edxLabInformationDto.setPreliminaryPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
             }
             else {
                 edxLabInformationDto.setFinalPostCorrected(true);
                 edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                logger.error(" Error!! Invalid status combination: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
+                logger.error(" Error!! Invalid status combination: msgInObs status=" + msgStatus + " odsObs status=" + odsStatus);
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
+                throw new DataProcessingException("Lab report " + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
             }
         }
 
@@ -150,7 +124,6 @@ public class ObservationMatchingService implements IObservationMatchingService {
         return null;
     }
 
-    @SuppressWarnings("java:S3776")
     public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
                                       LabResultProxyContainer matchedlabResultProxyVO,
                                       EdxLabInformationDto edxLabInformationDT) {

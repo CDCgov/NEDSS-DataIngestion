@@ -14,8 +14,6 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,37 +22,12 @@ import java.util.List;
 import java.util.TreeMap;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class LookupService implements ILookupService {
-    private static final Logger logger = LoggerFactory.getLogger(LookupService.class); // NOSONAR
 
     private final LookupMappingRepository lookupMappingRepository;
     private final NbsUiMetaDataRepository nbsUiMetaDataRepository;
     private final WAQuestionRepository waQuestionRepository;
     private final ICatchingValueService catchingValueService;
-
-    private static final String EXCEPTION_APPENDING_MSG = " in form cd :";
 
     public LookupService(LookupMappingRepository lookupMappingRepository,
                          NbsUiMetaDataRepository nbsUiMetaDataRepository,
@@ -81,7 +54,7 @@ public class LookupService implements ILookupService {
     public TreeMap<Object,Object>  getQuestionMap() {
         TreeMap<Object,Object> questionMap = null;
 
-        if (OdseCache.map != null && !OdseCache.map.isEmpty()) {
+        if (OdseCache.map != null && OdseCache.map.size() > 0) {
             return (TreeMap<Object,Object>) OdseCache.map;
 
         }
@@ -91,7 +64,7 @@ public class LookupService implements ILookupService {
             questionMap = createQuestionMap(qColl);
 
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         }
 
         if (questionMap != null) {
@@ -127,7 +100,7 @@ public class LookupService implements ILookupService {
             dmbQuestionMap = createDMBQuestionMap(metaQuestion);
 
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         }
         if(dmbQuestionMap != null)
         {
@@ -139,23 +112,23 @@ public class LookupService implements ILookupService {
 
     public void fillPrePopMap() {
 
-        if (OdseCache.fromPrePopFormMapping == null || OdseCache.fromPrePopFormMapping.isEmpty()) {
+        if (OdseCache.fromPrePopFormMapping == null || OdseCache.fromPrePopFormMapping.size() == 0) {
             try {
                     Collection<LookupMappingDto> qColl = retrievePrePopMapping();
                     createPrePopFromMap(qColl);
 
             } catch (Exception e) {
-                logger.info(e.getMessage());
+                e.printStackTrace();
             }
 
         }
 
-        if (OdseCache.toPrePopFormMapping == null || OdseCache.toPrePopFormMapping.isEmpty()) {
+        if (OdseCache.toPrePopFormMapping == null || OdseCache.toPrePopFormMapping.size() == 0) {
             try {
                     Collection<LookupMappingDto> qColl = retrievePrePopMapping();
                     createPrePopToMap(qColl);
             } catch (Exception e) {
-                logger.info(e.getMessage());
+                e.printStackTrace();
             }
 
         }
@@ -176,8 +149,7 @@ public class LookupService implements ILookupService {
         return lst;
     }
 
-    @SuppressWarnings("java:S3776")
-    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
+    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws Exception {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
@@ -187,7 +159,7 @@ public class LookupService implements ILookupService {
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
         try {
-            if (!coll.isEmpty()) {
+            if (coll.size() > 0) {
                 for (LookupMappingDto lookupMappingDto : coll) {
                     sizecount++;
                     qMetadata = new PrePopMappingDto(lookupMappingDto);
@@ -259,7 +231,7 @@ public class LookupService implements ILookupService {
             }
         } catch (Exception ex) {
             throw new DataProcessingException("The from prepop caching failed due to question label :"
-                    + qMetadata.getFromQuestionIdentifier() + EXCEPTION_APPENDING_MSG + qMetadata.getFromFormCd());
+                    + qMetadata.getFromQuestionIdentifier() + " in form cd :" + qMetadata.getFromFormCd());
         }
 
     }
@@ -275,7 +247,7 @@ public class LookupService implements ILookupService {
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
         try {
-            if (!coll.isEmpty()) {
+            if (coll.size() > 0) {
                 for (LookupMappingDto lookupMappingDto : coll) {
                     sizecount++;
                     qMetadata = new PrePopMappingDto(lookupMappingDto);
@@ -350,8 +322,10 @@ public class LookupService implements ILookupService {
                         }
 
                     }
-                    if (sizecount == coll.size() && qMetadata.getToFormCd() != null) {
-                        OdseCache.toPrePopFormMapping.put(qMetadata.getToFormCd(), map[count]);
+                    if (sizecount == coll.size()) {
+                        if (qMetadata.getToFormCd() != null) {
+                            OdseCache.toPrePopFormMapping.put(qMetadata.getToFormCd(), map[count]);
+                        }
                     }
 
                 }
@@ -359,14 +333,27 @@ public class LookupService implements ILookupService {
             }
         } catch (Exception ex) {
             throw new DataProcessingException("The to prepop caching failed due to question Identifier :"
-                    + qMetadata.getToQuestionIdentifier() + EXCEPTION_APPENDING_MSG + qMetadata.getToFormCd());
+                    + qMetadata.getToQuestionIdentifier() + " in form cd :" + qMetadata.getToFormCd());
         }
 
     }
 
 
-    @SuppressWarnings("java:S3776")
-    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws DataProcessingException{
+//    public QuestionMap getQuestionMapEJBRef() throws Exception {
+//        if (qMap == null) {
+//            NedssUtils nu = new NedssUtils();
+//            Object objref = nu.lookupBean(JNDINames.QUESTION_MAP_EJB);
+//            if (objref != null) {
+//                QuestionMapHome home = (QuestionMapHome) PortableRemoteObject
+//                        .narrow(objref, QuestionMapHome.class);
+//                qMap = home.create();
+//            }
+//        }
+//        return qMap;
+//    }
+
+
+    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws Exception{
         TreeMap<Object, Object> qCodeMap = new TreeMap<>();
         int count =0;
         int loopcount=0;
@@ -379,7 +366,7 @@ public class LookupService implements ILookupService {
         map = new TreeMap[coll.size()];
         NbsQuestionMetadata qMetadata = null;
         try{
-            if (!coll.isEmpty()) {
+            if (coll.size() > 0) {
                 for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
                     sizecount++;
                     qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
@@ -440,7 +427,7 @@ public class LookupService implements ILookupService {
             }
         }
         catch(Exception ex){
-            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel()+ EXCEPTION_APPENDING_MSG + qMetadata.getInvestigationFormCd());
+            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel()+" in form cd :"+ qMetadata.getInvestigationFormCd());
         }
 
         return qCodeMap;
@@ -469,7 +456,7 @@ public class LookupService implements ILookupService {
     private TreeMap<Object,Object> createQuestionMap(Collection<Object>  coll) {
         TreeMap<Object,Object> qCodeMap = new TreeMap<>();
         TreeMap<Object,Object> qInvFormRVCTMap = new TreeMap<>();
-        if (coll != null && !coll.isEmpty()) {
+        if (coll != null && coll.size() > 0) {
             for (Object o : coll) {
                 NbsQuestionMetadata qMetadata = (NbsQuestionMetadata) o;
                 if (qMetadata.getInvestigationFormCd().equals(NBSConstantUtil.INV_FORM_RVCT))

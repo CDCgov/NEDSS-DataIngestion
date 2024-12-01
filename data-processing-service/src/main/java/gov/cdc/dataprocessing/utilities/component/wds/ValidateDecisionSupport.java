@@ -28,28 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ValidateDecisionSupport {
     private static final Logger logger = LoggerFactory.getLogger(ValidateDecisionSupport.class);
 
@@ -64,7 +42,6 @@ public class ValidateDecisionSupport {
         processNBSObjectDT( edxRuleManageDT, publicHealthCaseContainer, publicHealthCaseDto, metaData);
     }
 
-    @SuppressWarnings({"java:S5361","java:S3776"})
     public void processNBSObjectDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, Object object, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -93,12 +70,12 @@ public class ValidateDecisionSupport {
 
                     Method setMethod = null;
                     if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_TEXT) || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
-                        setMethod = phcClass.getMethod(setMethodName, String.class);
+                        setMethod = phcClass.getMethod(setMethodName, new String().getClass());
 
                     } else if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_DATETIME) || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.DATETIME_DATATYPE)
                             || metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_DATE)) {
                         getCurrentDateValue(edxRuleManageDT);
-                        setMethod = phcClass.getMethod(setMethodName, Timestamp.class);
+                        setMethod = phcClass.getMethod(setMethodName, new Timestamp(0).getClass());
                     } else if (metaData.getDataType().equalsIgnoreCase(NEDSSConstant.NBS_QUESTION_DATATYPE_NUMERIC)) {
                         if (value.getReturnType().equals(Integer.class))
                             setMethod = phcClass.getMethod(setMethodName, Integer.valueOf(0).getClass());
@@ -118,20 +95,20 @@ public class ValidateDecisionSupport {
                 }
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         } 
 
 
     }
 
-    @SuppressWarnings({"java:S6541","java:S3776"})
+    @SuppressWarnings("java:S6541")
     public void processNBSCaseAnswerDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, BasePamContainer pamVO, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false; //NOSONAR
+            isOverwrite = false;
         }
         String value = edxRuleManageDT.getDefaultStringValue();
         if(value!=null && value.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
@@ -225,14 +202,14 @@ public class ValidateDecisionSupport {
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings("java:S6541")
     public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
         if (behavior.equalsIgnoreCase("1")) {
             isOverwrite = true;
         } else if (behavior.equalsIgnoreCase("2")) {
-            isOverwrite = false; //NOSONAR
+            isOverwrite = false;
         }
         if (isOverwrite) {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
@@ -328,7 +305,7 @@ public class ValidateDecisionSupport {
         }
     }
 
-    @SuppressWarnings("java:S3776")
+
     public static void setMethod(Object nbsObject, Method setMethod, EdxRuleManageDto edxRuleManageDT) {
         try {
             Class<?>[] parameterArray = setMethod.getParameterTypes();
@@ -358,7 +335,7 @@ public class ValidateDecisionSupport {
                 }
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         }
     }
     @SuppressWarnings({"java:S3776", "java:S6541"})
@@ -490,7 +467,7 @@ public class ValidateDecisionSupport {
                     edxRuleManageDT.setParticipationUid(Long.valueOf(defaultValueType.getDefaultParticipation().getEntityUid()));
                     edxRuleManageDT.setParticipationClassCode(defaultValueType.getDefaultParticipation().getEntityClass());
                 } catch (Exception e) {
-                    logger.error("The defaultValueType exception is not valid for code and/or uid and/or classCode. Please check: {}", defaultValueType); //NOSONAR
+                    logger.error("The defaultValueType exception is not valid for code and/or uid and/or classCode. Please check: " + defaultValueType); //NOSONAR
                 }
             } else if (defaultValueType.getDefaultStringValue() != null) {
                 edxRuleManageDT.setDefaultStringValue(defaultValueType.getDefaultStringValue());
@@ -511,14 +488,19 @@ public class ValidateDecisionSupport {
     }
 
 
-    @SuppressWarnings({"java:S3776", "java:S1871"})
+
     public void processActIds(EdxRuleManageDto edxRuleManageDT,
                               PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
-        boolean isOverwrite = behavior.equalsIgnoreCase("1"); // NOSONAR
+        boolean isOverwrite = false;
+        if (behavior.equalsIgnoreCase("1")) {
+            isOverwrite = true;
+        } else if (behavior.equalsIgnoreCase("2")) {
+            isOverwrite = false;
+        }
         Collection<ActIdDto> actIdColl = publicHealthCaseContainer
                 .getTheActIdDTCollection();
-        if (actIdColl != null && !actIdColl.isEmpty()) {
+        if (actIdColl != null && actIdColl.size() > 0) {
             Iterator<ActIdDto> ite = actIdColl.iterator();
             ActIdDto actIdDT =  ite.next();
             if (actIdDT.getTypeCd() != null
@@ -530,7 +512,7 @@ public class ValidateDecisionSupport {
                 if (isOverwrite)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
-                else if (actIdDT.getRootExtensionTxt() == null)
+                else if (!isOverwrite && actIdDT.getRootExtensionTxt() == null)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
             } else if (actIdDT.getTypeCd() != null
@@ -540,7 +522,7 @@ public class ValidateDecisionSupport {
                 if (isOverwrite)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
-                else if (actIdDT.getRootExtensionTxt() == null)
+                else if (!isOverwrite && actIdDT.getRootExtensionTxt() == null)
                     actIdDT.setRootExtensionTxt(edxRuleManageDT
                             .getDefaultStringValue());
             }

@@ -1,0 +1,7 @@
+server:
+  port: 8087
+
+linkageServiceUrl: http://localhost:8088/link
+
+
+

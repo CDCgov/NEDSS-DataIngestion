@@ -23,6 +23,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
@@ -37,28 +38,6 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PublicHealthCaseRepositoryUtil {
     private final PublicHealthCaseRepository publicHealthCaseRepository;
     private final EntityGroupRepository entityGroupRepository;
@@ -89,6 +68,7 @@ public class PublicHealthCaseRepositoryUtil {
                                           ClinicalDocumentRepository clinicalDocumentRepository,
                                           ReferralRepository referralRepository,
                                           PatientEncounterRepository patientEncounterRepository,
+                                          OdseIdGeneratorService odseIdGeneratorService,
                                           IOdseIdGeneratorWCacheService odseIdGeneratorService1, ActRepository actRepository,
                                           ActIdRepository actIdRepository,
                                           ConfirmationMethodRepository confirmationMethodRepository,
@@ -242,7 +222,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
             }
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
     }
 
@@ -325,7 +305,7 @@ public class PublicHealthCaseRepositoryUtil {
             }
 
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new DataProcessingException(e.getMessage());
         }
     }
 
@@ -405,6 +385,10 @@ public class PublicHealthCaseRepositoryUtil {
                         confirmationMethod.setItNew(false);
                         confirmationMethod.setItDirty(false);
                     }
+                    else
+                    {
+                        continue;
+                    }
                 }
             }
             catch(Exception ex)
@@ -435,7 +419,7 @@ public class PublicHealthCaseRepositoryUtil {
             var caseMag = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
             container.setTheCaseManagementDto(caseMag);
 
-            var actIdLst = actIdRepositoryUtil.getActIdCollection(phcUid);
+            var actIdLst = actIdRepositoryUtil.GetActIdCollection(phcUid);
             container.setTheActIdDTCollection(actIdLst);
 
             var actLoc = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(phcUid);
@@ -541,7 +525,7 @@ public class PublicHealthCaseRepositoryUtil {
             Collection<NbsActEntityDto>  pamCaseEntityDTCollection= getActEntityDTCollection(publicHealthCaseUID);
             pamVO.setActEntityDTCollection(pamCaseEntityDTCollection);
         }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         return pamVO;
     }
@@ -558,8 +542,8 @@ public class PublicHealthCaseRepositoryUtil {
         }
         return lst;
     }
-    @SuppressWarnings("java:S3776")
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID) throws DataProcessingException {
+        NbsCaseAnswerDto nbsAnswerDT = new NbsCaseAnswerDto();
         ArrayList<Object> PamAnswerDTCollection;
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
         Map<Object, Object> nbsAnswerMap = new HashMap<>();
@@ -584,7 +568,7 @@ public class PublicHealthCaseRepositoryUtil {
                 if (pamAnsDT.getNbsQuestionUid() != null
                         && nbsQuestionUid != 0
                         && pamAnsDT.getNbsQuestionUid().longValue() != nbsQuestionUid
-                        .longValue() && !coll.isEmpty()) {
+                        .longValue() && coll.size() > 0) {
                     nbsAnswerMap.put(nbsQuestionUid, coll);
                     coll = new ArrayList<>();
                 }
@@ -616,7 +600,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
                 else if (pamAnsDT.getSeqNbr() != null && pamAnsDT.getSeqNbr() > 0)
                 {
-                    if (!coll.isEmpty())
+                    if (coll.size() > 0)
                     {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                         coll = new ArrayList<>();
@@ -625,7 +609,7 @@ public class PublicHealthCaseRepositoryUtil {
                 }
                 else
                 {
-                    if (!coll.isEmpty())
+                    if (coll.size() > 0)
                     {
                         nbsAnswerMap.put(nbsQuestionUid, coll);
                     }
@@ -633,7 +617,7 @@ public class PublicHealthCaseRepositoryUtil {
                     coll = new ArrayList<>();
                 }
                 nbsQuestionUid = pamAnsDT.getNbsQuestionUid();
-                if (!it.hasNext() && !coll.isEmpty())
+                if (!it.hasNext() && coll.size() > 0)
                 {
                     nbsAnswerMap.put(pamAnsDT.getNbsQuestionUid(), coll);
                 }
@@ -641,7 +625,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         catch (Exception ex)
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            throw new DataProcessingException(ex.getMessage());
         }
         nbsReturnAnswerMap.put(NEDSSConstant.NON_REPEATING_QUESTION, nbsAnswerMap);
         nbsReturnAnswerMap.put(NEDSSConstant.REPEATING_QUESTION, nbsRepeatingAnswerMap);

@@ -40,31 +40,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHC_PHYSICIAN;
-
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class AutoInvestigationService implements IAutoInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
@@ -135,7 +111,6 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
     }
 
-    @SuppressWarnings("java:S3776")
     public Object transferValuesTOActProxyVO(PageActProxyContainer pageActProxyContainer, PamProxyContainer pamActProxyVO,
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
@@ -176,7 +151,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     }
                 }
             }
-            if(entities!=null && !entities.isEmpty()){
+            if(entities!=null && entities.size()>0){
                 for (Object entity : entities) {
                     EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) entity;
                     ParticipationDto participationDT = new ParticipationDto();
@@ -185,7 +160,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     participationDT.setSubjectClassCd(edxRuleManageDT.getParticipationClassCode());
                     if (participationDT.getTypeCd().equals("OrgAsReporterOfPHC")) {
                         isOrgAsReporterOfPHCPartDT = true;
-                    } else if (participationDT.getTypeCd().equals(PHC_PHYSICIAN)) {
+                    } else if (participationDT.getTypeCd().equals("PhysicianOfPHC")) {
                         isPhysicianOfPHCDT = true;
                     }
 
@@ -203,12 +178,12 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     }
                     if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
                         createActEntity = true;
-                        partDT.setTypeCd(PHC_PHYSICIAN);
+                        partDT.setTypeCd("PhysicianOfPHC");
                     }
                     //gst- ND-4326 Physician not getting populated..
                     if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
                         createActEntity = true;
-                        partDT.setTypeCd(PHC_PHYSICIAN);
+                        partDT.setTypeCd("PhysicianOfPHC");
                     }
                     //Transfer the ordering facility over if it is on the PageBuilder page
                     if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) &&
@@ -352,7 +327,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
             for (ObservationContainer obs : obsCollection) {
                 if (obs.getTheObsValueNumericDtoCollection() != null
-                        && !obs.getTheObsValueNumericDtoCollection().isEmpty()
+                        && obs.getTheObsValueNumericDtoCollection().size() > 0
                         && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
                 {
 
@@ -364,7 +339,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     prePopMap.put(obs.getTheObservationDto().getCd(), value);
                 }
                 else if (obs.getTheObsValueDateDtoCollection() != null
-                        && !obs.getTheObsValueDateDtoCollection().isEmpty()
+                        && obs.getTheObsValueDateDtoCollection().size() > 0
                         && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
                 {
                     List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
@@ -373,7 +348,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     prePopMap.put(obs.getTheObservationDto().getCd(), value);
                 }
                 else if (obs.getTheObsValueCodedDtoCollection() != null
-                        && !obs.getTheObsValueCodedDtoCollection().isEmpty())
+                        && obs.getTheObsValueCodedDtoCollection().size() > 0)
                 {
 
                     List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
@@ -385,7 +360,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
                     }
                 }
-                else if (obs.getTheObsValueTxtDtoCollection() != null && !obs.getTheObsValueTxtDtoCollection().isEmpty()
+                else if (obs.getTheObsValueTxtDtoCollection() != null && obs.getTheObsValueTxtDtoCollection().size() > 0
                         && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
                 {
                     for (ObsValueTxtDto obsValueTxtDT : obs.getTheObsValueTxtDtoCollection()) {
@@ -404,9 +379,8 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
-    @SuppressWarnings("java:S3776")
     private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyContainer pageActProxyContainer)
-            throws DataProcessingException {
+            throws Exception {
         try {
             PublicHealthCaseDto phcDT = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
             var res = conditionCodeRepository.findProgramAreaConditionCode(
@@ -459,10 +433,10 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
             Map<Object, Object> questionMap = (Map<Object, Object>) OdseCache.dmbMap.get(investigationFormCd);
 
-            if (prePopMap == null || prePopMap.isEmpty())
+            if (prePopMap == null || prePopMap.size() == 0)
                 return;
             TreeMap<Object, Object> toPrePopMap = lookupService.getToPrePopFormMapping(investigationFormCd);
-            if (toPrePopMap != null && !toPrePopMap.isEmpty()) {
+            if (toPrePopMap != null && toPrePopMap.size() > 0) {
                 Collection<Object> toPrePopColl = toPrePopMap.values();
                 Map<Object, Object> answerMap = new HashMap<>();
                 for (Object obj : toPrePopColl) {
@@ -522,7 +496,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                 pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new Exception(e.getMessage(), e);
         }
     }
 
