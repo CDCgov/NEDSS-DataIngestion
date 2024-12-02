@@ -57,15 +57,11 @@ services:
   di-mssql:
     build: 
       context: ./containers/db
-      args:
-          - DATABASE_PASSWORD=${DATABASE_PASSWORD}
     container_name: di-mssql
     ports:
       - 2433:1433
-    environment:
-      - ACCEPT_EULA=1
-      - SQLCMDPASSWORD=${DATABASE_PASSWORD}
-      - MSSQL_SA_PASSWORD=${DATABASE_PASSWORD}
+    env_file:
+      - dataingestion.env
     networks:
       - dataingestion
     healthcheck:
@@ -82,9 +78,8 @@ services:
       - "8100:8080"
     volumes:
       - ./containers/keycloak/imports:/opt/keycloak/data/import
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    env_file:
+      - dataingestion.env
     entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
     networks:
       - dataingestion
