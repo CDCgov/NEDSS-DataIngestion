@@ -6,9 +6,12 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - broker
-      - di-mssql
-      - keycloak
+      broker:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      di-mssql:
+        condition: service_healthy
     container_name: data-ingestion-service
     env_file:
       - dataingestion.env
@@ -65,6 +68,12 @@ services:
       - MSSQL_SA_PASSWORD=${DATABASE_PASSWORD}
     networks:
       - dataingestion
+    healthcheck:
+      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   keycloak:
     container_name: di-keycloak
