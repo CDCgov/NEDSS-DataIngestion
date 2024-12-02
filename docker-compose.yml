@@ -7,6 +7,8 @@ services:
       - "8083:8083"
     depends_on:
       - broker
+      - di-mssql
+      - keycloak
     container_name: data-ingestion-service
     env_file:
       - dataingestion.env
@@ -48,18 +50,35 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
     networks:
       - dataingestion
-  deduplication-db:
+
+  di-mssql:
     build: 
-      context: ./deduplication/db
+      context: ./containers/db
       args:
-          - DATABASE_PASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
-    container_name: deduplication-mssql
+          - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    container_name: di-mssql
     ports:
-      - 1434:1433
+      - 2433:1433
     environment:
       - ACCEPT_EULA=1
-      - SQLCMDPASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
-      - MSSQL_SA_PASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
+      - SQLCMDPASSWORD=${DATABASE_PASSWORD}
+      - MSSQL_SA_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - dataingestion
+
+  keycloak:
+    container_name: di-keycloak
+    image: quay.io/keycloak/keycloak:latest
+    ports:
+      - "8100:8080"
+    volumes:
+      - ./containers/keycloak/imports:/opt/keycloak/data/import
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
+    networks:
+      - dataingestion
 
 networks:
   dataingestion:
