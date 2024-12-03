@@ -6,9 +6,12 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - broker
-      - di-mssql
-      - keycloak
+      broker:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      di-mssql:
+        condition: service_healthy
     container_name: data-ingestion-service
     env_file:
       - dataingestion.env
@@ -54,17 +57,19 @@ services:
   di-mssql:
     build: 
       context: ./containers/db
-      args:
-          - DATABASE_PASSWORD=${DATABASE_PASSWORD}
     container_name: di-mssql
     ports:
       - 2433:1433
-    environment:
-      - ACCEPT_EULA=1
-      - SQLCMDPASSWORD=${DATABASE_PASSWORD}
-      - MSSQL_SA_PASSWORD=${DATABASE_PASSWORD}
+    env_file:
+      - dataingestion.env
     networks:
       - dataingestion
+    healthcheck:
+      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   keycloak:
     container_name: di-keycloak
@@ -73,9 +78,8 @@ services:
       - "8100:8080"
     volumes:
       - ./containers/keycloak/imports:/opt/keycloak/data/import
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    env_file:
+      - dataingestion.env
     entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
     networks:
       - dataingestion
