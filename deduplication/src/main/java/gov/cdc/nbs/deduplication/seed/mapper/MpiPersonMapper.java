@@ -65,7 +65,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         driversLicense);
   }
 
-  private <T> Optional<T> tryParse(String stringValue, TypeReference<T> reference) {
+  <T> Optional<T> tryParse(String stringValue, TypeReference<T> reference) {
     if (stringValue == null || stringValue.isBlank()) {
       return Optional.empty();
     }
@@ -76,7 +76,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
     }
   }
 
-  private List<Address> mapAddresses(String addressString) {
+  List<Address> mapAddresses(String addressString) {
     return tryParse(
         addressString,
         new TypeReference<List<NbsAddress>>() {
@@ -88,7 +88,10 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         .toList();
   }
 
-  private Address asAddress(NbsAddress address) {
+  Address asAddress(NbsAddress address) {
+    if (address == null) {
+      return null;
+    }
     List<String> lines = new ArrayList<>();
     if (address.street() != null) {
       lines.add(address.street());
@@ -104,7 +107,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         address.county());
   }
 
-  private List<Name> mapNames(String nameString) {
+  List<Name> mapNames(String nameString) {
     return tryParse(
         nameString,
         new TypeReference<List<NbsName>>() {
@@ -116,7 +119,10 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         .toList();
   }
 
-  private Name asName(NbsName nbsName) {
+  Name asName(NbsName nbsName) {
+    if (nbsName == null) {
+      return null;
+    }
     // Family name is required for RL
     if (nbsName.lastNm() == null) {
       return null;
@@ -129,10 +135,10 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
       givenNames.add(nbsName.middleNm());
     }
 
-    return new Name(givenNames, nbsName.lastNm());
+    return new Name(givenNames, nbsName.lastNm(), nbsName.nmSuffix());
   }
 
-  private List<Telecom> mapPhones(String phoneString) {
+  List<Telecom> mapPhones(String phoneString) {
     return tryParse(
         phoneString,
         new TypeReference<List<Telecom>>() {
@@ -140,7 +146,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
   }
 
   /** Returns the first Drivers License entry found, or null */
-  private DriversLicense mapDriversLicense(String driversLicenseString) {
+  DriversLicense mapDriversLicense(String driversLicenseString) {
     return tryParse(
         driversLicenseString,
         new TypeReference<List<DriversLicense>>() {
@@ -152,7 +158,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
   }
 
   /** Convert Race_cd to acceptable value for Record Linkage */
-  private String mapRace(String raceString) {
+  String mapRace(String raceString) {
     if (raceString == null || raceString.isBlank()) {
       return null;
     }
