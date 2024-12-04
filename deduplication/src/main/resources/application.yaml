@@ -1,0 +1,9 @@
+spring.application.name: deduplication
+
+server:
+  port: 8097
+
+spring.batch.job.enabled: false
+
+recordLinkage:
+  url: http://localhost:8080
