@@ -1,5 +1,7 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
+import java.util.List;
+
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,7 +34,7 @@ public class SeedWriter implements ItemWriter<Cluster> {
 
   @Override
   public void write(@NonNull Chunk<? extends Cluster> chunk) throws Exception {
-    SeedRequest request = new SeedRequest(chunk.getItems());
+    SeedRequest request = new SeedRequest(List.copyOf(chunk.getItems()));
     String requestJson = mapper.writeValueAsString(request);
 
     // Send Clusters to MPI

@@ -4,7 +4,7 @@ services:
       context: ./
       dockerfile: ./data-ingestion-service/Dockerfile
     ports:
-      - "8083:8083"
+      - "8083:8081"
     depends_on:
       broker:
         condition: service_started
@@ -57,11 +57,11 @@ services:
   di-mssql:
     build: 
       context: ./containers/db
+      args:
+        - DATABASE_PASSWORD=${NBS_DBPASSWORD}
     container_name: di-mssql
     ports:
       - 2433:1433
-    env_file:
-      - dataingestion.env
     networks:
       - dataingestion
     healthcheck:

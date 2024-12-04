@@ -2,7 +2,7 @@ package gov.cdc.nbs.deduplication.seed.model;
 
 import java.util.List;
 
-public record SeedRequest(List<? extends Cluster> clusters) {
+public record SeedRequest(List<Cluster> clusters) {
 
   public record Cluster(
       List<MpiPerson> records,
@@ -24,7 +24,12 @@ public record SeedRequest(List<? extends Cluster> clusters) {
       DriversLicense drivers_license) {
   }
 
-  public record Address(String street) {
+  public record Address(
+      List<String> line,
+      String city,
+      String state,
+      String postal_code,
+      String county) {
   }
 
   public record Name(
