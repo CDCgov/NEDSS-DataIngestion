@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 public class DataSourceConfig {
 
+  // Deduplication data source
   @Bean
   @ConfigurationProperties("spring.datasource.deduplication")
   public DataSourceProperties deduplicationProperties() {
@@ -28,12 +29,13 @@ public class DataSourceConfig {
         .build();
   }
 
-  @Bean
   @Primary
+  @Bean("deduplicationTemplate")
   public JdbcTemplate deduplicationJdbcTemplate(@Qualifier("deduplication") DataSource dataSource) {
     return new JdbcTemplate(dataSource);
   }
 
+  // NBS data source
   @Bean
   @ConfigurationProperties("spring.datasource.nbs")
   public DataSourceProperties nbsProperties() {
@@ -51,6 +53,26 @@ public class DataSourceConfig {
   @Bean("nbsTemplate")
   public JdbcTemplate nbsJdbcTemplate(@Qualifier("nbs") DataSource dataSource) {
     return new JdbcTemplate(dataSource);
+  }
+
+  // MPI data source
+  @Bean
+  @ConfigurationProperties("spring.datasource.mpi")
+  public DataSourceProperties mpiProperties() {
+    return new DataSourceProperties();
+  }
+
+  @Bean("mpi")
+  @ConfigurationProperties("spring.datasource.mpi")
+  public DataSource mpiDataSource() {
+    return mpiProperties()
+        .initializeDataSourceBuilder()
+        .build();
+  }
+
+  @Bean("mpiTemplate")
+  public JdbcTemplate mpiJdbcTemplate(@Qualifier("mpi") DataSource mpiDataSource) {
+    return new JdbcTemplate(mpiDataSource);
   }
 
 }

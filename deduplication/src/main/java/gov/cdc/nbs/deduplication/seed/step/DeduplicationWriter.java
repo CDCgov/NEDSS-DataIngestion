@@ -3,51 +3,42 @@ package gov.cdc.nbs.deduplication.seed.step;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 
-import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
-
-/**
- * Submits Seed request to Record Linkage API and writes the UUID <-> Person_Uid
- * relations to the Deduplication database
- */
 @Component
-public class DeduplicationWriter implements ItemWriter<Cluster> {
+public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
 
-  private final ObjectMapper mapper;
-  private final RestClient recordLinkageClient;
+  private static final String QUERY = """
+      INSERT INTO nbs_mpi_mapping
+        (person_uid, person_parent_uid, mpi_patient, mpi_person, status)
+      VALUES
+        (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
+      """;
 
-  public DeduplicationWriter(
-      final ObjectMapper mapper,
-      @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient) {
-    this.mapper = mapper;
-    this.recordLinkageClient = recordLinkageClient;
+  private final NamedParameterJdbcTemplate template;
+
+  public DeduplicationWriter(@Qualifier("deduplicationTemplate") final JdbcTemplate template) {
+    this.template = new NamedParameterJdbcTemplate(template);
   }
 
   @Override
-  public void write(@NonNull Chunk<? extends Cluster> chunk) throws Exception {
-    SeedRequest request = new SeedRequest(chunk.getItems());
-    String requestJson = mapper.writeValueAsString(request);
-
-    // Send Clusters to MPI
-    MpiResponse response = recordLinkageClient.post()
-        .uri("/seed")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(requestJson)
-        .retrieve()
-        .body(MpiResponse.class);
-
-    // Insert relation into deduplication database
-    System.out.println(response);
-
+  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
+    chunk.forEach(c -> {
+      SqlParameterSource parameters = new MapSqlParameterSource()
+          .addValue("person_uid", c.nbsPersonId())
+          .addValue("person_parent_uid", c.nbsPersonParentId())
+          .addValue("mpi_patient", c.mpiPatientId())
+          .addValue("mpi_person", c.mpiPersonId())
+          .addValue("status", "U");
+      template.update(QUERY, parameters);
+    });
   }
 
 }
