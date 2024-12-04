@@ -17,6 +17,7 @@ import org.springframework.lang.Nullable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gov.cdc.nbs.deduplication.seed.model.NbsAddress;
 import gov.cdc.nbs.deduplication.seed.model.NbsName;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Address;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest.DriversLicense;
@@ -78,9 +79,29 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
   private List<Address> mapAddresses(String addressString) {
     return tryParse(
         addressString,
-        new TypeReference<List<Address>>() {
+        new TypeReference<List<NbsAddress>>() {
         })
-        .orElseGet(() -> new ArrayList<>());
+        .orElseGet(() -> new ArrayList<>())
+        .stream()
+        .map(this::asAddress)
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
+  private Address asAddress(NbsAddress address) {
+    List<String> lines = new ArrayList<>();
+    if (address.street() != null) {
+      lines.add(address.street());
+    }
+    if (address.street2() != null) {
+      lines.add(address.street2());
+    }
+    return new Address(
+        lines,
+        address.city(),
+        address.state(),
+        address.zip(),
+        address.county());
   }
 
   private List<Name> mapNames(String nameString) {
