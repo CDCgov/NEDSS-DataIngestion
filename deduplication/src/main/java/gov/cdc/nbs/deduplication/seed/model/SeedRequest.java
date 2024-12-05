@@ -35,7 +35,7 @@ public record SeedRequest(List<Cluster> clusters) {
   public record Name(
       List<String> given,
       String family,
-      String suffix) {
+      List<String> suffix) {
   }
 
   public record Telecom(String value) {

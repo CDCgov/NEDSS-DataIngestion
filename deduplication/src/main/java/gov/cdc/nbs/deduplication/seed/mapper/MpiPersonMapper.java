@@ -135,7 +135,12 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
       givenNames.add(nbsName.middleNm());
     }
 
-    return new Name(givenNames, nbsName.lastNm(), nbsName.nmSuffix());
+    List<String> suffixes = new ArrayList<>();
+    if (nbsName.nmSuffix() != null) {
+      suffixes.add(nbsName.nmSuffix());
+    }
+
+    return new Name(givenNames, nbsName.lastNm(), suffixes);
   }
 
   List<Telecom> mapPhones(String phoneString) {

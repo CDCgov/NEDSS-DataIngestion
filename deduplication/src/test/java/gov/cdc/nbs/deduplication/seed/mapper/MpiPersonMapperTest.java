@@ -190,7 +190,8 @@ class MpiPersonMapperTest {
     assertThat(name.given().get(0)).isEqualTo("first");
     assertThat(name.given().get(1)).isEqualTo("middle");
     assertThat(name.family()).isEqualTo("last");
-    assertThat(name.suffix()).isEqualTo("suffix");
+    assertThat(name.suffix()).hasSize(1);
+    assertThat(name.suffix().get(0)).isEqualTo("suffix");
   }
 
   @Test
@@ -212,7 +213,8 @@ class MpiPersonMapperTest {
     assertThat(name.given()).hasSize(1);
     assertThat(name.given().get(0)).isEqualTo("first");
     assertThat(name.family()).isEqualTo("last");
-    assertThat(name.suffix()).isEqualTo("suffix");
+    assertThat(name.suffix()).hasSize(1);
+    assertThat(name.suffix().get(0)).isEqualTo("suffix");
   }
 
   @Test
@@ -221,7 +223,8 @@ class MpiPersonMapperTest {
     assertThat(name.given()).hasSize(1);
     assertThat(name.given().get(0)).isEqualTo("middle");
     assertThat(name.family()).isEqualTo("last");
-    assertThat(name.suffix()).isEqualTo("suffix");
+    assertThat(name.suffix()).hasSize(1);
+    assertThat(name.suffix().get(0)).isEqualTo("suffix");
   }
 
   @Test
