@@ -70,11 +70,11 @@ public class CacheApiService implements ICacheApiService {
         return callEndpoint(srteCacheContain + "/" + objectName, param, "token", Boolean.class);
     }
 
-    public Object getOdseLocalId(String objectName, boolean geApplied) {
+    public String getOdseLocalId(String objectName, boolean geApplied) {
         var param = new HashMap<String, String>();
         param.put("localIdClass", objectName);
         param.put("geApplied", String.valueOf(geApplied));
-        return callEndpoint(odseLocalId, param, "token", Object.class);
+        return callEndpoint(odseLocalId, param, "token", String.class);
     }
 
     protected  <T> T callEndpoint(String endpoint, Map<String, String> params, String token, Class<T> responseType) {

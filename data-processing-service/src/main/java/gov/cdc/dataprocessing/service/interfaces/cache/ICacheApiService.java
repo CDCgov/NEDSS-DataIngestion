@@ -4,5 +4,5 @@ public interface ICacheApiService {
     String getSrteCacheString(String objectName, String key);
     String getSrteCacheObject(String objectName, String key);
     Boolean getSrteCacheBool(String objectName, String key);
-    Object getOdseLocalId(String objectName, boolean geApplied);
+    String getOdseLocalId(String objectName, boolean geApplied);
 }
