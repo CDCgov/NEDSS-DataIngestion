@@ -16,6 +16,16 @@ management:
       export:
         enabled: true
 
+cache:
+  clientId: NA
+  secret: NA
+  srte:
+    cacheString: localhost:8081/rti/srte/cache/string
+    cacheContain: localhost:8081/rti/srte/cache/contain
+    cacheObject: localhost:8081/rti/srte/cache/object
+  odse:
+    localId: localhost:8081/rti/odse/localId
+
 spring:
   application:
     name: data-processing-service

@@ -29,19 +29,19 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.OK).body("Data Processing Service Status OK");
     }
 
-    @GetMapping(path = "/srte/cache/{objectName}/string")
+    @GetMapping(path = "/srte/cache/string/{objectName}")
     public ResponseEntity<String> getSrteCacheMapString(@PathVariable String objectName, @RequestParam String key) throws RtiCacheException {
         var res =  managerCacheService.getCache(ObjectName.valueOf(objectName), key);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @GetMapping(path = "/srte/cache/{objectName}/object")
+    @GetMapping(path = "/srte/cache/object/{objectName}")
     public ResponseEntity<Object> getSrteCacheObject(@PathVariable String objectName, @RequestParam String key) throws RtiCacheException {
         var res =  managerCacheService.getCacheObject(ObjectName.valueOf(objectName), key);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @GetMapping(path = "/srte/cache/{objectName}/contain")
+    @GetMapping(path = "/srte/cache/contain/{objectName}")
     public ResponseEntity<Boolean> getSrteCacheMapContain(@PathVariable String objectName, @RequestParam String key) throws RtiCacheException {
         var res =  managerCacheService.containKey(ObjectName.valueOf(objectName), key);
         return ResponseEntity.status(HttpStatus.OK).body(res);

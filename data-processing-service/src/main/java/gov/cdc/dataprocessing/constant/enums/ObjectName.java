@@ -1,4 +1,4 @@
-package gov.cdc.rticache.constant;
+package gov.cdc.dataprocessing.constant.enums;
 
 public enum ObjectName {
     LOINC_CODES,

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProgAreaJurisdictionUtilTest {
-    private final ProgAreaJurisdictionUtil util = new ProgAreaJurisdictionUtil();
+    private final ProgAreaJurisdictionUtil util = new ProgAreaJurisdictionUtil(cacheApiService);
 
     @SuppressWarnings("java:S2699")
     @Test

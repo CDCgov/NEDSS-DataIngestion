@@ -1,12 +1,13 @@
 package gov.cdc.dataprocessing.utilities.component.edx;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,18 +45,21 @@ public class EdxPhcrDocumentUtil {
 
     private final ILookupService lookupService;
 
-    public EdxPhcrDocumentUtil(ILookupService lookupService)
+    private final ICacheApiService cacheApiService;
+
+    public EdxPhcrDocumentUtil(ILookupService lookupService, ICacheApiService cacheApiService)
     {
         this.lookupService = lookupService;
+        this.cacheApiService = cacheApiService;
     }
 
     @SuppressWarnings("java:S3776")
     public Map<Object, Object> loadQuestions(String conditionCode)
     {
         String invFormCd = "";
-        if (SrteCache.investigationFormConditionCode.containsKey(conditionCode))
+        if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode))
         {
-            invFormCd = SrteCache.investigationFormConditionCode.get(conditionCode);
+            invFormCd = cacheApiService.getSrteCacheString(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode);
         }
         if(invFormCd==null || invFormCd.startsWith("INV_FORM"))
         {

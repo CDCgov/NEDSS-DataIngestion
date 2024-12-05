@@ -51,7 +51,6 @@ public class CachingValueService implements ICatchingValueService {
     private final StateCountyCodeValueRepository stateCountyCodeValueRepository;
     private final StateCodeRepository stateCodeRepository;
     private final LOINCCodeRepository loincCodeRepository;
-    private final CacheManager cacheManager;
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final ConditionCodeRepository conditionCodeRepository;
@@ -80,7 +79,6 @@ public class CachingValueService implements ICatchingValueService {
         this.stateCountyCodeValueRepository = stateCountyCodeValueRepository;
         this.stateCodeRepository = stateCodeRepository;
         this.loincCodeRepository = loincCodeRepository;
-        this.cacheManager = cacheManager;
         this.programAreaService = programAreaService;
         this.jurisdictionService = jurisdictionService;
         this.conditionCodeRepository = conditionCodeRepository;
@@ -90,43 +88,132 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllLoinCodeWithComponentName() throws RtiCacheException {
-        return loadCache(loincCodeRepository::findAll, LOINCCode::getLoincCode, LOINCCode::getComponentName);
+       // return loadCache(loincCodeRepository::findAll, LOINCCode::getLoincCode, LOINCCode::getComponentName);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<LOINCCode> loincCodes = loincCodeRepository.findAll();
+
+        for (LOINCCode loincCode : loincCodes) {
+            result.put(loincCode.getLoincCode(), loincCode.getComponentName());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws RtiCacheException {
-        return loadCache(srteCustomRepository::getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd, LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
+    //    return loadCache(srteCustomRepository::getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd, LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<LabResult> labResults = srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+
+        for (LabResult labResult : labResults) {
+            result.put(labResult.getLabResultCd(), labResult.getLabResultDescTxt());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getAllSnomedCode() throws RtiCacheException {
-        return loadCache(snomedCodeRepository::findAll, SnomedCode::getSnomedCd, SnomedCode::getSnomedDescTxt);
+       // return loadCache(snomedCodeRepository::findAll, SnomedCode::getSnomedCd, SnomedCode::getSnomedDescTxt);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<SnomedCode> snomedCodes = snomedCodeRepository.findAll();
+
+        for (SnomedCode snomedCode : snomedCodes) {
+            result.put(snomedCode.getSnomedCd(), snomedCode.getSnomedDescTxt());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getLabResultDesc() throws RtiCacheException {
-        return loadCache(() -> labResultRepository.findLabResultByDefaultLabAndOrgNameN().orElse(Collections.emptyList()), LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
+       // return loadCache(() -> labResultRepository.findLabResultByDefaultLabAndOrgNameN().orElse(Collections.emptyList()), LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<LabResult> labResults = labResultRepository.findLabResultByDefaultLabAndOrgNameN()
+                .orElse(Collections.emptyList());
+
+        for (LabResult labResult : labResults) {
+            result.put(labResult.getLabResultCd(), labResult.getLabResultDescTxt());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getAOELOINCCodes() throws RtiCacheException {
-        return loadCache(() -> loincCodeRepository.findLoincCodes().orElse(Collections.emptyList()), LOINCCode::getLoincCode, LOINCCode::getLoincCode);
+       // return loadCache(() -> loincCodeRepository.findLoincCodes().orElse(Collections.emptyList()), LOINCCode::getLoincCode, LOINCCode::getLoincCode);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<LOINCCode> loincCodes = loincCodeRepository.findLoincCodes()
+                .orElse(Collections.emptyList());
+
+        for (LOINCCode loincCode : loincCodes) {
+            result.put(loincCode.getLoincCode(), loincCode.getLoincCode());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getRaceCodes() throws RtiCacheException {
-        return loadCache(() -> raceCodeRepository.findAllActiveRaceCodes().orElse(Collections.emptyList()), RaceCode::getCode, RaceCode::getCodeShortDescTxt);
+      //  return loadCache(() -> raceCodeRepository.findAllActiveRaceCodes().orElse(Collections.emptyList()), RaceCode::getCode, RaceCode::getCodeShortDescTxt);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<RaceCode> raceCodes = raceCodeRepository.findAllActiveRaceCodes()
+                .orElse(Collections.emptyList());
+
+        for (RaceCode raceCode : raceCodes) {
+            result.put(raceCode.getCode(), raceCode.getCodeShortDescTxt());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getAllProgramAreaCodes() throws RtiCacheException {
-        return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getProgAreaDescTxt);
+    //    return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getProgAreaDescTxt);
+        HashMap<String, String> result = new HashMap<>();
+        List<ProgramAreaCode> programAreaCodes = programAreaService.getAllProgramAreaCode();
+        for (ProgramAreaCode programAreaCode : programAreaCodes) {
+            result.put(programAreaCode.getProgAreaCd(), programAreaCode.getProgAreaDescTxt());
+        }
+
+        return result;
     }
 
     public HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws RtiCacheException {
-        return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getNbsUid);
+     //   return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getNbsUid);
+        HashMap<String, Integer> result = new HashMap<>();
+        List<ProgramAreaCode> programAreaCodes = programAreaService.getAllProgramAreaCode();
+        for (ProgramAreaCode programAreaCode : programAreaCodes) {
+            result.put(programAreaCode.getProgAreaCd(), programAreaCode.getNbsUid());
+        }
+
+        return result;
     }
 
     public HashMap<String, String> getAllJurisdictionCode() throws RtiCacheException {
-        return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
+        //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
+        HashMap<String, String> result = new HashMap<>();
+        List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
+        for (JurisdictionCode jurisdictionCode : jurisdictionCodes) {
+            String key = jurisdictionCode.getCode();         // Generate the key
+            String value = jurisdictionCode.getCodeDescTxt(); // Generate the value
+            result.put(key, value);
+        }
+
+        return result;
     }
 
     public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws RtiCacheException {
-        return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getNbsUid);
+        //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getNbsUid);
+        HashMap<String, Integer> result = new HashMap<>();
+        List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
+        for (JurisdictionCode jurisdictionCode : jurisdictionCodes) {
+            String key = jurisdictionCode.getCode();  // Generate the key
+            Integer value = jurisdictionCode.getNbsUid(); // Generate the value
+            result.put(key, value);
+        }
+
+        return result;
     }
 
     public List<ElrXref> getAllElrXref() throws RtiCacheException {
@@ -138,7 +225,15 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllOnInfectionConditionCode() throws RtiCacheException {
-        return loadCache(() -> conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList()), ConditionCode::getConditionCd, ConditionCode::getCoinfectionGrpCd);
+        //return loadCache(() -> conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList()), ConditionCode::getConditionCd, ConditionCode::getCoinfectionGrpCd);
+        HashMap<String, String> result = new HashMap<>();
+        List<ConditionCode> conditionCodes = conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList());
+        for (ConditionCode conditionCode : conditionCodes) {
+            String key = conditionCode.getConditionCd();      // Generate the key
+            String value = conditionCode.getCoinfectionGrpCd(); // Generate the value
+            result.put(key, value);
+        }
+        return result;
     }
 
     public List<ConditionCode> getAllConditionCode() throws RtiCacheException {
@@ -151,41 +246,21 @@ public class CachingValueService implements ICatchingValueService {
 
     @SuppressWarnings("java:S2696")
     public HashMap<String, String> getCodedValues(String pType, String key) throws RtiCacheException {
-        Cache cache = cacheManager.getCache("srte");
-        if (cache != null) {
-            Cache.ValueWrapper valueWrapper = cache.get("codedValues");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof HashMap) {
-                    SrteCache.codedValuesMap = (HashMap<String, String>) cachedObject;
-                }
-            }
-        }
-        if (cache != null && (SrteCache.codedValuesMap.get(key) == null || SrteCache.codedValuesMap.get(key).isEmpty())) {
+        if (!SrteCache.codedValuesMap.containsKey(key) || SrteCache.codedValuesMap.get(key).isEmpty()) {
             SrteCache.codedValuesMap.putAll(getCodedValuesCallRepos(pType));
-            cache.put("codedValues", SrteCache.codedValuesMap);
         }
         return SrteCache.codedValuesMap;
     }
 
     @SuppressWarnings("java:S2696")
     public String getCodeDescTxtForCd(String code, String codeSetNm) throws RtiCacheException {
-        Cache cache = cacheManager.getCache("srte");
-        if (cache != null) {
-            Cache.ValueWrapper valueWrapper = cache.get("codeDescTxt");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof HashMap) {
-                    SrteCache.codeDescTxtMap = (HashMap<String, String>) cachedObject;
-                }
-            }
-        }
-        if (cache != null && (SrteCache.codeDescTxtMap.get(code) == null || SrteCache.codeDescTxtMap.get(code).isEmpty())) {
+        if ( SrteCache.codeDescTxtMap.get(code) == null || SrteCache.codeDescTxtMap.get(code).isEmpty()) {
             SrteCache.codeDescTxtMap.putAll(getCodedValuesCallRepos(codeSetNm));
-            cache.put("codeDescTxt", SrteCache.codeDescTxtMap);
         }
         return SrteCache.codeDescTxtMap.get(code);
     }
+
+
 
     public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws RtiCacheException {
         try {
@@ -195,32 +270,23 @@ public class CachingValueService implements ICatchingValueService {
         }
     }
 
-    @SuppressWarnings("java:S2696")
     public String getCountyCdByDesc(String county, String stateCd) throws RtiCacheException {
         if (county == null || stateCd == null) {
             return null;
         }
+
+        // Normalize county input
         String cnty = county.toUpperCase();
         if (!cnty.endsWith("COUNTY")) {
             cnty += " COUNTY";
         }
 
-        Cache cache = cacheManager.getCache("srte");
-        if (cache != null) {
-            Cache.ValueWrapper valueWrapper = cache.get("countyCodeByDesc");
-            if (valueWrapper != null) {
-                Object cachedObject = valueWrapper.get();
-                if (cachedObject instanceof HashMap) {
-                    SrteCache.countyCodeByDescMap = (HashMap<String, String>) cachedObject;
-                }
-            }
-        }
-
-        if (cache != null && (SrteCache.countyCodeByDescMap.get(cnty) == null || SrteCache.countyCodeByDescMap.get(cnty).isEmpty())) {
+        // Check if the static map is initialized and contains the required value
+        if (SrteCache.countyCodeByDescMap.get(cnty) == null || SrteCache.countyCodeByDescMap.get(cnty).isEmpty()) {
             SrteCache.countyCodeByDescMap.putAll(getCountyCdByDescCallRepos(stateCd));
-            cache.put("countyCodeByDesc", SrteCache.countyCodeByDescMap);
         }
 
+        // Return the county code
         return SrteCache.countyCodeByDescMap.get(cnty);
     }
 
@@ -232,9 +298,7 @@ public class CachingValueService implements ICatchingValueService {
         return stateCodeRepository.findStateCdByStateName(stateNm).orElseGet(StateCode::new);
     }
 
-    public List<CodeValueGeneral> getGeneralCodedValue(String code) {
-        return codeValueGeneralRepository.findCodeValuesByCodeSetNm(code).orElseGet(ArrayList::new);
-    }
+
 
     public HashMap<String, String> getCodedValuesCallRepos(String pType) throws RtiCacheException {
         if ("S_JURDIC_C".equals(pType)) {
@@ -266,44 +330,74 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     private HashMap<String, String> getJurisdictionCode() throws RtiCacheException {
-        return loadCache(() -> jurisdictionCodeRepository.findJurisdictionCodeValues().orElse(Collections.emptyList()), JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
+//        return loadCache(() -> jurisdictionCodeRepository.findJurisdictionCodeValues().orElse(Collections.emptyList()), JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
+
+        HashMap<String, String> result = new HashMap<>();
+        List<JurisdictionCode> jurisdictionCodes = jurisdictionCodeRepository.findJurisdictionCodeValues()
+                .orElse(Collections.emptyList());
+
+        for (JurisdictionCode code : jurisdictionCodes) {
+            String key = code.getCode();         // Generate the key
+            String value = code.getCodeDescTxt(); // Generate the value
+            result.put(key, value);
+        }
+
+        return result;
     }
 
     protected HashMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws RtiCacheException {
-        return loadCache(() -> {
-            if (stateCd == null || stateCd.trim().isEmpty()) {
-                return stateCountyCodeValueRepository.findByIndentLevelNbr().orElse(Collections.emptyList());
-            } else {
-                return stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd).orElse(Collections.emptyList());
-            }
-        }, stateCountyCodeValue -> stateCountyCodeValue.getCode() + " COUNTY", StateCountyCodeValue::getAssigningAuthorityDescTxt);
-    }
+//        return loadCache(() -> {
+//            if (stateCd == null || stateCd.trim().isEmpty()) {
+//                return stateCountyCodeValueRepository.findByIndentLevelNbr().orElse(Collections.emptyList());
+//            } else {
+//                return stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd).orElse(Collections.emptyList());
+//            }
+//        }, stateCountyCodeValue -> stateCountyCodeValue.getCode() + " COUNTY", StateCountyCodeValue::getAssigningAuthorityDescTxt);
 
-    private <T, K, V> HashMap<K, V> loadCache(CacheLoader<T> loader, KeyExtractor<T, K> keyExtractor, ValueExtractor<T, V> valueExtractor) throws RtiCacheException {
-        HashMap<K, V> map = new HashMap<>();
-        try {
-            List<T> result = loader.load();
-            for (T obj : result) {
-                map.put(keyExtractor.extract(obj), valueExtractor.extract(obj));
-            }
-        } catch (Exception e) {
-            throw new RtiCacheException(e.getMessage(), e);
+        HashMap<String, String> result = new HashMap<>();
+
+        List<StateCountyCodeValue> stateCountyCodeValues;
+        if (stateCd == null || stateCd.trim().isEmpty()) {
+            stateCountyCodeValues = stateCountyCodeValueRepository.findByIndentLevelNbr().orElse(Collections.emptyList());
+        } else {
+            stateCountyCodeValues = stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd).orElse(Collections.emptyList());
         }
-        return map;
+
+        // Populate the result map
+        for (StateCountyCodeValue value : stateCountyCodeValues) {
+            String key = value.getCode() + " COUNTY"; // Generate the key
+            String assigningAuthorityDescTxt = value.getAssigningAuthorityDescTxt(); // Generate the value
+            result.put(key, assigningAuthorityDescTxt);
+        }
+
+        return result;
     }
 
-    @FunctionalInterface
-    private interface CacheLoader<T> {
-        List<T> load() throws RtiCacheException;
-    }
+//    private <T, K, V> HashMap<K, V> loadCache(CacheLoader<T> loader, KeyExtractor<T, K> keyExtractor, ValueExtractor<T, V> valueExtractor) throws RtiCacheException {
+//        HashMap<K, V> map = new HashMap<>();
+//        try {
+//            List<T> result = loader.load();
+//            for (T obj : result) {
+//                map.put(keyExtractor.extract(obj), valueExtractor.extract(obj));
+//            }
+//        } catch (Exception e) {
+//            throw new RtiCacheException(e.getMessage(), e);
+//        }
+//        return map;
+//    }
 
-    @FunctionalInterface
-    private interface KeyExtractor<T, K> {
-        K extract(T obj);
-    }
-
-    @FunctionalInterface
-    private interface ValueExtractor<T, V> {
-        V extract(T obj);
-    }
+//    @FunctionalInterface
+//    private interface CacheLoader<T> {
+//        List<T> load() throws RtiCacheException;
+//    }
+//
+//    @FunctionalInterface
+//    private interface KeyExtractor<T, K> {
+//        K extract(T obj);
+//    }
+//
+//    @FunctionalInterface
+//    private interface ValueExtractor<T, V> {
+//        V extract(T obj);
+//    }
 }

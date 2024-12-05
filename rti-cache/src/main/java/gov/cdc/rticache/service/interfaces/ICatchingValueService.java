@@ -11,7 +11,6 @@ import java.util.List;
 
 
 public interface ICatchingValueService {
-   // HashMap<String, String> getCodedValues(String pType) throws RtiCacheException;
     HashMap<String, String> getRaceCodes() throws RtiCacheException;
     String getCodeDescTxtForCd(String code, String codeSetNm) throws RtiCacheException;
     String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws RtiCacheException;
@@ -28,7 +27,6 @@ public interface ICatchingValueService {
     HashMap<String, String> getAllOnInfectionConditionCode() throws RtiCacheException;
     List<ConditionCode> getAllConditionCode() throws RtiCacheException;
     HashMap<String, String> getCodedValue(String code) throws RtiCacheException;
-    List<CodeValueGeneral> getGeneralCodedValue(String code);
     HashMap<String, String> getCodedValuesCallRepos(String pType) throws RtiCacheException;
     HashMap<String, String> getLabResultDesc() throws RtiCacheException;
     HashMap<String, String> getAllSnomedCode() throws RtiCacheException;

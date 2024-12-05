@@ -24,7 +24,7 @@ public class ManagerCacheService implements IManagerCacheService {
         {
             return SrteCache.findConditionCodeByDescription(key);
         }
-        if (objectName == ObjectName.ELR_XREF)
+        else if (objectName == ObjectName.ELR_XREF)
         {
             String[] parts = key.split("_");
             String fromCodeSetNm = parts.length > 0 ? parts[0] : "";
@@ -32,9 +32,12 @@ public class ManagerCacheService implements IManagerCacheService {
             String toCodeSetNm = parts.length > 2 ? parts[2] : "";
             return SrteCache.findRecordForElrXrefsList(fromCodeSetNm, fromCode, toCodeSetNm);
         }
+        else if (objectName == ObjectName.FIND_STATE_CODE_BY_STATE_NM) {
+            return cachingValueService.findStateCodeByStateNm(key);
+        }
         return null;
     }
-    public String getCache(ObjectName objectName, String key) {
+    public String getCache(ObjectName objectName, String key) throws RtiCacheException {
         if (objectName == ObjectName.PROGRAM_AREA_CODES) {
             return SrteCache.programAreaCodesMap.get(key);
         }
@@ -70,10 +73,47 @@ public class ManagerCacheService implements IManagerCacheService {
         {
             return SrteCache.investigationFormConditionCode.get(key);
         }
+        else if (objectName == ObjectName.FIND_TO_CODE) {
+            String[] parts = key.split("_");
+            String fromCodeSetNm = parts.length > 0 ? parts[0] : "";
+            String fromCode = parts.length > 1 ? parts[1] : "";
+            String toCodeSetNm = parts.length > 2 ? parts[2] : "";
+            return cachingValueService.findToCode(fromCodeSetNm, fromCode, toCodeSetNm);
+        }
+        else if (objectName == ObjectName.GET_CODE_DESC_TXT_FOR_CD) {
+            String[] parts = key.split("_");
+            String code = parts.length > 0 ? parts[0] : "";
+            String codeStNm = parts.length > 1 ? parts[1] : "";
+            return cachingValueService.getCodeDescTxtForCd(code, codeStNm);
+        }
+        else if (objectName == ObjectName.GET_COUNTY_CD_BY_DESC) {
+            String[] parts = key.split("_");
+            String countyCode = parts.length > 0 ? parts[0] : "";
+            String stateCode = parts.length > 1 ? parts[1] : "";
+            return cachingValueService.getCountyCdByDesc(countyCode, stateCode);
+
+        }
+        else if (objectName == ObjectName.CODED_VALUE) {
+            String[] parts = key.split("_");
+            String pType = parts.length > 0 ? parts[0] : "";
+            String pKey = parts.length > 1 ? parts[1] : "";
+            var res = cachingValueService.getCodedValues(pType, pKey);
+            return res.get(pKey);
+        }
+        else if (objectName == ObjectName.GET_CODED_VALUES_CALL_REPOS) {
+            return cachingValueService.getCodedValuesCallRepos(key).get(key);
+        }
+        else if (objectName == ObjectName.GET_CODED_VALUE) {
+            var res = cachingValueService.getCodedValue(key);
+            return res.get(key);
+        }
+        else if (objectName == ObjectName.JURISDICTION_CODE_MAP_WITH_NBS_UID_KEY_SET) {
+            return String.join(", ", SrteCache.jurisdictionCodeMapWithNbsUid.keySet());
+        }
         return "";
     }
 
-    public boolean containKey(ObjectName objectName, String key) {
+    public boolean containKey(ObjectName objectName, String key) throws RtiCacheException {
         if (objectName == ObjectName.LOINC_CODES)
         {
             return SrteCache.loincCodesMap.containsKey(key);
@@ -92,6 +132,20 @@ public class ManagerCacheService implements IManagerCacheService {
         }
         else if (objectName == ObjectName.CHECK_PAI_FOR_STD_OR_HIV) {
             return SrteCache.checkWhetherPAIsStdOrHiv(key);
+        }
+        else if (objectName == ObjectName.PROGRAM_AREA_CODES) {
+            return SrteCache.programAreaCodesMap.containsKey(key);
+        }
+        else  if (objectName == ObjectName.JURISDICTION_CODES)
+        {
+            return SrteCache.jurisdictionCodeMap.containsKey(key);
+        }
+        else if (objectName == ObjectName.CODED_VALUE) {
+            String[] parts = key.split("_");
+            String pType = parts.length > 0 ? parts[0] : "";
+            String pKey = parts.length > 1 ? parts[1] : "";
+            var res = cachingValueService.getCodedValues(pType, pKey);
+            return res.containsKey(pKey);
         }
         return false;
     }
