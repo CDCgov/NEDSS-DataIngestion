@@ -8,7 +8,7 @@ services:
     depends_on:
       broker:
         condition: service_started
-      keycloak:
+      di-keycloak:
         condition: service_started
       di-mssql:
         condition: service_healthy
@@ -53,7 +53,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
     networks:
       - dataingestion
-
+  
   di-mssql:
     build: 
       context: ./containers/db
@@ -71,7 +71,7 @@ services:
       retries: 5
       start_period: 10s
 
-  keycloak:
+  di-keycloak:
     container_name: di-keycloak
     image: quay.io/keycloak/keycloak:latest
     ports:
@@ -84,6 +84,21 @@ services:
     networks:
       - dataingestion
 
+  di-wildfly:
+    build: ./containers/nbs-classic
+    image: nbs-classic:6.0.16
+    container_name: di-wildfly
+    depends_on:
+      di-mssql:
+        condition: service_healthy
+    ports:
+      - "9991:9990"
+      - "7002:7001"
+      - "8788:8787"
+    networks:
+      - dataingestion
+
 networks:
   dataingestion:
     name: dataingestion
+    driver: bridge

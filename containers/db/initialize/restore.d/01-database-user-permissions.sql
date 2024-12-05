@@ -1,5 +1,20 @@
 use [master];
 
+IF  EXISTS (SELECT * FROM sys.server_principals WHERE name = N'nbs_ods') 
+    DROP LOGIN [nbs_ods];
+
+create login nbs_ods with password = 'ods', default_database = [master], check_expiration=OFF, check_policy=OFF;
+
+IF  EXISTS (SELECT * FROM sys.server_principals WHERE name = N'SRTE_ADMIN') 
+    DROP LOGIN [SRTE_ADMIN];
+
+CREATE LOGIN srte_admin WITH PASSWORD = 'admin',DEFAULT_DATABASE = [master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF;
+
+IF  EXISTS (SELECT * FROM sys.server_principals WHERE name = N'nbs_rdb') 
+    DROP LOGIN [nbs_rdb];
+
+CREATE LOGIN nbs_rdb WITH PASSWORD = 'rdb',DEFAULT_DATABASE = [master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF;
+
 
 GO 
 
