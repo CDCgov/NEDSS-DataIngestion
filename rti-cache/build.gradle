@@ -1,0 +1,70 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+        classpath 'org.owasp:dependency-check-gradle:9.0.3'
+    }
+}
+
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'jacoco'
+    id "org.sonarqube" version "4.2.1.3168"
+}
+
+apply plugin: 'org.owasp.dependencycheck'
+group = 'gov.cdc.rti'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core'
+//    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+//    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.1'
+//    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
+//    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
