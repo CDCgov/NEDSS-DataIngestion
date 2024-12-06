@@ -35,6 +35,5 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface IPatientMatchingService {
     EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException;
-    boolean getMultipleMatchFound();
     Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException;
 }

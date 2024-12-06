@@ -119,7 +119,7 @@ public class MatchService {
     template.update(LINK_NBS_MPI_QUERY, parameters);
 
     if (isPossibleMatch) {
-      // Insert into review queue table
+      // TODO Insert into review queue table
 
     }
 

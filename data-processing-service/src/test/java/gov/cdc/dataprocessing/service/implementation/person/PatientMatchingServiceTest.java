@@ -331,11 +331,6 @@ class PatientMatchingServiceTest {
         assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
     }
 
-    @Test
-    void getMultipleMatchFound() {
-        boolean multiMatchResult = patientMatchingService.getMultipleMatchFound();
-        assertEquals(false, multiMatchResult);
-    }
 
     @Test
     void updateExistingPerson() throws DataProcessingException {
