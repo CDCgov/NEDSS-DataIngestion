@@ -134,6 +134,19 @@ jar {
     }
 }
 
+tasks.withType(JavaExec).configureEach {
+
+    debugOptions {
+        enabled = true
+        server = true
+        suspend = false
+        port = java.util.Optional.ofNullable(findProperty('debug.port'))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(19040)
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.github.ben-manes.caffeine:caffeine'

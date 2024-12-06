@@ -69,6 +69,6 @@ spring:
 
 features:
   modernizedMatching:
-    enabled: true
+    enabled: false
     url: http://localhost:8097/api/deduplication/
 #K8S Profile goes here
