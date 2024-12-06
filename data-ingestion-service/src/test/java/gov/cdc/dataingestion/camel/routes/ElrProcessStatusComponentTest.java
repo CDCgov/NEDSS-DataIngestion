@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.camel.routes;
 
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
@@ -73,7 +75,7 @@ class ElrProcessStatusComponentTest {
         edxActivityLogStatus.setLogType("Test Log Type");
         edxActivityLogStatus.setLogComment("Test Log Comment");
         edxActivityLogStatus.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
-        status.getNbsIngestionInfo().add(edxActivityLogStatus);
+//        status.getNbsIngestionInfo().add(edxActivityLogStatus);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
         );
@@ -88,12 +90,14 @@ class ElrProcessStatusComponentTest {
         MessageStatus status = new MessageStatus();
         status.getNbsInfo().setNbsInterfaceStatus("Failure");
         String logComment= "Test Log Comment123 Test Log Comment123 Test Log Comment123 Test Log Comment234 Test Log Comment345 Test Log Comment456 Test Log Comment567 Test Log Comment678 Test Log Comment678 Test Log Comment78901";
-        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+        EdxActivityDetailLog edxActivityLogStatus=new EdxActivityDetailLog();
         edxActivityLogStatus.setRecordType("Test Record Type");
         edxActivityLogStatus.setLogType("Test Log Type");
         edxActivityLogStatus.setLogComment(logComment);
-        edxActivityLogStatus.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
-        status.getNbsIngestionInfo().add(edxActivityLogStatus);
+        status.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogStatus);
+        var edx = new EdxActivityLog();
+        edx.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        status.getEdxLogStatus().setEdxActivityLog(edx);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
         );
@@ -107,12 +111,14 @@ class ElrProcessStatusComponentTest {
 
         MessageStatus status = new MessageStatus();
         status.getNbsInfo().setNbsInterfaceStatus("Failure");
-         EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
+         EdxActivityDetailLog edxActivityLogStatus=new EdxActivityDetailLog();
         edxActivityLogStatus.setRecordType("Test Record Type");
         edxActivityLogStatus.setLogType("Test Log Type");
         edxActivityLogStatus.setLogComment(null);
-        edxActivityLogStatus.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
-        status.getNbsIngestionInfo().add(edxActivityLogStatus);
+        status.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogStatus);
+        var edx = new EdxActivityLog();
+        edx.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        status.getEdxLogStatus().setEdxActivityLog(edx);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
         );
