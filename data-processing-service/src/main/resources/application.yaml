@@ -17,14 +17,15 @@ management:
         enabled: true
 
 cache:
-  clientId: NA
-  secret: NA
+  clientId: ${RC_CLIENT_ID:di-keycloak-client}
+  secret: ${RC_CLIENT_SECRET:eVQ9n5zxyhUTHFmA2XhNfb6r8DYGlSI5}
+  token: ${RC_URL}${RC_EP_TOKEN:http://localhost:8085/rti/api/auth/token}
   srte:
-    cacheString: http://localhost:8085/rti/srte/cache/string
-    cacheContain: http://localhost:8085/rti/srte/cache/contain
-    cacheObject: http://localhost:8085/rti/srte/cache/object
+    cacheString: ${RC_URL}${RC_EP_CACHE_STR:http://localhost:8085/rti/srte/cache/string}
+    cacheContain: ${RC_URL}${RC_EP_CACHE_CONTAIN:http://localhost:8085/rti/srte/cache/contain}
+    cacheObject: ${RC_URL}${RC_EP_CACHE_OBJ:http://localhost:8085/rti/srte/cache/object}
   odse:
-    localId: http://localhost:8085/rti/odse/localId
+    localId: ${RC_URL}${EP_CACHE_LOCALID:http://localhost:8085/rti/odse/localId}
 
 spring:
   application:
