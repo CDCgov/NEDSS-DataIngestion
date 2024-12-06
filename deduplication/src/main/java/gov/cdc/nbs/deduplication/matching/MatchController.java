@@ -9,7 +9,7 @@ import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
 
 @RestController
-@RequestMapping("/api/deduplication/match")
+@RequestMapping("/api/deduplication")
 public class MatchController {
 
   private final MatchService matchService;
@@ -18,7 +18,7 @@ public class MatchController {
     this.matchService = matchService;
   }
 
-  @PostMapping
+  @PostMapping("/match")
   public MatchResponse checkForPatientMatch(@RequestBody String body) {
     return matchService.match(body);
   }

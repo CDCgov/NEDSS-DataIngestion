@@ -80,6 +80,10 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         }
     }
 
+    // Sends a request to the NBS deduplication service and acts upon the response.
+    // After patient creation, sends another request to the NBS deduplication
+    // service to associate the newly created record with the entry the Record
+    // Linkage service created in the MPI
     private EdxPatientMatchDto doModernizedMatching(PersonContainer personContainer) throws DataProcessingException {
         PersonMatchRequest request = new PersonMatchRequest(personContainer);
         MatchResponse response = restClient.post()
