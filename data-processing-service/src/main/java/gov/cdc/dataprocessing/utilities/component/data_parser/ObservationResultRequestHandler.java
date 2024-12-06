@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
@@ -19,6 +19,7 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
@@ -61,14 +62,16 @@ public class ObservationResultRequestHandler {
     private final ICatchingValueService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
     private final CommonLabUtil commonLabUtil;
+    private final ICacheApiService cacheApiService;
 
 
     public ObservationResultRequestHandler(
             ICatchingValueService checkingValueService,
-            NBSObjectConverter nbsObjectConverter, CommonLabUtil commonLabUtil) {
+            NBSObjectConverter nbsObjectConverter, CommonLabUtil commonLabUtil, ICacheApiService cacheApiService) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
         this.commonLabUtil = commonLabUtil;
+        this.cacheApiService = cacheApiService;
     }
 
     public LabResultProxyContainer getObservationResultRequest(List<HL7OBSERVATIONType> observationRequestArray,
@@ -247,8 +250,7 @@ public class ObservationResultRequestHandler {
                     observationDto.setCdSystemCd(EdxELRConstant.ELR_LOINC_CD);
                     observationDto.setCdSystemDescTxt(EdxELRConstant.ELR_LOINC_DESC);
 
-                    var aOELOINCs = SrteCache.loincCodesMap;
-                    if (aOELOINCs != null && aOELOINCs.containsKey(observationDto.getCd())) {
+                    if (cacheApiService.getSrteCacheBool(ObjectName.LOINC_CODES.name(), observationDto.getCd())) {
                         observationDto.setMethodCd(NEDSSConstant.AOE_OBS);
                     }
                 }else if(observationDto.getCdSystemCd()!=null && observationDto.getCdSystemCd().equals(EdxELRConstant.ELR_SNOMED_CD)){

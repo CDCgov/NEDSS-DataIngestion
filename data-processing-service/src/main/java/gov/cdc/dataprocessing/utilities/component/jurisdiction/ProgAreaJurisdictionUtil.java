@@ -1,13 +1,16 @@
 package gov.cdc.dataprocessing.utilities.component.jurisdiction;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 /**
@@ -33,7 +36,12 @@ import java.util.Set;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ProgAreaJurisdictionUtil {
+    private final ICacheApiService cacheApiService;
     private static final Logger logger = LoggerFactory.getLogger(ProgAreaJurisdictionUtil.class); // NOSONAR
+
+    public ProgAreaJurisdictionUtil(ICacheApiService cacheApiService) {
+        this.cacheApiService = cacheApiService;
+    }
 
     public long getPAJHash(String programAreaCode, String jurisdictionCode)
     {
@@ -42,8 +50,8 @@ public class ProgAreaJurisdictionUtil {
         if(!((programAreaCode==null || programAreaCode.isEmpty()) || (jurisdictionCode==null || jurisdictionCode.isEmpty()))){
             try
             {
-                Integer programAreaNumericID = SrteCache.programAreaCodesMapWithNbsUid.get(programAreaCode);
-                Integer jurisdictionNumericID = SrteCache.jurisdictionCodeMapWithNbsUid.get(jurisdictionCode);
+                Integer programAreaNumericID =  Integer.valueOf(cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES_WITH_NBS_UID.name(), programAreaCode));
+                Integer jurisdictionNumericID = Integer.valueOf(cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES_WITH_NBS_UID.name(), jurisdictionCode));
                 hashCode = (jurisdictionNumericID.longValue() * 100000L) + programAreaNumericID.longValue();
             }
             catch(Exception e)
@@ -65,8 +73,8 @@ public class ProgAreaJurisdictionUtil {
         ArrayList<Object>  arrayList = new ArrayList<>();
         if(jurisdictionCode.equals("ALL"))
         {
-            //get key set
-            Set<String> jurisdictionKeys = SrteCache.jurisdictionCodeMapWithNbsUid.keySet();
+            var keySet = cacheApiService.getSrteCacheString(ObjectName.JURISDICTION_CODE_MAP_WITH_NBS_UID_KEY_SET.name(), "");
+            Set<String> jurisdictionKeys = Arrays.stream(keySet.split(", ")).collect(Collectors.toSet());
             for (String jCode : jurisdictionKeys) {
                 arrayList.add(getPAJHash(programAreaCode, jCode));
             }

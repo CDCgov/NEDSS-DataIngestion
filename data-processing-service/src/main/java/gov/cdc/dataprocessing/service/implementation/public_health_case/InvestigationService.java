@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
@@ -22,7 +22,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationR
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_SummaryRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummaryService;
@@ -91,11 +92,12 @@ public class InvestigationService implements IInvestigationService {
     private final QueryHelper queryHelper;
     private final Observation_SummaryRepository observationSummaryRepository;
     private final IContactSummaryService contactSummaryService;
-    private final CachingValueService cachingValueService;
     private final ILdfService ldfService;
     private final LabTestRepository labTestRepository;
     private static final String LAB_EVENT_LIST = "labEventList";
 
+    private final ICacheApiService cacheApiService;
+    private final ICatchingValueService catchingValueService;
 
     public InvestigationService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
                                 OrganizationRepositoryUtil organizationRepositoryUtil,
@@ -110,9 +112,8 @@ public class InvestigationService implements IInvestigationService {
                                 QueryHelper queryHelper,
                                 Observation_SummaryRepository observationSummaryRepository,
                                 IContactSummaryService contactSummaryService,
-                                CachingValueService cachingValueService,
                                 ILdfService ldfService,
-                                LabTestRepository labTestRepository) {
+                                LabTestRepository labTestRepository, ICacheApiService cacheApiService, ICatchingValueService catchingValueService) {
         this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.patientRepositoryUtil = patientRepositoryUtil;
@@ -127,9 +128,10 @@ public class InvestigationService implements IInvestigationService {
         this.queryHelper = queryHelper;
         this.observationSummaryRepository = observationSummaryRepository;
         this.contactSummaryService = contactSummaryService;
-        this.cachingValueService = cachingValueService;
         this.ldfService = ldfService;
         this.labTestRepository = labTestRepository;
+        this.cacheApiService = cacheApiService;
+        this.catchingValueService = catchingValueService;
     }
 
     @SuppressWarnings({"java:S125","java:S5411"})
@@ -981,13 +983,11 @@ public class InvestigationService implements IInvestigationService {
 
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepEvent != null) {
                                 var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
-                                var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
-                                labRepEvent.setSpecimenSource(tree.get(code));
+                                labRepEvent.setSpecimenSource(catchingValueService.getCodedValue("SPECMN_SRC", code));
                             }
                             if (uidMap != null && uidMap.containsKey(NEDSSConstant.PAR104_TYP_CD) && labRepSumm != null) {
                                 var code = observationSummaryService.getSpecimanSource((Long) uidMap.get(NEDSSConstant.PAR104_TYP_CD));
-                                var tree = cachingValueService.getCodedValues("SPECMN_SRC", code);
-                                labRepSumm.setSpecimenSource(tree.get(code));
+                                labRepSumm.setSpecimenSource(catchingValueService.getCodedValue("SPECMN_SRC", code));
                             }
 
                             providerUid = observationSummaryService.getProviderInformation(providerDetails, labRepEvent);
@@ -1107,16 +1107,16 @@ public class InvestigationService implements IInvestigationService {
                 labVO = (LabReportSummaryContainer) sumVO;
                 labVO.setType(NEDSSConstant.LAB_REPORT_DESC);
                 if (labVO.getProgramArea() != null) {
-                    tempStr = SrteCache.programAreaCodesMap.get(labVO.getProgramArea());
+                    tempStr = cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES.name(), labVO.getProgramArea());
                     labVO.setProgramArea(tempStr);
                 }
                 if (labVO.getJurisdiction() != null) {
-                    tempStr = SrteCache.jurisdictionCodeMap.get(labVO.getJurisdiction());
+                    tempStr = cacheApiService.getSrteCacheString(ObjectName.JURISDICTION_CODES.name(), labVO.getJurisdiction());
                     if (!tempStr.isEmpty())
                         labVO.setJurisdiction(tempStr);
                 }
                 if (labVO.getStatus() != null) {
-                    tempStr = cachingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", labVO.getStatus());
+                    tempStr = catchingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", labVO.getStatus());
                     if (tempStr != null)
                         labVO.setStatus(tempStr);
                 }
@@ -1131,15 +1131,15 @@ public class InvestigationService implements IInvestigationService {
                             if (resVO.getCtrlCdUserDefined1().equals("N") &&
                                     resVO.getCodedResultValue() != null &&
                                     !resVO.getCodedResultValue().equals("")) {
-                                tempStr = SrteCache.labResultByDescMap.get(resVO.getCodedResultValue());
+                                tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC.name(),resVO.getCodedResultValue());
                                 resVO.setCodedResultValue(tempStr);
                             } else if (resVO.getCtrlCdUserDefined1().equals("Y") &&
                                     resVO.getOrganismName() != null && resVO.getOrganismCodeSystemCd() != null) {
                                 if (resVO.getOrganismCodeSystemCd().equals("SNM")) {
-                                    tempStr = SrteCache.snomedCodeByDescMap.get(resVO.getCodedResultValue());
+                                    tempStr = cacheApiService.getSrteCacheString(ObjectName.SNOMED_CODE_BY_DESC.name(),resVO.getCodedResultValue());
                                     resVO.setOrganismName(tempStr);
                                 } else {
-                                    tempStr = SrteCache.labResultWithOrganismNameIndMap.get(resVO.getCodedResultValue());
+                                    tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC_WITH_ORGANISM_NAME.name(),resVO.getCodedResultValue());
                                     resVO.setOrganismName(tempStr);
                                 }
                             }
@@ -1148,14 +1148,14 @@ public class InvestigationService implements IInvestigationService {
                             if (resVO.getOrganismName() != null) {
                                 if (resVO.getOrganismCodeSystemCd() != null) {
                                     if (resVO.getOrganismCodeSystemCd().equals("SNM")) {
-                                        tempStr = SrteCache.snomedCodeByDescMap.get(resVO.getCodedResultValue());
+                                        tempStr = cacheApiService.getSrteCacheString(ObjectName.SNOMED_CODE_BY_DESC.name(),resVO.getCodedResultValue());
                                         if (tempStr == null) {
                                             resVO.setOrganismName(resVO.getOrganismName());
                                         } else {
                                             resVO.setOrganismName(tempStr);
                                         }
                                     } else {
-                                        tempStr = SrteCache.labResultWithOrganismNameIndMap.get(resVO.getCodedResultValue());
+                                        tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC_WITH_ORGANISM_NAME.name(),resVO.getCodedResultValue());
                                         if (tempStr == null) {
                                             resVO.setOrganismName(resVO.getOrganismName());
                                         } else {
@@ -1167,7 +1167,7 @@ public class InvestigationService implements IInvestigationService {
                                     resVO.setOrganismName(resVO.getOrganismName());
                                 }
                             } else {
-                                tempStr = SrteCache.labResultWithOrganismNameIndMap.get(resVO.getCodedResultValue());
+                                tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC_WITH_ORGANISM_NAME.name(),resVO.getCodedResultValue());
                                 if (tempStr == null) {
                                     resVO.setOrganismName(resVO.getCodedResultValue());
                                 } else {
@@ -1181,8 +1181,7 @@ public class InvestigationService implements IInvestigationService {
                             if (resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
                                         !resVO.getResultedTestCd().equals("")) {
-
-                                    tempStr = SrteCache.loinCodeWithComponentNameMap.get(resVO.getResultedTestCd());
+                                    tempStr = cacheApiService.getSrteCacheString(ObjectName.LOIN_CODE_WITH_COMPONENT_NAME.name(),resVO.getResultedTestCd());
                                     if (tempStr != null && !tempStr.equals(""))
                                         resVO.setResultedTest(tempStr);
                                 }
@@ -1201,7 +1200,7 @@ public class InvestigationService implements IInvestigationService {
                         }
                         // Added this for ER16368
                         if ((resVO.getResultedTestStatusCd() != null) && (!(resVO.getResultedTestStatusCd().equals("")))) {
-                            tempStr = cachingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", resVO.getResultedTestStatusCd());
+                            tempStr = catchingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", resVO.getResultedTestStatusCd());
                             if (tempStr != null && !tempStr.equals(""))
                                 resVO.setResultedTestStatus(tempStr);
                         }
@@ -1214,7 +1213,7 @@ public class InvestigationService implements IInvestigationService {
 
                                 if (susVO.getCodedResultValue() != null &&
                                         !susVO.getCodedResultValue().equals("")) {
-                                    tempStr = SrteCache.labResultByDescMap.get(susVO.getCodedResultValue());
+                                    tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC.name(),susVO.getCodedResultValue());
                                     if (tempStr != null && !tempStr.equals(""))
                                         susVO.setCodedResultValue(tempStr);
                                 }
@@ -1223,8 +1222,7 @@ public class InvestigationService implements IInvestigationService {
                                     if (susVO.getCdSystemCd().equals("LN")) {
                                         if (susVO.getResultedTestCd() != null &&
                                                 !susVO.getResultedTestCd().equals("")) {
-                                            tempStr = SrteCache.loinCodeWithComponentNameMap.get(susVO.getResultedTestCd());
-
+                                            tempStr = cacheApiService.getSrteCacheString(ObjectName.LOIN_CODE_WITH_COMPONENT_NAME.name(),susVO.getResultedTestCd());
                                             if (tempStr != null && !tempStr.equals("")) {
                                                 susVO.setResultedTest(tempStr);
                                             }

@@ -32,7 +32,7 @@
 //    }
 //
 //    @GetMapping(path = "/{className}")
-//    @Transactional
+//    Transactional
 //    public ResponseEntity<LocalUidGenerator> test(@PathVariable String className) throws DataProcessingException {
 //        var result = odseIdGeneratorService.getLocalIdAndUpdateSeed(LocalIdClass.valueOf(className));
 //        return ResponseEntity.ok(result);

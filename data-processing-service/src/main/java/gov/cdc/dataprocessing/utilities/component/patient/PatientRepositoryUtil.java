@@ -249,7 +249,13 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonDto(personDto);
 
         Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
-        var personNameResult = personNameRepository.findByParentUid(personUid);
+        Optional<List<PersonName>> personNameResult = Optional.empty();
+
+        try {
+            personNameResult = personNameRepository.findByParentUid(personUid);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
         if (personResult.isPresent() && personNameResult.isPresent()) {
             for(var item : personNameResult.get()) {
                 var elem = new PersonNameDto(item);
