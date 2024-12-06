@@ -188,7 +188,10 @@ public class HL7PatientHandler {
             // Setup Person Sex Code
             ElrXref elrXref = new ElrXref();
             String key = "ELR_LCA_SEX_" + personContainer.getThePersonDto().getCurrSexCd() + "_P_SEX";
-            var result = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
+            ElrXref result = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
+            if (result == null) {
+                result = new ElrXref();
+            }
             elrXref = result;
 
             String toCode = elrXref.getToCode();
@@ -221,7 +224,10 @@ public class HL7PatientHandler {
                 PersonEthnicGroupDto personEthnicGroupDto = nbsObjectConverter.ethnicGroupType(ethnicType, personContainer);
                 ElrXref elrXrefForEthnic = new ElrXref();
                 String keyEthnic = "ELR_LCA_ETHN_GRP_" + personEthnicGroupDto.getEthnicGroupCd() + "_P_ETHN_GRP";
-                var resultEthnic = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
+                ElrXref resultEthnic = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
+                if ( resultEthnic == null) {
+                    resultEthnic = new ElrXref();
+                }
                 elrXrefForEthnic = resultEthnic;
 
                 String ethnicGroupCd = elrXrefForEthnic.getToCode();
@@ -359,7 +365,10 @@ public class HL7PatientHandler {
                         ElrXref elrXrefForRace = new ElrXref();
 
                         String keyRace = "ELR_LCA_RACE_" + raceDT.getRaceCategoryCd() + "_P_RACE_CAT";
-                        var resultRace = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
+                        ElrXref resultRace = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
+                        if (resultRace == null) {
+                            resultRace = new ElrXref();
+                        }
                         elrXrefForRace = resultRace;
 
                         String newRaceCat = elrXrefForRace.getToCode();

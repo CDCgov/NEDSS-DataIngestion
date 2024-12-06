@@ -431,7 +431,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                 if (conditionCode != null)
                 {
 
-                    var condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                    ConditionCode condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                    if (condCode == null) {
+                        condCode = new ConditionCode();
+                    }
                     edxLabInformationDT.setConditionName(condCode.getConditionShortNm());
                 }
                 edxLabInformationDT.setMatchingAlgorithm(true);
@@ -563,7 +566,10 @@ public class DecisionSupportService implements IDecisionSupportService {
                     edxLabInformationDT.setPamContainer((PamProxyContainer) obj);
                 }
 
-                var condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                ConditionCode condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                if (condCode == null) {
+                    condCode = new ConditionCode();
+                }
                 edxLabInformationDT.setConditionName(condCode.getConditionShortNm());
 
             } else {

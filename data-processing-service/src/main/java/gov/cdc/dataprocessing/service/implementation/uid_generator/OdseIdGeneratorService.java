@@ -32,7 +32,7 @@ public class OdseIdGeneratorService implements IOdseIdGeneratorService {
     public OdseIdGeneratorService() {
     }
 //
-//    @Transactional
+//    Transactional
 //    public LocalUidGenerator getLocalIdAndUpdateSeed(LocalIdClass localIdClass) throws DataProcessingException {
 //        try {
 //            Optional<LocalUidGenerator> localUidOpt = this.localUidGeneratorRepository.findById(localIdClass.name());

@@ -26,7 +26,7 @@ public class ManagerCacheService implements IManagerCacheService {
         }
         else if (objectName == ObjectName.ELR_XREF)
         {
-            String[] parts = key.split("_");
+            String[] parts = key.split("~");
             String fromCodeSetNm = parts.length > 0 ? parts[0] : "";
             String fromCode = parts.length > 1 ? parts[1] : "";
             String toCodeSetNm = parts.length > 2 ? parts[2] : "";
@@ -74,27 +74,27 @@ public class ManagerCacheService implements IManagerCacheService {
             return SrteCache.investigationFormConditionCode.get(key);
         }
         else if (objectName == ObjectName.FIND_TO_CODE) {
-            String[] parts = key.split("_");
+            String[] parts = key.split("~");
             String fromCodeSetNm = parts.length > 0 ? parts[0] : "";
             String fromCode = parts.length > 1 ? parts[1] : "";
             String toCodeSetNm = parts.length > 2 ? parts[2] : "";
             return cachingValueService.findToCode(fromCodeSetNm, fromCode, toCodeSetNm);
         }
         else if (objectName == ObjectName.GET_CODE_DESC_TXT_FOR_CD) {
-            String[] parts = key.split("_");
+            String[] parts = key.split("~");
             String code = parts.length > 0 ? parts[0] : "";
             String codeStNm = parts.length > 1 ? parts[1] : "";
             return cachingValueService.getCodeDescTxtForCd(code, codeStNm);
         }
         else if (objectName == ObjectName.GET_COUNTY_CD_BY_DESC) {
-            String[] parts = key.split("_");
+            String[] parts = key.split("~");
             String countyCode = parts.length > 0 ? parts[0] : "";
             String stateCode = parts.length > 1 ? parts[1] : "";
             return cachingValueService.getCountyCdByDesc(countyCode, stateCode);
 
         }
         else if (objectName == ObjectName.CODED_VALUE) {
-            String[] parts = key.split("_");
+            String[] parts = key.split("~");
             String pType = parts.length > 0 ? parts[0] : "";
             String pKey = parts.length > 1 ? parts[1] : "";
             var res = cachingValueService.getCodedValues(pType, pKey);
@@ -141,7 +141,7 @@ public class ManagerCacheService implements IManagerCacheService {
             return SrteCache.jurisdictionCodeMap.containsKey(key);
         }
         else if (objectName == ObjectName.CODED_VALUE) {
-            String[] parts = key.split("_");
+            String[] parts = key.split("~");
             String pType = parts.length > 0 ? parts[0] : "";
             String pKey = parts.length > 1 ? parts[1] : "";
             var res = cachingValueService.getCodedValues(pType, pKey);

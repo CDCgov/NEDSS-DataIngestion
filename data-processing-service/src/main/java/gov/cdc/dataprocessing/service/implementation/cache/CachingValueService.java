@@ -73,18 +73,19 @@ public class CachingValueService implements ICatchingValueService {
         this.cacheApiService = cacheApiService;
     }
 
+    private String separator = "~";
     public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) {
-        String key = fromCodeSetNm + "_" + fromCode + "_" + toCodeSetNm;
+        String key = fromCodeSetNm + separator + fromCode + separator + toCodeSetNm;
         return cacheApiService.getSrteCacheString(ObjectName.FIND_TO_CODE.name(), key);
     }
 
     public String getCodeDescTxtForCd(String code, String codeSetNm) {
-        String key = code + "_" + codeSetNm;
+        String key = code + separator + codeSetNm;
         return cacheApiService.getSrteCacheString(ObjectName.GET_CODE_DESC_TXT_FOR_CD.name(), key);
     }
 
     public String getCountyCdByDesc(String county, String stateCd)  {
-        String key = county + "_" + stateCd;
+        String key = county + separator + stateCd;
         return cacheApiService.getSrteCacheString(ObjectName.GET_COUNTY_CD_BY_DESC.name(), key);
 
     }
@@ -95,11 +96,11 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public String getCodedValue(String pType, String pKey) {
-        return cacheApiService.getSrteCacheString(String.valueOf(ObjectName.CODED_VALUE), pType + "_" + pKey);
+        return cacheApiService.getSrteCacheString(String.valueOf(ObjectName.CODED_VALUE), pType + separator + pKey);
     }
 
     public boolean checkCodedValue(String pType, String pKey) {
-        return cacheApiService.getSrteCacheBool(String.valueOf(ObjectName.CODED_VALUE), pType + "_" + pKey);
+        return cacheApiService.getSrteCacheBool(String.valueOf(ObjectName.CODED_VALUE), pType + separator + pKey);
     }
 
     public String getCodedValuesCallRepos(String pType) {

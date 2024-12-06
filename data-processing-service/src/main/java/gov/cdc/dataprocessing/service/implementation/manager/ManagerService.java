@@ -463,6 +463,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             logger.error("DP ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
