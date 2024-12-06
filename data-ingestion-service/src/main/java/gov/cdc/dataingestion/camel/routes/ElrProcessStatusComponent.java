@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.camel.routes;
 
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
@@ -51,15 +53,16 @@ public class ElrProcessStatusComponent {
                 } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
                     StringBuilder activityLogSb = new StringBuilder();
                     activityLogSb.append("Status: Failure ");
-                    List<EdxActivityLogStatus> edxActivityLogList= messageStatus.getNbsIngestionInfo();
-                    for(EdxActivityLogStatus edxActivityLogStatus:edxActivityLogList){
+                    List<EdxActivityDetailLog> edxActivityLogList= messageStatus.getEdxLogStatus().getEdxActivityDetailLogList();
+                    EdxActivityLog edxActivityLogParent = messageStatus.getEdxLogStatus().getEdxActivityLog();
+                    for(EdxActivityDetailLog edxActivityLogStatus:edxActivityLogList){
                         String logComment=edxActivityLogStatus.getLogComment();
                         if(logComment!=null && logComment.length()>200){
                             logComment=logComment.substring(0,200);
                         }
                         String activityLog = "\n\nRecordType: " + edxActivityLogStatus.getRecordType() + " \nLog Type: "
                                 + edxActivityLogStatus.getLogType() + " \nLog Comment: " + logComment
-                                + " \nRecord Status Time: " + edxActivityLogStatus.getRecordStatusTime();
+                                + " \nRecord Status Time: " + edxActivityLogParent.getRecordStatusTime();
                         activityLogSb.append(activityLog);
                     }
                     activityLogSb.append(" \n\n"+ELR_ID+": " + elrId+" \n");
