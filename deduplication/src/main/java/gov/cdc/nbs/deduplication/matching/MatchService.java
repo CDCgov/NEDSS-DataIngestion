@@ -4,16 +4,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
 import gov.cdc.nbs.deduplication.matching.model.CreatePersonResponse;
+import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
 import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
+import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.MpiPerson;
 
 @Component
 public class MatchService {
@@ -23,7 +26,7 @@ public class MatchService {
       FROM
         nbs_mpi_mapping
       WHERE
-        mpi_person = ?;
+        mpi_person = :mpi_person;
       """;
 
   private static final String LINK_NBS_MPI_QUERY = """
@@ -34,21 +37,22 @@ public class MatchService {
           """;
 
   private final RestClient recordLinkageClient;
-  private final JdbcTemplate template;
+  private final NamedParameterJdbcTemplate template;
+  private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
 
   public MatchService(
       @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient,
       @Qualifier("deduplicationTemplate") final JdbcTemplate template) {
     this.recordLinkageClient = recordLinkageClient;
-    this.template = template;
+    this.template = new NamedParameterJdbcTemplate(template);
   }
 
-  public MatchResponse match(String body) {
+  public MatchResponse match(PersonMatchRequest request) {
     // Convert request into MpiPerson acceptable by Record Linkage service
-    MpiPerson mpiPerson = null;
+    LinkRequest linkRequest = linkRequestMapper.map(request);
 
     // Send to RL
-    LinkResponse linkResponse = sendLinkRequest(mpiPerson);
+    LinkResponse linkResponse = sendLinkRequest(linkRequest);
 
     // Handle response from RL and send response back to caller
     if ("match".equals(linkResponse.prediction())) {
@@ -62,6 +66,7 @@ public class MatchService {
   }
 
   private MatchResponse handleExactMatch(LinkResponse linkResponse) {
+    // throws error if not able to find result
     Long matchingPerson = findNbsPersonParentId(linkResponse.person_reference_id());
     return new MatchResponse(matchingPerson, MatchType.EXACT, linkResponse);
   }
@@ -80,12 +85,12 @@ public class MatchService {
     return new MatchResponse(null, MatchType.POSSIBLE, newLinkReponse);
   }
 
-  private LinkResponse sendLinkRequest(MpiPerson mpiPerson) {
+  private LinkResponse sendLinkRequest(LinkRequest linkRequest) {
     return recordLinkageClient.post()
         .uri("/link")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
-        .body(mpiPerson)
+        .body(linkRequest)
         .retrieve()
         .body(LinkResponse.class);
   }
@@ -99,8 +104,10 @@ public class MatchService {
         .body(CreatePersonResponse.class);
   }
 
-  private Long findNbsPersonParentId(String personUuid) {
-    return template.queryForObject(FIND_NBS_PERSON_QUERY, Long.class, personUuid);
+  private Long findNbsPersonParentId(String mpiPerson) {
+    SqlParameterSource parameters = new MapSqlParameterSource()
+        .addValue("mpi_person", mpiPerson);
+    return template.queryForObject(FIND_NBS_PERSON_QUERY, parameters, Long.class);
   }
 
   // Adds an entry to the deduplication database to relate the NBS person Ids to

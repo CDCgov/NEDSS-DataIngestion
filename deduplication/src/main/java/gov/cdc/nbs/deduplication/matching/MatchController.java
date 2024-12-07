@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
+import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
 
 @RestController
@@ -19,8 +20,8 @@ public class MatchController {
   }
 
   @PostMapping("/match")
-  public MatchResponse checkForPatientMatch(@RequestBody String body) {
-    return matchService.match(body);
+  public MatchResponse checkForPatientMatch(@RequestBody PersonMatchRequest request) {
+    return matchService.match(request);
   }
 
   @PostMapping("/relate")
