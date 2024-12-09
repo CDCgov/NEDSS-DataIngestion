@@ -124,81 +124,85 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
     public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException {
+            DataProcessingException, DataProcessingConsumerException {
         PersonAggContainer personAggContainer;
         OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
-        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
-                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection)
-        );
+        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
+        personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+        organizationContainer = organizationService.processingOrganization(labResult);
 
-        CompletableFuture<PersonAggContainer> patientFuture = CompletableFuture.supplyAsync(() ->
-        {
-            try {
-                return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                edxLabInformationDto.setNextOfKin(false);
-                throw new RuntimeException(e);
-            }
-        });
+//        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
+//                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection)
+//        );
+//
+//        CompletableFuture<PersonAggContainer> patientFuture = CompletableFuture.supplyAsync(() ->
+//        {
+//            try {
+//                return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+//            } catch (DataProcessingConsumerException | DataProcessingException e) {
+//                edxLabInformationDto.setNextOfKin(false);
+//                throw new RuntimeException(e);
+//            }
+//        });
 
-        CompletableFuture<OrganizationContainer> organizationFuture = CompletableFuture.supplyAsync(() ->
-        {
-            try {
-               return organizationService.processingOrganization(labResult);
-            } catch (DataProcessingConsumerException e) {
-                throw new RuntimeException(e);
-            }
-        });
+//        CompletableFuture<OrganizationContainer> organizationFuture = CompletableFuture.supplyAsync(() ->
+//        {
+//            try {
+//               return organizationService.processingOrganization(labResult);
+//            } catch (DataProcessingConsumerException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
 
         // Wait for all tasks to complete
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(observationFuture, patientFuture, organizationFuture);
+//        CompletableFuture<Void> allFutures = CompletableFuture.allOf(observationFuture, patientFuture, organizationFuture);
 
-        try
-        {
-            allFutures.get(); // Wait for all tasks to complete
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-        }
-        catch (ExecutionException e)
-        {
-            throw new DataProcessingException("Failed to execute tasks", e);
-        }
-        // Get the results from CompletableFuture
-        try {
-            personAggContainer = patientFuture.get();
-            organizationContainer = organizationFuture.get();
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-        }
-        catch (ExecutionException e)
-        {
-            throw new DataProcessingException("Failed to get results", e);
-        }
+//        try
+//        {
+//            allFutures.get(); // Wait for all tasks to complete
+//        }
+//        catch (InterruptedException e)
+//        {
+//            Thread.currentThread().interrupt();
+//            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
+//        }
+//        catch (ExecutionException e)
+//        {
+//            throw new DataProcessingException("Failed to execute tasks", e);
+//        }
+//        // Get the results from CompletableFuture
+//        try {
+//            personAggContainer = patientFuture.get();
+//            organizationContainer = organizationFuture.get();
+//        }
+//        catch (InterruptedException e)
+//        {
+//            Thread.currentThread().interrupt();
+//            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
+//        }
+//        catch (ExecutionException e)
+//        {
+//            throw new DataProcessingException("Failed to get results", e);
+//        }
 
         roleAggregation(labResult);
-
-        CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-        try {
-            progAndJurisdictionFuture.get();
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-        }
-        catch (ExecutionException e)
-        {
-            throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
-        }
+        progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+//        CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+//        try {
+//            progAndJurisdictionFuture.get();
+//        }
+//        catch (InterruptedException e)
+//        {
+//            Thread.currentThread().interrupt();
+//            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
+//        }
+//        catch (ExecutionException e)
+//        {
+//            throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
+//        }
     }
 
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
@@ -243,45 +247,78 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
 
     @SuppressWarnings("java:S3776")
-    protected CompletableFuture<Void> progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
+    protected void progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,
                                                                         OrganizationContainer organizationContainer) {
-        return CompletableFuture.runAsync(() -> {
-            // Pulling Jurisdiction and Program from OBS
-            ObservationContainer observationRequest = null;
-            Collection<ObservationContainer> observationResults = new ArrayList<>();
-            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+        ObservationContainer observationRequest = null;
+        Collection<ObservationContainer> observationResults = new ArrayList<>();
+        for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
+            String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
 
-                // Observation hit this is originated from Observation Result
-                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-                    observationResults.add(obsVO);
-                }
-
-                // Observation hit is originated from Observation Request (ROOT)
-                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
-                    observationRequest = obsVO;
-                }
+            // Observation hit this is originated from Observation Result
+            if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
+                observationResults.add(obsVO);
             }
 
-            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-                try {
-                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+            // Observation hit is originated from Observation Request (ROOT)
+            else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+                observationRequest = obsVO;
             }
+        }
 
-            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-                try {
-                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                            organizationContainer, observationRequest);
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+        if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
+            try {
+                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+            } catch (DataProcessingException e) {
+                throw new RuntimeException(e);
             }
-        });
+        }
+
+        if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
+            try {
+                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                        organizationContainer, observationRequest);
+            } catch (DataProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+//        return CompletableFuture.runAsync(() -> {
+//            // Pulling Jurisdiction and Program from OBS
+//            ObservationContainer observationRequest = null;
+//            Collection<ObservationContainer> observationResults = new ArrayList<>();
+//            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
+//                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
+//
+//                // Observation hit this is originated from Observation Result
+//                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
+//                    observationResults.add(obsVO);
+//                }
+//
+//                // Observation hit is originated from Observation Request (ROOT)
+//                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
+//                    observationRequest = obsVO;
+//                }
+//            }
+//
+//            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
+//                try {
+//                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+//                } catch (DataProcessingException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//
+//            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
+//                try {
+//                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+//                            organizationContainer, observationRequest);
+//                } catch (DataProcessingException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
     }
 
     @SuppressWarnings("java:S3776")

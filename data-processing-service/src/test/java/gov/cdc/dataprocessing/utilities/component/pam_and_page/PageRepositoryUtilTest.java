@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.pam_and_page;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
@@ -113,7 +112,7 @@ class PageRepositoryUtilTest {
                 nbsDocumentRepositoryUtil, participationRepositoryUtil, nbsNoteRepositoryUtil,
                 customRepository, pamService, patientMatchingBaseService, authUtil,
                 pageActProxyContainerMock);
-        SrteCache.investigationFormConditionCode.clear();
+     //   SrteCache.investigationFormConditionCode.clear();
     }
 
     @Test
@@ -233,8 +232,8 @@ class PageRepositoryUtilTest {
         page.setActEntityDTCollection(actNbsCol);
         pageActProxyContainer.setPageVO(page);
 
-        SrteCache.investigationFormConditionCode.put("CODE", "CODE");
-        SrteCache.investigationFormConditionCode.put("COND", "COND");
+     // SrteCache.investigationFormConditionCode.put("CODE", "CODE");
+     //   SrteCache.investigationFormConditionCode.put("COND", "COND");
 
 
         CoinfectionSummaryContainer coInfect = new CoinfectionSummaryContainer();

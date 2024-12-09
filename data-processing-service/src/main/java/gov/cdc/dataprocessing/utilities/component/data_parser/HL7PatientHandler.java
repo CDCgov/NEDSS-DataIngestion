@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
@@ -17,7 +17,9 @@ import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.utilities.GsonUtil;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import org.slf4j.Logger;
@@ -29,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static gov.cdc.dataprocessing.cache.SrteCache.findRecordForElrXrefsList;
 
 @Component
 /**
@@ -61,13 +62,15 @@ public class HL7PatientHandler {
     private final NBSObjectConverter nbsObjectConverter;
     private final EntityIdUtil entityIdUtil;
 
+    private final ICacheApiService cacheApiService;
 
     public HL7PatientHandler(ICatchingValueService checkingValueService,
                              NBSObjectConverter nbsObjectConverter,
-                             EntityIdUtil entityIdUtil) {
+                             EntityIdUtil entityIdUtil, ICacheApiService cacheApiService) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
         this.entityIdUtil = entityIdUtil;
+        this.cacheApiService = cacheApiService;
     }
 
     /**
@@ -184,11 +187,13 @@ public class HL7PatientHandler {
 
             // Setup Person Sex Code
             ElrXref elrXref = new ElrXref();
-            var result = findRecordForElrXrefsList("ELR_LCA_SEX", personContainer.getThePersonDto().getCurrSexCd(), "P_SEX");
-
-            if (result.isPresent()) {
-                elrXref = result.get();
+            String key = "ELR_LCA_SEX_" + personContainer.getThePersonDto().getCurrSexCd() + "_P_SEX";
+            ElrXref result = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
+            if (result == null) {
+                result = new ElrXref();
             }
+            elrXref = result;
+
             String toCode = elrXref.getToCode();
             if (toCode == null && personContainer.getThePersonDto().getCurrSexCd() != null) {
                 toCode = personContainer.getThePersonDto().getCurrSexCd();
@@ -218,17 +223,19 @@ public class HL7PatientHandler {
             for (HL7CWEType ethnicType : ethnicArray) {
                 PersonEthnicGroupDto personEthnicGroupDto = nbsObjectConverter.ethnicGroupType(ethnicType, personContainer);
                 ElrXref elrXrefForEthnic = new ElrXref();
-                var res = findRecordForElrXrefsList("ELR_LCA_ETHN_GRP",personEthnicGroupDto.getEthnicGroupCd(), "P_ETHN_GRP");
-                if (res.isPresent()) {
-                    elrXrefForEthnic = res.get();
+                String keyEthnic = "ELR_LCA_ETHN_GRP_" + personEthnicGroupDto.getEthnicGroupCd() + "_P_ETHN_GRP";
+                ElrXref resultEthnic = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
+                if ( resultEthnic == null) {
+                    resultEthnic = new ElrXref();
                 }
+                elrXrefForEthnic = resultEthnic;
+
                 String ethnicGroupCd = elrXrefForEthnic.getToCode();
                 if (ethnicGroupCd != null && !ethnicGroupCd.trim().equals("")) {
                     personEthnicGroupDto.setEthnicGroupCd(ethnicGroupCd);
                 }
                 if (personEthnicGroupDto.getEthnicGroupCd() != null && !personEthnicGroupDto.getEthnicGroupCd().trim().equals("")) {
-                    var map = checkingValueService.getCodedValues("P_ETHN_GRP", personEthnicGroupDto.getEthnicGroupCd());
-                    if (map.containsKey(personEthnicGroupDto.getEthnicGroupCd())) {
+                    if (checkingValueService.checkCodedValue("P_ETHN_GRP", personEthnicGroupDto.getEthnicGroupCd())) {
                         edxLabInformationDto.setEthnicityCodeTranslated(false);
                     }
                 }
@@ -356,17 +363,21 @@ public class HL7PatientHandler {
                         raceDT = nbsObjectConverter.raceType(hl7CWEType, personContainer);
                         raceDT.setPersonUid(personContainer.getThePersonDto().getPersonUid());
                         ElrXref elrXrefForRace = new ElrXref();
-                        var res = findRecordForElrXrefsList("ELR_LCA_RACE", raceDT.getRaceCategoryCd(), "P_RACE_CAT");
-                        if (res.isPresent()) {
-                            elrXrefForRace = res.get();
+
+                        String keyRace = "ELR_LCA_RACE_" + raceDT.getRaceCategoryCd() + "_P_RACE_CAT";
+                        ElrXref resultRace = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
+                        if (resultRace == null) {
+                            resultRace = new ElrXref();
                         }
+                        elrXrefForRace = resultRace;
+
                         String newRaceCat = elrXrefForRace.getToCode();
                         if (newRaceCat != null && !newRaceCat.trim().equals("")) {
                             raceDT.setRaceCd(newRaceCat);
                             raceDT.setRaceCategoryCd(newRaceCat);
                         }
-                        var codeMap = SrteCache.raceCodesMap;
-                        if (!codeMap.containsKey(raceDT.getRaceCd())) {
+
+                        if (!cacheApiService.getSrteCacheBool(ObjectName.RACE_CODES.name(), raceDT.getRaceCd())) {
                             edxLabInformationDto.setRaceTranslated(false);
                         }
                         raceColl.add(raceDT);

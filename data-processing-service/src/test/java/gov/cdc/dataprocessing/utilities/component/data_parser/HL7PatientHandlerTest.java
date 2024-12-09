@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -59,9 +58,6 @@ class HL7PatientHandlerTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
-
-        SrteCache.elrXrefsList.clear();
-        SrteCache.raceCodesMap.clear();
     }
 
     @AfterEach
@@ -104,7 +100,6 @@ class HL7PatientHandlerTest {
         exref.setFromCode("F");
         exref.setToCodeSetNm("P_SEX");
         exref.setToCode("TO_CODE");
-        SrteCache.elrXrefsList.add(exref);
 
         when(nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
 
@@ -121,11 +116,10 @@ class HL7PatientHandlerTest {
         exref.setFromCode("CODE");
         exref.setToCodeSetNm("P_ETHN_GRP");
         exref.setToCode("TO_CODE");
-        SrteCache.elrXrefsList.add(exref);
 
-        var map = new HashMap<String, String>();
-        map.put("TO_CODE", "CODE");
-        when(checkingValueService.getCodedValues(any(), any())).thenReturn(map);
+//        var map = new HashMap<String, String>();
+//        map.put("TO_CODE", "CODE");
+//        when(checkingValueService.getCodedValues(any(), any())).thenReturn(map);
 
         var martial = new HL7CEType();
         martial.setHL7Identifier("MARTIAL");
@@ -180,8 +174,8 @@ class HL7PatientHandlerTest {
         exref.setFromCode("CODE");
         exref.setToCodeSetNm("P_RACE_CAT");
         exref.setToCode("TO_CODE");
-        SrteCache.elrXrefsList.add(exref);
-        SrteCache.raceCodesMap.put("TO_CODE", "TO_CODE");
+//        SrteCache.elrXrefsList.add(exref);
+//        SrteCache.raceCodesMap.put("TO_CODE", "TO_CODE");
 
         // NOK
         when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");

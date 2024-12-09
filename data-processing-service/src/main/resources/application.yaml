@@ -16,6 +16,17 @@ management:
       export:
         enabled: true
 
+cache:
+  clientId: ${RC_CLIENT_ID}
+  secret: ${RC_CLIENT_SECRET}
+  token: ${RC_URL}${RC_EP_TOKEN:http://localhost:8085/rti/api/auth/token}
+  srte:
+    cacheString: ${RC_URL}${RC_EP_CACHE_STR:http://localhost:8085/rti/srte/cache/string}
+    cacheContain: ${RC_URL}${RC_EP_CACHE_CONTAIN:http://localhost:8085/rti/srte/cache/contain}
+    cacheObject: ${RC_URL}${RC_EP_CACHE_OBJ:http://localhost:8085/rti/srte/cache/object}
+  odse:
+    localId: ${RC_URL}${EP_CACHE_LOCALID:http://localhost:8085/rti/odse/localId}
+
 spring:
   application:
     name: data-processing-service

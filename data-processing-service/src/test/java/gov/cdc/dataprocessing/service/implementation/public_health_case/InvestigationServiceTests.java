@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -263,7 +262,7 @@ class InvestigationServiceTests {
         when(observationSummaryService.getSpecimanSource(26L)).thenReturn("26");
         var treemap = new HashMap<String, String>();
         treemap.put("26", "BLAH");
-        when(cachingValueService.getCodedValues("SPECMN_SRC", "26")).thenReturn(treemap);
+   //     when(cachingValueService.getCodedValues("SPECMN_SRC", "26")).thenReturn(treemap);
 
         when(observationSummaryService.getProviderInformation(any(), any())).thenReturn(27L);
 
@@ -754,12 +753,12 @@ class InvestigationServiceTests {
         report.setTheResultedTestSummaryVOCollection(labCol);
         reportCol.add(report);
 
-        SrteCache.programAreaCodesMap.put("TEST", "TEST");
-        SrteCache.jurisdictionCodeMap.put("TEST", "TEST");
-        SrteCache.labResultByDescMap.put("TEST", "TEST");
-        SrteCache.snomedCodeByDescMap.put("TEST", "TEST");
-        SrteCache.labResultWithOrganismNameIndMap.put("TEST", "TEST");
-        SrteCache.loinCodeWithComponentNameMap.put("TEST", "TEST");
+//        SrteCache.programAreaCodesMap.put("TEST", "TEST");
+//        SrteCache.jurisdictionCodeMap.put("TEST", "TEST");
+//        SrteCache.labResultByDescMap.put("TEST", "TEST");
+//        SrteCache.snomedCodeByDescMap.put("TEST", "TEST");
+//        SrteCache.labResultWithOrganismNameIndMap.put("TEST", "TEST");
+//        SrteCache.loinCodeWithComponentNameMap.put("TEST", "TEST");
 
 
         when(cachingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
@@ -773,12 +772,12 @@ class InvestigationServiceTests {
 
         investigationService.populateDescTxtFromCachedValues(reportCol);
 
-        SrteCache.programAreaCodesMap.clear();
-        SrteCache.jurisdictionCodeMap.clear();
-        SrteCache.labResultByDescMap.clear();
-        SrteCache.snomedCodeByDescMap.clear();
-        SrteCache.labResultWithOrganismNameIndMap.clear();
-        SrteCache.loinCodeWithComponentNameMap.clear();
+//        SrteCache.programAreaCodesMap.clear();
+//        SrteCache.jurisdictionCodeMap.clear();
+//        SrteCache.labResultByDescMap.clear();
+//        SrteCache.snomedCodeByDescMap.clear();
+//        SrteCache.labResultWithOrganismNameIndMap.clear();
+//        SrteCache.loinCodeWithComponentNameMap.clear();
 
 
         verify(cachingValueService, times(2)).getCodeDescTxtForCd(any(), any());

@@ -35,7 +35,6 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static gov.cdc.dataprocessing.cache.SrteCache.jurisdictionCodeMapWithNbsUid;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +64,7 @@ class AutoInvestigationServiceTest {
 
         authUtil.setGlobalAuthUser(userInfo);
 
-        jurisdictionCodeMapWithNbsUid.put("STATE", 1);
+//        jurisdictionCodeMapWithNbsUid.put("STATE", 1);
         OdseCache.fromPrePopFormMapping.clear();
         OdseCache.dmbMap.clear();
     }
@@ -219,10 +218,10 @@ class AutoInvestigationServiceTest {
         entities.add(entityEdxRule);
 
         // createActEntityObject 162
-        var tree =new HashMap<String, String>();
-        tree.put("PAT", "PAT");
-        when(catchingValueService.getCodedValue(any()))
-                .thenReturn(tree);
+//        var tree =new HashMap<String, String>();
+//        tree.put("PAT", "PAT");
+//        when(catchingValueService.getCodedValue(any()))
+//                .thenReturn(tree);
 
 
         var test = (PageActProxyContainer) autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainer, pamActProxyVO,

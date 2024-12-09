@@ -1,10 +1,10 @@
 package gov.cdc.dataprocessing.service.implementation.investigation;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.RenderConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
@@ -68,12 +69,13 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHC_PHYSICIAN;
 public class AutoInvestigationService implements IAutoInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
+    private final ICacheApiService cacheApiService;
     private final ICatchingValueService catchingValueService;
     private final ILookupService lookupService;
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
-                                    ICatchingValueService catchingValueService,
-                                    ILookupService lookupService) {
+                                    ICacheApiService cacheApiService, ICatchingValueService catchingValueService, ILookupService lookupService) {
         this.conditionCodeRepository = conditionCodeRepository;
+        this.cacheApiService = cacheApiService;
         this.catchingValueService = catchingValueService;
         this.lookupService = lookupService;
     }
@@ -291,8 +293,11 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDto().setCd(programAreaVO.getConditionCd());
         phcVO.getThePublicHealthCaseDto().setProgAreaCd(programAreaVO.getStateProgAreaCode());
 
-        if(SrteCache.checkWhetherPAIsStdOrHiv(programAreaVO.getStateProgAreaCode()))
+
+        if(cacheApiService.getSrteCacheBool(ObjectName.CHECK_PAI_FOR_STD_OR_HIV.name(),programAreaVO.getStateProgAreaCode()))
+        {
             phcVO.getThePublicHealthCaseDto().setReferralBasisCd(NEDSSConstant.REFERRAL_BASIS_LAB);
+        }
 
         phcVO.getThePublicHealthCaseDto().setSharedInd(NEDSSConstant.TRUE);
         phcVO.getThePublicHealthCaseDto().setCdDescTxt(programAreaVO.getConditionShortNm());
@@ -308,7 +313,8 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDto().setMmwrYear(String.valueOf(weekAndYear[1]));
         phcVO.getThePublicHealthCaseDto().setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
         if (edxLabInformationDT.getConditionCode() != null) {
-            phcVO.setCoinfectionCondition(SrteCache.coInfectionConditionCode.containsKey(edxLabInformationDT.getConditionCode()));
+
+            phcVO.setCoinfectionCondition( cacheApiService.getSrteCacheBool(ObjectName.CO_INFECTION_CONDITION_CODE.name(), edxLabInformationDT.getConditionCode()));
             if (phcVO.isCoinfectionCondition()) {
                 phcVO.getThePublicHealthCaseDto().setCoinfectionId(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE);
             }
@@ -319,7 +325,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.setItDirty(false);
 
         try{
-            boolean isSTDProgramArea = SrteCache.checkWhetherPAIsStdOrHiv(phcVO.getThePublicHealthCaseDto().getProgAreaCd());
+            boolean isSTDProgramArea = cacheApiService.getSrteCacheBool(ObjectName.CHECK_PAI_FOR_STD_OR_HIV.name(), phcVO.getThePublicHealthCaseDto().getProgAreaCd());
             if (isSTDProgramArea) {
                 CaseManagementDto caseMgtDT = new CaseManagementDto();
                 caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid());
@@ -538,11 +544,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         {
             partDT.setActUid(pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid());
         }
-        var tree = catchingValueService.getCodedValue(partDT.getTypeCd());
-        if (tree.containsKey(partDT.getTypeCd())) {
-            partDT.setTypeDescTxt(tree.get(partDT.getTypeCd()));
-        }
-
+        partDT.setTypeDescTxt( catchingValueService.getCodedValue(partDT.getTypeCd()));
         partDT.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         partDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         partDT.setStatusTime(new java.sql.Timestamp(new Date().getTime()));
