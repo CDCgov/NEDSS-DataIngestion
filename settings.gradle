@@ -15,4 +15,4 @@ include 'data-ingestion-service'
 //Ignore this for now
 include 'data-processing-service'
 
-include 'rti-cache'
+include 'srte-data-service'

@@ -73,13 +73,13 @@ jobs:
       GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
       HELM_TOKEN: ${{secrets.HELM_TOKEN}}
 
-  call-build-rti-cache-microservice-container-workflow:
+  call-build-srte-data-service-microservice-container-workflow:
     name: Build Container
 #    needs: sonar_scan
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
     with:
-      microservice_name: rti-cache
-      dockerfile_relative_path: -f ./rti-cache/Dockerfile .
+      microservice_name: srte-data-service
+      dockerfile_relative_path: -f ./srte-data-service/Dockerfile .
       environment_classifier: SNAPSHOT
       java_version: "21"
     secrets:
@@ -89,14 +89,14 @@ jobs:
       GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
       HELM_TOKEN: ${{secrets.HELM_TOKEN}}
 
-  call-update-helm-rti-cache:
+  call-update-helm-srte-data-service:
     name: Request DEV deployment
-    needs: call-build-rti-cache-microservice-container-workflow
+    needs: call-build-srte-data-service-microservice-container-workflow
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Update-helm-charts.yaml@main
     with:
-      microservice_name: rti-cache
-      values_file_with_path: charts/rti-cache/values-dts1.yaml
-      new_image_tag: ${{ needs.call-build-rti-cache-microservice-container-workflow.outputs.output_image_tag }}
+      microservice_name: srte-data-service
+      values_file_with_path: charts/srte-data-service/values-dts1.yaml
+      new_image_tag: ${{ needs.call-build-srte-data-service-microservice-container-workflow.outputs.output_image_tag }}
     secrets:
       GIT_USER_EMAIL: ${{secrets.GIT_USER_EMAIL}}
       GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
