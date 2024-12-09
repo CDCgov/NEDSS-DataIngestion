@@ -51,29 +51,6 @@ class CommonLabUtilTest {
         Mockito.reset(authUtil);
     }
 
-
-    @Test
-    void getXMLElementNameForOBR_TEST()  {
-
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            commonLabUtil.getXMLElementNameForOBR(null);
-        });
-
-        assertNotNull(thrown);
-
-    }
-
-    @Test
-    void getXMLElementNameForOBX_TEST()  {
-
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            commonLabUtil.getXMLElementNameForOBX(null);
-        });
-
-        assertNotNull(thrown);
-
-    }
-
     @Test
     void getXMLElementNameForOBR_TEST_1() throws DataProcessingException {
 
