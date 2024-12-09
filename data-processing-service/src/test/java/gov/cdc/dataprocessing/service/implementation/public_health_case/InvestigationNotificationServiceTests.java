@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
@@ -133,7 +132,7 @@ class InvestigationNotificationServiceTests {
         obj.setThePublicHealthCaseDto(phcDt);
         String nndComment = "COM";
 
-        SrteCache.investigationFormConditionCode.put("CODE", "investigationFormCd");
+   //     SrteCache.investigationFormConditionCode.put("CODE", "investigationFormCd");
 
         var colRetriQuest = new ArrayList<QuestionRequiredNnd>();
         var colRetri = new QuestionRequiredNnd();
