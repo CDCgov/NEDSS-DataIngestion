@@ -17,8 +17,8 @@ management:
         enabled: true
 
 cache:
-  clientId: ${RC_CLIENT_ID:di-keycloak-client}
-  secret: ${RC_CLIENT_SECRET:eVQ9n5zxyhUTHFmA2XhNfb6r8DYGlSI5}
+  clientId: ${RC_CLIENT_ID}
+  secret: ${RC_CLIENT_SECRET}
   token: ${RC_URL}${RC_EP_TOKEN:http://localhost:8085/rti/api/auth/token}
   srte:
     cacheString: ${RC_URL}${RC_EP_CACHE_STR:http://localhost:8085/rti/srte/cache/string}
