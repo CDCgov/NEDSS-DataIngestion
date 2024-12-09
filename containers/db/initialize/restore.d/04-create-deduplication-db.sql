@@ -21,7 +21,7 @@ CREATE TABLE match_configuration (
 GO
 
 CREATE TABLE nbs_mpi_mapping (
-    id bigint,
+    id bigint IDENTITY(1,1),
     person_uid bigint,
     person_parent_uid bigint,
     mpi_person uniqueidentifier,
