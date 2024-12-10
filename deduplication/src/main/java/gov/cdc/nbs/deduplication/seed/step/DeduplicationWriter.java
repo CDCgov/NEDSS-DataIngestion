@@ -41,4 +41,13 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     });
   }
 
+  SqlParameterSource createParameterSource(DeduplicationEntry entry) {
+    return new MapSqlParameterSource()
+        .addValue("person_uid", entry.nbsPersonId())
+        .addValue("person_parent_uid", entry.nbsPersonParentId())
+        .addValue("mpi_patient", entry.mpiPatientId())
+        .addValue("mpi_person", entry.mpiPersonId())
+        .addValue("status", "U");
+  }
+
 }

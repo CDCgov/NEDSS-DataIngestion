@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.seed.step;
 import javax.sql.DataSource;
 
 import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,10 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
     this.setName("nbsPersonReader");
     this.setDataSource(dataSource);
-    this.setQueryProvider(provider.getObject());
+    PagingQueryProvider queryProvider = provider.getObject();
+    if (queryProvider != null) {
+      this.setQueryProvider(queryProvider);
+    }
     this.setRowMapper(mapper);
     this.setPageSize(10);
   }
