@@ -50,6 +50,16 @@ configurations {
 
 bootRun {
   systemProperty('spring.profiles.active', 'default,local')
+
+    debugOptions {
+        enabled = true
+        server = true
+        suspend = false
+        port = java.util.Optional.ofNullable(findProperty('debug.port'))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(19040)
+    }
 }
 
 repositories {
@@ -172,15 +182,8 @@ task jaxb {
 compileJava.dependsOn jaxb
 
 if (project != project.rootProject || project.hasProperty('remoteBuild')) {
-	task copyJar(type: Copy) {
-		from "${project(':cdaschema').buildDir}/libs/cda-schema.jar"
-		into 'libs'
-	}
-	copyJar.dependsOn(':cdaschema:cdaSchemaJar')
-	compileJava.dependsOn copyJar
-
 	compileJava.mustRunAfter(":hl7-parser:build")
-	compileJava.mustRunAfter(":cdaschema:build")
+	compileJava.mustRunAfter(":cdaschema:copyJar")
 }
 
 
@@ -282,7 +285,7 @@ jar {
 	}
 
 	if (findProject(':cdaschema')) {
-		dependsOn(':cdaschema:jar')
+    dependsOn(':cdaschema:copyJar')
 	}
 }
 

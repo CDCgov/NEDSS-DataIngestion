@@ -1,0 +1,56 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.0'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'gov.cdc.nbs'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+  // spring
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.apache.httpcomponents.client5:httpclient5'
+
+  // database
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+  runtimeOnly 'org.postgresql:postgresql'
+
+  // swagger
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+  // testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+bootRun {
+    systemProperty('spring.profiles.active', 'default,local')
+
+     debugOptions {
+        enabled = true
+        server = true
+        suspend = false
+        port = java.util.Optional.ofNullable(findProperty('debug.port'))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(19042)
+    }
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -1,0 +1,30 @@
+server:
+  port: 8083
+
+spring:
+  application.name: deduplication
+  batch.job.enabled: false
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+        timezone:
+          default_storage: NORMALIZE
+  datasource:
+    deduplication:
+      url:
+      username:
+      password:
+    nbs:
+      url:
+      username:
+      password:
+    mpi:
+      url:
+      username:
+      password:
+
+recordLinkage:
+  url: http://localhost:8080
