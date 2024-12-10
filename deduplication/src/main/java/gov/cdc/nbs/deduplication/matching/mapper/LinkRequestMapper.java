@@ -61,6 +61,7 @@ public class LinkRequestMapper {
             pl.stateCd(),
             pl.zipCd(),
             pl.cntyCd()))
+        .filter(Objects::nonNull)
         .toList();
   }
 
