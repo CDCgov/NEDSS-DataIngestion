@@ -10,7 +10,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: "*"
   prometheus:
     metrics:
       export:
@@ -53,7 +53,7 @@ spring:
     hibernate:
       ddl-auto: none
   kafka:
-    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9092}
     group-id: data-ingestion-group
     consumer:
       maxPollIntervalMs: 30000
@@ -80,9 +80,9 @@ kafka:
     topic: elr_duplicate
   topics: elr_raw,elr_validated
   retry:
-      suffix: _retry
+    suffix: _retry
   dlt:
-      suffix: _dlt
+    suffix: _dlt
 
 security:
   protocol: SASL_SSL
