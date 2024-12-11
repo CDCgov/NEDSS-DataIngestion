@@ -86,7 +86,7 @@ jobs:
           DATABASE_USER: ${{env.test_database_user}}
           DATABASE_PASSWORD: ${{ env.test_database_password }}
         run: |
-          ./gradlew build jacocoTestReport sonar "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" -Dtesting.database.image=${{ env.accountid }}.dkr.ecr.us-east-1.amazonaws.com/cdc-nbs-modernization/deduplication-test-db:latest
+          ./gradlew build jacocoTestReport sonar "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" -Dtesting.database.mssql.image=${{ env.accountid }}.dkr.ecr.us-east-1.amazonaws.com/cdc-nbs-modernization/deduplication-test-db:latest
 
       - name: Publish Testing Reports
         uses: actions/upload-artifact@v4
