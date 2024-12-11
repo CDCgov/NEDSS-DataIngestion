@@ -48,6 +48,21 @@ configurations {
     }
 }
 
+
+bootRun {
+  systemProperty('spring.profiles.active', 'default,local')
+
+    debugOptions {
+        enabled = true
+        server = true
+        suspend = false
+        port = java.util.Optional.ofNullable(findProperty('debug.port'))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(19041)
+    }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()

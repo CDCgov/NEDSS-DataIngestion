@@ -4,11 +4,11 @@ services:
       context: ./
       dockerfile: ./data-ingestion-service/Dockerfile
     ports:
-      - "8083:8083"
+      - "8083:8081"
     depends_on:
       broker:
         condition: service_started
-      keycloak:
+      di-keycloak:
         condition: service_started
       di-mssql:
         condition: service_healthy
@@ -53,15 +53,15 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
     networks:
       - dataingestion
-
+  
   di-mssql:
     build: 
       context: ./containers/db
+      args:
+        - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
     container_name: di-mssql
     ports:
       - 2433:1433
-    env_file:
-      - dataingestion.env
     networks:
       - dataingestion
     healthcheck:
@@ -71,7 +71,7 @@ services:
       retries: 5
       start_period: 10s
 
-  keycloak:
+  di-keycloak:
     container_name: di-keycloak
     image: quay.io/keycloak/keycloak:latest
     ports:
@@ -84,6 +84,21 @@ services:
     networks:
       - dataingestion
 
+  di-wildfly:
+    build: ./containers/nbs-classic
+    image: nbs-classic:6.0.16
+    container_name: di-wildfly
+    depends_on:
+      di-mssql:
+        condition: service_healthy
+    ports:
+      - "9991:9990"
+      - "7002:7001"
+      - "8788:8787"
+    networks:
+      - dataingestion
+
 networks:
   dataingestion:
     name: dataingestion
+    driver: bridge

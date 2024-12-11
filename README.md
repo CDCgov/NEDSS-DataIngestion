@@ -43,6 +43,9 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
   - ./gradlew :data-ingestion-service:build
   - ./gradlew build
 
+## Local development environment setup
+Instructions for setting up a local development environment can be found in the [DevSetup.md](docs/DevSetup.md)
+
 # Building Docker image for EKS (1)
 - If you are on Mac OS Environnment, look into Docker Buildx, so linux image can be built
 - This example assume local machine run Mac OS.
