@@ -59,3 +59,9 @@ bootRun {
 tasks.named('test') {
   useJUnitPlatform()
 }
+
+test {
+    if (System.getProperty("testing.database.mssql.image") != null) {
+        systemProperty "testing.database.mssql.image", System.getProperty("testing.database.mssql.image")
+    }
+}
