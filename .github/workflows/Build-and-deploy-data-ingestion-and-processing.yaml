@@ -8,6 +8,11 @@ on:
     paths-ignore:
       - "docker-compose.yml"
       - "**.md"
+    paths:
+      - "data-ingestion-service/**"
+      - "data-processing-service/**"
+      - "cdaschema/**"
+      - "hl7-parser/**"
 jobs:
   sonar_scan:
     uses: ./.github/workflows/sonar.yaml
