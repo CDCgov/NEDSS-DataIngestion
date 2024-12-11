@@ -1,10 +1,9 @@
 package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.phdc.HL7OBRType;
 import gov.cdc.dataprocessing.model.phdc.HL7OBXType;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
@@ -33,12 +32,11 @@ import java.io.StringWriter;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class CommonLabUtil {
+    private final XmlMapper xmlMapper = new XmlMapper();
     public String getXMLElementNameForOBR(HL7OBRType hl7OBRType) throws DataProcessingException {
         try {
-            Serializer serializer = new Persister();
-            StringWriter writer = new StringWriter();
-            serializer.write(hl7OBRType, writer);
-            return writer.toString();
+            String value = xmlMapper.writeValueAsString(hl7OBRType);
+            return value;
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -47,12 +45,8 @@ public class CommonLabUtil {
 
     public String getXMLElementNameForOBX(HL7OBXType hl7OBXType) throws DataProcessingException {
         try {
-            Serializer serializer = new Persister();
-            StringWriter writer = new StringWriter();
-            serializer.write(hl7OBXType, writer);
-            return writer.toString();
-
-
+            String value = xmlMapper.writeValueAsString(hl7OBXType);
+            return value;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }

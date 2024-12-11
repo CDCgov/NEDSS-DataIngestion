@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.odse.repository;
 
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,11 +11,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IEdxActivityLogRepository extends JpaRepository<EdxActivityDetailLog, Long> {
+public interface IEdxActivityParentLogRepository extends JpaRepository<EdxActivityLog, Long> {
     @Query(value = """
-            select eadl.* from NBS_ODSE.dbo.EDX_activity_detail_log eadl,NBS_ODSE.dbo.EDX_activity_log eal 
-            where eal.source_uid = :nbsSourceId and eadl.edx_activity_log_uid =eal.edx_activity_log_uid
+            select top 1 * from EDX_activity_log
+            where source_uid = :nbsSourceId 
             """,
             nativeQuery = true)
-    List<EdxActivityDetailLog> getEdxActivityLogDetailsBySourceId(@Param("nbsSourceId") Long sourceId);
+    EdxActivityLog getParentEdxActivity(@Param("nbsSourceId") Long sourceId);
 }

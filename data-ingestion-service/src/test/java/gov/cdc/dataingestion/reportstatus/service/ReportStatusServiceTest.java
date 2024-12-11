@@ -5,6 +5,9 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
+import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -39,6 +42,8 @@ import static org.mockito.Mockito.when;
 class ReportStatusServiceTest {
     @Mock
     private IReportStatusRepository iReportStatusRepositoryMock;
+    @Mock
+    private IEdxActivityParentLogRepository edxActivityParentLogRepository;
     @Mock
     private NbsInterfaceRepository nbsInterfaceRepositoryMock;
     @Mock
@@ -100,7 +105,7 @@ class ReportStatusServiceTest {
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
-
+        when(edxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(nbsId))).thenReturn(new EdxActivityLog());
         var msgStatus = reportStatusServiceMock.getMessageStatus(id);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
@@ -363,13 +368,13 @@ class ReportStatusServiceTest {
         reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
-        List<EdxActivityLogModelView> edxActivityLogList=new ArrayList();
-        EdxActivityLogModelView edxActivityLogModelProjection=mock(EdxActivityLogModelView.class);
+        List<EdxActivityDetailLog> edxActivityLogList=new ArrayList();
+        EdxActivityDetailLog edxActivityLogModelProjection=mock(EdxActivityDetailLog.class);
         when(edxActivityLogModelProjection.getLogComment()).thenReturn("Test activity log");
         when(edxActivityLogModelProjection.getLogType()).thenReturn("Test log type");
         when(edxActivityLogModelProjection.getRecordId()).thenReturn("Test Record Id");
         when(edxActivityLogModelProjection.getRecordType()).thenReturn("Test Record Type");
-        when(edxActivityLogModelProjection.getRecordStatusTime()).thenReturn(new Timestamp(System.currentTimeMillis()));
+       // when(edxActivityLogModelProjection.getRecordStatusTime()).thenReturn(new Timestamp(System.currentTimeMillis()));
 
         edxActivityLogList.add(edxActivityLogModelProjection);
 
@@ -382,6 +387,7 @@ class ReportStatusServiceTest {
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
         when (iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(nbsId))).thenReturn(edxActivityLogList);
+        when(edxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(nbsId))).thenReturn(new EdxActivityLog());
 
         var msgStatus = reportStatusServiceMock.getMessageStatus(id);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
@@ -389,7 +395,7 @@ class ReportStatusServiceTest {
         assertEquals(nbsId, msgStatus.getNbsInfo().getNbsInterfaceId());
         assertNotNull( msgStatus.getNbsInfo().getNbsCreatedOn());
         assertNull( msgStatus.getNbsInfo().getDltInfo());
-        assertEquals("Test log type",msgStatus.getNbsIngestionInfo().get(0).getLogType());
+        assertEquals("Test log type",msgStatus.getEdxLogStatus().getEdxActivityDetailLogList().get(0).getLogType());
     }
 
 }
