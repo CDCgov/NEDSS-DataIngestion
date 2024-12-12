@@ -48,6 +48,21 @@ configurations {
     }
 }
 
+
+bootRun {
+  systemProperty('spring.profiles.active', 'default,local')
+
+    debugOptions {
+        enabled = true
+        server = true
+        suspend = false
+        port = java.util.Optional.ofNullable(findProperty('debug.port'))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(19041)
+    }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -149,7 +164,9 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-actuator:3.3.4'
-    implementation 'org.simpleframework:simple-xml:2.7.1'
+//    implementation 'org.simpleframework:simple-xml:2.7.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.2'
+
 
     implementation 'io.prometheus:simpleclient:0.16.0'
     implementation 'io.prometheus:simpleclient_hotspot:0.16.0'

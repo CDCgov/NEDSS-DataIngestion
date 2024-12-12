@@ -4,6 +4,9 @@ import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
+import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
+import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
@@ -30,6 +33,7 @@ import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class ReportStatusService {
     private final IReportStatusRepository iReportStatusRepository;
+    private final IEdxActivityParentLogRepository iEdxActivityParentLogRepository;
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
     private final IRawELRRepository iRawELRRepository;
@@ -43,12 +47,13 @@ public class ReportStatusService {
     private static final String DLT_ORIGIN_VALIDATED = "VALIDATED";
 
     public ReportStatusService(IReportStatusRepository iReportStatusRepository,
-                               NbsInterfaceRepository nbsInterfaceRepository,
+                               IEdxActivityParentLogRepository iEdxActivityParentLogRepository, NbsInterfaceRepository nbsInterfaceRepository,
                                IRawELRRepository iRawELRRepository,
                                IValidatedELRRepository iValidatedELRRepository,
                                IElrDeadLetterRepository iElrDeadLetterRepository,
                                IEdxActivityLogRepository iEdxActivityLogRepository) {
         this.iReportStatusRepository = iReportStatusRepository;
+        this.iEdxActivityParentLogRepository = iEdxActivityParentLogRepository;
         this.nbsInterfaceRepository = nbsInterfaceRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.iValidatedELRRepository = iValidatedELRRepository;
@@ -86,15 +91,16 @@ public class ReportStatusService {
             }
 
             if(msgStatus.getNbsInfo().getNbsInterfaceStatus() !=null) {
-                List<EdxActivityLogModelView> edxActivityStatusList = iEdxActivityLogRepository.
-                        getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
-                if(!edxActivityStatusList.isEmpty()) {
+                EdxActivityLog edxActivityLog = iEdxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
+                List<EdxActivityDetailLog> edxActivityStatusList = iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
+                if(!edxActivityStatusList.isEmpty() && edxActivityLog != null) {
+                    msgStatus.getEdxLogStatus().setEdxActivityLog(edxActivityLog);
                     Set<String> seenComments = new HashSet<>();
-                    for(EdxActivityLogModelView edxActivityLogModel:edxActivityStatusList){
+                    for(EdxActivityDetailLog edxActivityLogModel:edxActivityStatusList){
                         String logComment = edxActivityLogModel.getLogComment();
                         if (seenComments.add(logComment)) {
-                            EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
-                            msgStatus.getNbsIngestionInfo().add(edxActivityLogStatus);
+//                            EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
+                            msgStatus.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogModel);
                         }
 
                     }
@@ -104,12 +110,12 @@ public class ReportStatusService {
         return msgStatus;
     }
 
-    private static EdxActivityLogStatus getEdxActivityLogStatus(EdxActivityLogModelView edxActivityLogModel) {
+    private static EdxActivityLogStatus getEdxActivityLogStatus(EdxActivityDetailLog edxActivityLogModel) {
         EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
         edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
         edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
         edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
-        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
+//        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
         return edxActivityLogStatus;
     }
 

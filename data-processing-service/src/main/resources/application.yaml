@@ -10,7 +10,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: "*"
   prometheus:
     metrics:
       export:
@@ -46,7 +46,7 @@ kafka:
     elr_action_tracker: elr_action_tracker
 
 nbs:
-  user:  ${NBS_AUTH_USER:superuser}
+  user: ${NBS_AUTH_USER:superuser}
   data:
     hiv_program_areas: ${HIV_PROG_AREA:}
 
@@ -73,9 +73,8 @@ spring:
     hibernate:
       ddl-auto: none
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
     group-id: data-processing-group
     consumer:
       maxPollIntervalMs: 30000
-
 #K8S Profile goes here

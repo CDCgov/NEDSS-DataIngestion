@@ -4,9 +4,14 @@ services:
       context: ./
       dockerfile: ./data-ingestion-service/Dockerfile
     ports:
-      - "8083:8083"
+      - "8083:8081"
     depends_on:
-      - broker
+      broker:
+        condition: service_started
+      di-keycloak:
+        condition: service_started
+      di-mssql:
+        condition: service_healthy
     container_name: data-ingestion-service
     env_file:
       - dataingestion.env
@@ -48,19 +53,52 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
     networks:
       - dataingestion
-  deduplication-db:
+  
+  di-mssql:
     build: 
-      context: ./deduplication/db
+      context: ./containers/db
       args:
-          - DATABASE_PASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
-    container_name: deduplication-mssql
+        - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
+    container_name: di-mssql
     ports:
-      - 1434:1433
-    environment:
-      - ACCEPT_EULA=1
-      - SQLCMDPASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
-      - MSSQL_SA_PASSWORD=${DEDUPLICATION_DATABASE_PASSWORD}
+      - 2433:1433
+    networks:
+      - dataingestion
+    healthcheck:
+      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  di-keycloak:
+    container_name: di-keycloak
+    image: quay.io/keycloak/keycloak:latest
+    ports:
+      - "8100:8080"
+    volumes:
+      - ./containers/keycloak/imports:/opt/keycloak/data/import
+    env_file:
+      - dataingestion.env
+    entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
+    networks:
+      - dataingestion
+
+  di-wildfly:
+    build: ./containers/nbs-classic
+    image: nbs-classic:6.0.16
+    container_name: di-wildfly
+    depends_on:
+      di-mssql:
+        condition: service_healthy
+    ports:
+      - "9991:9990"
+      - "7002:7001"
+      - "8788:8787"
+    networks:
+      - dataingestion
 
 networks:
   dataingestion:
     name: dataingestion
+    driver: bridge

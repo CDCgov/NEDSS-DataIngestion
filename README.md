@@ -29,8 +29,12 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
               DI_SFTP_USER=value
     
               DI_SFTP_PWD=value
+
+              KC_BOOTSTRAP_ADMIN_USERNAME=value
+              
+              KC_BOOTSTRAP_ADMIN_PASSWORD=value
           ```
-          - Run "docker-compose up -d"
+          - Run "docker compose up -d"
           - If encounter gradle exception such as missing wrapper then run the following command
             - "gradle wrapper"
 
@@ -38,6 +42,9 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
   - ./gradlew :hl7-parser:build
   - ./gradlew :data-ingestion-service:build
   - ./gradlew build
+
+## Local development environment setup
+Instructions for setting up a local development environment can be found in the [DevSetup.md](docs/DevSetup.md)
 
 # Building Docker image for EKS (1)
 - If you are on Mac OS Environnment, look into Docker Buildx, so linux image can be built

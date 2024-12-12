@@ -59,3 +59,6 @@ hl7-parser/.gradle/*
 *.env
 
 .vscode/*
+application-local.yaml
+
+containers/builder/NEDSSDev/
