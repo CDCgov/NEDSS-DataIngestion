@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.service.implementation.investigation;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
@@ -15,10 +15,13 @@ import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.dsm.DsmAlgorithm;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.service.model.wds.WdsReport;
+import gov.cdc.dataprocessing.utilities.GsonUtil;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
@@ -71,13 +74,14 @@ public class DecisionSupportService implements IDecisionSupportService {
     private final DsmAlgorithmService dsmAlgorithmService;
     private final AdvancedCriteria advancedCriteria;
     private final WdsObjectChecker wdsObjectChecker;
+    private final ICacheApiService cacheApiService;
 
     public DecisionSupportService(EdxPhcrDocumentUtil edxPhcrDocumentUtil,
                                   IAutoInvestigationService autoInvestigationService,
                                   ValidateDecisionSupport validateDecisionSupport,
                                   PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
                                   DsmAlgorithmService dsmAlgorithmService, AdvancedCriteria advancedCriteria,
-                                  WdsObjectChecker wdsObjectChecker) {
+                                  WdsObjectChecker wdsObjectChecker, ICacheApiService cacheApiService) {
         this.edxPhcrDocumentUtil = edxPhcrDocumentUtil;
         this.autoInvestigationService = autoInvestigationService;
         this.validateDecisionSupport = validateDecisionSupport;
@@ -85,6 +89,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         this.dsmAlgorithmService = dsmAlgorithmService;
         this.advancedCriteria = advancedCriteria;
         this.wdsObjectChecker = wdsObjectChecker;
+        this.cacheApiService = cacheApiService;
     }
     /*sort PublicHealthCaseDTs by add_time descending*/
     final Comparator<PublicHealthCaseDto> ADDTIME_ORDER = (e1, e2) -> e2.getAddTime().compareTo(e1.getAddTime()); //NOSONAR
@@ -425,8 +430,12 @@ public class DecisionSupportService implements IDecisionSupportService {
                 edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
                 if (conditionCode != null)
                 {
-                    var condCode = SrteCache.findConditionCodeByDescription(conditionCode);
-                    condCode.ifPresent(code -> edxLabInformationDT.setConditionName(code.getConditionShortNm()));
+
+                    ConditionCode condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                    if (condCode == null) {
+                        condCode = new ConditionCode();
+                    }
+                    edxLabInformationDT.setConditionName(condCode.getConditionShortNm());
                 }
                 edxLabInformationDT.setMatchingAlgorithm(true);
                 if (algorithmDocument.getAction() != null && algorithmDocument.getAction().getMarkAsReviewed() != null)
@@ -557,8 +566,11 @@ public class DecisionSupportService implements IDecisionSupportService {
                     edxLabInformationDT.setPamContainer((PamProxyContainer) obj);
                 }
 
-                var condCode = SrteCache.findConditionCodeByDescription(conditionCode);
-                condCode.ifPresent(code -> edxLabInformationDT.setConditionName(code.getConditionShortNm()));
+                ConditionCode condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                if (condCode == null) {
+                    condCode = new ConditionCode();
+                }
+                edxLabInformationDT.setConditionName(condCode.getConditionShortNm());
 
             } else {
                 edxLabInformationDT.setMatchingAlgorithm(false);

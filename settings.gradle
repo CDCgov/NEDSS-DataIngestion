@@ -15,4 +15,7 @@ include 'data-ingestion-service'
 //Ignore this for now
 include 'data-processing-service'
 
+include 'srte-data-service'
+
 include 'deduplication'
+

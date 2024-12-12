@@ -118,8 +118,8 @@ public class ManagerUtil {
 
 
     /**
-     * This wont work in this @Transactional architecture
-     * As we update the person and its assoc tables serveral time, so we must keep the @Transactional as synchronous flow
+     * This wont work in this Transactional architecture
+     * As we update the person and its assoc tables serveral time, so we must keep the Transactional as synchronous flow
      * */
     @SuppressWarnings("java:S3776")
 

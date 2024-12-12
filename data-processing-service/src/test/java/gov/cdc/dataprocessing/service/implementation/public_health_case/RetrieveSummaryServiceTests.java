@@ -180,7 +180,7 @@ class RetrieveSummaryServiceTests {
 
         var map = new HashMap<String, String>();
         map.put("Y", "TXT");
-        when(catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM)).thenReturn(map);
+        when(catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM)).thenReturn("TXT");
 
         when(catchingValueService.getCodeDescTxtForCd(NEDSSConstant.CLASS_CD_NOTF,"NBS_DOC_PURPOSE" ))
                 .thenReturn("TEST");
@@ -317,11 +317,11 @@ class RetrieveSummaryServiceTests {
         map.put("1", "1");
         when(catchingValueService.getCodedValuesCallRepos(
                 "PHC_CLASS"))
-                .thenReturn(map);
+                .thenReturn("1");
 
         when(catchingValueService.getCodedValuesCallRepos(
                 "PHC_TYPE"))
-                .thenReturn(map);
+                .thenReturn("1");
 
         var notSumCol = new ArrayList<NotificationSummaryContainer>();
         var notSum = new NotificationSummaryContainer();
