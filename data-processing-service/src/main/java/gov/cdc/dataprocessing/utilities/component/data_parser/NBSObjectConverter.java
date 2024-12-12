@@ -54,13 +54,13 @@ import java.util.Objects;
 public class NBSObjectConverter {
     private static final Logger logger = LoggerFactory.getLogger(NBSObjectConverter.class);
 
-    private final ICatchingValueService checkingValueService;
     private final EntityIdUtil entityIdUtil;
 
-    public NBSObjectConverter(ICatchingValueService checkingValueService,
-                              EntityIdUtil entityIdUtil) {
-        this.checkingValueService = checkingValueService;
+    private final ICatchingValueService catchingValueService;
+
+    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueService catchingValueService) {
         this.entityIdUtil = entityIdUtil;
+        this.catchingValueService = catchingValueService;
     }
 
     public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException {
@@ -94,7 +94,7 @@ public class NBSObjectConverter {
         String hl7NameTypeCode = hl7XPNType.getHL7NameTypeCode();
         personNameDto.setNmUseCd(Objects.requireNonNullElse(hl7NameTypeCode, EdxELRConstant.ELR_LEGAL_NAME));
 
-        String toCode = checkingValueService.findToCode("ELR_LCA_NM_USE", personNameDto.getNmUseCd(), "P_NM_USE");
+        String toCode = catchingValueService.findToCode("ELR_LCA_NM_USE", personNameDto.getNmUseCd(), "P_NM_USE");
         if(toCode!=null && !toCode.isEmpty()){
             personNameDto.setNmUseCd(toCode);
         }
@@ -167,7 +167,7 @@ public class NBSObjectConverter {
             else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
-                String typeCode = checkingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
+                String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
                 if (typeCode == null || typeCode.trim().equals("")) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
@@ -304,7 +304,7 @@ public class NBSObjectConverter {
 
             /** Optional maxOccurs="1 */
             /** length"20 */
-            String cnty = checkingValueService.getCountyCdByDesc(countyParishCode,pl.getStateCd());
+            String cnty = catchingValueService.getCountyCdByDesc(countyParishCode,pl.getStateCd());
             if(cnty==null) {
                 pl.setCntyCd(countyParishCode);
             }
@@ -349,7 +349,7 @@ public class NBSObjectConverter {
     private String translateStateCd(String msgInStateCd) {
         if(msgInStateCd != null && !msgInStateCd.trim().isEmpty())
         {
-            StateCode stateCode = checkingValueService.findStateCodeByStateNm(msgInStateCd);
+            StateCode stateCode = catchingValueService.findStateCodeByStateNm(msgInStateCd);
             return stateCode.getStateCd();
         }
         else

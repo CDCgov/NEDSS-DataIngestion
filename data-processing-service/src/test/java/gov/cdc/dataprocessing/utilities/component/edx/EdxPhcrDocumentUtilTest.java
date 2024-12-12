@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.edx;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
@@ -34,7 +33,7 @@ class EdxPhcrDocumentUtilTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        SrteCache.investigationFormConditionCode.clear();
+//        SrteCache.investigationFormConditionCode.clear();
     }
 
 
@@ -100,7 +99,7 @@ class EdxPhcrDocumentUtilTest {
         NbsQuestionMetadata ques = new NbsQuestionMetadata();
 
         var condCode = NBSConstantUtil.INV_FORM_RVCT;
-        SrteCache.investigationFormConditionCode.put(condCode, condCode);
+       // SrteCache.investigationFormConditionCode.put(condCode, condCode);
 
         var tree = new TreeMap<>();
         tree.put(DecisionSupportConstants.CORE_INV_FORM, ques);
@@ -121,7 +120,7 @@ class EdxPhcrDocumentUtilTest {
         NbsQuestionMetadata ques = new NbsQuestionMetadata();
 
         var condCode = NBSConstantUtil.INV_FORM_RVCT;
-        SrteCache.investigationFormConditionCode.put(condCode, condCode);
+       // SrteCache.investigationFormConditionCode.put(condCode, condCode);
 
         var tree = new TreeMap<>();
         tree.put(DecisionSupportConstants.CORE_INV_FORM, ques);

@@ -1,9 +1,9 @@
 package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
-import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.EdxPHCRConstants;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.kafka.consumer.KafkaPublicHealthCaseConsumer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model.QuestionRequiredNnd;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomNbsQuestionRepository;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationNotificationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
@@ -66,14 +67,16 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     private final IInvestigationService investigationService;
     private final INotificationService notificationService;
     private final CustomNbsQuestionRepository customNbsQuestionRepository;
+    private final ICacheApiService cacheApiService;
 
     public InvestigationNotificationService(
             IInvestigationService investigationService,
             INotificationService notificationService,
-            CustomNbsQuestionRepository customNbsQuestionRepository) {
+            CustomNbsQuestionRepository customNbsQuestionRepository, ICacheApiService cacheApiService) {
         this.investigationService = investigationService;
         this.notificationService = notificationService;
         this.customNbsQuestionRepository = customNbsQuestionRepository;
+        this.cacheApiService = cacheApiService;
     }
 
     public EDXActivityDetailLogDto sendNotification(Object pageObj, String nndComment) throws DataProcessingException {
@@ -149,9 +152,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Long publicHealthCaseUid = phcDT.getPublicHealthCaseUid();
 
             Map<Object,Object> subMap = new HashMap<>();
-            HashMap<String, String> condAndFormCdTreeMap = SrteCache.investigationFormConditionCode;
-
-            String investigationFormCd = condAndFormCdTreeMap.get(phcDT.getCd());
+            String investigationFormCd = cacheApiService.getSrteCacheString(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), phcDT.getCd());
             Collection<QuestionRequiredNnd>  notifReqColl;
 
             notifReqColl = customNbsQuestionRepository.retrieveQuestionRequiredNnd(investigationFormCd);
