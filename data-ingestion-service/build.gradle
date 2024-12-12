@@ -228,7 +228,7 @@ dependencies {
 	if (findProject(':hl7-parser')) {
 		implementation project(':hl7-parser')
 	} else {
-		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
+		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT-BK.jar')
 	}
 
 	implementation files('libs/cda-schema.jar')
