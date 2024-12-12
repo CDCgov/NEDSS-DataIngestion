@@ -36,9 +36,9 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-task copyJar(type: Copy) {
-  from jar
-  into "${project(':data-ingestion-service').projectDir}/libs/"
-}
-
-build.finalizedBy copyJar
+//task copyJar(type: Copy) {
+//  from jar
+//  into "${project(':data-ingestion-service').projectDir}/libs/"
+//}
+//
+//build.finalizedBy copyJar
