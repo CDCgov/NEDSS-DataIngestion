@@ -48,6 +48,15 @@ hl7-parser/.gradle/
 hl7-parser/.idea/*
 hl7-parser/.gradle/*
 
+
+# srte data service
+srte-data-service/build/
+
+# srte-data-service
+srte-data-service/.gradle/
+srte-data-service/.idea/*
+srte-data-service/.gradle/*
+
 ### .idea ###
 .idea/
 .idea/.name
@@ -62,3 +71,5 @@ hl7-parser/.gradle/*
 application-local.yaml
 
 containers/builder/NEDSSDev/
+
+build
