@@ -24,8 +24,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
-    compileOnly project(':cdaschema')
-
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
     api 'org.apache.commons:commons-math3:3.6.1'
@@ -41,4 +39,5 @@ task copyJar(type: Copy) {
   into "${project(':data-ingestion-service').projectDir}/libs/"
 }
 
-build.finalizedBy copyJar
+build.dependsOn copyJar
+
