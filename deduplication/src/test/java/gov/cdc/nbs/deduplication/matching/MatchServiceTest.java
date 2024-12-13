@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.matching;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestClient.RequestBodySpec;
 import org.springframework.web.client.RestClient.RequestBodyUriSpec;
 import org.springframework.web.client.RestClient.ResponseSpec;
 
+import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.model.CreatePersonResponse;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
 import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
@@ -137,6 +139,46 @@ class MatchServiceTest {
     assertThat(response.linkResponse().person_reference_id()).isEqualTo("newPersonReference");
     assertThat(response.linkResponse().prediction()).isEqualTo("possible_match");
     assertThat(response.linkResponse().results()).isNull();
+  }
+
+  @Test
+  void testNullResponse() {
+    PersonMatchRequest matchRequest = new PersonMatchRequest(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null);
+
+    mockClientLinkCall(null);
+
+    MatchException exception = assertThrows(MatchException.class, () -> matchService.match(matchRequest));
+    assertThat(exception.getMessage()).isEqualTo("Link response from Record Linkage is null");
+  }
+
+  @Test
+  void testPossibleNullResponse() {
+    PersonMatchRequest matchRequest = new PersonMatchRequest(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null);
+
+    mockClientLinkCall(new LinkResponse(
+        "patientReferenceId",
+        "personReferenceId",
+        "possible_match",
+        null));
+
+    mockClientPatientUpdateCall("patientReferenceId", null);
+
+    MatchException exception = assertThrows(MatchException.class, () -> matchService.match(matchRequest));
+    assertThat(exception.getMessage())
+        .isEqualTo("Record Linkage failed to create new entry for patient: patientReferenceId");
+
   }
 
   private void mockClientLinkCall(LinkResponse response) {

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
 import gov.cdc.nbs.deduplication.matching.model.CreatePersonResponse;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
@@ -53,6 +54,10 @@ public class MatchService {
     // Send to RL
     LinkResponse linkResponse = sendLinkRequest(linkRequest);
 
+    if (linkResponse == null) {
+      throw new MatchException("Link response from Record Linkage is null");
+    }
+
     // Handle response from RL and send response back to caller
     if ("match".equals(linkResponse.prediction())) {
       return handleExactMatch(linkResponse);
@@ -74,6 +79,11 @@ public class MatchService {
     // Tell MPI to create a new entry for the possible match so other incoming
     // records can be linked to it
     CreatePersonResponse response = sendCreatePersonRequest(linkResponse.patient_reference_id());
+
+    if (response == null) {
+      throw new MatchException(
+          "Record Linkage failed to create new entry for patient: " + linkResponse.patient_reference_id());
+    }
 
     // Add newly created person identifier to response
     LinkResponse newLinkReponse = new LinkResponse(
@@ -123,11 +133,6 @@ public class MatchService {
         .addValue("mpi_person", request.linkResponse().person_reference_id())
         .addValue("status", status);
     template.update(LINK_NBS_MPI_QUERY, parameters);
-
-    if (isPossibleMatch) {
-      // TODO Insert into review queue table
-
-    }
 
   }
 
