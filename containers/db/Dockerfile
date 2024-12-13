@@ -20,5 +20,7 @@ USER mssql
 # This is intended for development only
 RUN /opt/mssql/bin/sqlservr & /var/opt/database/initialize/initialize.sh
 
+# remove the backup files to reduce image size
+RUN rm /var/opt/database/initialize/restore.d/*.bak
 
 ENTRYPOINT [ "/opt/mssql/bin/sqlservr" ]

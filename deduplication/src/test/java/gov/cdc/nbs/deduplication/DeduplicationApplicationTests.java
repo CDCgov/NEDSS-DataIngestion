@@ -8,9 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import gov.cdc.nbs.deduplication.config.DataSourceConfig;
+import gov.cdc.nbs.deduplication.config.container.EmbeddedMssqlDatabase;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@EmbeddedMssqlDatabase
 class DeduplicationApplicationTests {
 
   @Autowired
