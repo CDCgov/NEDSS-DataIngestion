@@ -94,6 +94,9 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         .body(MatchResponse.class);
 
     // Create new entry in database based on match result
+    if (response == null) {
+      throw new DataProcessingException("Null response returned from deduplication service");
+    }
     handleCreatePerson(personContainer, MatchType.EXACT.equals(response.matchType()), response.match());
 
     // Tell deduplication service to link newly created patient to MPI patient
