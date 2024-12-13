@@ -183,7 +183,8 @@ compileJava.dependsOn jaxb
 
 if (project != project.rootProject || project.hasProperty('remoteBuild')) {
 	compileJava.mustRunAfter(":hl7-parser:copyJar")
-	compileJava.mustRunAfter(":cdaschema:copyJar")
+	compileJava.mustRunAfter(":cdaschema:generateXmlBeans")
+  compileJava.dependsOn(":cdaschema:copyJar")
 }
 
 
