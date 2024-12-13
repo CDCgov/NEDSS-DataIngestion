@@ -39,5 +39,5 @@ task copyJar(type: Copy) {
   into "${project(':data-ingestion-service').projectDir}/libs/"
 }
 
-build.dependsOn copyJar
+build.finalizedBy(copyJar)
 

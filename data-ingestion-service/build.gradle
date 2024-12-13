@@ -182,7 +182,7 @@ task jaxb {
 compileJava.dependsOn jaxb
 
 if (project != project.rootProject || project.hasProperty('remoteBuild')) {
-	compileJava.mustRunAfter(":hl7-parser:build")
+	compileJava.mustRunAfter(":hl7-parser:copyJar")
 	compileJava.mustRunAfter(":cdaschema:copyJar")
 }
 
@@ -283,7 +283,7 @@ jar {
 
 	// Conditionally add dependencies from projects
 	if (findProject(':hl7-parser')) {
-		dependsOn(':hl7-parser:jar')
+		dependsOn(':hl7-parser:copyJar')
 	}
 
 	if (findProject(':cdaschema')) {
