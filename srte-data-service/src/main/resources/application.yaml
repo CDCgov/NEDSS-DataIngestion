@@ -1,7 +1,7 @@
 server:
-  port: 8085
+  port: 8084
   servlet:
-    context-path: /rti
+    context-path: /data
 
 spring:
   application:
