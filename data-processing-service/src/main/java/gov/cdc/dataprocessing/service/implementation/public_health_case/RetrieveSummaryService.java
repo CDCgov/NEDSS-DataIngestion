@@ -261,13 +261,13 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 for (NotificationSummaryContainer newVO : retval) {
                     if (newVO.getCaseClassCd() != null
                             && newVO.getCaseClassCd().trim().length() != 0) {
-                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
-                        newVO.setCaseClassCdTxt((String) map.get(newVO.getCaseClassCd()));
+                        catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
+                        newVO.setCaseClassCdTxt(catchingValueService.getCodedValuesCallRepos(newVO.getCaseClassCd()));
                     }
                     if (newVO.getCd() != null
                             && newVO.getCd().trim().length() != 0) {
-                        HashMap<?, ?> map = catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
-                        newVO.setCdTxt((String) map.get(newVO.getCd()));
+                        catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
+                        newVO.setCdTxt((String)catchingValueService.getCodedValuesCallRepos(newVO.getCd()));
                     }
 
                     if (newVO.getCdNotif() != null
@@ -318,9 +318,9 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             statement[1] = SELECT_NOTIFICATION_HIST_FOR_INVESTIGATION_SQL1 +
                     dataAccessWhereClause + " ORDER BY notHist.version_ctrl_nbr DESC";
 
-            HashMap<?, ?> mapPhcClass =  catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
-            HashMap<?, ?> mapPhcType =  catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
+            catchingValueService.getCodedValuesCallRepos(CASE_CLASS_CODE_SET_NM);
+            catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
             for (String s : statement) {
                 List<Object> inputArg = new ArrayList<>();
@@ -336,11 +336,11 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 for (NotificationSummaryContainer newVO : retval) {
                     if (newVO.getCaseClassCd() != null
                             && newVO.getCaseClassCd().trim().length() != 0) {
-                        newVO.setCaseClassCdTxt((String) mapPhcClass.get(newVO.getCaseClassCd()));
+                        newVO.setCaseClassCdTxt(catchingValueService.getCodedValuesCallRepos(newVO.getCaseClassCd()));
                     }
                     if (newVO.getCd() != null
                             && newVO.getCd().trim().length() != 0) {
-                        newVO.setCdTxt((String) mapPhcType.get(newVO.getCd()));
+                        newVO.setCdTxt(catchingValueService.getCodedValuesCallRepos(newVO.getCd()));
                     }
 
                     if (newVO.getCdNotif() != null

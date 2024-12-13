@@ -182,7 +182,7 @@ task jaxb {
 compileJava.dependsOn jaxb
 
 if (project != project.rootProject || project.hasProperty('remoteBuild')) {
-	compileJava.mustRunAfter(":hl7-parser:build")
+	compileJava.mustRunAfter(":hl7-parser:copyJar")
 	compileJava.mustRunAfter(":cdaschema:copyJar")
 }
 
@@ -225,11 +225,13 @@ dependencies {
 	implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.8.0'
 	implementation 'org.apache.camel:camel-xml-jaxb:4.8.0'
 
+// NOTE: dont remove this, might come back to this setup in the future
 	if (findProject(':hl7-parser')) {
 		implementation project(':hl7-parser')
 	} else {
 		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
 	}
+
 
 	implementation files('libs/cda-schema.jar')
 
@@ -281,7 +283,7 @@ jar {
 
 	// Conditionally add dependencies from projects
 	if (findProject(':hl7-parser')) {
-		dependsOn(':hl7-parser:jar')
+		dependsOn(':hl7-parser:copyJar')
 	}
 
 	if (findProject(':cdaschema')) {
