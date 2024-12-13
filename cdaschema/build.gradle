@@ -63,4 +63,5 @@ task copyJar(type: Copy) {
   into "${project(':data-ingestion-service').projectDir}/libs/"
 }
 cdaSchemaJar.mustRunAfter compileJava
+copyJar.dependsOn(generateXmlBeans)
 generateXmlBeans.finalizedBy(copyJar)
