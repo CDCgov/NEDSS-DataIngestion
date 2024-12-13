@@ -3,7 +3,6 @@ package gov.cdc.nbs.deduplication.seed.step;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -24,21 +23,13 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
 
   private final NamedParameterJdbcTemplate template;
 
-  public DeduplicationWriter(@Qualifier("deduplicationTemplate") final JdbcTemplate template) {
-    this.template = new NamedParameterJdbcTemplate(template);
+  public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+    this.template = template;
   }
 
   @Override
   public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
-    chunk.forEach(c -> {
-      SqlParameterSource parameters = new MapSqlParameterSource()
-          .addValue("person_uid", c.nbsPersonId())
-          .addValue("person_parent_uid", c.nbsPersonParentId())
-          .addValue("mpi_patient", c.mpiPatientId())
-          .addValue("mpi_person", c.mpiPersonId())
-          .addValue("status", "U");
-      template.update(QUERY, parameters);
-    });
+    chunk.forEach(c -> template.update(QUERY, createParameterSource(c)));
   }
 
   SqlParameterSource createParameterSource(DeduplicationEntry entry) {

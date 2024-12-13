@@ -9,13 +9,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
@@ -24,7 +24,7 @@ import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 class DeduplicationWriterTest {
 
   @Mock
-  private JdbcTemplate template;
+  private NamedParameterJdbcTemplate template;
 
   @InjectMocks
   private DeduplicationWriter writer;
@@ -51,8 +51,20 @@ class DeduplicationWriterTest {
     var chunk = new Chunk<DeduplicationEntry>(entries);
 
     writer.write(chunk);
+    ArgumentCaptor<SqlParameterSource> captor = ArgumentCaptor.forClass(SqlParameterSource.class);
+    verify(template, times(2)).update(Mockito.anyString(), captor.capture());
 
-    verify(template, times(2)).update(Mockito.any(PreparedStatementCreator.class));
+    assertThat(captor.getAllValues().get(0).getValue("person_uid")).isEqualTo(1l);
+    assertThat(captor.getAllValues().get(0).getValue("person_parent_uid")).isEqualTo(2l);
+    assertThat(captor.getAllValues().get(0).getValue("mpi_patient")).isEqualTo("mpiPatient1");
+    assertThat(captor.getAllValues().get(0).getValue("mpi_person")).isEqualTo("mpiPerson1");
+    assertThat(captor.getAllValues().get(0).getValue("status")).isEqualTo("U");
+
+    assertThat(captor.getAllValues().get(1).getValue("person_uid")).isEqualTo(3l);
+    assertThat(captor.getAllValues().get(1).getValue("person_parent_uid")).isEqualTo(4l);
+    assertThat(captor.getAllValues().get(1).getValue("mpi_patient")).isEqualTo("mpiPatient2");
+    assertThat(captor.getAllValues().get(1).getValue("mpi_person")).isEqualTo("mpiPerson2");
+    assertThat(captor.getAllValues().get(1).getValue("status")).isEqualTo("U");
   }
 
   @Test
