@@ -5,9 +5,6 @@ on:
       - main
       - master
       - rel-**
-    paths-ignore:
-      - "docker-compose.yml"
-      - "**.md"
     paths:
       - "data-ingestion-service/**"
       - "data-processing-service/**"
