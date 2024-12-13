@@ -1,4 +1,4 @@
-package gov.cdc.nbs.deduplication.config;
+package gov.cdc.nbs.deduplication.config.container;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

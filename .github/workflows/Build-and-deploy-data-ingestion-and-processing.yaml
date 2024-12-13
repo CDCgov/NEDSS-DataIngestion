@@ -8,6 +8,13 @@ on:
     paths-ignore:
       - "docker-compose.yml"
       - "**.md"
+    paths:
+      - "data-ingestion-service/**"
+      - "data-processing-service/**"
+      - "cdaschema/**"
+      - "hl7-parser/**"
+      - "srte-data-service/**"
+      - "phdc-xsd-jaxb/**"
 jobs:
   sonar_scan:
     uses: ./.github/workflows/sonar.yaml
@@ -75,7 +82,7 @@ jobs:
 
   call-build-srte-data-service-microservice-container-workflow:
     name: Build Container
-#    needs: sonar_scan
+    #    needs: sonar_scan
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
     with:
       microservice_name: srte-data-service
