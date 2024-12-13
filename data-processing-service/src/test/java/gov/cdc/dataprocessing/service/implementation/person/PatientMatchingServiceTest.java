@@ -332,12 +332,6 @@ class PatientMatchingServiceTest {
     }
 
     @Test
-    void getMultipleMatchFound() {
-        boolean multiMatchResult = patientMatchingService.getMultipleMatchFound();
-        assertEquals(false, multiMatchResult);
-    }
-
-    @Test
     void updateExistingPerson() throws DataProcessingException {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);

@@ -144,7 +144,6 @@ class PersonServiceTest {
         edxPatientMatchFoundDT.setMultipleMatch(false);
 
         when(patientMatchingServiceMock.getMatchingPatient(personContainer)).thenReturn(edxPatientMatchFoundDT);
-        when(patientMatchingServiceMock.getMultipleMatchFound()).thenReturn(false);
 
         PersonContainer personContainerResult=personService.processingPatient(labResultProxyContainer,edxLabInformationDto,personContainer);
         assertNotNull(personContainerResult);
