@@ -44,11 +44,6 @@ task generateXmlBeans(type: JavaExec) {
 
 }
 
-task copyJar(type: Copy) {
-  from 'build/libs/cda-schema.jar'
-  into "${project(':data-ingestion-service').projectDir}/libs/"
-}
-
 compileJava.dependsOn generateXmlBeans
 
 // Disable the default jar task
@@ -63,5 +58,9 @@ artifacts {
     archives cdaSchemaJar
 }
 
+task copyJar(type: Copy) {
+  from "${buildDir}/libs/cda-schema.jar"
+  into "${project(':data-ingestion-service').projectDir}/libs/"
+}
 cdaSchemaJar.mustRunAfter compileJava
-build.finalizedBy copyJar
+generateXmlBeans.finalizedBy(copyJar)
