@@ -35,7 +35,6 @@ import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchReposit
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 
 @Service
-@SuppressWarnings("null")
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
   private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class);
 
@@ -147,6 +146,9 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
 
     // Create either a new Person or a Revision
+    if (edxPatientMatchDto == null) {
+      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT);
+    }
     handleCreatePerson(personContainer, matchFound, edxPatientMatchDto.getPatientUid());
 
     return edxPatientMatchDto;
