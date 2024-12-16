@@ -10,6 +10,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
+import gov.cdc.dataprocessing.service.implementation.person.matching.LinkResponse;
+import gov.cdc.dataprocessing.service.implementation.person.matching.LinkResponse.Results;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
 import gov.cdc.dataprocessing.service.implementation.person.matching.PersonMatchRequest;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
@@ -25,6 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -94,7 +97,11 @@ class PatientMatchingServiceTest {
         when(deduplicationService.match(Mockito.any(PersonMatchRequest.class))).thenReturn(new MatchResponse(
                 1l,
                 MatchType.EXACT,
-                null));
+                new LinkResponse(
+                    "pat_ref_id",
+                    "person_ref_id",
+                    "match",
+                    List.of(new Results("pers_ref", 1.0)))));
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
@@ -130,6 +137,22 @@ class PatientMatchingServiceTest {
         assertThat(exception.getMessage()).isEqualTo("Null response returned from deduplication service");
         verify(deduplicationService, times(1)).match(Mockito.any());
         verify(deduplicationService, times(0)).relate(Mockito.any());
+    }
+
+    @Test
+    void tryMatchingString_null() throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
+        personContainer.thePersonDto.setPersonUid(123L);
+        personContainer.thePersonDto.setCd("TEST");
+        personContainer.setLocalIdentifier("123");
+        personContainer.setRole(EdxELRConstant.ELR_PATIENT_ROLE_CD);
+
+        EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
+        edxPatientMatchFoundDT.setMultipleMatch(false);
+        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(null);
+        //call test method
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        assertNotNull(edxPatientMatchDtoResult);
     }
 
     @Test
@@ -283,6 +306,108 @@ class PatientMatchingServiceTest {
 
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         edxPatientMatchFoundDT.setMultipleMatch(false);
+        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+
+        Person person = new Person();
+        person.setPersonUid(222L);
+        person.setPersonParentUid(222L);
+        person.setLocalId("333");
+
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
+        PersonContainer mpr = new PersonContainer();
+        mpr.getThePersonDto().setLocalId("4444");
+        mpr.setExt(true);
+        mpr.setItNew(false);
+        mpr.setItDirty(false);
+        when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        assertNotNull(edxPatientMatchDtoResult);
+    }
+
+    @Test
+    void getMatchingPatient_identifier_null_uid() throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
+        personContainer.thePersonDto.setPersonUid(123L);
+        personContainer.setItNew(false);
+        personContainer.setItDirty(false);
+
+        personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
+        //for getIdentifier
+        EntityIdDto entityIdDto = new EntityIdDto();
+        entityIdDto.setEntityIdSeq(1);
+        entityIdDto.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
+        entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        entityIdDto.setTypeCd(EdxELRConstant.ELR_SS_TYPE);
+        entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        entityIdDto.setRootExtensionTxt("TEST");
+        entityIdDto.setAssigningAuthorityCd("TEST_ASSING_AUTHTY");
+        entityIdDto.setAssigningAuthorityDescTxt("TEST_ASSING_AUTHTY_DESC");
+        entityIdDto.setAssigningAuthorityIdType("TEST");
+        personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
+
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setNmUseCd("L");
+        personNameDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
+        personNameDto.setLastNm("TEST_LST_NM");
+        personNameDto.setFirstNm("TEST_FIRST_NM");
+        personContainer.getThePersonNameDtoCollection().add(personNameDto);
+
+        EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
+        edxPatientMatchFoundDT.setMultipleMatch(false);
+        edxPatientMatchFoundDT.setPatientUid(null);
+        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
+
+        Person person = new Person();
+        person.setPersonUid(222L);
+        person.setPersonParentUid(222L);
+        person.setLocalId("333");
+
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
+        PersonContainer mpr = new PersonContainer();
+        mpr.getThePersonDto().setLocalId("4444");
+        mpr.setExt(true);
+        mpr.setItNew(false);
+        mpr.setItDirty(false);
+        when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+        EdxPatientMatchDto edxPatientMatchDtoResult=patientMatchingService.getMatchingPatient(personContainer);
+        assertNotNull(edxPatientMatchDtoResult);
+    }
+
+    @Test
+    void getMatchingPatient_identifier_0() throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
+        personContainer.thePersonDto.setPersonUid(123L);
+        personContainer.setItNew(false);
+        personContainer.setItDirty(false);
+
+        personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
+        //for getIdentifier
+        EntityIdDto entityIdDto = new EntityIdDto();
+        entityIdDto.setEntityIdSeq(1);
+        entityIdDto.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
+        entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        entityIdDto.setTypeCd(EdxELRConstant.ELR_SS_TYPE);
+        entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        entityIdDto.setRootExtensionTxt("TEST");
+        entityIdDto.setAssigningAuthorityCd("TEST_ASSING_AUTHTY");
+        entityIdDto.setAssigningAuthorityDescTxt("TEST_ASSING_AUTHTY_DESC");
+        entityIdDto.setAssigningAuthorityIdType("TEST");
+        personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
+
+        PersonNameDto personNameDto = new PersonNameDto();
+        personNameDto.setNmUseCd("L");
+        personNameDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
+        personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
+        personNameDto.setLastNm("TEST_LST_NM");
+        personNameDto.setFirstNm("TEST_FIRST_NM");
+        personContainer.getThePersonNameDtoCollection().add(personNameDto);
+
+        EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
+        edxPatientMatchFoundDT.setMultipleMatch(false);
+        edxPatientMatchFoundDT.setPatientUid(0L);
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
 
         Person person = new Person();
