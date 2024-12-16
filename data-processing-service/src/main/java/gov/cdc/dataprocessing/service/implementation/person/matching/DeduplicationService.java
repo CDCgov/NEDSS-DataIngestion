@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.person.matching;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -11,8 +11,8 @@ public class DeduplicationService {
   private RestClient restClient;
 
   public DeduplicationService(
-      @Value("${features.modernizedMatching.url}") String modernizedMatchingUrl) {
-    this.restClient = RestClient.builder().baseUrl(modernizedMatchingUrl).build();
+      @Qualifier("deduplicationRestClient") RestClient restClient) {
+    this.restClient = restClient;
   }
 
   public MatchResponse match(PersonMatchRequest request) {
