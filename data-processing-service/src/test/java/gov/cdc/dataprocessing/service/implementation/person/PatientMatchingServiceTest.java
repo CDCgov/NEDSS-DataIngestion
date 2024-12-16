@@ -9,6 +9,10 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
+import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
+import gov.cdc.dataprocessing.service.implementation.person.matching.PersonMatchRequest;
+import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -16,7 +20,6 @@ import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -26,6 +29,9 @@ import java.sql.Timestamp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PatientMatchingServiceTest {
@@ -40,13 +46,22 @@ class PatientMatchingServiceTest {
     private CachingValueService cachingValueService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
+    @Mock
+    private DeduplicationService deduplicationService;
 
-    @InjectMocks
     private PatientMatchingService patientMatchingService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        patientMatchingService = new PatientMatchingService(
+                edxPatientMatchRepositoryUtil,
+                entityHelper,
+                patientRepositoryUtil,
+                cachingValueService,
+                prepareAssocModelHelper,
+                false,
+                deduplicationService);
     }
 
     @AfterEach
@@ -56,6 +71,65 @@ class PatientMatchingServiceTest {
         Mockito.reset(patientRepositoryUtil);
         Mockito.reset(cachingValueService);
         Mockito.reset(prepareAssocModelHelper);
+    }
+
+    @Test
+    void shouldReturnNullIfRoleIsNotPat() throws DataProcessingException {
+      PersonContainer container = new PersonContainer();
+      container.setRole("NonPat");
+      EdxPatientMatchDto matchDto = patientMatchingService.getMatchingPatient(container);
+      assertThat(matchDto).isNull();
+    }
+
+    @Test
+    void shouldPerformModernizedMatching() throws DataProcessingException {
+        patientMatchingService = new PatientMatchingService(
+                edxPatientMatchRepositoryUtil,
+                entityHelper,
+                patientRepositoryUtil,
+                cachingValueService,
+                prepareAssocModelHelper,
+                true,
+                deduplicationService);
+        when(deduplicationService.match(Mockito.any(PersonMatchRequest.class))).thenReturn(new MatchResponse(
+                1l,
+                MatchType.EXACT,
+                null));
+
+        PersonContainer mpr = new PersonContainer();
+        mpr.getThePersonDto().setLocalId("4444");
+        mpr.setExt(true);
+        mpr.setItNew(false);
+        mpr.setItDirty(false);
+        when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        PersonContainer container = new PersonContainer();
+        container.setRole("");
+        patientMatchingService.getMatchingPatient(container);
+        verify(deduplicationService, times(1)).match(Mockito.any());
+        verify(deduplicationService, times(1)).relate(Mockito.any());
+    }
+
+    @Test
+    void modernizedMatchingThrowsException() {
+        patientMatchingService = new PatientMatchingService(
+                edxPatientMatchRepositoryUtil,
+                entityHelper,
+                patientRepositoryUtil,
+                cachingValueService,
+                prepareAssocModelHelper,
+                true,
+                deduplicationService);
+        when(deduplicationService.match(Mockito.any(PersonMatchRequest.class)))
+            .thenReturn(null);
+        PersonContainer container = new PersonContainer();
+        container.setRole("PAT");
+        DataProcessingException exception = assertThrows(
+            DataProcessingException.class,
+            () -> patientMatchingService.getMatchingPatient(container));
+        assertThat(exception.getMessage()).isEqualTo("Null response returned from deduplication service");
+        verify(deduplicationService, times(1)).match(Mockito.any());
+        verify(deduplicationService, times(0)).relate(Mockito.any());
     }
 
     @Test

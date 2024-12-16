@@ -10,10 +10,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -23,10 +21,11 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
+import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
+import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
 import gov.cdc.dataprocessing.service.implementation.person.matching.PersonMatchRequest;
 import gov.cdc.dataprocessing.service.implementation.person.matching.RelateRequest;
-import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
 import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -38,27 +37,24 @@ import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
   private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class);
 
-  @Value("${features.modernizedMatching.enabled:false}")
-  private boolean modernizedMatchingEnabled;
-
-  @Value("${features.modernizedMatching.url}")
-  private String modernizedMatchingUrl;
-
-  private final RestClient restClient;
+  private final boolean modernizedMatchingEnabled;
+  private final DeduplicationService deduplicationService;
 
   public PatientMatchingService(
       EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
       EntityHelper entityHelper,
       PatientRepositoryUtil patientRepositoryUtil,
       CachingValueService cachingValueService,
-      PrepareAssocModelHelper prepareAssocModelHelper) {
+      PrepareAssocModelHelper prepareAssocModelHelper,
+      @Value("${features.modernizedMatching.enabled:false}") boolean modernizedMatchingEnabled,
+      DeduplicationService deduplicationService) {
     super(edxPatientMatchRepositoryUtil,
         entityHelper,
         patientRepositoryUtil,
         cachingValueService,
         prepareAssocModelHelper);
-    this.restClient = RestClient.create();
-
+    this.modernizedMatchingEnabled = modernizedMatchingEnabled;
+    this.deduplicationService = deduplicationService;
   }
 
   @Transactional
@@ -85,13 +81,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
   // Linkage service created in the MPI
   private EdxPatientMatchDto doModernizedMatching(PersonContainer personContainer) throws DataProcessingException {
     PersonMatchRequest request = new PersonMatchRequest(personContainer);
-    MatchResponse response = restClient.post()
-        .uri(modernizedMatchingUrl + "/match")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(request)
-        .retrieve()
-        .body(MatchResponse.class);
+    MatchResponse response = deduplicationService.match(request);
 
     // Create new entry in database based on match result
     if (response == null) {
@@ -105,13 +95,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         personContainer.getThePersonDto().getPersonParentUid(),
         response.matchType(),
         response.linkResponse());
-    restClient.post()
-        .uri(modernizedMatchingUrl + "/relate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(relateRequest)
-        .retrieve()
-        .body(Void.class);
+    deduplicationService.relate(relateRequest);
 
     return new EdxPatientMatchDto();
   }
