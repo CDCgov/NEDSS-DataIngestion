@@ -101,47 +101,41 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
   }
 
   private EdxPatientMatchDto doNbsClassicMatching(PersonContainer personContainer) throws DataProcessingException {
-    boolean matchFound = false;
-    // Try to match using match string
-    EdxPatientMatchDto edxPatientMatchDto = tryMatchByMatchString(personContainer);
-    if (edxPatientMatchDto != null
-        && !edxPatientMatchDto.isMultipleMatch()
-        && edxPatientMatchDto.getPatientUid() != null) {
-      matchFound = true;
-    }
+    // Try to match using localId match string
+    EdxPatientMatchDto edxPatientMatchDto = tryMatchByLocalId(personContainer);
 
     // Try to match using identifiers
-    if (!matchFound) {
+    if (edxPatientMatchDto != null) {
       edxPatientMatchDto = tryMatchByIdentifier(personContainer);
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        matchFound = true;
-      }
     }
 
     // Try to match using last name, first name, date of birth and current sex
-    if (!matchFound) {
+    if (edxPatientMatchDto != null) {
       edxPatientMatchDto = tryMatchByDemographics(personContainer);
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        matchFound = true;
-      }
     }
 
-    // Create either a new Person or a Revision
-    if (edxPatientMatchDto == null) {
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT);
+    if (edxPatientMatchDto != null) {
+      // Creates revision associated with matched patient
+      handleCreatePerson(personContainer, true, edxPatientMatchDto.getPatientUid());
+    } else {
+      // Creates a new master patient record as well as a revision for the ELR
+      edxPatientMatchDto = new EdxPatientMatchDto();
+      handleCreatePerson(personContainer, false, edxPatientMatchDto.getPatientUid());
     }
-    handleCreatePerson(personContainer, matchFound, edxPatientMatchDto.getPatientUid());
 
     return edxPatientMatchDto;
   }
 
-  private EdxPatientMatchDto tryMatchByMatchString(PersonContainer personContainer) throws DataProcessingException {
+  /**
+   * Calls the stored procedure with localId match string. Returns
+   * EdxPatientMatchDto if a match was found. Returns null otherwise
+   * 
+   * @param personContainer
+   * @return {@link EdxPatientMatchDto} if match, otherwise
+   *         null
+   * @throws DataProcessingException
+   */
+  private EdxPatientMatchDto tryMatchByLocalId(PersonContainer personContainer) throws DataProcessingException {
     String cd = personContainer.getThePersonDto().getCd();
     String localId;
     localId = getLocalId(personContainer);
@@ -150,7 +144,16 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
 
     try {
-      return getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd, localId);
+      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd,
+          localId);
+      if (edxPatientMatchDto != null
+          && !edxPatientMatchDto.isMultipleMatch()
+          && edxPatientMatchDto.getPatientUid() != null
+          && edxPatientMatchDto.getPatientUid() > 0) {
+        return edxPatientMatchDto;
+      } else {
+        return null;
+      }
     } catch (Exception ex) {
       logger.error(LOG_ERROR_MATCHING_PATIENT);
       throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
@@ -158,6 +161,15 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
   }
 
+  /**
+   * Calls the stored procedure with identifier match string. Returns
+   * EdxPatientMatchDto if a match was found. Returns null otherwise
+   * 
+   * @param personContainer
+   * @return {@link EdxPatientMatchDto} if match, otherwise
+   *         null
+   * @throws DataProcessingException
+   */
   private EdxPatientMatchDto tryMatchByIdentifier(PersonContainer personContainer) throws DataProcessingException {
     String cd = personContainer.getThePersonDto().getCd();
     List<String> identifierStrList = getIdentifier(personContainer);
@@ -179,25 +191,42 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
         }
       }
     }
-    return edxPatientMatchDto;
+    return null;
   }
 
+  /**
+   * Calls the stored procedure with demographic match string. Returns
+   * EdxPatientMatchDto if a match was found. Returns null otherwise
+   * 
+   * @param personContainer
+   * @return {@link EdxPatientMatchDto} if match, otherwise
+   *         null
+   * @throws DataProcessingException
+   */
   private EdxPatientMatchDto tryMatchByDemographics(PersonContainer personContainer) throws DataProcessingException {
     String namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
     String cd = personContainer.getThePersonDto().getCd();
     if (namesdobcursexStr == null) {
-      return new EdxPatientMatchDto();
+      return null;
     }
 
     try {
-      return getEdxPatientMatchRepositoryUtil()
+      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
           .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
+
+      if (edxPatientMatchDto != null
+          && !edxPatientMatchDto.isMultipleMatch()
+          && edxPatientMatchDto.getPatientUid() != null
+          && edxPatientMatchDto.getPatientUid() > 0) {
+        return edxPatientMatchDto;
+      } else {
+        return null;
+      }
 
     } catch (Exception ex) {
       logger.error(LOG_ERROR_MATCHING_PATIENT);
       throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
     }
-
   }
 
   private void handleCreatePerson(
