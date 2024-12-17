@@ -1,4 +1,4 @@
-FROM amazoncorretto:21 as builder
+FROM amazoncorretto:21 AS builder
 WORKDIR /usr/src/srtedataservice
 #Copy project config
 COPY gradle gradle

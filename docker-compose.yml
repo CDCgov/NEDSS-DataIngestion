@@ -4,7 +4,7 @@ services:
       context: ./
       dockerfile: ./data-ingestion-service/Dockerfile
     ports:
-      - "8083:8081"
+      - "8081:8081"
     depends_on:
       broker:
         condition: service_started
@@ -17,6 +17,23 @@ services:
       - dataingestion.env
     environment:
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+    networks:
+      - dataingestion
+
+  srte-data-service:
+    build:
+      context: .
+      dockerfile: ./srte-data-service/Dockerfile
+    ports:
+      - 8084:8084
+    depends_on:
+      di-keycloak:
+        condition: service_started
+      di-mssql:
+        condition: service_healthy
+    container_name: srte-data-service
+    env_file:
+       - dataingestion.env
     networks:
       - dataingestion
 
