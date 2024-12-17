@@ -7,9 +7,9 @@ Following this guide will set up a fully functioning local development environme
       ```bash
       ./containers/build_classic.sh
       ```
-2. Start Keycloak, Kafka, and database container
+2. Start Keycloak, Kafka, SRTE data cache, and database container
       ```bash
-      docker compose up di-keycloak broker zookeeper di-mssql -d
+      docker compose up di-keycloak broker zookeeper di-mssql srte-data-service -d
       ```
 3. Start data-ingestion-service with gradle. Allows remote debugging using port `19040`
       ```bash
@@ -39,8 +39,9 @@ The docker compose file supports pulling information from a `.dataingestion.env`
 #### dataingestion.env - place at the project root, alongside the docker-compose.yml
 ```bash
 DI_AUTH_URI=http://di-keycloak:8080/realms/NBS;
+RTI_CACHE_AUTH_URI=http://di-keycloak:8080/realms/NBS
 
-NBS_DBSERVER=di-mssql:2433
+NBS_DBSERVER=di-mssql:1433
 NBS_DBUSER=sa
 NBS_DBPASSWORD=fake.fake.fake.1234
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -78,6 +79,23 @@ spring:
       url: jdbc:sqlserver://localhost:2433;databaseName=NBS_ODSE;encrypt=true;trustServerCertificate=true;
     srte:
       url: jdbc:sqlserver://localhost:2433;databaseName=NBS_SRTE;encrypt=true;trustServerCertificate=true;
+
+features:
+  modernizedMatching:
+    enabled: true
+    url: http://localhost:8083/api/deduplication/
+
+cache:
+  clientId: di-keycloak-client
+  secret: OhBq1ar96aep8cnirHwkCNfgsO9yybZI
+  token: http://localhost:8084/data/api/auth/token
+  srte:
+    cacheString: http://localhost:8084/data/srte/cache/string
+    cacheContain: http://localhost:8084/data/srte/cache/contain
+    cacheObject: http://localhost:8084/data/srte/cache/object
+  odse:
+    localId: http://localhost:8084/data/odse/localId
+
 ```
 
 #### deduplication/src/main/resources/application-local.yaml
