@@ -135,7 +135,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
    *         null
    * @throws DataProcessingException
    */
-  private EdxPatientMatchDto tryMatchByLocalId(PersonContainer personContainer) throws DataProcessingException {
+  EdxPatientMatchDto tryMatchByLocalId(PersonContainer personContainer) throws DataProcessingException {
     String cd = personContainer.getThePersonDto().getCd();
     String localId;
     localId = getLocalId(personContainer);
@@ -144,8 +144,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
 
     try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(cd,
-          localId);
+      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+          .getEdxPatientMatchOnMatchString(cd, localId);
       if (edxPatientMatchDto != null
           && !edxPatientMatchDto.isMultipleMatch()
           && edxPatientMatchDto.getPatientUid() != null
@@ -170,7 +170,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
    *         null
    * @throws DataProcessingException
    */
-  private EdxPatientMatchDto tryMatchByIdentifier(PersonContainer personContainer) throws DataProcessingException {
+  EdxPatientMatchDto tryMatchByIdentifier(PersonContainer personContainer) throws DataProcessingException {
     String cd = personContainer.getThePersonDto().getCd();
     List<String> identifierStrList = getIdentifier(personContainer);
     EdxPatientMatchDto edxPatientMatchDto = null;
@@ -203,7 +203,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
    *         null
    * @throws DataProcessingException
    */
-  private EdxPatientMatchDto tryMatchByDemographics(PersonContainer personContainer) throws DataProcessingException {
+  EdxPatientMatchDto tryMatchByDemographics(PersonContainer personContainer) throws DataProcessingException {
     String namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
     String cd = personContainer.getThePersonDto().getCd();
     if (namesdobcursexStr == null) {
