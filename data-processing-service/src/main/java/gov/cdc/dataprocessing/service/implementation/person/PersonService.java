@@ -104,7 +104,11 @@ public class PersonService implements IPersonService {
                 //NOTE: This matching also persist patient accordingly
                 //NOTE: Either new or existing patient, it will be processed within this method
                 edxPatientMatchFoundDT = patientMatchingService.getMatchingPatient(personContainer);
-                edxLabInformationDto.setMultipleSubjectMatch(patientMatchingService.getMultipleMatchFound());
+                if (edxPatientMatchFoundDT != null) {
+                  edxLabInformationDto.setMultipleSubjectMatch(edxPatientMatchFoundDT.isMultipleMatch());
+                } else {
+                  edxLabInformationDto.setMultipleSubjectMatch(false);
+                }
                 personUid = personContainer.getThePersonDto().getPersonUid();
             }
 
