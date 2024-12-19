@@ -51,7 +51,7 @@ public class ProgAreaJurisdictionUtil {
             try
             {
                 Integer programAreaNumericID =  Integer.valueOf(cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES_WITH_NBS_UID.name(), programAreaCode));
-                Integer jurisdictionNumericID = Integer.valueOf(cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES_WITH_NBS_UID.name(), jurisdictionCode));
+                Integer jurisdictionNumericID = Integer.valueOf(cacheApiService.getSrteCacheString(ObjectName.JURISDICTION_CODE_WITH_NBS_UID.name(), jurisdictionCode));
                 hashCode = (jurisdictionNumericID.longValue() * 100000L) + programAreaNumericID.longValue();
             }
             catch(Exception e)

@@ -67,9 +67,10 @@ srte-data-service/.gradle/*
 ### env ###
 *.env
 
-.vscode/*
+.vscode/
 application-local.yaml
 
 containers/builder/NEDSSDev/
 
 build
+bin/
