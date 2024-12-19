@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,14 +48,14 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       CachingValueService cachingValueService,
       PrepareAssocModelHelper prepareAssocModelHelper,
       @Value("${features.modernizedMatching.enabled:false}") boolean modernizedMatchingEnabled,
-      DeduplicationService deduplicationService) {
+      ObjectProvider<DeduplicationService> deduplicationService) {
     super(edxPatientMatchRepositoryUtil,
         entityHelper,
         patientRepositoryUtil,
         cachingValueService,
         prepareAssocModelHelper);
     this.modernizedMatchingEnabled = modernizedMatchingEnabled;
-    this.deduplicationService = deduplicationService;
+    this.deduplicationService = deduplicationService.getIfAvailable();
   }
 
   @Transactional
