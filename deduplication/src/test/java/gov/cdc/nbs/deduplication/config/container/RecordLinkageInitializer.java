@@ -15,6 +15,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
     final Network network = Network.newNetwork();
     final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres")
         .withNetwork(network)
+        .withDatabaseName("postgres")
         .withNetworkAliases("postgres");
 
     final GenericContainer<?> recordLinkageContainer = new GenericContainer<>(

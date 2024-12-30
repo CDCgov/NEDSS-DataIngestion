@@ -21,9 +21,9 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
-    provider.setSelectClause("select person_uid, person_parent_uid");
-    provider.setFromClause("from person");
-    provider.setWhereClause("where person_uid = person_parent_uid");
+    provider.setSelectClause("SELECT person_uid, person_parent_uid");
+    provider.setFromClause("FROM person");
+    provider.setWhereClause("WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT'");
     provider.setSortKey("person_uid");
 
     this.setName("nbsPersonReader");
