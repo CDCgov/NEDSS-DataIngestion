@@ -137,12 +137,12 @@ class SeedingTest {
   }
 
   private void validateCounts() {
-    // query to check counts
+    // query to check NBS counts
     RowCount nbsCount = getNbsPersonCount();
     assertThat(nbsCount.unique()).isPositive();
     assertThat(nbsCount.total()).isPositive();
 
-    // verify a patient's content in MPI
+    // verify MPI counts match NBS
     RowCount mpiCount = getMpiPersonCount();
     assertThat(mpiCount.unique()).isEqualTo(nbsCount.unique());
     assertThat(mpiCount.total()).isEqualTo(nbsCount.total());
