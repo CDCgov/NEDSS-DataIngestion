@@ -1,6 +1,8 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,7 +22,7 @@ import gov.cdc.nbs.deduplication.seed.model.SeedRequest.MpiPerson;
 public class PersonToClusterProcessor implements ItemProcessor<NbsPerson, Cluster> {
 
   private static final String QUERY = """
-      SELECT
+      SELECT DISTINCT
          p.person_uid external_id,
          p.person_parent_uid,
          cast(p.birth_time as Date) birth_date,
@@ -137,6 +139,7 @@ public class PersonToClusterProcessor implements ItemProcessor<NbsPerson, Cluste
 
   private final JdbcTemplate template;
   private final MpiPersonMapper mapper = new MpiPersonMapper();
+  private final Set<Long> processedIds = new HashSet<>();
 
   public PersonToClusterProcessor(@Qualifier("nbsTemplate") final JdbcTemplate template) {
     this.template = template;
@@ -144,12 +147,24 @@ public class PersonToClusterProcessor implements ItemProcessor<NbsPerson, Cluste
 
   @Override
   public Cluster process(@NonNull NbsPerson nbsPerson) {
+    Long personParentUid = nbsPerson.personParentUid();
 
+    // Check if the ID was already processed
+    if (processedIds.contains(personParentUid)) {
+      System.out.println("Skipping already processed ID: " + personParentUid);
+      return null; // Skip processing
+    }
+
+    // Mark as processed before processing
+    processedIds.add(personParentUid);
+
+    // Fetch data from the database
     List<MpiPerson> clusterEntries = this.template.query(
-        QUERY,
-        statement -> statement.setLong(1, nbsPerson.personParentUid()),
-        this.mapper);
-    return new Cluster(clusterEntries, nbsPerson.personParentUid().toString());
+            QUERY,
+            statement -> statement.setLong(1, personParentUid),
+            this.mapper);
+
+    return new Cluster(clusterEntries, personParentUid.toString());
   }
 
 }

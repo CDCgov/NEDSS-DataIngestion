@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.util.StopWatch;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
@@ -44,17 +45,24 @@ public class JobConfig {
 
   @Bean("readNbsWriteToMpi")
   public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    StopWatch stopWatch = new StopWatch();
     return new StepBuilder("Read and transform NBS data", jobRepository)
-        .<NbsPerson, Cluster>chunk(10, transactionManager)
-        .reader(personReader) // page ids to be processed from NBS
-        .processor(processor) // query detailed data from NBS and create cluster
-        .writer(seedWriter) // send cluster to MPI for seeding
-        .build();
+            .<NbsPerson, Cluster>chunk(10, transactionManager)
+            .reader(personReader) // page ids to be processed from NBS
+            .processor(processor) // query detailed data from NBS and create cluster
+            .writer(items -> {
+              stopWatch.start();
+              seedWriter.write(items);
+              stopWatch.stop();
+              // Log time taken for each chunk
+              System.out.println("Time taken for chunk: " + stopWatch.getTotalTimeMillis() + "ms");
+            })
+            .build();
   }
 
   @Bean("readMpiWriteDeduplication")
   public Step step2(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-    return new StepBuilder("Read and transform NBS data", jobRepository)
+    return new StepBuilder("Read MPI and write to Deduplication DB", jobRepository)
         .<DeduplicationEntry, DeduplicationEntry>chunk(10, transactionManager)
         .reader(mpiReader) // page UUID <-> NBS id data from MPI
         .writer(deduplicationWriter) // insert mapping and status into deduplication database
