@@ -1,9 +1,10 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 
-import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.PagingQueryProvider;
+import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -11,22 +12,28 @@ import gov.cdc.nbs.deduplication.seed.mapper.NbsPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 
 @Component
-public class PersonReader extends JdbcCursorItemReader<NbsPerson> {
+public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
   private final NbsPersonMapper mapper = new NbsPersonMapper();
 
-  public PersonReader(@Qualifier("nbs") DataSource dataSource) throws Exception {
+  public PersonReader(
+      @Qualifier("nbs") DataSource dataSource) throws Exception {
 
+    SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
+    provider.setDataSource(dataSource);
+    provider.setSelectClause("select person_uid, person_parent_uid");
+    provider.setFromClause("from person");
+    provider.setWhereClause("where person_uid = person_parent_uid");
+    provider.setSortKey("person_uid");
+
+    this.setName("nbsPersonReader");
     this.setDataSource(dataSource);
-    this.setSql("SELECT person_uid, person_parent_uid, address, name, phone, drivers_license, race FROM person WHERE person_uid = person_parent_uid");
-
-    this.setRowMapper((ResultSet rs, int rowNum) -> {
-      Long personUid = rs.getLong("person_uid");
-      Long personParentUid = rs.getLong("person_parent_uid");
-
-      return mapper.mapRow(rs, rowNum);
-    });
-
-    this.setFetchSize(1000);
+    PagingQueryProvider queryProvider = provider.getObject();
+    if (queryProvider != null) {
+      this.setQueryProvider(queryProvider);
+    }
+    this.setRowMapper(mapper);
+    this.setPageSize(100);
   }
+
 }

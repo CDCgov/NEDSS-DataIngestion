@@ -14,7 +14,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
 import gov.cdc.nbs.deduplication.seed.step.MpiReader;
 import gov.cdc.nbs.deduplication.seed.step.PersonReader;
-import gov.cdc.nbs.deduplication.seed.step.PersonToClusterProcessor;
 import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
 
 @ExtendWith(MockitoExtension.class)

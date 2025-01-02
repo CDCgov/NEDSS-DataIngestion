@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.seed.step;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
@@ -28,7 +29,7 @@ public class SeedWriter implements ItemWriter<Cluster> {
   private final ObjectMapper mapper;
   private final RestClient recordLinkageClient;
   // Set to keep track of processed person_parent_uids to avoid reseeding
-  private final Set<String> processedPersonParentUids = new HashSet<>();
+  private final Set<String> processedPersonParentUids = ConcurrentHashMap.newKeySet();
 
   public SeedWriter(
       final ObjectMapper mapper,

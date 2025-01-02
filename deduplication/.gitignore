@@ -5,6 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### Bak Files ##
+*.bak
+
 ### STS ###
 .apt_generated
 .classpath

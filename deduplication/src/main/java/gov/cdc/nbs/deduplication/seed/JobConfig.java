@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.util.StopWatch;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
@@ -42,28 +43,32 @@ public class JobConfig {
     this.mpiReader = mpiReader;
     this.deduplicationWriter = deduplicationWriter;
   }
+  @Bean(name = "jobTaskExecutor")
+  public TaskExecutor taskExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(10); // Number of concurrent threads
+    executor.setMaxPoolSize(20); // maximum threads
+    executor.setQueueCapacity(100); // Queue capacity for pending tasks
+    executor.setThreadNamePrefix("BatchThread-");
+    executor.initialize();
+    return executor;
+  }
 
   @Bean("readNbsWriteToMpi")
-  public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-    StopWatch stopWatch = new StopWatch();
+  public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager, @Qualifier("jobTaskExecutor") TaskExecutor taskExecutor) {
     return new StepBuilder("Read and transform NBS data", jobRepository)
-            .<NbsPerson, Cluster>chunk(10, transactionManager)
-            .reader(personReader) // page ids to be processed from NBS
-            .processor(processor) // query detailed data from NBS and create cluster
-            .writer(items -> {
-              stopWatch.start();
-              seedWriter.write(items);
-              stopWatch.stop();
-              // Log time taken for each chunk
-              System.out.println("Time taken for chunk: " + stopWatch.getTotalTimeMillis() + "ms");
-            })
-            .build();
+        .<NbsPerson, Cluster>chunk(100, transactionManager)
+        .reader(personReader) // page ids to be processed from NBS
+        .processor(processor) // query detailed data from NBS and create cluster
+        .writer(seedWriter) // send cluster to MPI for seeding
+        .taskExecutor(taskExecutor) // enabling parallel processing
+        .build();
   }
 
   @Bean("readMpiWriteDeduplication")
   public Step step2(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-    return new StepBuilder("Read MPI and write to Deduplication DB", jobRepository)
-        .<DeduplicationEntry, DeduplicationEntry>chunk(10, transactionManager)
+    return new StepBuilder("Read and transform NBS data", jobRepository)
+        .<DeduplicationEntry, DeduplicationEntry>chunk(100, transactionManager)
         .reader(mpiReader) // page UUID <-> NBS id data from MPI
         .writer(deduplicationWriter) // insert mapping and status into deduplication database
         .build();

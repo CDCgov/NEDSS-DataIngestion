@@ -36,7 +36,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
     provider.setDataSource(dataSource);
     provider.setSelectClause(SELECT);
     provider.setFromClause(FROM);
-    provider.setSortKey("person_uid");
+    provider.setSortKey("patient.external_patient_id");
 
     this.setName("mpiIdReader");
     this.setDataSource(dataSource);
@@ -45,6 +45,6 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
       this.setQueryProvider(queryProvider);
     }
     this.setRowMapper(mapper);
-    this.setPageSize(1000);
+    this.setPageSize(10);
   }
 }
