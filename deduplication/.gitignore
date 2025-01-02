@@ -6,7 +6,8 @@ build/
 !**/src/test/**/build/
 
 ### Bak Files ##
-*.bak
+containers/db/initialize/restore.d/NBS_ODSE.bak
+containers/db/initialize/restore.d/NBS_SRTE.bak
 
 ### STS ###
 .apt_generated
