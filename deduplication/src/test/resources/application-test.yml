@@ -3,3 +3,8 @@ testing.database:
     image: dataingestion-di-mssql
     username: ${DATABASE_USER:sa}
     password: ${DATABASE_PASSWORD:fake.fake.fake.1234}
+
+spring:
+  batch:
+    jdbc:
+      initialize-schema: always
