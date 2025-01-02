@@ -1,3 +1,0 @@
-CREATE DATABASE deduplication;
-CREATE DATABASE nbs_odse;
-CREATE DATABASE nbs_srte;
