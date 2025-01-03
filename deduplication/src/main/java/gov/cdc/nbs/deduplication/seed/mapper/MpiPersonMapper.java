@@ -164,6 +164,11 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
     // Get the first drivers-license or set it to null
     DriversLicense license = licenses.stream().findFirst().orElse(null);
 
+    // If the license is null or blank, return null
+    if (license == null) {
+      return null;  // or some other appropriate default value
+    }
+
     // If the authority is null or blank, set a default value
     if (license.authority() == null || license.authority().isBlank()) {
       return new DriversLicense(license.value(), "");

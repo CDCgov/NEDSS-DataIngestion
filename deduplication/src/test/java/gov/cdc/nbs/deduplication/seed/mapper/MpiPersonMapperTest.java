@@ -253,6 +253,7 @@ class MpiPersonMapperTest {
     assertThat(phones).isEmpty();
   }
 
+
   @Test
   void testDriversLicense() {
     // Only 1 DL is currently supported by RL, so the first entry is used
@@ -280,6 +281,19 @@ class MpiPersonMapperTest {
     DriversLicense driversLicense = mapper.mapDriversLicense(DL_STRING);
 
     assertThat(driversLicense).isNull();
+  }
+
+  @Test
+  void testDriversLicenseNullAuthority() {
+    final String DL_STRING = """
+        [{"value":"10111111"}]  // Missing authority
+        """;
+    DriversLicense driversLicense = mapper.mapDriversLicense(DL_STRING);
+
+    // make sure that the license is still mapped but the authority is handled appropriately
+    assertThat(driversLicense).isNotNull();
+    assertThat(driversLicense.authority()).isEqualTo("");  // Assert that the authority is an empty string
+    assertThat(driversLicense.value()).isEqualTo("10111111");  // License value is still present
   }
 
   @ParameterizedTest
