@@ -150,7 +150,11 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         }).orElseGet(() -> new ArrayList<>());
   }
 
-  /** Returns the first Drivers-License entry found, or sets to empty string */
+  /**
+   * Returns the first Drivers-License entry found.
+   * If none is found, creates and returns a new DriversLicense with the given license value
+   * and an empty string as the authority if the authority is null or blank.
+   */
   DriversLicense mapDriversLicense(String driversLicenseString) {
     List<DriversLicense> licenses = tryParse(
             driversLicenseString,
