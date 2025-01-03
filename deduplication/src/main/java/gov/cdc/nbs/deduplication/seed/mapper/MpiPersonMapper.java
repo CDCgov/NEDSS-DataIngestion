@@ -166,7 +166,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
 
     // If the license is null or blank, return null
     if (license == null) {
-      return null;  // or some other appropriate default value
+      return null;
     }
 
     // If the authority is null or blank, set a default value
