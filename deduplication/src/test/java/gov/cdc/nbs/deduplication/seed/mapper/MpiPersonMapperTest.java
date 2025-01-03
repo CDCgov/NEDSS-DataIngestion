@@ -292,7 +292,7 @@ class MpiPersonMapperTest {
 
     // make sure that the license is still mapped but the authority is handled appropriately
     assertThat(driversLicense).isNotNull();
-    assertThat(driversLicense.authority()).isEqualTo("");  // Assert that the authority is an empty string
+    assertThat(driversLicense.authority()).isEmpty(); // Assert that the authority is an empty string
     assertThat(driversLicense.value()).isEqualTo("10111111");  // License value is still present
   }
 
