@@ -36,6 +36,13 @@ public class MatchService {
             (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
           """;
 
+  private static final String INSERT_POSSIBLE_MATCH = """
+      INSERT INTO match_candidates
+        (person_uid, mpi_person_id)
+      VALUES
+        (:person_uid, :mpi_person_id)
+      """;
+
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate template;
   private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
@@ -124,7 +131,7 @@ public class MatchService {
   public void relateNbsIdToMpiId(RelateRequest request) {
     boolean isPossibleMatch = request.matchType() == MatchType.POSSIBLE;
     // If match type was possible, flag the record for review
-    String status = isPossibleMatch ? "R" : "P";
+    String status = isPossibleMatch ? "R" : "P"; // Review, Processed
 
     SqlParameterSource parameters = new MapSqlParameterSource()
         .addValue("person_uid", request.nbsPerson())
@@ -134,6 +141,19 @@ public class MatchService {
         .addValue("status", status);
     template.update(LINK_NBS_MPI_QUERY, parameters);
 
+    // If possible match, persist match options
+    if (isPossibleMatch) {
+      if (request.linkResponse().results() == null
+          || request.linkResponse().results().isEmpty()) {
+        throw new MatchException("Results specify possible match but no possible matches are returned");
+      }
+      request.linkResponse().results().forEach(r -> {
+        SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
+            .addValue("person_uid", request.nbsPerson())
+            .addValue("mpi_person_id", r.person_reference_id());
+        template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
+      });
+    }
   }
 
 }
