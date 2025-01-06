@@ -29,3 +29,11 @@ CREATE TABLE nbs_mpi_mapping (
     status varchar,
     PRIMARY KEY ([id])
 );
+GO
+
+CREATE TABLE match_candidates (
+  id bigint IDENTITY(1,1),
+  person_uid bigint,
+  mpi_person_id uniqueidentifier
+);
+GO

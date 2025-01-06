@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,6 +25,7 @@ import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.model.CreatePersonResponse;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
 import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
+import gov.cdc.nbs.deduplication.matching.model.LinkResponse.Results;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
@@ -236,14 +239,52 @@ class MatchServiceTest {
             "patientRef",
             "personRef",
             "match",
-            null)));
+            List.of(new Results("abcd", 0.5)))));
 
-    assertThat(captor.getAllValues()).hasSize(1);
-    assertThat(captor.getValue().getValue("person_uid")).isEqualTo(1l);
-    assertThat(captor.getValue().getValue("person_parent_uid")).isEqualTo(1l);
-    assertThat(captor.getValue().getValue("mpi_patient")).isEqualTo("patientRef");
-    assertThat(captor.getValue().getValue("mpi_person")).isEqualTo("personRef");
-    assertThat(captor.getValue().getValue("status")).isEqualTo("R");
+    List<SqlParameterSource> sqlParams = captor.getAllValues();
+    assertThat(sqlParams).hasSize(2);
+    // Link MPI query
+    assertThat(sqlParams.get(0).getValue("person_uid")).isEqualTo(1l);
+    assertThat(sqlParams.get(0).getValue("person_parent_uid")).isEqualTo(1l);
+    assertThat(sqlParams.get(0).getValue("mpi_patient")).isEqualTo("patientRef");
+    assertThat(sqlParams.get(0).getValue("mpi_person")).isEqualTo("personRef");
+    assertThat(sqlParams.get(0).getValue("status")).isEqualTo("R");
+
+    // Persist possible matches
+    assertThat(sqlParams.get(1).getValue("person_uid")).isEqualTo(1l);
+    assertThat(sqlParams.get(1).getValue("mpi_person_id")).isEqualTo("abcd");
+  }
+
+  @Test
+  void testRelateNbsToMpiPossibleEmptyList() {
+    LinkResponse linkResponse = new LinkResponse(
+        "patientRef",
+        "personRef",
+        "match",
+        List.of());
+
+    RelateRequest request = new RelateRequest(
+        1l,
+        1l,
+        MatchType.POSSIBLE,
+        linkResponse);
+    assertThrows(MatchException.class, () -> matchService.relateNbsIdToMpiId(request));
+  }
+
+  @Test
+  void testRelateNbsToMpiPossibleNullList() {
+    LinkResponse linkResponse = new LinkResponse(
+        "patientRef",
+        "personRef",
+        "match",
+        null);
+
+    RelateRequest request = new RelateRequest(
+        1l,
+        1l,
+        MatchType.POSSIBLE,
+        linkResponse);
+    assertThrows(MatchException.class, () -> matchService.relateNbsIdToMpiId(request));
   }
 
 }
