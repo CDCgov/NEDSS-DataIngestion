@@ -38,7 +38,7 @@ public class MatchService {
 
   private static final String INSERT_POSSIBLE_MATCH = """
       INSERT INTO match_candidates
-        (person_uid, mpi_person)
+        (person_uid, mpi_person_id)
       VALUES
         (:person_uid, :mpi_person_id)
       """;
@@ -143,6 +143,10 @@ public class MatchService {
 
     // If possible match, persist match options
     if (isPossibleMatch) {
+      if (request.linkResponse().results() == null
+          || request.linkResponse().results().isEmpty()) {
+        throw new MatchException("Results specify possible match but no possible matches are returned");
+      }
       request.linkResponse().results().forEach(r -> {
         SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
             .addValue("person_uid", request.nbsPerson())
