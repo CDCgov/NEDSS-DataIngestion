@@ -12,6 +12,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
@@ -45,6 +46,8 @@ class HL7PatientHandlerTest {
     private EntityIdUtil entityIdUtil;
     @InjectMocks
     private HL7PatientHandler hl7PatientHandler;
+    @Mock
+    private ICacheApiService cacheApiService;
     @Mock
     AuthUtil authUtil;
 
@@ -180,6 +183,7 @@ class HL7PatientHandlerTest {
         // NOK
         when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");
 
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn("{}");
 
         var res = hl7PatientHandler.getPatientAndNextOfKin(hl7PatientResult, labResultProxyContainer, edxLabInformationDto);
 

@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.LabTest;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummaryService;
@@ -96,6 +97,8 @@ class InvestigationServiceTests {
     private LabTestRepository labTestRepository;
     @InjectMocks
     private InvestigationService investigationService;
+    @Mock
+    private ICacheApiService cacheApiService;
     @Mock
     AuthUtil authUtil;
 
@@ -768,6 +771,7 @@ class InvestigationServiceTests {
         when(labTestRepository.findLabTestByLabIdAndLabTestCode(any(), eq("TEST"))).thenReturn(Optional.of(labLst));
         when(cachingValueService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
 
+        when(cacheApiService.getSrteCacheString(anyString(), any())).thenReturn("TEST");
 
 
         investigationService.populateDescTxtFromCachedValues(reportCol);

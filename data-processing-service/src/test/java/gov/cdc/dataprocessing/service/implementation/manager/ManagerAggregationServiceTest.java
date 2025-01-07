@@ -185,30 +185,6 @@ class ManagerAggregationServiceTest {
         assertTrue(test.isLabIsCreate());
     }
 
-    @Test
-    void testServiceAggregationAsync_HappyPath() throws DataProcessingException, DataProcessingConsumerException {
-        when(labResult.getTheObservationContainerCollection()).thenReturn(observationContainerCollection);
-        when(labResult.getThePersonContainerCollection()).thenReturn(personContainerCollection);
-        when(patientService.processingPatient(any(), any(), any())).thenReturn(new PersonContainer());
-        when(organizationService.processingOrganization(any())).thenReturn(organizationContainer);
-
-        // Spy on the service to verify method calls
-        ManagerAggregationService spyService = spy(managerAggregationService);
-        doNothing().when(spyService).observationAggregation(any(), any(), any());
-        doReturn(personAggContainer).when(spyService).patientAggregation(any(), any(), any());
-        doReturn(organizationContainer).when(organizationService).processingOrganization(any());
-        doReturn(CompletableFuture.completedFuture(null)).when(spyService).progAndJurisdictionAggregationAsync(any(), any(), any(), any());
-
-        spyService.serviceAggregationAsync(labResult, edxLabInformationDto);
-
-        verify(spyService).observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-        verify(spyService).patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-        verify(organizationService).processingOrganization(labResult);
-        verify(spyService).progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-
-        verify(spyService).roleAggregation(labResult);
-    }
-
     @SuppressWarnings("java:S1117")
     @Test
     void testProgAndJurisdictionAggregationAsync_HappyPath() throws DataProcessingException, ExecutionException, InterruptedException {
@@ -226,11 +202,13 @@ class ManagerAggregationServiceTest {
         doNothing().when(jurisdictionService).assignJurisdiction(any(), any(), any(), any());
 //
 //        // Call the method under test
-//        CompletableFuture<Void> future = managerAggregationService.progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+//        CompletableFuture<Void> future =
+//        managerAggregationService.progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
 //
 //        // Wait for the CompletableFuture to complete
 //        future.get();
 
+        managerAggregationService.progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         // Verify that the services were called
         verify(programAreaService).getProgramArea(any(), any(), any());
         verify(jurisdictionService).assignJurisdiction(any(), any(), any(), any());
@@ -250,13 +228,8 @@ class ManagerAggregationServiceTest {
         // Mock behavior of services to throw exception
         doThrow(new DataProcessingException("Error")).when(programAreaService).getProgramArea(any(), any(), any());
 
-//        CompletableFuture<Void> future = managerAggregationService.progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+        assertThrows(RuntimeException.class, () -> managerAggregationService.progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer));
 
-//        ExecutionException thrownException = assertThrows(ExecutionException.class, future::get);
-//        assertTrue(thrownException.getCause() instanceof RuntimeException);
-//        assertTrue(thrownException.getCause().getCause() instanceof DataProcessingException);
-
-        verify(programAreaService).getProgramArea(any(), any(), any());
     }
 
     @Test
