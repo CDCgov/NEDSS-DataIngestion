@@ -236,7 +236,7 @@ dependencies {
   // Misc
   implementation 'org.yaml:snakeyaml:2.3'
   implementation 'org.apache.commons:commons-lang3:3.17.0'
-  implementation 'com.google.code.gson:gson:2.10.1'
+  implementation 'com.google.code.gson:gson:2.11.0'
   implementation 'com.zaxxer:HikariCP:5.1.0'
   implementation 'org.apache.xmlbeans:xmlbeans:3.1.0'
   implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
