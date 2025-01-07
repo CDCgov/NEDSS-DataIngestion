@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -200,13 +199,6 @@ class ManagerAggregationServiceTest {
         // Mock behavior of services
         doNothing().when(programAreaService).getProgramArea(any(), any(), any());
         doNothing().when(jurisdictionService).assignJurisdiction(any(), any(), any(), any());
-//
-//        // Call the method under test
-//        CompletableFuture<Void> future =
-//        managerAggregationService.progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-//
-//        // Wait for the CompletableFuture to complete
-//        future.get();
 
         managerAggregationService.progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
         // Verify that the services were called

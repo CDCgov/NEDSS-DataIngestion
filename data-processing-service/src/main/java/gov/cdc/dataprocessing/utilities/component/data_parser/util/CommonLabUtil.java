@@ -6,8 +6,6 @@ import gov.cdc.dataprocessing.model.phdc.HL7OBRType;
 import gov.cdc.dataprocessing.model.phdc.HL7OBXType;
 import org.springframework.stereotype.Component;
 
-import java.io.StringWriter;
-
 @Component
 /**
  125 - Comment complaint
