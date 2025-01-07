@@ -15,11 +15,14 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.dsm.DsmAlgorithm;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PublicHealthCaseStoredProcRepository;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
+import gov.cdc.dataprocessing.utilities.GsonUtil;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
@@ -62,6 +65,9 @@ class DecisionSupportServiceTest {
     private DecisionSupportService decisionSupportService;
     @Mock
     AuthUtil authUtil;
+
+    @Mock
+    private ICacheApiService cacheApiService;
 
     @BeforeEach
     void setUp() {
@@ -408,6 +414,10 @@ class DecisionSupportServiceTest {
         when(autoInvestigationService.autoCreateInvestigation(any(), any()))
                 .thenReturn(pam);
 
+        ConditionCode test = new ConditionCode();
+        var testStr = GsonUtil.GSON.toJson(test, ConditionCode.class);
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(testStr);
+
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
@@ -462,7 +472,12 @@ class DecisionSupportServiceTest {
         when(autoInvestigationService.autoCreateInvestigation(any(), any()))
                 .thenReturn(pam);
 
+
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
+
+        ConditionCode test = new ConditionCode();
+        var testStr = GsonUtil.GSON.toJson(test, ConditionCode.class);
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(testStr);
 
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
                 orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);

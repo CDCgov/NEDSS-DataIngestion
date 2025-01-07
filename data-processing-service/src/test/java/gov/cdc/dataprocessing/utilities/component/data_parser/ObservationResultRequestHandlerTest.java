@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
@@ -42,6 +43,9 @@ class ObservationResultRequestHandlerTest {
     private NBSObjectConverter nbsObjectConverter;
     @Mock
     private CommonLabUtil commonLabUtil;
+
+    @Mock
+    private ICacheApiService cacheApiService;
 
     @InjectMocks
     private ObservationResultRequestHandler observationResultRequestHandler;
@@ -96,6 +100,8 @@ class ObservationResultRequestHandlerTest {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
 
         observation.get(0).getObservationResult().setReferencesRange("1^2^3");
+
+        when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
         var res = observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
 
         assertNotNull(res);

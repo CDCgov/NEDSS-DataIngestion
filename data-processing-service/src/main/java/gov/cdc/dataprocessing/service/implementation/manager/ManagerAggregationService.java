@@ -24,8 +24,6 @@ import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Service
 /**
