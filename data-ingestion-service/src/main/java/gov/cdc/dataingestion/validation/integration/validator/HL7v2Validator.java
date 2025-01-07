@@ -37,12 +37,13 @@ public class HL7v2Validator implements IHL7v2Validator {
 
         // validationActive check is obsoleted
         if (validationActive) {
-            replaceSpecialCharacters = this.hl7Helper.processFhsMessage(replaceSpecialCharacters);
+        replaceSpecialCharacters = this.hl7Helper.processFhsMessage(replaceSpecialCharacters);
+        replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
         }
 
         ValidatedELRModel model = new ValidatedELRModel();
         try {
-            var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);
+            var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);//check
             model.setRawId(id);
             model.setRawMessage(replaceSpecialCharacters);
             model.setMessageType(EnumMessageType.HL7.name());

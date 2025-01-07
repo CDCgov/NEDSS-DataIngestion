@@ -495,6 +495,7 @@ public class KafkaConsumerService {
                 if (response.isPresent()) {
                     var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
                     validMessage = iHl7v2Validator.processFhsMessage(validMessage);
+                    validMessage = iHl7v2Validator.hl7MessageValidation(validMessage);
                     hl7Msg = validMessage;
                 } else {
                     throw new XmlConversionException(errorDltMessage);
