@@ -189,79 +189,87 @@ if (project != project.rootProject || project.hasProperty('remoteBuild')) {
 
 
 dependencies {
-	implementation 'org.yaml:snakeyaml:2.3'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.4'
-	implementation 'org.springframework.boot:spring-boot-starter-web:3.3.4'
-	implementation 'org.apache.commons:commons-lang3:3.17.0'
+  // Spring
+  implementation 'org.springframework.boot:spring-boot-starter-parent:3.4.1'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'org.springframework.boot:spring-boot-starter-logging'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.3.4'
-	implementation 'org.springframework.kafka:spring-kafka:3.2.4'
-	implementation 'org.apache.kafka:kafka-clients:3.8.0'
-	implementation 'com.google.code.gson:gson:2.10.1'
-	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
-	implementation 'com.zaxxer:HikariCP:5.1.0'
+  // Kafka
+  implementation 'org.springframework.kafka:spring-kafka:3.3.1'
+  implementation 'org.apache.kafka:kafka-clients:3.8.0'
+  
+  // Swagger / openapi documentation
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
 
-	implementation 'ca.uhn.hapi:hapi-base:2.3'
-	implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
-	implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
-	implementation 'org.springframework.boot:spring-boot-starter-logging:3.3.4'
-	implementation 'org.slf4j:slf4j-api:2.0.16'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-	implementation 'io.micrometer:micrometer-registry-prometheus:1.13.4'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator:3.3.4'
+  // Database
+  implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
 
-	implementation 'org.apache.xmlbeans:xmlbeans:3.1.0'
-	implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+  // Hapi HL7 lib
+  implementation 'ca.uhn.hapi:hapi-base:2.3'
+  implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
+  implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
 
-	implementation 'io.prometheus:simpleclient:0.16.0'
-	implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
-	implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
-	implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
+  // Logging  
+  implementation 'org.slf4j:slf4j-api:2.0.16'
+  implementation 'io.prometheus:simpleclient:0.16.0'
+  implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
+  implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
+  implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
 
-	implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.8.0'
-	implementation 'org.apache.camel:camel-ftp:4.8.0'
-	implementation 'org.apache.camel:camel-aws2-s3:4.8.0'
-	implementation 'org.apache.camel:camel-endpointdsl:4.8.0'
-	implementation 'org.apache.camel.springboot:camel-file-starter:4.8.0'
-	implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.8.0'
-	implementation 'org.apache.camel:camel-xml-jaxb:4.8.0'
+  // Apache camel
+  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.8.0'
+  implementation 'org.apache.camel:camel-ftp:4.8.0'
+  implementation 'org.apache.camel:camel-aws2-s3:4.8.0'
+  implementation 'org.apache.camel:camel-endpointdsl:4.8.0'
+  implementation 'org.apache.camel.springboot:camel-file-starter:4.8.0'
+  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.8.0'
+  implementation 'org.apache.camel:camel-xml-jaxb:4.8.0'
 
-// NOTE: dont remove this, might come back to this setup in the future
-	if (findProject(':hl7-parser')) {
-		implementation project(':hl7-parser')
-	} else {
-		implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
-	}
+  // Lombok annotations
+  compileOnly 'org.projectlombok:lombok:1.18.34'
+  annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
+  // Misc
+  implementation 'org.yaml:snakeyaml:2.3'
+  implementation 'org.apache.commons:commons-lang3:3.17.0'
+  implementation 'com.google.code.gson:gson:2.10.1'
+  implementation 'com.zaxxer:HikariCP:5.1.0'
+  implementation 'io.micrometer:micrometer-registry-prometheus:1.13.4'
+  implementation 'org.apache.xmlbeans:xmlbeans:3.1.0'
+  implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+  implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+  runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.3.4'
+  runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
+  runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
 
-	implementation files('libs/cda-schema.jar')
+  jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+  jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
 
-	compileOnly 'org.projectlombok:lombok:1.18.34'
-	annotationProcessor 'org.projectlombok:lombok:1.18.34'
+  implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
-	testImplementation(platform('org.junit:junit-bom:5.9.1'))
-	testImplementation 'org.junit.jupiter:junit-jupiter'
-	testImplementation 'org.springframework.kafka:spring-kafka-test:3.2.4'
+  // Testing
+  testImplementation(platform('org.junit:junit-bom:5.9.1'))
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+  testImplementation 'org.springframework.kafka:spring-kafka-test:3.2.4'
+  testImplementation 'org.testcontainers:testcontainers:1.20.1'
+  testImplementation 'org.testcontainers:kafka:1.20.1'
+  testImplementation 'org.testcontainers:mssqlserver:1.20.1'
+  testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
+  testImplementation 'org.springframework.security:spring-security-test:6.3.3'
+  testImplementation 'org.apache.camel:camel-test-spring-junit5:4.0.0'
 
-	testImplementation 'org.testcontainers:testcontainers:1.20.1'
-	testImplementation 'org.testcontainers:kafka:1.20.1'
-	testImplementation 'org.testcontainers:mssqlserver:1.20.1'
-	testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
-	testImplementation 'org.springframework.security:spring-security-test:6.3.3'
-	testImplementation 'org.apache.camel:camel-test-spring-junit5:4.0.0'
-
-	runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.3.4'
-
-	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-	runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
-	runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
-
-	jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-	jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
-
-	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
-
+  // Inter-project dependencies
+  // NOTE: dont remove this, might come back to this setup in the future  
+  if (findProject(':hl7-parser')) {
+    implementation project(':hl7-parser')
+  } else {
+    implementation files('libs/hl7-parser-0.0.1-SNAPSHOT.jar')
+  }
+  implementation files('libs/cda-schema.jar')
 }
 
 test {
