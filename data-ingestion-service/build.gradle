@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.4'
+	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
@@ -190,12 +190,12 @@ if (project != project.rootProject || project.hasProperty('remoteBuild')) {
 
 dependencies {
   // Spring
-  implementation 'org.springframework.boot:spring-boot-starter-parent:3.4.1'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
   implementation 'org.springframework.boot:spring-boot-starter-logging'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
   // Kafka
   implementation 'org.springframework.kafka:spring-kafka:3.3.1'
@@ -218,6 +218,7 @@ dependencies {
   implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
   implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
   implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
+  implementation 'io.micrometer:micrometer-registry-prometheus:1.13.4'
 
   // Apache camel
   implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.8.0'
@@ -237,30 +238,27 @@ dependencies {
   implementation 'org.apache.commons:commons-lang3:3.17.0'
   implementation 'com.google.code.gson:gson:2.10.1'
   implementation 'com.zaxxer:HikariCP:5.1.0'
-  implementation 'io.micrometer:micrometer-registry-prometheus:1.13.4'
   implementation 'org.apache.xmlbeans:xmlbeans:3.1.0'
   implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
   implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-  runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.3.4'
+  implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
   runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
   runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
-
   jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
   jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
 
-  implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
   // Testing
-  testImplementation(platform('org.junit:junit-bom:5.9.1'))
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.security:spring-security-test'
   testImplementation 'org.junit.jupiter:junit-jupiter'
   testImplementation 'org.springframework.kafka:spring-kafka-test:3.2.4'
   testImplementation 'org.testcontainers:testcontainers:1.20.1'
   testImplementation 'org.testcontainers:kafka:1.20.1'
   testImplementation 'org.testcontainers:mssqlserver:1.20.1'
   testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
-  testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
-  testImplementation 'org.springframework.security:spring-security-test:6.3.3'
   testImplementation 'org.apache.camel:camel-test-spring-junit5:4.0.0'
+  testImplementation(platform('org.junit:junit-bom:5.9.1'))
 
   // Inter-project dependencies
   // NOTE: dont remove this, might come back to this setup in the future  
