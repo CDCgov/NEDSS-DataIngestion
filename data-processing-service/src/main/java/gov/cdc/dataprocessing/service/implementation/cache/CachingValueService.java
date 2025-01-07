@@ -1,9 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.cache;
 
-import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.custom.SrteCustomRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
@@ -12,14 +11,10 @@ import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionServi
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.utilities.GsonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 @Service

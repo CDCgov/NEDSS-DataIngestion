@@ -69,14 +69,19 @@ repositories {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.12"
     reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
+    jacoco {
+        // Exclude problematic classes (e.g., JDK internal tools)
+        excludes = ["com/sun/tools/attach/**"]
+    }
 }
 jacocoTestReport {
+    dependsOn test
     reports {
         xml.required = true
         csv.required = false

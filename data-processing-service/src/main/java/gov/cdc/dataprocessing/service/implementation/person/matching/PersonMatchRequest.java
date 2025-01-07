@@ -1,10 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.person.matching;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
@@ -13,6 +8,11 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 public record PersonMatchRequest(
     PersonDto personDto,
