@@ -18,6 +18,7 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
@@ -47,6 +48,9 @@ class AutoInvestigationServiceTest {
     private ICatchingValueService catchingValueService;
     @Mock
     private ILookupService lookupService;
+
+    @Mock
+    private ICacheApiService cacheApiService;
 
     @InjectMocks
     private AutoInvestigationService autoInvestigationService;
@@ -92,6 +96,7 @@ class AutoInvestigationServiceTest {
         when(conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode()))
                 .thenReturn(Optional.of(conditionCodeWithPACol));
 
+        when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
 
         var test = autoInvestigationService.autoCreateInvestigation(observationVO, edxLabInformationDT);
 

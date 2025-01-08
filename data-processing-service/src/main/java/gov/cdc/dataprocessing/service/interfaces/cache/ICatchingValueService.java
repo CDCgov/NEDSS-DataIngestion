@@ -1,12 +1,8 @@
 package gov.cdc.dataprocessing.service.interfaces.cache;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 
-import java.util.HashMap;
 import java.util.List;
 
 public interface ICatchingValueService {

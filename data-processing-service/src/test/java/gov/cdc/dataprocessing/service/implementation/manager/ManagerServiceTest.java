@@ -19,6 +19,7 @@ import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
@@ -83,6 +84,9 @@ class ManagerServiceTest {
     @Mock
     AuthUtil authUtil;
 
+    @Mock
+    ICacheApiService cacheApiService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -144,6 +148,7 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any())).thenReturn(observationDto);
 
 
+        when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
         managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataPhc(any());

@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.person.matching;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DeduplicationClientTest {
 
