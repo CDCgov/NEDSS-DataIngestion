@@ -17,14 +17,7 @@ public class TimeStampHelper {
 
     }
     public static Timestamp getCurrentTimeStamp(String timeZone) {
-        ZoneId zoneId;
-        try {
-            zoneId = ZoneId.of(timeZone);
-        } catch (Exception e) {
-            // Fallback to UTC if the provided time zone is invalid
-            zoneId = ZoneId.of("UTC");
-        }
-
+        ZoneId zoneId = ZoneId.of(timeZone);
         // Another Option: Timestamp.from(ZonedDateTime.now().toInstant()) //NOSONAR
         //return Timestamp.from(Instant.now());//old implementation. //NOSONAR
         LocalDateTime ldt = LocalDateTime.now();

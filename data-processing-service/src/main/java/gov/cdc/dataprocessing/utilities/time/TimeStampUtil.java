@@ -6,6 +6,10 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -31,40 +35,48 @@ import java.time.temporal.ChronoUnit;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class TimeStampUtil {
-    public static Timestamp getCurrentTimeStamp() {
-        long currentTimeMillis = System.currentTimeMillis();
-        Date currentDate = new Date(currentTimeMillis);
-        return new Timestamp(currentDate.getTime());
+    public static Timestamp getCurrentTimeStamp(String timezoneId) {
+        ZoneId zoneId = ZoneId.of(timezoneId);
+        LocalDateTime ldt = LocalDateTime.now();
+        ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
+        ZonedDateTime gmt = zdt.withZoneSameInstant(zoneId);
+        return Timestamp.valueOf(gmt.toLocalDateTime());
     }
 
-    public static Timestamp getCurrentTimeStampPlusOneHour() {
-        Instant now = Instant.now();
-        Instant plusOneHour = now.plus(1, ChronoUnit.HOURS);
-        return Timestamp.from(plusOneHour);
+    public static Timestamp getCurrentTimeStampPlusOneHour(String timezoneId) {
+        ZoneId zoneId = ZoneId.of(timezoneId);
+        LocalDateTime ldt = LocalDateTime.now();
+        ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
+        ZonedDateTime gmt = zdt.withZoneSameInstant(zoneId).plusHours(1);
+        return Timestamp.valueOf(gmt.toLocalDateTime());
     }
 
-    public static Timestamp getCurrentTimeStampPlusOneDay() {
-        Instant now = Instant.now();
-        Instant plusOneHour = now.plus(1, ChronoUnit.DAYS);
-        return Timestamp.from(plusOneHour);
+    public static Timestamp getCurrentTimeStampPlusOneDay(String timezoneId) {
+        ZoneId zoneId = ZoneId.of(timezoneId);
+        LocalDateTime ldt = LocalDateTime.now();
+        ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
+        ZonedDateTime gmt = zdt.withZoneSameInstant(zoneId).plusDays(1);
+        return Timestamp.valueOf(gmt.toLocalDateTime());
     }
 
-    public static String convertTimestampToString() {
-        var timestamp = getCurrentTimeStamp();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        return sdf.format(timestamp);
+    public static String convertTimestampToString(String timezoneId) {
+        ZoneId zoneId = ZoneId.of(timezoneId);
+        var timestamp = getCurrentTimeStamp(timezoneId);
+        ZonedDateTime zonedDateTime = timestamp.toInstant().atZone(zoneId);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+        return zonedDateTime.format(formatter);
     }
-    public static Timestamp convertStringToTimestamp(String timestampString) throws DataProcessingException {
+
+    public static Timestamp convertStringToTimestamp(String timestampString, String timezoneId) throws DataProcessingException {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             if (!timestampString.contains(":")) {
-                timestampString += " 00:00:00";  // Append default time if time is missing
+                timestampString += " 00:00:00"; // Append default time if time is missing
             }
-            java.util.Date parsedDate = sdf.parse(timestampString);
-            return new Timestamp(parsedDate.getTime());
-        }catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss").withZone(ZoneId.of(timezoneId));
+            Instant instant = formatter.parse(timestampString, Instant::from);
+            return Timestamp.from(instant);
+        } catch (Exception e) {
+            throw new DataProcessingException("Error parsing timestamp string: " + e.getMessage(), e);
         }
-
     }
 }

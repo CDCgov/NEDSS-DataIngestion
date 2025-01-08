@@ -78,3 +78,6 @@ spring:
     consumer:
       maxPollIntervalMs: 30000
 #K8S Profile goes here
+
+service:
+  timezone: ${SERVICE_TZ:UTC}
