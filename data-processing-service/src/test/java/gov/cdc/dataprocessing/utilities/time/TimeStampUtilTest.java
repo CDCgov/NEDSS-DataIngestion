@@ -1,6 +1,9 @@
 package gov.cdc.dataprocessing.utilities.time;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,12 +36,30 @@ class TimeStampUtilTest {
         Assertions.assertNotNull(test);
     }
 
-    // 01/08/2025 16:15:01
-
     @Test
     void convertStringToTimestampTest() throws DataProcessingException {
         var timeStr = "01/08/2025 16:15:01";
         var test = TimeStampUtil.convertStringToTimestamp(timeStr);
         Assertions.assertNotNull(test);
+    }
+
+    @Test
+    void timestampOrgNameDtoTest() {
+        var org = new OrganizationNameDto("America/New_York");
+
+        var statusTime = org.getStatusTime();
+        var recordStatusTime = org.getRecordStatusTime();
+        var lastChange = org.getLastChgTime();
+
+        Assertions.assertNotNull(statusTime);
+        Assertions.assertNotNull(recordStatusTime);
+        Assertions.assertNotNull(lastChange);
+    }
+
+    @Test
+    void timestampEntityIdTest() {
+        var entity = new EntityId(new EntityIdDto(), "America/New_York");
+        var time = entity.getRecordStatusTime();
+        Assertions.assertNotNull(time);
     }
 }
