@@ -64,7 +64,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");
@@ -94,7 +94,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");
@@ -124,7 +124,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");
@@ -154,7 +154,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");
@@ -184,7 +184,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");
@@ -217,7 +217,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");
@@ -251,7 +251,7 @@ class EntityIdUtilTest {
         int index = 1;
 
         personContainer.getThePersonDto().setPersonUid(10L);
-        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        personContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7HDType assignAuth = new HL7HDType();
         assignAuth.setHL7UniversalID("TEST");

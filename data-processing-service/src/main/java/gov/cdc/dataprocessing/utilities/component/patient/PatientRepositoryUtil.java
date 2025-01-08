@@ -30,6 +30,7 @@ import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +63,8 @@ import java.util.stream.Collectors;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PatientRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(PatientRepositoryUtil.class);
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     private final PersonRepository personRepository;
     private final EntityRepositoryUtil entityRepositoryUtil;
     private final PersonNameRepository personNameRepository;
@@ -140,7 +142,7 @@ public class PatientRepositoryUtil {
 
 
         //NOTE: Create Person
-        Person person = new Person(personContainer.getThePersonDto());
+        Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setBirthCntryCd(null);
         personRepository.save(person);
 
@@ -180,7 +182,7 @@ public class PatientRepositoryUtil {
         arrayList.add(NEDSSConstant.PERSON);
 
         //NOTE: Update Person
-        Person person = new Person(personContainer.getThePersonDto());
+        Person person = new Person(personContainer.getThePersonDto(), tz);
         var ver = person.getVersionCtrlNbr();
         person.setVersionCtrlNbr(++ver);
         person.setBirthCntryCd(null);
@@ -395,11 +397,11 @@ public class PatientRepositoryUtil {
                                 personName.setPersonNameSeq(seqId);
                                 personName.setRecordStatusCd("ACTIVE");
                                 personName.setAddReasonCd("Add");
-                                personNameRepository.save(new PersonName(personName));
+                                personNameRepository.save(new PersonName(personName, tz));
 
                                 var mprRecord =  SerializationUtils.clone(personName);
                                 mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
-                                personNameRepository.save(new PersonName(mprRecord));
+                                personNameRepository.save(new PersonName(mprRecord, tz));
                             }
                         } catch (Exception e) {
                             logger.error("{} {}", ERROR_UPDATE_MSG, e.getMessage()); //NOSONAR
@@ -429,7 +431,7 @@ public class PatientRepositoryUtil {
                 }
                 personNameDto.setRecordStatusCd("ACTIVE");
                 personNameDto.setAddReasonCd("Add");
-                personNameRepository.save(new PersonName(personNameDto));
+                personNameRepository.save(new PersonName(personNameDto,tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -463,13 +465,13 @@ public class PatientRepositoryUtil {
                     var mprRecord =  SerializationUtils.clone(entityIdDto);
                     mprRecord.setEntityUid(personContainer.getThePersonDto().getPersonParentUid());
                     mprRecord.setAddReasonCd("Add");
-                    entityIdRepository.save(new EntityId(mprRecord));
+                    entityIdRepository.save(new EntityId(mprRecord, tz));
 
 
                     var pUid = personContainer.getThePersonDto().getPersonUid();
                     entityIdDto.setEntityUid(pUid);
                     entityIdDto.setAddReasonCd("Add");
-                    entityIdRepository.save(new EntityId(entityIdDto));
+                    entityIdRepository.save(new EntityId(entityIdDto, tz));
                 }
 
 
@@ -505,11 +507,11 @@ public class PatientRepositoryUtil {
                     var mprRecord = SerializationUtils.clone(personRaceDto);
                     mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
                     mprRecord.setAddReasonCd("Add");
-                    personRaceRepository.save(new PersonRace(mprRecord));
+                    personRaceRepository.save(new PersonRace(mprRecord, tz));
 
                     personRaceDto.setPersonUid(pUid);
                     personRaceDto.setAddReasonCd("Add");
-                    personRaceRepository.save(new PersonRace(personRaceDto));
+                    personRaceRepository.save(new PersonRace(personRaceDto, tz));
 
 
                 }
@@ -553,7 +555,7 @@ public class PatientRepositoryUtil {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 personRaceDto.setPersonUid(pUid);
                 personRaceDto.setAddReasonCd("Add");
-                personRaceRepository.save(new PersonRace(personRaceDto));
+                personRaceRepository.save(new PersonRace(personRaceDto, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -606,7 +608,7 @@ public class PatientRepositoryUtil {
                 if (entityIdDto.getLastChgUserId() == null) {
                     entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 }
-                entityIdRepository.save(new EntityId(entityIdDto));
+                entityIdRepository.save(new EntityId(entityIdDto, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);

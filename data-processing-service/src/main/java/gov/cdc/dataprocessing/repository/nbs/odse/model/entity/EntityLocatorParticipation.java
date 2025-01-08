@@ -117,8 +117,8 @@ public class EntityLocatorParticipation {
     private Timestamp asOfDate;
 
     // Add getters and setters as needed
-    public EntityLocatorParticipation(EntityLocatorParticipationDto entityLocatorParticipationDto) {
-        var timestamp = getCurrentTimeStamp();
+    public EntityLocatorParticipation(EntityLocatorParticipationDto entityLocatorParticipationDto, String tz) {
+        var timestamp = getCurrentTimeStamp(tz);
         this.entityUid = entityLocatorParticipationDto.getEntityUid();
         this.locatorUid = entityLocatorParticipationDto.getLocatorUid();
 

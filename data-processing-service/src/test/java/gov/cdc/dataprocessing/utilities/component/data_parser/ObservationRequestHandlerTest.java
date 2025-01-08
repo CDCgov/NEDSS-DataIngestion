@@ -85,8 +85,8 @@ class ObservationRequestHandlerTest {
         edxLabInformationDto.setRootObserbationUid(10L);
         edxLabInformationDto.setNextUid(1);
         edxLabInformationDto.setMessageControlID("TEST");
-        edxLabInformationDto.setOrderEffectiveDate(TimeStampUtil.getCurrentTimeStamp());
-        edxLabInformationDto.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDto.setOrderEffectiveDate(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        edxLabInformationDto.setLastChgTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
     }
 
     @AfterEach

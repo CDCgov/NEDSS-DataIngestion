@@ -492,7 +492,7 @@ class DecisionSupportServiceTest {
         edxLabInformationDT.setConditionCode("COND");
         var obs = new ObservationContainer();
         var obsDt = new ObservationDto();
-        obsDt.setEffectiveFromTime(TimeStampUtil.getCurrentTimeStampPlusOneHour());
+        obsDt.setEffectiveFromTime(TimeStampUtil.getCurrentTimeStampPlusOneHour("UTC"));
         obs.setTheObservationDto(obsDt);
         edxLabInformationDT.setRootObservationContainer(obs);
         EventDateLogicType eventDateLogicType = new EventDateLogicType();
@@ -515,13 +515,13 @@ class DecisionSupportServiceTest {
 
         var phcDtCol = new ArrayList<PublicHealthCaseDto>();
         var phcDt = new PublicHealthCaseDto();
-        phcDt.setAssociatedSpecimenCollDate(TimeStampUtil.getCurrentTimeStamp());
-        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        phcDt.setAssociatedSpecimenCollDate(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         phcDt.setPublicHealthCaseUid(11L);
         phcDtCol.add(phcDt);
         phcDt = new PublicHealthCaseDto();
-        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
-        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        phcDt.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         phcDt.setPublicHealthCaseUid(12L);
         phcDtCol.add(phcDt);
         when(publicHealthCaseStoredProcRepository.associatedPublicHealthCaseForMprForCondCd(any(), any()))

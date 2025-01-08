@@ -349,7 +349,7 @@ class NBSObjectConverterTest {
         time.setMonth(BigInteger.valueOf(12));
         time.setDay(BigInteger.valueOf(10));
 
-        when(entityIdUtil.stringToStrutsTimestamp(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(entityIdUtil.stringToStrutsTimestamp(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         var res = nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(time);
 
@@ -379,7 +379,7 @@ class NBSObjectConverterTest {
         time.setMonth(BigInteger.valueOf(12));
         time.setDay(BigInteger.valueOf(10));
 
-        when(entityIdUtil.stringToStrutsTimestamp(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(entityIdUtil.stringToStrutsTimestamp(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp("UTC"));
         when(entityIdUtil.isDateNotOkForDatabase(any())).thenReturn(true);
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -494,7 +494,7 @@ class NBSObjectConverterTest {
         when(personContainer.getThePersonDto()).thenReturn(personDTO);
         when(personDTO.getAddUserId()).thenReturn(addUserId);
         when(personDTO.getPersonUid()).thenReturn(personUid);
-        when(personDTO.getLastChgTime()).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(personDTO.getLastChgTime()).thenReturn(TimeStampUtil.getCurrentTimeStamp("UTC"));
         when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(new ArrayList<>());
 
         when(hl7XTNType.getHL7EmailAddress()).thenReturn("test@mail.com");
@@ -519,7 +519,7 @@ class NBSObjectConverterTest {
     @Test
     void raceType_Test() {
         perContainer.getThePersonDto().setAddUserId(12L);
-        perContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        perContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7CWEType hl7CWEType = Mockito.mock(HL7CWEType.class);
         when(hl7CWEType.getHL7Identifier()).thenReturn("TEST");
@@ -533,7 +533,7 @@ class NBSObjectConverterTest {
     @Test
     void raceType_Test_2() {
         perContainer.getThePersonDto().setAddUserId(12L);
-        perContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        perContainer.getThePersonDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         HL7CWEType hl7CWEType = Mockito.mock(HL7CWEType.class);
         when(hl7CWEType.getHL7Identifier()).thenReturn(null);
@@ -577,7 +577,7 @@ class NBSObjectConverterTest {
     void defaultParticipationDT_Test() {
         var part = new ParticipationDto();
         var edx = new EdxLabInformationDto();
-        edx.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edx.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         var result = nbsObjectConverter.defaultParticipationDT(part, edx);
         assertNotNull(result);

@@ -138,8 +138,8 @@ public class PersonName {
     public PersonName() {
 
     }
-    public PersonName(PersonNameDto personNameDto) {
-        var timeStamp = getCurrentTimeStamp();
+    public PersonName(PersonNameDto personNameDto, String tz) {
+        var timeStamp = getCurrentTimeStamp(tz);
         this.personUid = personNameDto.getPersonUid();
         this.personNameSeq = personNameDto.getPersonNameSeq();
         this.addReasonCd = personNameDto.getAddReasonCd();

@@ -67,7 +67,7 @@ class ObservationMatchingServiceTest {
         var rootObsConn = new ObservationContainer();
         var rootDto = new ObservationDto();
         rootDto.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD_NEW);
-        rootDto.setActivityToTime(TimeStampUtil.getCurrentTimeStamp());
+        rootDto.setActivityToTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         rootObsConn.setTheObservationDto(rootDto);
         edxLabInformationDto.setRootObservationContainer(rootObsConn);
         edxLabInformationDto.setFillerNumber("123");
@@ -76,7 +76,7 @@ class ObservationMatchingServiceTest {
         when(observationMatchStoredProcRepository.getMatchedObservation(edxLabInformationDto)).thenReturn(1L);
         var obs = new Observation();
         obs.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD_NEW);
-        obs.setActivityToTime(TimeStampUtil.getCurrentTimeStampPlusOneHour());
+        obs.setActivityToTime(TimeStampUtil.getCurrentTimeStampPlusOneHour("UTC"));
         when(observationRepository.findById(1L)).thenReturn(Optional.of(obs));
 
         DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
@@ -93,7 +93,7 @@ class ObservationMatchingServiceTest {
         var rootObsConn = new ObservationContainer();
         var rootDto = new ObservationDto();
         rootDto.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD_NEW);
-        rootDto.setActivityToTime(TimeStampUtil.getCurrentTimeStamp());
+        rootDto.setActivityToTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         rootObsConn.setTheObservationDto(rootDto);
         edxLabInformationDto.setRootObservationContainer(rootObsConn);
         edxLabInformationDto.setFillerNumber("123");
@@ -118,7 +118,7 @@ class ObservationMatchingServiceTest {
         var rootObsConn = new ObservationContainer();
         var rootDto = new ObservationDto();
         rootDto.setStatusCd("2121");
-        rootDto.setActivityToTime(TimeStampUtil.getCurrentTimeStamp());
+        rootDto.setActivityToTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         rootObsConn.setTheObservationDto(rootDto);
         edxLabInformationDto.setRootObservationContainer(rootObsConn);
         edxLabInformationDto.setFillerNumber("123");

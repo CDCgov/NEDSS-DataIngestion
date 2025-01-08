@@ -103,7 +103,7 @@ class HL7PatientHandlerTest {
         exref.setToCodeSetNm("P_SEX");
         exref.setToCode("TO_CODE");
 
-        when(nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(any())).thenReturn(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         hl7PatientResult.getPATIENT().getPatientIdentification().setBirthPlace("US");
 

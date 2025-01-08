@@ -42,6 +42,7 @@ import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,6 +93,8 @@ public class OrganizationRepositoryUtil {
     private final ParticipationRepository participationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -284,7 +287,7 @@ public class OrganizationRepositoryUtil {
             Long pUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
             for (EntityIdDto entityIdDto : entityList) {
                 entityIdDto.setEntityUid(pUid);
-                entityIdRepository.save(new EntityId(entityIdDto));
+                entityIdRepository.save(new EntityId(entityIdDto, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -314,7 +317,7 @@ public class OrganizationRepositoryUtil {
                 if (entityLocatorDT.getVersionCtrlNbr() == null) {
                     entityLocatorDT.setVersionCtrlNbr(1);
                 }
-                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorDT));
+                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorDT, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -538,7 +541,7 @@ public class OrganizationRepositoryUtil {
                 organizationNameList = listOptional.get();
             }
             for (OrganizationName organizationNameModel : organizationNameList) {
-                OrganizationNameDto organizationNameDto = new OrganizationNameDto(organizationNameModel);
+                OrganizationNameDto organizationNameDto = new OrganizationNameDto(organizationNameModel, tz);
                 organizationNameDto.setItNew(false);
                 organizationNameDto.setItDirty(false);
                 returnArrayList.add(organizationNameDto);

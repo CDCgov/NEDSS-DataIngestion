@@ -202,8 +202,8 @@ class AutoInvestigationServiceTest {
         var phcConn = new PublicHealthCaseContainer();
         var phcDto = new PublicHealthCaseDto();
         phcDto.setPublicHealthCaseUid(10L);
-        phcDto.setAddTime(TimeStampUtil.getCurrentTimeStamp());
-        phcDto.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        phcDto.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        phcDto.setLastChgTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         phcDto.setLastChgUserId(123L);
         phcDto.setRecordStatusCd("ACTIVE");
         phcDto.setAddUserId(123L);
@@ -389,7 +389,7 @@ class AutoInvestigationServiceTest {
         obsConn.setTheObservationDto(obsDt);
         var obsDateCol = new ArrayList<ObsValueDateDto>();
         var obsDate = new ObsValueDateDto();
-        obsDate.setFromTime(TimeStampUtil.getCurrentTimeStamp());
+        obsDate.setFromTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         obsDateCol.add(obsDate);
         obsDt.setCd("OBS_1");
         obsConn.setTheObsValueDateDtoCollection(obsDateCol);

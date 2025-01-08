@@ -138,7 +138,7 @@ class MaterialServiceTest {
         entityLocatorParticipationDto.setAddUserId(123L);
 
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
-        entityLocatorParticipations.add(new EntityLocatorParticipation(entityLocatorParticipationDto));
+        entityLocatorParticipations.add(new EntityLocatorParticipation(entityLocatorParticipationDto, "UTC"));
         return Optional.of(entityLocatorParticipations);
     }
 
@@ -148,7 +148,7 @@ class MaterialServiceTest {
 
         List<EntityId> entityIds = new ArrayList<>();
 
-        entityIds.add(new EntityId(entityIdDto));
+        entityIds.add(new EntityId(entityIdDto, "UTC"));
 
         return Optional.of(entityIds);
     }

@@ -370,11 +370,11 @@ class PatientRepositoryUtilTest {
         perNameCol.add(perName);
         perName = new PersonNameDto();
         perName.setNmUseCd("L");
-        perName.setAsOfDate(TimeStampUtil.getCurrentTimeStamp());
+        perName.setAsOfDate(TimeStampUtil.getCurrentTimeStamp("UTC"));
         perNameCol.add(perName);
         perName = new PersonNameDto();
         perName.setNmUseCd("L");
-        perName.setAsOfDate(TimeStampUtil.getCurrentTimeStamp());
+        perName.setAsOfDate(TimeStampUtil.getCurrentTimeStamp("UTC"));
         perNameCol.add(perName);
         perName = new PersonNameDto();
         perName.setNmUseCd("L");

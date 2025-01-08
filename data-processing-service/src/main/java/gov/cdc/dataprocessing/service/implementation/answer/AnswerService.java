@@ -20,6 +20,7 @@ import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,8 @@ public class AnswerService implements IAnswerService {
     private final NbsActEntityRepository nbsActEntityRepository;
     private final NbsAnswerHistRepository nbsAnswerHistRepository;
     private final NbsActEntityHistRepository nbsActEntityHistRepository;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     public AnswerService(NbsAnswerRepository nbsAnswerRepository,
                          NbsActEntityRepository nbsActEntityRepository,
                          NbsAnswerHistRepository nbsAnswerHistRepository,
@@ -237,7 +239,7 @@ public class AnswerService implements IAnswerService {
                     nbsActEntity.setActUid(rootDTInterface.getPublicHealthCaseUid());
                     nbsActEntity.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     nbsActEntity.setRecordStatusCd("OPEN");
-                    nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+                    nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
                     nbsActEntityRepository.save(nbsActEntity);
                 }
             }
@@ -255,7 +257,7 @@ public class AnswerService implements IAnswerService {
                     nbsActEntity.setActUid(rootDTInterface.getObservationUid());
                     nbsActEntity.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     nbsActEntity.setRecordStatusCd("OPEN");
-                    nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+                    nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
                     nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
                 }
             }

@@ -12,6 +12,7 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.model.phdc.HL7MSHType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -42,7 +43,8 @@ import java.util.Collection;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class LabResultUtil {
 
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     /**
      * Description: Update Lab Result Container.
      * This method create these object in order. given value from edxELRLabMap.
@@ -179,7 +181,7 @@ public class LabResultUtil {
         organizationContainer.setTheOrganizationDto(organizationDto);
 
         Collection<OrganizationNameDto> organizationNameDtoColl = new ArrayList<>();
-        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto(tz);
         organizationNameDto.setOrganizationNameSeq(1);
         organizationNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
         organizationNameDto.setNmTxt(edxELRLabMap.getEntityDisplayNm());

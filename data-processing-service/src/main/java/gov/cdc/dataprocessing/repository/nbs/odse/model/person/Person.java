@@ -365,8 +365,8 @@ public class Person  {
     public Person() {
 
     }
-    public Person(PersonDto personDto) {
-        var timeStamp = getCurrentTimeStamp();
+    public Person(PersonDto personDto, String tz) {
+        var timeStamp = getCurrentTimeStamp(tz);
         this.personUid = personDto.getPersonUid();
         this.addReasonCd = personDto.getAddReasonCd();
         this.addTime = personDto.getAddTime();
