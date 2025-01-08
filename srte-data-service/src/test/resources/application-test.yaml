@@ -1,0 +1,14 @@
+testing.database:
+  mssql:
+    image: dataingestion-di-mssql
+    username: ${DATABASE_USER:sa}
+    password: ${DATABASE_PASSWORD:fake.fake.fake.1234}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8100/realms/NBS
+  datasource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver

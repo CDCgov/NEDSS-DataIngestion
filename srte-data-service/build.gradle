@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.0'
+    id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'jacoco'
@@ -57,26 +57,33 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.hibernate.validator:hibernate-validator'
-    implementation 'com.google.code.gson:gson:2.11.0'
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
-    implementation 'com.zaxxer:HikariCP:5.0.1'
-
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-//    implementation 'io.lettuce:lettuce-core'
+    // Spring boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.0'
-    implementation 'org.apache.httpcomponents.core5:httpcore5:5.2.5'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
+    // Swagger - openapi
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+    // Database
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+    implementation 'org.hibernate.validator:hibernate-validator'
+
+    // Lombok annotations
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Misc
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'org.apache.httpcomponents.core5:httpcore5:5.2.5'
+    runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
+
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.testcontainers:mssqlserver'
 }
 
 tasks.named('test') {
