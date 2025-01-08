@@ -39,6 +39,9 @@ public class ElrDeadLetterService {
     private final IValidatedELRRepository validatedELRRepository;
     private final KafkaProducerService kafkaProducerService;
 
+    @Value("${service.timezone}")
+    private String tz = "UTC";
+
     @Value("${kafka.validation.topic}")
     private String validatedTopic = "elr_validated";
 
@@ -113,7 +116,7 @@ public class ElrDeadLetterService {
             }
             RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
-            rawModel.setUpdatedOn(getCurrentTimeStamp());
+            rawModel.setUpdatedOn(getCurrentTimeStamp(tz));
 
             // persisting data to raw table and dlt table
             rawELRRepository.save(rawModel);
@@ -128,7 +131,7 @@ public class ElrDeadLetterService {
             }
             ValidatedELRModel validateModel = validateRecord.get();
             validateModel.setRawMessage(body);
-            validateModel.setUpdatedOn(getCurrentTimeStamp());
+            validateModel.setUpdatedOn(getCurrentTimeStamp(tz));
 
             // persisting data to raw table and dlt table
             validatedELRRepository.save(validateModel);
@@ -159,7 +162,7 @@ public class ElrDeadLetterService {
     }
 
     public ElrDeadLetterDto saveDltRecord(ElrDeadLetterDto model) {
-        model.setUpdatedOn(getCurrentTimeStamp());
+        model.setUpdatedOn(getCurrentTimeStamp(tz));
         dltRepository.save(convertDtoToModel(model));
         return model;
     }

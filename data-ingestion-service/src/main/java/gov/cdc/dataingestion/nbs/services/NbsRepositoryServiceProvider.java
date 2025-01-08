@@ -6,8 +6,10 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -29,6 +31,7 @@ import java.util.Optional;
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
 @Service
+@RequiredArgsConstructor
 @AllArgsConstructor
 /**
  1118 - require constructor complaint
@@ -52,10 +55,14 @@ public class NbsRepositoryServiceProvider {
 
 	private NbsInterfaceRepository nbsInterfaceRepo;
 
+
+	@Value("${service.timezone}")
+	private String tz = "UTC";
+
 	public void saveEcrCdaXmlMessage (String nbsInterfaceUid,
 									  Integer dataMigrationStatus, String xmlMsg) {
 		Optional<NbsInterfaceModel> response = nbsInterfaceRepo.getNbsInterfaceByIdAndDocType(Integer.valueOf(nbsInterfaceUid), ECR_DOC_TYPE);
-		var time = getCurrentTimeStamp();
+		var time = getCurrentTimeStamp(tz);
 		NbsInterfaceModel model = new NbsInterfaceModel();
 		if (response.isPresent()) {
 			model = response.get();
@@ -100,7 +107,7 @@ public class NbsRepositoryServiceProvider {
 			item.setRecordStatusCd(STATUS_UNPROCESSED);
 		}
 
-		var time = getCurrentTimeStamp();
+		var time = getCurrentTimeStamp(tz);
 		item.setRecordStatusTime(time);
 		item.setAddTime(time);
 
@@ -141,7 +148,7 @@ public class NbsRepositoryServiceProvider {
 			item.setRecordStatusCd(STATUS_UNPROCESSED);
 		}
 
-		var time = getCurrentTimeStamp();
+		var time = getCurrentTimeStamp(tz);
 		item.setRecordStatusTime(time);
 		item.setAddTime(time);
 
@@ -337,7 +344,7 @@ public class NbsRepositoryServiceProvider {
 		ecrModel.setImpExpIndCd(IMPEXP_CD);
 		ecrModel.setRecordStatusCd(ECR_STATUS);
 
-		var time = getCurrentTimeStamp();
+		var time = getCurrentTimeStamp(tz);
 		ecrModel.setRecordStatusTime(time);
 		ecrModel.setAddTime(time);
 
@@ -363,7 +370,7 @@ public class NbsRepositoryServiceProvider {
 		ecrModelWithRR.setImpExpIndCd(IMPEXP_CD);
 		ecrModelWithRR.setRecordStatusCd(ECR_STATUS);
 
-		var time = getCurrentTimeStamp();
+		var time = getCurrentTimeStamp(tz);
 		ecrModelWithRR.setRecordStatusTime(time);
 		ecrModelWithRR.setAddTime(time);
 

@@ -67,6 +67,9 @@ public class KafkaConsumerService {
     //region VARIABLE
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
 
+    @Value("${service.timezone}")
+    private String tz = "UTC";
+
     @Value("${kafka.retry.suffix}")
     private String retrySuffix = "";
 
@@ -252,7 +255,7 @@ public class KafkaConsumerService {
             reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
             reportStatusIdData.setCreatedBy("elr_raw_xml");
             reportStatusIdData.setUpdatedBy("elr_raw_xml");
-            var time = getCurrentTimeStamp();
+            var time = getCurrentTimeStamp(tz);
             reportStatusIdData.setCreatedOn(time);
             reportStatusIdData.setUpdatedOn(time);
 
@@ -442,8 +445,8 @@ public class KafkaConsumerService {
             model.setMessage(elrDeadLetterDto.getMessage());
             model.setCreatedBy(elrDeadLetterDto.getCreatedBy());
             model.setUpdatedBy(elrDeadLetterDto.getUpdatedBy());
-            model.setCreatedOn(getCurrentTimeStamp());
-            model.setUpdatedOn(getCurrentTimeStamp());
+            model.setCreatedOn(getCurrentTimeStamp(tz));
+            model.setUpdatedOn(getCurrentTimeStamp(tz));
             this.elrDeadLetterRepository.save(model);
         } catch (Exception e) {
             Gson gson = new Gson();
@@ -528,7 +531,7 @@ public class KafkaConsumerService {
                 reportStatusIdData.setCreatedBy(convertedToXmlTopic);
                 reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
 
-                var timestamp = getCurrentTimeStamp();
+                var timestamp = getCurrentTimeStamp(tz);
                 reportStatusIdData.setCreatedOn(timestamp);
                 reportStatusIdData.setUpdatedOn(timestamp);
                 iReportStatusRepository.save(reportStatusIdData);
@@ -607,8 +610,8 @@ public class KafkaConsumerService {
     }
 
     private void saveValidatedELRMessage(ValidatedELRModel model) {
-        model.setCreatedOn(getCurrentTimeStamp());
-        model.setUpdatedOn(getCurrentTimeStamp());
+        model.setCreatedOn(getCurrentTimeStamp(tz));
+        model.setUpdatedOn(getCurrentTimeStamp(tz));
         iValidatedELRRepository.save(model);
     }
     //endregion

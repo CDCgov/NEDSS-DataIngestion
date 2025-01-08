@@ -84,18 +84,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("utc"));
 
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
-        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("utc"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
@@ -135,13 +135,13 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
         ElrDeadLetterModel dltModel = new ElrDeadLetterModel();
         dltModel.setErrorMessageId(id);
         dltModel.setDltStatus("ERROR");
-        dltModel.setCreatedOn(getCurrentTimeStamp());
+        dltModel.setCreatedOn(getCurrentTimeStamp("utc"));
         dltModel.setErrorMessageSource("origin");
         dltModel.setErrorStackTraceShort("short");
 
@@ -168,7 +168,7 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
@@ -194,18 +194,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("utc"));
 
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
-        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("utc"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
@@ -228,18 +228,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("utc"));
 
         ElrDeadLetterModel dltModel = new ElrDeadLetterModel();
         dltModel.setErrorMessageId("validate-id");
         dltModel.setDltStatus("ERROR");
-        dltModel.setCreatedOn(getCurrentTimeStamp());
+        dltModel.setCreatedOn(getCurrentTimeStamp("utc"));
         dltModel.setErrorMessageSource("origin");
         dltModel.setErrorStackTraceShort("short");
 
@@ -264,13 +264,13 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("utc"));
 
 
 
@@ -354,18 +354,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("utc"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("utc"));
 
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
-        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("utc"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
         List<EdxActivityDetailLog> edxActivityLogList=new ArrayList();

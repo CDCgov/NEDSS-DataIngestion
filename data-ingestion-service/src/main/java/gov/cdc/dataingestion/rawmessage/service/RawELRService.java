@@ -34,6 +34,9 @@ public class RawELRService {
     @Value("${kafka.raw.xml-topic}")
     String rawXmlTopicName;
 
+    @Value("${service.timezone}")
+    private String tz = "UTC";
+
     private final IRawELRRepository rawELRRepository;
     private final KafkaProducerService kafkaProducerService;
 
@@ -72,8 +75,8 @@ public class RawELRService {
         rawERLModel.setId(UUID.randomUUID().toString());
         rawERLModel.setType(rawERLDto.getType());
         rawERLModel.setPayload(rawERLDto.getPayload());
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
-        rawERLModel.setUpdatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp(tz));
+        rawERLModel.setUpdatedOn(getCurrentTimeStamp(tz));
         rawERLModel.setCreatedBy(CREATED_BY);
         rawERLModel.setUpdatedBy(CREATED_BY);
         return rawERLModel;
