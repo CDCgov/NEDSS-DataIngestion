@@ -7,7 +7,6 @@ import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
-import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
@@ -99,20 +98,17 @@ class KafkaConsumerServiceTest {
     @Mock
     private IEcrMsgQueryService ecrMsgQueryService;
     @Container
+    @SuppressWarnings("resource") // We do not want to immediately close the container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
             .withStartupTimeout(Duration.ofMinutes(5));
 
 
-    private static final DockerImageName taggedImageName = DockerImageName.parse("mcr.microsoft.com/azure-sql-edge")
-            .withTag("latest")
-            .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server");
     @Container
-    public static MSSQLServerContainer mssqlserver  =
-            new MSSQLServerContainer<>(taggedImageName)
+    @SuppressWarnings("resource") // We do not want to immediately close the container
+    public static MSSQLServerContainer<?> mssqlserver  = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server")
                     .acceptLicense()
                     .withInitScript("sql-script/test-script.sql")
-                    .withStartupTimeout(Duration.ofMinutes(5))
-            ;
+                    .withStartupTimeout(Duration.ofMinutes(5));
 
     private KafkaConsumerService kafkaConsumerService;
 
@@ -316,7 +312,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void validateConsumerTest() throws ConversionPrepareException {
+    void validateConsumerTest() {
         // Produce a test message to the topic
         initialDataInsertionAndSelection(validateTopic);
         String message =  guidForTesting;
@@ -708,8 +704,10 @@ class KafkaConsumerServiceTest {
                 ");";
 
         try {
-            Statement stmt = conn.createStatement();
-            stmt.execute(sqlInsert);
+            if (conn != null) {
+                Statement stmt = conn.createStatement();
+                stmt.execute(sqlInsert);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -718,12 +716,14 @@ class KafkaConsumerServiceTest {
         //region INITIAL SELECTION - unique id from dlt for container testing
         String sqlSelect = "SELECT TOP 1 * FROM [NBS_DataIngest].[dbo].[elr_dlt];";
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sqlSelect);
+            if (conn != null) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sqlSelect);
 
-            // Iterate over the ResultSet to get the first record
-            while(rs.next()) {
-                guidForTesting = rs.getString("error_message_id");
+                // Iterate over the ResultSet to get the first record
+                while (rs.next()) {
+                    guidForTesting = rs.getString("error_message_id");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -737,25 +737,11 @@ class KafkaConsumerServiceTest {
                 "'" + guidForTesting +"', " + "'Sample Message Type', 'Sample Payload', 'system', 'system', GETDATE(), NULL" +
                 ");";
 
-        String fhirElrQuery = "INSERT INTO [NBS_DataIngest].[dbo].[elr_fhir] (" +
-                "id, fhir_message, raw_message_id, created_by, updated_by, created_on, updated_on" +
-                ") VALUES (" +
-                "'" + guidForTesting +"', " +"'Sample FHIR Message', 'Sample Raw Message ID', 'system', 'system', GETDATE(), NULL" +
-                ");";
-
-        String elrValidateQuery = "INSERT INTO [NBS_DataIngest].[dbo].[elr_validated] (" +
-                "id, raw_message_id, message_type, message_version, validated_message, hashed_hl7_string, " +
-                "created_by, updated_by, created_on, updated_on" +
-                ") VALUES (" +
-                "'" + guidForTesting +"', " + "'Sample Raw Message ID', 'Sample Message Type', 'Sample Message Version', 'Sample Validated Message', " +
-                "NULL, 'system', 'system', GETDATE(), NULL" +
-                ");";
-
         try {
-            Statement stmt = conn.createStatement();
-            stmt.execute(rawElrQuery);
-//            stmt.execute(fhirElrQuery);
-//            stmt.execute(elrValidateQuery);
+            if (conn != null) {
+                Statement stmt = conn.createStatement();
+                stmt.execute(rawElrQuery);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -777,9 +763,9 @@ class KafkaConsumerServiceTest {
         String uniqueID = "HL7" + "_" + UUID.randomUUID();
 
         // Send the message to the Kafka topic
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, uniqueID, message);
-        record.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, operation.name().getBytes());
-        producer.send(record);
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, uniqueID, message);
+        producerRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, operation.name().getBytes());
+        producer.send(producerRecord);
 
         // Flush and close the producer
         producer.flush();
