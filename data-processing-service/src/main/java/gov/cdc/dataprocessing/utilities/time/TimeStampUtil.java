@@ -60,21 +60,21 @@ public class TimeStampUtil {
     }
 
     public static String convertTimestampToString(String timezoneId) {
-        ZoneId zoneId = ZoneId.of(timezoneId);
         var timestamp = getCurrentTimeStamp(timezoneId);
-        ZonedDateTime zonedDateTime = timestamp.toInstant().atZone(zoneId);
+        var instant = timestamp.toLocalDateTime();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-        return zonedDateTime.format(formatter);
+        return formatter.format(instant);
     }
 
-    public static Timestamp convertStringToTimestamp(String timestampString, String timezoneId) throws DataProcessingException {
+    public static Timestamp convertStringToTimestamp(String timestampString) throws DataProcessingException {
         try {
             if (!timestampString.contains(":")) {
                 timestampString += " 00:00:00"; // Append default time if time is missing
             }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss").withZone(ZoneId.of(timezoneId));
-            Instant instant = formatter.parse(timestampString, Instant::from);
-            return Timestamp.from(instant);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.parse(timestampString, formatter);
+            Timestamp timestamp = Timestamp.valueOf(localDateTime);
+            return timestamp;
         } catch (Exception e) {
             throw new DataProcessingException("Error parsing timestamp string: " + e.getMessage(), e);
         }

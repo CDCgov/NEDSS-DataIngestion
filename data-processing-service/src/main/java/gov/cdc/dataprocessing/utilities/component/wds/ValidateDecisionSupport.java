@@ -384,14 +384,14 @@ public class ValidateDecisionSupport {
             Collection<ConfirmationMethodDto> list = new ArrayList<>();
             if (time != null && publicHealthCaseContainer.getTheConfirmationMethodDTCollection() != null) {
                 for (ConfirmationMethodDto confirmDT : publicHealthCaseContainer.getTheConfirmationMethodDTCollection()) {
-                    confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time, tz));
+                    confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                     list.add(confirmDT);
                 }
                 publicHealthCaseContainer.setTheConfirmationMethodDTCollection(list);
             } else {
                 ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                 if (time != null) {
-                    confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time, tz));
+                    confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                 }
                 confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                 confirmDT.setItNew(true);
@@ -425,7 +425,7 @@ public class ValidateDecisionSupport {
                 {
                     ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                     if (time != null) {
-                        confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time, tz));
+                        confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                     }
                     confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                     confirmDT.setItNew(true);
@@ -434,7 +434,7 @@ public class ValidateDecisionSupport {
                 } else {
                     ConfirmationMethodDto confirmDT = new ConfirmationMethodDto();
                     if (time != null) {
-                        confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time, tz));
+                        confirmDT.setConfirmationMethodTime(TimeStampUtil.convertStringToTimestamp(time));
                     }
                     confirmDT.setPublicHealthCaseUid(publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid());
                     confirmDT.setItNew(true);
