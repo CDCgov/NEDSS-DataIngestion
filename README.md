@@ -1,5 +1,46 @@
-# NEDSS-DataIngestion
-Data Ingestion for Modernization of NEDSS Project by Enquizit
+# NEDSS (National Electronic Disease Surveillance System) Data Ingestion Service Overview
+Data Ingestion(DI) API is part of NEDSS modernization initiative. It facilitates the ingestion and processing of electronic case reporting(`eCR`) and electronic lab case reporting (`elCR`) messages, ensuring efficient, reliable, and scalable workflows.
+
+## Key API Endpoints
+  - **POST /api/auth/token**: Create JWT Token using Keycloak credentials.
+  - **POST /api/ecrs**: Submits eCR document to the DI API for ingestion.
+  - **POST /api/elrs/{dlt-id}**: Re-injects dead letter ELR message to the DI API by `dlt-id`.
+  - **GET /api/elrs/error-messages**: Returns all dead letter messages.
+  - **GET /api/elrs**: Returns dead letter message by `dlt-id`.
+  - **GET /api/elrs/status/{elr-id}**: Returns ELR message status by `elr-id`.
+  - **GET /api/elrs/status-details/{elr-id}**: Returns detailed status associated to `elr-id`.
+  - **POST /api/elrs**: Submits a plain text or XML converted HL7 message.
+  - **POST /api/elrs/validate**: Validates where the message is valid HL7 message.
+> **Note:** DI Service only excepts `eCR/elCR` messages in `XML` format.
+## Requirements
+1. **Operating Systems**: 
+2. **Software Dependencies**:
+3. **Cloud Resources**:
+4. **Development Tools**:
+5. **Environment Variables**:
+
+   | Name                        | Description | Required |
+   |-----------------------------|-------------|----------|
+   | NBS_DBSERVER                |             | Yes      |
+   | NBS_DBUSER                  |             | Yes      |
+   | NBS_DBPASSWORD              |             | Yes      |
+   | BOOTSTRAP_SERVERS           |             | ?        |
+   | DI_LOG_PATH                 |             |          |
+   | DI_AUTH_URI                 |             |          |
+   | DI_SFTP_ENABLED             |             |          |
+   | DI_SFTP_HOST                |             |          |
+   | DI_SFTP_USER                |             |          |
+   | DI_SFTP_PWD                 |             |          |
+   | KC_BOOTSTRAP_ADMIN_USERNAME |             |          |
+   | KC_BOOTSTRAP_ADMIN_PASSWORD |             |          |
+
+
+     
+
+
+## Local Development Setup
+
+## Docker Environment Setup
 
 # Running Application inside Docker
 - Requirement
