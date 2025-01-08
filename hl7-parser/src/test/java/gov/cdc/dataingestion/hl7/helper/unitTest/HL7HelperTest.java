@@ -564,7 +564,7 @@ class HL7HelperTest {
             target.hl7Validation(oruR1MessageSmall);
         });
 
-        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Error Occurred at PID-5";
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/PATIENT(0)/PID/PatientName";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -732,4 +732,284 @@ class HL7HelperTest {
         Assertions.assertEquals("R01", data.getParsedMessage().getMessageHeader().getMessageType().getTriggerEvent());
     }
 
+@Test
+void hl7ValidationMSH_emptyDate_7_Test() throws DiHL7Exception {
+    String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+            "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
+            "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+            "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+            "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+            "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+            "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+    Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+        target.hl7Validation(message);
+    });
+    String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /MSH/DateTimeOfMessage/Time/Year";
+    Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7ValidationMSH_msgControlId_10_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01||D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(message);
+        });
+        Assertions.assertTrue(exception.getMessage().endsWith("Required field missing /MSH/MessageControlID"));
+    }
+    @Test
+    void hl7ValidationMSH_processingId_11_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01|20120605034370001A||2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(message);
+        });
+        Assertions.assertTrue(exception.getMessage().endsWith("Required field missing /MSH/ProcessingID"));
+    }
+
+    @Test
+    void hl7Validation_SFT_no_vendorOrg_1_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200100||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT||2.0|Mirth Connect|789654||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        var msg = target.hl7StringValidator(message);
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(msg);
+        });
+        Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareVendorOrganization"));
+    }
+    @Test
+    void hl7Validation_SFT_no_versionNo_2_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200100||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT|Mirth Corp.||Mirth Connect|789654||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        var msg = target.hl7StringValidator(message);
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(msg);
+        });
+        Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareCertifiedVersionOrReleaseNumber"));
+    }
+    @Test
+    void hl7Validation_SFT_no_prdName_3_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200100||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT|Mirth Corp.|2.0||789654||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        var msg = target.hl7StringValidator(message);
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(msg);
+        });
+        Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareProductName"));
+    }
+    @Test
+    void hl7Validation_SFT_no_binaryId_3_Test() throws DiHL7Exception {
+        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200100||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+                "SFT|Mirth Corp.|2.0|Mirth Connect|||20110101\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+                "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
+                "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
+                "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+
+        var msg = target.hl7StringValidator(message);
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(msg);
+        });
+        Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareBinaryID"));
+    }
+    @Test
+    void hl7Validation_NK1_no_setId() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "NK1||TESTNOK114B^FIRSTNOK1^X^JR^DR^MD|FTH|12 MAIN STREET^SUITE 16^COLUMBIA^SC^30329^USA^^^RICHLAND|^^^^^803^5551212^123\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|ST|||Test Value";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/PATIENT(0)/NK1/SetID";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_OBR_no_universalServiceId_4() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO||||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|SN|T09-100442-RET-0||^33|a^year^UCUM^^^^Vunknown|||||F|||20210128160603-0500|00Z0000015||||||||SA.Prescription^^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^00Z0000015|12 Fake AtHome Test Street^^Yakutat^AK^99689^^^^02282|||||QST";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBR/UniversalServiceID";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_OBX_no_obsId_3() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|SN|||^33|a^year^UCUM^^^^Vunknown|||||F|||20210128160603-0500|00Z0000015||||||||SA.Prescription^^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^00Z0000015|12 Fake AtHome Test Street^^Yakutat^AK^99689^^^^02282|||||QST";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX/ObservationIdentifier";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void hl7Validation_OBX_no_obsResultStatus_11() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|SN|T09-100442-RET-0^^OLIS_Site_ID^ISO||^33|a^year^UCUM^^^^Vunknown||||||||20210128160603-0500|00Z0000015||||||||SA.Prescription^^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^00Z0000015|12 Fake AtHome Test Street^^Yakutat^AK^99689^^^^02282|||||QST";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/OBSERVATION(0)/OBX/ObservationResultStatus";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_SPM_no_specimenType_4() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|SN|T09-100442-RET-0^^OLIS_Site_ID^ISO||^33|a^year^UCUM^^^^Vunknown|||||F|||20210128160603-0500|00Z0000015||||||||SA.Prescription^^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^00Z0000015|12 Fake AtHome Test Street^^Yakutat^AK^99689^^^^02282|||||QST\r"
+                        + "SPM|1|^P21-0000105075&OneAbbottSol.STAG&2.16.840.1.113883.3.8589.4.2.7.2&ISO||^^^^^^|||||||||||||20210128160603-0500|20210128160603-0500";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/SPECIMEN(0)/SPM/SpecimenType";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_ORC_no_orderControl() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "OBX|1|SN|30525-0^Age^LN^^^^Vunknown||^33|a^year^UCUM^^^^Vunknown|||||F|||20210128160603-0500|00Z0000015||||||||SA.Prescription^^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^00Z0000015|12 Fake AtHome Test Street^^Yakutat^AK^99689^^^^02282|||||QST";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/ORC/OrderControl";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_CTD_no_contactRole_1() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "CTD||||||1^2^3^4|";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/CTD/ContactRole";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_CTI_no_studyId_1() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "CTI||2|3";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/CTI/SponsorStudyID";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_FT1_no_trnDate_4() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "FT1|1|2|3|||6|7|8|9|10|1|2|3|4|5|6|7|8|9|10|1|2|3|4|5|6|7|8|9|10|31";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/FT1/TransactionDate";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_FT1_no_trnType_6() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "FT1|1|2|3|20210128160603-0500|||7|8|9|10|1|2|3|4|5|6|7|8|9|10|1|2|3|4|5|6|7|8|9|10|31";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/FT1/TransactionType";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
+    @Test
+    void hl7Validation_FT1_no_trnCode_7() {
+        String oruR1MessageSmall =
+                "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r"
+                        + "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\r"
+                        + "PV1|1||OLIS||||OLIST^BLAKE^DONALD^THOR^^^^^921379^^^^OLIST\r"
+                        + "ORC|RE||T09-100442-RET-0^^OLIS_Site_ID^ISO|||||||||OLIST^BLAKE^DONALD^THOR^^^^L^921379\r"
+                        + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
+                        + "FT1|1|2|3|20210128160603-0500||6||8|9|10|1|2|3|4|5|6|7|8|9|10|1|2|3|4|5|6|7|8|9|10|31";
+        Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
+            target.hl7Validation(oruR1MessageSmall);
+        });
+        String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /PATIENT_RESULT(0)/ORDER_OBSERVATION(0)/FT1/TransactionCode";
+        Assertions.assertEquals(expectedMessage, exception.getMessage());
+    }
 }
