@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
+import gov.cdc.dataingestion.share.helper.TimeStampHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +75,7 @@ class ElrProcessStatusComponentTest {
         edxActivityLogStatus.setRecordType("Test Record Type");
         edxActivityLogStatus.setLogType("Test Log Type");
         edxActivityLogStatus.setLogComment("Test Log Comment");
-        edxActivityLogStatus.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        edxActivityLogStatus.setRecordStatusTime(TimeStampHelper.convertTimestampToString(TimeStampHelper.getCurrentTimeStamp("UTC")));
 //        status.getNbsIngestionInfo().add(edxActivityLogStatus);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
@@ -96,7 +97,7 @@ class ElrProcessStatusComponentTest {
         edxActivityLogStatus.setLogComment(logComment);
         status.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogStatus);
         var edx = new EdxActivityLog();
-        edx.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        edx.setRecordStatusTime(TimeStampHelper.convertTimestampToString(TimeStampHelper.getCurrentTimeStamp("UTC")));
         status.getEdxLogStatus().setEdxActivityLog(edx);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
@@ -117,7 +118,7 @@ class ElrProcessStatusComponentTest {
         edxActivityLogStatus.setLogComment(null);
         status.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogStatus);
         var edx = new EdxActivityLog();
-        edx.setRecordStatusTime(new Timestamp(System.currentTimeMillis()));
+        edx.setRecordStatusTime(TimeStampHelper.convertTimestampToString(TimeStampHelper.getCurrentTimeStamp("UTC")));
         status.getEdxLogStatus().setEdxActivityLog(edx);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
                 status
