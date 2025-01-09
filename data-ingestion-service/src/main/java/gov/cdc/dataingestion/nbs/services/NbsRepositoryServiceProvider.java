@@ -32,7 +32,6 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 
 @Service
 @RequiredArgsConstructor
-@AllArgsConstructor
 /**
  1118 - require constructor complaint
  125 - comment complaint
@@ -53,7 +52,7 @@ public class NbsRepositoryServiceProvider {
 	private static final String ECR_DOC_TYPE = "PHC236";
 	private static final String ECR_STATUS = "ORIG_QUEUED";
 
-	private NbsInterfaceRepository nbsInterfaceRepo;
+	private final NbsInterfaceRepository nbsInterfaceRepo;
 
 
 	@Value("${service.timezone}")

@@ -67,7 +67,7 @@ public class ReportStatusService {
         Optional<RawERLModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
         if (!rawMessageData.isEmpty()) {
             msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
-            msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
+            //msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
             msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
             msgStatus.getRawInfo().setRawCreatedOn(rawMessageData.get().getCreatedOn());
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
@@ -76,7 +76,7 @@ public class ReportStatusService {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
                 if (!validatedMessageData.isEmpty()) {
                     msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
-                    msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
+                    //msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
                     msgStatus.getValidatedInfo().setValidatedCreatedOn(validatedMessageData.get().getCreatedOn());
                     msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
 
@@ -140,7 +140,7 @@ public class ReportStatusService {
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(msgStatus.getNbsInfo().getNbsInterfaceId());
         if (!nbsInterfaceModel.isEmpty()) {
             msgStatus.getNbsInfo().setNbsInterfaceStatus(nbsInterfaceModel.get().getRecordStatusCd());
-            msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
+            //msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
         } else {
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
         }
