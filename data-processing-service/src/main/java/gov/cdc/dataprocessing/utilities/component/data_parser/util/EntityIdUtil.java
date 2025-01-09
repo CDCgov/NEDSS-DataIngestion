@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -130,6 +131,9 @@ public class EntityIdUtil {
                 logger.debug("  in processHL7DTType: Date string is: {}", toTime);
                 toTimestamp = stringToStrutsTimestamp(toTime);
             }
+            if (toTimestamp == null) {
+                throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7DTType: Timestamp value is Null");
+            }
             if (isDateNotOkForDatabase(toTimestamp)) {
                 throw new DataProcessingException("Hl7ToNBSObjectConverter.processHL7DTType " +itemDescription +toTime + EdxELRConstant.DATE_INVALID_FOR_DATABASE);
             }
@@ -143,8 +147,7 @@ public class EntityIdUtil {
         Date t;
         try {
             if (strTime != null && strTime.trim().length() > 0) {
-                t = formatter.parse(strTime);
-                return new Timestamp(t.getTime());
+                return TimeStampUtil.convertStringToTimestamp(strTime);
             }
             else {
                 return null;

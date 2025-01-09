@@ -31,8 +31,10 @@ import gov.cdc.dataprocessing.utilities.component.nbs.NbsDocumentRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.nbs.NbsNoteRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -78,7 +80,8 @@ public class PageRepositoryUtil {
     private final CustomRepository  customRepository;
     private final IPamService pamService;
     private final PatientMatchingBaseService patientMatchingBaseService;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     private static final Logger logger = LoggerFactory.getLogger(PageRepositoryUtil.class);
 
     public PageRepositoryUtil(IInvestigationService investigationService,
@@ -299,7 +302,7 @@ public class PageRepositoryUtil {
         try {
             publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
             java.util.Date dateTime = new java.util.Date();
-            Timestamp lastChgTime = new Timestamp(dateTime.getTime());
+            Timestamp lastChgTime = TimeStampUtil.getCurrentTimeStamp(tz);
             Long lastChgUserId= AuthUtil.authUser.getNedssEntryId();
             PageActProxyContainer proxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
             /**

@@ -27,6 +27,7 @@ import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipat
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -391,7 +392,7 @@ public class PatientRepositoryUtil {
                                     personName.setStatusCd("A");
                                 }
                                 if (personName.getStatusTime() == null) {
-                                    personName.setStatusTime(new Timestamp(new Date().getTime()));
+                                    personName.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
                                 }
 
                                 personName.setPersonNameSeq(seqId);
@@ -427,7 +428,7 @@ public class PatientRepositoryUtil {
                     personNameDto.setStatusCd("A");
                 }
                 if (personNameDto.getStatusTime() == null) {
-                    personNameDto.setStatusTime(new Timestamp(new Date().getTime()));
+                    personNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
                 }
                 personNameDto.setRecordStatusCd("ACTIVE");
                 personNameDto.setAddReasonCd("Add");

@@ -40,6 +40,7 @@ import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorW
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -750,7 +751,7 @@ public class OrganizationRepositoryUtil {
 
             if (organizationDto.isItNew() || organizationDto.isItDirty()) {
                 long userId = AuthUtil.authUser.getNedssEntryId();
-                Timestamp time = new Timestamp(new Date().getTime());
+                Timestamp time = TimeStampUtil.getCurrentTimeStamp(tz);
                 logger.debug("new entity");
                 PrepareEntity prepareEntity = this.getPrepareEntityForOrganization(businessTriggerCd, moduleCd, organizationDto.getOrganizationUid(), tableName);
                 organizationDto.setLocalId(prepareEntity.getLocalId());

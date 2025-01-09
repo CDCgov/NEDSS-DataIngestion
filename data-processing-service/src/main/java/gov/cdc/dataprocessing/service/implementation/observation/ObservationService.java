@@ -40,6 +40,7 @@ import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PersonUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,8 +217,7 @@ public class ObservationService implements IObservationService {
             labReportSummaryVO.setTouched(true);
             labReportSummaryVO.setAssociated(true);
             labReportSummaryVO.setObservationUid(labUid);
-            labReportSummaryVO.setActivityFromTime(new Timestamp(new java.util.Date().getTime()));
-
+            labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
             Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
             labReportSummaryVOColl.add(labReportSummaryVO);
 

@@ -15,10 +15,12 @@ import gov.cdc.dataprocessing.utilities.component.data_parser.ORCHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.ObservationResultRequestHandler;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.LabResultUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +63,8 @@ public class DataExtractionService implements IDataExtractionService {
     private final ORCHandler orcHandler;
     private final LabResultUtil labResultUtil;
     private final NbsInterfaceStoredProcRepository nbsInterfaceStoredProcRepository;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     private final DataExtractionServiceUtility dataExtractionServiceUtility;
     public DataExtractionService (
@@ -86,8 +90,7 @@ public class DataExtractionService implements IDataExtractionService {
         LabResultProxyContainer labResultProxyContainer;
         int rootObsUid = 0;
         long userId = AuthUtil.authUser.getAuthUserUid();
-        Timestamp time = new Timestamp(new Date().getTime());
-
+        var time = TimeStampUtil.getCurrentTimeStamp(tz);
             edxLabInformationDto.setRootObserbationUid(--rootObsUid);
             edxLabInformationDto.setPatientUid(--rootObsUid);
             edxLabInformationDto.setNextUid(--rootObsUid);

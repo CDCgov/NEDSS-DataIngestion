@@ -13,9 +13,11 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityDetailLogRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.EdxActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +56,8 @@ public class EdxLogService implements IEdxLogService {
 
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     public EdxLogService(EdxActivityLogRepository edxActivityLogRepository,
                          EdxActivityDetailLogRepository edxActivityDetailLogRepository) {
         this.edxActivityLogRepository = edxActivityLogRepository;
@@ -99,8 +102,7 @@ public class EdxLogService implements IEdxLogService {
 
     public void updateActivityLogDT(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) {
         EDXActivityLogDto edxActivityLogDto = edxLabInformationDto.getEdxActivityLogDto();
-        Date dateTime = new Date();
-        Timestamp time = new Timestamp(dateTime.getTime());
+        var time = TimeStampUtil.getCurrentTimeStamp(tz);
         nbsInterfaceModel.setRecordStatusTime(time);
 
         edxActivityLogDto.setLogDetailAllStatus(true);

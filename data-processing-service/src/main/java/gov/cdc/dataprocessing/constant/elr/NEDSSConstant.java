@@ -452,48 +452,22 @@ public class NEDSSConstant {
      */
     public static final String PLACE__STATUS_CD = STATUS_ACTIVE;
 
-    public static final Timestamp PLACE_TIME = new Timestamp(new Date()
-            .getTime());
-
     public static final String CLINICAL_DOCUMENT_STATUS_CD = STATUS_ACTIVE;
-
-    public static final Timestamp CLINICAL_DOCUMENT_TIME = new Timestamp(
-            new Date().getTime());
 
     public static final String ENTITY_GROUP_STATUS_CD = STATUS_ACTIVE;
 
-    public static final Timestamp ENTITY_GROUP_TIME = new Timestamp(new Date()
-            .getTime());
-
     public static final String INTERVENTION_STATUS_CD = STATUS_ACTIVE;
-
-    public static final Timestamp INTERVENTION_TIME = new Timestamp(new Date()
-            .getTime());
 
     public static final String PATIENTENCOUNTER_STATUS_CD = STATUS_ACTIVE;
 
-    public static final Timestamp PATIENTENCOUNTER_TIME = new Timestamp(
-            new Date().getTime());
-
     public static final String REFERRAL_STATUS_CD = STATUS_ACTIVE;
-
-    public static final Timestamp REFERRAL_TIME = new Timestamp(new Date()
-            .getTime());
 
     public static final String ACTRELATIONSHIP_STATUS_CD = STATUS_ACTIVE;
 
-    public static final Timestamp ACTRELATIONSHIP_TIME = new Timestamp(
-            new Date().getTime());
-
     public static final String PARTICIPATION_STATUS_CD = STATUS_ACTIVE;
 
-    public static final Timestamp PARTICIPATION_TIME = new Timestamp(new Date()
-            .getTime());
 
     public static final String ROLE_STATUS_CD = STATUS_ACTIVE;
-
-    public static final Timestamp ROLE_TIME = new Timestamp(new Date()
-            .getTime());
 
     public static final int SUMMARY_TAB = 1;
 

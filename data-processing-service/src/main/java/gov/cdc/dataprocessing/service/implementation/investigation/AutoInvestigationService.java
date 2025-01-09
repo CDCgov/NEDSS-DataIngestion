@@ -33,8 +33,10 @@ import gov.cdc.dataprocessing.utilities.RulesEngineUtil;
 import gov.cdc.dataprocessing.utilities.StringUtils;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.CdaPhcProcessor;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -72,6 +74,9 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     private final ICacheApiService cacheApiService;
     private final ICatchingValueService catchingValueService;
     private final ILookupService lookupService;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
+
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
                                     ICacheApiService cacheApiService, ICatchingValueService catchingValueService, ILookupService lookupService) {
         this.conditionCodeRepository = conditionCodeRepository;
@@ -168,7 +173,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         patientVO.getThePersonDto().setItDirty(false);
                         patientVO.getThePersonDto().setItNew(true);
                         personVO.getThePersonDto().setElectronicInd(NEDSSConstant.ELECTRONIC_IND);
-                        personVO.getThePersonDto().setStatusTime(new Timestamp(new Date().getTime()));
+                        personVO.getThePersonDto().setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
                         if (pageActProxyContainer != null)
                             pageActProxyContainer.setThePersonContainerCollection(thePersonVOCollection);
                         else {
@@ -281,7 +286,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDto().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
         //phcVO.getThePublicHealthCaseDto().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
 
-        phcVO.getThePublicHealthCaseDto().setAddTime(new Timestamp(new Date().getTime()));
+        phcVO.getThePublicHealthCaseDto().setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         phcVO.getThePublicHealthCaseDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());
         phcVO.getThePublicHealthCaseDto().setCaseTypeCd(EdxELRConstant.ELR_INDIVIDUAL);
 
@@ -305,7 +310,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDto().setInvestigationStatusCd(EdxELRConstant.ELR_OPEN_CD);
         phcVO.getThePublicHealthCaseDto().setActivityFromTime(
                 StringUtils.stringToStrutsTimestamp(StringUtils
-                        .formatDate(new Timestamp((new Date()).getTime()))));
+                        .formatDate(TimeStampUtil.getCurrentTimeStamp(tz))));
         Calendar now = Calendar.getInstance();
         String dateValue = (now.get(Calendar.MONTH)+1) +"/" + now.get(Calendar.DATE) +"/" + now.get(Calendar.YEAR);
         int[] weekAndYear = RulesEngineUtil.CalcMMWR(dateValue);
@@ -512,7 +517,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                         if (value != null && dataLocation != null
                                 && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
                             String columnName = dataLocation.substring(dataLocation.indexOf(".") + 1);
-                            DynamicBeanBinding.populateBean(phcDT, columnName, value);
+                            DynamicBeanBinding.populateBean(phcDT, columnName, value, tz);
                         } else if (value != null && dataLocation != null
                                 && dataLocation.endsWith(RenderConstant.ANSWER_TXT)) {
                             NbsCaseAnswerDto caseAnswerDT = new NbsCaseAnswerDto();

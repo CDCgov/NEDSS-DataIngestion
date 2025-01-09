@@ -558,7 +558,7 @@ public class ValidateDecisionSupport {
                 NEDSSConstant.USE_CURRENT_DATE))
         {
             edxRuleManageDT.setDefaultStringValue(StringUtils
-                    .formatDate(new Timestamp((new Date()).getTime())));
+                    .formatDate(TimeStampUtil.getCurrentTimeStamp(tz)));
         }
     }
 }

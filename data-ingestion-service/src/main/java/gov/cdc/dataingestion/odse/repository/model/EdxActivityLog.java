@@ -25,7 +25,7 @@ public class EdxActivityLog {
     private String recordStatusCd;
 
     @Column(name = "record_status_time")
-    private java.util.Date recordStatusTime;
+    private String recordStatusTime;
 
     @Column(name = "exception_txt")
     private String exceptionTxt;

@@ -18,5 +18,5 @@ public class EdxActivityLogStatus {
     private String recordType;
     private String logType;
     private String logComment;
-    private Timestamp recordStatusTime;
+    private String recordStatusTime;
 }

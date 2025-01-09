@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.utilities;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -41,7 +42,7 @@ public class DynamicBeanBinding {
      * populateBean populates the metadata relevant colNm to the Bean Object and
      * returns
      */
-    public static void populateBean(Object bean, String colNm, String colVal)
+    public static void populateBean(Object bean, String colNm, String colVal, String tz)
             throws DataProcessingException {
 
         try {
@@ -63,8 +64,7 @@ public class DynamicBeanBinding {
             if (colVal!=null && !colVal.equals("")) {
                 if (pType.equalsIgnoreCase("java.sql.Timestamp")) {
 
-                    Timestamp ts = new Timestamp(new SimpleDateFormat("MM/dd/yyyy")
-                            .parse(colVal).getTime());
+                    Timestamp ts = TimeStampUtil.getCurrentTimeStamp(tz);
                     arg[0] = ts;
 
                 } else if (pType.equalsIgnoreCase("java.lang.String")) {

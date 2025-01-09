@@ -18,8 +18,10 @@ import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -57,6 +59,9 @@ public class NBSObjectConverter {
     private final EntityIdUtil entityIdUtil;
 
     private final ICatchingValueService catchingValueService;
+
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueService catchingValueService) {
         this.entityIdUtil = entityIdUtil;
@@ -229,7 +234,7 @@ public class NBSObjectConverter {
         try {
             elp.setItNew(true);
             elp.setItDirty(false);
-            elp.setAddTime(new Timestamp(new Date().getTime()));
+            elp.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
             elp.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
             elp.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
 
@@ -259,8 +264,8 @@ public class NBSObjectConverter {
             PostalLocatorDto pl = new PostalLocatorDto();
             pl.setItNew(true);
             pl.setItDirty(false);
-            pl.setAddTime(new Timestamp(new Date().getTime()));
-            pl.setRecordStatusTime(new Timestamp(new Date().getTime()));
+            pl.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
+            pl.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
 
             pl.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
             HL7SADType HL7StreetAddress = hl7XADType.getHL7StreetAddress();
@@ -447,7 +452,7 @@ public class NBSObjectConverter {
 
         elp.setItNew(true);
         elp.setItDirty(false);
-        elp.setAddTime(new Timestamp(new Date().getTime()));
+        elp.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         elp.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         elp.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         elp.setClassCd(EdxELRConstant.ELR_TELE_CD);
@@ -464,8 +469,8 @@ public class NBSObjectConverter {
         PostalLocatorDto pl = new PostalLocatorDto();
         pl.setItNew(true);
         pl.setItDirty(false);
-        pl.setAddTime(new Timestamp(new Date().getTime()));
-        pl.setRecordStatusTime(new Timestamp(new Date().getTime()));
+        pl.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
+        pl.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
         pl.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         pl.setCntryCd(countryOfBirth);
         pl.setAddUserId(personContainer.getThePersonDto().getAddUserId());
@@ -557,7 +562,7 @@ public class NBSObjectConverter {
         raceDT.setItNew(true);
         raceDT.setItDelete(false);
         raceDT.setItDirty(false);
-        raceDT.setAddTime(new Timestamp(new Date().getTime()));
+        raceDT.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         raceDT.setAddUserId(personContainer.getThePersonDto().getAddUserId());
 
         if (hl7CEType.getHL7Identifier() != null) {
@@ -578,14 +583,13 @@ public class NBSObjectConverter {
     }
 
     @SuppressWarnings("java:S1172")
-    public EntityLocatorParticipationDto telePhoneType(
-            HL7XTNType hl7XTNType, String role) {
+    public EntityLocatorParticipationDto telePhoneType(HL7XTNType hl7XTNType, String role) {
         EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
         TeleLocatorDto teleDT = new TeleLocatorDto();
 
         elp.setItNew(true);
         elp.setItDirty(false);
-        elp.setAddTime(new Timestamp(new Date().getTime()));
+        elp.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         elp.setCd(NEDSSConstant.PHONE);
 
         elp.setClassCd(EdxELRConstant.ELR_TELE_CD);
@@ -597,7 +601,7 @@ public class NBSObjectConverter {
         elp.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         teleDT.setItNew(true);
         teleDT.setItDirty(false);
-        teleDT.setAddTime(new Timestamp(new Date().getTime()));
+        teleDT.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         teleDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         elp.setTheTeleLocatorDto(teleDT);
 
