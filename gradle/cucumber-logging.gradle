@@ -1,13 +1,18 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import groovy.time.TimeCategory
+import java.text.MessageFormat
 
-ext.testsResults = [] // Container for tests summaries
+def testResults = []
+def testFailures = 0
 
 tasks.named("test") { testTask ->
-    testsResults = []
+
+    doLast {
+        println 'TEST FINISHED'
+    }
+
     testLogging {
-        events "passed", "failed"
+        events "failed"
         exceptionFormat TestExceptionFormat.FULL
         showExceptions true
         showCauses true
@@ -15,11 +20,11 @@ tasks.named("test") { testTask ->
     }
 
     ignoreFailures = true // Always try to run all tests for all modules
-    afterSuite { desc, result ->
+    afterSuite { descriptor, result ->
 
-        if (desc.parent) return // Only summarize results for whole modules
-        if (desc.getParent() == null) {
-            rootProject.ext.testFailures += result.getFailedTestCount() //count failures
+        if (descriptor.parent) return // Only summarize results for whole modules
+        if (descriptor.getParent() == null) {
+            testFailures += result.getFailedTestCount() //count failures
         }
 
         String summary = "${testTask.project.name}:${testTask.name} results: ${result.resultType} " +
@@ -36,22 +41,26 @@ tasks.named("test") { testTask ->
                 "Jacoco report: ${project.projectDir}/build/reports/jacoco/test/html/index.html"
 
 
-        // Add reports in `testsResults`, keep failed suites at the end
+        // Add reports in `testResults`, keep failed suites at the end
         if (result.resultType == TestResult.ResultType.SUCCESS) {
-            testsResults.add(0, summary)
+            testResults.add(0, summary)
         } else {
-            testsResults += summary
+            testResults += summary
         }
+        printResults new Object[]{summary}
     }
 }
 
-
 gradle.buildFinished {
-    def allResults = ext.testsResults
+  if (!testResults.isEmpty()) {
+    printResults testResults
+  }
+  if (testFailures > 0) { // check if any tests failed
+      String message = new MessageFormat("There {0,choice,0#are no|1#is one|were {0,number}} failing {0,choice,1#test|tests}.")
+              .format(new Object[]{testFailures});
 
-    if (!allResults.isEmpty()) {
-        printResults allResults
-    }
+      throw new VerificationException(message)
+  }
 }
 
 private static void printResults(allResults) {

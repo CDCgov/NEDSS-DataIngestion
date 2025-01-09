@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
@@ -18,13 +16,6 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 @Service
 @RequiredArgsConstructor
 @Slf4j
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class RawELRService {
 
     private static final String CREATED_BY = "admin";
@@ -72,7 +63,6 @@ public class RawELRService {
     private RawERLModel convert(RawERLDto rawERLDto) {
 
         RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(UUID.randomUUID().toString());
         rawERLModel.setType(rawERLDto.getType());
         rawERLModel.setPayload(rawERLDto.getPayload());
         rawERLModel.setCreatedOn(getCurrentTimeStamp(tz));
