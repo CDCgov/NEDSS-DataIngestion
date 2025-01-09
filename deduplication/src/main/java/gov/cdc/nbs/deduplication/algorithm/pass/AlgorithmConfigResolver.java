@@ -1,6 +1,8 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,7 +12,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchConfiguration;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchConfigurationResponse;
 
 @Component
-public class MatchConfigurationResolver {
+public class AlgorithmConfigResolver {
   private final JdbcTemplate template;
   private final ObjectMapper mapper;
 
@@ -22,7 +24,9 @@ public class MatchConfigurationResolver {
         ORDER BY add_time desc;
                  """;
 
-  public MatchConfigurationResolver(final JdbcTemplate template, final ObjectMapper mapper) {
+  public AlgorithmConfigResolver(
+      @Qualifier("deduplicationTemplate") final JdbcTemplate template,
+      final ObjectMapper mapper) {
     this.template = template;
     this.mapper = mapper;
   }

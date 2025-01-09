@@ -10,13 +10,13 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchConfigurationResponse
 
 @RestController
 @RequestMapping("/api/deduplication/configuration")
-public class MatchController {
-  private final MatchConfigurationResolver resolver;
-  private final MatchConfigurationCreator creator;
+public class AlgorithmConfigController {
+  private final AlgorithmConfigResolver resolver;
+  private final AlgorithmConfigCreator creator;
 
-  public MatchController(
-      final MatchConfigurationResolver resolver,
-      final MatchConfigurationCreator creator) {
+  public AlgorithmConfigController(
+      final AlgorithmConfigResolver resolver,
+      final AlgorithmConfigCreator creator) {
     this.resolver = resolver;
     this.creator = creator;
   }

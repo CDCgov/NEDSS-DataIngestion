@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.dataelements;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,7 +20,9 @@ public class DataElementCreator {
         (?)
       """;
 
-  public DataElementCreator(final JdbcTemplate template, final ObjectMapper mapper) {
+  public DataElementCreator(
+      @Qualifier("deduplicationTemplate") final JdbcTemplate template,
+      final ObjectMapper mapper) {
     this.template = template;
     this.mapper = mapper;
   }

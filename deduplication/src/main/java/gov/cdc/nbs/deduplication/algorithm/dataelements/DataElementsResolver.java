@@ -1,6 +1,8 @@
 package gov.cdc.nbs.deduplication.algorithm.dataelements;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +25,9 @@ public class DataElementsResolver {
         ORDER BY add_time desc;
                  """;
 
-  public DataElementsResolver(final JdbcTemplate template, final ObjectMapper mapper) {
+  public DataElementsResolver(
+      @Qualifier("deduplicationTemplate") final JdbcTemplate template,
+      final ObjectMapper mapper) {
     this.template = template;
     this.mapper = mapper;
   }
