@@ -19,7 +19,7 @@ public class NbsMessageStatus {
     private String nbsInterfacePipeLineStatus;
     private String nbsInterfaceStatus;
 //    private String nbsInterfacePayload;
-    private Timestamp nbsCreatedOn;
+    private String nbsCreatedOn;
     private DltMessageStatus dltInfo;
 
 }

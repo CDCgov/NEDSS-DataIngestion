@@ -18,7 +18,7 @@ public class RawMessageStatus {
     private String rawMessageId;
 //    private String rawPayload;
     private String rawCreatedBy;
-    private Timestamp rawCreatedOn;
+    private String rawCreatedOn;
     private String rawPipeLineStatus;
     private DltMessageStatus dltInfo;
 

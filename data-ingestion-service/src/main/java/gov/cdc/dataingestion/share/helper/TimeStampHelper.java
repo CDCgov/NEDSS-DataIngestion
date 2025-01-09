@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  1118 - require constructor complaint
@@ -24,5 +25,12 @@ public class TimeStampHelper {
         ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
         ZonedDateTime gmt = zdt.withZoneSameInstant(zoneId);
         return Timestamp.valueOf(gmt.toLocalDateTime());
+    }
+
+
+    public static String convertTimestampToString(Timestamp timestamp) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss");
+        LocalDateTime localDateTime = timestamp.toLocalDateTime();
+        return formatter.format(localDateTime);
     }
 }

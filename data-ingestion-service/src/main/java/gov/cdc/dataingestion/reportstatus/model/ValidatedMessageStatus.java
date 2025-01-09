@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 public class ValidatedMessageStatus {
     private String validatedMessageId;
 //    private String validatedMessage;
-    private Timestamp validatedCreatedOn;
+    private String validatedCreatedOn;
     private String validatedPipeLineStatus;
     private DltMessageStatus dltInfo;
 

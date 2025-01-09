@@ -18,6 +18,6 @@ public class DltMessageStatus {
     private String dltId;
     private String dltStatus;
     private String dltOrigin;
-    private Timestamp dltCreatedOn;
+    private String dltCreatedOn;
     private String dltShortTrace;
 }
