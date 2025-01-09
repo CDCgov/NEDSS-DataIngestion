@@ -37,8 +37,7 @@ public class HL7v2Validator implements IHL7v2Validator {
 
         // validationActive check is obsoleted
         if (validationActive) {
-        replaceSpecialCharacters = this.hl7Helper.processFhsMessage(replaceSpecialCharacters);
-        replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
+            replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
         }
 
         ValidatedELRModel model = new ValidatedELRModel();
