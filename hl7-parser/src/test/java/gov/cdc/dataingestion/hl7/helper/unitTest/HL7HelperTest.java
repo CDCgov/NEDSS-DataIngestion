@@ -760,7 +760,6 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.hl7Validation(message);
         });
-        //Assertions.assertTrue(exception.getMessage().endsWith("Required field missing /MSH/MessageControlID"));
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /MSH/MessageControlID";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
@@ -777,7 +776,6 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.hl7Validation(message);
         });
-        //Assertions.assertTrue(exception.getMessage().endsWith("Required field missing /MSH/ProcessingID"));
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing /MSH/ProcessingID";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
@@ -796,7 +794,6 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.hl7Validation(msg);
         });
-        //Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareVendorOrganization"));
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing SFT/SoftwareVendorOrganization";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
@@ -814,7 +811,6 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.hl7Validation(msg);
         });
-        //Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareCertifiedVersionOrReleaseNumber"));
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing SFT/SoftwareCertifiedVersionOrReleaseNumber";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
@@ -832,7 +828,6 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.hl7Validation(msg);
         });
-        //Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareProductName"));
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing SFT/SoftwareProductName";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
@@ -850,7 +845,6 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
             target.hl7Validation(msg);
         });
-        //Assertions.assertTrue(exception.getMessage().endsWith("Required field missing SFT/SoftwareBinaryID"));
         String expectedMessage = "Invalid Message ca.uhn.hl7v2.HL7Exception: Required field missing SFT/SoftwareBinaryID";
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
