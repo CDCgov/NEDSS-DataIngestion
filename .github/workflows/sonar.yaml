@@ -15,6 +15,7 @@ on:
     paths:
       - "data-ingestion-service/**"
       - "data-processing-service/**"
+      - "srte-data-service/**"
       - "hl7-parser/**"
       - "cdaschema/**"
       - "deduplication/**"
