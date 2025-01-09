@@ -732,14 +732,14 @@ class HL7HelperTest {
     }
 
 @Test
-void hl7ValidationMSH_emptyDate7_Test() {
-    String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+void MSH_hl7Validation_emptyDate7_Test() {
+    String message = "MSH|^~\\&|LABCORP-CORP EMPTY DATE TEST^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
             "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
             "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
-            "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
+            "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 600^^GA^30004|^^^^^770^1234567\n" +
             "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
             "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
-            "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor|";
+            "AAA|1|^08660205112&namespace&OID&ISO||UNK^Unknown^NullFlavor123|";
 
     Exception exception = Assertions.assertThrows(DiHL7Exception.class, () -> {
         target.hl7Validation(message);
@@ -749,9 +749,9 @@ void hl7ValidationMSH_emptyDate7_Test() {
     }
     @Test
     void hl7validationMSH_msgControlId_10_Test() {
-        String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01||D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+        String message = "MSH|^~\\&|LABCORP-CORP-CONTROL-ID^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01||D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
                 "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
-                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghadfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
                 "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
                 "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
                 "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
@@ -767,7 +767,7 @@ void hl7ValidationMSH_emptyDate7_Test() {
     void hl7Validation_MSH_processingId_11() {
         String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01|20120605034370001A||2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
                 "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
-                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
+                "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||firstname^lastname||||||||(623)570-4113|||||||||||||||||\n" +
                 "ORC|RE|||||||||||||||||||HUFF MEDICAL CENTER|1212 DOGGIE TRAIL.^SUITE 500^^GA^30004|^^^^^770^1234567\n" +
                 "OBR|1||06050205112A^namespace^OID^ISO|699-9^ORGANISM COUNT^LN|||200603241455|||||||||||||||201205091533|||F\n" +
                 "OBX|1|ST|11475-1^MICROORGANISM IDENTIFIED^LN||||||||F||||||||201205301200\n" +
