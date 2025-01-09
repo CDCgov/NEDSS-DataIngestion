@@ -7,7 +7,6 @@ import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
-import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
@@ -20,7 +19,10 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 

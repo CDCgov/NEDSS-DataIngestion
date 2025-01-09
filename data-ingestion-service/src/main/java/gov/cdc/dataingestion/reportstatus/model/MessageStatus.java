@@ -2,9 +2,6 @@ package gov.cdc.dataingestion.reportstatus.model;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 /**
  1118 - require constructor complaint

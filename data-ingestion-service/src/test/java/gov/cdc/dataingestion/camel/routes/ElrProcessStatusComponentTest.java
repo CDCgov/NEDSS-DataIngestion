@@ -14,8 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.sql.Timestamp;
-
 import static org.mockito.Mockito.when;
 /**
  1118 - require constructor complaint

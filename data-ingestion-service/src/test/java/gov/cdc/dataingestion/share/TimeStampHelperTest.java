@@ -1,12 +1,8 @@
 package gov.cdc.dataingestion.share;
 
 import gov.cdc.dataingestion.share.helper.TimeStampHelper;
-import org.apache.http.util.Asserts;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.ZoneId;
-import java.util.stream.Collectors;
 
 class TimeStampHelperTest {
     @Test

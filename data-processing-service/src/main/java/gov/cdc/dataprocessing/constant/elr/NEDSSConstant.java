@@ -1,8 +1,5 @@
 package gov.cdc.dataprocessing.constant.elr;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 /**
  125 - Comment complaint
  3776 - Complex complaint

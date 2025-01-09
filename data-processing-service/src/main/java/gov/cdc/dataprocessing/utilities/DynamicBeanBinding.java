@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;

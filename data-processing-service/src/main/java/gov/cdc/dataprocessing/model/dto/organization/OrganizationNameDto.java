@@ -7,7 +7,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.Organizatio
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
 
