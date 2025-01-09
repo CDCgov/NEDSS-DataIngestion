@@ -732,7 +732,7 @@ class HL7HelperTest {
     }
 
 @Test
-void hl7ValidationMSH_emptyDate_7_Test() {
+void hl7ValidationMSH_emptyDate7_Test() {
     String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|||ORU^R01^ORU_R01|20120605034370001A|D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
             "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
             "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
@@ -748,7 +748,7 @@ void hl7ValidationMSH_emptyDate_7_Test() {
     Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
     @Test
-    void hl7ValidationMSH_msgControlId_10_Test() {
+    void hl7validationMSH_msgControlId_10_Test() {
         String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01||D|2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
                 "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
                 "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
@@ -764,7 +764,7 @@ void hl7ValidationMSH_emptyDate_7_Test() {
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }
     @Test
-    void hl7ValidationMSH_processingId_11_Test() {
+    void hl7Validation_MSH_processingId_11() {
         String message = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|20210128162413-0500||ORU^R01^ORU_R01|20120605034370001A||2.3.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
                 "SFT|Mirth Corp.|2.0|Mirth Connect|789654||20110101\n" +
                 "PID|1||08660205112^^^^PI^NE_CLINIC&24D1040593||sfgsfghfshsfh^newname||||||||(623)570-4113|||||||||||||||||\n" +
