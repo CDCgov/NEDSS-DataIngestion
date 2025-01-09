@@ -24,7 +24,6 @@ import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
-import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
@@ -45,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 

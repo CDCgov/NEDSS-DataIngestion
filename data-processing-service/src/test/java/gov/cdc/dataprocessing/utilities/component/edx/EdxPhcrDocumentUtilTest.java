@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 class EdxPhcrDocumentUtilTest {
@@ -29,6 +31,9 @@ class EdxPhcrDocumentUtilTest {
 
     @Mock
     private ILookupService lookupService;
+
+    @Mock
+    private ICacheApiService cacheApiService;
 
     @BeforeEach
     public void setUp() {
@@ -107,6 +112,7 @@ class EdxPhcrDocumentUtilTest {
 
         OdseCache.dmbMap.put(DecisionSupportConstants.CORE_INV_FORM, tree);
 
+        when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
 
 
         var res = edxPhcrDocumentUtil.loadQuestions(condCode);

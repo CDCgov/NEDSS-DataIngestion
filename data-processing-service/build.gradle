@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.4'
+    id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'jacoco'
@@ -69,14 +69,19 @@ repositories {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.12"
     reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
+    jacoco {
+        // Exclude problematic classes (e.g., JDK internal tools)
+        excludes = ["com/sun/tools/attach/**"]
+    }
 }
 jacocoTestReport {
+    dependsOn test
     reports {
         xml.required = true
         csv.required = false
@@ -145,58 +150,66 @@ jar {
 }
 
 dependencies {
+    // Spring boot
     implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web:3.3.4'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.3.4'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Cache implementation    
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
+    // Kafka    
     implementation 'org.springframework.kafka:spring-kafka:3.0.12'
     implementation 'org.apache.kafka:kafka-clients:3.6.0'
-    implementation 'com.google.code.gson:gson:2.11.0'
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
-    implementation 'com.zaxxer:HikariCP:5.0.1'
 
+    // Swagger - openapi
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+    // Database
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+
+    // Hapi HL7
     implementation 'ca.uhn.hapi:hapi-base:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
     implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
-    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    // Logging    
     implementation 'org.slf4j:slf4j-api'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-    implementation 'io.micrometer:micrometer-registry-prometheus'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.3.4'
-//    implementation 'org.simpleframework:simple-xml:2.7.1'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.2'
-
-
     implementation 'io.prometheus:simpleclient:0.16.0'
     implementation 'io.prometheus:simpleclient_hotspot:0.16.0'
     implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
     implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
-
-    implementation 'org.hibernate.validator:hibernate-validator'
-
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-    // Below is needed for runtime with jaxb generated code
-    runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
-    // Only need below two dependencies for java code generation from xsd file(s)
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    
+    // Code generation from xsd files
     jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
+    runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
 
-
+    // Lombok annotations
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation(platform('org.junit:junit-bom:5.10.0'))
-    testImplementation('org.junit.jupiter:junit-jupiter')
-    testImplementation 'org.springframework.kafka:spring-kafka-test:3.1.0'
-    testImplementation(platform('org.junit:junit-bom:5.9.1'))
-    testImplementation('org.junit.jupiter:junit-jupiter:5.9.2')
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
-    testImplementation 'org.springframework.security:spring-security-test:6.2.0'
-    runtimeOnly 'org.springframework.boot:spring-boot-devtools:3.3.4'
 
+    // Misc
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.2'
+    implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     implementation 'org.apache.commons:commons-lang3:3.14.0'
 
 
+    // Testing    
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation 'org.springframework.kafka:spring-kafka-test:3.1.0'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.9.2')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
+    testImplementation 'org.springframework.security:spring-security-test:6.2.0'
+    testImplementation(platform('org.junit:junit-bom:5.10.0'))
 }
 
 test {

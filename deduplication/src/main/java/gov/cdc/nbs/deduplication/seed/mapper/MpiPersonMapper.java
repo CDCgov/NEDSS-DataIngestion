@@ -150,16 +150,31 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         }).orElseGet(() -> new ArrayList<>());
   }
 
-  /** Returns the first Drivers License entry found, or null */
+  /**
+   * Returns the first Drivers-License entry found.
+   * If none is found, creates and returns a new DriversLicense with the given license value
+   * and an empty string as the authority if the authority is null or blank.
+   */
   DriversLicense mapDriversLicense(String driversLicenseString) {
-    return tryParse(
-        driversLicenseString,
-        new TypeReference<List<DriversLicense>>() {
-        }).orElseGet(() -> new ArrayList<>())
-        .stream()
-        .findFirst()
-        .orElse(null);
+    List<DriversLicense> licenses = tryParse(
+            driversLicenseString,
+            new TypeReference<List<DriversLicense>>() {
+            }).orElseGet(() -> new ArrayList<>());
 
+    // Get the first drivers-license or set it to null
+    DriversLicense license = licenses.stream().findFirst().orElse(null);
+
+    // If the license is null or blank, return null
+    if (license == null) {
+      return null;
+    }
+
+    // If the authority is null or blank, set a default value
+    if (license.authority() == null || license.authority().isBlank()) {
+      return new DriversLicense(license.value(), "");
+    }
+
+    return license;
   }
 
   /** Convert Race_cd to acceptable value for Record Linkage */
