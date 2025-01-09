@@ -2,15 +2,11 @@ package gov.cdc.dataprocessing.utilities.time;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 /**
  125 - Comment complaint
