@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityLocatorParticipationId;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -117,8 +118,13 @@ public class EntityLocatorParticipation {
     private Timestamp asOfDate;
 
     // Add getters and setters as needed
-    public EntityLocatorParticipation(EntityLocatorParticipationDto entityLocatorParticipationDto, String tz) {
+    public EntityLocatorParticipation(EntityLocatorParticipationDto entityLocatorParticipationDto, String tz) throws DataProcessingException {
         var timestamp = getCurrentTimeStamp(tz);
+        if (entityLocatorParticipationDto.getEntityUid() == null ||
+                entityLocatorParticipationDto.getLocatorUid() == null) {
+            var test = "blah";
+            throw new DataProcessingException("EntityLocatorParticipation key is null");
+        }
         this.entityUid = entityLocatorParticipationDto.getEntityUid();
         this.locatorUid = entityLocatorParticipationDto.getLocatorUid();
 

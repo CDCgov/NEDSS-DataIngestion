@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.service.implementation.person.base;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.MPRUpdateContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
@@ -17,6 +18,8 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.OdseIdGeneratorService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -58,14 +61,16 @@ import java.util.*;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PatientMatchingBaseService extends MatchingBaseService{
     private static final Logger logger = LoggerFactory.getLogger(PatientMatchingBaseService.class);
+    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     public PatientMatchingBaseService(
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
             CachingValueService cachingValueService,
-            PrepareAssocModelHelper prepareAssocModelHelper) {
+            PrepareAssocModelHelper prepareAssocModelHelper, IOdseIdGeneratorWCacheService odseIdGeneratorService) {
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        this.odseIdGeneratorService = odseIdGeneratorService;
     }
 
     @SuppressWarnings("java:S125")
@@ -529,7 +534,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             }
 
             if (!personList.isEmpty()) {
-                revision = personList.get(0);
+                revision = personList.getFirst();
             }
 
             if (mpr != null)
@@ -547,6 +552,18 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 personId.setRevisionId(revision.getPersonUid());
                 personId.setRevisionParentId(revision.getPersonParentUid());
                 personId.setRevisionLocalId(revision.getLocalId());
+            }
+
+            if (personId.getRevisionId() == null) {
+                var idModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+                var personUid = idModel.getGaTypeUid().getSeedValueNbr();
+                var localUid = idModel.getClassTypeUid().getUidPrefixCd()
+                        + idModel.getClassTypeUid().getSeedValueNbr()
+                        + idModel.getClassTypeUid().getUidSuffixCd();
+
+                personId.setRevisionId(personUid);
+                personId.setRevisionParentId(personUID);
+                personId.setRevisionLocalId(localUid);
             }
 
         } catch (Exception e) {

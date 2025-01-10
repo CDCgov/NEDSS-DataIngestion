@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.service.implementation.person.matching.MatchRespon
 import gov.cdc.dataprocessing.service.implementation.person.matching.PersonMatchRequest;
 import gov.cdc.dataprocessing.service.implementation.person.matching.RelateRequest;
 import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -47,12 +48,14 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       CachingValueService cachingValueService,
       PrepareAssocModelHelper prepareAssocModelHelper,
       @Value("${features.modernizedMatching.enabled:false}") boolean modernizedMatchingEnabled,
-      ObjectProvider<DeduplicationService> deduplicationService) {
+      ObjectProvider<DeduplicationService> deduplicationService,
+      IOdseIdGeneratorWCacheService odseIdGeneratorService) {
     super(edxPatientMatchRepositoryUtil,
         entityHelper,
         patientRepositoryUtil,
         cachingValueService,
-        prepareAssocModelHelper);
+        prepareAssocModelHelper,
+            odseIdGeneratorService);
     this.modernizedMatchingEnabled = modernizedMatchingEnabled;
     this.deduplicationService = deduplicationService.getIfAvailable();
   }

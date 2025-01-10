@@ -374,10 +374,11 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    private void processingELR(Integer data) {
+    private void processingELR(Integer data) throws DataProcessingConsumerException {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
+        boolean critical = false;
         try {
 
             var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
@@ -461,7 +462,8 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+                critical = true;
+
             logger.error("DP ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
@@ -587,6 +589,10 @@ public class ManagerService implements IManagerService {
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
+        }
+
+        if (critical) {
+            throw new DataProcessingConsumerException("CRITICAL");
         }
         logger.info("Completed 1st Step");
     }

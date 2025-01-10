@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.implementation.person.base.NokMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.person.INokMatchingService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -56,8 +57,11 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
             CachingValueService cachingValueService,
-            PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+            PrepareAssocModelHelper prepareAssocModelHelper,
+            IOdseIdGeneratorWCacheService odseIdGeneratorService) {
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil,
+                cachingValueService, prepareAssocModelHelper,
+                odseIdGeneratorService);
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})

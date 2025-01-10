@@ -35,8 +35,11 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
 
         if (localUidModel != null) {
-            if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
-                if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
+            if (localUidModel.getClassTypeUid().getUsedCounter() + 100
+                    <= localUidModel.getClassTypeUid().getCounter()) {
+                if (localUidModel.getGaTypeUid() != null
+                        && localUidModel.getGaTypeUid().getUsedCounter() + 100
+                        <= localUidModel.getGaTypeUid().getCounter()) {
                     updateCounters(localUidModel, true);
                 } else if (localUidModel.getGaTypeUid() == null) {
                     updateCounters(localUidModel, false);

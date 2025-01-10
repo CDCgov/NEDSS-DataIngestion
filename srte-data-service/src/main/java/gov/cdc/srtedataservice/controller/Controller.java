@@ -1,5 +1,7 @@
 package gov.cdc.srtedataservice.controller;
 
+import com.google.gson.Gson;
+import gov.cdc.srtedataservice.cache_model.LocalUidCacheModel;
 import gov.cdc.srtedataservice.constant.LocalIdClass;
 import gov.cdc.srtedataservice.constant.ObjectName;
 import gov.cdc.srtedataservice.exception.RtiCacheException;
@@ -59,6 +61,8 @@ public class Controller {
     public ResponseEntity<Object> getOdseLocalId(@RequestParam String localIdClass, @RequestParam boolean geApplied) throws RtiCacheException {
         var res = odseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.valueOf(localIdClass), geApplied);
         logger.info("/odse/localId/{}?geApplied={}", localIdClass, geApplied);
+        Gson gson = new Gson();
+        logger.info("Seed {}", gson.toJson(LocalUidCacheModel.localUidMap));
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 

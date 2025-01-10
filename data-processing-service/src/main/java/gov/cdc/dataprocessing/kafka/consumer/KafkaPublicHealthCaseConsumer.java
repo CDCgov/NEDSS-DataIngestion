@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
@@ -8,7 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.retrytopic.DltStrategy;
+import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
@@ -58,14 +65,10 @@ public class KafkaPublicHealthCaseConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_health_case}"
     )
-    public void handleMessageForPublicHealthCase(String message) {
-        try {
-            var profile = authUserService.getAuthUserInfo(nbsUser);
-            AuthUtil.setGlobalAuthUser(profile);
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
-            managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
-        } catch (Exception e) {
-            logger.error("KafkaPublicHealthCaseConsumer.handleMessageForPublicHealthCase: {}", e.getMessage());
-        }
+    public void handleMessageForPublicHealthCase(String message) throws DataProcessingException {
+        var profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
+        managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
     }
 }

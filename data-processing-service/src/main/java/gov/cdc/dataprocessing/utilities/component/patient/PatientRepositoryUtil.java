@@ -144,6 +144,9 @@ public class PatientRepositoryUtil {
         //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setBirthCntryCd(null);
+        if (person.getVersionCtrlNbr() == null) {
+            person.setVersionCtrlNbr(0);
+        }
         personRepository.save(person);
 
         //NOTE: Create Person Name
@@ -186,6 +189,10 @@ public class PatientRepositoryUtil {
         var ver = person.getVersionCtrlNbr();
         person.setVersionCtrlNbr(++ver);
         person.setBirthCntryCd(null);
+
+        if (person.getVersionCtrlNbr() == null) {
+            person.setVersionCtrlNbr(0);
+        }
         personRepository.save(person);
 
 
@@ -231,6 +238,10 @@ public class PatientRepositoryUtil {
                     mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
                 }
                 mprRes.get().setBirthCntryCd(null);
+
+                if (mprRes.get().getVersionCtrlNbr() == null) {
+                    mprRes.get().setVersionCtrlNbr(0);
+                }
                 personRepository.save(mprRes.get());
             }
 
@@ -253,11 +264,8 @@ public class PatientRepositoryUtil {
         Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
         Optional<List<PersonName>> personNameResult = Optional.empty();
 
-        try {
-            personNameResult = personNameRepository.findByParentUid(personUid);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        personNameResult = personNameRepository.findByParentUid(personUid);
+
         if (personResult.isPresent() && personNameResult.isPresent()) {
             for(var item : personNameResult.get()) {
                 var elem = new PersonNameDto(item);

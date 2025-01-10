@@ -49,9 +49,6 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     @Value("${kafka.topic.elr_edx_log}")
     private String edxLogTopic = "elr_edx_log";
 
-    @Value("${kafka.topic.elr_micro_transaction}")
-    private String unprocessedTopic = "elr_unprocessed_transaction";
-
     public KafkaManagerProducer(KafkaTemplate<String, String> kafkaTemplate) {
         super(kafkaTemplate);
     }
@@ -69,9 +66,12 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     }
 
     public void sendDataEdxActivityLog(String msgContent) {
-        String uniqueID = "DP_LOG_" + UUID.randomUUID();
-        var record = createProducerRecord(edxLogTopic, uniqueID, msgContent);
-        sendMessage(record);
+        if (msgContent != null) {
+            String uniqueID = "DP_LOG_" + UUID.randomUUID();
+            var record = createProducerRecord(edxLogTopic, uniqueID, msgContent);
+            sendMessage(record);
+        }
+
     }
 
 

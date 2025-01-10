@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
@@ -8,7 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.retrytopic.DltStrategy;
+import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
@@ -57,15 +65,10 @@ public class KafkaHandleLabConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_handle_lab}"
     )
-    public void handleMessage(String message) {
-        try {
-            var auth = authUserService.getAuthUserInfo(nbsUser);
-            AuthUtil.setGlobalAuthUser(auth);
-            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
-            managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        } catch (Exception e) {
-            logger.error("KafkaHandleLabConsumer.handleMessage: {}", e.getMessage());
-        }
+    public void handleMessage(String message) throws DataProcessingException, DataProcessingConsumerException {
+        var auth = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(auth);
+        PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
+        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
     }
-
 }
