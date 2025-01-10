@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  125 - Comment complaint
@@ -64,6 +66,7 @@ public class TimeStampUtil {
 
     public static Timestamp convertStringToTimestamp(String timestampString) throws DataProcessingException {
         try {
+            timestampString = formatDate(timestampString);
             if (!timestampString.contains(":")) {
                 timestampString += " 00:00:00"; // Append default time if time is missing
             }
@@ -74,5 +77,23 @@ public class TimeStampUtil {
         } catch (Exception e) {
             throw new DataProcessingException("Error parsing timestamp string: " + e.getMessage(), e);
         }
+    }
+
+    public static String formatDate(String date) {
+        Pattern pattern = Pattern.compile("(\\d{1,2})/(\\d{1,2})/(\\d{4})");
+        Matcher matcher = pattern.matcher(date);
+
+        if (matcher.matches()) {
+            String day = matcher.group(1);
+            String month = matcher.group(2);
+            String year = matcher.group(3);
+
+            if (day.length() == 1) day = "0" + day;
+            if (month.length() == 1) month = "0" + month;
+
+            return day + "/" + month + "/" + year;
+        }
+
+        return date;
     }
 }

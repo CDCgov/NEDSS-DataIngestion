@@ -62,4 +62,20 @@ class TimeStampUtilTest {
         var time = entity.getRecordStatusTime();
         Assertions.assertNotNull(time);
     }
+
+    @Test
+    void formatDateTest() {
+        var expected = "01/09/1960";
+        var time = "11/9/1960";
+        var time2 = "1/09/1960";
+        var time3 = "1/9/1960";
+        var formated1 = TimeStampUtil.formatDate(time);
+        var formated2 = TimeStampUtil.formatDate(time2);
+        var formated3 = TimeStampUtil.formatDate(time3);
+
+        Assertions.assertEquals("11/09/1960", formated1);
+        Assertions.assertEquals(expected, formated2);
+        Assertions.assertEquals(expected, formated3);
+
+    }
 }
