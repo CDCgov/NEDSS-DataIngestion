@@ -143,8 +143,6 @@ public class EntityIdUtil {
     }
 
     public Timestamp stringToStrutsTimestamp(String strTime) {
-        java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("MM/dd/yyyy");
-        Date t;
         try {
             if (strTime != null && strTime.trim().length() > 0) {
                 return TimeStampUtil.convertStringToTimestamp(strTime);

@@ -93,7 +93,6 @@ public class PrepareAssocModelHelper {
                     logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
                     Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
@@ -322,7 +321,6 @@ public class PrepareAssocModelHelper {
             {
                 assocDTInterface.setAddUserId(null);
                 assocDTInterface.setAddTime(null);
-                java.util.Date dateTime = new java.util.Date();
                 Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
