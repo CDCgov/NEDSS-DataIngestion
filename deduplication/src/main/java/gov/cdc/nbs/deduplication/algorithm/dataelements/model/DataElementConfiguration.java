@@ -1,7 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.dataelements.model;
 
 public record DataElementConfiguration(
-    Double belongingnessRatio,
     DataElement firstName,
     DataElement lastName,
     DataElement suffix,
@@ -16,7 +15,8 @@ public record DataElementConfiguration(
     DataElement state,
     DataElement zip,
     DataElement county,
-    DataElement telephone) {
+    DataElement telephone,
+    DataElement driversLicense) {
 
   public record DataElement(
       Boolean active,

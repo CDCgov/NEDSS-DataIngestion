@@ -22,7 +22,7 @@ public class AlgorithmConfigController {
   }
 
   @GetMapping
-  public MatchConfigurationResponse getDataElements() {
+  public MatchConfigurationResponse getConfiguration() {
     return resolver.resolveCurrent();
   }
 
