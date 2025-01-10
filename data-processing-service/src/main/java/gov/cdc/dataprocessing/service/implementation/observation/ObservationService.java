@@ -40,13 +40,14 @@ import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PersonUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
@@ -118,6 +119,8 @@ public class ObservationService implements IObservationService {
     private final IUidService uidService;
 
     private final IInvestigationService investigationService;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
 
     public ObservationService(INNDActivityLogService nndActivityLogService,
@@ -213,8 +216,7 @@ public class ObservationService implements IObservationService {
             labReportSummaryVO.setTouched(true);
             labReportSummaryVO.setAssociated(true);
             labReportSummaryVO.setObservationUid(labUid);
-            labReportSummaryVO.setActivityFromTime(new Timestamp(new java.util.Date().getTime()));
-
+            labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
             Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
             labReportSummaryVOColl.add(labReportSummaryVO);
 
@@ -1203,7 +1205,7 @@ public class ObservationService implements IObservationService {
             //Overrides rptToStateTime to current date/time for external user
             if (AuthUtil.authUser.getUserType() != null && AuthUtil.authUser.getUserType().equalsIgnoreCase(NEDSSConstant.SEC_USERTYPE_EXTERNAL))
             {
-                orderTest.getTheObservationDto().setRptToStateTime(getCurrentTimeStamp());
+                orderTest.getTheObservationDto().setRptToStateTime(getCurrentTimeStamp(tz));
             }
 
             //Assign program area cd if necessary, and return any errors to the client

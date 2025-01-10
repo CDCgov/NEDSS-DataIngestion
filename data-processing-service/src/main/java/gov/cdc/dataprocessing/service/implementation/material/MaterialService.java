@@ -26,6 +26,7 @@ import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +68,8 @@ public class MaterialService implements IMaterialService {
     private final ParticipationRepository participationRepository;
     private final ManufacturedMaterialRepository manufacturedMaterialRepository;
     private final EntityHelper entityHelper;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityRepository entityRepository;
@@ -216,7 +219,7 @@ public class MaterialService implements IMaterialService {
     }
 
     private Long updateMaterial(MaterialContainer materialContainer) throws  DataProcessingException{
-        var timestamp = getCurrentTimeStamp();
+        var timestamp = getCurrentTimeStamp(tz);
         if (materialContainer.getTheMaterialDto() != null) {
             Material material = new Material(materialContainer.getTheMaterialDto());
             persistingMaterial(material, materialContainer.getTheMaterialDto().getMaterialUid(), timestamp);
@@ -242,7 +245,7 @@ public class MaterialService implements IMaterialService {
 
     private Long insertNewMaterial(MaterialContainer materialContainer) throws DataProcessingException {
         var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.MATERIAL, true);
-        var timestamp = getCurrentTimeStamp();
+        var timestamp = getCurrentTimeStamp(tz);
         if (materialContainer.getTheMaterialDto() != null) {
             Material material = new Material(materialContainer.getTheMaterialDto());
             material.setMaterialUid(uid.getGaTypeUid().getSeedValueNbr());
@@ -311,7 +314,7 @@ public class MaterialService implements IMaterialService {
                 }
 
                 entityID.setEntityIdSeq(maxSeq++);
-                EntityId data = new EntityId(entityID);
+                EntityId data = new EntityId(entityID, tz);
                 entityIdRepository.save(data);
             }
         } catch (Exception e) {

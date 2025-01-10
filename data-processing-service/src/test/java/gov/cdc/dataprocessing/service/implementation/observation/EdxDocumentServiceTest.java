@@ -69,8 +69,8 @@ class EdxDocumentServiceTest {
         edxDto.setActUid(1L);
         edxDto.setPayload("TEST");
         edxDto.setRecordStatusCd("A");
-        edxDto.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
-        edxDto.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edxDto.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        edxDto.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         edxDto.setDocTypeCd("TEST");
         edxDto.setNbsDocumentMetadataUid(1L);
         edxDto.setOriginalPayload("TEST");

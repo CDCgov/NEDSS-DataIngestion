@@ -478,7 +478,7 @@ class DataExtractionServiceTest {
 
         org.setTheOrganizationDto(orgDto);
 
-        OrganizationNameDto nameDto = new OrganizationNameDto();
+        OrganizationNameDto nameDto = new OrganizationNameDto("UTC");
         nameDto.setOrganizationUid(1L);
         nameDto.setOrganizationNameSeq(1);
         nameDto.setNmTxt("LABCORP");

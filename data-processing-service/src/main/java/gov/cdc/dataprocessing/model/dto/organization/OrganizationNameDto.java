@@ -4,12 +4,11 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-
-import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Getter
 @Setter
@@ -59,7 +58,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public Timestamp getLastChgTime() {
-        return getCurrentTimeStamp();
+        return TimeStampUtil.getCurrentTimeStamp(tz);
     }
 
     @Override
@@ -99,7 +98,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public Timestamp getRecordStatusTime() {
-        return getCurrentTimeStamp();
+        return TimeStampUtil.getCurrentTimeStamp(tz);
     }
 
     @Override
@@ -119,7 +118,7 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
 
     @Override
     public Timestamp getStatusTime() {
-        return getCurrentTimeStamp();
+        return TimeStampUtil.getCurrentTimeStamp(tz);
     }
 
     @Override
@@ -152,18 +151,22 @@ public class OrganizationNameDto extends BaseContainer implements RootDtoInterfa
         return null;
     }
 
-    public OrganizationNameDto(){
+    private String tz;
+
+    public OrganizationNameDto(String tz){
+        this.tz = tz;
         itDirty = false;
         itNew = true;
         itDelete = false;
 
     }
-    public OrganizationNameDto(OrganizationName organizationName){
+    public OrganizationNameDto(OrganizationName organizationName, String tz){
         this.organizationUid=organizationName.getOrganizationUid();
         this.organizationNameSeq=organizationName.getOrganizationNameSeq();
         this.nmTxt=organizationName.getNameText();
         this.nmUseCd=organizationName.getNameUseCode();
         this.recordStatusCd=organizationName.getRecordStatusCode();
         this.defaultNmInd=organizationName.getDefaultNameIndicator();
+        this.tz = tz;
     }
 }

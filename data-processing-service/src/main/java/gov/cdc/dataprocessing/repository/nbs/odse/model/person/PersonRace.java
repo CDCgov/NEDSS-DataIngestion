@@ -85,8 +85,8 @@ public class PersonRace {
     public PersonRace() {
 
     }
-    public PersonRace(PersonRaceDto personRaceDto) {
-        var timestamp = getCurrentTimeStamp();
+    public PersonRace(PersonRaceDto personRaceDto, String tz) {
+        var timestamp = getCurrentTimeStamp(tz);
         this.personUid = personRaceDto.getPersonUid();
         this.raceCd = personRaceDto.getRaceCd();
         this.addReasonCd = personRaceDto.getAddReasonCd();

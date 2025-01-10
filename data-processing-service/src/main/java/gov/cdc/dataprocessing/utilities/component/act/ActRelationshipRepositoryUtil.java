@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipHisto
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -39,7 +40,8 @@ import java.util.Collection;
 public class ActRelationshipRepositoryUtil {
     private final ActRelationshipRepository actRelationshipRepository;
     private final ActRelationshipHistoryRepository actRelationshipHistoryRepository;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     public ActRelationshipRepositoryUtil(ActRelationshipRepository actRelationshipRepository,
                                          ActRelationshipHistoryRepository actRelationshipHistoryRepository) {
         this.actRelationshipRepository = actRelationshipRepository;
@@ -97,7 +99,7 @@ public class ActRelationshipRepositoryUtil {
         if (dt.isItNew())
         {
             data.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
-            data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+            data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp(tz));
             actRelationshipRepository.save(data);
         }
         else if (dt.isItDelete())

@@ -80,10 +80,10 @@ class ObservationResultRequestHandlerTest {
         edxLabInformationDt.setSendingFacilityClia("TEST");
         edxLabInformationDt.setSendingFacilityName("TEST");
         edxLabInformationDt.setFillerNumber("TEST");
-        edxLabInformationDt.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDt.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         edxLabInformationDt.setParentObservationUid(10L);
         edxLabInformationDt.setRootObserbationUid(10L);
-        edxLabInformationDt.setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDt.setLastChgTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         edxLabInformationDt.setUserId(10L);
         edxLabInformationDt.setPatientUid(10L);
     }

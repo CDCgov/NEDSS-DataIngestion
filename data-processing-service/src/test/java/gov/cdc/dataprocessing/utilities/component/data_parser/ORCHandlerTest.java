@@ -82,7 +82,7 @@ class ORCHandlerTest {
 
         commonOrder.setOrderEffectiveDateTime(new HL7TSType());
 
-        when(nbsObjectConverter.processHL7TSType(any(), any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(nbsObjectConverter.processHL7TSType(any(), any())).thenReturn(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
 
         orcHandler.getORCProcessing(commonOrder, labResultProxyContainer, edxLabInformationDto);
@@ -154,7 +154,7 @@ class ORCHandlerTest {
 
         commonOrder.setOrderEffectiveDateTime(new HL7TSType());
 
-        when(nbsObjectConverter.processHL7TSType(any(), any())).thenReturn(TimeStampUtil.getCurrentTimeStamp());
+        when(nbsObjectConverter.processHL7TSType(any(), any())).thenReturn(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
 
 

@@ -126,8 +126,8 @@ public class EntityId {
     public EntityId() {
 
     }
-    public EntityId(EntityIdDto entityIdDto) {
-        var timestamp = getCurrentTimeStamp();
+    public EntityId(EntityIdDto entityIdDto, String tz) {
+        var timestamp = getCurrentTimeStamp(tz);
         this.entityUid = entityIdDto.getEntityUid();
         this.entityIdSeq = entityIdDto.getEntityIdSeq();
         this.addReasonCode = entityIdDto.getAddReasonCd();

@@ -64,7 +64,7 @@ class HL7SpecimenUtilTest {
         edxLabInformationDto.setNextUid(10);
         edxLabInformationDto.setDangerCode("TEST");
         edxLabInformationDto.setUniversalIdType("TEST");
-        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         edxLabInformationDto.setFillerNumber("TEST");
         edxLabInformationDto.setSendingFacilityClia("TEST");
         edxLabInformationDto.setSendingFacilityName("TEST");
@@ -92,7 +92,7 @@ class HL7SpecimenUtilTest {
         edxLabInformationDto.setNextUid(10);
         edxLabInformationDto.setDangerCode("TEST");
         edxLabInformationDto.setUniversalIdType("TEST");
-        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         edxLabInformationDto.setFillerNumber("TEST");
         edxLabInformationDto.setSendingFacilityClia("TEST");
         edxLabInformationDto.setSendingFacilityName("TEST");
@@ -124,7 +124,7 @@ class HL7SpecimenUtilTest {
         edxLabInformationDto.setNextUid(10);
         edxLabInformationDto.setDangerCode("TEST");
         edxLabInformationDto.setUniversalIdType("TEST");
-        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        edxLabInformationDto.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         edxLabInformationDto.setFillerNumber("TEST");
         edxLabInformationDto.setSendingFacilityClia("TEST");
         edxLabInformationDto.setSendingFacilityName("TEST");

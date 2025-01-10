@@ -117,7 +117,7 @@ public class TestData {
     public static void createObservationContainer() {
         var obsDto = new ObservationDto();
         obsDto.setJurisdictionCd("JUS");
-        obsDto.setRptToStateTime(TimeStampUtil.getCurrentTimeStamp());
+        obsDto.setRptToStateTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         observationContainer.setTheObservationDto(obsDto);
     }
 
@@ -146,7 +146,7 @@ public class TestData {
         // OBS DATE
         var dateCol = new ArrayList<ObsValueDateDto>();
         var date = new ObsValueDateDto();
-        date.setFromTime(TimeStampUtil.getCurrentTimeStamp());
+        date.setFromTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         dateCol.add(date);
         obsConn.setTheObsValueDateDtoCollection(dateCol);
         // OBS VALUE CODED

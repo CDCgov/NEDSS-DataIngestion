@@ -76,11 +76,11 @@ class EdxPhcrDocumentUtilTest {
     void testSetStandardNBSCaseAnswerVals() {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         publicHealthCaseContainer.getThePublicHealthCaseDto().setPublicHealthCaseUid(1L);
-        publicHealthCaseContainer.getThePublicHealthCaseDto().setAddTime(TimeStampUtil.getCurrentTimeStamp());
-        publicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgTime(TimeStampUtil.getCurrentTimeStamp());
+        publicHealthCaseContainer.getThePublicHealthCaseDto().setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        publicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         publicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserId(1L);
         publicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserId(1L);
-        publicHealthCaseContainer.getThePublicHealthCaseDto().setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        publicHealthCaseContainer.getThePublicHealthCaseDto().setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
         NbsCaseAnswerDto nbsCaseAnswerDT = new NbsCaseAnswerDto();
         nbsCaseAnswerDT.setSeqNbr(-1);

@@ -7,7 +7,6 @@ import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
-import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
@@ -15,11 +14,15 @@ import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.share.helper.TimeStampHelper;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 
@@ -67,17 +70,17 @@ public class ReportStatusService {
         Optional<RawERLModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
         if (!rawMessageData.isEmpty()) {
             msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
-            msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
+            //msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
             msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
-            msgStatus.getRawInfo().setRawCreatedOn(rawMessageData.get().getCreatedOn());
+            msgStatus.getRawInfo().setRawCreatedOn(TimeStampHelper.convertTimestampToString(rawMessageData.get().getCreatedOn()));
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
 
             if (rawMessageData.get().getType().equalsIgnoreCase(HL7_ELR)) {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
                 if (!validatedMessageData.isEmpty()) {
                     msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
-                    msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
-                    msgStatus.getValidatedInfo().setValidatedCreatedOn(validatedMessageData.get().getCreatedOn());
+                    //msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
+                    msgStatus.getValidatedInfo().setValidatedCreatedOn(TimeStampHelper.convertTimestampToString(validatedMessageData.get().getCreatedOn()));
                     msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
 
                     // XML
@@ -123,7 +126,7 @@ public class ReportStatusService {
         Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(msgStatus.getRawInfo().getRawMessageId());
         if (!reportStatusIdData.isEmpty()) {
             msgStatus.getNbsInfo().setNbsInterfaceId(reportStatusIdData.get().getNbsInterfaceUid());
-            msgStatus.getNbsInfo().setNbsCreatedOn(reportStatusIdData.get().getCreatedOn());
+            msgStatus.getNbsInfo().setNbsCreatedOn(TimeStampHelper.convertTimestampToString(reportStatusIdData.get().getCreatedOn()));
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_SUCCESS);
             setNbsInfo(msgStatus);
         } else {
@@ -140,7 +143,7 @@ public class ReportStatusService {
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(msgStatus.getNbsInfo().getNbsInterfaceId());
         if (!nbsInterfaceModel.isEmpty()) {
             msgStatus.getNbsInfo().setNbsInterfaceStatus(nbsInterfaceModel.get().getRecordStatusCd());
-            msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
+            //msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
         } else {
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
         }
@@ -155,7 +158,7 @@ public class ReportStatusService {
                     msgStatus.getRawInfo().setDltInfo(new DltMessageStatus());
                     msgStatus.getRawInfo().getDltInfo().setDltId(id);
                     msgStatus.getRawInfo().getDltInfo().setDltStatus(dlt.get().getDltStatus());
-                    msgStatus.getRawInfo().getDltInfo().setDltCreatedOn(dlt.get().getCreatedOn());
+                    msgStatus.getRawInfo().getDltInfo().setDltCreatedOn(TimeStampHelper.convertTimestampToString(dlt.get().getCreatedOn()));
                     msgStatus.getRawInfo().getDltInfo().setDltOrigin(dlt.get().getErrorMessageSource());
                     msgStatus.getRawInfo().getDltInfo().setDltShortTrace(dlt.get().getErrorStackTraceShort());
 
@@ -167,7 +170,7 @@ public class ReportStatusService {
                     msgStatus.getValidatedInfo().setDltInfo(new DltMessageStatus());
                     msgStatus.getValidatedInfo().getDltInfo().setDltId(id);
                     msgStatus.getValidatedInfo().getDltInfo().setDltStatus(dlt.get().getDltStatus());
-                    msgStatus.getValidatedInfo().getDltInfo().setDltCreatedOn(dlt.get().getCreatedOn());
+                    msgStatus.getValidatedInfo().getDltInfo().setDltCreatedOn(TimeStampHelper.convertTimestampToString(dlt.get().getCreatedOn()));
                     msgStatus.getValidatedInfo().getDltInfo().setDltOrigin(dlt.get().getErrorMessageSource());
                     msgStatus.getValidatedInfo().getDltInfo().setDltShortTrace(dlt.get().getErrorStackTraceShort());
 

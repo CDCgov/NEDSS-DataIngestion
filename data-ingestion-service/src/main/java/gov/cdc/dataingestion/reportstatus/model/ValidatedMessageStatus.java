@@ -3,8 +3,6 @@ package gov.cdc.dataingestion.reportstatus.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
 @Getter
 @Setter
 /**
@@ -16,8 +14,8 @@ import java.sql.Timestamp;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class ValidatedMessageStatus {
     private String validatedMessageId;
-    private String validatedMessage;
-    private Timestamp validatedCreatedOn;
+//    private String validatedMessage;
+    private String validatedCreatedOn;
     private String validatedPipeLineStatus;
     private DltMessageStatus dltInfo;
 

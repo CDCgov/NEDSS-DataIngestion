@@ -383,7 +383,7 @@ class ValidateDecisionSupportTest {
         publicHealthCaseContainer.setThePublicHealthCaseDto(phcDt);
         var confirmCol = new ArrayList<ConfirmationMethodDto>();
         var confirm = new ConfirmationMethodDto();
-        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         confirmCol.add(confirm);
         publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
 
@@ -429,7 +429,7 @@ class ValidateDecisionSupportTest {
         publicHealthCaseContainer.setThePublicHealthCaseDto(phcDt);
         var confirmCol = new ArrayList<ConfirmationMethodDto>();
         var confirm = new ConfirmationMethodDto();
-        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         confirm.setConfirmationMethodCd("TEST");
         confirmCol.add(confirm);
         confirm = new ConfirmationMethodDto();
@@ -451,7 +451,7 @@ class ValidateDecisionSupportTest {
 
         var confirmCol = new ArrayList<ConfirmationMethodDto>();
         var confirm = new ConfirmationMethodDto();
-        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         confirm.setConfirmationMethodCd("TEST");
         confirmCol.add(confirm);
         publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
@@ -469,7 +469,7 @@ class ValidateDecisionSupportTest {
         NbsQuestionMetadata metaData = new NbsQuestionMetadata();
 
         edxRuleManageDT.setBehavior("1");
-        edxRuleManageDT.setDefaultStringValue(TimeStampUtil.convertTimestampToString());
+        edxRuleManageDT.setDefaultStringValue(TimeStampUtil.convertTimestampToString("UTC"));
 
         publicHealthCaseContainer.setTheConfirmationMethodDTCollection(null);
 
@@ -488,7 +488,7 @@ class ValidateDecisionSupportTest {
 
         var confirmCol = new ArrayList<ConfirmationMethodDto>();
         var confirm = new ConfirmationMethodDto();
-        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         confirm.setConfirmationMethodCd("TEST");
         confirmCol.add(confirm);
         publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);
@@ -553,7 +553,7 @@ class ValidateDecisionSupportTest {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         var confirmCol = new ArrayList<ConfirmationMethodDto>();
         var confirm = new ConfirmationMethodDto();
-        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp());
+        confirm.setConfirmationMethodTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         confirm.setConfirmationMethodCd(null);
         confirmCol.add(confirm);
         publicHealthCaseContainer.setTheConfirmationMethodDTCollection(confirmCol);

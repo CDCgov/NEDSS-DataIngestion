@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,9 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 public class NNDActivityLogService implements INNDActivityLogService {
     private final NNDActivityLogRepository nndActivityLogRepository;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
+
 
     public NNDActivityLogService(NNDActivityLogRepository nndActivityLogRepository,
                                  IOdseIdGeneratorWCacheService odseIdGeneratorService1) {
@@ -47,7 +51,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
 
     @Transactional
     public void saveNddActivityLog(NNDActivityLogDto nndActivityLogDto) throws DataProcessingException {
-        var timeStamp = getCurrentTimeStamp();
+        var timeStamp = getCurrentTimeStamp(tz);
         nndActivityLogDto.setNndActivityLogSeq(1);// default to 1
         nndActivityLogDto.setRecordStatusCd("AUTO_RESEND_ERROR");
         nndActivityLogDto.setRecordStatusTime(timeStamp);

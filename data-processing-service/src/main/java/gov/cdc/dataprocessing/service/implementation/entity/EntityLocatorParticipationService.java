@@ -17,6 +17,7 @@ import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipat
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,8 @@ import java.util.stream.Collectors;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EntityLocatorParticipationService implements IEntityLocatorParticipationService {
     private static final Logger logger = LoggerFactory.getLogger(EntityLocatorParticipationService.class); // NOSONAR
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     private final PersonRepository personRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
@@ -400,7 +403,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     }
                     entityLocatorParticipationDto.setStatusCd("A");
                     entityLocatorParticipationDto.setRecordStatusCd(NEDSSConstant.ACTIVE);
-                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto));
+                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
                 }
 
             }
@@ -440,7 +443,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
                         entityLocatorParticipationDto.setVersionCtrlNbr(1);
                     }
-                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto));
+                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
                 }
 
             }

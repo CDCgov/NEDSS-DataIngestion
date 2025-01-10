@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +60,23 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
+
+        // High-throughput configurations
+        config.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1024 * 1024); // Fetch at least 1MB of data per request
+        config.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 500);      // Wait up to 500ms for more data before responding
+        config.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10 * 1024 * 1024); // Fetch up to 10MB per partition
+
+        // Polling configurations
+        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 500);       // Limit records fetched per poll to 500
+        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 600000); // Allow up to 5 minutes for processing
+
+        // Session timeout configurations
+        config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);   // 30-second session timeout
+        config.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000); // Send heartbeat every 10 seconds
+
+//        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);   // Disable auto-commit for better control
+
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
@@ -66,6 +85,8 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+
         return  factory;
     }
 
