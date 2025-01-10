@@ -38,8 +38,10 @@ import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepos
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,7 +100,8 @@ public class InvestigationService implements IInvestigationService {
 
     private final ICacheApiService cacheApiService;
     private final ICatchingValueService catchingValueService;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     public InvestigationService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
                                 OrganizationRepositoryUtil organizationRepositoryUtil,
                                 PatientRepositoryUtil patientRepositoryUtil,
@@ -590,7 +593,7 @@ public class InvestigationService implements IInvestigationService {
                 (notificationDT.getAutoResendInd().equalsIgnoreCase("T"))){
             UpdatedNotificationDto updatedNotification = new UpdatedNotificationDto();
 
-            updatedNotification.setAddTime(new Timestamp(System.currentTimeMillis()));
+            updatedNotification.setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
             updatedNotification.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             updatedNotification.setCaseStatusChg(caseStatusChange);
             updatedNotification.setItNew(true);

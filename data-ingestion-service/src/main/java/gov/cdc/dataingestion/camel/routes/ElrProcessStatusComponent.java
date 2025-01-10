@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.camel.routes;
 
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
-import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
 import org.apache.camel.Handler;

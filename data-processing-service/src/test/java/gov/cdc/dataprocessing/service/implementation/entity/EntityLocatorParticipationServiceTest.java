@@ -106,18 +106,18 @@ class EntityLocatorParticipationServiceTest {
         List<EntityLocatorParticipation> entityPatCol = new ArrayList<>();
         EntityLocatorParticipation entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.PHYSICAL);
-        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         entityPat.setLocatorUid(11L);
         entityPatCol.add(entityPat);
         entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.POSTAL);
         entityPat.setCd(NEDSSConstant.HOME);
-        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         entityPat.setLocatorUid(12L);
         entityPatCol.add(entityPat);
         entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.TELE);
-        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         entityPat.setLocatorUid(13L);
         entityPatCol.add(entityPat);
 
@@ -162,18 +162,18 @@ class EntityLocatorParticipationServiceTest {
         List<EntityLocatorParticipation> entityPatCol = new ArrayList<>();
         EntityLocatorParticipation entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.PHYSICAL);
-        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         entityPat.setLocatorUid(11L);
         entityPatCol.add(entityPat);
         entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.POSTAL);
-        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         entityPat.setLocatorUid(12L);
         entityPat.setCd(NEDSSConstant.HOME);
         entityPatCol.add(entityPat);
         entityPat = new EntityLocatorParticipation();
         entityPat.setClassCd(NEDSSConstant.TELE);
-        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        entityPat.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         entityPat.setLocatorUid(13L);
         entityPatCol.add(entityPat);
 

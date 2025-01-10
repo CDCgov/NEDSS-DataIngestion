@@ -25,6 +25,7 @@ import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -63,7 +64,8 @@ public class ObservationResultRequestHandler {
     private final NBSObjectConverter nbsObjectConverter;
     private final CommonLabUtil commonLabUtil;
     private final ICacheApiService cacheApiService;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     public ObservationResultRequestHandler(
             ICatchingValueService checkingValueService,
@@ -419,7 +421,7 @@ public class ObservationResultRequestHandler {
             labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
 
             Collection<OrganizationNameDto> orgNameColl = new ArrayList<>();
-            OrganizationNameDto organizationNameDto = new OrganizationNameDto();
+            OrganizationNameDto organizationNameDto = new OrganizationNameDto(tz);
             organizationNameDto.setNmTxt(hl7XONTypeName.getHL7OrganizationName());
             organizationNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
             organizationNameDto.setOrganizationNameSeq(1);

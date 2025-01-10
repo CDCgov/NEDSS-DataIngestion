@@ -18,6 +18,7 @@ import gov.cdc.dataprocessing.model.phdc.HL7XTNType;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -49,7 +50,8 @@ import java.util.List;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ORCHandler {
     private static final Logger logger = LoggerFactory.getLogger(ORCHandler.class);
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     private final NBSObjectConverter nbsObjectConverter;
 
     public ORCHandler(NBSObjectConverter nbsObjectConverter) {
@@ -187,7 +189,7 @@ public class ORCHandler {
                 List<HL7XONType> nameArray = hl7ORCType.getOrderingFacilityName();
                 if (nameArray != null && !nameArray.isEmpty()) {
                     HL7XONType orgName = nameArray.get(0);
-                    OrganizationNameDto organizationNameDto = new OrganizationNameDto();
+                    OrganizationNameDto organizationNameDto = new OrganizationNameDto(tz);
                     organizationNameDto.setNmTxt(orgName.getHL7OrganizationName());
                     organizationNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
                     organizationNameDto.setOrganizationNameSeq(0);

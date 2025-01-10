@@ -121,14 +121,14 @@ class MatchingBaseServiceTest {
         var name = new PersonNameDto();
         name.setNmUseCd("L");
         name.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        name.setAsOfDate(TimeStampUtil.getCurrentTimeStampPlusOneDay());
+        name.setAsOfDate(TimeStampUtil.getCurrentTimeStampPlusOneDay("UTC"));
         name.setLastNm("TEST");
         name.setFirstNm("TEST");
         nameCol.add(name);
         name = new PersonNameDto();
         name.setNmUseCd("L");
         name.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-        name.setAsOfDate(TimeStampUtil.getCurrentTimeStamp());
+        name.setAsOfDate(TimeStampUtil.getCurrentTimeStamp("UTC"));
         name.setLastNm("TEST");
         name.setFirstNm("TEST");
         nameCol.add(name);

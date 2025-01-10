@@ -337,7 +337,7 @@ class OrganizationMatchingServiceTest {
     void getMatchingOrganization_entitymatch_for_telephoneTxt() throws DataProcessingException {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         //Org name
-        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto("UTC");
         organizationNameDto.setNmUseCd(NEDSSConstant.LEGAL);
         organizationNameDto.setNmTxt("test_org_name");
 
@@ -372,7 +372,7 @@ class OrganizationMatchingServiceTest {
     void getMatchingOrganization_entitymatch_for_telephoneTxt_throwExp() throws DataProcessingException {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         //Org name
-        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto("UTC");
         organizationNameDto.setNmUseCd(NEDSSConstant.LEGAL);
         organizationNameDto.setNmTxt("test_org_name");
 
@@ -406,7 +406,7 @@ class OrganizationMatchingServiceTest {
     void getMatchingOrganization_no_entitymatch_for_telephoneTxt() throws DataProcessingException {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         //Org name
-        OrganizationNameDto organizationNameDto = new OrganizationNameDto();
+        OrganizationNameDto organizationNameDto = new OrganizationNameDto("UTC");
         organizationNameDto.setNmUseCd(NEDSSConstant.LEGAL);
         organizationNameDto.setNmTxt("test_org_name");
 

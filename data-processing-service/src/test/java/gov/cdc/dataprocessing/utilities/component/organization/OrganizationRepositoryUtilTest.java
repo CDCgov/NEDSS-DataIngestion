@@ -140,7 +140,7 @@ class OrganizationRepositoryUtilTest {
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
         organizationDto.setOrganizationUid(123L);
 
-        OrganizationNameDto orgNameDto = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
         orgNameDto.setOrganizationUid(123L);
         orgNameDto.setOrganizationNameSeq(1234);
         orgNameDto.setNmTxt("TEST_ORG_NAME");
@@ -175,7 +175,7 @@ class OrganizationRepositoryUtilTest {
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
 
-        EntityId entityId = new EntityId(entityIdDto);
+        EntityId entityId = new EntityId(entityIdDto, "UTC");
         when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
@@ -234,7 +234,7 @@ class OrganizationRepositoryUtilTest {
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
         organizationDto.setOrganizationUid(123L);
 
-        OrganizationNameDto orgNameDto = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
         orgNameDto.setOrganizationUid(123L);
         orgNameDto.setOrganizationNameSeq(1234);
         orgNameDto.setNmTxt("TEST_ORG_NAME");
@@ -258,7 +258,7 @@ class OrganizationRepositoryUtilTest {
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
         organizationDto.setOrganizationUid(123L);
 
-        OrganizationNameDto orgNameDto = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
         orgNameDto.setOrganizationUid(123L);
         orgNameDto.setNmTxt("TEST_ORG_NAME");
 
@@ -292,7 +292,7 @@ class OrganizationRepositoryUtilTest {
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
 
-        EntityId entityId = new EntityId(entityIdDto);
+        EntityId entityId = new EntityId(entityIdDto, "UTC");
         when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
@@ -366,13 +366,13 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.setTheRoleDTCollection(rDTCol);
         organizationContainer.setTheParticipationDtoCollection(pDTCol);
         //OrganizationName
-        OrganizationNameDto orgNameDto = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
         orgNameDto.setOrganizationUid(123L);
         orgNameDto.setOrganizationNameSeq(1234);
         orgNameDto.setNmTxt("TEST_ORG_NAME");
         orgNameDto.setNmUseCd("L");
 
-        OrganizationNameDto orgNameDto1 = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto1 = new OrganizationNameDto("UTC");
         orgNameDto1.setOrganizationUid(123L);
         orgNameDto1.setOrganizationNameSeq(1234);
         orgNameDto1.setNmTxt("TEST_ORG_NAME");
@@ -409,9 +409,9 @@ class OrganizationRepositoryUtilTest {
         EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
         EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        EntityLocatorParticipation entityLocatorParticipationPh = new EntityLocatorParticipation(entityLocatorParticipationDtoPh);
-        EntityLocatorParticipation entityLocatorParticipationPo = new EntityLocatorParticipation(entityLocatorParticipationDtoPo);
-        EntityLocatorParticipation entityLocatorParticipationTel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel);
+        EntityLocatorParticipation entityLocatorParticipationPh = new EntityLocatorParticipation(entityLocatorParticipationDtoPh, "UTC");
+        EntityLocatorParticipation entityLocatorParticipationPo = new EntityLocatorParticipation(entityLocatorParticipationDtoPo, "UTC");
+        EntityLocatorParticipation entityLocatorParticipationTel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel, "UTC");
         entityLocatorParticipations.add(entityLocatorParticipationPh);
         entityLocatorParticipations.add(entityLocatorParticipationPo);
         entityLocatorParticipations.add(entityLocatorParticipationTel);
@@ -468,13 +468,13 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.setTheRoleDTCollection(rDTCol);
         organizationContainer.setTheParticipationDtoCollection(pDTCol);
         //OrganizationName
-        OrganizationNameDto orgNameDto = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
         orgNameDto.setOrganizationUid(123L);
         orgNameDto.setOrganizationNameSeq(1234);
         orgNameDto.setNmTxt("TEST_ORG_NAME");
         orgNameDto.setNmUseCd("L");
 
-        OrganizationNameDto orgNameDto1 = new OrganizationNameDto();
+        OrganizationNameDto orgNameDto1 = new OrganizationNameDto("UTC");
         orgNameDto1.setOrganizationUid(123L);
         orgNameDto1.setOrganizationNameSeq(1234);
         orgNameDto1.setNmTxt("TEST_ORG_NAME");
@@ -526,9 +526,9 @@ class OrganizationRepositoryUtilTest {
         EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
         EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        EntityLocatorParticipation entityLocatorParticipationPh = new EntityLocatorParticipation(entityLocatorParticipationDtoPh);
-        EntityLocatorParticipation entityLocatorParticipationPo = new EntityLocatorParticipation(entityLocatorParticipationDtoPo);
-        EntityLocatorParticipation entityLocatorParticipationTel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel);
+        EntityLocatorParticipation entityLocatorParticipationPh = new EntityLocatorParticipation(entityLocatorParticipationDtoPh, "UTC");
+        EntityLocatorParticipation entityLocatorParticipationPo = new EntityLocatorParticipation(entityLocatorParticipationDtoPo, "UTC");
+        EntityLocatorParticipation entityLocatorParticipationTel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel, "UTC");
         entityLocatorParticipations.add(entityLocatorParticipationPh);
         entityLocatorParticipations.add(entityLocatorParticipationPo);
         entityLocatorParticipations.add(entityLocatorParticipationTel);
@@ -592,9 +592,9 @@ class OrganizationRepositoryUtilTest {
         EntityLocatorParticipationDto entityLocatorParticipationDtoPo = getEntityLocatorParticipationDto_po();
         EntityLocatorParticipationDto entityLocatorParticipationDtoTel = getEntityLocatorParticipationDto_tel();
 
-        EntityLocatorParticipation entityLocatorParticipationPh = new EntityLocatorParticipation(entityLocatorParticipationDtoPh);
-        EntityLocatorParticipation entityLocatorParticipationPo = new EntityLocatorParticipation(entityLocatorParticipationDtoPo);
-        EntityLocatorParticipation entityLocatorParticipationTel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel);
+        EntityLocatorParticipation entityLocatorParticipationPh = new EntityLocatorParticipation(entityLocatorParticipationDtoPh, "UTC");
+        EntityLocatorParticipation entityLocatorParticipationPo = new EntityLocatorParticipation(entityLocatorParticipationDtoPo, "UTC");
+        EntityLocatorParticipation entityLocatorParticipationTel = new EntityLocatorParticipation(entityLocatorParticipationDtoTel, "UTC");
         entityLocatorParticipations.add(entityLocatorParticipationPh);
         entityLocatorParticipations.add(entityLocatorParticipationPo);
         entityLocatorParticipations.add(entityLocatorParticipationTel);

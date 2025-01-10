@@ -40,8 +40,10 @@ import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorW
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,6 +94,8 @@ public class OrganizationRepositoryUtil {
     private final ParticipationRepository participationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -284,7 +288,7 @@ public class OrganizationRepositoryUtil {
             Long pUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
             for (EntityIdDto entityIdDto : entityList) {
                 entityIdDto.setEntityUid(pUid);
-                entityIdRepository.save(new EntityId(entityIdDto));
+                entityIdRepository.save(new EntityId(entityIdDto, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -314,7 +318,7 @@ public class OrganizationRepositoryUtil {
                 if (entityLocatorDT.getVersionCtrlNbr() == null) {
                     entityLocatorDT.setVersionCtrlNbr(1);
                 }
-                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorDT));
+                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorDT, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -538,7 +542,7 @@ public class OrganizationRepositoryUtil {
                 organizationNameList = listOptional.get();
             }
             for (OrganizationName organizationNameModel : organizationNameList) {
-                OrganizationNameDto organizationNameDto = new OrganizationNameDto(organizationNameModel);
+                OrganizationNameDto organizationNameDto = new OrganizationNameDto(organizationNameModel, tz);
                 organizationNameDto.setItNew(false);
                 organizationNameDto.setItDirty(false);
                 returnArrayList.add(organizationNameDto);
@@ -747,7 +751,7 @@ public class OrganizationRepositoryUtil {
 
             if (organizationDto.isItNew() || organizationDto.isItDirty()) {
                 long userId = AuthUtil.authUser.getNedssEntryId();
-                Timestamp time = new Timestamp(new Date().getTime());
+                Timestamp time = TimeStampUtil.getCurrentTimeStamp(tz);
                 logger.debug("new entity");
                 PrepareEntity prepareEntity = this.getPrepareEntityForOrganization(businessTriggerCd, moduleCd, organizationDto.getOrganizationUid(), tableName);
                 organizationDto.setLocalId(prepareEntity.getLocalId());

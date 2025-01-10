@@ -201,7 +201,7 @@ class PageRepositoryUtilTest {
         act.setTypeCd(NEDSSConstant.DocToPHC);
         act.setSourceActUid(1L);
         act.setTargetActUid(1L);
-        act.setStatusTime(TimeStampUtil.getCurrentTimeStamp());
+        act.setStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         act.setStatusCd("CODE");
         act.setItDelete(true);
         actCol.add(act);

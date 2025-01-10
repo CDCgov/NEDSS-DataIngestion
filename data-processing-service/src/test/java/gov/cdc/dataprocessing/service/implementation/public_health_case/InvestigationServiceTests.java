@@ -459,7 +459,7 @@ class InvestigationServiceTests {
         when(observationSummaryService.getLabParticipations(18L)).thenReturn(map);
         var orgConn = new OrganizationContainer();
         var orgNameCol = new ArrayList<OrganizationNameDto>();
-        var orgName = new OrganizationNameDto();
+        var orgName = new OrganizationNameDto("UTC");
         orgName.setNmTxt("TEST");
         orgNameCol.add(orgName);
         orgConn.setTheOrganizationNameDtoCollection(orgNameCol);

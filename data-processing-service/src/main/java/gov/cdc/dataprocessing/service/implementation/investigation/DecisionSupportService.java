@@ -658,7 +658,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 value=eventDateLogicType.getWithinTimePeriod().getValue1().intValue();
             }
 
-            Timestamp specimenCollectionDate=new Timestamp(edxLabInformationDT.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime().getTime());
+            Timestamp specimenCollectionDate= edxLabInformationDT.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime();
             long specimenCollectionDays = specimenCollectionDate.getTime()/(1000 * 60 * 60 * 24);
 
             if(comparatorCode.length() > 0 && mprUid > 0)

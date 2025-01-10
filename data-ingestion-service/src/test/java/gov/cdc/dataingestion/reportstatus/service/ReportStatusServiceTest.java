@@ -8,7 +8,6 @@ import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
-import gov.cdc.dataingestion.odse.repository.model.EdxActivityLogModelView;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
@@ -23,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,18 +82,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("UTC"));
 
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
-        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
@@ -135,13 +133,13 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
         ElrDeadLetterModel dltModel = new ElrDeadLetterModel();
         dltModel.setErrorMessageId(id);
         dltModel.setDltStatus("ERROR");
-        dltModel.setCreatedOn(getCurrentTimeStamp());
+        dltModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         dltModel.setErrorMessageSource("origin");
         dltModel.setErrorStackTraceShort("short");
 
@@ -168,7 +166,7 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
@@ -194,18 +192,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("UTC"));
 
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
-        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
@@ -228,18 +226,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("UTC"));
 
         ElrDeadLetterModel dltModel = new ElrDeadLetterModel();
         dltModel.setErrorMessageId("validate-id");
         dltModel.setDltStatus("ERROR");
-        dltModel.setCreatedOn(getCurrentTimeStamp());
+        dltModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         dltModel.setErrorMessageSource("origin");
         dltModel.setErrorStackTraceShort("short");
 
@@ -264,13 +262,13 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("UTC"));
 
 
 
@@ -354,18 +352,18 @@ class ReportStatusServiceTest {
         RawERLModel rawERLModel = new RawERLModel();
         rawERLModel.setId(id);
         rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp());
+        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         rawERLModel.setCreatedBy("admin");
         rawERLModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
-        validatedELRModel.setCreatedOn(getCurrentTimeStamp());
+        validatedELRModel.setCreatedOn(getCurrentTimeStamp("UTC"));
 
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
-        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp());
+        reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
 
         List<EdxActivityDetailLog> edxActivityLogList=new ArrayList();

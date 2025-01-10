@@ -19,6 +19,7 @@ import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -52,6 +53,8 @@ import java.util.*;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ValidateDecisionSupport {
     private static final Logger logger = LoggerFactory.getLogger(ValidateDecisionSupport.class);
+    @Value("${service.timezone}")
+    private String tz = "UTC";
 
     private final EdxPhcrDocumentUtil edxPHCRDocumentUtil;
 
@@ -374,7 +377,7 @@ public class ValidateDecisionSupport {
         //If the date selected is current date, the date is translated to MM/dd/yyyy
         if(time!=null && time.equalsIgnoreCase(NEDSSConstant.USE_CURRENT_DATE))
         {
-            time= TimeStampUtil.convertTimestampToString();
+            time= TimeStampUtil.convertTimestampToString(tz);
         }
 
         if (isOverwrite) {
@@ -555,7 +558,7 @@ public class ValidateDecisionSupport {
                 NEDSSConstant.USE_CURRENT_DATE))
         {
             edxRuleManageDT.setDefaultStringValue(StringUtils
-                    .formatDate(new Timestamp((new Date()).getTime())));
+                    .formatDate(TimeStampUtil.getCurrentTimeStamp(tz)));
         }
     }
 }

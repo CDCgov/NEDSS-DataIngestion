@@ -13,8 +13,10 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.PrepareEn
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.jurisdiction.ProgAreaJurisdictionUtil;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -51,7 +53,8 @@ public class PrepareAssocModelHelper {
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
     private final ProgAreaJurisdictionUtil progAreaJurisdictionUtil;
     private final ConcurrentCheck concurrentCheck;
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     public PrepareAssocModelHelper(PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
                                    ProgAreaJurisdictionUtil progAreaJurisdictionUtil,
                                    ConcurrentCheck concurrentCheck) {
@@ -90,8 +93,7 @@ public class PrepareAssocModelHelper {
                     logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);
@@ -135,8 +137,7 @@ public class PrepareAssocModelHelper {
                     logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);
@@ -186,8 +187,7 @@ public class PrepareAssocModelHelper {
                     logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);
@@ -235,8 +235,7 @@ public class PrepareAssocModelHelper {
                     logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);
@@ -284,8 +283,7 @@ public class PrepareAssocModelHelper {
             {
                 assocDTInterface.setAddUserId(null);
                 assocDTInterface.setAddTime(null);
-                java.util.Date dateTime = new java.util.Date();
-                Timestamp systemTime = new Timestamp(dateTime.getTime());
+                Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
                 assocDTInterface.setLastChgTime(systemTime);
@@ -323,8 +321,7 @@ public class PrepareAssocModelHelper {
             {
                 assocDTInterface.setAddUserId(null);
                 assocDTInterface.setAddTime(null);
-                java.util.Date dateTime = new java.util.Date();
-                Timestamp systemTime = new Timestamp(dateTime.getTime());
+                Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                 assocDTInterface.setRecordStatusTime(systemTime);
                 assocDTInterface.setStatusTime(systemTime);
                 assocDTInterface.setLastChgTime(systemTime);
@@ -427,8 +424,7 @@ public class PrepareAssocModelHelper {
 
             theRootDTInterface.setRecordStatusCd(recordStatusState);
 
-            java.util.Date dateTime = new java.util.Date();
-            Timestamp systemTime = new Timestamp(dateTime.getTime());
+            Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
             theRootDTInterface.setRecordStatusTime(systemTime);
             theRootDTInterface.setLastChgTime(systemTime);
             theRootDTInterface.setAddTime(systemTime);
@@ -472,8 +468,7 @@ public class PrepareAssocModelHelper {
 
             logger.debug("recordStatusState state in prepareDirtyEntityVO = {}", recordStatusState);
             logger.debug("objectStatusState state in prepareDirtyEntityVO = {}", objectStatusState);
-            java.util.Date dateTime = new java.util.Date();
-            Timestamp systemTime = new Timestamp(dateTime.getTime());
+            Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
             theRootDTInterface.setLocalId(localId);
             theRootDTInterface.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             theRootDTInterface.setAddTime(systemTime);
@@ -550,8 +545,7 @@ public class PrepareAssocModelHelper {
 
             theRootDTInterface.setRecordStatusCd(recordStatusState);
 
-            java.util.Date dateTime = new java.util.Date();
-            Timestamp systemTime = new Timestamp(dateTime.getTime());
+            Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
             theRootDTInterface.setRecordStatusTime(systemTime);
 
             theRootDTInterface.setLastChgTime(systemTime);
@@ -593,8 +587,7 @@ public class PrepareAssocModelHelper {
                 throw new DataProcessingException(LOG_RECORD_MODIFIED_BY_OTHER_USER);
             }
 
-            java.util.Date dateTime = new java.util.Date();
-            Timestamp systemTime = new Timestamp(dateTime.getTime());
+            Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
             theRootDTInterface.setLocalId(localId);
             theRootDTInterface.setAddUserId(addUserId);
             theRootDTInterface.setAddTime(addUserTime);
@@ -655,8 +648,7 @@ public class PrepareAssocModelHelper {
                     logger.debug(LOG_RECORD_STATUS_CD_NOT_NULL);
                     assocDTInterface.setAddUserId(null);
                     assocDTInterface.setAddTime(null);
-                    java.util.Date dateTime = new java.util.Date();
-                    Timestamp systemTime = new Timestamp(dateTime.getTime());
+                    Timestamp systemTime = TimeStampUtil.getCurrentTimeStamp(tz);
                     assocDTInterface.setRecordStatusTime(systemTime);
                     assocDTInterface.setStatusTime(systemTime);
                     assocDTInterface.setLastChgTime(systemTime);

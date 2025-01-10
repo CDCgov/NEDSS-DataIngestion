@@ -68,7 +68,7 @@ class ObservationSummaryServiceTest {
         var colSum = new ArrayList<Observation_Summary>();
         var sum = new Observation_Summary();
         sum.setUid(10L);
-        sum.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        sum.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         sum.setAddReasonCd("TEST");
         colSum.add(sum);
         when(observationSummaryRepository.findAllActiveLabReportUidListForManage(10L, where))
@@ -88,7 +88,7 @@ class ObservationSummaryServiceTest {
         var colSum = new ArrayList<Observation_Summary>();
         var sum = new Observation_Summary();
         sum.setUid(10L);
-        sum.setAddTime(TimeStampUtil.getCurrentTimeStamp());
+        sum.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         sum.setAddReasonCd("TEST");
         colSum.add(sum);
         when(observationSummaryRepository.findAllActiveLabReportUidListForManage(10L, where))

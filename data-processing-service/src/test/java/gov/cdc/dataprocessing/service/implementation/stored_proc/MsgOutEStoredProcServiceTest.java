@@ -50,7 +50,7 @@ class MsgOutEStoredProcServiceTest {
         edxLabInformationDto.setNbsInterfaceUid(10L);
         var obsConn = new ObservationContainer();
         var obsDt = new ObservationDto();
-        obsDt.setEffectiveFromTime(TimeStampUtil.getCurrentTimeStamp());
+        obsDt.setEffectiveFromTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
         obsConn.setTheObservationDto(obsDt);
         edxLabInformationDto.setRootObservationContainer(obsConn);
         msgOutEStoredProcService.callUpdateSpecimenCollDateSP(edxLabInformationDto);
