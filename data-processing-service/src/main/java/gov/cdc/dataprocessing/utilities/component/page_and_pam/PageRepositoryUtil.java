@@ -301,7 +301,6 @@ public class PageRepositoryUtil {
         Long publicHealthCaseUid;
         try {
             publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
-            java.util.Date dateTime = new java.util.Date();
             Timestamp lastChgTime = TimeStampUtil.getCurrentTimeStamp(tz);
             Long lastChgUserId= AuthUtil.authUser.getNedssEntryId();
             PageActProxyContainer proxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);

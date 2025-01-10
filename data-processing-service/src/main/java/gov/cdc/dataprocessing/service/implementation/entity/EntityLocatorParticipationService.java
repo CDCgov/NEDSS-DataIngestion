@@ -412,8 +412,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 } catch (Exception e) {
                     throw new DataProcessingException(e.getMessage());
                 }
-
-
             }
         }
     }
