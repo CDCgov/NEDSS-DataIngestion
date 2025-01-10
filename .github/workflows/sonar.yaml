@@ -11,6 +11,12 @@ on:
       SONAR_TOKEN:
         description: "Secret named SONAR_TOKEN that references the sonar token secret corresponding to the project in sonarcloud."
         required: true
+      DATABASE_USER:
+        description: "Test database username"
+        required: true
+      DATABASE_PASSWORD:
+        description: "Test database password"
+        required: true
   pull_request:
     paths:
       - "data-ingestion-service/**"
