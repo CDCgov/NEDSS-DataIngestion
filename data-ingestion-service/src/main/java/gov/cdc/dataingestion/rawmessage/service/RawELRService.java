@@ -41,7 +41,7 @@ public class RawELRService {
                     rawERLDto.getType(),
                     0,
                     rawERLDto.getValidationActive(),
-                    version);
+                    version,rawERLDto.getCustomMapper());
         }
         if(rawERLDto.getType().equalsIgnoreCase(XML_ELR)) {
             kafkaProducerService.sendElrXmlMessageFromController(

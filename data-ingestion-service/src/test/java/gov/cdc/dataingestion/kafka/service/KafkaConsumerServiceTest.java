@@ -198,7 +198,7 @@ class KafkaConsumerServiceTest {
 
         when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
-        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false)).thenReturn(
+        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false, "")).thenReturn(
                 validatedModel
         );
 
@@ -208,7 +208,7 @@ class KafkaConsumerServiceTest {
             return null;
         }).when(timeMetricsBuilder).recordElrRawEventTime(any());
 
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
+        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","");
 
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
@@ -244,7 +244,7 @@ class KafkaConsumerServiceTest {
 
         RuntimeException exception = Assertions.assertThrows(
                 RuntimeException.class, () -> {
-                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
+                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","");
                 }
         );
 
@@ -495,7 +495,7 @@ class KafkaConsumerServiceTest {
                 when(elrDeadLetterRepository.findById(guidForTesting1))
                         .thenReturn(Optional.of(model));
 
-                when(iHl7v2Validator.messageStringValidation(testHL7Message))
+                when(iHl7v2Validator.messageStringFormat(testHL7Message))
                         .thenReturn(testHL7Message);
 
                 when(iHl7v2Validator.processFhsMessage(testHL7Message)).thenReturn(testHL7Message);
@@ -515,7 +515,7 @@ class KafkaConsumerServiceTest {
 
                 kafkaConsumerService.handleMessageForXmlConversionElr(value, xmlPrepTopic, EnumKafkaOperation.REINJECTION.name(), "false");
 
-                verify(iHl7v2Validator, times(1)).messageStringValidation(testHL7Message);
+                verify(iHl7v2Validator, times(1)).messageStringFormat(testHL7Message);
                 verify(elrDeadLetterRepository, times(1)).findById(guidForTesting1);
             } catch (Exception e) {
                 throw new RuntimeException(e);

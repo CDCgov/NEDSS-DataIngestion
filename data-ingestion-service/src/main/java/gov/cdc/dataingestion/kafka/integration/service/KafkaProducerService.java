@@ -40,13 +40,15 @@ public class KafkaProducerService {
                                           String msgType,
                                           Integer dltOccurrence,
                                           Boolean validationActive,
-                                          String version) {
+                                          String version,
+                                          String customMapper) {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, validationActive.toString().getBytes());
+        prodRecord.headers().add(KafkaHeaderValue.CUSTOM_MESSAGE_MAPPER, customMapper.getBytes());
 
         boolean dataProcessingApplied = version.equals("2");
         prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, Boolean.toString(dataProcessingApplied).getBytes());

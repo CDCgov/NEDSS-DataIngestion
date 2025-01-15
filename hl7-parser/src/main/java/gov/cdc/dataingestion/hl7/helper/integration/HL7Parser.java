@@ -88,7 +88,7 @@ public class HL7Parser implements IHL7Parser {
         }
     }
 
-    public String hl7MessageStringValidation(String message)  {
+    public String hl7MessageStringFormat(String message)  {
          if (message.contains(NEW_LINE_WITH_CARRIER) || message.contains(CARRIER) || message.contains(NEW_LINE)) {
             if (message.contains(NEW_LINE_WITH_CARRIER)) {
                 message = message.replaceAll(NEW_LINE_WITH_CARRIER, CARRIER); //NOSONAR
@@ -113,7 +113,20 @@ public class HL7Parser implements IHL7Parser {
         message = message.replaceAll("\\\\+", "\\\\"); //NOSONAR
         return message;
     }
-
+    public String hl7MessageCustomMapping(String message, String customMapper)  {
+        if(customMapper==null || customMapper.isEmpty()) {
+            return message;
+        }
+        String[] formatStrArr = customMapper.split(",");
+        for (String formatStr : formatStrArr) {
+            String[] keyValuePair = formatStr.split("=");
+            String oldValue = keyValuePair[0];
+            String newValue = keyValuePair[1];
+            System.out.println("oldValue:"+oldValue+" newValue:"+newValue);
+            message = message.replaceAll(oldValue, newValue);
+        }
+        return message;
+    }
     public HL7ParsedMessage convert231To251(String message, HL7ParsedMessage preParsedMessage) throws DiHL7Exception {
         try {
             HL7ParsedMessage<OruR1> parsedMessage;

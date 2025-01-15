@@ -16,5 +16,5 @@ public class RawERLDto {
     private String type;
     private String payload;
     private Boolean validationActive = false;
-
+    private String customMapper;
 }

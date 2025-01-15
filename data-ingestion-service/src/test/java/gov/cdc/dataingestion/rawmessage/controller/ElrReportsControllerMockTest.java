@@ -56,7 +56,7 @@ class ElrReportsControllerMockTest {
 
         when(rawELRService.submission(any(RawERLDto.class), eq(version))).thenReturn(expectedResponse);
 
-        ResponseEntity<String> response = elrReportsController.save(payload, type, version);
+        ResponseEntity<String> response = elrReportsController.save(payload, type, version,"");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
@@ -72,7 +72,7 @@ class ElrReportsControllerMockTest {
 
         when(rawELRService.submission(any(RawERLDto.class), eq(version))).thenReturn(expectedResponse);
 
-        ResponseEntity<String> response = elrReportsController.save(payload, type, version);
+        ResponseEntity<String> response = elrReportsController.save(payload, type, version,"");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
@@ -86,7 +86,7 @@ class ElrReportsControllerMockTest {
         String version = "1";
 
         assertThrows(ResponseStatusException.class, () ->
-                elrReportsController.save(payload, type, version));
+                elrReportsController.save(payload, type, version,""));
     }
 
     @Test
@@ -96,7 +96,7 @@ class ElrReportsControllerMockTest {
         String version = "1";
 
         assertThrows(ResponseStatusException.class, () ->
-                elrReportsController.save(payload, type, version));
+                elrReportsController.save(payload, type, version,""));
     }
 
     @Test
