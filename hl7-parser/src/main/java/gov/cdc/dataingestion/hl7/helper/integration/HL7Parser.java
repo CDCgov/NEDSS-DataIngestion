@@ -122,7 +122,6 @@ public class HL7Parser implements IHL7Parser {
             String[] keyValuePair = formatStr.split("=");
             String oldValue = keyValuePair[0];
             String newValue = keyValuePair[1];
-            System.out.println("oldValue:"+oldValue+" newValue:"+newValue);
             message = message.replaceAll(oldValue, newValue);
         }
         return message;

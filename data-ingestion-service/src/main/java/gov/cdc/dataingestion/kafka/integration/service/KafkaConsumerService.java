@@ -196,7 +196,6 @@ public class KafkaConsumerService {
                 hl7ValidationActivated = true;
             }
             try {
-                System.out.println("---in consumer service customMapper:"+customMapper);
                 validationHandler(message, hl7ValidationActivated, dataProcessingEnable,customMapper);
             } catch (DuplicateHL7FileFoundException | DiHL7Exception e) {
                 throw new RuntimeException(e); //NOSONAR
