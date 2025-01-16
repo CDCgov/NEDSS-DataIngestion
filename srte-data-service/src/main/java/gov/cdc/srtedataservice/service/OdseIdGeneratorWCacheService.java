@@ -34,6 +34,12 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         boolean newKeyRequired = false;
         LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
 
+        if (localIdClass.equals(LocalIdClass.PERSON) && localUidModel != null) {
+            if (localUidModel.getClassTypeUid().getCounter() == localUidModel.getClassTypeUid().getUsedCounter() ) {
+                var test = "";
+            }
+        }
+
         if (localUidModel != null) {
             if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
                 if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
@@ -43,6 +49,8 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
                 } else {
                     newKeyRequired = true;
                 }
+            } else {
+                newKeyRequired = true;
             }
         } else {
             newKeyRequired = true;

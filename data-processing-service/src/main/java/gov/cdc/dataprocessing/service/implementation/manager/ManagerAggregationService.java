@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 /**
@@ -82,13 +83,13 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
-
+        observationDto = null;
         if(observationDto !=null){
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
 
             patientService.getMatchedPersonUID(matchedlabResultProxyVO);
-            patientService.updatePersonELRUpdate(labResultProxyContainer, matchedlabResultProxyVO);
+            patientService.updatePersonELRUpdateV2(labResultProxyContainer, matchedlabResultProxyVO);
 
             edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
             if(observationDto.getProgAreaCd()!=null && observationDto.getJurisdictionCd()!=null)
@@ -130,6 +131,22 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
         personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+
+        Map<Long, Long> patientCount = personContainerCollection.stream()
+                .collect(Collectors.groupingBy(
+                        pc -> pc.getThePersonDto().getPersonUid(),
+                        Collectors.counting()
+                ));
+
+        long repetitiveCount = patientCount.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .count();
+
+        if (repetitiveCount > 0) {
+            var dum = "";
+        }
+
+
         organizationContainer = organizationService.processingOrganization(labResult);
 
 //        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
