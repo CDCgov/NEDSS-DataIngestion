@@ -75,8 +75,7 @@ public class ElrReportsController {
                     @Parameter(in = ParameterIn.HEADER,
                         name = "customMapper",
                         description = "The optional custom mapper field that find and replaces the text in the ELR message." +
-                                "Multiple values can be sent with a comma-separated string. " +
-                                "customMapper=\"key1=test,key2=newcontent\"",
+                                "Multiple values can be sent with a comma-separated string- \"key1=test,key2=newcontent\"",
                         required = false,
                         schema = @Schema(type = "string"))}
     )
