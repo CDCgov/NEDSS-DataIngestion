@@ -50,7 +50,7 @@ public class HL7Helper {
     public String processFhsMessage(String message)  {
         return parser.processFhsMessage(message);
     }
-    public String processHl7CustomMapping(String message, String customMapper)  {
+    public String processHl7CustomMapping(String message, String customMapper) throws DiHL7Exception {
         return parser.hl7MessageCustomMapping(message,customMapper);
     }
 

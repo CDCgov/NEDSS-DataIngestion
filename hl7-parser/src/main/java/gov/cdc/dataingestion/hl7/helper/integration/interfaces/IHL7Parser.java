@@ -15,5 +15,5 @@ public interface IHL7Parser {
 
     String processFhsMessage(String message);
 
-    String hl7MessageCustomMapping(String message, String customMapper);
+    String hl7MessageCustomMapping(String message, String customMapper) throws DiHL7Exception;
 }
