@@ -346,9 +346,6 @@ public class ObservationService implements IObservationService {
                 continue;
             }
 
-            if (partDT.getTypeCd().equals("PATSBJ")) {
-                var test = "";
-            }
             String subjectClassCd = partDT.getSubjectClassCd();
             String recordStatusCd = partDT.getRecordStatusCd();
             String typeCd = partDT.getTypeCd();

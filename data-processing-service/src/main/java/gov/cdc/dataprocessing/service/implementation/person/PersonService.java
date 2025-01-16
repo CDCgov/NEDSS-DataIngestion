@@ -305,9 +305,7 @@ public class PersonService implements IPersonService {
 
         if(labResultProxyVO.getThePersonContainerCollection()!=null){
             for (PersonContainer personVO : labResultProxyVO.getThePersonContainerCollection()) {
-                if (personVO.getThePersonDto().getCdDescTxt().equals("Observation Subject")) {
-                    var test2 = "TEST";
-                }
+
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
                 if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
 
@@ -464,8 +462,6 @@ public class PersonService implements IPersonService {
             }
         }
 
-        var test = labResultProxyVO;
-        var test2 = labResultProxyVO;
     }
 
 
