@@ -1,23 +1,26 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
-import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
-import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
-import org.springframework.batch.item.ItemWriter;
+import java.util.List;
+
 import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
+import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
+import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
+
+/**
+ * Submits Seed request to Record Linkage API
+ */
 @Component
-public class SeedWriter implements ItemWriter<NbsPerson> {
+public class SeedWriter implements ItemWriter<Cluster> {
 
   private final ObjectMapper mapper;
   private final RestClient recordLinkageClient;
@@ -30,9 +33,8 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
   }
 
   @Override
-  public void write(Chunk<? extends NbsPerson> chunk) throws Exception {
-    List<SeedRequest.Cluster> clusters = mapToClusters(new ArrayList<>(chunk.getItems()));
-    SeedRequest request = new SeedRequest(clusters);
+  public void write(@NonNull Chunk<? extends Cluster> chunk) throws Exception {
+    SeedRequest request = new SeedRequest(List.copyOf(chunk.getItems()));
     String requestJson = mapper.writeValueAsString(request);
 
     // Send Clusters to MPI
@@ -43,29 +45,7 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
         .body(requestJson)
         .retrieve()
         .body(MpiResponse.class);
+
   }
 
-  private List<SeedRequest.Cluster> mapToClusters(List<NbsPerson> nbsPersons) {
-    // Group nbsPersons by parentId and create Cluster objects
-    Map<String, List<SeedRequest.MpiPerson>> groupedByParentId = nbsPersons.stream()
-        .collect(Collectors.groupingBy(
-            NbsPerson::personParentId,
-            Collectors.mapping(nbsPerson -> new SeedRequest.MpiPerson(
-                nbsPerson.personId(),
-                nbsPerson.birth_date(),
-                nbsPerson.sex(),
-                nbsPerson.mrn(),
-                nbsPerson.address(),
-                nbsPerson.name(),
-                nbsPerson.telecom(),
-                nbsPerson.ssn(),
-                nbsPerson.race(),
-                nbsPerson.gender(),
-                nbsPerson.drivers_license()
-            ), Collectors.toList())
-        ));
-    return groupedByParentId.entrySet().stream()
-        .map(entry -> new SeedRequest.Cluster(entry.getValue(), entry.getKey()))
-        .toList();
-  }
 }

@@ -14,13 +14,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
 import gov.cdc.nbs.deduplication.seed.step.MpiReader;
 import gov.cdc.nbs.deduplication.seed.step.PersonReader;
+import gov.cdc.nbs.deduplication.seed.step.PersonToClusterProcessor;
 import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
 
 @ExtendWith(MockitoExtension.class)
 class JobConfigTest {
   @Mock
   private PersonReader personReader;
-
+  @Mock
+  private PersonToClusterProcessor processor;
   @Mock
   private SeedWriter seedWriter;
   @Mock
@@ -34,7 +36,7 @@ class JobConfigTest {
 
   @Test
   void buildsValidConfig() {
-    JobConfig config = new JobConfig(personReader,  seedWriter, mpiReader, deduplicationWriter);
+    JobConfig config = new JobConfig(personReader, processor, seedWriter, mpiReader, deduplicationWriter);
     assertThat(config).isNotNull();
 
     Job seedJob = config.seedJob(jobRepository, null, null);
@@ -44,7 +46,7 @@ class JobConfigTest {
 
   @Test
   void step1() {
-    JobConfig config = new JobConfig(personReader,  seedWriter, mpiReader, deduplicationWriter);
+    JobConfig config = new JobConfig(personReader, processor, seedWriter, mpiReader, deduplicationWriter);
 
     Step step1 = config.step1(jobRepository, transactionManager);
     assertThat(step1).isNotNull();
@@ -52,7 +54,7 @@ class JobConfigTest {
 
   @Test
   void step2() {
-    JobConfig config = new JobConfig(personReader,  seedWriter, mpiReader, deduplicationWriter);
+    JobConfig config = new JobConfig(personReader, processor, seedWriter, mpiReader, deduplicationWriter);
     Step step2 = config.step2(jobRepository, transactionManager);
     assertThat(step2).isNotNull();
   }

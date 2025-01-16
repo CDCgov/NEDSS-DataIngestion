@@ -1,6 +1,5 @@
 package gov.cdc.nbs.deduplication.seed;
 
-import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -12,15 +11,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
+import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
 import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
 import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
 import gov.cdc.nbs.deduplication.seed.step.MpiReader;
 import gov.cdc.nbs.deduplication.seed.step.PersonReader;
+import gov.cdc.nbs.deduplication.seed.step.PersonToClusterProcessor;
 
 @Configuration
 public class JobConfig {
 
   final PersonReader personReader;
+  final PersonToClusterProcessor processor;
   final SeedWriter seedWriter;
 
   final MpiReader mpiReader;
@@ -28,10 +31,12 @@ public class JobConfig {
 
   public JobConfig(
       final PersonReader personReader,
+      final PersonToClusterProcessor processor,
       final SeedWriter seedWriter,
       final MpiReader mpiReader,
       final DeduplicationWriter deduplicationWriter) {
     this.personReader = personReader;
+    this.processor = processor;
     this.seedWriter = seedWriter;
     this.mpiReader = mpiReader;
     this.deduplicationWriter = deduplicationWriter;
@@ -40,16 +45,17 @@ public class JobConfig {
   @Bean("readNbsWriteToMpi")
   public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
     return new StepBuilder("Read and transform NBS data", jobRepository)
-        .<NbsPerson, NbsPerson>chunk(10, transactionManager)
-        .reader(personReader)//read detailed personal data from the database.
-        .writer(seedWriter)//send cluster to MPI for seeding
+        .<NbsPerson, Cluster>chunk(100, transactionManager)
+        .reader(personReader) // page ids to be processed from NBS
+        .processor(processor) // query detailed data from NBS and create cluster
+        .writer(seedWriter) // send cluster to MPI for seeding
         .build();
   }
 
   @Bean("readMpiWriteDeduplication")
   public Step step2(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
     return new StepBuilder("Read and transform NBS data", jobRepository)
-        .<DeduplicationEntry, DeduplicationEntry>chunk(10, transactionManager)
+        .<DeduplicationEntry, DeduplicationEntry>chunk(1000, transactionManager)
         .reader(mpiReader) // page UUID <-> NBS id data from MPI
         .writer(deduplicationWriter) // insert mapping and status into deduplication database
         .build();
