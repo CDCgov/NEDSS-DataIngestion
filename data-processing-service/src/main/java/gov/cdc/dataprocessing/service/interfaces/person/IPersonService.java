@@ -43,5 +43,4 @@ public interface IPersonService {
     Long getMatchedPersonUID(LabResultProxyContainer matchedlabResultProxyVO);
 
     void updatePersonELRUpdate(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO);
-    void updatePersonELRUpdateV2(LabResultProxyContainer labResultProxyVO, LabResultProxyContainer matchedLabResultProxyVO);
 }
