@@ -83,7 +83,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
-        observationDto = null;
         if(observationDto !=null){
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
