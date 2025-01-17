@@ -21,3 +21,22 @@ kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topi
 
 
 https://stackoverflow.com/questions/65744538/problems-with-amazon-msk-default-configuration-and-publishing-with-transactions
+
+
+
+
+CONFLUENCE KAFKA
+
+docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_unprocessed  --describe
+docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_processing_handle_lab  --describe
+docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_processing_public_health_case  --describe
+docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_edx_log  --describe
+docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_action_tracker  --describe
+
+
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_unprocessed --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_handle_lab --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_public_health_case --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_edx_log --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_action_tracker --partitions 10
+

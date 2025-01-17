@@ -74,8 +74,7 @@ public class KafkaConsumerConfig {
         // Session timeout configurations
         config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);   // 30-second session timeout
         config.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000); // Send heartbeat every 10 seconds
-
-//        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);   // Disable auto-commit for better control
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false); // Disable auto commit for manual control
 
         return new DefaultKafkaConsumerFactory<>(config);
     }
@@ -85,7 +84,8 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setConcurrency(1);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
 
         return  factory;
     }

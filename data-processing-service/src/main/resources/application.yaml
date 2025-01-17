@@ -58,7 +58,7 @@ spring:
   datasource:
     hikari:
       connection-timeout: 60000
-      maximum-pool-size: 10
+      maximum-pool-size: 20
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -81,3 +81,6 @@ spring:
 
 service:
   timezone: ${SERVICE_TZ:UTC}
+
+
+#logging.level.org.apache.kafka.clients.consumer: DEBUG
