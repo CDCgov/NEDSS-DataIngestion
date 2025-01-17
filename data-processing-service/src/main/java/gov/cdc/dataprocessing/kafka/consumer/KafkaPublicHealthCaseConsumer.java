@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
@@ -58,12 +59,13 @@ public class KafkaPublicHealthCaseConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_health_case}"
     )
-    public void handleMessageForPublicHealthCase(String message) {
+    public void handleMessageForPublicHealthCase(String message, Acknowledgment acknowledgment) {
         try {
             var profile = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
+            acknowledgment.acknowledge();
         } catch (Exception e) {
             logger.error("KafkaPublicHealthCaseConsumer.handleMessageForPublicHealthCase: {}", e.getMessage());
         }

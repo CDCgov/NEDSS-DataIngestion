@@ -43,6 +43,8 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
                 } else {
                     newKeyRequired = true;
                 }
+            } else {
+                newKeyRequired = true;
             }
         } else {
             newKeyRequired = true;
