@@ -27,4 +27,6 @@ import java.util.ArrayList;
 public class PropertyUtilCache {
     public static ArrayList<Object> cachedHivList = new ArrayList<>();
 
+
+    public static int kafkaFailedCheck = 0;
 }

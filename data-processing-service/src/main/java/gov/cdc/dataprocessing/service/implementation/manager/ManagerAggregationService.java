@@ -21,9 +21,12 @@ import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 /**
@@ -58,6 +61,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
     private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
+    private static final Logger logger = LoggerFactory.getLogger(ManagerAggregationService.class);
 
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
@@ -82,8 +86,8 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
-
         if(observationDto !=null){
+            logger.info("OBSERVE: Matched OBS Found");
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
 
@@ -130,77 +134,23 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
         personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+
+        Map<Long, Long> patientCount = personContainerCollection.stream()
+                .collect(Collectors.groupingBy(
+                        pc -> pc.getThePersonDto().getPersonUid(),
+                        Collectors.counting()
+                ));
+        long repetitiveCount = patientCount.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .count();
+        if (repetitiveCount > 0) {
+            logger.info("CRITICAL, multiple repetitive uid found. {}", repetitiveCount);
+        }
+
         organizationContainer = organizationService.processingOrganization(labResult);
-
-//        CompletableFuture<Void> observationFuture = CompletableFuture.runAsync(() ->
-//                observationAggregation(labResult, edxLabInformationDto, observationContainerCollection)
-//        );
-//
-//        CompletableFuture<PersonAggContainer> patientFuture = CompletableFuture.supplyAsync(() ->
-//        {
-//            try {
-//                return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-//            } catch (DataProcessingConsumerException | DataProcessingException e) {
-//                edxLabInformationDto.setNextOfKin(false);
-//                throw new RuntimeException(e);
-//            }
-//        });
-
-//        CompletableFuture<OrganizationContainer> organizationFuture = CompletableFuture.supplyAsync(() ->
-//        {
-//            try {
-//               return organizationService.processingOrganization(labResult);
-//            } catch (DataProcessingConsumerException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-
-        // Wait for all tasks to complete
-//        CompletableFuture<Void> allFutures = CompletableFuture.allOf(observationFuture, patientFuture, organizationFuture);
-
-//        try
-//        {
-//            allFutures.get(); // Wait for all tasks to complete
-//        }
-//        catch (InterruptedException e)
-//        {
-//            Thread.currentThread().interrupt();
-//            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-//        }
-//        catch (ExecutionException e)
-//        {
-//            throw new DataProcessingException("Failed to execute tasks", e);
-//        }
-//        // Get the results from CompletableFuture
-//        try {
-//            personAggContainer = patientFuture.get();
-//            organizationContainer = organizationFuture.get();
-//        }
-//        catch (InterruptedException e)
-//        {
-//            Thread.currentThread().interrupt();
-//            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-//        }
-//        catch (ExecutionException e)
-//        {
-//            throw new DataProcessingException("Failed to get results", e);
-//        }
 
         roleAggregation(labResult);
         progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-//        CompletableFuture<Void> progAndJurisdictionFuture = progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-//        try {
-//            progAndJurisdictionFuture.get();
-//        }
-//        catch (InterruptedException e)
-//        {
-//            Thread.currentThread().interrupt();
-//            throw new DataProcessingException(THREAD_EXCEPTION_MSG, e);
-//        }
-//        catch (ExecutionException e)
-//        {
-//            throw new DataProcessingException("Failed to execute progAndJurisdictionAggregationAsync", e);
-//        }
     }
 
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
