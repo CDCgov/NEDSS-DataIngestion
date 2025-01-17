@@ -11,6 +11,7 @@ import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
+import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerAggregationService;
@@ -21,6 +22,8 @@ import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -59,6 +62,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
     private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
+    private static final Logger logger = LoggerFactory.getLogger(ManagerAggregationService.class);
 
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
@@ -84,6 +88,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
         if(observationDto !=null){
+            logger.info("OBSERVE: Matched OBS Found");
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
 
@@ -140,7 +145,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                 .filter(entry -> entry.getValue() > 1)
                 .count();
         if (repetitiveCount > 0) {
-            var dum = "";
+            logger.info("CRITICAL, multiple repetitive uid found. {}", repetitiveCount);
         }
 
         organizationContainer = organizationService.processingOrganization(labResult);

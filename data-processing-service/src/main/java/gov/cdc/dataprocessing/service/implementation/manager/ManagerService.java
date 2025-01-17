@@ -376,11 +376,11 @@ public class ManagerService implements IManagerService {
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
     private void processingELR(Integer data) {
-        logger.info("Interface Id: {}", data.toString());
+        logger.info("Interface Id: {}", data);
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
-        boolean kafkaFailedCheck = false;;
+        boolean kafkaFailedCheck = false;
         try {
 
             var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
@@ -391,7 +391,7 @@ public class ManagerService implements IManagerService {
             }
 
             if (obj.get().getRecordStatusCd().toUpperCase().contains("SUCCESS")) {
-                ++PropertyUtilCache.kafkaFailedCheck;
+                ++PropertyUtilCache.kafkaFailedCheck; // NOSONAR
 
                 kafkaFailedCheck = true;
                 logger.info("Kafka failed check : {}", PropertyUtilCache.kafkaFailedCheck);

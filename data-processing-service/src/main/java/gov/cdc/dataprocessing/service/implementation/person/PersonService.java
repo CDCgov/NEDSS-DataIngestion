@@ -13,8 +13,6 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonEthnicGroupDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
 import gov.cdc.dataprocessing.service.interfaces.person.INokMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.person.IPersonService;
@@ -24,8 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.swing.text.html.parser.Entity;
 import java.util.*;
 
 @Service
