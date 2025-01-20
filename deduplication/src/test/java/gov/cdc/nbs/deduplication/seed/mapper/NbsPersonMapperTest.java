@@ -18,14 +18,14 @@ class NbsPersonMapperTest {
   @Test
   void testParse() throws SQLException {
     ResultSet resultSet = Mockito.mock(ResultSet.class);
-    when(resultSet.getLong("person_uid")).thenReturn(1l);
-    when(resultSet.getLong("person_parent_uid")).thenReturn(2l);
+    when(resultSet.getString("person_uid")).thenReturn("1");
+    when(resultSet.getString("person_parent_uid")).thenReturn("2");
 
     NbsPerson entry = mapper.mapRow(resultSet, 0);
 
     assertThat(entry).isNotNull();
-    assertThat(entry.personUid()).isEqualTo(1l);
-    assertThat(entry.personParentUid()).isEqualTo(2l);
+    assertThat(entry.personUid()).isEqualTo("1");
+    assertThat(entry.personParentUid()).isEqualTo("2");
 
   }
 

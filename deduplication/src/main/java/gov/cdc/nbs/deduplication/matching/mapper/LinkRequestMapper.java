@@ -51,6 +51,7 @@ public class LinkRequestMapper {
 
     return new LinkRequest(new MpiPerson(
         null,
+        null,
         birthDate,
         sex,
         null,
@@ -69,8 +70,8 @@ public class LinkRequestMapper {
         .stream()
         .map(pl -> new Address(
             Stream.of(
-                pl.streetAddr1(),
-                pl.streetAddr2())
+                    pl.streetAddr1(),
+                    pl.streetAddr2())
                 .filter(Strings::isNotBlank)
                 .toList(),
             pl.cityDescTxt(),
@@ -87,13 +88,13 @@ public class LinkRequestMapper {
         .stream()
         .map(n -> new Name(
             Stream.of(
-                n.firstNm(),
-                n.middleNm())
+                    n.firstNm(),
+                    n.middleNm())
                 .filter(Strings::isNotBlank)
                 .toList(),
             n.lastNm(),
             Stream.of(
-                n.nmSuffix())
+                    n.nmSuffix())
                 .filter(Strings::isNotBlank)
                 .toList()))
         .toList();

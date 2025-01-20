@@ -28,3 +28,9 @@ spring:
 
 recordLinkage:
   url: http://localhost:8080
+
+batch:
+  chunk:
+    size:
+      step1: 100
+      step2: 1000
