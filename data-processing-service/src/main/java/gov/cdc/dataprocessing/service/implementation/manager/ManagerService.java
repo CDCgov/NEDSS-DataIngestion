@@ -142,6 +142,7 @@ public class ManagerService implements IManagerService {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         String detailedMsg = "";
+        boolean  kafkaFailedCheck = false;
         try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
@@ -151,6 +152,17 @@ public class ManagerService implements IManagerService {
                 nbsInterfaceModel = res.get();
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
+            }
+
+            if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
+                if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
+                    PropertyUtilCache.kafkaFailedCheckStep2 = 0;
+                }
+                ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
+
+                kafkaFailedCheck = true;
+                logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
+                return;
             }
 
             if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
@@ -225,7 +237,7 @@ public class ManagerService implements IManagerService {
         }
         finally
         {
-            if(nbsInterfaceModel != null) {
+            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
@@ -241,6 +253,7 @@ public class ManagerService implements IManagerService {
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
+        boolean kafkaFailedCheck = false;
         try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
@@ -250,6 +263,18 @@ public class ManagerService implements IManagerService {
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
+
+            if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
+                if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
+                    PropertyUtilCache.kafkaFailedCheckStep3 = 0;
+                }
+                ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
+
+                kafkaFailedCheck = true;
+                logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
+                return;
+            }
+
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
             PublicHealthCaseContainer publicHealthCaseContainer;
@@ -362,7 +387,7 @@ public class ManagerService implements IManagerService {
                 }
             }
         }finally {
-            if(nbsInterfaceModel != null) {
+            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
 
@@ -391,10 +416,13 @@ public class ManagerService implements IManagerService {
             }
 
             if (obj.get().getRecordStatusCd().toUpperCase().contains("SUCCESS")) {
-                ++PropertyUtilCache.kafkaFailedCheck; // NOSONAR
+                if (PropertyUtilCache.kafkaFailedCheckStep1 == 100000) {
+                    PropertyUtilCache.kafkaFailedCheckStep1 = 0;
+                }
+                ++PropertyUtilCache.kafkaFailedCheckStep1; // NOSONAR
 
                 kafkaFailedCheck = true;
-                logger.info("Kafka failed check : {}", PropertyUtilCache.kafkaFailedCheck);
+                logger.info("Kafka failed check : {}", PropertyUtilCache.kafkaFailedCheckStep1);
                 return;
             }
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
