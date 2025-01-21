@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
@@ -81,7 +82,7 @@ public class ElrDeadLetterService {
 
         return results;
     }
-    public List<ElrDeadLetterDto> getErrorsByDate(String startDate, String endDate) {
+    public List<ElrDeadLetterDto> getErrorsByDate(String startDate, String endDate) throws DateValidationException {
         List<ElrDeadLetterDto> results = null;
         try{
             dateValidation(startDate, endDate);
@@ -97,11 +98,11 @@ public class ElrDeadLetterService {
             if(!errmsg.contains(START_END_DATE_RANGE_MSG)){
                 errmsg= errmsg+" "+DATE_FORMAT_MSG;
             }
-            throw new RuntimeException(errmsg);
+            throw new DateValidationException(errmsg);
         }
         return results;
     }
-    private void dateValidation(String startDateStr, String endDateStr){
+    private void dateValidation(String startDateStr, String endDateStr) throws DateValidationException {
         try{
             String pattern="M-d-yyyy";
             SimpleDateFormat sdf = new SimpleDateFormat(pattern);
@@ -109,10 +110,10 @@ public class ElrDeadLetterService {
             Date startDate = sdf.parse(startDateStr);
             Date endDate = sdf.parse(endDateStr);
             if (startDate.after(endDate)) {
-                throw new RuntimeException(START_END_DATE_RANGE_MSG);
+                throw new DateValidationException(START_END_DATE_RANGE_MSG);
             }
         }catch(Exception e){
-            throw new RuntimeException(e.getMessage());
+            throw new DateValidationException(e.getMessage());
         }
     }
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {

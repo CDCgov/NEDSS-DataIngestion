@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -272,7 +274,7 @@ class ElrDeadLetterServiceTest {
         assertEquals(savedDto.getUpdatedBy(), dto.getUpdatedBy());
     }
     @Test
-    void testGetDltErrorsByDate_Success()  {
+    void testGetDltErrorsByDate_Success() throws DateValidationException {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
         model.setErrorMessageId(guidForTesting);
         model.setErrorMessageSource("elr_raw");
@@ -294,16 +296,16 @@ class ElrDeadLetterServiceTest {
     }
     @Test
     void testGetDltErrorsByDate_validationError_for_startDateRange() {
-        var exception = Assertions.assertThrows(RuntimeException.class, () -> {
+        var exception = Assertions.assertThrows(DateValidationException.class, () -> {
             elrDeadLetterService.getErrorsByDate("02-12-2025","01-16-2025");
         });
-        Assertions.assertEquals("The Start date must be earlier than or equal to the End date.", exception.getMessage());
+        assertEquals("The Start date must be earlier than or equal to the End date.", exception.getMessage());
     }
     @Test
     void testGetDltErrorsByDate_validationError_for_invalidDate() {
-        var exception = Assertions.assertThrows(RuntimeException.class, () -> {
+        var exception = Assertions.assertThrows(DateValidationException.class, () -> {
             elrDeadLetterService.getErrorsByDate("02-12-2025","21-16-2025");
         });
-        Assertions.assertTrue(exception.getMessage().contains("Date must be in MM-DD-YYYY format"));
+        assertTrue(exception.getMessage().contains("Date must be in MM-DD-YYYY format"));
     }
 }

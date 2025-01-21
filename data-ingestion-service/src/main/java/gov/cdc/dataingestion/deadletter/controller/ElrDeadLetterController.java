@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.deadletter.controller;
 
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -117,7 +118,7 @@ public class ElrDeadLetterController {
     )
     @GetMapping(path = "/api/elrs/errors")
     public ResponseEntity<List<ElrDeadLetterDto>> getErrorMessagesByDate(@RequestHeader("startDate") String startDate,
-                                                                         @RequestHeader(name = "endDate") String endDate) {
+                                                                         @RequestHeader(name = "endDate") String endDate) throws DateValidationException {
         return ResponseEntity.ok(elrDeadLetterService.getErrorsByDate(startDate, endDate));
     }
 }
