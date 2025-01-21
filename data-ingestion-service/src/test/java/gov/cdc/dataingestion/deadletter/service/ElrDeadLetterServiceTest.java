@@ -271,5 +271,39 @@ class ElrDeadLetterServiceTest {
         assertEquals(savedDto.getCreatedBy(), dto.getCreatedBy());
         assertEquals(savedDto.getUpdatedBy(), dto.getUpdatedBy());
     }
+    @Test
+    void testGetDltErrorsByDate_Success()  {
+        ElrDeadLetterModel model = new ElrDeadLetterModel();
+        model.setErrorMessageId(guidForTesting);
+        model.setErrorMessageSource("elr_raw");
+        model.setErrorStackTrace("Sample Error Stack Trace");
+        model.setDltOccurrence(1);
+        model.setDltStatus("ERROR");
+        model.setCreatedBy("system");
+        model.setUpdatedBy("system");
+        List<ElrDeadLetterModel> listData = new ArrayList<>();
+        listData.add(model);
 
+        RawERLModel rawModel = new RawERLModel();
+        rawModel.setId(guidForTesting);
+        rawModel.setPayload("HL7 message");
+
+        when(dltRepository.findAllDltRecordsByDate("01-12-2025 00:00:00","01-16-2025 23:59:59")).thenReturn(Optional.of(listData));
+        var result = elrDeadLetterService.getErrorsByDate("01-12-2025","01-16-2025");
+        assertEquals(result.get(0).getErrorMessageId(), model.getErrorMessageId());
+    }
+    @Test
+    void testGetDltErrorsByDate_validationError_for_startDateRange() {
+        var exception = Assertions.assertThrows(RuntimeException.class, () -> {
+            elrDeadLetterService.getErrorsByDate("02-12-2025","01-16-2025");
+        });
+        Assertions.assertEquals("The Start date must be earlier than or equal to the End date.", exception.getMessage());
+    }
+    @Test
+    void testGetDltErrorsByDate_validationError_for_invalidDate() {
+        var exception = Assertions.assertThrows(RuntimeException.class, () -> {
+            elrDeadLetterService.getErrorsByDate("02-12-2025","21-16-2025");
+        });
+        Assertions.assertTrue(exception.getMessage().contains("Date must be in MM-DD-YYYY format"));
+    }
 }

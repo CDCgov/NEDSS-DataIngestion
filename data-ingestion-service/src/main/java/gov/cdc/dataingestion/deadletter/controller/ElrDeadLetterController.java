@@ -90,4 +90,34 @@ public class ElrDeadLetterController {
     public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(dltId, payload));
     }
+    @Operation(
+            summary = "Get ELR Ingestion error messages by Date range. The Start date must be earlier than or equal to the End date.",
+            description = "Get dead letter error messages by date",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "clientid",
+                        description = "The Client Id",
+                        required = true,
+                        schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "clientsecret",
+                        description = "The Client Secret",
+                        required = true,
+                        schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "startDate",
+                        description = "Start Date should be in MM/DD/YYYY format",
+                        required = true,
+                        schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "endDate",
+                        description = "End Date should be in MM/DD/YYYY format",
+                        required = true,
+                        schema = @Schema(type = "string"))}
+    )
+    @GetMapping(path = "/api/elrs/errors")
+    public ResponseEntity<List<ElrDeadLetterDto>> getErrorMessagesByDate(@RequestHeader("startDate") String startDate,
+                                                                         @RequestHeader(name = "endDate") String endDate) {
+        return ResponseEntity.ok(elrDeadLetterService.getErrorsByDate(startDate, endDate));
+    }
 }

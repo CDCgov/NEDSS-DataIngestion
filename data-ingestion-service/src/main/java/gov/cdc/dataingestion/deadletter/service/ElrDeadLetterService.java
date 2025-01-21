@@ -17,10 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
 
@@ -60,7 +58,8 @@ public class ElrDeadLetterService {
     private String rawTopic = "elr_raw";
 
     private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record does not exist in elr_dlt. Please try with a different ID";
-
+    private static final String START_END_DATE_RANGE_MSG = "The Start date must be earlier than or equal to the End date.";//"Start Date must be before End Date";
+    private static final String DATE_FORMAT_MSG = "Date must be in MM-DD-YYYY format";
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
             IRawELRRepository rawELRRepository,
@@ -82,7 +81,40 @@ public class ElrDeadLetterService {
 
         return results;
     }
+    public List<ElrDeadLetterDto> getErrorsByDate(String startDate, String endDate) {
+        List<ElrDeadLetterDto> results = null;
+        try{
+            dateValidation(startDate, endDate);
+            String startDateWithTime=startDate+" 00:00:00";
+            String endDateWithTime=endDate+" 23:59:59";
 
+            Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordsByDate(startDateWithTime, endDateWithTime);
+            if (deadLetterELRModels.isPresent()) {
+                results = convertModelToDtoList(deadLetterELRModels.get());
+            }
+        } catch (Exception e) {
+            String errmsg = e.getMessage();
+            if(!errmsg.contains(START_END_DATE_RANGE_MSG)){
+                errmsg= errmsg+" "+DATE_FORMAT_MSG;
+            }
+            throw new RuntimeException(errmsg);
+        }
+        return results;
+    }
+    private void dateValidation(String startDateStr, String endDateStr){
+        try{
+            String pattern="M-d-yyyy";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            sdf.setLenient(false);
+            Date startDate = sdf.parse(startDateStr);
+            Date endDate = sdf.parse(endDateStr);
+            if (startDate.after(endDate)) {
+                throw new RuntimeException(START_END_DATE_RANGE_MSG);
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+    }
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         if (!isValidUUID(id)) {
             if (id.isEmpty()) {

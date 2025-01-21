@@ -104,4 +104,41 @@ class ElrDeadLetterControllerTest {
 
         verify(elrDeadLetterService).getDltRecordById("1");
     }
+    @Test
+    void testGetErrorMessageByDateSuccess() throws Exception {
+        List<ElrDeadLetterDto> dtoList = new ArrayList<>();
+        ElrDeadLetterDto dto1 = new ElrDeadLetterDto(
+                "1", "topic-a", "error stack trace", 1, "ERROR", "system", "system"
+        );
+        ElrDeadLetterDto dto2 = new ElrDeadLetterDto(
+                "2", "topic-b", "error stack trace", 1, "ERROR", "system", "system"
+        );
+
+        dtoList.add(dto1);
+        dtoList.add(dto2);
+
+        when(elrDeadLetterService.getErrorsByDate("01-12-2025","01-16-2025")).thenReturn(dtoList);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/elrs/errors")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt())
+                        .header("clientid", "test-client-id")
+                        .header("clientsecret", "test-client-secret")
+                        .header("startDate", "01-12-2025")
+                        .header("endDate", "01-16-2025"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].errorMessageId").value("1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].errorMessageSource").value("topic-a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].errorStackTrace").value("error stack trace"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].dltOccurrence").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].dltStatus").value("ERROR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].createdBy").value("system"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].updatedBy").value("system"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].errorMessageId").value("2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].errorMessageSource").value("topic-b"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].errorStackTrace").value("error stack trace"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].dltOccurrence").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].dltStatus").value("ERROR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].createdBy").value("system"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].updatedBy").value("system"));
+    }
 }
