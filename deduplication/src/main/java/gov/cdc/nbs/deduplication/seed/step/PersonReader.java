@@ -33,7 +33,7 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
       this.setQueryProvider(queryProvider);
     }
     this.setRowMapper(mapper);
-    this.setPageSize(10);
+    this.setPageSize(10000);
   }
 
 }

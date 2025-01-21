@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
 
@@ -29,7 +32,11 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
 
   @Override
   public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
-    chunk.forEach(c -> template.update(QUERY, createParameterSource(c)));
+    List<SqlParameterSource> batchParams = new ArrayList<>();
+    for (DeduplicationEntry entry : chunk) {
+      batchParams.add(createParameterSource(entry));
+    }
+    template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
   }
 
   SqlParameterSource createParameterSource(DeduplicationEntry entry) {

@@ -38,33 +38,29 @@ class DeduplicationWriterTest {
   @Test
   void writesChunk() throws Exception {
     List<DeduplicationEntry> entries = new ArrayList<>();
-    entries.add(new DeduplicationEntry(
-        1l,
-        2l,
-        "mpiPatient1",
-        "mpiPerson1"));
-    entries.add(new DeduplicationEntry(
-        3l,
-        4l,
-        "mpiPatient2",
-        "mpiPerson2"));
+    entries.add(new DeduplicationEntry(1L, 2L, "mpiPatient1", "mpiPerson1"));
+    entries.add(new DeduplicationEntry(3L, 4L, "mpiPatient2", "mpiPerson2"));
     var chunk = new Chunk<DeduplicationEntry>(entries);
 
     writer.write(chunk);
-    ArgumentCaptor<SqlParameterSource> captor = ArgumentCaptor.forClass(SqlParameterSource.class);
-    verify(template, times(2)).update(Mockito.anyString(), captor.capture());
+    verify(template, times(1)).batchUpdate(Mockito.anyString(), Mockito.any(SqlParameterSource[].class));
 
-    assertThat(captor.getAllValues().get(0).getValue("person_uid")).isEqualTo(1l);
-    assertThat(captor.getAllValues().get(0).getValue("person_parent_uid")).isEqualTo(2l);
-    assertThat(captor.getAllValues().get(0).getValue("mpi_patient")).isEqualTo("mpiPatient1");
-    assertThat(captor.getAllValues().get(0).getValue("mpi_person")).isEqualTo("mpiPerson1");
-    assertThat(captor.getAllValues().get(0).getValue("status")).isEqualTo("U");
+    ArgumentCaptor<SqlParameterSource[]> captor = ArgumentCaptor.forClass(SqlParameterSource[].class);
+    verify(template).batchUpdate(Mockito.anyString(), captor.capture());
 
-    assertThat(captor.getAllValues().get(1).getValue("person_uid")).isEqualTo(3l);
-    assertThat(captor.getAllValues().get(1).getValue("person_parent_uid")).isEqualTo(4l);
-    assertThat(captor.getAllValues().get(1).getValue("mpi_patient")).isEqualTo("mpiPatient2");
-    assertThat(captor.getAllValues().get(1).getValue("mpi_person")).isEqualTo("mpiPerson2");
-    assertThat(captor.getAllValues().get(1).getValue("status")).isEqualTo("U");
+    assertThat(captor.getValue()).hasSize(2);
+
+    assertThat(captor.getValue()[0].getValue("person_uid")).isEqualTo(1L);
+    assertThat(captor.getValue()[0].getValue("person_parent_uid")).isEqualTo(2L);
+    assertThat(captor.getValue()[0].getValue("mpi_patient")).isEqualTo("mpiPatient1");
+    assertThat(captor.getValue()[0].getValue("mpi_person")).isEqualTo("mpiPerson1");
+    assertThat(captor.getValue()[0].getValue("status")).isEqualTo("U");
+
+    assertThat(captor.getValue()[1].getValue("person_uid")).isEqualTo(3L);
+    assertThat(captor.getValue()[1].getValue("person_parent_uid")).isEqualTo(4L);
+    assertThat(captor.getValue()[1].getValue("mpi_patient")).isEqualTo("mpiPatient2");
+    assertThat(captor.getValue()[1].getValue("mpi_person")).isEqualTo("mpiPerson2");
+    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("U");
   }
 
   @Test

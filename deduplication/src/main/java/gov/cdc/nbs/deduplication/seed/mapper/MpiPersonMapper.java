@@ -53,6 +53,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
 
     return new MpiPerson(
         rs.getString("external_id"),
+        rs.getString("person_parent_uid"),
         rs.getString("birth_date"),
         rs.getString("sex"),
         null,
@@ -157,9 +158,9 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
    */
   DriversLicense mapDriversLicense(String driversLicenseString) {
     List<DriversLicense> licenses = tryParse(
-            driversLicenseString,
-            new TypeReference<List<DriversLicense>>() {
-            }).orElseGet(() -> new ArrayList<>());
+        driversLicenseString,
+        new TypeReference<List<DriversLicense>>() {
+        }).orElseGet(() -> new ArrayList<>());
 
     // Get the first drivers-license or set it to null
     DriversLicense license = licenses.stream().findFirst().orElse(null);

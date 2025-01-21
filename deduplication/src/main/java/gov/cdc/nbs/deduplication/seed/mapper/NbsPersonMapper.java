@@ -15,8 +15,8 @@ public class NbsPersonMapper implements RowMapper<NbsPerson> {
   @Nullable
   public NbsPerson mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
     return new NbsPerson(
-        rs.getLong("person_uid"),
-        rs.getLong("person_parent_uid"));
+        rs.getString("person_uid"),
+        rs.getString("person_parent_uid"));
 
   }
 
