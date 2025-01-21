@@ -2,7 +2,6 @@ package gov.cdc.nbs.deduplication.seed.step;
 
 import javax.sql.DataSource;
 
-import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
@@ -29,28 +28,20 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
       JOIN mpi_person person ON patient.person_id = person.id
       """;
 
-  final LoggingService loggingService;
+  public MpiReader(@Qualifier("mpi") DataSource dataSource) throws Exception {
+    SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
+    provider.setDataSource(dataSource);
+    provider.setSelectClause(SELECT);
+    provider.setFromClause(FROM);
+    provider.setSortKey("person_uid");
 
-  public MpiReader(@Qualifier("mpi") DataSource dataSource, final LoggingService loggingService) throws Exception {
-    this.loggingService = loggingService;
-    try {
-      SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
-      provider.setDataSource(dataSource);
-      provider.setSelectClause(SELECT);
-      provider.setFromClause(FROM);
-      provider.setSortKey("person_uid");
-
-      this.setName("mpiIdReader");
-      this.setDataSource(dataSource);
-      PagingQueryProvider queryProvider = provider.getObject();
-      if (queryProvider != null) {
-        this.setQueryProvider(queryProvider);
-      }
-      this.setRowMapper(new DeduplicationEntryMapper());
-      this.setPageSize(1000);
-    } catch (Exception e) {
-      loggingService.logError("MpiReader", "Error during batch reading of MPI patients.", e);
-      throw e;
+    this.setName("mpiIdReader");
+    this.setDataSource(dataSource);
+    PagingQueryProvider queryProvider = provider.getObject();
+    if (queryProvider != null) {
+      this.setQueryProvider(queryProvider);
     }
+    this.setRowMapper(new DeduplicationEntryMapper());
+    this.setPageSize(1000);
   }
 }
