@@ -37,3 +37,14 @@ CREATE TABLE match_candidates (
   mpi_person_id uniqueidentifier
 );
 GO
+
+CREATE TABLE job_logs (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    step_name NVARCHAR(255) NOT NULL,
+    message NVARCHAR(MAX),
+    timestamp DATETIME NOT NULL,
+    exception_type NVARCHAR(255),
+    exception_message NVARCHAR(MAX)
+);
+
+GO

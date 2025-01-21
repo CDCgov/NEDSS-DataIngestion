@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
+import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,18 +26,27 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
       """;
 
   private final NamedParameterJdbcTemplate template;
+  private final LoggingService loggingService;
 
-  public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+  public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
+      final LoggingService loggingService) {
     this.template = template;
+    this.loggingService = loggingService;
   }
 
   @Override
-  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
-    List<SqlParameterSource> batchParams = new ArrayList<>();
-    for (DeduplicationEntry entry : chunk) {
-      batchParams.add(createParameterSource(entry));
+  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk)  {
+    try {
+      List<SqlParameterSource> batchParams = new ArrayList<>();
+      for (DeduplicationEntry entry : chunk) {
+        batchParams.add(createParameterSource(entry));
+      }
+      template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
+    } catch (
+        Exception e) {
+      loggingService.logError("DeduplicationWriter", "Error writing nbs_mpi mapping to the database.", e);
+      throw e;
     }
-    template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
   }
 
   SqlParameterSource createParameterSource(DeduplicationEntry entry) {

@@ -8,6 +8,7 @@ import java.sql.DatabaseMetaData;
 
 import javax.sql.DataSource;
 
+import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -25,13 +26,16 @@ class PersonReaderTest {
   @Mock
   private DatabaseMetaData metadata;
 
+  @Mock
+  private LoggingService loggingService;
+
   @Test
   void initializesReader() throws Exception {
     when(dataSource.getConnection()).thenReturn(connection);
     when(connection.getMetaData()).thenReturn(metadata);
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
 
-    final PersonReader reader = new PersonReader(dataSource);
+    final PersonReader reader = new PersonReader(dataSource,loggingService);
     assertThat(reader).isNotNull();
   }
 

@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.seed.step;
 
 import javax.sql.DataSource;
 
+import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
@@ -20,7 +21,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
         patient.external_person_id person_parent_uid,
         patient.reference_id mpi_patient_uuid,
         person.reference_id mpi_person_uuid
-             """;
+      """;
 
   private static final String FROM = """
       FROM
@@ -28,23 +29,28 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
       JOIN mpi_person person ON patient.person_id = person.id
       """;
 
-  private final DeduplicationEntryMapper mapper = new DeduplicationEntryMapper();
+  final LoggingService loggingService;
 
-  public MpiReader(@Qualifier("mpi") DataSource dataSource) throws Exception {
+  public MpiReader(@Qualifier("mpi") DataSource dataSource, final LoggingService loggingService) throws Exception {
+    this.loggingService = loggingService;
+    try {
+      SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
+      provider.setDataSource(dataSource);
+      provider.setSelectClause(SELECT);
+      provider.setFromClause(FROM);
+      provider.setSortKey("person_uid");
 
-    SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
-    provider.setDataSource(dataSource);
-    provider.setSelectClause(SELECT);
-    provider.setFromClause(FROM);
-    provider.setSortKey("person_uid");
-
-    this.setName("mpiIdReader");
-    this.setDataSource(dataSource);
-    PagingQueryProvider queryProvider = provider.getObject();
-    if (queryProvider != null) {
-      this.setQueryProvider(queryProvider);
+      this.setName("mpiIdReader");
+      this.setDataSource(dataSource);
+      PagingQueryProvider queryProvider = provider.getObject();
+      if (queryProvider != null) {
+        this.setQueryProvider(queryProvider);
+      }
+      this.setRowMapper(new DeduplicationEntryMapper());
+      this.setPageSize(1000);
+    } catch (Exception e) {
+      loggingService.logError("MpiReader", "Error during batch reading of MPI patients.", e);
+      throw e;
     }
-    this.setRowMapper(mapper);
-    this.setPageSize(1000);
   }
 }
