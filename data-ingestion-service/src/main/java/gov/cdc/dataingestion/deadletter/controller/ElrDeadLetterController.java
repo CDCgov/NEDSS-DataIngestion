@@ -106,12 +106,12 @@ public class ElrDeadLetterController {
                         schema = @Schema(type = "string")),
                     @Parameter(in = ParameterIn.HEADER,
                         name = "startDate",
-                        description = "Start Date should be in MM/DD/YYYY format",
+                        description = "The start date must be in MM/DD/YYYY format.",
                         required = true,
                         schema = @Schema(type = "string")),
                     @Parameter(in = ParameterIn.HEADER,
                         name = "endDate",
-                        description = "End Date should be in MM/DD/YYYY format",
+                        description = "The end date must be in MM/DD/YYYY format",
                         required = true,
                         schema = @Schema(type = "string"))}
     )
