@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 
 //import gov.cdc.dataprocessing.cache.SrteCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
+import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
@@ -190,6 +191,7 @@ class ManagerServiceTest {
 
         var nbs = new NbsInterfaceModel();
         nbs.setNbsInterfaceUid(13);
+        nbs.setRecordStatusCd("RTI_SUCCESS_STEP_1");
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
 
 
@@ -235,6 +237,7 @@ class ManagerServiceTest {
 
         var nbs = new NbsInterfaceModel();
         nbs.setNbsInterfaceUid(13);
+        nbs.setRecordStatusCd("RTI_SUCCESS_STEP_1");
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
 
 
@@ -341,6 +344,8 @@ class ManagerServiceTest {
 
         var nbs = new NbsInterfaceModel();
         nbs.setNbsInterfaceUid(10);
+        nbs.setRecordStatusCd("RTI_SUCCESS_STEP_2");
+
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
 
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
@@ -379,6 +384,8 @@ class ManagerServiceTest {
 
         var nbs = new NbsInterfaceModel();
         nbs.setNbsInterfaceUid(10);
+        nbs.setRecordStatusCd("RTI_SUCCESS_STEP_2");
+
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.of(nbs));
 
         managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
@@ -1047,6 +1054,52 @@ class ManagerServiceTest {
         managerService.processDistribution(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
+    }
+
+    @Test
+    void initiateStep1KafkaFailed() {
+        Integer nbsId = 1;
+
+        var nbs = new NbsInterfaceModel();
+        nbs.setNbsInterfaceUid(nbsId);
+        nbs.setRecordStatusCd("SUCCESS");
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
+        managerService.processingELR(nbsId);
+
+        verify(kafkaManagerProducer, times(0)).sendDataPhc(any());
+
+    }
+
+    @Test
+    void initiateStep2KafkaFailed() {
+        Integer nbsId = 1;
+
+        var nbs = new NbsInterfaceModel();
+        var phc = new PublicHealthCaseFlowContainer();
+        phc.setNbsInterfaceId(nbsId);
+        nbs.setNbsInterfaceUid(nbsId);
+        nbs.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
+        managerService.initiatingInvestigationAndPublicHealthCase(phc);
+
+        verify(kafkaManagerProducer, times(0)).sendDataLabHandling(any());
+
+    }
+
+    @Test
+    void initiateStep3KafkaFailed() {
+        Integer nbsId = 1;
+
+        var nbs = new NbsInterfaceModel();
+        var phc = new PublicHealthCaseFlowContainer();
+        phc.setNbsInterfaceId(nbsId);
+        nbs.setNbsInterfaceUid(nbsId);
+        nbs.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
+        when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
+        managerService.initiatingLabProcessing(phc);
+
+        verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
+
     }
 
 }
