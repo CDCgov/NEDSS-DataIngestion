@@ -27,6 +27,11 @@ cache:
   odse:
     localId: ${RC_URL}${EP_CACHE_LOCALID:/data/odse/localId}
 
+features:
+  modernizedMatching:
+    enabled: ${MODERNIZED_MATCHING_ENABLED:false}
+    url:
+
 spring:
   application:
     name: data-processing-service
@@ -81,6 +86,4 @@ spring:
 
 service:
   timezone: ${SERVICE_TZ:UTC}
-
-
 #logging.level.org.apache.kafka.clients.consumer: DEBUG

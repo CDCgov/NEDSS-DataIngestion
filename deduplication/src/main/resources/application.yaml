@@ -14,17 +14,20 @@ spring:
           default_storage: NORMALIZE
   datasource:
     deduplication:
-      url:
-      username:
-      password:
+      url: ${DEDUPLICATION_DB_URL}
+      username: ${DEDUPLICATION_DB_USERNAME}
+      password: ${DEDUPLICATION_DB_PASSWORD}
     nbs:
-      url:
-      username:
-      password:
+      url: ${NBS_DB_URL}
+      username: ${NBS_DB_USERNAME}
+      password: ${NBS_DB_PASSWORD}
     mpi:
-      url:
-      username:
-      password:
+      url: ${MPI_DB_URL}
+      username: ${MPI_DB_USERNAME}
+      password: ${MPI_DB_PASSWORD}
+    batch:
+      jdbc:
+        initialize-schema: always
 
 recordLinkage:
   url: http://localhost:8080
