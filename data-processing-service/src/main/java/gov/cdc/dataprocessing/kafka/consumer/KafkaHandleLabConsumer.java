@@ -9,7 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.retrytopic.DltStrategy;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
@@ -55,16 +58,22 @@ public class KafkaHandleLabConsumer {
         this.authUserService = authUserService;
     }
 
+    @RetryableTopic(
+            attempts = "3", // Number of attempts including the first try
+            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
+            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
+            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
+    )
     @KafkaListener(
             topics = "${kafka.topic.elr_handle_lab}"
     )
-    public void handleMessage(String message, Acknowledgment acknowledgment) {
+    public void handleMessage(String message) {
         try {
             var auth = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(auth);
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-            acknowledgment.acknowledge();
+//            acknowledgment.acknowledge();
         } catch (Exception e) {
             logger.error("KafkaHandleLabConsumer.handleMessage: {}", e.getMessage());
         }
