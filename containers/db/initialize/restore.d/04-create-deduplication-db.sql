@@ -27,6 +27,7 @@ CREATE TABLE nbs_mpi_mapping (
     mpi_person uniqueidentifier,
     mpi_patient uniqueidentifier,
     status varchar,
+    processed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ([id])
 );
 GO

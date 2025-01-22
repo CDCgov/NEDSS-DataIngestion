@@ -7,6 +7,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
@@ -20,6 +23,8 @@ import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
 
 @Component
 public class MatchService {
+  private static final Logger logger = LoggerFactory.getLogger(MatchService.class);
+
   private static final String FIND_NBS_PERSON_QUERY = """
       SELECT TOP 1
         person_parent_uid
@@ -133,6 +138,12 @@ public class MatchService {
     // If match type was possible, flag the record for review
     String status = isPossibleMatch ? "R" : "P"; // Review, Processed
 
+    // Log the parameters to be inserted
+    logger.debug("Inserting into nbs_mpi_mapping with parameters: person_uid={}, person_parent_uid={}, mpi_patient={}, mpi_person={}, status={}",
+            request.nbsPerson(), request.nbsPersonParent(), request.linkResponse().patient_reference_id(),
+            request.linkResponse().person_reference_id(), status);
+
+
     SqlParameterSource parameters = new MapSqlParameterSource()
         .addValue("person_uid", request.nbsPerson())
         .addValue("person_parent_uid", request.nbsPersonParent())
@@ -151,6 +162,10 @@ public class MatchService {
         SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
             .addValue("person_uid", request.nbsPerson())
             .addValue("mpi_person_id", r.person_reference_id());
+
+        logger.debug("Inserting into match_candidates with parameters: person_uid={}, mpi_person_id={}",
+                request.nbsPerson(), r.person_reference_id());
+
         template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
       });
     }
