@@ -144,7 +144,11 @@ public class PatientRepositoryUtil {
         //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setBirthCntryCd(null);
-        personRepository.save(person);
+        try {
+            personRepository.save(person);
+        }catch (Exception e) {
+            throw new DataProcessingException("Person Persisting Error", e);
+        }
 
         //NOTE: Create Person Name
         if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
@@ -419,22 +423,23 @@ public class PatientRepositoryUtil {
 
     private void createPersonName(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonNameDto>  personList = (ArrayList<PersonNameDto> ) personContainer.getThePersonNameDtoCollection();
-        try {
-            var pUid = personContainer.getThePersonDto().getPersonUid();
-            for (PersonNameDto personNameDto : personList) {
-                personNameDto.setPersonUid(pUid);
-                if (personNameDto.getStatusCd() == null) {
-                    personNameDto.setStatusCd("A");
-                }
-                if (personNameDto.getStatusTime() == null) {
-                    personNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
-                }
-                personNameDto.setRecordStatusCd("ACTIVE");
-                personNameDto.setAddReasonCd("Add");
-                personNameRepository.save(new PersonName(personNameDto,tz));
+        var pUid = personContainer.getThePersonDto().getPersonUid();
+        for (PersonNameDto personNameDto : personList) {
+            personNameDto.setPersonUid(pUid);
+            if (personNameDto.getStatusCd() == null) {
+                personNameDto.setStatusCd("A");
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            if (personNameDto.getStatusTime() == null) {
+                personNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
+            }
+            personNameDto.setRecordStatusCd("ACTIVE");
+            personNameDto.setAddReasonCd("Add");
+            try {
+                personNameRepository.save(new PersonName(personNameDto,tz));
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+
+            }
         }
     }
 

@@ -211,14 +211,9 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         }
 
         // Create the provider in case if the provider is not there in the DB
-        try {
-            if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PRV)) { // Provider
-                String businessTriggerCd = NEDSSConstant.PRV_CR;
-                entityUid = processingProvider(personContainer, "PROVIDER", businessTriggerCd);
-            }
-        } catch (Exception e) {
-            logger.error("Error in getting the entity Controller or Setting the Organization {}", e.getMessage());
-            throw new DataProcessingException("Error in getting the entity Controller or Setting the Organization" + e.getMessage(), e);
+        if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PRV)) { // Provider
+            String businessTriggerCd = NEDSSConstant.PRV_CR;
+            entityUid = processingProvider(personContainer, "PROVIDER", businessTriggerCd);
         }
 
 

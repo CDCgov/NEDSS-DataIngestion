@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchReposit
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -73,35 +74,34 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         PersonContainer mprPersonVO;
         Long mprPersonUid;
         Long personUid;
-        try {
-            PersonDto personDT = personVO.getThePersonDto();
+        PersonDto personDT = personVO.getThePersonDto();
 
 
-            // NOTE: SHOULD NOT HIT THIS ONE
-            if (personDT.getPersonParentUid() == null) {
-                mprPersonVO = this.cloneVO(personVO);
-                mprPersonVO.getThePersonDto().setDescription(null);
-                mprPersonVO.getThePersonDto().setAsOfDateAdmin(null);
-                mprPersonVO.getThePersonDto().setAgeReported(null);
-                mprPersonVO.getThePersonDto().setAgeReportedUnitCd(null);
-            }
-            else {
-                if (businessTriggerCd != null
-                        && (businessTriggerCd.equals("PAT_CR") || businessTriggerCd
-                        .equals("PAT_EDIT"))) {
-                    this.updateWithRevision(personVO, personType);
-                }
-
-                if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().length() == 0)
-                {
-                    mprPersonUid = personVO.getThePersonDto().getPersonParentUid();
-                    mprPersonVO = getPatientRepositoryUtil().loadPerson(mprPersonUid);
-                    personVO.getThePersonDto().setLocalId(mprPersonVO.getThePersonDto().getLocalId());
-                }
+        // NOTE: SHOULD NOT HIT THIS ONE
+        if (personDT.getPersonParentUid() == null) {
+            mprPersonVO = this.cloneVO(personVO);
+            mprPersonVO.getThePersonDto().setDescription(null);
+            mprPersonVO.getThePersonDto().setAsOfDateAdmin(null);
+            mprPersonVO.getThePersonDto().setAgeReported(null);
+            mprPersonVO.getThePersonDto().setAgeReportedUnitCd(null);
+        }
+        else {
+            if (businessTriggerCd != null
+                    && (businessTriggerCd.equals("PAT_CR") || businessTriggerCd
+                    .equals("PAT_EDIT"))) {
+                this.updateWithRevision(personVO, personType);
             }
 
+            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().length() == 0)
+            {
+                mprPersonUid = personVO.getThePersonDto().getPersonParentUid();
+                mprPersonVO = getPatientRepositoryUtil().loadPerson(mprPersonUid);
+                personVO.getThePersonDto().setLocalId(mprPersonVO.getThePersonDto().getLocalId());
+            }
+        }
 
-            personUid = this.setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd, personType);
+
+        personUid = this.setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd, personType);
 
             /*
             // NOTE: SHOULD NOT HIT THIS ONE EITHER
@@ -115,9 +115,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 //                        NEDSSConstant.PATIENT_LDF, null, personUid, nbsSecurityObj);
             }
             */
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+
         // ldf code end
         return personUid;
     }
