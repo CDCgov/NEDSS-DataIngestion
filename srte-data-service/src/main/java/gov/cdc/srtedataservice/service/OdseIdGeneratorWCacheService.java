@@ -29,31 +29,34 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
         boolean newKeyRequired = false;
-        LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
+//        LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
 
-        if (localUidModel != null) {
-            if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
-                if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
-                    updateCounters(localUidModel, true);
-                } else if (localUidModel.getGaTypeUid() == null) {
-                    updateCounters(localUidModel, false);
-                } else {
-                    newKeyRequired = true;
-                }
-            } else {
-                newKeyRequired = true;
-            }
-        } else {
-            newKeyRequired = true;
-        }
+//        if (localUidModel != null) {
+//            if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
+//                if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
+//                    updateCounters(localUidModel, true);
+//                } else if (localUidModel.getGaTypeUid() == null) {
+//                    updateCounters(localUidModel, false);
+//                } else {
+//                    newKeyRequired = true;
+//                }
+//            } else {
+//                newKeyRequired = true;
+//            }
+//        } else {
+//            newKeyRequired = true;
+//        }
 
-        if (newKeyRequired) {
-            localUidModel = createNewLocalUid(localIdClass, gaApplied);
-            LocalUidCacheModel.localUidMap.put(localUidModel.getPrimaryClassName(), localUidModel);
-        }
+//        if (newKeyRequired) {
+//            localUidModel = createNewLocalUid(localIdClass, gaApplied);
+//            LocalUidCacheModel.localUidMap.put(localUidModel.getPrimaryClassName(), localUidModel);
+//        }
+
+        var localUidModel = createNewLocalUid(localIdClass, gaApplied);
+
 
         return localUidModel;
     }
@@ -98,7 +101,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
                 newLocalId.setUidPrefixCd(localId.getUidPrefixCd());
                 newLocalId.setTypeCd(localId.getTypeCd());
                 newLocalId.setClassNameCd(localId.getClassNameCd());
-                newLocalId.setSeedValueNbr(seed + LocalUidCacheModel.SEED_COUNTER + 1);
+                newLocalId.setSeedValueNbr(seed + LocalUidCacheModel.SEED_COUNTER + 10);
                 localUidGeneratorRepository.save(newLocalId);
 
                 return localId;

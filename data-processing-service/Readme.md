@@ -4,7 +4,7 @@ Kafka Config
   - kafka-topics.sh --alter --bootstrap-server [your-kafka-broker]:9092 --partitions [new-num-partitions] --topic [your-topic-name]
   - 
   - 
-kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_action_tracker
+kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 2 --topic elr_action_tracker
 kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_duplicate
 kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_edx_log
 kafka-topics.sh --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_processing_handle_lab
@@ -34,9 +34,9 @@ docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_e
 docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_action_tracker  --describe
 
 
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_unprocessed --partitions 10
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_handle_lab --partitions 10
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_public_health_case --partitions 10
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_edx_log --partitions 10
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_action_tracker --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_unprocessed --partitions 4
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_handle_lab --partitions 4
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_public_health_case --partitions 4
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_edx_log --partitions 4
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_action_tracker --partitions 4
 
