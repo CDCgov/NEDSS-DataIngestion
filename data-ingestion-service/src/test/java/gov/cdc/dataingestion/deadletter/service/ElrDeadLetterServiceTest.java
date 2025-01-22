@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.constant.enums.EnumElrDltStatus;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -271,5 +273,39 @@ class ElrDeadLetterServiceTest {
         assertEquals(savedDto.getCreatedBy(), dto.getCreatedBy());
         assertEquals(savedDto.getUpdatedBy(), dto.getUpdatedBy());
     }
+    @Test
+    void testGetDltErrorsByDate_Success() throws DateValidationException {
+        ElrDeadLetterModel model = new ElrDeadLetterModel();
+        model.setErrorMessageId(guidForTesting);
+        model.setErrorMessageSource("elr_raw");
+        model.setErrorStackTrace("Sample Error Stack Trace");
+        model.setDltOccurrence(1);
+        model.setDltStatus("ERROR");
+        model.setCreatedBy("system");
+        model.setUpdatedBy("system");
+        List<ElrDeadLetterModel> listData = new ArrayList<>();
+        listData.add(model);
 
+        RawERLModel rawModel = new RawERLModel();
+        rawModel.setId(guidForTesting);
+        rawModel.setPayload("HL7 message");
+
+        when(dltRepository.findAllDltRecordsByDate("01-12-2025 00:00:00","01-16-2025 23:59:59")).thenReturn(Optional.of(listData));
+        var result = elrDeadLetterService.getDltErrorsByDate("01-12-2025","01-16-2025");
+        assertEquals(result.get(0).getErrorMessageId(), model.getErrorMessageId());
+    }
+    @Test
+    void testGetDltErrorsByDate_validationError_for_startDateRange() {
+        var exception = Assertions.assertThrows(DateValidationException.class, () -> {
+            elrDeadLetterService.getDltErrorsByDate("02-12-2025","01-16-2025");
+        });
+        assertEquals("The Start date must be earlier than or equal to the End date.", exception.getMessage());
+    }
+    @Test
+    void testGetDltErrorsByDate_validationError_for_invalidDate() {
+        var exception = Assertions.assertThrows(DateValidationException.class, () -> {
+            elrDeadLetterService.getDltErrorsByDate("02-12-2025","21-16-2025");
+        });
+        assertTrue(exception.getMessage().contains("Date must be in MM-DD-YYYY format"));
+    }
 }
