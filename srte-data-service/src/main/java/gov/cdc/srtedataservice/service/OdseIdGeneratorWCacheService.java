@@ -105,7 +105,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
                 newLocalId.setUidPrefixCd(localId.getUidPrefixCd());
                 newLocalId.setTypeCd(localId.getTypeCd());
                 newLocalId.setClassNameCd(localId.getClassNameCd());
-                newLocalId.setSeedValueNbr(seed + LocalUidCacheModel.SEED_COUNTER + 10);
+                newLocalId.setSeedValueNbr(seed + LocalUidCacheModel.SEED_COUNTER + 2);
                 localUidGeneratorRepository.save(newLocalId);
 
                 return localId;

@@ -46,14 +46,15 @@ public class KafkaEdxLogConsumer {
         this.edxLogService = edxLogService;
     }
 
-    @RetryableTopic(
-            attempts = "3", // Number of attempts including the first try
-            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
-            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
-            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
-    )
+//    @RetryableTopic(
+//            attempts = "3", // Number of attempts including the first try
+//            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
+//            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
+//            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
+//    )
     @KafkaListener(
-            topics = "${kafka.topic.elr_edx_log}"
+            topics = "${kafka.topic.elr_edx_log}",
+            containerFactory = "kafkaListenerContainerFactory4"
     )
     public void handleMessage(String message){
         try {

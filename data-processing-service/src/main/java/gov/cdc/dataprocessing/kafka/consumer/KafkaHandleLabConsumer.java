@@ -58,14 +58,15 @@ public class KafkaHandleLabConsumer {
         this.authUserService = authUserService;
     }
 
-    @RetryableTopic(
-            attempts = "3", // Number of attempts including the first try
-            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
-            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
-            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
-    )
+//    @RetryableTopic(
+//            attempts = "3", // Number of attempts including the first try
+//            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
+//            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
+//            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
+//    )
     @KafkaListener(
-            topics = "${kafka.topic.elr_handle_lab}"
+            topics = "${kafka.topic.elr_handle_lab}",
+            containerFactory = "kafkaListenerContainerFactory3"
     )
     public void handleMessage(String message) {
         try {

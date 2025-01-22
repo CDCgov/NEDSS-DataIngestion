@@ -34,9 +34,9 @@ docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_e
 docker exec -t broker kafka-topics --bootstrap-server broker:29092 --topic elr_action_tracker  --describe
 
 
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_unprocessed --partitions 4
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_handle_lab --partitions 4
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_processing_public_health_case --partitions 4
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_edx_log --partitions 4
-docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic elr_action_tracker --partitions 4
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_unprocessed --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_processing_handle_lab --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_processing_public_health_case --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_edx_log --partitions 10
+docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_action_tracker --partitions 10
 

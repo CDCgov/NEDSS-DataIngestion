@@ -59,14 +59,15 @@ public class KafkaPublicHealthCaseConsumer {
 
     }
 
-    @RetryableTopic(
-            attempts = "3", // Number of attempts including the first try
-            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
-            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
-            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
-    )
+//    @RetryableTopic(
+//            attempts = "3", // Number of attempts including the first try
+//            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
+//            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
+//            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
+//    )
     @KafkaListener(
-            topics = "${kafka.topic.elr_health_case}"
+            topics = "${kafka.topic.elr_health_case}",
+            containerFactory = "kafkaListenerContainerFactory2"
     )
     public void handleMessageForPublicHealthCase(String message) {
         try {

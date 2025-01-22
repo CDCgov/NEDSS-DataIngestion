@@ -45,13 +45,6 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
 
-
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
-
-    @Value("${kafka.topic.elr_health_case}")
-    private String healthCaseTopic = "elr_processing_public_health_case";
-
     @Value("${nbs.user}")
     private String nbsUser = "";
 
@@ -67,14 +60,15 @@ public class KafkaManagerConsumer {
 
     }
 
-    @RetryableTopic(
-            attempts = "3", // Number of attempts including the first try
-            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
-            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
-            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
-    )
+//    @RetryableTopic(
+//            attempts = "3", // Number of attempts including the first try
+//            backoff = @Backoff(delay = 1000, multiplier = 2.0), // Exponential backoff configuration
+//            dltStrategy = DltStrategy.FAIL_ON_ERROR, // Strategy on how to handle messages that fail all retries
+//            dltTopicSuffix = "dlt" // Suffix for the dead letter topic
+//    )
     @KafkaListener(
-            topics = "${kafka.topic.elr_micro}"
+            topics = "${kafka.topic.elr_micro}",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void handleMessage(String messages)
             throws DataProcessingException {
