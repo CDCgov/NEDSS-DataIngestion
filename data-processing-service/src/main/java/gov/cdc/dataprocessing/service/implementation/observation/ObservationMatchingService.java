@@ -310,10 +310,10 @@ public class ObservationMatchingService implements IObservationMatchingService {
             for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
                 if (actRelationshipDto.getTargetActUid().compareTo(edxLabInformationDT.getRootObserbationUid()) == 0
                         && (!actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_SUPPORT_CD)
-                            || !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)
-                            || !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_COMP_CD)
-                            )
-                ) {
+                        && !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_REFER_CD)
+                        && !actRelationshipDto.getTypeCd().equals(EdxELRConstant.ELR_COMP_CD)
+                        )
+                )  {
                     actRelationshipDto.setTargetActUid(matchedObservationUid);
                     break;
                 }

@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
+import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -141,6 +142,7 @@ public class ManagerService implements IManagerService {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         String detailedMsg = "";
+        boolean  kafkaFailedCheck = false;
         try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
@@ -151,6 +153,20 @@ public class ManagerService implements IManagerService {
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
+
+            synchronized (PropertyUtilCache.class) {
+                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
+                    if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
+                        PropertyUtilCache.kafkaFailedCheckStep2 = 0;
+                    }
+                    ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
+
+                    kafkaFailedCheck = true;
+                    logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
+                    return;
+                }
+            }
+
 
             if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
                 edxLabInformationDto.setLabIsUpdateSuccess(true);
@@ -224,7 +240,7 @@ public class ManagerService implements IManagerService {
         }
         finally
         {
-            if(nbsInterfaceModel != null) {
+            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
@@ -240,6 +256,7 @@ public class ManagerService implements IManagerService {
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
+        boolean kafkaFailedCheck = false;
         try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
@@ -249,6 +266,22 @@ public class ManagerService implements IManagerService {
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
+
+            synchronized (PropertyUtilCache.class)
+            {
+                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
+                    if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
+                        PropertyUtilCache.kafkaFailedCheckStep3 = 0;
+                    }
+                    ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
+
+                    kafkaFailedCheck = true;
+                    logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
+                    return;
+                }
+            }
+
+
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
             PublicHealthCaseContainer publicHealthCaseContainer;
@@ -361,7 +394,7 @@ public class ManagerService implements IManagerService {
                 }
             }
         }finally {
-            if(nbsInterfaceModel != null) {
+            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
 
@@ -374,10 +407,12 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    private void processingELR(Integer data) {
+    protected void processingELR(Integer data) {
+        logger.info("Interface Id: {}", data);
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
+        boolean kafkaFailedCheck = false;
         try {
 
             var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
@@ -386,6 +421,19 @@ public class ManagerService implements IManagerService {
             } else {
                 throw new DataProcessingException("NBS Interface Not Exist");
             }
+            synchronized (PropertyUtilCache.class) {
+                if (obj.get().getRecordStatusCd().toUpperCase().contains("SUCCESS")) {
+                    if (PropertyUtilCache.kafkaFailedCheckStep1 == 100000) {
+                        PropertyUtilCache.kafkaFailedCheckStep1 = 0;
+                    }
+                    ++PropertyUtilCache.kafkaFailedCheckStep1; // NOSONAR
+
+                    kafkaFailedCheck = true;
+                    logger.info("Kafka failed check : {}", PropertyUtilCache.kafkaFailedCheckStep1);
+                    return;
+                }
+            }
+
             edxLabInformationDto.setStatus(NbsInterfaceStatus.Success);
             edxLabInformationDto.setUserName(AuthUtil.authUser.getUserId());
 
@@ -456,6 +504,7 @@ public class ManagerService implements IManagerService {
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
             String jsonString = GSON.toJson(phcContainer);
             kafkaManagerProducer.sendDataPhc(jsonString);
+            logger.info("Completed 1st Step");
 
             //return result;
         }
@@ -581,14 +630,13 @@ public class ManagerService implements IManagerService {
         }
         finally
         {
-            if(nbsInterfaceModel != null) {
+            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
-        logger.info("Completed 1st Step");
     }
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {

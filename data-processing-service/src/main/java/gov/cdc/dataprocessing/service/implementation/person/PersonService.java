@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Service
@@ -302,6 +301,7 @@ public class PersonService implements IPersonService {
 
         if(labResultProxyVO.getThePersonContainerCollection()!=null){
             for (PersonContainer personVO : labResultProxyVO.getThePersonContainerCollection()) {
+
                 String perDomainCdStr = personVO.getThePersonDto().getCdDescTxt();
                 if (perDomainCdStr != null && perDomainCdStr.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_DESC)) {
 
@@ -457,5 +457,6 @@ public class PersonService implements IPersonService {
                 }
             }
         }
+
     }
 }

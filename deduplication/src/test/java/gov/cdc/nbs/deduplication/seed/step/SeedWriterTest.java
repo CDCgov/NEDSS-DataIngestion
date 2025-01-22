@@ -1,13 +1,12 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClient.RequestBodySpec;
 import org.springframework.web.client.RestClient.RequestBodyUriSpec;
@@ -22,7 +22,6 @@ import org.springframework.web.client.RestClient.ResponseSpec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
 
 @ExtendWith(MockitoExtension.class)
 class SeedWriterTest {
@@ -40,16 +39,17 @@ class SeedWriterTest {
   private ResponseSpec response;
 
   private final ObjectMapper mapper = new ObjectMapper();
+  JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
 
   @Test
   void initializes() {
-    SeedWriter newWriter = new SeedWriter(mapper, restClient);
+    SeedWriter newWriter = new SeedWriter(jdbcTemplate,mapper, restClient);
     assertThat(newWriter).isNotNull();
   }
 
   @Test
   void writesChunk() throws Exception {
-    final SeedWriter writer = new SeedWriter(mapper, restClient);
+    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient);
 
     when(restClient.post()).thenReturn(uriSpec);
     when(uriSpec.uri("/seed")).thenReturn(bodySpec);
@@ -58,9 +58,10 @@ class SeedWriterTest {
     when(bodySpec.body(Mockito.anyString())).thenReturn(bodySpec);
     when(bodySpec.retrieve()).thenReturn(response);
 
-    List<Cluster> clusters = new ArrayList<>();
-    clusters.add(new Cluster(new ArrayList<>(), "1234"));
-    var chunk = new Chunk<Cluster>(clusters);
+
+    List<NbsPerson> nbsPersons = new ArrayList<>();
+    nbsPersons.add(new NbsPerson("100", "1"));
+    var chunk = new Chunk<NbsPerson>(nbsPersons);
 
     writer.write(chunk);
 

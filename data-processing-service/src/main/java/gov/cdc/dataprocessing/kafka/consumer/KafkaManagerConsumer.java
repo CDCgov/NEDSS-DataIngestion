@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
@@ -66,7 +67,7 @@ public class KafkaManagerConsumer {
     @KafkaListener(
             topics = "${kafka.topic.elr_micro}"
     )
-    public void handleMessage(String messages)
+    public void handleMessage(String messages, Acknowledgment acknowledgment)
             throws DataProcessingException {
         var profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
@@ -74,6 +75,7 @@ public class KafkaManagerConsumer {
         try {
             var nbs = GSON.fromJson(messages, Integer.class);
             managerService.processDistribution(nbs);
+            acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("KafkaManagerConsumer.handleMessage: {}", e.getMessage());
         }

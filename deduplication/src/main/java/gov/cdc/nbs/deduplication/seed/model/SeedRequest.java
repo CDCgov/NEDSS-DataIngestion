@@ -12,6 +12,7 @@ public record SeedRequest(List<Cluster> clusters) {
 
   public record MpiPerson(
       String external_id, // person_uid
+      String parent_id,
       String birth_date,
       String sex,
       String mrn,
