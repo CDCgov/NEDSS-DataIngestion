@@ -1,7 +1,7 @@
-server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#server:
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 management:
   endpoint:
@@ -33,6 +33,8 @@ features:
     url:
 
 spring:
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
   cache:
