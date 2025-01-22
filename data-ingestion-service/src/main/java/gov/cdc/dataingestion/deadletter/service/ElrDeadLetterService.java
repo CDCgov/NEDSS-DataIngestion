@@ -59,7 +59,7 @@ public class ElrDeadLetterService {
     private String rawTopic = "elr_raw";
 
     private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record does not exist in elr_dlt. Please try with a different ID";
-    private static final String START_END_DATE_RANGE_MSG = "The Start date must be earlier than or equal to the End date.";//"Start Date must be before End Date";
+    private static final String START_END_DATE_RANGE_MSG = "The Start date must be earlier than or equal to the End date.";
     private static final String DATE_FORMAT_MSG = "Date must be in MM-DD-YYYY format";
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
@@ -82,7 +82,7 @@ public class ElrDeadLetterService {
 
         return results;
     }
-    public List<ElrDeadLetterDto> getErrorsByDate(String startDate, String endDate) throws DateValidationException {
+    public List<ElrDeadLetterDto> getDltErrorsByDate(String startDate, String endDate) throws DateValidationException {
         List<ElrDeadLetterDto> results = null;
         try{
             dateValidation(startDate, endDate);

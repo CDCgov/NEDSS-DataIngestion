@@ -117,7 +117,7 @@ class ElrDeadLetterControllerTest {
         dtoList.add(dto1);
         dtoList.add(dto2);
 
-        when(elrDeadLetterService.getErrorsByDate("01-12-2025","01-16-2025")).thenReturn(dtoList);
+        when(elrDeadLetterService.getDltErrorsByDate("01-12-2025","01-16-2025")).thenReturn(dtoList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/elrs/errors")
                         .with(SecurityMockMvcRequestPostProcessors.jwt())

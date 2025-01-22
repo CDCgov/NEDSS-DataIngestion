@@ -119,6 +119,6 @@ public class ElrDeadLetterController {
     @GetMapping(path = "/api/elrs/errors")
     public ResponseEntity<List<ElrDeadLetterDto>> getErrorMessagesByDate(@RequestHeader("startDate") String startDate,
                                                                          @RequestHeader(name = "endDate") String endDate) throws DateValidationException {
-        return ResponseEntity.ok(elrDeadLetterService.getErrorsByDate(startDate, endDate));
+        return ResponseEntity.ok(elrDeadLetterService.getDltErrorsByDate(startDate, endDate));
     }
 }
