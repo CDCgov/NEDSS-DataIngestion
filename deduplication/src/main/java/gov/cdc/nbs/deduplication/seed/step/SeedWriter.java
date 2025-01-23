@@ -29,6 +29,15 @@ import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
 
 @Component
 public class SeedWriter implements ItemWriter<NbsPerson> {
+  private static final String GET_LAST_PROCESSED_ID = """
+      SELECT last_processed_id FROM deduplication.deduplication_watermark WHERE id = 1;
+      """;
+
+  private static final String UPDATE_LAST_PROCESSED_ID = """
+      UPDATE deduplication.deduplication_watermark
+      SET last_processed_id = :last_processed_id, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1;
+      """;
 
   private static final String CLUSTER_QUERY = """
         SELECT
@@ -146,56 +155,87 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
         """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final JdbcTemplate deduplicationJdbcTemplate;
   private final MpiPersonMapper mapper = new MpiPersonMapper();
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
 
   public SeedWriter(
       @Qualifier("nbsTemplate") JdbcTemplate template,
+      @Qualifier("deduplicationTemplate") JdbcTemplate deduplicationTemplate,
       ObjectMapper objectMapper,
       @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient) {
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(template);
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
+    this.deduplicationJdbcTemplate = deduplicationTemplate;
   }
 
   @Override
   public void write(Chunk<? extends NbsPerson> chunk) throws Exception {
-    // Extract person_parent_uids from the chunk
+    // Step 1: Get the last processed ID from deduplication_watermark
+    Long lastProcessedId = getLastProcessedId();
+    if (lastProcessedId == null) {
+      lastProcessedId = 0L;  // Default to 0 if null
+    }
+
+    // Step 2: Extract person_parent_uids from the chunk and filter based on the watermark
     List<String> personParentUids = chunk.getItems().stream()
-        .map(NbsPerson::personParentUid)
-        .toList();
+            .map(NbsPerson::personParentUid)
+            .toList();
 
-    List<Cluster> clusters = fetchClusters(personParentUids);
+    List<Cluster> clusters = fetchClusters(personParentUids, lastProcessedId);
 
-    // Send Clusters to MPI
+    // Step 3: Send clusters to the Record Linkage API
     SeedRequest request = new SeedRequest(clusters);
     String requestJson = objectMapper.writeValueAsString(request);
 
     recordLinkageClient.post()
-        .uri("/seed")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(requestJson)
-        .retrieve()
-        .body(MpiResponse.class);
+            .uri("/seed")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(requestJson)
+            .retrieve()
+            .body(MpiResponse.class);
+
+    // Step 4: Update the deduplication_watermark with the highest processed person_uid
+    Long maxProcessedId = chunk.getItems().stream()
+            .mapToLong(person -> Long.parseLong(person.personUid()))
+            .max()
+            .orElse(lastProcessedId);
+
+    updateLastProcessedId(maxProcessedId);
   }
 
-  private List<Cluster> fetchClusters(List<String> personParentUids) {
-    // fetch all cluster data for the current batch of person_parent_uids
+
+  private Long getLastProcessedId() {
+    return deduplicationJdbcTemplate.queryForObject(GET_LAST_PROCESSED_ID, Long.class);
+  }
+
+  private void updateLastProcessedId(Long lastProcessedId) {
+    deduplicationJdbcTemplate.update(
+            UPDATE_LAST_PROCESSED_ID,
+            new MapSqlParameterSource("last_processed_id", lastProcessedId)
+    );
+  }
+
+  private List<Cluster> fetchClusters(List<String> personParentUids, Long lastProcessedId) {
+    // Fetch cluster data for the current batch of person_parent_uids, filtered by lastProcessedId
     List<MpiPerson> clusterEntries = namedParameterJdbcTemplate.query(
-        CLUSTER_QUERY,
-        new MapSqlParameterSource("ids", personParentUids),
-        mapper);
+            CLUSTER_QUERY,
+            new MapSqlParameterSource()
+                    .addValue("ids", personParentUids)
+                    .addValue("last_processed_id", lastProcessedId),
+            mapper);
 
     Map<String, List<MpiPerson>> clusterDataMap = clusterEntries.stream()
-        .collect(Collectors.groupingBy(MpiPerson::parent_id));
+            .collect(Collectors.groupingBy(MpiPerson::parent_id));
 
     return personParentUids.stream()
-        .map(personParentUid -> new Cluster(
-            clusterDataMap.get(personParentUid),
-            personParentUid
-        ))
-        .toList();
+            .map(personParentUid -> new Cluster(
+                    clusterDataMap.get(personParentUid),
+                    personParentUid
+            ))
+            .toList();
   }
 }

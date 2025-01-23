@@ -110,7 +110,6 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     } else {
       System.out.println("Record count for person_uid " + personUid + ": " + count);
     }
-
     return count != null && count > 0;
   }
 
