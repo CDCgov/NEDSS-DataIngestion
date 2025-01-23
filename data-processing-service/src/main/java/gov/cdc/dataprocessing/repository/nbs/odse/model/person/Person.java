@@ -1,14 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
@@ -360,7 +358,11 @@ public class Person  {
     @Column(name = "sex_unk_reason_cd")
     private String sexUnkReasonCd;
 
-    
+//    @OneToMany(mappedBy = "person", fetch = FetchType.EAGER)
+//    private List<PersonName> personNames;
+
+
+
     // Constructors, getters, and setters
     public Person() {
 
