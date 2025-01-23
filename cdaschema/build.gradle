@@ -62,6 +62,26 @@ task copyJar(type: Copy) {
   from "${buildDir}/libs/cda-schema.jar"
   into "${project(':data-ingestion-service').projectDir}/libs/"
 }
+
+task addSuppressWarnings {
+    dependsOn generateXmlBeans
+
+    doLast {
+        FileTree tree = fileTree(dir: "${buildDir}/generated-src")
+        tree.each { file ->
+            if (file.name.endsWith(".java")) {
+                String content = file.getText()
+                if (!content.contains("@SuppressWarnings")) {
+                    content = content.replace("public class", "@SuppressWarnings(\"all\")\npublic class")
+                    content = content.replace("public interface", "@SuppressWarnings(\"all\")\npublic interface")
+                    file.setText(content)
+                }
+            }
+        }
+    }
+}
+
 cdaSchemaJar.mustRunAfter compileJava
 copyJar.dependsOn(generateXmlBeans)
 generateXmlBeans.finalizedBy(copyJar)
+generateXmlBeans.finalizedBy(addSuppressWarnings)
