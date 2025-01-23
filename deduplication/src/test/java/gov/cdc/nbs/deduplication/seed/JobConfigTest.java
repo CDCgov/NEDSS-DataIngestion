@@ -36,7 +36,7 @@ class JobConfigTest {
     JobConfig config = new JobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
     assertThat(config).isNotNull();
 
-    Job seedJob = config.seedJob(jobRepository, null, null);
+    Job seedJob = config.seedJob(jobRepository, null, null, null);
     assertThat(seedJob).isNotNull();
 
   }

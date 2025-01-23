@@ -17,6 +17,7 @@ import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
 import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
 import gov.cdc.nbs.deduplication.seed.step.MpiReader;
 import gov.cdc.nbs.deduplication.seed.step.PersonReader;
+import gov.cdc.nbs.deduplication.seed.step.FailedRecordsReader;
 
 @Configuration
 public class JobConfig {
@@ -63,13 +64,27 @@ public class JobConfig {
   }
 
   @Bean("seedJob")
-  public Job seedJob(JobRepository jobRepository,
-      @Qualifier("readNbsWriteToMpi") Step step1,
-      @Qualifier("readMpiWriteDeduplication") Step step2) {
+  public Job seedJob(
+          JobRepository jobRepository,
+          @Qualifier("readNbsWriteToMpi") Step step1,
+          @Qualifier("readMpiWriteDeduplication") Step step2,
+          @Qualifier("retryFailedRecords") Step retryStep
+  ) {
     return new JobBuilder("Seed MPI", jobRepository)
-        .start(step1)
-        .next(step2)
-        .build();
+            .start(step1)
+            .next(step2)
+            .next(retryStep) // Add the retry step
+            .build();
   }
+
+  @Bean("retryFailedRecords")
+  public Step retryFailedRecordsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, FailedRecordsReader failedRecordsReader) {
+    return new StepBuilder("Retry Failed Records", jobRepository)
+            .<DeduplicationEntry, DeduplicationEntry>chunk(step2ChunkSize, transactionManager)
+            .reader(failedRecordsReader)
+            .writer(deduplicationWriter)
+            .build();
+  }
+
 
 }

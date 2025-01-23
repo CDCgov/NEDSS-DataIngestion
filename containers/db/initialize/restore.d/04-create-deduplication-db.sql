@@ -32,6 +32,13 @@ CREATE TABLE nbs_mpi_mapping (
 );
 GO
 
+CREATE TABLE deduplication_watermark (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    last_processed_id BIGINT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+GO
+
 CREATE TABLE match_candidates (
   id bigint IDENTITY(1,1),
   person_uid bigint,

@@ -4,6 +4,7 @@ public record DeduplicationEntry(
     Long nbsPersonId,
     Long nbsPersonParentId,
     String mpiPatientId,
-    String mpiPersonId) {
+    String mpiPersonId,
+    String status){
 
 }

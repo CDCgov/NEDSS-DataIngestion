@@ -17,7 +17,12 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
   private final NbsPersonMapper mapper = new NbsPersonMapper();
 
   public PersonReader(
-      @Qualifier("nbs") DataSource dataSource) throws Exception {
+          @Qualifier("nbs") DataSource dataSource,
+          @Qualifier("deduplication") DataSource deduplicationDataSource
+  ) throws Exception {
+
+    // Fetch the last high-water mark from deduplication DB
+    Long lastProcessedId = getLastProcessedId(deduplicationDataSource);
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
@@ -34,6 +39,21 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
     }
     this.setRowMapper(mapper);
     this.setPageSize(10000);
+  }
+
+  private Long getLastProcessedId(DataSource deduplicationDataSource) {
+    // Query to fetch the last high-water mark
+    String sql = "SELECT COALESCE(MAX(last_processed_id), 0) FROM deduplication_watermark";
+    try (var connection = deduplicationDataSource.getConnection();
+         var statement = connection.createStatement();
+         var resultSet = statement.executeQuery(sql)) {
+      if (resultSet.next()) {
+        return resultSet.getLong(1);
+      }
+    } catch (Exception ex) {
+      throw new RuntimeException("Failed to fetch the last processed ID from deduplication_watermark", ex);
+    }
+    return 0L; // Default to 0 if no record exists
   }
 
 }

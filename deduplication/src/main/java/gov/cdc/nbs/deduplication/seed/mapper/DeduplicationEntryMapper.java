@@ -17,7 +17,9 @@ public class DeduplicationEntryMapper implements RowMapper<DeduplicationEntry> {
         rs.getLong("person_uid"),
         rs.getLong("person_parent_uid"),
         rs.getString("mpi_patient_uuid"),
-        rs.getString("mpi_person_uuid"));
+        rs.getString("mpi_person_uuid"),
+        rs.getString("status")
+    );
 
   }
 }
