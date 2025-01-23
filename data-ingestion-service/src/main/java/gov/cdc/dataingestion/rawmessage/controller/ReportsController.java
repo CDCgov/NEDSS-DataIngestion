@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
-@Tag(name = "ELR/ECR Ingestion", description = "ELR Ingestion API")
+@Tag(name = "ELR/ECR Ingestion", description = "Get ELR/ECR Ingestion")
 /**
  1118 - require constructor complaint
  125 - comment complaint
@@ -48,7 +48,7 @@ public class ReportsController {
                             schema = @Schema(type = "string"))}
     )
     @GetMapping("/api/get-all-reports")
-    public ResponseEntity<List<NbsInterfaceModel>> getAllRecords() {
+    public ResponseEntity<List<NbsInterfaceModel>> getAllReports() {
         List<NbsInterfaceModel> records = reportsService.getAllSubmissions();
         if (records.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
