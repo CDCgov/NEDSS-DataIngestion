@@ -299,7 +299,7 @@ jar {
 
 	// Conditionally add dependencies from projects
 	if (findProject(':hl7-parser') && !file("${projectDir}/libs/hl7-parser-0.0.1-SNAPSHOT.jar").exists()) {
-		dependsOn(':hl7-parser:copyJar')
+    dependsOn(':hl7-parser:copyJar')
 	}
 
 	if (findProject(':cdaschema') && !file("${projectDir}/libs/cda-schema.jar").exists()) {
