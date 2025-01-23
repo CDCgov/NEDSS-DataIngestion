@@ -39,6 +39,9 @@ CREATE TABLE deduplication_watermark (
 );
 GO
 
+INSERT INTO deduplication_watermark (last_processed_id) VALUES (0);
+GO
+
 CREATE TABLE match_candidates (
   id bigint IDENTITY(1,1),
   person_uid bigint,

@@ -19,26 +19,29 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
   public PersonReader(
           @Qualifier("nbs") DataSource dataSource,
           @Qualifier("deduplication") DataSource deduplicationDataSource
-  ) throws Exception {
+  ) {
+    try {
+      // Fetch the last high-water mark from deduplication DB
+      Long lastProcessedId = getLastProcessedId(deduplicationDataSource);
 
-    // Fetch the last high-water mark from deduplication DB
-    Long lastProcessedId = getLastProcessedId(deduplicationDataSource);
+      SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
+      provider.setDataSource(dataSource);
+      provider.setSelectClause("SELECT person_uid, person_parent_uid");
+      provider.setFromClause("FROM person");
+      provider.setWhereClause("WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT'");
+      provider.setSortKey("person_uid");
 
-    SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
-    provider.setDataSource(dataSource);
-    provider.setSelectClause("SELECT person_uid, person_parent_uid");
-    provider.setFromClause("FROM person");
-    provider.setWhereClause("WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT'");
-    provider.setSortKey("person_uid");
-
-    this.setName("nbsPersonReader");
-    this.setDataSource(dataSource);
-    PagingQueryProvider queryProvider = provider.getObject();
-    if (queryProvider != null) {
-      this.setQueryProvider(queryProvider);
+      this.setName("nbsPersonReader");
+      this.setDataSource(dataSource);
+      PagingQueryProvider queryProvider = provider.getObject();
+      if (queryProvider != null) {
+        this.setQueryProvider(queryProvider);
+      }
+      this.setRowMapper(mapper);
+      this.setPageSize(10000);
+    } catch (Exception ex) {
+      throw new RuntimeException("Error initializing PersonReader", ex);
     }
-    this.setRowMapper(mapper);
-    this.setPageSize(10000);
   }
 
   private Long getLastProcessedId(DataSource deduplicationDataSource) {

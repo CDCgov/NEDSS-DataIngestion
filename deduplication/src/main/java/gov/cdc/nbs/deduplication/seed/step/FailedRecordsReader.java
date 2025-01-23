@@ -14,7 +14,8 @@ public class FailedRecordsReader implements ItemReader<DeduplicationEntry> {
     private static final String QUERY = """
         SELECT person_uid, person_parent_uid, mpi_patient, mpi_person, status
         FROM nbs_mpi_mapping
-        WHERE status = 'F';
+        WHERE status = 'F'
+        LIMIT 100;  -- Example of adding pagination
     """;
 
     private final JdbcTemplate jdbcTemplate;
@@ -27,13 +28,19 @@ public class FailedRecordsReader implements ItemReader<DeduplicationEntry> {
     public DeduplicationEntry read() {
         List<DeduplicationEntry> failedEntries = jdbcTemplate.query(QUERY,
                 (rs, rowNum) -> new DeduplicationEntry(
-                        rs.getLong("person_uid"), // Convert to Long
+                        rs.getLong("person_uid"),
                         rs.getLong("person_parent_uid"),
                         rs.getString("mpi_patient"),
                         rs.getString("mpi_person"),
                         rs.getString("status")
                 ));
-        return failedEntries.isEmpty() ? null : failedEntries.remove(0);
+
+        if (failedEntries.isEmpty()) {
+            System.out.println("No failed records found.");
+            return null; // No records to process
+        } else {
+            System.out.println("Found " + failedEntries.size() + " failed records.");
+            return failedEntries.remove(0); // Return the first record from the list
+        }
     }
 }
-
