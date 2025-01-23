@@ -40,6 +40,10 @@ public class PersonEthnicGroup {
     @Column(name = "person_uid", nullable = false)
     private Long personUid;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_uid", nullable = false)
+    private Person person;
+
     @Id
     @Column(name = "ethnic_group_cd", nullable = false, length = 20)
     private String ethnicGroupCd;

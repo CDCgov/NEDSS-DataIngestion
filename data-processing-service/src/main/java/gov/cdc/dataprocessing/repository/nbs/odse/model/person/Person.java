@@ -1,6 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.person;
 
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -358,9 +361,25 @@ public class Person  {
     @Column(name = "sex_unk_reason_cd")
     private String sexUnkReasonCd;
 
-//    @OneToMany(mappedBy = "person", fetch = FetchType.EAGER)
-//    private List<PersonName> personNames;
+    @OneToMany(mappedBy = "person", fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<PersonName> personNames;
 
+    @OneToMany(mappedBy = "person", fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<PersonRace> personRaces;
+
+    @OneToMany(mappedBy = "person", fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<PersonEthnicGroup> personEthnicGroups;
+
+    @ManyToOne
+    @JoinColumn(name = "person_uid", referencedColumnName = "entity_uid",
+            insertable = false,
+            updatable = false)
+    private EntityODSE entity;
+
+    public void addPersonName(PersonName personName) {
+        this.personNames.add(personName);
+        personName.setPerson(this);
+    }
 
 
     // Constructors, getters, and setters

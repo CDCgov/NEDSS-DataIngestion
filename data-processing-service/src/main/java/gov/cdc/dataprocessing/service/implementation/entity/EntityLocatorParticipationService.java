@@ -423,7 +423,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                     inserted = true;
                 } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                         && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-//                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null
                 ) {
                     entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                     postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));

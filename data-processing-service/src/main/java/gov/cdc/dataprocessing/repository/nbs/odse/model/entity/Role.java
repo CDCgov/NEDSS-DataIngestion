@@ -1,10 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
+import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -40,6 +39,11 @@ public class Role {
     @Id
     @Column(name = "subject_entity_uid", nullable = false)
     private Long subjectEntityUid;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "subject_entity_uid", nullable = false)
+//    private EntityId entityId;
+//
 
     @Column(name = "cd", length = 40, nullable = false)
     private String code;

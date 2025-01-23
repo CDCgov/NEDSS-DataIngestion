@@ -40,13 +40,17 @@ public class PersonName {
     @Column(name = "person_uid")
     private Long personUid;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "person_uid", nullable = false)
-//    private Person person;
-
     @Id
     @Column(name = "person_name_seq")
     private Integer personNameSeq;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_uid", nullable = false, insertable = false,
+            updatable = false)
+    @MapsId("personUid")
+    private Person person;
+
+
 
     @Column(name = "add_reason_cd")
     private String addReasonCd;
@@ -180,5 +184,6 @@ public class PersonName {
         } else {
             this.asOfDate = personNameDto.getAsOfDate();
         }
+
     }
 }

@@ -138,41 +138,83 @@ public class PatientRepositoryUtil {
         arrayList.add(personUid);
         arrayList.add(NEDSSConstant.PERSON);
 
+        // Create Entity
         entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
 
 
         //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setBirthCntryCd(null);
-        try {
-            personRepository.save(person);
-        }catch (Exception e) {
-            throw new DataProcessingException("Person Persisting Error", e);
-        }
+
+        List<PersonName> personNames = null;
+        List<PersonRace> personRaces = null;
+        List<PersonEthnicGroup> personEthnicGroups = null;
+        List<EntityId> entityIds = null;
+        List<Role> roles = null;
+
 
         //NOTE: Create Person Name
         if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
-            createPersonName(personContainer);
+            personNames = createPersonNameV2(personContainer);
         }
         //NOTE: Create Person Race
         if  (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
-            createPersonRace(personContainer);
+            personRaces = createPersonRaceV2(personContainer);
         }
         //NOTE: Create Person Ethnic
         if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-            createPersonEthnic(personContainer);
+            personEthnicGroups = createPersonEthnicV2(personContainer);
         }
         //NOTE: Create EntityID
         if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-            createEntityId(personContainer);
+            entityIds = createEntityIdV2(personContainer);
         }
+
+        if (entityIds != null && !entityIds.isEmpty()) {
+            entityIdRepository.saveAll(entityIds);
+        }
+        person.setPersonRaces(personRaces);
+        person.setPersonEthnicGroups(personEthnicGroups);
+
+        for(var i : personNames) {
+            person.addPersonName(i);
+
+        }
+
+
+        try {
+            personRepository.save(person);
+        } catch (Exception e) {
+            throw new DataProcessingException("Error while trying to create person entity", e);
+        }
+
+//        if (personRaces!= null && !personRaces.isEmpty()) {
+//            personRaceRepository.saveAll(personRaces);
+//        }
+//        person.setPersonRaces(personRaces);
+//
+//        if (personEthnicGroups!= null && !personEthnicGroups.isEmpty()) {
+//            personEthnicRepository.saveAll(personEthnicGroups);
+//        }
+//
+//
+//        if (personNames!= null && !personNames.isEmpty()) {
+//            personNameRepository.saveAll(personNames);
+//        }
+//
+
+
+        //NOTE: Create Role
+        if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+            roles = createRoleV2(personContainer);
+        }
+        if (roles != null && !roles.isEmpty()) {
+            roleRepository.saveAll(roles);
+        }
+
         //NOTE: Create Entity Locator Participation
         if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
-        }
-        //NOTE: Create Role
-        if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-            createRole(personContainer);
         }
 
         return person;
@@ -190,6 +232,14 @@ public class PatientRepositoryUtil {
         var ver = person.getVersionCtrlNbr();
         person.setVersionCtrlNbr(++ver);
         person.setBirthCntryCd(null);
+
+        List<PersonName> personNames = null;
+        List<PersonRace> personRaces = null;
+        List<PersonEthnicGroup> personEthnicGroups = null;
+        List<EntityId> entityIds = null;
+        List<Role> roles = null;
+
+
         personRepository.save(person);
 
 
@@ -221,7 +271,8 @@ public class PatientRepositoryUtil {
         }
         //NOTE: Upsert Role
         if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-            createRole(personContainer);
+            // TODO:
+            // createRole(personContainer);
         }
 
 
@@ -255,15 +306,9 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonDto(personDto);
 
         Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
-        Optional<List<PersonName>> personNameResult = Optional.empty();
 
-        try {
-            personNameResult = personNameRepository.findByParentUid(personUid);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (personResult.isPresent() && personNameResult.isPresent()) {
-            for(var item : personNameResult.get()) {
+        if (personResult.isPresent()) {
+            for(var item : personResult.get().getPersonNames()) {
                 var elem = new PersonNameDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -273,9 +318,8 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonNameDtoCollection(personNameDtoCollection);
 
         Collection<PersonRaceDto> personRaceDtoCollection = new ArrayList<>();
-        var personRaceResult = personRaceRepository.findByParentUid(personUid);
-        if (personRaceResult.isPresent()) {
-            for(var item : personRaceResult.get()) {
+        if (personResult.isPresent()) {
+            for(var item : personResult.get().getPersonRaces()) {
                 var elem = new PersonRaceDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -285,9 +329,8 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonRaceDtoCollection(personRaceDtoCollection);
 
         Collection<PersonEthnicGroupDto> personEthnicGroupDtoCollection = new ArrayList<>();
-        var personEthnic = personEthnicRepository.findByParentUid(personUid);
-        if (personEthnic.isPresent()) {
-            for(var item : personEthnic.get()) {
+        if (personResult.isPresent()) {
+            for(var item : personResult.get().getPersonEthnicGroups()) {
                 var elem = new PersonEthnicGroupDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -421,8 +464,9 @@ public class PatientRepositoryUtil {
         }
     }
 
-    private void createPersonName(PersonContainer personContainer) throws DataProcessingException {
+    private List<PersonName> createPersonNameV2(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonNameDto>  personList = (ArrayList<PersonNameDto> ) personContainer.getThePersonNameDtoCollection();
+        var domainList = new ArrayList<PersonName>();
         var pUid = personContainer.getThePersonDto().getPersonUid();
         for (PersonNameDto personNameDto : personList) {
             personNameDto.setPersonUid(pUid);
@@ -434,13 +478,18 @@ public class PatientRepositoryUtil {
             }
             personNameDto.setRecordStatusCd("ACTIVE");
             personNameDto.setAddReasonCd("Add");
-            try {
-                personNameRepository.save(new PersonName(personNameDto,tz));
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
 
-            }
+            var domain = new PersonName(personNameDto,tz);
+            domainList.add(domain);
+//            try {
+//                personNameRepository.save(new PersonName(personNameDto,tz));
+//            } catch (Exception e) {
+//                throw new DataProcessingException(e.getMessage(), e);
+//
+//            }
         }
+
+        return domainList;
     }
 
     @SuppressWarnings({"java:S3776", "java:S1141"})
@@ -553,31 +602,40 @@ public class PatientRepositoryUtil {
     }
 
 
-    private void createPersonRace(PersonContainer personContainer) throws DataProcessingException {
+    private List<PersonRace> createPersonRaceV2(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
+        var domainList = new ArrayList<PersonRace>();
         try {
             for (PersonRaceDto personRaceDto : personList) {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 personRaceDto.setPersonUid(pUid);
                 personRaceDto.setAddReasonCd("Add");
-                personRaceRepository.save(new PersonRace(personRaceDto, tz));
+//                personRaceRepository.save(new PersonRace(personRaceDto, tz));
+                domainList.add(new PersonRace(personRaceDto, tz));
+
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
+
+        return domainList;
     }
 
-    private void createPersonEthnic(PersonContainer personContainer) throws DataProcessingException {
+    private List<PersonEthnicGroup> createPersonEthnicV2(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonEthnicGroupDto>  personList = (ArrayList<PersonEthnicGroupDto> ) personContainer.getThePersonEthnicGroupDtoCollection();
+        var domainList = new ArrayList<PersonEthnicGroup>();
         try {
             for (PersonEthnicGroupDto personEthnicGroupDto : personList) {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 personEthnicGroupDto.setPersonUid(pUid);
-                personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+                //personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+                domainList.add(new PersonEthnicGroup(personEthnicGroupDto));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
+
+        return domainList;
     }
 
     private void updatePersonEthnic(PersonContainer personContainer) throws DataProcessingException {
@@ -600,8 +658,9 @@ public class PatientRepositoryUtil {
         }
     }
 
-    private void createEntityId(PersonContainer personContainer) throws DataProcessingException {
+    private List<EntityId> createEntityIdV2(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<EntityIdDto>  personList = (ArrayList<EntityIdDto> ) personContainer.getTheEntityIdDtoCollection();
+        var domainList = new ArrayList<EntityId>();
         try {
             for (EntityIdDto entityIdDto : personList) {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
@@ -613,24 +672,30 @@ public class PatientRepositoryUtil {
                 if (entityIdDto.getLastChgUserId() == null) {
                     entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                 }
-                entityIdRepository.save(new EntityId(entityIdDto, tz));
+//                entityIdRepository.save(new EntityId(entityIdDto, tz));
+                domainList.add(new EntityId(entityIdDto, tz));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
+
+        return domainList;
     }
 
 
 
-    private void createRole(PersonContainer personContainer) throws DataProcessingException {
+    private List<Role> createRoleV2(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<RoleDto>  personList = (ArrayList<RoleDto> ) personContainer.getTheRoleDtoCollection();
+        var domainList = new ArrayList<Role>();
         try {
             for (RoleDto obj : personList) {
-                roleRepository.save(new Role(obj));
+//                roleRepository.save(new Role(obj));
+                domainList.add(new Role(obj));
             }
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
+        return domainList;
     }
 
     public List<Person> findPersonByParentUid(Long parentUid) {

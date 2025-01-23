@@ -41,6 +41,10 @@ public class PersonRace {
     @Column(name = "person_uid", nullable = false)
     private Long personUid;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_uid", nullable = false)
+    private Person person;
+
     @Id
     @Column(name = "race_cd", nullable = false, length = 20)
     private String raceCd;
