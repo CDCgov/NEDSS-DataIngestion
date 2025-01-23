@@ -1,12 +1,14 @@
-#server:
-#  port: 8082
-#  servlet:
-#    context-path: /rti
+server:
+  port: 8082
+  servlet:
+    context-path: /rti
 
 management:
   endpoint:
     prometheus:
       enabled: true
+    env:
+      show-values: always
   endpoints:
     web:
       exposure:
@@ -33,15 +35,10 @@ features:
     url:
 
 spring:
-  main:
-    web-application-type: none
+#  main:
+#    web-application-type: none
   application:
     name: data-processing-service
-  cache:
-    cache-names: srte
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterAccess=0
 
 kafka:
   topic:
@@ -63,12 +60,13 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 10000
-      minimum-idle: 50
-      idle-timeout: 300000
+      maximum-pool-size: 200
+      connection-timeout: 300000
+      minimum-idle: 100
+      idle-timeout: 120000
       max-lifetime: 1200000
       pool-name: SQLServerHikariCP
+      leak-detection-threshold: 300000
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -89,11 +87,11 @@ spring:
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
     group-id-edx: data-processing-group-edx
-    consumer:
-      maxPollIntervalMs: 30000
 #K8S Profile goes here
 
 service:
   timezone: ${SERVICE_TZ:UTC}
 #logging.level.org.apache.kafka.clients.consumer: DEBUG
-logging.level.com.zaxxer.hikari: DEBUG
+#logging.level.com.zaxxer.hikari: DEBUG
+
+
