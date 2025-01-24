@@ -37,3 +37,12 @@ CREATE TABLE match_candidates (
   mpi_person_id uniqueidentifier
 );
 GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'last_processed_id')
+BEGIN
+CREATE TABLE last_processed_id (
+       id BIGINT PRIMARY KEY,
+       last_processed_id BIGINT
+);
+END
+GO

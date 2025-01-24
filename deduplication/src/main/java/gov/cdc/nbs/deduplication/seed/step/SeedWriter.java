@@ -141,8 +141,11 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                             ) AS drivers_license
                     ) AS drivers_license
                 ) AS nested
+        LEFT JOIN
+            nbs_mpi_mapping m ON p.person_uid = m.person_uid
         WHERE
-            p.person_parent_uid IN (:ids);
+            p.person_parent_uid IN (:ids)
+            AND (m.status IS NULL OR m.status = 'F');
         """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -198,4 +201,21 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
         ))
         .toList();
   }
+  private void updateFailedStatus(List<Long> failedPersonIds) {
+    if (failedPersonIds == null || failedPersonIds.isEmpty()) {
+      return; // No failed IDs to update
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("failedPersonIds", failedPersonIds);
+
+    try {
+      int updatedCount = namedParameterJdbcTemplate.update(UPDATE_FAILED_STATUS_QUERY, params);
+      System.out.println("Updated status to 'F' for " + updatedCount + " records.");
+    } catch (Exception ex) {
+      throw new RuntimeException("Failed to update failed statuses", ex);
+    }
+  }
+
+
 }
