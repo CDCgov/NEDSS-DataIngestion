@@ -40,10 +40,9 @@ public class Role {
     @Column(name = "subject_entity_uid", nullable = false)
     private Long subjectEntityUid;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "subject_entity_uid", nullable = false)
-//    private EntityId entityId;
-//
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_entity_uid", nullable = false, insertable = false, updatable = false)
+    private EntityODSE entity;
 
     @Column(name = "cd", length = 40, nullable = false)
     private String code;
@@ -113,10 +112,6 @@ public class Role {
 
     @Column(name = "user_affiliation_txt", length = 20)
     private String userAffiliationText;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "subject_entity_uid", referencedColumnName = "entity_uid", insertable = false, updatable = false)
-//    private Entity entity;
 
     public Role() {
 

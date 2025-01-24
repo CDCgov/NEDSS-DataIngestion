@@ -47,6 +47,10 @@ public class EntityId {
     @Column(name = "entity_id_seq", nullable = false)
     private Integer entityIdSeq;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entity_uid", nullable = false, insertable = false, updatable = false)
+    private EntityODSE entity;
+
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCode;
 

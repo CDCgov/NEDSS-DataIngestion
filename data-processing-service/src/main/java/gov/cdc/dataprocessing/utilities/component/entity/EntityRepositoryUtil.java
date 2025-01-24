@@ -91,4 +91,15 @@ public class EntityRepositoryUtil {
 
         return entityODSE;
     }
+
+    public EntityODSE preparingEntityReposCallForPersonV2(Long entityId, Object entityValue) throws DataProcessingException {
+        EntityODSE entityODSE = new EntityODSE();
+        entityODSE.setEntityUid(entityId);
+        entityODSE.setClassCd((String) entityValue);
+        return entityODSE;
+    }
+
+    public EntityODSE saveEntity(EntityODSE entityODSE) throws DataProcessingException {
+        return entityRepository.save(entityODSE);
+    }
 }

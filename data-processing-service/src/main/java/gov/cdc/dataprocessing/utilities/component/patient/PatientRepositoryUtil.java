@@ -135,9 +135,26 @@ public class PatientRepositoryUtil {
 
         // set new person uid in entity table
         personContainer.getThePersonDto().setPersonUid(personUid);
+        List<Role> roles = null;
+        List<EntityId> entityIds = null;
 
         // Create Entity
-        entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+        var entity = entityRepositoryUtil.preparingEntityReposCallForPersonV2(personUid, NEDSSConstant.PERSON);
+        //NOTE: Create Role
+        if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+            roles = createRoleV2(personContainer);
+        }
+        if (roles != null && !roles.isEmpty()) {
+            entity.setRoles(roles);
+        }
+        //NOTE: Create EntityID
+        if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            entityIds = createEntityIdV2(personContainer);
+        }
+        if (entityIds != null && !entityIds.isEmpty()) {
+            entity.setEntityIds(entityIds);
+        }
+        entityRepositoryUtil.saveEntity(entity);
 
 
         //NOTE: Create Person
@@ -147,8 +164,7 @@ public class PatientRepositoryUtil {
         List<PersonName> personNames = null;
         List<PersonRace> personRaces = null;
         List<PersonEthnicGroup> personEthnicGroups = null;
-        List<EntityId> entityIds = null;
-        List<Role> roles = null;
+
 
 
         //NOTE: Create Person Name
@@ -163,27 +179,12 @@ public class PatientRepositoryUtil {
         if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
             personEthnicGroups = createPersonEthnicV2(personContainer);
         }
-        //NOTE: Create EntityID
-        if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-            entityIds = createEntityIdV2(personContainer);
-        }
 
-        if (entityIds != null && !entityIds.isEmpty()) {
-            entityIdRepository.saveAll(entityIds);
-        }
         person.setPersonRaces(personRaces);
         person.setPersonEthnicGroups(personEthnicGroups);
         person.setPersonNames(personNames);
 
         personRepository.save(person);
-
-        //NOTE: Create Role
-        if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-            roles = createRoleV2(personContainer);
-        }
-        if (roles != null && !roles.isEmpty()) {
-            roleRepository.saveAll(roles);
-        }
 
         //NOTE: Create Entity Locator Participation
         if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
@@ -444,12 +445,10 @@ public class PatientRepositoryUtil {
                             personName.setPersonNameSeq(seqId);
                             personName.setRecordStatusCd("ACTIVE");
                             personName.setAddReasonCd("Add");
-//                                personNameRepository.save(new PersonName(personName, tz));
                             domainList.add(new PersonName(personName, tz));
 
                             var mprRecord =  SerializationUtils.clone(personName);
                             mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
-//                                personNameRepository.save(new PersonName(mprRecord, tz));
                             domainListMpr.add(new PersonName(mprRecord, tz));
                         }
                     } catch (Exception e) {
@@ -482,12 +481,6 @@ public class PatientRepositoryUtil {
 
             var domain = new PersonName(personNameDto,tz);
             domainList.add(domain);
-//            try {
-//                personNameRepository.save(new PersonName(personNameDto,tz));
-//            } catch (Exception e) {
-//                throw new DataProcessingException(e.getMessage(), e);
-//
-//            }
         }
 
         return domainList;
@@ -543,12 +536,6 @@ public class PatientRepositoryUtil {
             var pUid = personContainer.getThePersonDto().getPersonUid();
             if (personRaceDto.isItDelete()) {
                 personRaceUpdate.getPersonRaceDeleteList().add(new PersonRace(personRaceDto, tz));
-//                    try {
-//                        personRaceRepository.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
-//                    } catch (Exception e) {
-//                        logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
-//
-//                    }
             }
             else {
                 // Edge case, happen when there are race exist, and we try to remove the second race from the list
@@ -560,11 +547,9 @@ public class PatientRepositoryUtil {
                 mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
                 mprRecord.setAddReasonCd("Add");
                 personRaceUpdate.getPersonRaceList().add(new PersonRace(mprRecord, tz));
-//                    personRaceRepository.save(new PersonRace(mprRecord, tz));
 
                 personRaceDto.setPersonUid(pUid);
                 personRaceDto.setAddReasonCd("Add");
-//                    personRaceRepository.save(new PersonRace(personRaceDto, tz));
                 personRaceUpdate.getPersonRaceList().add(new PersonRace(personRaceDto, tz));
 
 
@@ -576,7 +561,6 @@ public class PatientRepositoryUtil {
         personRaceUpdate.setPatientUidForDeletion(patientUid);
         personRaceUpdate.setParentUidForDeletion(parentUid);
         personRaceUpdate.setRetainingRaceCodeListForDeletion(retainingRaceCodeList);
-//            deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
         return personRaceUpdate;
     }
@@ -612,7 +596,6 @@ public class PatientRepositoryUtil {
             var pUid = personContainer.getThePersonDto().getPersonUid();
             personRaceDto.setPersonUid(pUid);
             personRaceDto.setAddReasonCd("Add");
-//                personRaceRepository.save(new PersonRace(personRaceDto, tz));
             domainList.add(new PersonRace(personRaceDto, tz));
 
         }
@@ -625,7 +608,6 @@ public class PatientRepositoryUtil {
         for (PersonEthnicGroupDto personEthnicGroupDto : personList) {
             var pUid = personContainer.getThePersonDto().getPersonUid();
             personEthnicGroupDto.setPersonUid(pUid);
-            //personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
             domainList.add(new PersonEthnicGroup(personEthnicGroupDto));
         }
         return domainList;
@@ -639,12 +621,10 @@ public class PatientRepositoryUtil {
             var mprRecord =  SerializationUtils.clone(personEthnicGroupDto);
             mprRecord.setPersonUid(parentUid);
             personEthnicUpdate.getPersonEthnicGroupMprList().add(new PersonEthnicGroup(mprRecord));
-            //personEthnicRepository.save(new PersonEthnicGroup(mprRecord));
 
             var pUid = personContainer.getThePersonDto().getPersonUid();
             personEthnicGroupDto.setPersonUid(pUid);
             personEthnicUpdate.getPersonEthnicGroupList().add(new PersonEthnicGroup(personEthnicGroupDto));
-//                personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
 
 
         }
@@ -664,7 +644,6 @@ public class PatientRepositoryUtil {
             if (entityIdDto.getLastChgUserId() == null) {
                 entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
             }
-//                entityIdRepository.save(new EntityId(entityIdDto, tz));
             domainList.add(new EntityId(entityIdDto, tz));
         }
 
@@ -677,7 +656,6 @@ public class PatientRepositoryUtil {
         ArrayList<RoleDto>  personList = (ArrayList<RoleDto> ) personContainer.getTheRoleDtoCollection();
         var domainList = new ArrayList<Role>();
         for (RoleDto obj : personList) {
-//                roleRepository.save(new Role(obj));
             domainList.add(new Role(obj));
         }
         return domainList;

@@ -2,12 +2,15 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @jakarta.persistence.Entity
 @Getter
@@ -45,6 +48,13 @@ public class EntityODSE implements Serializable {
 
     @Column(name = "class_cd")
     private String classCd;
+
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Role> roles;
+
+    @OneToMany(mappedBy = "entity",  cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<EntityId> entityIds;
+
 
     // Constructors, getters, and setters
     // You can generate them using your IDE or manually as needed
