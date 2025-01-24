@@ -116,15 +116,4 @@ public class LinkRequestMapper {
 
   }
 
-  String toSsn(List<EntityIdDto> identifications) {
-    return Optional.ofNullable(identifications)
-        .orElseGet(ArrayList::new)
-        .stream()
-        .filter(id -> "SS".equals(id.typeCd()))
-        .map(id -> id.rootExtensionTxt())
-        .findFirst()
-        .orElse(null);
-
-  }
-
 }

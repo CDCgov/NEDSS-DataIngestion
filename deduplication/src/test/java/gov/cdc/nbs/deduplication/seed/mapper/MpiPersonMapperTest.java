@@ -50,7 +50,7 @@ class MpiPersonMapperTest {
         [{"value":"1224443"},{"value":"1234567890"}]
         """;
     final String IDENTIFIER_STRING = """
-        [{"type":"DL","value":"1234567","authority":"TN"},{"type":"SS","value":"99999999999","authority":"SSA"}]
+        [{"type":"DL","value":"1234567","authority":"TN"},{"type":"SS","value":"99999999999","authority":"SSA"},{"type":"BAD_TYPE","value":"1234","authority":"BAD"}]
         """;
     final String RACE_STRING = "2106-3";
     final String EXTERNAL_ID = "123";
@@ -262,6 +262,7 @@ class MpiPersonMapperTest {
   @ParameterizedTest
   @CsvSource(value = {
       "null,null",
+      " ,null",
       "banana,null",
       "1002-5,AMERICAN_INDIAN",
       "2028-9,ASIAN",
