@@ -44,5 +44,4 @@ CREATE TABLE last_processed_id (
        id BIGINT PRIMARY KEY,
        last_processed_id BIGINT
 );
-END
 GO
