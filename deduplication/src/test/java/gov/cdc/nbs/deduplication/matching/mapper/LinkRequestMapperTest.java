@@ -4,16 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import gov.cdc.nbs.deduplication.matching.exception.MappingException;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Address;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.DriversLicense;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Name;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Telecom;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.EntityIdDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PersonDto;
@@ -215,70 +216,32 @@ class LinkRequestMapperTest {
   }
 
   @Test
-  void toDriversLicense() {
-    DriversLicense driversLicense = mapper.toDriversLicense(List.of(
+  void toIdentifiers() {
+    List<Identifier> identifiers = mapper.toIdentifiers(List.of(
         new EntityIdDto("SS", "Social Securty Administration", "SSN"),
+        new EntityIdDto("BAD_TYPE!", "Social Securty Administration", "SSN"),
         new EntityIdDto("DL", "GA", "DriversLicenseNumber")));
 
-    assertThat(driversLicense.authority()).isEqualTo("GA");
-    assertThat(driversLicense.value()).isEqualTo("DriversLicenseNumber");
+    assertThat(identifiers).hasSize(2);
+    assertThat(identifiers.get(0).authority()).isEqualTo("Social Securty Administration");
+    assertThat(identifiers.get(0).value()).isEqualTo("SSN");
+    assertThat(identifiers.get(0).type()).isEqualTo("SS");
+
+    assertThat(identifiers.get(1).authority()).isEqualTo("GA");
+    assertThat(identifiers.get(1).value()).isEqualTo("DriversLicenseNumber");
+    assertThat(identifiers.get(1).type()).isEqualTo("DL");
   }
 
   @Test
-  void toDriversLicenseMultiple() {
-    DriversLicense driversLicense = mapper.toDriversLicense(List.of(
-        new EntityIdDto("DL", "GA", "DriversLicenseNumber"),
-        new EntityIdDto("DL", "Social Securty Administration", "SSN")));
-
-    assertThat(driversLicense.authority()).isEqualTo("GA");
-    assertThat(driversLicense.value()).isEqualTo("DriversLicenseNumber");
+  void toIdentifiersEmpty() {
+    List<Identifier> identifiers = mapper.toIdentifiers(new ArrayList<>());
+    assertThat(identifiers).isEmpty();
   }
 
   @Test
-  void toDriversLicenseNotFound() {
-    DriversLicense driversLicense = mapper.toDriversLicense(List.of(
-        new EntityIdDto("SS", "Social Securty Administration", "SSN")));
-    assertThat(driversLicense).isNull();
-  }
-
-  @Test
-  void toDriversLicenseEmpty() {
-    DriversLicense driversLicense = mapper.toDriversLicense(null);
-    assertThat(driversLicense).isNull();
-  }
-
-  @Test
-  void toSsn() {
-    String ssn = mapper.toSsn(List.of(
-        new EntityIdDto("SS", "Social Securty Administration", "SocialSecurityNumber"),
-        new EntityIdDto("DL", "GA", "DriversLicenseNumber")));
-
-    assertThat(ssn).isEqualTo("SocialSecurityNumber");
-  }
-
-  @Test
-  void toSsnMultipl() {
-    String ssn = mapper.toSsn(List.of(
-        new EntityIdDto("SS", "Social Securty Administration", "SocialSecurityNumber"),
-        new EntityIdDto("SS", "Social Securty Administration", "AnotherSSN")));
-
-    assertThat(ssn).isEqualTo("SocialSecurityNumber");
-  }
-
-  @Test
-  void toSsnNotFound() {
-    String ssn = mapper.toSsn(List.of(
-        new EntityIdDto("DL", "GA", "DriversLicenseNumber"),
-        new EntityIdDto("AN", "GA", "AccountNumber")));
-
-    assertThat(ssn).isNull();
-  }
-
-  @Test
-  void toSsnNull() {
-    String ssn = mapper.toSsn(null);
-
-    assertThat(ssn).isNull();
+  void toIdentifiersNull() {
+    List<Identifier> identifiers = mapper.toIdentifiers(null);
+    assertThat(identifiers).isEmpty();
   }
 
 }

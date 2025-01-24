@@ -12,15 +12,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 import gov.cdc.nbs.deduplication.seed.model.NbsAddress;
 import gov.cdc.nbs.deduplication.seed.model.NbsName;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Address;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.DriversLicense;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.MpiPerson;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Name;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Telecom;
 
-@SuppressWarnings("null")
 class MpiPersonMapperTest {
 
   MpiPersonMapper mapper = new MpiPersonMapper();
@@ -51,34 +49,42 @@ class MpiPersonMapperTest {
     final String PHONE_STRING = """
         [{"value":"1224443"},{"value":"1234567890"}]
         """;
-    final String DL_STRING = """
-        [{"authority":"VA","value":"10111111"},{"authority":"TN","value":"2022222"}]
+    final String IDENTIFIER_STRING = """
+        [{"type":"DL","value":"1234567","authority":"TN"},{"type":"SS","value":"99999999999","authority":"SSA"}]
         """;
     final String RACE_STRING = "2106-3";
     final String EXTERNAL_ID = "123";
     final String BIRTH_DATE = "1990-01-01";
     final String SEX = "M";
-    final String SSN = "9998887777";
+    final String GENDER = "Gender";
     ResultSet rs = Mockito.mock(ResultSet.class);
     when(rs.getString("address")).thenReturn(ADDRESS_STRING);
     when(rs.getString("name")).thenReturn(NAME_STRING);
     when(rs.getString("phone")).thenReturn(PHONE_STRING);
-    when(rs.getString("drivers_license")).thenReturn(DL_STRING);
+    when(rs.getString("identifiers")).thenReturn(IDENTIFIER_STRING);
     when(rs.getString("race")).thenReturn(RACE_STRING);
     when(rs.getString("external_id")).thenReturn(EXTERNAL_ID);
     when(rs.getString("birth_date")).thenReturn(BIRTH_DATE);
     when(rs.getString("sex")).thenReturn(SEX);
-    when(rs.getString("ssn")).thenReturn(SSN);
+    when(rs.getString("gender")).thenReturn(GENDER);
 
     MpiPerson person = mapper.mapRow(rs, 0);
     assertThat(person.address()).hasSize(2);
     assertThat(person.name()).hasSize(2);
     assertThat(person.telecom()).hasSize(2);
-    assertThat(person.drivers_license().value()).isEqualTo("10111111");
     assertThat(person.race()).isEqualTo("WHITE");
-    assertThat(person.ssn()).isEqualTo(SSN);
     assertThat(person.sex()).isEqualTo(SEX);
+    assertThat(person.gender()).isEqualTo(GENDER);
     assertThat(person.birth_date()).isEqualTo(BIRTH_DATE);
+
+    assertThat(person.identifiers()).hasSize(2);
+    assertThat(person.identifiers().get(0).value()).isEqualTo("1234567");
+    assertThat(person.identifiers().get(0).authority()).isEqualTo("TN");
+    assertThat(person.identifiers().get(0).type()).isEqualTo("DL");
+
+    assertThat(person.identifiers().get(1).value()).isEqualTo("99999999999");
+    assertThat(person.identifiers().get(1).authority()).isEqualTo("SSA");
+    assertThat(person.identifiers().get(1).type()).isEqualTo("SS");
   }
 
   @Test
@@ -251,49 +257,6 @@ class MpiPersonMapperTest {
     final String PHONE_STRING = null;
     List<Telecom> phones = mapper.mapPhones(PHONE_STRING);
     assertThat(phones).isEmpty();
-  }
-
-
-  @Test
-  void testDriversLicense() {
-    // Only 1 DL is currently supported by RL, so the first entry is used
-    final String DL_STRING = """
-        [{"authority":"VA","value":"10111111"},{"authority":"TN","value":"2022222"}]
-        """;
-    DriversLicense driversLicense = mapper.mapDriversLicense(DL_STRING);
-
-    assertThat(driversLicense.authority()).isEqualTo("VA");
-    assertThat(driversLicense.value()).isEqualTo("10111111");
-  }
-
-  @Test
-  void testDriversLicense2() {
-    final String DL_STRING = """
-        """;
-    DriversLicense driversLicense = mapper.mapDriversLicense(DL_STRING);
-
-    assertThat(driversLicense).isNull();
-  }
-
-  @Test
-  void testDriversLicense3() {
-    final String DL_STRING = null;
-    DriversLicense driversLicense = mapper.mapDriversLicense(DL_STRING);
-
-    assertThat(driversLicense).isNull();
-  }
-
-  @Test
-  void testDriversLicenseNullAuthority() {
-    final String DL_STRING = """
-        [{"value":"10111111"}]  // Missing authority
-        """;
-    DriversLicense driversLicense = mapper.mapDriversLicense(DL_STRING);
-
-    // make sure that the license is still mapped but the authority is handled appropriately
-    assertThat(driversLicense).isNotNull();
-    assertThat(driversLicense.authority()).isEmpty(); // Assert that the authority is an empty string
-    assertThat(driversLicense.value()).isEqualTo("10111111");  // License value is still present
   }
 
   @ParameterizedTest
