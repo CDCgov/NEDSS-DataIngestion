@@ -47,15 +47,6 @@ public class EntityId {
     @Column(name = "entity_id_seq", nullable = false)
     private Integer entityIdSeq;
 
-    @ManyToOne
-    @JoinColumn(
-            name = "entity_uid",
-            referencedColumnName = "entity_uid",
-            nullable = false
-    )
-    private EntityODSE entity;
-
-
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCode;
 

@@ -175,34 +175,9 @@ public class PatientRepositoryUtil {
         }
         person.setPersonRaces(personRaces);
         person.setPersonEthnicGroups(personEthnicGroups);
+        person.setPersonNames(personNames);
 
-        for(var i : personNames) {
-            person.addPersonName(i);
-
-        }
-
-
-        try {
-            personRepository.save(person);
-        } catch (Exception e) {
-            throw new DataProcessingException("Error while trying to create person entity", e);
-        }
-
-//        if (personRaces!= null && !personRaces.isEmpty()) {
-//            personRaceRepository.saveAll(personRaces);
-//        }
-//        person.setPersonRaces(personRaces);
-//
-//        if (personEthnicGroups!= null && !personEthnicGroups.isEmpty()) {
-//            personEthnicRepository.saveAll(personEthnicGroups);
-//        }
-//
-//
-//        if (personNames!= null && !personNames.isEmpty()) {
-//            personNameRepository.saveAll(personNames);
-//        }
-//
-
+        personRepository.save(person);
 
         //NOTE: Create Role
         if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
@@ -307,7 +282,7 @@ public class PatientRepositoryUtil {
 
         Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
 
-        if (personResult.isPresent()) {
+        if (personResult.isPresent() && personResult.get().getPersonNames() != null) {
             for(var item : personResult.get().getPersonNames()) {
                 var elem = new PersonNameDto(item);
                 elem.setItDirty(false);
@@ -318,7 +293,7 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonNameDtoCollection(personNameDtoCollection);
 
         Collection<PersonRaceDto> personRaceDtoCollection = new ArrayList<>();
-        if (personResult.isPresent()) {
+        if (personResult.isPresent() && personResult.get().getPersonRaces() != null) {
             for(var item : personResult.get().getPersonRaces()) {
                 var elem = new PersonRaceDto(item);
                 elem.setItDirty(false);
@@ -329,7 +304,7 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonRaceDtoCollection(personRaceDtoCollection);
 
         Collection<PersonEthnicGroupDto> personEthnicGroupDtoCollection = new ArrayList<>();
-        if (personResult.isPresent()) {
+        if (personResult.isPresent() && personResult.get().getPersonEthnicGroups() != null) {
             for(var item : personResult.get().getPersonEthnicGroups()) {
                 var elem = new PersonEthnicGroupDto(item);
                 elem.setItDirty(false);

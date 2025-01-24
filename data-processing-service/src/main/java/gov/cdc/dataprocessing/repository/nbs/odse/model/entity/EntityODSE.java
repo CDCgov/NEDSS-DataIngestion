@@ -46,12 +46,6 @@ public class EntityODSE implements Serializable {
     @Column(name = "class_cd")
     private String classCd;
 
-    @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY)
-    private List<Person> persons;
-
-    @OneToMany(mappedBy = "entity", fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<EntityId> entityIds;
-
     // Constructors, getters, and setters
     // You can generate them using your IDE or manually as needed
 }
