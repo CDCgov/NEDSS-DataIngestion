@@ -147,6 +147,11 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
             p.person_parent_uid IN (:ids)
             AND (m.status IS NULL OR m.status = 'F');
         """;
+  private static final String UPDATE_FAILED_STATUS_QUERY = """
+    UPDATE nbs_mpi_mapping
+    SET status = 'F'
+    WHERE person_uid IN (:failedPersonIds);
+""";
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final MpiPersonMapper mapper = new MpiPersonMapper();
@@ -201,21 +206,5 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
         ))
         .toList();
   }
-  private void updateFailedStatus(List<Long> failedPersonIds) {
-    if (failedPersonIds == null || failedPersonIds.isEmpty()) {
-      return; // No failed IDs to update
-    }
-
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("failedPersonIds", failedPersonIds);
-
-    try {
-      int updatedCount = namedParameterJdbcTemplate.update(UPDATE_FAILED_STATUS_QUERY, params);
-      System.out.println("Updated status to 'F' for " + updatedCount + " records.");
-    } catch (Exception ex) {
-      throw new RuntimeException("Failed to update failed statuses", ex);
-    }
-  }
-
 
 }
