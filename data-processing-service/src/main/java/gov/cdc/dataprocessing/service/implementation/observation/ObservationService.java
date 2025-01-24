@@ -794,8 +794,6 @@ public class ObservationService implements IObservationService {
 
             updateLabResultWithAutoResendNotification(labResultProxyVO);
 
-            //TODO: EMAIL NOTIFICATION IS FLAGGED HERE
-
             if(labResultProxyVO.getMessageLogDCollection()!=null
                     && !labResultProxyVO.getMessageLogDCollection().isEmpty()){
                 try {
@@ -844,13 +842,7 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
         //Set flag for type of processing
-        boolean ELR_PROCESSING = false; // NOSONAR
-
-        // We need specific auth User for elr processing, but probably wont applicable for data processing
-        if (AuthUtil.authUser != null || (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT)))
-        {
-            ELR_PROCESSING = true;
-        }
+        boolean ELR_PROCESSING = true  ; // NOSONAR
 
         //All well to proceed
         Map<Object, Object> returnVal = new HashMap<>();
@@ -1128,13 +1120,6 @@ public class ObservationService implements IObservationService {
             return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
         }
 
-        //If coming from morbidity, processing this way
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                return processMorbObsVOCollection( (MorbidityProxyVO) proxyVO,
-//                        securityObj);
-//            }
-
         //If not above, abort the operation
         else
         {
@@ -1147,42 +1132,7 @@ public class ObservationService implements IObservationService {
      * Original Name: processLabReportObsVOCollection
      * */
     private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
-        Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
-        ObservationContainer observationContainer;
         Map<Object, Object> returnObsVal;
-        boolean isMannualLab = false;
-
-        //Find out if it is mannual lab
-        String electronicInd = observationUtil.getRootObservationDto(labResultProxyVO).getElectronicInd();
-        if(electronicInd != null && !electronicInd.equals(NEDSSConstant.YES))
-        {
-            isMannualLab = true;
-        }
-
-        if (obsContainerCollection != null && !obsContainerCollection.isEmpty())
-        {
-            for (ObservationContainer item : obsContainerCollection) {
-                observationContainer = item;
-                if (observationContainer == null) {
-                    continue;
-                }
-
-                // NOTE: data toward DP will never be manual lab
-                if (isMannualLab) {
-                    /**
-                    // Removed for Rel 1.1.3 - as we are not doing a reverse translation for ORdered test and Resulted Test
-                    if (isOrderedTest || isResultedTest) {
-                        //Retrieve lab test code
-
-                        //Do loinc and snomed lookups for oredered and resulted tests
-                        observationContainer = srteCodeObsService.labLoincSnomedLookup(observationContainer, labResultProxyVO.getLabClia());
-                    }
-                    logger.debug("observationUID: " + observationContainer.getTheObservationDto().getObservationUid());
-                     **/
-                }
-            }
-        }
-
         //Process the ordered test further
         returnObsVal = processLabReportOrderTest(labResultProxyVO, ELR_PROCESSING);
 
@@ -1201,12 +1151,6 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> processLabReportOrderTest(LabResultProxyContainer labResultProxyVO, boolean isELR) throws DataProcessingException {
             //Retrieve the ordered test
             ObservationContainer orderTest = observationUtil.getRootObservationContainer(labResultProxyVO);
-
-            //Overrides rptToStateTime to current date/time for external user
-            if (AuthUtil.authUser.getUserType() != null && AuthUtil.authUser.getUserType().equalsIgnoreCase(NEDSSConstant.SEC_USERTYPE_EXTERNAL))
-            {
-                orderTest.getTheObservationDto().setRptToStateTime(getCurrentTimeStamp(tz));
-            }
 
             //Assign program area cd if necessary, and return any errors to the client
             Map<Object, Object> returnErrors = new HashMap<>();
@@ -1238,7 +1182,7 @@ public class ObservationService implements IObservationService {
             //Manipulate jurisdiction for preparing vo
             jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
             if(jurisdictionCd != null
-                && (jurisdictionCd.trim().equals("")
+                && (jurisdictionCd.trim().isEmpty()
                     || jurisdictionCd.equals("ANY")
                     || jurisdictionCd.equals("NONE")
                 )

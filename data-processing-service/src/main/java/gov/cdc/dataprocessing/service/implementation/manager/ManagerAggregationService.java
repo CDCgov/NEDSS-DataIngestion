@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -82,6 +83,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
+    @Transactional
     public EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
@@ -125,6 +127,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
     }
 
+    @Transactional
     public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
             DataProcessingException, DataProcessingConsumerException {
         PersonAggContainer personAggContainer;

@@ -126,7 +126,6 @@ public class ManagerService implements IManagerService {
         this.investigationNotificationService = investigationNotificationService;
     }
 
-    @Transactional
     public void processDistribution(Integer data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
