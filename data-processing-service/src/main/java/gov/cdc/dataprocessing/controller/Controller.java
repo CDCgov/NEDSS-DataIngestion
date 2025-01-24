@@ -45,7 +45,7 @@ public class Controller {
     @GetMapping("/test")
     public ResponseEntity<String> getPersonTest() {
         log.info("Data Processing Service Status OK");
-        var test = personRepository.findById(10599457L);
+        var test = personRepository.findById(10055495L);
         Gson gsonUtil = new Gson();
         return ResponseEntity.status(HttpStatus.OK).body(gsonUtil.toJson(test.get()) );
     }

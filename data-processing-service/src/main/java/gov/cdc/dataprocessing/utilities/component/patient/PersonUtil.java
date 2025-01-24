@@ -140,8 +140,6 @@ public class PersonUtil {
     @SuppressWarnings("java:S2589")
     private Long setPersonForObservationFlow(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException
     {
-        try
-        {
             if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
             {
                 return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
@@ -154,11 +152,6 @@ public class PersonUtil {
             {
                 throw new IllegalArgumentException("Expected a valid person type: " + personType);
             }
-        }
-        catch (Exception rex)
-        {
-            throw new DataProcessingException(rex.getMessage(), rex);
-        }
     }
 
 
