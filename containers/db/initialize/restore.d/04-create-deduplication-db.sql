@@ -37,3 +37,11 @@ CREATE TABLE match_candidates (
   mpi_person_id uniqueidentifier
 );
 GO
+
+CREATE TABLE deduplication_status (
+   job_name VARCHAR(255) PRIMARY KEY,  -- This can be used to track specific job statuses
+   last_processed_id BIGINT,           -- Tracks the last processed ID
+   status VARCHAR(1),                  -- Status: 'P' for processed, 'F' for failed, 'N' for not processed
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+GO
