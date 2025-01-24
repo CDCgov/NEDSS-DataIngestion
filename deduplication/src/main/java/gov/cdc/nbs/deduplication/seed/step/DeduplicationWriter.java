@@ -1,10 +1,8 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
-import gov.cdc.nbs.deduplication.seed.service.FailedStatusUpdaterService;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -30,14 +28,11 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     """;
 
   private final NamedParameterJdbcTemplate template;
-  private final FailedStatusUpdaterService failedStatusUpdaterService;
 
   public DeduplicationWriter(
-          @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate template,
-          FailedStatusUpdaterService failedStatusUpdaterService
+          NamedParameterJdbcTemplate template
   ) {
     this.template = template;
-    this.failedStatusUpdaterService = failedStatusUpdaterService;
   }
 
   @Override
@@ -61,9 +56,9 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     // Update the last processed ID
     updateLastProcessedId(lastProcessedId);
 
-    // Update failed statuses using the service
     if (!failedPersonIds.isEmpty()) {
-      failedStatusUpdaterService.updateFailedStatus(failedPersonIds);
+      // For now, just print them
+      System.out.println("Failed person IDs: " + failedPersonIds);
     }
   }
 
@@ -87,7 +82,7 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     template.update(query, params);
   }
 
-  private SqlParameterSource createParameterSource(DeduplicationEntry entry) {
+  public SqlParameterSource createParameterSource(DeduplicationEntry entry) {
     return new MapSqlParameterSource()
             .addValue("person_uid", entry.nbsPersonId())
             .addValue("person_parent_uid", entry.nbsPersonParentId())

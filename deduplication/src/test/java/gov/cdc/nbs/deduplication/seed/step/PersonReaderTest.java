@@ -30,8 +30,10 @@ class PersonReaderTest {
     when(dataSource.getConnection()).thenReturn(connection);
     when(connection.getMetaData()).thenReturn(metadata);
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
+    String lastProcessedID = "100";
 
-    final PersonReader reader = new PersonReader(dataSource);
+    final PersonReader reader = new PersonReader(dataSource, lastProcessedID);
+
     assertThat(reader).isNotNull();
   }
 
