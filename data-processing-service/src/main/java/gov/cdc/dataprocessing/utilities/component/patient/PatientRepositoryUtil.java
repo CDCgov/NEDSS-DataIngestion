@@ -24,7 +24,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceReposit
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.model.PersonEthnicUpdate;
@@ -79,6 +79,7 @@ public class PatientRepositoryUtil {
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
+    private final PatientRepositoryUtilJdbc patientRepositoryUtilJdbc;
 
     private static final String ERROR_DELETE_MSG = "Error Delete Patient Entity: ";
     private static final String ERROR_UPDATE_MSG = "Error Updating Existing Patient Entity: ";
@@ -93,7 +94,7 @@ public class PatientRepositoryUtil {
             EntityIdRepository entityIdRepository,
             RoleRepository roleRepository,
             IOdseIdGeneratorWCacheService odseIdGeneratorService1,
-            IEntityLocatorParticipationService entityLocatorParticipationService) {
+            IEntityLocatorParticipationService entityLocatorParticipationService, PatientRepositoryUtilJdbc patientRepositoryUtilJdbc) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -103,6 +104,7 @@ public class PatientRepositoryUtil {
         this.roleRepository = roleRepository;
         this.odseIdGeneratorService = odseIdGeneratorService1;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
+        this.patientRepositoryUtilJdbc = patientRepositoryUtilJdbc;
     }
 
     @Transactional
@@ -154,8 +156,8 @@ public class PatientRepositoryUtil {
         if (entityIds != null && !entityIds.isEmpty()) {
             entity.setEntityIds(entityIds);
         }
-        entityRepositoryUtil.saveEntity(entity);
-
+//        entityRepositoryUtil.saveEntity(entity);
+        patientRepositoryUtilJdbc.insertEntity(entity);
 
         //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
@@ -184,8 +186,8 @@ public class PatientRepositoryUtil {
         person.setPersonEthnicGroups(personEthnicGroups);
         person.setPersonNames(personNames);
 
-        personRepository.save(person);
-
+//        personRepository.save(person);
+        patientRepositoryUtilJdbc.savePersonWithDetails(person);
         //NOTE: Create Entity Locator Participation
         if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
@@ -293,7 +295,7 @@ public class PatientRepositoryUtil {
         PersonContainer personContainer = new PersonContainer();
 
         PersonDto personDto = null;
-        var personResult = personRepository.findById(personUid);
+        var personResult = patientRepositoryUtilJdbc.findById(personUid);
         if (personResult.isPresent()) {
             personDto = new PersonDto(personResult.get());
             personDto.setItDirty(false);

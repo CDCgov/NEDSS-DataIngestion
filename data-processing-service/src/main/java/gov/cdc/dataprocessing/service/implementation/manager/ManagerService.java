@@ -35,6 +35,7 @@ import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
+import gov.cdc.dataprocessing.utilities.component.nbs_interface.NbsInterfaceReposUtilJdbc;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,8 @@ public class ManagerService implements IManagerService {
 
     private final KafkaManagerProducer kafkaManagerProducer;
 
+    private final NbsInterfaceReposUtilJdbc nbsInterfaceReposUtilJdbc;
+
     private final IManagerAggregationService managerAggregationService;
     private final ILabReportProcessing labReportProcessing;
     private final IPageService pageService;
@@ -105,7 +108,7 @@ public class ManagerService implements IManagerService {
                           NbsInterfaceRepository nbsInterfaceRepository,
                           IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
-                          KafkaManagerProducer kafkaManagerProducer,
+                          KafkaManagerProducer kafkaManagerProducer, NbsInterfaceReposUtilJdbc nbsInterfaceReposUtilJdbc,
                           IManagerAggregationService managerAggregationService,
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
@@ -119,6 +122,7 @@ public class ManagerService implements IManagerService {
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
+        this.nbsInterfaceReposUtilJdbc = nbsInterfaceReposUtilJdbc;
         this.managerAggregationService = managerAggregationService;
         this.labReportProcessing = labReportProcessing;
         this.pageService = pageService;
@@ -136,7 +140,6 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
@@ -146,25 +149,25 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
-            var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
+            var res = nbsInterfaceReposUtilJdbc.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
             if (res.isPresent()) {
                 nbsInterfaceModel = res.get();
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
 
-            synchronized (PropertyUtilCache.class) {
-                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
-                    if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
-                        PropertyUtilCache.kafkaFailedCheckStep2 = 0;
-                    }
-                    ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
-
-                    kafkaFailedCheck = true;
-                    logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
-                    return;
-                }
-            }
+//            synchronized (PropertyUtilCache.class) {
+//                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
+//                    if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
+//                        PropertyUtilCache.kafkaFailedCheckStep2 = 0;
+//                    }
+//                    ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
+//
+//                    kafkaFailedCheck = true;
+//                    logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
+//                    return;
+//                }
+//            }
 
 
             if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
@@ -199,7 +202,7 @@ public class ManagerService implements IManagerService {
             trackerView.setPatientLastName(patLastName);
 
             nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-            nbsInterfaceRepository.save(nbsInterfaceModel);
+//            nbsInterfaceRepository.save(nbsInterfaceModel);
 
             PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
@@ -221,12 +224,14 @@ public class ManagerService implements IManagerService {
                 }
             }
 
+//
+//            String trackerString = GSON.toJson(trackerView);
+//            kafkaManagerProducer.sendDataActionTracker(trackerString);
 
-            String trackerString = GSON.toJson(trackerView);
-            kafkaManagerProducer.sendDataActionTracker(trackerString);
+//            String jsonString = GSON.toJson(phcContainer);
+//            kafkaManagerProducer.sendDataLabHandling(jsonString);
 
-            String jsonString = GSON.toJson(phcContainer);
-            kafkaManagerProducer.sendDataLabHandling(jsonString);
+            this.initiatingLabProcessing(phcContainer);
 
         } catch (Exception e) {
             logger.error("STEP 2 ERROR: {}", e.getMessage());
@@ -251,7 +256,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
+//    @Transactional
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
@@ -259,26 +264,26 @@ public class ManagerService implements IManagerService {
         try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
-            var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
+            var res = nbsInterfaceReposUtilJdbc.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
             if (res.isPresent()) {
                 nbsInterfaceModel = res.get();
             } else {
                 throw new DataProcessingException("NBS Interface Data Not Exist");
             }
 
-            synchronized (PropertyUtilCache.class)
-            {
-                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
-                    if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
-                        PropertyUtilCache.kafkaFailedCheckStep3 = 0;
-                    }
-                    ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
-
-                    kafkaFailedCheck = true;
-                    logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
-                    return;
-                }
-            }
+//            synchronized (PropertyUtilCache.class)
+//            {
+//                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
+//                    if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
+//                        PropertyUtilCache.kafkaFailedCheckStep3 = 0;
+//                    }
+//                    ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
+//
+//                    kafkaFailedCheck = true;
+//                    logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
+//                    return;
+//                }
+//            }
 
 
             PageActProxyContainer pageActProxyContainer = null;
@@ -414,7 +419,8 @@ public class ManagerService implements IManagerService {
         boolean kafkaFailedCheck = false;
         try {
 
-            var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
+//            var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
+            var obj = nbsInterfaceReposUtilJdbc.findByNbsInterfaceUid(data);
             if (obj.isPresent()) {
                 nbsInterfaceModel = obj.get();
             } else {
@@ -501,8 +507,9 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            String jsonString = GSON.toJson(phcContainer);
-            kafkaManagerProducer.sendDataPhc(jsonString);
+//            String jsonString = GSON.toJson(phcContainer);
+//            kafkaManagerProducer.sendDataPhc(jsonString);
+            this.initiatingInvestigationAndPublicHealthCase(phcContainer);
             logger.info("Completed 1st Step");
 
             //return result;

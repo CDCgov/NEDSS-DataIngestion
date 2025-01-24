@@ -60,9 +60,9 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: 200
+      maximum-pool-size: 20
       connection-timeout: 300000
-      minimum-idle: 100
+      minimum-idle: 10
       idle-timeout: 120000
       max-lifetime: 1200000
       pool-name: SQLServerHikariCP
@@ -82,7 +82,7 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    partition: 100
+    partition: 10
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
