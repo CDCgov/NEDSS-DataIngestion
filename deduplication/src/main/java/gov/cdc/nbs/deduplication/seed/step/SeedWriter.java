@@ -10,6 +10,7 @@ import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -142,7 +143,8 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                     ) AS drivers_license
                 ) AS nested
         WHERE
-            p.person_parent_uid IN (:ids);
+            p.person_parent_uid IN (:ids)
+            AND p.person_uid > :lastProcessedId;
         """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -150,21 +152,25 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
 
+  private final Long lastProcessedId;
+
   public SeedWriter(
-      @Qualifier("nbsTemplate") JdbcTemplate template,
-      ObjectMapper objectMapper,
-      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient) {
+          @Qualifier("nbsTemplate") JdbcTemplate template,
+          ObjectMapper objectMapper,
+          @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient,
+          @Value("${lastProcessedId:0}") Long lastProcessedId) {
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(template);
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
+    this.lastProcessedId = lastProcessedId;
   }
 
   @Override
   public void write(Chunk<? extends NbsPerson> chunk) throws Exception {
     // Extract person_parent_uids from the chunk
     List<String> personParentUids = chunk.getItems().stream()
-        .map(NbsPerson::personParentUid)
-        .toList();
+            .map(NbsPerson::personParentUid)
+            .toList();
 
     List<Cluster> clusters = fetchClusters(personParentUids);
 
@@ -173,29 +179,31 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
     String requestJson = objectMapper.writeValueAsString(request);
 
     recordLinkageClient.post()
-        .uri("/seed")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(requestJson)
-        .retrieve()
-        .body(MpiResponse.class);
+            .uri("/seed")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(requestJson)
+            .retrieve()
+            .body(MpiResponse.class);
   }
 
   private List<Cluster> fetchClusters(List<String> personParentUids) {
     // fetch all cluster data for the current batch of person_parent_uids
     List<MpiPerson> clusterEntries = namedParameterJdbcTemplate.query(
-        CLUSTER_QUERY,
-        new MapSqlParameterSource("ids", personParentUids),
-        mapper);
+            CLUSTER_QUERY,
+            new MapSqlParameterSource()
+                    .addValue("ids", personParentUids)
+                    .addValue("lastProcessedId", lastProcessedId),  // Pass lastProcessedId to the query
+            mapper);
 
     Map<String, List<MpiPerson>> clusterDataMap = clusterEntries.stream()
-        .collect(Collectors.groupingBy(MpiPerson::parent_id));
+            .collect(Collectors.groupingBy(MpiPerson::parent_id));
 
     return personParentUids.stream()
-        .map(personParentUid -> new Cluster(
-            clusterDataMap.get(personParentUid),
-            personParentUid
-        ))
-        .toList();
+            .map(personParentUid -> new Cluster(
+                    clusterDataMap.get(personParentUid),
+                    personParentUid
+            ))
+            .toList();
   }
 }
