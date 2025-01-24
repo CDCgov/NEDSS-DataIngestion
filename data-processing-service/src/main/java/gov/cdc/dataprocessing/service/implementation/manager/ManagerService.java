@@ -454,7 +454,7 @@ public class ManagerService implements IManagerService {
 
 
             // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
-            managerAggregationService.serviceAggregationAsync(labResultProxyContainer, edxLabInformationDto);
+            managerAggregationService.serviceAggregation(labResultProxyContainer, edxLabInformationDto);
 
 
             // Hit when Obs is matched

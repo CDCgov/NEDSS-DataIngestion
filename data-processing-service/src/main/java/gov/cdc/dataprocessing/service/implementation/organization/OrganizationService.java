@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.organization;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
@@ -10,6 +11,7 @@ import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationServi
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -48,11 +50,11 @@ public class OrganizationService implements IOrganizationService {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
         this.uidService = uidService;
     }
+    @Transactional
     @SuppressWarnings("java:S3776")
-    public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException {
+    public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException, DataProcessingException {
 
         OrganizationContainer orderingFacilityVO = null;
-        try {
             Collection<OrganizationContainer> orgColl = labResultProxyContainer.getTheOrganizationContainerCollection();
             if (orgColl != null && !orgColl.isEmpty()) {
                 for (OrganizationContainer organizationContainer : orgColl) {
@@ -83,9 +85,7 @@ public class OrganizationService implements IOrganizationService {
                 }
             }
             return orderingFacilityVO;
-        } catch (Exception e) {
-            throw new DataProcessingConsumerException(e.getMessage(), e);
-        }
+
     }
 
 }

@@ -348,12 +348,6 @@ public class Person  {
     @OneToMany(mappedBy = "person",  cascade = CascadeType.ALL,  fetch = FetchType.EAGER, orphanRemoval = true)
     private List<PersonEthnicGroup> personEthnicGroups;
 
-//    @ManyToOne
-//    @JoinColumn(name = "person_uid", referencedColumnName = "entity_uid",
-//            insertable = false,
-//            updatable = false)
-//    private EntityODSE entity;
-
     // Constructors, getters, and setters
     public Person() {
 

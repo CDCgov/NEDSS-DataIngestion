@@ -120,35 +120,9 @@ public class ManagerAggregationService implements IManagerAggregationService {
         OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
-        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-        personAggContainer =  patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-        organizationContainer= organizationService.processingOrganization(labResult);
-        roleAggregation(labResult);
-        progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-    }
-
-    @Transactional
-    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException {
-        PersonAggContainer personAggContainer;
-        OrganizationContainer organizationContainer;
-        Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
-        Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
         observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
         personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-
-        Map<Long, Long> patientCount = personContainerCollection.stream()
-                .collect(Collectors.groupingBy(
-                        pc -> pc.getThePersonDto().getPersonUid(),
-                        Collectors.counting()
-                ));
-        long repetitiveCount = patientCount.entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .count();
-        if (repetitiveCount > 0) {
-            logger.info("CRITICAL, multiple repetitive uid found. {}", repetitiveCount);
-        }
 
         organizationContainer = organizationService.processingOrganization(labResult);
 
@@ -235,41 +209,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
             }
         }
 
-//        return CompletableFuture.runAsync(() -> {
-//            // Pulling Jurisdiction and Program from OBS
-//            ObservationContainer observationRequest = null;
-//            Collection<ObservationContainer> observationResults = new ArrayList<>();
-//            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-//                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
-//
-//                // Observation hit this is originated from Observation Result
-//                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-//                    observationResults.add(obsVO);
-//                }
-//
-//                // Observation hit is originated from Observation Request (ROOT)
-//                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
-//                    observationRequest = obsVO;
-//                }
-//            }
-//
-//            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-//                try {
-//                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-//                } catch (DataProcessingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-//                try {
-//                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-//                            organizationContainer, observationRequest);
-//                } catch (DataProcessingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        });
     }
 
     @SuppressWarnings("java:S3776")

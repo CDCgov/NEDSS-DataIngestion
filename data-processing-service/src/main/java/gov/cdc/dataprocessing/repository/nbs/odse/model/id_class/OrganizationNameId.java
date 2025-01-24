@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -32,4 +33,20 @@ import java.io.Serializable;
 public class OrganizationNameId implements Serializable {
     private Long organizationUid;
     private int organizationNameSeq;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrganizationNameId that = (OrganizationNameId) o;
+        return Objects.equals(organizationUid, that.organizationUid) &&
+                Objects.equals(organizationNameSeq, that.organizationNameSeq);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(organizationUid, organizationNameSeq);
+    }
+
+
 }
