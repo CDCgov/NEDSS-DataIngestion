@@ -45,7 +45,7 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
         .addValue("person_parent_uid", entry.nbsPersonParentId())
         .addValue("mpi_patient", entry.mpiPatientId())
         .addValue("mpi_person", entry.mpiPersonId())
-        .addValue("status", "U");
+        .addValue("status", "P");
   }
 
 }

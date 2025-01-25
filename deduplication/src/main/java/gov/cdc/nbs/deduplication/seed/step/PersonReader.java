@@ -31,6 +31,8 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
     if (lastProcessedId != null && lastProcessedId > 0) {
       whereClause += " AND person_uid > " + lastProcessedId;
+    } else {
+      whereClause += " AND person_uid > 0";
     }
 
     provider.setWhereClause(whereClause);

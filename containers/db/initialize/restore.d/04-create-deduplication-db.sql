@@ -7,6 +7,14 @@ GO
 USE [deduplication];
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'last_processed_id')
+BEGIN
+CREATE TABLE last_processed_id (
+          id BIGINT PRIMARY KEY,
+          last_processed_id BIGINT
+);
+END
+GO
 
 CREATE TABLE data_element_configuration (
 	id int IDENTITY (1,1) PRIMARY KEY,
@@ -35,12 +43,5 @@ CREATE TABLE match_candidates (
   id bigint IDENTITY(1,1),
   person_uid bigint,
   mpi_person_id uniqueidentifier
-);
-GO
-
-CREATE TABLE seed_status (
-   job_name VARCHAR(255) PRIMARY KEY,  -- This can be used to track specific job statuses for seeding it is 'seed-job'
-   last_processed_id BIGINT,           -- Tracks the last processed ID
-   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 GO

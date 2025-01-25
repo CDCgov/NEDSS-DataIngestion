@@ -46,6 +46,7 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
             nested.race
         FROM
             person p WITH (NOLOCK)
+            LEFT JOIN deduplication.dbo.nbs_mpi_mapping m ON p.person_uid = m.person_uid
             OUTER apply (
                 SELECT
                     *
@@ -144,14 +145,20 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                 ) AS nested
         WHERE
             p.person_parent_uid IN (:ids)
-            AND p.person_uid > :lastProcessedId;
+            AND p.person_uid > :lastProcessedId
+            AND (m.status != 'P' OR m.status IS NULL);
         """;
+  private static final String UPDATE_LAST_PROCESSED_ID_QUERY = """
+    UPDATE last_processed_id_table
+    SET last_processed_id = :lastProcessedId
+    WHERE some_condition;
+""";
+
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final MpiPersonMapper mapper = new MpiPersonMapper();
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
-
   private final Long lastProcessedId;
 
   public SeedWriter(
@@ -187,14 +194,16 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
             .body(MpiResponse.class);
   }
 
+
   private List<Cluster> fetchClusters(List<String> personParentUids) {
     // fetch all cluster data for the current batch of person_parent_uids
     List<MpiPerson> clusterEntries = namedParameterJdbcTemplate.query(
             CLUSTER_QUERY,
             new MapSqlParameterSource()
                     .addValue("ids", personParentUids)
-                    .addValue("lastProcessedId", lastProcessedId),  // Pass lastProcessedId to the query
+                    .addValue("lastProcessedId", lastProcessedId),
             mapper);
+
 
     Map<String, List<MpiPerson>> clusterDataMap = clusterEntries.stream()
             .collect(Collectors.groupingBy(MpiPerson::parent_id));
