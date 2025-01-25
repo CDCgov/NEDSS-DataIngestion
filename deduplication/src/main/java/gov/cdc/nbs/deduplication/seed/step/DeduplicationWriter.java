@@ -43,31 +43,27 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
   @Override
   public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
     List<SqlParameterSource> batchParams = new ArrayList<>();
-    Long lastProcessedId = null;  // To track the last processed ID in this batch
+    Long largestProcessedId = null;
 
-    // Iterate through the chunk of items
     for (DeduplicationEntry entry : chunk.getItems()) {
       batchParams.add(createParameterSource(entry));
-      // Track the last ID in the chunk (you could adjust this logic based on the clustering query result)
-      lastProcessedId = entry.nbsPersonId();  // Assuming nbsPersonId() is the ID you're using for clustering
+      if (largestProcessedId == null || entry.nbsPersonId() > largestProcessedId) {
+        largestProcessedId = entry.nbsPersonId();
+      }
     }
 
-    // Insert the batch into nbs_mpi_mapping
     template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
 
-    // After processing the batch, update the lastProcessedId in the database
-    if (lastProcessedId != null) {
-      updateLastProcessedId(lastProcessedId);  // Use the last ID from the chunk
+    if (largestProcessedId != null) {
+      updateLastProcessedId(largestProcessedId);
     }
   }
-
 
   private void updateLastProcessedId(Long lastProcessedId) {
     SqlParameterSource params = new MapSqlParameterSource()
             .addValue("lastProcessedId", lastProcessedId);
 
     try {
-      // Assuming the last_processed_id table has one record (id = 1)
       template.update(UPDATE_LAST_PROCESSED_ID, params);
       logger.info("Successfully updated last_processed_id to: {}", lastProcessedId);
     } catch (Exception e) {

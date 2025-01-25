@@ -27,15 +27,18 @@ public class LastProcessedIdListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             Long lastProcessedId = jobExecution.getJobParameters().getLong("lastProcessedId");
-            System.out.println("After Job - Last processed ID: " + lastProcessedId);  // Log the value
+
+            // Log for debugging purposes
+            System.out.println("After job completion, lastProcessedId: " + lastProcessedId);
 
             if (lastProcessedId != null) {
-                String updateSql = "UPDATE last_processed_id SET last_processed_id = :lastProcessedId where id =1";
+                // Update the last_processed_id with the last processed ID
+                String updateSql = "UPDATE last_processed_id SET last_processed_id = :lastProcessedId WHERE id = 1";
                 Map<String, Object> params = new HashMap<>();
                 params.put("lastProcessedId", lastProcessedId);
 
                 int rowsUpdated = deduplicationNamedJdbcTemplate.update(updateSql, params);
-                System.out.println("Rows updated: " + rowsUpdated);  // Log number of rows affected
+                System.out.println("Rows updated: " + rowsUpdated);
                 System.out.println("Successfully updated last_processed_id to: " + lastProcessedId);
             } else {
                 System.err.println("Job completed, but no lastProcessedId found in job parameters.");

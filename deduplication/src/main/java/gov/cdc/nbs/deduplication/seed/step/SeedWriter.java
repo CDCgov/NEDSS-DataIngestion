@@ -198,7 +198,6 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                     .addValue("lastProcessedId", lastProcessedId),
             mapper);
 
-
     Map<String, List<MpiPerson>> clusterDataMap = clusterEntries.stream()
             .collect(Collectors.groupingBy(MpiPerson::parent_id));
 
