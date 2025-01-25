@@ -148,12 +148,6 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
             AND p.person_uid > :lastProcessedId
             AND (m.status != 'P' OR m.status IS NULL);
         """;
-  private static final String UPDATE_LAST_PROCESSED_ID_QUERY = """
-    UPDATE last_processed_id_table
-    SET last_processed_id = :lastProcessedId
-    WHERE some_condition;
-""";
-
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final MpiPersonMapper mapper = new MpiPersonMapper();

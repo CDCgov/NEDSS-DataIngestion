@@ -39,41 +39,40 @@ public class SeedController {
   }
 
   @PostMapping
-  public void startSeed() throws JobExecutionAlreadyRunningException,
-          JobRestartException,
-          JobInstanceAlreadyCompleteException,
-          JobParametersInvalidException {
-
-    // Query the last_processed_id table to get the last processed ID
-    String sql = "SELECT last_processed_id FROM last_processed_id";
+  public void startSeed() throws Exception {
+    // After the first run, this should retrieve the last processed ID from the previous clustering
+    String sql = "SELECT last_processed_id FROM last_processed_id WHERE id = 1";
     Long lastProcessedId = null;
 
     try {
-      System.out.println("Running SQL: " + sql);
       lastProcessedId = deduplicationNamedJdbcTemplate.queryForObject(sql, new HashMap<>(), Long.class);
+      System.out.println("Last processed ID from DB: " + lastProcessedId);
     } catch (Exception e) {
       System.out.println("No record found in last_processed_id table.");
     }
 
-    // If lastProcessedId is null (first-time seeding), fetch the smallest person ID from the nbs.person table
     if (lastProcessedId == null) {
       String smallestIdSql = "SELECT MIN(person_uid) FROM person";
       try {
-        System.out.println("Fetching smallest person ID from person table: " + smallestIdSql);
         lastProcessedId = nbsNamedJdbcTemplate.queryForObject(smallestIdSql, new HashMap<>(), Long.class);
+        if (lastProcessedId == null) {
+          throw new IllegalStateException("No records found in the NBS database.");
+        }
       } catch (Exception e) {
         System.err.println("Error fetching smallest person ID: " + e.getMessage());
         throw new IllegalStateException("Could not retrieve the smallest person ID from the nbs.person table.", e);
       }
     }
 
-    // Add lastProcessedId to job parameters
+    // Log job parameters before starting
+    System.out.println("Starting job with lastProcessedId: " + lastProcessedId);
+
     JobParameters parameters = new JobParametersBuilder()
             .addLong("startTime", System.currentTimeMillis())
             .addLong("lastProcessedId", lastProcessedId)
             .toJobParameters();
 
-    // Run the seed job with the parameters
     launcher.run(seedJob, parameters);
   }
+
 }
