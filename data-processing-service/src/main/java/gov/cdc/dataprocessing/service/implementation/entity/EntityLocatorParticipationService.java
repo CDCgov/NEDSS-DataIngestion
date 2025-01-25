@@ -14,11 +14,12 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRep
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -136,16 +137,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                                     logger.info("DELETE OPS ERROR");
                                 }
                             }
-//                            else if (comparingStrList.contains(comparingString.toString().toUpperCase()) && birCheck.isEmpty() &&
-//                                    mprEntityHomeCheck.size() > 1) {
-//                                try {
-//                                    postalLocatorRepository.updatePostalStatus(mpr.getPostalLocatorUid(), "INACTIVE");
-//                                    entityLocatorParticipationRepository.updateLocatorStatus(parentUid, mpr.getPostalLocatorUid(),
-//                                            "INACTIVE", "I");
-//                                } catch (Exception e) {
-//                                    logger.info("DELETE OPS ERROR");
-//                                }
-//                            }
                         }
                     }
                 }
@@ -153,7 +144,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
 
             for(var deleteRevision: deletePostal) {
-
                 if (deleteRevision.getUseCd().equalsIgnoreCase("BIR")) {
                     try {
                         postalLocatorRepository.deletePostalLocatorById(deleteRevision.getLocatorUid());
@@ -162,16 +152,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                         logger.info("DELETE OPS ERROR");
                     }
                 }
-//                else if (mprEntityHomeCheck.size() > 1) {
-//                    try {
-//                        postalLocatorRepository.updatePostalStatus(deleteRevision.getLocatorUid(), "INACTIVE");
-//                        entityLocatorParticipationRepository.updateLocatorStatus(deleteRevision.getEntityUid(), deleteRevision.getLocatorUid(),
-//                                "INACTIVE", "I");
-//                    } catch (Exception e) {
-//                        logger.info("DELETE OPS ERROR");
-//                    }
-//                }
-
             }
         }
 
@@ -180,7 +160,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
     public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
         var uid = patientUid;
@@ -410,44 +389,39 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         }
     }
 
-    @Transactional
     public void createEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto>  personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
-        try {
-            for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
-                boolean inserted = false;
-                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
-                if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
-                    entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                    physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
-                    inserted = true;
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
-                        && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-                ) {
-                    entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                    postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
-                    inserted = true;
-                } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
-                        && entityLocatorParticipationDto.getTheTeleLocatorDto() != null
-                && entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt() != null) {
-                    entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                    teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
-                    inserted = true;
-                }
-
-                if (inserted) {
-                    entityLocatorParticipationDto.setEntityUid(uid);
-                    entityLocatorParticipationDto.setLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-
-                    if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
-                        entityLocatorParticipationDto.setVersionCtrlNbr(1);
-                    }
-                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
-                }
-
+        for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
+            boolean inserted = false;
+            var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+            if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
+                entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
+                physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
+                inserted = true;
+            } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
+                    && entityLocatorParticipationDto.getThePostalLocatorDto() != null
+            ) {
+                entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
+                postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+                inserted = true;
+            } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
+                    && entityLocatorParticipationDto.getTheTeleLocatorDto() != null
+                    && entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt() != null) {
+                entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
+                teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
+                inserted = true;
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+
+            if (inserted) {
+                entityLocatorParticipationDto.setEntityUid(uid);
+                entityLocatorParticipationDto.setLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
+
+                if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
+                    entityLocatorParticipationDto.setVersionCtrlNbr(1);
+                }
+                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
+            }
+
         }
     }
 

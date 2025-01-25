@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -65,29 +67,26 @@ public class PersonService implements IPersonService {
         this.uidService = uidService;
     }
 
-    @Transactional
-    public PersonContainer processingNextOfKin(LabResultProxyContainer labResultProxyContainer, PersonContainer personContainer) throws DataProcessingException {
-        try {
-            long falseUid = personContainer.thePersonDto.getPersonUid();
-            nokMatchingService.getMatchingNextOfKin(personContainer);
+    
+    public PersonContainer processingNextOfKin(LabResultProxyContainer labResultProxyContainer, PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
+        long falseUid = personContainer.thePersonDto.getPersonUid();
+        nokMatchingService.getMatchingNextOfKin(personContainer);
 
-            if (personContainer.getThePersonDto().getPersonUid() != null) {
+        if (personContainer.getThePersonDto().getPersonUid() != null) {
 
-                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, personContainer.getThePersonDto().getPersonUid());
-                personContainer.setItNew(false);
-                personContainer.setItDirty(false);
-                personContainer.getThePersonDto().setItNew(false);
-                personContainer.getThePersonDto().setItDirty(false);
+            uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, personContainer.getThePersonDto().getPersonUid());
+            personContainer.setItNew(false);
+            personContainer.setItDirty(false);
+            personContainer.getThePersonDto().setItNew(false);
+            personContainer.getThePersonDto().setItDirty(false);
 
-            }
-            return personContainer;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
+        return personContainer;
+
     }
 
-    @Transactional
-    public PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingException {
+    
+    public PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
         long falseUid = personContainer.thePersonDto.getPersonUid();
         Long personUid;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
@@ -133,39 +132,36 @@ public class PersonService implements IPersonService {
         return personContainer;
     }
 
-    @Transactional
+    
     public PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingException {
-        try {
-            long falseUid = personContainer.thePersonDto.getPersonUid();
-
-            if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
-                orderingProviderIndicator = true;
-            }
-
-            personContainer.setRole(EdxELRConstant.ELR_PROV_CD);
-            EDXActivityDetailLogDto eDXActivityDetailLogDto;
-            eDXActivityDetailLogDto = providerMatchingService.getMatchingProvider(personContainer);
-            String personUId;
-            personUId = eDXActivityDetailLogDto.getRecordId();
-            if (personUId != null) {
-                long uid = Long.parseLong(personUId);
-                uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid,uid);
-                personContainer.setItNew(false);
-                personContainer.setItDirty(false);
-                personContainer.getThePersonDto().setItNew(false);
-                personContainer.getThePersonDto().setItDirty(false);
-            }
-            if (orderingProviderIndicator)
-            {
-                edxLabInformationDto.setProvider(true);
-                return personContainer;
-            }
-
-        } catch (Exception e) {
-            edxLabInformationDto.setProvider(false);
-            throw new DataProcessingException(e.getMessage(), e);
+        long falseUid = personContainer.thePersonDto.getPersonUid();
+        if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
+            orderingProviderIndicator = true;
         }
-        return null;
+
+        personContainer.setRole(EdxELRConstant.ELR_PROV_CD);
+        EDXActivityDetailLogDto eDXActivityDetailLogDto;
+        eDXActivityDetailLogDto = providerMatchingService.getMatchingProvider(personContainer);
+        String personUId;
+        personUId = eDXActivityDetailLogDto.getRecordId();
+        if (personUId != null) {
+            long uid = Long.parseLong(personUId);
+            uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid,uid);
+            personContainer.setItNew(false);
+            personContainer.setItDirty(false);
+            personContainer.getThePersonDto().setItNew(false);
+            personContainer.getThePersonDto().setItDirty(false);
+        }
+        if (orderingProviderIndicator)
+        {
+            edxLabInformationDto.setProvider(true);
+            return personContainer;
+        }
+        else {
+            edxLabInformationDto.setProvider(false);
+            return null;
+        }
+
     }
 
     private PersonNameDto parsingPersonName(PersonContainer personContainer) throws DataProcessingException {

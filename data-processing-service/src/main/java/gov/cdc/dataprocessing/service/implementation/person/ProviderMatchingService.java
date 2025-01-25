@@ -63,7 +63,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
 
     @SuppressWarnings("java:S3776")
 
-    @Transactional
+    
     public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
         Collection<EdxEntityMatchDto> coll = new ArrayList<>();
@@ -79,20 +79,15 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         if (localId != null) {
             localId = localId.toUpperCase();
             localIdhshCd = localId.hashCode();
-            try {
-                // Try to get the matching with the match string
-                EdxEntityMatchDto edxEntityMatchingDT = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, localId);
-                if (edxEntityMatchingDT != null && edxEntityMatchingDT.getEntityUid() != null) {
-                    edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
-                    edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
-                    edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
-                    edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-                    return edxActivityDetailLogDto;
-                }
-            } catch (Exception ex) {
-                logger.error(LOG_ERROR_MATCHING_PROVIDER);
-                throw new DataProcessingException(LOG_ERROR_MATCHING_PROVIDER + ex.getMessage(), ex);
+            // Try to get the matching with the match string
+            EdxEntityMatchDto edxEntityMatchingDT = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, localId);
+            if (edxEntityMatchingDT != null && edxEntityMatchingDT.getEntityUid() != null) {
+                edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
+                edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
+                edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
+                edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
+                edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+                return edxActivityDetailLogDto;
             }
         }
 

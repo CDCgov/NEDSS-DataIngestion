@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -85,7 +87,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     }
 
     public Object autoCreateInvestigation(ObservationContainer observationVO,
-                                          EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+                                          EdxLabInformationDto edxLabInformationDT) throws DataProcessingException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
         PageActProxyContainer pageActProxyContainer = null;
         PamProxyContainer pamProxyVO = null;
         PublicHealthCaseContainer phcVO= createPublicHealthCaseVO(observationVO, edxLabInformationDT);
@@ -123,21 +125,17 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             pageActProxyContainer.setPageVO(new BasePamContainer());
             populateProxyFromPrePopMapping(pageActProxyContainer, edxLabInformationDT);
         }
-        try {
-            Object obj;
+        Object obj;
 
-            if(pageActProxyContainer !=null)
-            {
-                obj= pageActProxyContainer;
-            }
-            else
-            {
-                obj=pamProxyVO;
-            }
-            return obj;
-        } catch (Exception e) {
-            throw new DataProcessingException("AutoInvestigationHandler-autoCreateInvestigation NEDSSSystemException raised"+e);
+        if(pageActProxyContainer !=null)
+        {
+            obj= pageActProxyContainer;
         }
+        else
+        {
+            obj=pamProxyVO;
+        }
+        return obj;
 
     }
 
@@ -147,131 +145,127 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                              ObservationContainer rootObservationVO,
                                              Collection<Object> entities,
                                              Map<Object, Object> questionIdentifierMap) throws DataProcessingException{
-        try {
-            PersonContainer patientVO;
-            boolean isOrgAsReporterOfPHCPartDT=false;
-            boolean isPhysicianOfPHCDT=false;
-            Collection<ParticipationDto> coll = rootObservationVO.getTheParticipationDtoCollection();
-            Collection<ParticipationDto> partColl = new ArrayList<>();
-            Collection<NbsActEntityDto> nbsActEntityDTColl = new ArrayList<>();
-            long personUid;
-            if(pageActProxyContainer !=null)
-                personUid= pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()-1;
-            else{
-                personUid=pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()-1;
-            }
-            if(personVOCollection!=null){
-                for (PersonContainer personVO : personVOCollection) {
-                    if (personVO.getThePersonDto().getCd().equals("PAT")) {
-                        patientVO = personVO;
-                        patientVO.getThePersonDto().setPersonUid(personUid);
-                        Collection<PersonContainer> thePersonVOCollection = new ArrayList<>();
-                        thePersonVOCollection.add(patientVO);
-                        patientVO.setItNew(true);
-                        patientVO.setItDirty(false);
-                        patientVO.getThePersonDto().setItDirty(false);
-                        patientVO.getThePersonDto().setItNew(true);
-                        personVO.getThePersonDto().setElectronicInd(NEDSSConstant.ELECTRONIC_IND);
-                        personVO.getThePersonDto().setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
-                        if (pageActProxyContainer != null)
-                            pageActProxyContainer.setThePersonContainerCollection(thePersonVOCollection);
-                        else {
-                            pamActProxyVO.setThePersonVOCollection(thePersonVOCollection);
-                        }
-                        break;
-                    }
-                }
-            }
-            if(entities!=null && !entities.isEmpty()){
-                for (Object entity : entities) {
-                    EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) entity;
-                    ParticipationDto participationDT = new ParticipationDto();
-                    participationDT.setTypeCd(edxRuleManageDT.getParticipationTypeCode());
-                    participationDT.setSubjectEntityUid(edxRuleManageDT.getParticipationUid());
-                    participationDT.setSubjectClassCd(edxRuleManageDT.getParticipationClassCode());
-                    if (participationDT.getTypeCd().equals("OrgAsReporterOfPHC")) {
-                        isOrgAsReporterOfPHCPartDT = true;
-                    } else if (participationDT.getTypeCd().equals(PHC_PHYSICIAN)) {
-                        isPhysicianOfPHCDT = true;
-                    }
-
-                    createActEntityObject(participationDT, pageActProxyContainer, pamActProxyVO, nbsActEntityDTColl, partColl);
-                }
-            }
-            if(coll!=null){
-
-                for (ParticipationDto partDT : coll) {
-                    boolean createActEntity = false;
-                    String typeCd = partDT.getTypeCd();
-                    if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_AUTHOR_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_ORG) && !isOrgAsReporterOfPHCPartDT) {
-                        createActEntity = true;
-                        partDT.setTypeCd("OrgAsReporterOfPHC");
-                    }
-                    if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
-                        createActEntity = true;
-                        partDT.setTypeCd(PHC_PHYSICIAN);
-                    }
-                    //gst- ND-4326 Physician not getting populated..
-                    if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
-                        createActEntity = true;
-                        partDT.setTypeCd(PHC_PHYSICIAN);
-                    }
-                    //Transfer the ordering facility over if it is on the PageBuilder page
-                    if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) &&
-                            partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_ORG) &&
-                            partDT.getCd().equals(EdxELRConstant.ELR_OP_CD) &&
-                            questionIdentifierMap != null &&
-                            questionIdentifierMap.containsKey("NBS291")) {
-                        createActEntity = true;
-                        partDT.setTypeCd("OrgAsClinicOfPHC");
-                    }
-                    if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_SUBJECT_CD)) {
-                        createActEntity = true;
-                        partDT.setTypeCd("SubjOfPHC");
-                        partDT.setSubjectEntityUid(personUid);
-                    }
-                    if (createActEntity) {
-                        createActEntityObject(partDT, pageActProxyContainer, pamActProxyVO, nbsActEntityDTColl, partColl);
-                    }
-
-                }
-
-            }
-
-            if(pageActProxyContainer !=null){
-                pageActProxyContainer.setTheParticipationDtoCollection(partColl);
-                BasePamContainer pamVO ;
-                if(pageActProxyContainer.getPageVO()!=null)
-                {
-                    pamVO= pageActProxyContainer.getPageVO();
-                }
-                else
-                {
-                    pamVO = new BasePamContainer();
-                }
-                pamVO.setActEntityDTCollection(nbsActEntityDTColl);
-                pageActProxyContainer.setPageVO(pamVO);
-                return pageActProxyContainer;
-            }
-            else{
-                pamActProxyVO.setTheParticipationDTCollection(partColl);
-                BasePamContainer pamVO;
-                if(pamActProxyVO.getPamVO()!=null)
-                {
-                    pamVO=pamActProxyVO.getPamVO();
-                }
-                else
-                {
-                    pamVO = new BasePamContainer();
-                }
-                pamVO.setActEntityDTCollection(nbsActEntityDTColl);
-                pamActProxyVO.setPamVO(pamVO);
-                return pamActProxyVO;
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException("AutoInvestigationHandler-transferValuesTOActProxyVO Exception raised"+e);
+        PersonContainer patientVO;
+        boolean isOrgAsReporterOfPHCPartDT=false;
+        boolean isPhysicianOfPHCDT=false;
+        Collection<ParticipationDto> coll = rootObservationVO.getTheParticipationDtoCollection();
+        Collection<ParticipationDto> partColl = new ArrayList<>();
+        Collection<NbsActEntityDto> nbsActEntityDTColl = new ArrayList<>();
+        long personUid;
+        if(pageActProxyContainer !=null)
+            personUid= pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()-1;
+        else{
+            personUid=pamActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()-1;
         }
+        if(personVOCollection!=null){
+            for (PersonContainer personVO : personVOCollection) {
+                if (personVO.getThePersonDto().getCd().equals("PAT")) {
+                    patientVO = personVO;
+                    patientVO.getThePersonDto().setPersonUid(personUid);
+                    Collection<PersonContainer> thePersonVOCollection = new ArrayList<>();
+                    thePersonVOCollection.add(patientVO);
+                    patientVO.setItNew(true);
+                    patientVO.setItDirty(false);
+                    patientVO.getThePersonDto().setItDirty(false);
+                    patientVO.getThePersonDto().setItNew(true);
+                    personVO.getThePersonDto().setElectronicInd(NEDSSConstant.ELECTRONIC_IND);
+                    personVO.getThePersonDto().setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
+                    if (pageActProxyContainer != null)
+                        pageActProxyContainer.setThePersonContainerCollection(thePersonVOCollection);
+                    else {
+                        pamActProxyVO.setThePersonVOCollection(thePersonVOCollection);
+                    }
+                    break;
+                }
+            }
+        }
+        if(entities!=null && !entities.isEmpty()){
+            for (Object entity : entities) {
+                EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) entity;
+                ParticipationDto participationDT = new ParticipationDto();
+                participationDT.setTypeCd(edxRuleManageDT.getParticipationTypeCode());
+                participationDT.setSubjectEntityUid(edxRuleManageDT.getParticipationUid());
+                participationDT.setSubjectClassCd(edxRuleManageDT.getParticipationClassCode());
+                if (participationDT.getTypeCd().equals("OrgAsReporterOfPHC")) {
+                    isOrgAsReporterOfPHCPartDT = true;
+                } else if (participationDT.getTypeCd().equals(PHC_PHYSICIAN)) {
+                    isPhysicianOfPHCDT = true;
+                }
+
+                createActEntityObject(participationDT, pageActProxyContainer, pamActProxyVO, nbsActEntityDTColl, partColl);
+            }
+        }
+        if(coll!=null){
+
+            for (ParticipationDto partDT : coll) {
+                boolean createActEntity = false;
+                String typeCd = partDT.getTypeCd();
+                if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_AUTHOR_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_ORG) && !isOrgAsReporterOfPHCPartDT) {
+                    createActEntity = true;
+                    partDT.setTypeCd("OrgAsReporterOfPHC");
+                }
+                if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
+                    createActEntity = true;
+                    partDT.setTypeCd(PHC_PHYSICIAN);
+                }
+                //gst- ND-4326 Physician not getting populated..
+                if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) && partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_PERSON_CD) && !isPhysicianOfPHCDT) {
+                    createActEntity = true;
+                    partDT.setTypeCd(PHC_PHYSICIAN);
+                }
+                //Transfer the ordering facility over if it is on the PageBuilder page
+                if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_ORDERER_CD) &&
+                        partDT.getSubjectClassCd().equals(EdxELRConstant.ELR_ORG) &&
+                        partDT.getCd().equals(EdxELRConstant.ELR_OP_CD) &&
+                        questionIdentifierMap != null &&
+                        questionIdentifierMap.containsKey("NBS291")) {
+                    createActEntity = true;
+                    partDT.setTypeCd("OrgAsClinicOfPHC");
+                }
+                if (typeCd.equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_SUBJECT_CD)) {
+                    createActEntity = true;
+                    partDT.setTypeCd("SubjOfPHC");
+                    partDT.setSubjectEntityUid(personUid);
+                }
+                if (createActEntity) {
+                    createActEntityObject(partDT, pageActProxyContainer, pamActProxyVO, nbsActEntityDTColl, partColl);
+                }
+
+            }
+
+        }
+
+        if(pageActProxyContainer !=null){
+            pageActProxyContainer.setTheParticipationDtoCollection(partColl);
+            BasePamContainer pamVO ;
+            if(pageActProxyContainer.getPageVO()!=null)
+            {
+                pamVO= pageActProxyContainer.getPageVO();
+            }
+            else
+            {
+                pamVO = new BasePamContainer();
+            }
+            pamVO.setActEntityDTCollection(nbsActEntityDTColl);
+            pageActProxyContainer.setPageVO(pamVO);
+            return pageActProxyContainer;
+        }
+        else{
+            pamActProxyVO.setTheParticipationDTCollection(partColl);
+            BasePamContainer pamVO;
+            if(pamActProxyVO.getPamVO()!=null)
+            {
+                pamVO=pamActProxyVO.getPamVO();
+            }
+            else
+            {
+                pamVO = new BasePamContainer();
+            }
+            pamVO.setActEntityDTCollection(nbsActEntityDTColl);
+            pamActProxyVO.setPamVO(pamVO);
+            return pamActProxyVO;
+        }
+
     }
 
     private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
@@ -346,90 +340,106 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     @SuppressWarnings("java:S3776")
     protected void populateProxyFromPrePopMapping(PageActProxyContainer pageActProxyContainer,
                                                   EdxLabInformationDto edxLabInformationDT)
-            throws DataProcessingException {
-        try {
-            lookupService.fillPrePopMap();
-            TreeMap<Object, Object> fromPrePopMap =
-                    (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping.get(NEDSSConstant.LAB_FORM_CD);
-            if (fromPrePopMap == null) {
-                fromPrePopMap = new TreeMap<>();
-            }
-            Collection<ObservationContainer> obsCollection = edxLabInformationDT.getLabResultProxyContainer()
-                    .getTheObservationContainerCollection();
-            TreeMap<Object, Object> prePopMap = new TreeMap<>();
-
-            // Begin Dynamic Pre-pop mapping
-
-            for (ObservationContainer obs : obsCollection) {
-                if (obs.getTheObsValueNumericDtoCollection() != null
-                        && !obs.getTheObsValueNumericDtoCollection().isEmpty()
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
-                {
-
-                    List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
-                    String value = obsValueNumList.get(0).getNumericUnitCd() == null
-                            ? String.valueOf(obsValueNumList.get(0).getNumericValue1())
-                            : obsValueNumList.get(0).getNumericValue1() + "^"
-                            + obsValueNumList.get(0).getNumericUnitCd();
-                    prePopMap.put(obs.getTheObservationDto().getCd(), value);
-                }
-                else if (obs.getTheObsValueDateDtoCollection() != null
-                        && !obs.getTheObsValueDateDtoCollection().isEmpty()
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
-                {
-                    List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
-
-                    String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
-                    prePopMap.put(obs.getTheObservationDto().getCd(), value);
-                }
-                else if (obs.getTheObsValueCodedDtoCollection() != null
-                        && !obs.getTheObsValueCodedDtoCollection().isEmpty())
-                {
-
-                    List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
-
-                    String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.get(0).getCode();
-                    if (fromPrePopMap.containsKey(key)) {
-                        prePopMap.put(key, obsValueCodeList.get(0).getCode());
-                    } else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
-                        prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
-                    }
-                }
-                else if (obs.getTheObsValueTxtDtoCollection() != null && !obs.getTheObsValueTxtDtoCollection().isEmpty()
-                        && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
-                {
-                    for (ObsValueTxtDto obsValueTxtDT : obs.getTheObsValueTxtDtoCollection()) {
-                        if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
-                                || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
-                            prePopMap.put(obs.getTheObservationDto().getCd(), obsValueTxtDT.getValueTxt());
-                            break;
-                        }
-                    }
-                }
-            }
-            populateFromPrePopMapping(prePopMap, pageActProxyContainer);
-
-        } catch (Exception e) {
-            throw new DataProcessingException("AutoInvestigationHandler-populateProxyFromPrePopMapping Exception raised" + e);
+            throws DataProcessingException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+        lookupService.fillPrePopMap();
+        TreeMap<Object, Object> fromPrePopMap =
+                (TreeMap<Object, Object>) OdseCache.fromPrePopFormMapping.get(NEDSSConstant.LAB_FORM_CD);
+        if (fromPrePopMap == null) {
+            fromPrePopMap = new TreeMap<>();
         }
+        Collection<ObservationContainer> obsCollection = edxLabInformationDT.getLabResultProxyContainer()
+                .getTheObservationContainerCollection();
+        TreeMap<Object, Object> prePopMap = new TreeMap<>();
+
+        // Begin Dynamic Pre-pop mapping
+
+        for (ObservationContainer obs : obsCollection) {
+            if (obs.getTheObsValueNumericDtoCollection() != null
+                    && !obs.getTheObsValueNumericDtoCollection().isEmpty()
+                    && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+            {
+
+                List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
+                String value = obsValueNumList.get(0).getNumericUnitCd() == null
+                        ? String.valueOf(obsValueNumList.get(0).getNumericValue1())
+                        : obsValueNumList.get(0).getNumericValue1() + "^"
+                        + obsValueNumList.get(0).getNumericUnitCd();
+                prePopMap.put(obs.getTheObservationDto().getCd(), value);
+            }
+            else if (obs.getTheObsValueDateDtoCollection() != null
+                    && !obs.getTheObsValueDateDtoCollection().isEmpty()
+                    && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+            {
+                List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
+
+                String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
+                prePopMap.put(obs.getTheObservationDto().getCd(), value);
+            }
+            else if (obs.getTheObsValueCodedDtoCollection() != null
+                    && !obs.getTheObsValueCodedDtoCollection().isEmpty())
+            {
+
+                List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
+
+                String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.get(0).getCode();
+                if (fromPrePopMap.containsKey(key)) {
+                    prePopMap.put(key, obsValueCodeList.get(0).getCode());
+                } else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
+                    prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
+                }
+            }
+            else if (obs.getTheObsValueTxtDtoCollection() != null && !obs.getTheObsValueTxtDtoCollection().isEmpty()
+                    && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
+            {
+                for (ObsValueTxtDto obsValueTxtDT : obs.getTheObsValueTxtDtoCollection()) {
+                    if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
+                            || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
+                        prePopMap.put(obs.getTheObservationDto().getCd(), obsValueTxtDT.getValueTxt());
+                        break;
+                    }
+                }
+            }
+        }
+        populateFromPrePopMapping(prePopMap, pageActProxyContainer);
     }
 
     @SuppressWarnings("java:S3776")
     private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyContainer pageActProxyContainer)
-            throws DataProcessingException {
-        try {
-            PublicHealthCaseDto phcDT = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-            var res = conditionCodeRepository.findProgramAreaConditionCode(
-                    1,
-                    new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd()))
-            );
-            ProgramAreaContainer programAreaVO = null;
-            if (res.isPresent()) {
-                var items = res.get();
+            throws DataProcessingException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+        PublicHealthCaseDto phcDT = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+        var res = conditionCodeRepository.findProgramAreaConditionCode(
+                1,
+                new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd()))
+        );
+        ProgramAreaContainer programAreaVO = null;
+        if (res.isPresent()) {
+            var items = res.get();
+
+            var itemRes = items.stream()
+                    .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
+                    .findFirst();
+            if (itemRes.isPresent()) {
+                programAreaVO = new ProgramAreaContainer();
+                programAreaVO.setConditionCd(itemRes.get().getConditionCd());
+                programAreaVO.setConditionShortNm(itemRes.get().getConditionShortNm());
+                programAreaVO.setStateProgAreaCode(itemRes.get().getStateProgAreaCode());
+                programAreaVO.setStateProgAreaCdDesc(itemRes.get().getStateProgAreaCdDesc());
+                programAreaVO.setInvestigationFormCd(itemRes.get().getInvestigationFormCd());
+            }
+
+        }
+        if (programAreaVO == null) // level 2 condition for Hepatitis Diagnosis
+        {
+            var res2 = conditionCodeRepository.findProgramAreaConditionCode(
+                    2,
+                    new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd())));
+            if (res2.isPresent()) {
+                var items = res2.get();
 
                 var itemRes = items.stream()
                         .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
                         .findFirst();
+
                 if (itemRes.isPresent()) {
                     programAreaVO = new ProgramAreaContainer();
                     programAreaVO.setConditionCd(itemRes.get().getConditionCd());
@@ -438,101 +448,76 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                     programAreaVO.setStateProgAreaCdDesc(itemRes.get().getStateProgAreaCdDesc());
                     programAreaVO.setInvestigationFormCd(itemRes.get().getInvestigationFormCd());
                 }
-
             }
-            if (programAreaVO == null) // level 2 condition for Hepatitis Diagnosis
-            {
-                var res2 = conditionCodeRepository.findProgramAreaConditionCode(
-                        2,
-                        new ArrayList<>(Collections.singletonList(phcDT.getProgAreaCd())));
-                if (res2.isPresent()) {
-                    var items = res2.get();
+        }
+        String investigationFormCd = null;
+        if (programAreaVO != null) {
+            investigationFormCd = programAreaVO.getInvestigationFormCd();
+        }
 
-                    var itemRes = items.stream()
-                            .filter(cc -> Objects.equals(cc.getConditionCd(), phcDT.getCd()))
-                            .findFirst();
+        Map<Object, Object> questionMap = (Map<Object, Object>) OdseCache.dmbMap.get(investigationFormCd);
 
-                    if (itemRes.isPresent()) {
-                        programAreaVO = new ProgramAreaContainer();
-                        programAreaVO.setConditionCd(itemRes.get().getConditionCd());
-                        programAreaVO.setConditionShortNm(itemRes.get().getConditionShortNm());
-                        programAreaVO.setStateProgAreaCode(itemRes.get().getStateProgAreaCode());
-                        programAreaVO.setStateProgAreaCdDesc(itemRes.get().getStateProgAreaCdDesc());
-                        programAreaVO.setInvestigationFormCd(itemRes.get().getInvestigationFormCd());
+        if (prePopMap == null || prePopMap.isEmpty())
+            return;
+        TreeMap<Object, Object> toPrePopMap = lookupService.getToPrePopFormMapping(investigationFormCd);
+        if (toPrePopMap != null && !toPrePopMap.isEmpty()) {
+            Collection<Object> toPrePopColl = toPrePopMap.values();
+            Map<Object, Object> answerMap = new HashMap<>();
+            for (Object obj : toPrePopColl) {
+                PrePopMappingDto toPrePopMappingDT = (PrePopMappingDto) obj;
+                String mappingKey = toPrePopMappingDT.getFromAnswerCode() == null
+                        ? toPrePopMappingDT.getFromQuestionIdentifier()
+                        : toPrePopMappingDT.getFromQuestionIdentifier() + "$"
+                        + toPrePopMappingDT.getFromAnswerCode();
+                if (prePopMap.containsKey(mappingKey)) {
+                    String value = null;
+                    String dataLocation = null;
+                    NbsQuestionMetadata quesMetadata = (NbsQuestionMetadata) questionMap
+                            .get(toPrePopMappingDT.getToQuestionIdentifier());
+                    if (quesMetadata != null)
+                    {
+                        dataLocation = quesMetadata.getDataLocation();
+                    }
+                    if (toPrePopMappingDT.getToDataType() != null
+                            && toPrePopMappingDT.getToDataType().equals(NEDSSConstant.DATE_DATATYPE)) {
+                        try {
+                            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+                            String stringDate = (String) prePopMap.get(mappingKey);
+                            if (stringDate != null && stringDate.length() > 8)
+                                stringDate = stringDate.substring(0, 8);
+                            Date date = formatter.parse(stringDate);
+                            value = sdf.format(date);
+                        } catch (Exception ex) {
+                            logger.info(ex.getMessage());
+                        }
+                    }
+                    else if (toPrePopMappingDT.getToAnswerCode() != null)
+                    {
+                        value = toPrePopMappingDT.getToAnswerCode();
+                    }
+                    else
+                    {
+                        value = (String) prePopMap.get(mappingKey);
+                    }
+
+                    if (value != null && dataLocation != null
+                            && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
+                        String columnName = dataLocation.substring(dataLocation.indexOf(".") + 1);
+                        DynamicBeanBinding.populateBean(phcDT, columnName, value, tz);
+                    } else if (value != null && dataLocation != null
+                            && dataLocation.endsWith(RenderConstant.ANSWER_TXT)) {
+                        NbsCaseAnswerDto caseAnswerDT = new NbsCaseAnswerDto();
+                        caseAnswerDT.setAnswerTxt(value);
+                        CdaPhcProcessor.setStandardNBSCaseAnswerVals(phcDT, caseAnswerDT);
+                        caseAnswerDT.setNbsQuestionUid(quesMetadata.getNbsQuestionUid());
+                        caseAnswerDT.setNbsQuestionVersionCtrlNbr(quesMetadata.getQuestionVersionNbr());
+                        caseAnswerDT.setSeqNbr(0);
+                        answerMap.put(quesMetadata.getNbsQuestionUid(), caseAnswerDT);
                     }
                 }
             }
-            String investigationFormCd = null;
-            if (programAreaVO != null) {
-                investigationFormCd = programAreaVO.getInvestigationFormCd();
-            }
-
-            Map<Object, Object> questionMap = (Map<Object, Object>) OdseCache.dmbMap.get(investigationFormCd);
-
-            if (prePopMap == null || prePopMap.isEmpty())
-                return;
-            TreeMap<Object, Object> toPrePopMap = lookupService.getToPrePopFormMapping(investigationFormCd);
-            if (toPrePopMap != null && !toPrePopMap.isEmpty()) {
-                Collection<Object> toPrePopColl = toPrePopMap.values();
-                Map<Object, Object> answerMap = new HashMap<>();
-                for (Object obj : toPrePopColl) {
-                    PrePopMappingDto toPrePopMappingDT = (PrePopMappingDto) obj;
-                    String mappingKey = toPrePopMappingDT.getFromAnswerCode() == null
-                            ? toPrePopMappingDT.getFromQuestionIdentifier()
-                            : toPrePopMappingDT.getFromQuestionIdentifier() + "$"
-                            + toPrePopMappingDT.getFromAnswerCode();
-                    if (prePopMap.containsKey(mappingKey)) {
-                        String value = null;
-                        String dataLocation = null;
-                        NbsQuestionMetadata quesMetadata = (NbsQuestionMetadata) questionMap
-                                .get(toPrePopMappingDT.getToQuestionIdentifier());
-                        if (quesMetadata != null)
-                        {
-                            dataLocation = quesMetadata.getDataLocation();
-                        }
-                        if (toPrePopMappingDT.getToDataType() != null
-                                && toPrePopMappingDT.getToDataType().equals(NEDSSConstant.DATE_DATATYPE)) {
-                            try {
-                                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-                                SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-                                String stringDate = (String) prePopMap.get(mappingKey);
-                                if (stringDate != null && stringDate.length() > 8)
-                                    stringDate = stringDate.substring(0, 8);
-                                Date date = formatter.parse(stringDate);
-                                value = sdf.format(date);
-                            } catch (Exception ex) {
-                                logger.info(ex.getMessage());
-                            }
-                        }
-                        else if (toPrePopMappingDT.getToAnswerCode() != null)
-                        {
-                            value = toPrePopMappingDT.getToAnswerCode();
-                        }
-                        else
-                        {
-                            value = (String) prePopMap.get(mappingKey);
-                        }
-
-                        if (value != null && dataLocation != null
-                                && dataLocation.startsWith(RenderConstant.PUBLIC_HEALTH_CASE)) {
-                            String columnName = dataLocation.substring(dataLocation.indexOf(".") + 1);
-                            DynamicBeanBinding.populateBean(phcDT, columnName, value, tz);
-                        } else if (value != null && dataLocation != null
-                                && dataLocation.endsWith(RenderConstant.ANSWER_TXT)) {
-                            NbsCaseAnswerDto caseAnswerDT = new NbsCaseAnswerDto();
-                            caseAnswerDT.setAnswerTxt(value);
-                            CdaPhcProcessor.setStandardNBSCaseAnswerVals(phcDT, caseAnswerDT);
-                            caseAnswerDT.setNbsQuestionUid(quesMetadata.getNbsQuestionUid());
-                            caseAnswerDT.setNbsQuestionVersionCtrlNbr(quesMetadata.getQuestionVersionNbr());
-                            caseAnswerDT.setSeqNbr(0);
-                            answerMap.put(quesMetadata.getNbsQuestionUid(), caseAnswerDT);
-                        }
-                    }
-                }
-                pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            pageActProxyContainer.getPageVO().setPamAnswerDTMap(answerMap);
         }
     }
 

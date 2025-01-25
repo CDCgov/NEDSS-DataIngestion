@@ -27,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -70,7 +67,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
     @SuppressWarnings("java:S125")
-    public Long setPatientRevision(PersonContainer personVO, String businessTriggerCd, String personType) throws DataProcessingException {
+    public Long setPatientRevision(PersonContainer personVO, String businessTriggerCd, String personType) throws DataProcessingException, IOException, ClassNotFoundException {
         PersonContainer mprPersonVO;
         Long mprPersonUid;
         Long personUid;
@@ -92,7 +89,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 this.updateWithRevision(personVO, personType);
             }
 
-            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().length() == 0)
+            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().isEmpty())
             {
                 mprPersonUid = personVO.getThePersonDto().getPersonParentUid();
                 mprPersonVO = getPatientRepositoryUtil().loadPerson(mprPersonUid);
@@ -102,19 +99,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
 
         personUid = this.setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd, personType);
-
-            /*
-            // NOTE: SHOULD NOT HIT THIS ONE EITHER
-            if (personVO.getThePersonDto() != null && (personVO.getThePersonDto().getElectronicInd() != null
-                    && !personVO.getThePersonDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)))
-            {
-                // ldf code
-                // begin
-//                LDFHelper ldfHelper = LDFHelper.getInstance();
-//                ldfHelper.setLDFCollection(personVO.getTheStateDefinedFieldDataDTCollection(), personVO.getLdfUids(),
-//                        NEDSSConstant.PATIENT_LDF, null, personUid, nbsSecurityObj);
-            }
-            */
 
         // ldf code end
         return personUid;
@@ -182,12 +166,9 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             if (personVO.isItNew()) {
                 var res =   getPatientRepositoryUtil().createPerson(personVO);
                 personUID = res.getPersonUid();
-                logger.debug(" EntityControllerEJB.setProvider() Person Created");
             } else {
                 getPatientRepositoryUtil().updateExistingPerson(personVO);
-                personUID = personVO.getThePersonDto()
-                        .getPersonUid();
-                logger.debug(" EntityControllerEJB.setProvider() Person Updated");
+                personUID = personVO.getThePersonDto().getPersonUid();
             }
             if(isELRCase && personType.equals(NEDSSConstant.PAT))
             {
@@ -331,20 +312,14 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
     private PersonContainer cloneVO(PersonContainer personVO)
-            throws DataProcessingException {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(personVO);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            Object clonePersonVO = ois.readObject();
-            return (PersonContainer) clonePersonVO;
-        }
-        catch (Exception e)
-        {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+            throws DataProcessingException, IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(personVO);
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object clonePersonVO = ois.readObject();
+        return (PersonContainer) clonePersonVO;
     }
 
 
@@ -397,12 +372,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                             if (asofDate == null
                                     || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) {
                                 if (personNameDto.getLastNm() != null
-                                        && !personNameDto.getLastNm().trim().equals("")
+                                        && !personNameDto.getLastNm().trim().isEmpty()
                                         && personNameDto.getFirstNm() != null
-                                        && !personNameDto.getFirstNm().trim().equals("")
+                                        && !personNameDto.getFirstNm().trim().isEmpty()
                                         && personDto.getBirthTime() != null
                                         && personDto.getCurrSexCd() != null
-                                        && !personDto.getCurrSexCd().trim().equals("")
+                                        && !personDto.getCurrSexCd().trim().isEmpty()
                                 )
                                 {
                                     namedobcursexStr = personNameDto.getLastNm()
@@ -452,22 +427,17 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
     protected void setPersonHashCdPatient(PersonContainer personContainer) throws DataProcessingException {
+        long personUid = personContainer.getThePersonDto().getPersonParentUid();
+        getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
         try {
-            long personUid = personContainer.getThePersonDto().getPersonParentUid();
-            getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
-            try {
-                if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE))
-                {
-                    personContainer.getThePersonDto().setPersonUid(personUid);
-                    setPersonToMatchEntityPatient(personContainer);
-                }
-            } catch (Exception e) {
-                logger.error("Unable to setPatientHashCd for personUid: {}", personUid);
-                logger.error("Exception in setPatientToEntityMatch -> unhandled exception: {}", e.getMessage());
+            if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE))
+            {
+                personContainer.getThePersonDto().setPersonUid(personUid);
+                setPersonToMatchEntityPatient(personContainer);
             }
         } catch (Exception e) {
-            logger.error("EntityControllerEJB.setPatientHashCd: {}", e.getMessage());
-            throw new DataProcessingException(e.getMessage(), e);
+            logger.error("Unable to setPatientHashCd for personUid: {}", personUid);
+            logger.error("Exception in setPatientToEntityMatch -> unhandled exception: {}", e.getMessage());
         }
     }
     protected PersonId setAndCreateNewPerson(PersonContainer psn) throws DataProcessingException {
@@ -505,51 +475,47 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
     private PersonId getPersonInternalAddressingRevisionAndMpr(Long personUID) throws DataProcessingException {
         PersonId personId;
-        try {
-            List<Person> personList = new ArrayList<>();
-            if (personUID != null)
-            {
-                personList = getPatientRepositoryUtil().findPersonByParentUid(personUID);
-                personList.sort((p1, p2) -> Long.compare(p2.getPersonUid(), p1.getPersonUid()));
-            }
-            if (personList.isEmpty()) {
-                personList.add(getPatientRepositoryUtil().findExistingPersonByUid(personUID));
-            }
-
-            Person mpr = null;
-            Person revision = null;
-            for(var item : personList) {
-                if (Objects.equals(item.getPersonUid(), personUID)) {
-                    mpr = item;
-                    personList.remove(item);
-                    break;
-                }
-            }
-
-            if (!personList.isEmpty()) {
-                revision = personList.get(0);
-            }
-
-            if (mpr != null)
-            {
-                personId = new PersonId();
-                personId.setPersonParentId(mpr.getPersonParentUid());
-                personId.setPersonId(mpr.getPersonUid());
-                personId.setLocalId(mpr.getLocalId());
-            }
-            else {
-                throw new DataProcessingException("Existing Patient Not Found");
-            }
-
-            if (revision != null) {
-                personId.setRevisionId(revision.getPersonUid());
-                personId.setRevisionParentId(revision.getPersonParentUid());
-                personId.setRevisionLocalId(revision.getLocalId());
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        List<Person> personList = new ArrayList<>();
+        if (personUID != null)
+        {
+            personList = getPatientRepositoryUtil().findPersonByParentUid(personUID);
+            personList.sort((p1, p2) -> Long.compare(p2.getPersonUid(), p1.getPersonUid()));
         }
+        if (personList.isEmpty()) {
+            personList.add(getPatientRepositoryUtil().findExistingPersonByUid(personUID));
+        }
+
+        Person mpr = null;
+        Person revision = null;
+        for(var item : personList) {
+            if (Objects.equals(item.getPersonUid(), personUID)) {
+                mpr = item;
+                personList.remove(item);
+                break;
+            }
+        }
+
+        if (!personList.isEmpty()) {
+            revision = personList.get(0);
+        }
+
+        if (mpr != null)
+        {
+            personId = new PersonId();
+            personId.setPersonParentId(mpr.getPersonParentUid());
+            personId.setPersonId(mpr.getPersonUid());
+            personId.setLocalId(mpr.getLocalId());
+        }
+        else {
+            throw new DataProcessingException("Existing Patient Not Found");
+        }
+
+        if (revision != null) {
+            personId.setRevisionId(revision.getPersonUid());
+            personId.setRevisionParentId(revision.getPersonParentUid());
+            personId.setRevisionLocalId(revision.getLocalId());
+        }
+
         return personId;
     }
     private void prepUpdatingExistingPerson(PersonContainer personContainer) throws DataProcessingException {
@@ -612,12 +578,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                         edxPatientMatchDto.setTypeCd(NEDSSConstant.PAT);
                         edxPatientMatchDto.setMatchString(identifierStr);
                         edxPatientMatchDto.setMatchStringHashCode((long) identifierStrhshCd);
-                        try {
-                            getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
-                        } catch (Exception e) {
-                            logger.error("Error in creating the setEdxPatientMatchDT with identifierStr: {} {}", identifierStr, e.getMessage());
-                            throw new DataProcessingException(e.getMessage(), e);
-                        }
+                        getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
+
 
                     }
                 }
@@ -640,12 +602,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 edxPatientMatchDto.setTypeCd(NEDSSConstant.PAT);
                 edxPatientMatchDto.setMatchString(namesdobcursexStr);
                 edxPatientMatchDto.setMatchStringHashCode((long) namesdobcursexStrhshCd);
-                try {
-                    getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
-                } catch (Exception e) {
-                    logger.error("Error in creating the setEdxPatientMatchDT with namesdobcursexStr: {} {}", namesdobcursexStr, e.getMessage());
-                    throw new DataProcessingException(e.getMessage(), e);
-                }
+                getEdxPatientMatchRepositoryUtil().setEdxPatientMatchDT(edxPatientMatchDto);
+
 
             }
         }

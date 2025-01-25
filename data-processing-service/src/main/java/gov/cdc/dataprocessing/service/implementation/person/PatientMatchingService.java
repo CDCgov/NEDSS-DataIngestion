@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -57,8 +58,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     this.deduplicationService = deduplicationService.getIfAvailable();
   }
 
-  @Transactional
-  public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException {
+  
+  public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
     String patientRole = personContainer.getRole();
 
     // If patientRole is set and not equal to 'PAT', do not perform matching
@@ -79,7 +80,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
   // After patient creation, sends another request to the NBS deduplication
   // service to associate the newly created record with the entry the Record
   // Linkage service created in the MPI
-  private EdxPatientMatchDto doModernizedMatching(PersonContainer personContainer) throws DataProcessingException {
+  private EdxPatientMatchDto doModernizedMatching(PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
     PersonMatchRequest request = new PersonMatchRequest(personContainer);
     MatchResponse response = deduplicationService.match(request);
 
@@ -100,7 +101,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     return new EdxPatientMatchDto();
   }
 
-  private EdxPatientMatchDto doNbsClassicMatching(PersonContainer personContainer) throws DataProcessingException {
+  private EdxPatientMatchDto doNbsClassicMatching(PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
     // Try to match using localId match string
     EdxPatientMatchDto edxPatientMatchDto = tryMatchByLocalId(personContainer);
 
@@ -143,20 +144,15 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       localId = localId.toUpperCase();
     }
 
-    try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
-          .getEdxPatientMatchOnMatchString(cd, localId);
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        return edxPatientMatchDto;
-      } else {
-        return null;
-      }
-    } catch (Exception ex) {
-      logger.error(LOG_ERROR_MATCHING_PATIENT);
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
+    EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+            .getEdxPatientMatchOnMatchString(cd, localId);
+    if (edxPatientMatchDto != null
+            && !edxPatientMatchDto.isMultipleMatch()
+            && edxPatientMatchDto.getPatientUid() != null
+            && edxPatientMatchDto.getPatientUid() > 0) {
+      return edxPatientMatchDto;
+    } else {
+      return null;
     }
 
   }
@@ -209,31 +205,25 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     if (namesdobcursexStr == null) {
       return null;
     }
+    EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+            .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
 
-    try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
-          .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
-
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        return edxPatientMatchDto;
-      } else {
-        return null;
-      }
-
-    } catch (Exception ex) {
-      logger.error(LOG_ERROR_MATCHING_PATIENT);
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
+    if (edxPatientMatchDto != null
+            && !edxPatientMatchDto.isMultipleMatch()
+            && edxPatientMatchDto.getPatientUid() != null
+            && edxPatientMatchDto.getPatientUid() > 0) {
+      return edxPatientMatchDto;
+    } else {
+      return null;
     }
+
   }
 
   private void handleCreatePerson(
       PersonContainer personContainer,
       boolean matchFound,
       Long matchUid)
-      throws DataProcessingException {
+          throws DataProcessingException, IOException, ClassNotFoundException {
     PersonId patientPersonUid = null;
     // Default personParentUid to matchUid (possibly null).
     // Will be overwritten if no match was found
@@ -257,7 +247,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
   // It appears a revision is always created during ingestion, even if a match was
   // not found and a new MPR was created
-  private void createPatientRevision(PersonContainer personContainer) throws DataProcessingException {
+  private void createPatientRevision(PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
       Long patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
       personContainer.getThePersonDto().setPersonUid(patientUid);
   }
@@ -275,7 +265,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
   }
 
-  @Transactional
+  
   public Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd)
       throws DataProcessingException {
     return updateExistingPerson(personContainer, businessTriggerCd,

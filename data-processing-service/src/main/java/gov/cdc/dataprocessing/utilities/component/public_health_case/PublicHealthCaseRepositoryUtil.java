@@ -23,7 +23,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -126,7 +126,6 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
 
-    @Transactional
     public PublicHealthCaseContainer update(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         if (phcVO == null) {
             return null;
@@ -172,7 +171,6 @@ public class PublicHealthCaseRepositoryUtil {
         return phcVO;
     }
 
-    @Transactional
     public PublicHealthCaseContainer create(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         long phcUid;
         phcVO.getThePublicHealthCaseDto().setVersionCtrlNbr(1);

@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,11 +47,13 @@ public interface PostalLocatorRepository extends JpaRepository<PostalLocator, Lo
     Optional<List<PostalLocator>> findByPostalLocatorUids(@Param("uids") List<Long> uids);
 
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query(value = "DELETE FROM PostalLocator x WHERE x.postalLocatorUid = :postalId", nativeQuery = false)
     void deletePostalLocatorById(@Param("postalId") Long postalId);
 
 
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query(value = "UPDATE PostalLocator x SET x.recordStatusCd = :status WHERE x.postalLocatorUid = :postalId", nativeQuery = false)
     void updatePostalStatus(@Param("postalId") Long postalId, @Param("status") String status);
 

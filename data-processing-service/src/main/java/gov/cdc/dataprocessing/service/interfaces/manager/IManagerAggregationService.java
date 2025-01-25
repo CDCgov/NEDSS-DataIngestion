@@ -5,6 +5,8 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 
+import java.io.IOException;
+
 /**
  125 - Comment complaint
  3776 - Complex complaint
@@ -42,5 +44,5 @@ public interface IManagerAggregationService {
                                                 Long aPersonUid) throws DataProcessingException;
 
     void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException;
+            DataProcessingException, DataProcessingConsumerException, IOException, ClassNotFoundException;
 }

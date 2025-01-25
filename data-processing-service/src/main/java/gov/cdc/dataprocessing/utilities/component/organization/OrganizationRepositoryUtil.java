@@ -36,7 +36,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -126,14 +126,14 @@ public class OrganizationRepositoryUtil {
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
     }
 
-    @Transactional
+    
     public Organization findOrganizationByUid(Long orgUid) {
         var result = organizationRepository.findById(orgUid);
         return result.orElseGet(Organization::new);
 
     }
 
-    @Transactional
+    
     public long createOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         Long organizationUid ;
@@ -197,7 +197,7 @@ public class OrganizationRepositoryUtil {
         return organizationUid;
     }
 
-    @Transactional
+    
     public void updateOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         /**
@@ -341,7 +341,7 @@ public class OrganizationRepositoryUtil {
      * @param businessTriggerCd     the String
      * @return organizationUID the Long
      */
-    @Transactional
+    
     public Long setOrganization(OrganizationContainer organizationContainer,
                                 String businessTriggerCd)
             throws DataProcessingException {
@@ -351,7 +351,7 @@ public class OrganizationRepositoryUtil {
         return organizationUID;
     }
     @SuppressWarnings("java:S3776")
-    @Transactional
+    
     public Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID;
         if (!organizationContainer.isItNew() && !organizationContainer.isItDirty()) {
@@ -447,7 +447,7 @@ public class OrganizationRepositoryUtil {
      * the participation to have a substantial amount of Reporting labs with the same
      * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
      */
-    @Transactional
+    
     public OrganizationContainer loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
         OrganizationContainer ovo = new OrganizationContainer();
 

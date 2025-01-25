@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,7 +84,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    @Transactional
     public EdxLabInformationDto processingObservationMatching(EdxLabInformationDto edxLabInformationDto,
                                                        LabResultProxyContainer labResultProxyContainer,
                                                        Long aPersonUid) throws DataProcessingException {
@@ -115,7 +115,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
     public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException {
+            DataProcessingException, DataProcessingConsumerException, IOException, ClassNotFoundException {
         PersonAggContainer personAggContainer;
         OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
@@ -133,7 +133,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
                                                                           EdxLabInformationDto edxLabInformationDto,
                                                                           PersonAggContainer personAggContainer,
-                                                                          OrganizationContainer organizationContainer) {
+                                                                          OrganizationContainer organizationContainer) throws DataProcessingException {
             // Pulling Jurisdiction and Program from OBS
             ObservationContainer observationRequest = null;
             Collection<ObservationContainer> observationResults = new ArrayList<>();
@@ -152,20 +152,12 @@ public class ManagerAggregationService implements IManagerAggregationService {
             }
 
             if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-                try {
-                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
             }
 
             if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-                try {
-                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                            organizationContainer, observationRequest);
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                        organizationContainer, observationRequest);
             }
 
     }
@@ -175,7 +167,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     protected void progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,
-                                                                        OrganizationContainer organizationContainer) {
+                                                                        OrganizationContainer organizationContainer) throws DataProcessingException {
         ObservationContainer observationRequest = null;
         Collection<ObservationContainer> observationResults = new ArrayList<>();
         for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
@@ -193,20 +185,13 @@ public class ManagerAggregationService implements IManagerAggregationService {
         }
 
         if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-            try {
-                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-            } catch (DataProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+
         }
 
         if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-            try {
-                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                        organizationContainer, observationRequest);
-            } catch (DataProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                    organizationContainer, observationRequest);
         }
 
     }
@@ -353,7 +338,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     protected PersonAggContainer patientAggregation(LabResultProxyContainer labResultProxyContainer,
                                                     EdxLabInformationDto edxLabInformationDto,
-                                                  Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException {
+                                                  Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException, IOException, ClassNotFoundException {
 
         PersonAggContainer container = new PersonAggContainer();
         PersonContainer personContainerObj = null;

@@ -50,7 +50,6 @@ public class OrganizationService implements IOrganizationService {
         this.iOrganizationMatchingService = iOrganizationMatchingService;
         this.uidService = uidService;
     }
-    @Transactional
     @SuppressWarnings("java:S3776")
     public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException, DataProcessingException {
 

@@ -24,7 +24,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceReposit
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.model.PersonEthnicUpdate;
@@ -107,18 +107,17 @@ public class PatientRepositoryUtil {
         this.patientRepositoryUtilJdbc = patientRepositoryUtilJdbc;
     }
 
-    @Transactional
+    
     public Long updateExistingPersonEdxIndByUid(Long uid) {
         return (long) personRepository.updateExistingPersonEdxIndByUid(uid);
     }
 
-    @Transactional
+    
     public Person findExistingPersonByUid(Long personUid) {
         var result = personRepository.findById(personUid);
         return result.orElse(null);
     }
 
-    @Transactional
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
@@ -197,7 +196,6 @@ public class PatientRepositoryUtil {
     }
 
     @SuppressWarnings("java:S3776")
-    @Transactional
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
         //NOTE: Update Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
@@ -670,7 +668,6 @@ public class PatientRepositoryUtil {
 
 
     @SuppressWarnings({"java:S1871","java:S3776"})
-    @Transactional
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         Collection<PersonNameDto> namesCollection = personContainer
                 .getThePersonNameDtoCollection();

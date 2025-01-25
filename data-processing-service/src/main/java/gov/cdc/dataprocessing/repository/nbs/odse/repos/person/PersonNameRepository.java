@@ -48,13 +48,4 @@ public interface PersonNameRepository  extends JpaRepository<PersonName, Long> {
     @Query(value = "SELECT * FROM Person_name WHERE person_uid = :parentUid ORDER BY person_name_seq desc", nativeQuery = true)
     List<PersonName> findBySeqIdByParentUid(@Param("parentUid") Long parentUid);
 
-    @Transactional
-    @Modifying
-    @Query(value = "DELETE FROM Person_name WHERE person_uid = :personUid AND person_name_seq = :personSeq",  nativeQuery = true)
-    void deletePersonNameByIdAndSeq (@Param("personUid") Long personUid, @Param("personSeq") Integer personSeq);
-
-    @Transactional
-    @Modifying
-    @Query(value = "UPDATE Person_name SET status_cd = 'I' WHERE person_uid = :personUid AND person_name_seq = :personSeq",  nativeQuery = true)
-    void updatePersonNameStatus (@Param("personUid") Long personUid, @Param("personSeq") Integer personSeq);
 }

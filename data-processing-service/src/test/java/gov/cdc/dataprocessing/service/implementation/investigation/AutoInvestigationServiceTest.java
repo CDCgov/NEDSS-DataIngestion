@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -79,7 +80,7 @@ class AutoInvestigationServiceTest {
     }
 
     @Test
-    void autoCreateInvestigation_Success() throws DataProcessingException {
+    void autoCreateInvestigation_Success() throws DataProcessingException, IOException, ClassNotFoundException {
         TestData.createObservationContainer();
         TestData.createEdxLabInformationDto(NEDSSConstant.INV_FORM_RVCT);
         ObservationContainer observationVO = TestData.observationContainer;
@@ -106,7 +107,7 @@ class AutoInvestigationServiceTest {
     }
 
     @Test
-    void autoCreateInvestigation_Success2_InvestigationTypeIsNull() throws DataProcessingException {
+    void autoCreateInvestigation_Success2_InvestigationTypeIsNull() throws DataProcessingException, IOException, ClassNotFoundException {
         TestData.createObservationContainer();
         TestData.createEdxLabInformationDto(NEDSSConstant.INV_FORM_RVCT);
         ObservationContainer observationVO = TestData.observationContainer;

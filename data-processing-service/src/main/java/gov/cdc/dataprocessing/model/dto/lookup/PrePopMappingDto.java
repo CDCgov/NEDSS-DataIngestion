@@ -69,7 +69,7 @@ public class PrePopMappingDto extends BaseContainer {
         this.toAnsCodeSystemCd = lookupMappingDto.getToAnsCodeSystemCd();
     }
 
-    public Object deepCopy() throws CloneNotSupportedException, IOException, ClassNotFoundException
+    public Object deepCopy() throws IOException, ClassNotFoundException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);

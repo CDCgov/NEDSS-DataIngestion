@@ -42,7 +42,6 @@ public class PublicHealthCaseStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
-    @Transactional
     public Collection<PublicHealthCaseDto> associatedPublicHealthCaseForMprForCondCd(Long mprUid, String conditionCode) throws DataProcessingException {
         Collection<PublicHealthCaseDto> models = new ArrayList<>();
         try {
@@ -161,7 +160,6 @@ public class PublicHealthCaseStoredProcRepository {
     }
 
 
-    @Transactional
     public   Map<String, EDXEventProcessDto> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
         Map<String, EDXEventProcessDto> eventProcessMap = new HashMap<>();
         try {

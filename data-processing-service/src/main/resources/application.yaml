@@ -1,7 +1,7 @@
-server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#server:
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 management:
   endpoint:
@@ -35,8 +35,8 @@ features:
     url:
 
 spring:
-#  main:
-#    web-application-type: none
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
 
@@ -60,9 +60,9 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: 20
+      maximum-pool-size: 40
       connection-timeout: 300000
-      minimum-idle: 10
+      minimum-idle: 20
       idle-timeout: 120000
       max-lifetime: 1200000
       pool-name: SQLServerHikariCP

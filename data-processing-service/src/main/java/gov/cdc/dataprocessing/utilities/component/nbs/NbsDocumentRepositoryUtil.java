@@ -64,22 +64,18 @@ public class NbsDocumentRepositoryUtil {
     }
 
     public NbsDocumentContainer getNBSDocumentWithoutActRelationship(Long nbsDocUid) throws  DataProcessingException {
-        try {
-            NbsDocumentContainer nbsDocumentVO;
-            PersonContainer personVO ;
-            ParticipationDto participationDt ;
+        NbsDocumentContainer nbsDocumentVO;
+        PersonContainer personVO ;
+        ParticipationDto participationDt ;
 
-            nbsDocumentVO = customRepository.getNbsDocument(nbsDocUid);
-            Long personUid = nbsDocumentVO.getPatientVO().getThePersonDto().getPersonUid();
-            personVO = patientRepositoryUtil.loadPerson(personUid);
-            nbsDocumentVO.setPatientVO(personVO);
-            participationDt = participationRepositoryUtil.getParticipation(personUid, nbsDocUid);
+        nbsDocumentVO = customRepository.getNbsDocument(nbsDocUid);
+        Long personUid = nbsDocumentVO.getPatientVO().getThePersonDto().getPersonUid();
+        personVO = patientRepositoryUtil.loadPerson(personUid);
+        nbsDocumentVO.setPatientVO(personVO);
+        participationDt = participationRepositoryUtil.getParticipation(personUid, nbsDocUid);
 
-            nbsDocumentVO.setParticipationDT(participationDt);
-            return nbsDocumentVO;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        nbsDocumentVO.setParticipationDT(participationDt);
+        return nbsDocumentVO;
     }
 
 

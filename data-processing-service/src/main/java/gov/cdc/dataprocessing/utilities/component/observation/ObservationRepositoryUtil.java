@@ -20,7 +20,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -191,7 +191,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    @Transactional
+    
     public Long saveObservation(ObservationContainer observationContainer) throws DataProcessingException {
         Long observationUid = -1L;
 
@@ -245,7 +245,7 @@ public class ObservationRepositoryUtil {
 
     }
 
-    @Transactional
+    
     public Long createNewObservation(ObservationContainer observationContainer) throws DataProcessingException {
         try {
             Long obsId = saveNewObservation(observationContainer.getTheObservationDto());
@@ -267,7 +267,7 @@ public class ObservationRepositoryUtil {
 
     }
 
-    @Transactional
+    
     public Long updateObservation(ObservationContainer observationContainer) throws DataProcessingException {
         Long uid;
         if (observationContainer.getTheObservationDto().getObservationUid() == null) {
@@ -315,7 +315,7 @@ public class ObservationRepositoryUtil {
         return uid;
     }
 
-    @Transactional
+    
     public void saveActRelationship(ActRelationshipDto actRelationshipDto) {
         ActRelationship actRelationship = new ActRelationship(actRelationshipDto);
 
@@ -341,7 +341,7 @@ public class ObservationRepositoryUtil {
     }
 
 
-    @Transactional
+    
     public void setObservationInfo(ObservationDto observationDto) throws DataProcessingException {
         ObservationContainer observationVO = null;
 

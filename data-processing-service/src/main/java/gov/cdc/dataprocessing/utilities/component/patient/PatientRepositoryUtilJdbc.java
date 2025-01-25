@@ -77,7 +77,6 @@ public class PatientRepositoryUtilJdbc {
         this.jdbcTemplateOdse = jdbcTemplateOdse;
     }
 
-    @Transactional
     public void insertEntity(EntityODSE entity) {
         String insertEntitySql = "INSERT INTO Entity (entity_uid, class_cd) VALUES (?, ?)";
         jdbcTemplateOdse.update(insertEntitySql, entity.getEntityUid(), entity.getClassCd());
@@ -145,7 +144,6 @@ public class PatientRepositoryUtilJdbc {
     }
 
 
-    @Transactional
     public void savePersonWithDetails(Person person) {
         String personInsertSql = """
                     INSERT INTO Person (

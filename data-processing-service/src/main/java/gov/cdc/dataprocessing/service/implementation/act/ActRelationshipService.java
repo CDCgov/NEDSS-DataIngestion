@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -54,7 +55,6 @@ public class ActRelationshipService implements IActRelationshipService {
         return actRelationshipDtoCollection;
     }
 
-    @Transactional
     public void saveActRelationship(ActRelationshipDto actRelationshipDto) throws DataProcessingException {
         if (actRelationshipDto == null) {
             throw new DataProcessingException("Act Relationship is null");

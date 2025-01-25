@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -55,10 +57,8 @@ public interface ParticipationRepository extends JpaRepository<Participation, Pa
                                                            @Param("type") String typeCode,
                                                            @Param("actUid") Long actUid);
 
-//    @Query("DELETE FROM Participation data WHERE data.subjectEntityUid = :subjectUid AND data.actUid = :actUid AND data.typeCode = :typeCode")
-//    void deleteParticipationByPk(@Param("subjectUid") Long subjectEntityUid, @Param("actUid") Long actUid, @Param("typeCode") String typeCd);
-
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query("DELETE FROM Participation p WHERE p.subjectEntityUid = ?1 AND p.actUid = ?2 AND p.typeCode = ?3")
     void deleteParticipationByPk(Long subjectEntityUid, Long actUid, String typeCd);
 

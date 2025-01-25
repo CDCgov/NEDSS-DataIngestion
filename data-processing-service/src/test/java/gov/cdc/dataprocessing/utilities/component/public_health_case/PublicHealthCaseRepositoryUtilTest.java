@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.localUid.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;

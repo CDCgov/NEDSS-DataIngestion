@@ -58,7 +58,6 @@ public class PersonUtil {
 
     @SuppressWarnings("java:S3776")
 
-    @Transactional
     public Long processLabPersonContainerCollection(Collection<PersonContainer> personContainerCollection, boolean morbidityApplied,
                                                     BaseContainer dataContainer) throws DataProcessingException {
         if (personContainerCollection == null || personContainerCollection.isEmpty()) {

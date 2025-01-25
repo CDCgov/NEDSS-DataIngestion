@@ -61,7 +61,6 @@ public class ObservationMatchingService implements IObservationMatchingService {
 
     @SuppressWarnings("java:S3776")
 
-    @Transactional
     public ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         String fillerNumber;
 
