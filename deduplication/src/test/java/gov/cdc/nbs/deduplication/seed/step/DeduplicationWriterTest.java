@@ -3,6 +3,8 @@ package gov.cdc.nbs.deduplication.seed.step;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,4 +79,15 @@ class DeduplicationWriterTest {
     assertThat(source.getValue("mpi_patient")).isEqualTo(entry.mpiPatientId());
     assertThat(source.getValue("mpi_person")).isEqualTo(entry.mpiPersonId());
   }
+
+  @Test
+  void testUpdateLastProcessedId() {
+    // Test the update logic directly
+    DeduplicationWriter writer = new DeduplicationWriter(template);
+    writer.updateLastProcessedId(5L);
+
+    // Verify that the update method was called
+    verify(template).update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
+  }
+
 }

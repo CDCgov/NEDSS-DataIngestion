@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
+import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -43,13 +46,13 @@ class SeedWriterTest {
 
   @Test
   void initializes() {
-    SeedWriter newWriter = new SeedWriter(jdbcTemplate,mapper, restClient);
+    SeedWriter newWriter = new SeedWriter(jdbcTemplate,mapper, restClient, 0L);
     assertThat(newWriter).isNotNull();
   }
 
   @Test
   void writesChunk() throws Exception {
-    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient);
+    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient, 0L);
 
     when(restClient.post()).thenReturn(uriSpec);
     when(uriSpec.uri("/seed")).thenReturn(bodySpec);
@@ -67,5 +70,4 @@ class SeedWriterTest {
 
     verify(restClient, times(1)).post();
   }
-
 }

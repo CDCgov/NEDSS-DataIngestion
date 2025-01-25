@@ -28,7 +28,7 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
         (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
       """;
 
-  private static final String UPDATE_LAST_PROCESSED_ID = """
+  public static final String UPDATE_LAST_PROCESSED_ID = """
       UPDATE last_processed_id
       SET last_processed_id = :lastProcessedId
       WHERE id = 1
@@ -59,7 +59,7 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     }
   }
 
-  private void updateLastProcessedId(Long lastProcessedId) {
+  public void updateLastProcessedId(Long lastProcessedId) {
     SqlParameterSource params = new MapSqlParameterSource()
             .addValue("lastProcessedId", lastProcessedId);
 
