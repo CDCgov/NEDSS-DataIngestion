@@ -383,26 +383,24 @@ public class ObservationRepositoryUtilJdbc {
     }
 
     private void insertObsValueTxt(ObsValueTxt obsValueTxt) {
-        String sql = "INSERT INTO Obs_value_txt (observation_uid, obs_value_txt_seq, data_subtype_cd, encoding_type_cd, txt_type_cd, value_image_txt, value_txt) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Obs_value_txt (observation_uid, obs_value_txt_seq, data_subtype_cd, encoding_type_cd, txt_type_cd, value_txt) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplateOdse.update(sql,
                 obsValueTxt.getObservationUid(),
                 obsValueTxt.getObsValueTxtSeq(),
                 obsValueTxt.getDataSubtypeCd(),
                 obsValueTxt.getEncodingTypeCd(),
                 obsValueTxt.getTxtTypeCd(),
-                obsValueTxt.getValueImageTxt(),
                 obsValueTxt.getValueTxt());
     }
 
     private void updateObsValueTxt(ObsValueTxt obsValueTxt) {
-        String sql = "UPDATE Obs_value_txt SET data_subtype_cd = ?, encoding_type_cd = ?, txt_type_cd = ?, value_image_txt = ?, value_txt = ? " +
+        String sql = "UPDATE Obs_value_txt SET data_subtype_cd = ?, encoding_type_cd = ?, txt_type_cd = ?, value_txt = ? " +
                 "WHERE observation_uid = ? AND obs_value_txt_seq = ?";
         jdbcTemplateOdse.update(sql,
                 obsValueTxt.getDataSubtypeCd(),
                 obsValueTxt.getEncodingTypeCd(),
                 obsValueTxt.getTxtTypeCd(),
-                obsValueTxt.getValueImageTxt(),
                 obsValueTxt.getValueTxt(),
                 obsValueTxt.getObservationUid(),
                 obsValueTxt.getObsValueTxtSeq());
