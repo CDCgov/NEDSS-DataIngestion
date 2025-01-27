@@ -52,7 +52,6 @@ public class ParticipationService implements IParticipationService {
         return result.map(longs -> longs.get(0)).orElse(null);
     }
 
-    @Transactional
     public void saveParticipationHist(ParticipationDto participationDto) throws DataProcessingException {
         try {
 
@@ -72,7 +71,6 @@ public class ParticipationService implements IParticipationService {
 
     }
 
-    @Transactional
     public void saveParticipation(ParticipationDto participationDto) throws DataProcessingException {
         if (participationDto.isItNew() || participationDto.isItDirty()) {
             persistingParticipation(participationDto);

@@ -49,7 +49,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
         this.odseIdGeneratorService = odseIdGeneratorService1;
     }
 
-    @Transactional
+
     public void saveNddActivityLog(NNDActivityLogDto nndActivityLogDto) throws DataProcessingException {
         var timeStamp = getCurrentTimeStamp(tz);
         nndActivityLogDto.setNndActivityLogSeq(1);// default to 1

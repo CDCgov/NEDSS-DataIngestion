@@ -82,7 +82,6 @@ public class DataExtractionService implements IDataExtractionService {
     }
 
     @SuppressWarnings("java:S3776")
-    @Transactional
     public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
 
         LabResultProxyContainer labResultProxyContainer;

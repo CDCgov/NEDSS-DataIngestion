@@ -61,7 +61,6 @@ public class RoleService implements IRoleService {
         return roleDtoCollection;
     }
 
-    @Transactional
     public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
         try {
             if(roleDTColl == null || roleDTColl.isEmpty()) return;
@@ -81,7 +80,6 @@ public class RoleService implements IRoleService {
 
 
 
-    @Transactional
     public void saveRole(RoleDto roleDto) {
         if (roleDto.isItNew() || roleDto.isItDirty()) {
             var data = new Role(roleDto);

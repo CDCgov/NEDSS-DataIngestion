@@ -61,7 +61,6 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
     public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientFoundDT = null;

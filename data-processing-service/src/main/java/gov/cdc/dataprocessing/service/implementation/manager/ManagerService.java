@@ -126,7 +126,6 @@ public class ManagerService implements IManagerService {
         this.investigationNotificationService = investigationNotificationService;
     }
 
-    @Transactional
     public void processDistribution(Integer data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
@@ -137,7 +136,6 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
@@ -252,7 +250,6 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;

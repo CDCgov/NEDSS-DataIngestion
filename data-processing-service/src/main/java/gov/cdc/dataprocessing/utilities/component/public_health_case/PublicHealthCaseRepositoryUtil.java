@@ -126,7 +126,6 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
 
-    @Transactional
     public PublicHealthCaseContainer update(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         if (phcVO == null) {
             return null;
@@ -172,7 +171,6 @@ public class PublicHealthCaseRepositoryUtil {
         return phcVO;
     }
 
-    @Transactional
     public PublicHealthCaseContainer create(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         long phcUid;
         phcVO.getThePublicHealthCaseDto().setVersionCtrlNbr(1);

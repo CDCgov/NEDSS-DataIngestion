@@ -63,8 +63,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     }
 
     @SuppressWarnings("java:S3776")
-
-    @Transactional
     public EDXActivityDetailLogDto getMatchingOrganization(
             OrganizationContainer organizationContainer)
             throws DataProcessingException

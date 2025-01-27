@@ -180,7 +180,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
     public void updateEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long patientUid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto> personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
         var uid = patientUid;
@@ -410,7 +409,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         }
     }
 
-    @Transactional
     public void createEntityLocatorParticipation(Collection<EntityLocatorParticipationDto> locatorCollection, Long uid) throws DataProcessingException {
         ArrayList<EntityLocatorParticipationDto>  personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
         try {

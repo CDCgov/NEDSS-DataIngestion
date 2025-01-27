@@ -37,7 +37,6 @@ public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
         this.storedProcRepository = storedProcRepository;
     }
 
-    @Transactional
     public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) {
         storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(),
                 edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()

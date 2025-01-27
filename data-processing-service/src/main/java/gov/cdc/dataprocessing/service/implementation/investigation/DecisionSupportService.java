@@ -96,7 +96,6 @@ public class DecisionSupportService implements IDecisionSupportService {
     final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm()); //NOSONAR
 
     @SuppressWarnings({"java:S3776", "java:S135"})
-    @Transactional
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
                                                        EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {

@@ -62,8 +62,6 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
     }
 
     @SuppressWarnings("java:S3776")
-
-    @Transactional
     public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
         Collection<EdxEntityMatchDto> coll = new ArrayList<>();

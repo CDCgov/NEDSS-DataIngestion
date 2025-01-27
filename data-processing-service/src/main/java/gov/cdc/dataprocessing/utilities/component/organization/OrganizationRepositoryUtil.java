@@ -126,14 +126,12 @@ public class OrganizationRepositoryUtil {
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
     }
 
-    @Transactional
     public Organization findOrganizationByUid(Long orgUid) {
         var result = organizationRepository.findById(orgUid);
         return result.orElseGet(Organization::new);
 
     }
 
-    @Transactional
     public long createOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         Long organizationUid ;
@@ -187,7 +185,6 @@ public class OrganizationRepositoryUtil {
         return organizationUid;
     }
 
-    @Transactional
     public void updateOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         try {
@@ -343,7 +340,6 @@ public class OrganizationRepositoryUtil {
      * @param businessTriggerCd     the String
      * @return organizationUID the Long
      */
-    @Transactional
     public Long setOrganization(OrganizationContainer organizationContainer,
                                 String businessTriggerCd)
             throws DataProcessingException {
@@ -357,7 +353,6 @@ public class OrganizationRepositoryUtil {
         return organizationUID;
     }
     @SuppressWarnings("java:S3776")
-    @Transactional
     public Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID;
         try {
@@ -464,7 +459,6 @@ public class OrganizationRepositoryUtil {
      * the participation to have a substantial amount of Reporting labs with the same
      * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
      */
-    @Transactional
     public OrganizationContainer loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
         OrganizationContainer ovo = new OrganizationContainer();
 
@@ -512,7 +506,6 @@ public class OrganizationRepositoryUtil {
         return ovo;
     }
 
-    @Transactional
     public OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
         OrganizationDto organizationDto;
         /**

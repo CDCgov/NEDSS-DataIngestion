@@ -184,7 +184,8 @@ public class AnswerService implements IAnswerService {
         nbsQuestionUid = pageAnsDT.getNbsQuestionUid();
         return nbsQuestionUid;
     }
-    @Transactional
+
+
     public void insertPageVO(PageContainer pageContainer, ObservationDto rootDTInterface) throws DataProcessingException{
         if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
             Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
@@ -207,7 +208,6 @@ public class AnswerService implements IAnswerService {
     }
 
 
-    @Transactional
     public void storePageAnswer(PageContainer pageContainer, ObservationDto observationDto) throws DataProcessingException{
         try {
             delete(observationDto);

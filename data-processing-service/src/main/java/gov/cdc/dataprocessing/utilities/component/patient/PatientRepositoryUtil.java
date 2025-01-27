@@ -102,18 +102,15 @@ public class PatientRepositoryUtil {
         this.entityLocatorParticipationService = entityLocatorParticipationService;
     }
 
-    @Transactional
     public Long updateExistingPersonEdxIndByUid(Long uid) {
         return (long) personRepository.updateExistingPersonEdxIndByUid(uid);
     }
 
-    @Transactional
     public Person findExistingPersonByUid(Long personUid) {
         var result = personRepository.findById(personUid);
         return result.orElse(null);
     }
 
-    @Transactional
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
@@ -175,7 +172,6 @@ public class PatientRepositoryUtil {
     }
 
     @SuppressWarnings("java:S3776")
-    @Transactional
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<Object>  arrayList = new ArrayList<>();
 
@@ -635,7 +631,6 @@ public class PatientRepositoryUtil {
 
 
     @SuppressWarnings({"java:S1871","java:S3776"})
-    @Transactional
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         try {
             Collection<PersonNameDto> namesCollection = personContainer

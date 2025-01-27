@@ -51,7 +51,6 @@ public class EdxPatientMatchRepositoryUtil {
         this.edxPatientMatchStoreProcRepository = edxPatientMatchStoreProcRepository;
     }
 
-    @Transactional
     public EdxPatientMatchDto getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
         if (typeCd == null || matchString == null) {
             return new EdxPatientMatchDto();
@@ -65,7 +64,6 @@ public class EdxPatientMatchRepositoryUtil {
         }
     }
 
-    @Transactional
     public EdxEntityMatchDto getEdxEntityMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
         if (typeCd == null || matchString == null) {
             return new EdxEntityMatchDto();
@@ -80,7 +78,6 @@ public class EdxPatientMatchRepositoryUtil {
     }
 
 
-    @Transactional
     public void saveEdxEntityMatch(EdxEntityMatchDto edxEntityMatchDto) {
         EdxEntityMatch model = new EdxEntityMatch(edxEntityMatchDto);
         edxEntityMatchRepository.save(model);

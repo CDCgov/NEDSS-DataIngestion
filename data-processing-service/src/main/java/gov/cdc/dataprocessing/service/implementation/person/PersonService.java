@@ -65,7 +65,6 @@ public class PersonService implements IPersonService {
         this.uidService = uidService;
     }
 
-    @Transactional
     public PersonContainer processingNextOfKin(LabResultProxyContainer labResultProxyContainer, PersonContainer personContainer) throws DataProcessingException {
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();
@@ -86,7 +85,6 @@ public class PersonService implements IPersonService {
         }
     }
 
-    @Transactional
     public PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingException {
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();
@@ -137,7 +135,6 @@ public class PersonService implements IPersonService {
         }
     }
 
-    @Transactional
     public PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingException {
         try {
             long falseUid = personContainer.thePersonDto.getPersonUid();

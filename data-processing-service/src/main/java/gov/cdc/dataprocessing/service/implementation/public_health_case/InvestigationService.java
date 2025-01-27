@@ -138,7 +138,6 @@ public class InvestigationService implements IInvestigationService {
     }
 
     @SuppressWarnings({"java:S125","java:S5411"})
-    @Transactional
     public void setAssociations(Long investigationUID,
                                 Collection<LabReportSummaryContainer>  reportSumVOCollection,
                                 Collection<Object>  vaccinationSummaryVOCollection,

@@ -54,7 +54,6 @@ public class ActRelationshipService implements IActRelationshipService {
         return actRelationshipDtoCollection;
     }
 
-    @Transactional
     public void saveActRelationship(ActRelationshipDto actRelationshipDto) throws DataProcessingException {
         if (actRelationshipDto == null) {
             throw new DataProcessingException("Act Relationship is null");

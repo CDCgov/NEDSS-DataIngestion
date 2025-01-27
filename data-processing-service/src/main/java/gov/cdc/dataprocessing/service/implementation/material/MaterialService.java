@@ -179,8 +179,6 @@ public class MaterialService implements IMaterialService {
         return materialContainer;
     }
 
-
-    @Transactional
     public Long saveMaterial(MaterialContainer materialContainer) throws DataProcessingException {
         MaterialDto materialDto = materialContainer.getTheMaterialDto();
         Long lpk = materialDto.getMaterialUid();

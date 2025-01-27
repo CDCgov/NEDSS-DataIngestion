@@ -57,7 +57,6 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     this.deduplicationService = deduplicationService.getIfAvailable();
   }
 
-  @Transactional
   public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException {
     String patientRole = personContainer.getRole();
 
@@ -283,7 +282,6 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
   }
 
-  @Transactional
   public Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd)
       throws DataProcessingException {
     return updateExistingPerson(personContainer, businessTriggerCd,
