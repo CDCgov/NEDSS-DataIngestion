@@ -782,6 +782,7 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> setLabResultProxy(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
             //saving LabResultProxyVO before updating auto resend notifications
+            // persiting OBS and related objects to ODSE
             Map<Object, Object> returnVal = setLabResultProxyWithoutNotificationAutoResend(labResultProxyVO);
 
             updateLabResultWithAutoResendNotification(labResultProxyVO);
@@ -826,6 +827,10 @@ public class ObservationService implements IObservationService {
         return nndActivityLogDto;
     }
     @SuppressWarnings({"java:S3776", "java:S1199"})
+    /**
+     * Desc - 1: Add patient or provide assoc with OBS
+     * Desc - 2: Create OBS in ODSE
+     * */
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
         //Set flag for type of processing
@@ -1101,6 +1106,7 @@ public class ObservationService implements IObservationService {
 
     /**
      * Original Name: processLabReportObsVOCollection
+     * Desc: Create Observation in ODSE
      * */
     private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
         Map<Object, Object> returnObsVal;

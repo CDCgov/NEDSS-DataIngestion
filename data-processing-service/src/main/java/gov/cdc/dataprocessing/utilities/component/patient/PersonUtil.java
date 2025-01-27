@@ -64,8 +64,6 @@ public class PersonUtil {
             throw new DataProcessingException("Person container collection is null");
         }
 
-        boolean isMorbReport = morbidityApplied;
-
 
         PersonContainer personContainer;
         Long patientMprUid = null;
@@ -94,7 +92,7 @@ public class PersonUtil {
             if (
                 electronicInd != null
                 && (
-                    isMorbReport
+                    morbidityApplied
                     && electronicInd.equals(NEDSSConstant.EXTERNAL_USER_IND)
                     || electronicInd.equals(NEDSSConstant.YES)
                 )
@@ -143,7 +141,7 @@ public class PersonUtil {
             {
                 return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
             }
-            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
+            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || isExternal))
             {
                 return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
             }

@@ -496,7 +496,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
 
         if (!personList.isEmpty()) {
-            revision = personList.get(0);
+            revision = personList.getFirst();
         }
 
         if (mpr != null)
