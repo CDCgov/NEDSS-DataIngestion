@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +18,7 @@ import java.util.Map;
 public class LastProcessedIdListener implements JobExecutionListener {
 
     private final NamedParameterJdbcTemplate deduplicationNamedJdbcTemplate;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LastProcessedIdListener.class);
 
     public LastProcessedIdListener(@Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
         this.deduplicationNamedJdbcTemplate = jdbcTemplate;
@@ -21,6 +26,9 @@ public class LastProcessedIdListener implements JobExecutionListener {
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
+        // This method is intentionally left empty.
+        // It can be used for initialization logic, such as preparing resources
+        // or logging job startup information. For now, no specific action is required.
     }
 
     @Override
@@ -28,23 +36,24 @@ public class LastProcessedIdListener implements JobExecutionListener {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             Long lastProcessedId = jobExecution.getJobParameters().getLong("lastProcessedId");
 
-            // Log for debugging purposes
-            System.out.println("After job completion, lastProcessedId: " + lastProcessedId);
-
             if (lastProcessedId != null) {
-                // Update the last_processed_id with the last processed ID
                 String updateSql = "UPDATE last_processed_id SET last_processed_id = :lastProcessedId WHERE id = 1";
                 Map<String, Object> params = new HashMap<>();
                 params.put("lastProcessedId", lastProcessedId);
 
-                int rowsUpdated = deduplicationNamedJdbcTemplate.update(updateSql, params);
-                System.out.println("Rows updated: " + rowsUpdated);
-                System.out.println("Successfully updated last_processed_id to: " + lastProcessedId);
+                try {
+                    int rowsUpdated = deduplicationNamedJdbcTemplate.update(updateSql, params);
+                    LOGGER.info("Updated {} row(s) in last_processed_id table with ID: {}", rowsUpdated, lastProcessedId);
+                } catch (Exception e) {
+                    LOGGER.error("Failed to update last_processed_id in the database.", e);
+                    throw new IllegalStateException("Error updating last_processed_id", e);
+                }
             } else {
-                System.err.println("Job completed, but no lastProcessedId found in job parameters.");
+                LOGGER.warn("Job completed, but no lastProcessedId was found in job parameters.");
             }
         } else {
-            System.err.println("Job did not complete successfully. Status: " + jobExecution.getStatus());
+            LOGGER.error("Job did not complete successfully. Status: {}", jobExecution.getStatus());
         }
     }
 }
+

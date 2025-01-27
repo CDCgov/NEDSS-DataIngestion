@@ -3,11 +3,11 @@ package gov.cdc.nbs.deduplication.seed;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +37,10 @@ public class SeedController {
   }
 
   @PostMapping
-  public void startSeed() throws Exception {
+  public void startSeed() throws JobExecutionAlreadyRunningException,
+          JobRestartException,
+          JobInstanceAlreadyCompleteException,
+          JobParametersInvalidException {
     Long lastProcessedId = getLastProcessedId();
 
     if (lastProcessedId == null) {
@@ -68,7 +71,6 @@ public class SeedController {
     try {
       return deduplicationNamedJdbcTemplate.queryForObject(sql, new HashMap<>(), Long.class);
     } catch (Exception e) {
-      System.out.println("No record found in last_processed_id table.");
       return null; // No record found, means first run
     }
   }
@@ -79,7 +81,6 @@ public class SeedController {
     try {
       return nbsNamedJdbcTemplate.queryForObject(smallestIdSql, new HashMap<>(), Long.class);
     } catch (Exception e) {
-      System.err.println("Error fetching smallest person ID: " + e.getMessage());
       throw new IllegalStateException("Could not retrieve the smallest person ID from the nbs.person table.", e);
     }
   }
@@ -92,7 +93,6 @@ public class SeedController {
     try {
       return nbsNamedJdbcTemplate.queryForObject(largestIdSql, params, Long.class);
     } catch (Exception e) {
-      System.err.println("Error fetching largest person ID: " + e.getMessage());
       return null; // Handle the case where the largest ID could not be fetched
     }
   }
@@ -104,10 +104,12 @@ public class SeedController {
     params.put("largestProcessedId", largestProcessedId);
 
     try {
-      deduplicationNamedJdbcTemplate.update(updateSql, params);
-      System.out.println("Updated lastProcessedId to: " + largestProcessedId);
+      int rowsUpdated = deduplicationNamedJdbcTemplate.update(updateSql, params);
+      if (rowsUpdated == 0) {
+        throw new IllegalStateException("No rows were updated. Ensure the 'last_processed_id' table is initialized with an entry for id = 1.");
+      }
     } catch (Exception e) {
-      System.err.println("Error updating lastProcessedId: " + e.getMessage());
+      throw new IllegalStateException("Failed to update the last processed ID in the deduplication database.", e);
     }
   }
 }

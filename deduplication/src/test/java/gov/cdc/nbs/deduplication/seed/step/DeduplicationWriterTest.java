@@ -82,9 +82,8 @@ class DeduplicationWriterTest {
 
   @Test
   void testUpdateLastProcessedId() {
-    // Test the update logic directly
-    DeduplicationWriter writer = new DeduplicationWriter(template);
-    writer.updateLastProcessedId(5L);
+    DeduplicationWriter testWriter = new DeduplicationWriter(template);
+    testWriter.updateLastProcessedId(5L);
 
     // Verify that the update method was called
     verify(template).update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
