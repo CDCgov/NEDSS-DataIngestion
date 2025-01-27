@@ -145,11 +145,6 @@ public class ManagerService implements IManagerService {
 
     }
 
-    @Override
-    public void initiatingLabProcessing(PublicHealthCaseFlowContainer data) throws DataProcessingConsumerException {
-
-    }
-
     @SuppressWarnings({"java:S6541", "java:S3776"})
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingException, IOException, ClassNotFoundException {
         EdxLabInformationDto edxLabInformationDto = null;
@@ -211,17 +206,41 @@ public class ManagerService implements IManagerService {
             }
         }
 
-        this.initiatingLabProcessing(phcContainer, nbsInterfaceModel);
-
+//        this.initiatingLabProcessing(phcContainer, nbsInterfaceModel);
         String jsonString = GSON.toJson(phcContainer);
         kafkaManagerProducer.sendDataLabHandling(jsonString);
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingException, IOException, ClassNotFoundException {
+    public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
         EdxLabInformationDto edxLabInformationDto=null;
+        boolean kafkaFailedCheck = false;
+        NbsInterfaceModel nbsInterfaceModel = null;
+
+        try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
+
+            var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
+            if (res.isPresent()) {
+                nbsInterfaceModel = res.get();
+            } else {
+                throw new DataProcessingException("NBS Interface Data Not Exist");
+            }
+
+            synchronized (PropertyUtilCache.class)
+            {
+                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
+                    if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
+                        PropertyUtilCache.kafkaFailedCheckStep3 = 0;
+                    }
+                    ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
+
+                    kafkaFailedCheck = true;
+                    logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
+                    return;
+                }
+            }
 
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
@@ -310,6 +329,37 @@ public class ManagerService implements IManagerService {
             }
             nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
             nbsInterfaceRepository.save(nbsInterfaceModel);
+        } catch (Exception e) {
+            logger.error("STEP 3 ERROR: {}", e.getMessage());
+            if (nbsInterfaceModel != null) {
+                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
+                nbsInterfaceRepository.save(nbsInterfaceModel);
+            }
+            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+                if (edxLabInformationDto.isInvestigationMissingFields()) {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
+                } else {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
+                }
+            }
+            else if (edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null){
+                if (edxLabInformationDto.isNotificationMissingFields()) {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
+                } else {
+                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
+                }
+            }
+        }
+        finally {
+            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
+                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+                edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
+
+                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
+                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+            }
+        }
+        logger.info("Completed 3rd Step");
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})

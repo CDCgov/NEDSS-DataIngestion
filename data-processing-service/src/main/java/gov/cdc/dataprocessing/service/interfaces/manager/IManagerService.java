@@ -42,5 +42,5 @@ public interface IManagerService {
     void initiatingLabProcessing(PublicHealthCaseFlowContainer data)  throws DataProcessingConsumerException;
 
     void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingException, IOException, ClassNotFoundException;
-    void initiatingLabProcessing(PublicHealthCaseFlowContainer data, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingConsumerException, DataProcessingException, IOException, ClassNotFoundException;
+//    void initiatingLabProcessing(PublicHealthCaseFlowContainer data, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingConsumerException, DataProcessingException, IOException, ClassNotFoundException;
 }

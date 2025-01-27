@@ -53,8 +53,7 @@ public class KafkaManagerConsumer {
     private final IAuthUserService authUserService;
 
     public KafkaManagerConsumer(
-            ManagerService managerService,
-            IAuthUserService authUserService) {
+            IManagerService managerService, IAuthUserService authUserService) {
         this.managerService = managerService;
         this.authUserService = authUserService;
 
