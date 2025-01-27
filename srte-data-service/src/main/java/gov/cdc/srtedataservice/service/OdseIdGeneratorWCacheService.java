@@ -29,7 +29,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
         boolean newKeyRequired = false;
         LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());

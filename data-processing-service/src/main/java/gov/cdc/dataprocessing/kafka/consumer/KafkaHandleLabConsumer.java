@@ -56,15 +56,16 @@ public class KafkaHandleLabConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_handle_lab}"
+            topics = "${kafka.topic.elr_handle_lab}",
+            containerFactory = "kafkaListenerContainerFactory3"
     )
-    public void handleMessage(String message, Acknowledgment acknowledgment) {
+    public void handleMessage(String message) {
         try {
             var auth = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(auth);
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-            acknowledgment.acknowledge();
+//            acknowledgment.acknowledge();
         } catch (Exception e) {
             logger.error("KafkaHandleLabConsumer.handleMessage: {}", e.getMessage());
         }

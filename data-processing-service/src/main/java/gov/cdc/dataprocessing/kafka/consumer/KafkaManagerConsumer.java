@@ -65,9 +65,10 @@ public class KafkaManagerConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_micro}"
+            topics = "${kafka.topic.elr_micro}",
+            containerFactory = "kafkaListenerContainerFactory"
     )
-    public void handleMessage(String messages, Acknowledgment acknowledgment)
+    public void handleMessage(String messages)
             throws DataProcessingException {
         var profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
@@ -75,7 +76,7 @@ public class KafkaManagerConsumer {
         try {
             var nbs = GSON.fromJson(messages, Integer.class);
             managerService.processDistribution(nbs);
-            acknowledgment.acknowledge();
+//            acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("KafkaManagerConsumer.handleMessage: {}", e.getMessage());
         }

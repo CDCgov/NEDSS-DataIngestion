@@ -1,7 +1,7 @@
-server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#server:
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 management:
   endpoint:
@@ -33,6 +33,8 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
   cache:
@@ -44,12 +46,11 @@ spring:
 kafka:
   topic:
     elr_micro_transaction: elr_unprocessed_transaction
-    elr_micro: elr_unprocessed
-    elr_health_case: elr_processing_public_health_case
-    elr_handle_lab: elr_processing_handle_lab
-    elr_edx_log: elr_edx_log
-    elr_action_tracker: elr_action_tracker
-
+    elr_micro: dp_elr_unprocessed
+    elr_health_case: dp_elr_processing_public_health_case
+    elr_handle_lab: dp_elr_processing_handle_lab
+    elr_edx_log: dp_elr_edx_log
+    elr_action_tracker: dp_elr_action_tracker
 nbs:
   user: ${NBS_AUTH_USER:superuser}
   data:
@@ -62,8 +63,13 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 20
+      maximum-pool-size: 40
+      connection-timeout: 300000
+      minimum-idle: 20
+      idle-timeout: 120000
+      max-lifetime: 1200000
+      pool-name: SQLServerHikariCP
+      leak-detection-threshold: 300000
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -79,7 +85,11 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    group-id: data-processing-group
+    partition: 20
+    group-id: data-processing-group-init
+    group-id-phc: data-processing-group-phc
+    group-id-lab: data-processing-group-lab
+    group-id-edx: data-processing-group-edx
     consumer:
       maxPollIntervalMs: 30000
 #K8S Profile goes here

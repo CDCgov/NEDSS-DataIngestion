@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -53,33 +56,63 @@ import java.util.HashMap;
 public class OdseDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;
-
     @Value("${spring.datasource.odse.url}")
     private String dbUrl;
-
     @Value("${spring.datasource.username}")
     private String dbUserName;
-
     @Value("${spring.datasource.password}")
     private String dbUserPassword;
 
+    @Value("${spring.datasource.hikari.maximum-pool-size:100}")
+    private int maximumPoolSize;
+
+    @Value("${spring.datasource.hikari.minimum-idle:50}")
+    private int minimumIdle;
+
+    @Value("${spring.datasource.hikari.idle-timeout:120000}")
+    private long idleTimeout;
+
+    @Value("${spring.datasource.hikari.max-lifetime:1200000}")
+    private long maxLifetime;
+
+    @Value("${spring.datasource.hikari.connection-timeout:300000}")
+    private long connectionTimeout;
+
+    @Value("${spring.datasource.hikari.pool-name:OdseHikariCP}")
+    private String poolName;
+
     @Bean(name = "odseDataSource")
     public DataSource odseDataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+//        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+//
+//        dataSourceBuilder.driverClassName(driverClassName);
+//        dataSourceBuilder.url(dbUrl);
+//        dataSourceBuilder.username(dbUserName);
+//        dataSourceBuilder.password(dbUserPassword);
+//
+//        return dataSourceBuilder.build();
 
-        dataSourceBuilder.driverClassName(driverClassName);
-        dataSourceBuilder.url(dbUrl);
-        dataSourceBuilder.username(dbUserName);
-        dataSourceBuilder.password(dbUserPassword);
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(driverClassName);
+        hikariConfig.setJdbcUrl(dbUrl);
+        hikariConfig.setUsername(dbUserName);
+        hikariConfig.setPassword(dbUserPassword);
 
-        return dataSourceBuilder.build();
+        // HikariCP-specific settings
+        hikariConfig.setMaximumPoolSize(maximumPoolSize);
+        hikariConfig.setMinimumIdle(minimumIdle);
+        hikariConfig.setIdleTimeout(idleTimeout);
+        hikariConfig.setMaxLifetime(maxLifetime);
+        hikariConfig.setConnectionTimeout(connectionTimeout);
+        hikariConfig.setPoolName(poolName);
+
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean(name = "odseEntityManagerFactoryBuilder")
     public EntityManagerFactoryBuilder odseEntityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
-
     @Bean(name = "odseEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean odseEntityManagerFactory(
             EntityManagerFactoryBuilder odseEntityManagerFactoryBuilder,
@@ -90,11 +123,15 @@ public class OdseDataSourceConfig {
                 .persistenceUnit("odse")
                 .build();
     }
-
     @Primary
     @Bean(name = "odseTransactionManager")
     public PlatformTransactionManager odseTransactionManager(
             @Qualifier("odseEntityManagerFactory") EntityManagerFactory odseEntityManagerFactory ) {
         return new JpaTransactionManager(odseEntityManagerFactory);
+    }
+
+    @Bean(name = "odseJdbcTemplate")
+    public JdbcTemplate odseJdbcTemplate(@Qualifier("odseDataSource") DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }
