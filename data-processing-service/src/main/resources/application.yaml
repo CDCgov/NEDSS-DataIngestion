@@ -63,29 +63,29 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: 40
-      connection-timeout: 300000
-      minimum-idle: 20
-      idle-timeout: 120000
-      max-lifetime: 1200000
-      pool-name: SQLServerHikariCP
-      leak-detection-threshold: 300000
+      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
+      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+      pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
     nbs:
-      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_MSGOUTE_DB_NAME:NBS_MSGOUTE};encrypt=true;trustServerCertificate=true;
     odse:
-      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_ODSE;encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_ODSE_DB_NAME:NBS_ODSE};encrypt=true;trustServerCertificate=true;
     srte:
-      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_SRTE;encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_SRTE_DB_NAME:NBS_SRTE};encrypt=true;trustServerCertificate=true;
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    partition: 20
+    thread: ${KAFKA_THREAD:20}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
