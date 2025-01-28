@@ -15,6 +15,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,18 +59,20 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
+    private final DataModifierReposJdbc dataModifierReposJdbc;
     public EntityLocatorParticipationService(PersonRepository personRepository,
                                              EntityLocatorParticipationRepository entityLocatorParticipationRepository,
                                              TeleLocatorRepository teleLocatorRepository,
                                              PostalLocatorRepository postalLocatorRepository,
                                              PhysicalLocatorRepository physicalLocatorRepository,
-                                             IOdseIdGeneratorWCacheService odseIdGeneratorService) {
+                                             IOdseIdGeneratorWCacheService odseIdGeneratorService, DataModifierReposJdbc dataModifierReposJdbc) {
         this.personRepository = personRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
 
     @SuppressWarnings({"java:S3776", "java:S125"})
@@ -130,8 +133,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             // Comparing String of MPR matched with Incoming Revision Then Do Delete
                             if (comparingStrList.contains(comparingString.toString().toUpperCase()) && !birCheck.isEmpty()) {
                                 try {
-                                    postalLocatorRepository.deletePostalLocatorById(mpr.getPostalLocatorUid());
-                                    entityLocatorParticipationRepository.deleteLocatorById(parentUid, mpr.getPostalLocatorUid());
+                                    dataModifierReposJdbc.deletePostalLocatorById(mpr.getPostalLocatorUid());
+                                    dataModifierReposJdbc.deleteLocatorById(parentUid, mpr.getPostalLocatorUid());
                                 } catch (Exception e) {
                                     logger.info("DELETE OPS ERROR");
                                 }
@@ -156,8 +159,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
                 if (deleteRevision.getUseCd().equalsIgnoreCase("BIR")) {
                     try {
-                        postalLocatorRepository.deletePostalLocatorById(deleteRevision.getLocatorUid());
-                        entityLocatorParticipationRepository.deleteLocatorById(deleteRevision.getEntityUid(), deleteRevision.getLocatorUid());
+                        dataModifierReposJdbc.deletePostalLocatorById(deleteRevision.getLocatorUid());
+                        dataModifierReposJdbc.deleteLocatorById(deleteRevision.getEntityUid(), deleteRevision.getLocatorUid());
                     } catch (Exception e) {
                         logger.info("DELETE OPS ERROR");
                     }

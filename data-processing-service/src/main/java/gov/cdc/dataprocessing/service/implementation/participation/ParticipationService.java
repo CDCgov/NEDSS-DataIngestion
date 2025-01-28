@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,13 +39,15 @@ import java.util.Collections;
 public class ParticipationService implements IParticipationService {
     private final ParticipationRepository participationRepository;
     private final ParticipationHistRepository participationHistRepository;
+    private final DataModifierReposJdbc dataModifierReposJdbc;
 
 
     public ParticipationService(ParticipationRepository participationRepository,
-                                ParticipationHistRepository participationHistRepository
+                                ParticipationHistRepository participationHistRepository, DataModifierReposJdbc dataModifierReposJdbc
     ) {
         this.participationRepository = participationRepository;
         this.participationHistRepository = participationHistRepository;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
 
     public Long findPatientMprUidByObservationUid(String classCode, String typeCode, Long actUid) {
@@ -94,7 +97,7 @@ public class ParticipationService implements IParticipationService {
 
     private void deleteParticipationByPk(Long subjectId, Long actId, String classCode) throws DataProcessingException {
         try {
-            participationRepository.deleteParticipationByPk(subjectId, actId, classCode);
+            dataModifierReposJdbc.deleteParticipationByPk(subjectId, actId, classCode);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }

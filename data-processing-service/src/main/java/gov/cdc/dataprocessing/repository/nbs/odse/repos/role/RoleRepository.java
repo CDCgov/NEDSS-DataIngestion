@@ -68,15 +68,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Integer> loadCountBySubjectScpingCdComb(@Param("subjectEntityUid") Long subjectEntityUid, @Param("code") String code, @Param("scopingEntityUid") Long scopingEntityUid);
 
 
-
-    /**
-     * String DELETE_BY_PK = "DELETE from Role where subject_entity_uid = ? and cd = ? and role_seq = ?"
-     * */
-    @Modifying
-    @Query("DELETE FROM Role data WHERE data.subjectEntityUid = ?1 AND data.code = ?2 AND data.roleSeq = ?3")
-    void deleteRoleByPk(Long subjectEntityUid, String code, Long roleSeq);
-
-
     @Query("SELECT rl FROM Role rl WHERE rl.subjectEntityUid = :subjectEntityUid AND rl.statusCode='A'")
     Optional<List<Role>> findBySubjectEntityUid(@Param("subjectEntityUid") Long subjectEntityUid);
 }

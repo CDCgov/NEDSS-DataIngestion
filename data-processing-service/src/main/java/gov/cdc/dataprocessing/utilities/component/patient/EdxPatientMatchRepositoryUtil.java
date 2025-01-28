@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxPatientMatch
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxEntityMatchRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxPatientMatchRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.EdxPatientMatchStoredProcRepository;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -41,14 +42,15 @@ public class EdxPatientMatchRepositoryUtil {
     private final EdxPatientMatchRepository edxPatientMatchRepository;
     private final EdxEntityMatchRepository edxEntityMatchRepository;
     private final EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
-
+    private final DataModifierReposJdbc dataModifierReposJdbc;
 
     public EdxPatientMatchRepositoryUtil(EdxPatientMatchRepository edxPatientMatchRepository,
                                          EdxEntityMatchRepository edxEntityMatchRepository,
-                                         EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository) {
+                                         EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository, DataModifierReposJdbc dataModifierReposJdbc) {
         this.edxPatientMatchRepository = edxPatientMatchRepository;
         this.edxEntityMatchRepository = edxEntityMatchRepository;
         this.edxPatientMatchStoreProcRepository = edxPatientMatchStoreProcRepository;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
 
     public EdxPatientMatchDto getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
@@ -91,6 +93,6 @@ public class EdxPatientMatchRepositoryUtil {
     }
 
     public void deleteEdxPatientMatchDTColl(Long patientUid) {
-        edxPatientMatchRepository.deleteByPatientUidAndMatchStringNotLike(patientUid);
+        dataModifierReposJdbc.deleteByPatientUidAndMatchStringNotLike(patientUid);
     }
 }

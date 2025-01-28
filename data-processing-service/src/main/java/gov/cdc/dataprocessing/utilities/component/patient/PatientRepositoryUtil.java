@@ -27,13 +27,13 @@ import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipat
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,6 +72,8 @@ public class PatientRepositoryUtil {
     private final PersonEthnicRepository personEthnicRepository;
     private final EntityIdRepository entityIdRepository;
 
+    private final DataModifierReposJdbc dataModifierReposJdbc;
+
     private final RoleRepository roleRepository;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
@@ -87,7 +89,7 @@ public class PatientRepositoryUtil {
             PersonNameRepository personNameRepository,
             PersonRaceRepository personRaceRepository,
             PersonEthnicRepository personEthnicRepository,
-            EntityIdRepository entityIdRepository,
+            EntityIdRepository entityIdRepository, DataModifierReposJdbc dataModifierReposJdbc,
             RoleRepository roleRepository,
             IOdseIdGeneratorWCacheService odseIdGeneratorService1,
             IEntityLocatorParticipationService entityLocatorParticipationService) {
@@ -97,13 +99,14 @@ public class PatientRepositoryUtil {
         this.personRaceRepository = personRaceRepository;
         this.personEthnicRepository = personEthnicRepository;
         this.entityIdRepository = entityIdRepository;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
         this.roleRepository = roleRepository;
         this.odseIdGeneratorService = odseIdGeneratorService1;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
     }
 
     public Long updateExistingPersonEdxIndByUid(Long uid) {
-        return (long) personRepository.updateExistingPersonEdxIndByUid(uid);
+        return (long) dataModifierReposJdbc.updateExistingPersonEdxIndByUid(uid);
     }
 
     public Person findExistingPersonByUid(Long personUid) {
@@ -380,7 +383,7 @@ public class PatientRepositoryUtil {
                         try {
                             if (personName != null) {
                                 // set existing record status to inactive
-                                personNameRepository.updatePersonNameStatus(personNameDto.getPersonUid(), seqId);
+                                dataModifierReposJdbc.updatePersonNameStatus(personNameDto.getPersonUid(), seqId);
 
                                 seqId++;
                                 if (personName.getStatusCd() == null) {
@@ -442,9 +445,9 @@ public class PatientRepositoryUtil {
 
                 if (entityIdDto.isItDelete()) {
                     try {
-                        entityIdRepository.deleteEntityIdAndSeq(entityIdDto.getEntityUid(), entityIdDto.getEntityIdSeq());
+                        dataModifierReposJdbc.deleteEntityIdAndSeq(entityIdDto.getEntityUid(), entityIdDto.getEntityIdSeq());
                         if (personContainer.getThePersonDto().getPersonParentUid() != null) {
-                            entityIdRepository.deleteEntityIdAndSeq(personContainer.getThePersonDto().getPersonParentUid(), entityIdDto.getEntityIdSeq());
+                            dataModifierReposJdbc.deleteEntityIdAndSeq(personContainer.getThePersonDto().getPersonParentUid(), entityIdDto.getEntityIdSeq());
                         }
                     } catch (Exception e) {
                         logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
@@ -488,7 +491,7 @@ public class PatientRepositoryUtil {
                 var pUid = personContainer.getThePersonDto().getPersonUid();
                 if (personRaceDto.isItDelete()) {
                     try {
-                        personRaceRepository.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
+                        dataModifierReposJdbc.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
                     } catch (Exception e) {
                         logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
 
@@ -524,7 +527,7 @@ public class PatientRepositoryUtil {
         // Theses executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
         if (!retainingRaceCodeList.isEmpty() && patientUid > 0) {
             try {
-                personRaceRepository.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
+                dataModifierReposJdbc.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
             } catch (Exception e) {
                 logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
 
@@ -534,7 +537,7 @@ public class PatientRepositoryUtil {
             try {
                 var raceParent = personRaceRepository.findByParentUid(parentUid);
                 if (raceParent.isPresent() && raceParent.get().size() > 1) {
-                    personRaceRepository.deletePersonRaceByUid(parentUid,retainingRaceCodeList);
+                    dataModifierReposJdbc.deletePersonRaceByUid(parentUid,retainingRaceCodeList);
                 }
             } catch (Exception e) {
                 logger.error("{} {}", ERROR_UPDATE_MSG, e.getMessage()); //NOSONAR

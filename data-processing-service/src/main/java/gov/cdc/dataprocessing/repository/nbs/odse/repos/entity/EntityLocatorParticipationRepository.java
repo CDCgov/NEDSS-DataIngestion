@@ -47,12 +47,4 @@ public interface EntityLocatorParticipationRepository extends JpaRepository<Enti
     @Query("SELECT pn.locatorUid FROM EntityLocatorParticipation pn WHERE pn.entityUid = :entityUid")
     Optional<List<Long>> findLocatorUidsByEntityUid(@Param("entityUid") Long entityUid);
 
-    @Modifying
-    @Query(value = "DELETE FROM EntityLocatorParticipation x WHERE x.entityUid = :entityUid AND x.locatorUid = :locatorUid", nativeQuery = false)
-    void deleteLocatorById(@Param("entityUid") Long entityUid, @Param("locatorUid") Long locatorUid);
-
-    @Modifying
-    @Query(value = "UPDATE EntityLocatorParticipation x SET x.recordStatusCd = :recordStatus, x.statusCd = :statusCd WHERE x.entityUid = :entityUid AND x.locatorUid = :locatorUid", nativeQuery = false)
-    void updateLocatorStatus(@Param("entityUid") Long entityUid, @Param("locatorUid") Long locatorUid,
-                             @Param("recordStatus") String recordStatus,  @Param("statusCd") String statusCd);
 }

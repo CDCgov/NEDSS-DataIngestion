@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +37,11 @@ import java.util.Collection;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ActRelationshipService implements IActRelationshipService {
     private final ActRelationshipRepository actRelationshipRepository;
+    private final DataModifierReposJdbc dataModifierReposJdbc;
 
-    public ActRelationshipService(ActRelationshipRepository actRelationshipRepository) {
+    public ActRelationshipService(ActRelationshipRepository actRelationshipRepository, DataModifierReposJdbc dataModifierReposJdbc) {
         this.actRelationshipRepository = actRelationshipRepository;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
 
     public Collection<ActRelationshipDto> loadActRelationshipBySrcIdAndTypeCode(Long uid, String type) {
@@ -66,7 +69,7 @@ public class ActRelationshipService implements IActRelationshipService {
             }
         }
         else if (actRelationshipDto.isItDelete()) {
-            actRelationshipRepository.deleteActRelationshipByPk(actRelationshipDto.getTargetActUid(), actRelationshipDto.getSourceActUid(), actRelationshipDto.getTypeCd());
+            dataModifierReposJdbc.deleteActRelationshipByPk(actRelationshipDto.getTargetActUid(), actRelationshipDto.getSourceActUid(), actRelationshipDto.getTypeCd());
         }
     }
 }

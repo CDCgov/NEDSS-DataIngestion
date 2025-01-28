@@ -44,13 +44,5 @@ public interface PostalLocatorRepository extends JpaRepository<PostalLocator, Lo
     @Query(value = "SELECT x FROM PostalLocator x WHERE x.postalLocatorUid IN :uids", nativeQuery = false)
     Optional<List<PostalLocator>> findByPostalLocatorUids(@Param("uids") List<Long> uids);
 
-    @Modifying
-    @Query(value = "DELETE FROM PostalLocator x WHERE x.postalLocatorUid = :postalId", nativeQuery = false)
-    void deletePostalLocatorById(@Param("postalId") Long postalId);
-
-
-    @Modifying
-    @Query(value = "UPDATE PostalLocator x SET x.recordStatusCd = :status WHERE x.postalLocatorUid = :postalId", nativeQuery = false)
-    void updatePostalStatus(@Param("postalId") Long postalId, @Param("status") String status);
 
 }

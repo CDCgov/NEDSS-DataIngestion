@@ -46,14 +46,4 @@ public interface PersonRaceRepository extends JpaRepository<PersonRace, PersonRa
     @Query("SELECT pn FROM PersonRace pn WHERE pn.personUid = :parentUid")
     Optional<List<PersonRace>> findByParentUid(@Param("parentUid") Long parentUid);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM PersonRace pn WHERE pn.personUid = :personUid AND pn.raceCd = :raceCd")
-    void deletePersonRaceByUidAndCode (@Param("personUid") Long personUid, @Param("raceCd") String raceCd);
-
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM PersonRace pn WHERE pn.personUid = :personUid AND pn.raceCd NOT IN :raceCds")
-    void deletePersonRaceByUid (@Param("personUid") Long personUid,@Param("raceCds") List<String> raceCds);
 }

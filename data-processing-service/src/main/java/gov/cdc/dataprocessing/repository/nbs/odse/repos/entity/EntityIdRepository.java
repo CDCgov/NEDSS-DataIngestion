@@ -49,10 +49,4 @@ public interface EntityIdRepository extends JpaRepository<EntityId, Long> {
     Optional<Integer> findMaxEntityId(@Param("parentUid") Long parentUid);
     @Query("SELECT eid FROM EntityId eid WHERE eid.entityUid = :entityUid AND eid.recordStatusCode ='ACTIVE'")
     Optional<List<EntityId>> findByEntityUid(@Param("entityUid") Long entityUid);
-
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM EntityId pn WHERE pn.entityUid = :entityUid AND pn.entityIdSeq = :entityIdSeq")
-    void deleteEntityIdAndSeq (@Param("entityUid") Long entityUid, @Param("entityIdSeq") Integer entityIdSeq);
 }
