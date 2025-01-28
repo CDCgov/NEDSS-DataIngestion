@@ -136,34 +136,35 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
+    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         String detailedMsg = "";
         boolean  kafkaFailedCheck = false;
-        try {
+//        try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-            if (res.isPresent()) {
-                nbsInterfaceModel = res.get();
-            } else {
-                throw new DataProcessingException("NBS Interface Data Not Exist");
-            }
+        nbsInterfaceModel = res.get();
 
-            synchronized (PropertyUtilCache.class) {
-                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
-                    if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
-                        PropertyUtilCache.kafkaFailedCheckStep2 = 0;
-                    }
-                    ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
-
-                    kafkaFailedCheck = true;
-                    logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
-                    return;
-                }
-            }
+//        if (res.isPresent()) {
+//            } else {
+//                throw new DataProcessingException("NBS Interface Data Not Exist");
+//            }
+//
+//            synchronized (PropertyUtilCache.class) {
+//                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
+//                    if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
+//                        PropertyUtilCache.kafkaFailedCheckStep2 = 0;
+//                    }
+//                    ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
+//
+//                    kafkaFailedCheck = true;
+//                    logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
+//                    return;
+//                }
+//            }
 
 
             if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
@@ -221,62 +222,66 @@ public class ManagerService implements IManagerService {
             }
 
 
-            String trackerString = GSON.toJson(trackerView);
-            kafkaManagerProducer.sendDataActionTracker(trackerString);
+//            String trackerString = GSON.toJson(trackerView);
+//            kafkaManagerProducer.sendDataActionTracker(trackerString);
+//
+//            String jsonString = GSON.toJson(phcContainer);
+//            kafkaManagerProducer.sendDataLabHandling(jsonString);
 
-            String jsonString = GSON.toJson(phcContainer);
-            kafkaManagerProducer.sendDataLabHandling(jsonString);
-
-        } catch (Exception e) {
-            logger.error("STEP 2 ERROR: {}", e.getMessage());
-            detailedMsg = e.getMessage();
-            if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
-                nbsInterfaceRepository.save(nbsInterfaceModel);
-            }
-
-        }
-        finally
-        {
-            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
-                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
-                edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
-                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
-            }
-        }
-
-        logger.info("Completed 2nd Step");
+            this.initiatingLabProcessing(phcContainer);
+//
+//        } catch (Exception e) {
+//            logger.error("STEP 2 ERROR: {}", e.getMessage());
+//            detailedMsg = e.getMessage();
+//            if (nbsInterfaceModel != null) {
+//                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
+//                nbsInterfaceRepository.save(nbsInterfaceModel);
+//            }
+//
+//        }
+//        finally
+//        {
+//            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
+//                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+//                edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
+//                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
+//                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+//            }
+//        }
+//
+//        logger.info("Completed 2nd Step");
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
+    public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
         boolean kafkaFailedCheck = false;
-        try {
+//        try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-            if (res.isPresent()) {
-                nbsInterfaceModel = res.get();
-            } else {
-                throw new DataProcessingException("NBS Interface Data Not Exist");
-            }
+            nbsInterfaceModel = res.get();
 
-            synchronized (PropertyUtilCache.class)
-            {
-                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
-                    if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
-                        PropertyUtilCache.kafkaFailedCheckStep3 = 0;
-                    }
-                    ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
+//        if (res.isPresent()) {
+//                nbsInterfaceModel = res.get();
+//            } else {
+//                throw new DataProcessingException("NBS Interface Data Not Exist");
+//            }
 
-                    kafkaFailedCheck = true;
-                    logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
-                    return;
-                }
-            }
+//            synchronized (PropertyUtilCache.class)
+//            {
+//                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_3")) {
+//                    if (PropertyUtilCache.kafkaFailedCheckStep3 == 100000) {
+//                        PropertyUtilCache.kafkaFailedCheckStep3 = 0;
+//                    }
+//                    ++PropertyUtilCache.kafkaFailedCheckStep3; // NOSONAR
+//
+//                    kafkaFailedCheck = true;
+//                    logger.info("Kafka failed check at Step 3: {}", PropertyUtilCache.kafkaFailedCheckStep3);
+//                    return;
+//                }
+//            }
 
 
             PageActProxyContainer pageActProxyContainer = null;
@@ -366,41 +371,41 @@ public class ManagerService implements IManagerService {
             }
             nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
             nbsInterfaceRepository.save(nbsInterfaceModel);
-        }
-        catch (Exception e)
-        {
-            logger.error("STEP 3 ERROR: {}", e.getMessage());
-            if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
-                nbsInterfaceRepository.save(nbsInterfaceModel);
-            }
-            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
-                if (edxLabInformationDto.isInvestigationMissingFields()) {
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
-                } else {
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
-                }
-            }
-            else if ((edxLabInformationDto.getPageActContainer() != null
-                            || edxLabInformationDto.getPamContainer() != null)
-                            && edxLabInformationDto.isInvestigationSuccessfullyCreated()){
-                if (edxLabInformationDto.isNotificationMissingFields()) {
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
-                } else {
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
-                }
-            }
-        }finally {
-            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
-                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
-                edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
+//        }
+//        catch (Exception e)
+//        {
+//            logger.error("STEP 3 ERROR: {}", e.getMessage());
+//            if (nbsInterfaceModel != null) {
+//                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
+//                nbsInterfaceRepository.save(nbsInterfaceModel);
+//            }
+//            if ((edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null) && !edxLabInformationDto.isInvestigationSuccessfullyCreated()) {
+//                if (edxLabInformationDto.isInvestigationMissingFields()) {
+//                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_5);
+//                } else {
+//                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
+//                }
+//            }
+//            else if ((edxLabInformationDto.getPageActContainer() != null
+//                            || edxLabInformationDto.getPamContainer() != null)
+//                            && edxLabInformationDto.isInvestigationSuccessfullyCreated()){
+//                if (edxLabInformationDto.isNotificationMissingFields()) {
+//                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
+//                } else {
+//                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
+//                }
+//            }
+//        }finally {
+//            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
+//                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+//                edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
+//
+//                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
+//                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+//            }
+//        }
 
-                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
-                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
-            }
-        }
-
-        logger.info("Completed 3rd Step");
+        logger.info("Completed");
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
@@ -499,9 +504,11 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            String jsonString = GSON.toJson(phcContainer);
-            kafkaManagerProducer.sendDataPhc(jsonString);
-            logger.info("Completed 1st Step");
+//            String jsonString = GSON.toJson(phcContainer);
+//            kafkaManagerProducer.sendDataPhc(jsonString);
+
+            this.initiatingInvestigationAndPublicHealthCase(phcContainer);
+//            logger.info("Completed 1st Step");
 
             //return result;
         }
@@ -631,7 +638,7 @@ public class ManagerService implements IManagerService {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
-                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+                //kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
     }
