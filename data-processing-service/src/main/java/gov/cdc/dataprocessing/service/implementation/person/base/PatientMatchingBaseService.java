@@ -182,10 +182,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 personUID = res.getPersonUid();
                 logger.debug(" EntityControllerEJB.setProvider() Person Created");
             } else {
-                getPatientRepositoryUtil().updateExistingPerson(personVO);
+                if (!personVO.isNewPersonCreated()) {
+                    getPatientRepositoryUtil().updateExistingPerson(personVO);
+                    logger.debug(" EntityControllerEJB.setProvider() Person Updated");
+                }
                 personUID = personVO.getThePersonDto()
                         .getPersonUid();
-                logger.debug(" EntityControllerEJB.setProvider() Person Updated");
             }
             if(isELRCase && personType.equals(NEDSSConstant.PAT))
             {
@@ -235,6 +237,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         if(mpr != null) //With the MPR, update...
         {
             mpr.setMPRUpdateValid(newRevision.isMPRUpdateValid());
+            mpr.setNewPersonCreated(newRevision.isNewPersonCreated());
             //localId need to be same for MPR and Revision and it need to be set at backend
             newRevision.getThePersonDto().setLocalId(mpr.getThePersonDto().getLocalId());
             return update(mpr, newRevision, personType);

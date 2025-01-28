@@ -228,19 +228,24 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     personContainer.getThePersonDto().setPersonParentUid(matchUid);
     personContainer.setPatientMatchedFound(matchFound);
 
+    boolean newPersonCreated = false;
     // No match was found. create a new person
     if (!matchFound) {
       filterLREntityId(personContainer);
       // NOTE: If personDto.cd is 'PAT' then create a new person entry
       if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
         patientPersonUid = setAndCreateNewPerson(personContainer);
+        newPersonCreated = true;
         personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
         personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
         personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
       }
     }
 
+    // newPersonCreated flag prevent revision log for do another unnecessary MPR update
+    personContainer.setNewPersonCreated(newPersonCreated);
     createPatientRevision(personContainer);
+    personContainer.setNewPersonCreated(false);
   }
 
   // It appears a revision is always created during ingestion, even if a match was

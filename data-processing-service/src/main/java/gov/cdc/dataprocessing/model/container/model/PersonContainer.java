@@ -63,12 +63,13 @@ public class PersonContainer extends LdfBaseContainer implements Serializable {
     private String role;
     private String addReasonCode;
 
+
     /**
      * NEW VARIABLE
      * */
 
     private Boolean patientMatchedFound;
-
+    private boolean newPersonCreated = false;
 
 
     public PersonContainer deepClone() {

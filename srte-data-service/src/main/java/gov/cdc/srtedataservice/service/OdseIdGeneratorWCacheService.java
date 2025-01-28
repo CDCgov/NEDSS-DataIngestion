@@ -27,46 +27,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
     @Transactional
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
-        boolean newKeyRequired = false;
-//        LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
-
-//        if (localUidModel != null) {
-//            if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
-//                if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
-//                    updateCounters(localUidModel, true);
-//                } else if (localUidModel.getGaTypeUid() == null) {
-//                    updateCounters(localUidModel, false);
-//                } else {
-//                    newKeyRequired = true;
-//                }
-//            } else {
-//                newKeyRequired = true;
-//            }
-//        } else {
-//            newKeyRequired = true;
-//        }
-
-//        if (newKeyRequired) {
-//            localUidModel = createNewLocalUid(localIdClass, gaApplied);
-//            LocalUidCacheModel.localUidMap.put(localUidModel.getPrimaryClassName(), localUidModel);
-//        }
-
-        var localUidModel = createNewLocalUid(localIdClass, gaApplied);
-
-
-        return localUidModel;
-    }
-    private void updateCounters(LocalUidModel localUidModel, boolean gaValid) {
-        var classUsedCounter = localUidModel.getClassTypeUid().getUsedCounter();
-        var classSeed = localUidModel.getClassTypeUid().getSeedValueNbr();
-        localUidModel.getClassTypeUid().setUsedCounter(++classUsedCounter);
-        localUidModel.getClassTypeUid().setSeedValueNbr(++classSeed);
-        if (gaValid) {
-            var gaUsedCounter = localUidModel.getGaTypeUid().getUsedCounter();
-            var gaSeed = localUidModel.getGaTypeUid().getSeedValueNbr();
-            localUidModel.getGaTypeUid().setUsedCounter(++gaUsedCounter);
-            localUidModel.getGaTypeUid().setSeedValueNbr(++gaSeed);
-        }
+        return createNewLocalUid(localIdClass, gaApplied);
     }
 
     private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
