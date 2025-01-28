@@ -65,19 +65,15 @@ public class RoleService implements IRoleService {
     }
 
     public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
-        try {
-            if(roleDTColl == null || roleDTColl.isEmpty()) return;
+        if(roleDTColl == null || roleDTColl.isEmpty()) return;
 
-            for (RoleDto roleDT : roleDTColl) {
-                if (roleDT == null) {
-                    continue;
-                }
-
-                roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
-                this.saveRole(roleDT);
+        for (RoleDto roleDT : roleDTColl) {
+            if (roleDT == null) {
+                continue;
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+
+            roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
+            this.saveRole(roleDT);
         }
     }
 

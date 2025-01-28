@@ -136,52 +136,48 @@ public class OrganizationRepositoryUtil {
             throws DataProcessingException {
         Long organizationUid ;
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
-        try {
-            String localUid ;
-            var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
-            organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
-            localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
-            if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
-                organizationContainer.getTheOrganizationDto().setLocalId(localUid);
-            }
-            /**
-             * Starts inserting a new organization
-             */
-            if (organizationContainer != null) {
-                try {
-                    // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
-                    organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
-                    organizationContainer.getTheOrganizationDto().setLocalId(localUid);
-                    organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
-                    insertOrganization(organizationContainer);
-                } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage(), e);
-                }
+        String localUid ;
+        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+        organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
+        localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
-            }
-            if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
-                insertOrganizationNames(organizationContainer);
-            }
-            //NOTE: Upsert EntityID
-            if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                createEntityId(organizationContainer);
-            }
-            //NOTE: Create Entity Locator Participation
-            if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                createEntityLocatorParticipation(organizationContainer);
-            }
-            //NOTE: Create Role
-            if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
-                createRole(organizationContainer);
-            }
-
-            organizationContainer.getTheOrganizationDto().setOrganizationUid(oldOrgUid);
-
-        } catch (Exception ex) {
-            logger.error("Error while creating Organization {}", ex.getMessage());
-            throw new DataProcessingException(ex.getMessage(), ex);
+        if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
+            organizationContainer.getTheOrganizationDto().setLocalId(localUid);
         }
+        /**
+         * Starts inserting a new organization
+         */
+        if (organizationContainer != null) {
+            try {
+                // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
+                organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
+                organizationContainer.getTheOrganizationDto().setLocalId(localUid);
+                organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
+                insertOrganization(organizationContainer);
+            } catch (Exception e) {
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+
+        }
+        if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
+            insertOrganizationNames(organizationContainer);
+        }
+        //NOTE: Upsert EntityID
+        if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            createEntityId(organizationContainer);
+        }
+        //NOTE: Create Entity Locator Participation
+        if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+            createEntityLocatorParticipation(organizationContainer);
+        }
+        //NOTE: Create Role
+        if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
+            createRole(organizationContainer);
+        }
+
+        organizationContainer.getTheOrganizationDto().setOrganizationUid(oldOrgUid);
+
         return organizationUid;
     }
 

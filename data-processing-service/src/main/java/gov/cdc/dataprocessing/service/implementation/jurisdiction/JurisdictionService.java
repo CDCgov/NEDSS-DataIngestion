@@ -103,150 +103,128 @@ public class JurisdictionService implements IJurisdictionService {
 
     @SuppressWarnings("java:S3776")
     public String deriveJurisdictionCd(BaseContainer proxyVO, ObservationDto rootObsDT) throws DataProcessingException {
-        try {
-            //Retieve provider uid and patient uid
-            Collection<ParticipationDto>  partColl = null;
-            boolean isLabReport = false;
-            String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
+        //Retieve provider uid and patient uid
+        Collection<ParticipationDto>  partColl = null;
+        boolean isLabReport = false;
+        String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
 
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
-                isLabReport = true;
-                partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
+        if (proxyVO instanceof LabResultProxyContainer)
+        {
+            isLabReport = true;
+            partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
+        }
+        if (partColl == null || partColl.isEmpty())
+        {
+            throw new DataProcessingException("Participation collection is null or empty, it is: " + partColl);
+        }
+
+        Long providerUid = null;
+        Long patientUid = null;
+        Long orderingFacilityUid = null;
+        Long reportingFacilityUid = null;
+
+        for (ParticipationDto partDT : partColl) {
+            if (partDT == null) {
+                continue;
             }
-            if (partColl == null || partColl.isEmpty())
-            {
-                throw new DataProcessingException("Participation collection is null or empty, it is: " + partColl);
-            }
 
-            Long providerUid = null;
-            Long patientUid = null;
-            Long orderingFacilityUid = null;
-            Long reportingFacilityUid = null;
+            String typeCd = partDT.getTypeCd();
+            String subjectClassCd = partDT.getSubjectClassCd();
+            if (typeCd != null && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR101_TYP_CD)
+                    || typeCd.equalsIgnoreCase(NEDSSConstant.MOB_PHYSICIAN_OF_MORB_REPORT))
+                    && subjectClassCd != null && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PERSON_CLASS_CODE)) {
+                providerUid = partDT.getSubjectEntityUid();
+            } else if (typeCd != null
+                    && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)
+                    || typeCd.equalsIgnoreCase(NEDSSConstant.MOB_SUBJECT_OF_MORB_REPORT))) {
+                patientUid = partDT.getSubjectEntityUid();
+            } else if (typeCd != null
+                    && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR102_TYP_CD))) {
+                orderingFacilityUid = partDT.getSubjectEntityUid();
+            } else if (jurisdictionDerivationInd != null
+                    && jurisdictionDerivationInd.equals(NEDSSConstant.YES)
+                    && typeCd != null
+                    && typeCd.equalsIgnoreCase(NEDSSConstant.PAR111_TYP_CD)
+                    && subjectClassCd != null
+                    && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR111_SUB_CD)
+                    && rootObsDT != null
+                    && rootObsDT.getCtrlCdDisplayForm() != null
+                    && rootObsDT.getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_REPORT)
+                    && rootObsDT.getElectronicInd() != null
+                    && rootObsDT.getElectronicInd().equals(NEDSSConstant.EXTERNAL_USER_IND))
+                reportingFacilityUid = partDT.getSubjectEntityUid();
+        }
 
-            for (ParticipationDto partDT : partColl) {
-                if (partDT == null) {
+        //Get the provider vo from db
+        PersonContainer providerVO = null;
+        OrganizationContainer orderingFacilityVO = null;
+        OrganizationContainer reportingFacilityVO = null;
+
+        if (providerUid != null)
+        {
+            providerVO = patientRepositoryUtil.loadPerson(providerUid);
+        }
+        if (orderingFacilityUid != null)
+        {
+            // orderingFacilityVO = getOrganization(orderingFacilityUid);
+            orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
+        }
+        if(reportingFacilityUid!=null)
+        {
+            // reportingFacilityVO = getOrganization(reportingFacilityUid);
+            //it was assigned to orderingFacilityVO in the first implementation.not sure if it was correct.
+            reportingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
+        }
+
+
+        //Get the patient subject
+        PersonContainer patientVO = null;
+        Collection<PersonContainer>  personVOColl = null;
+        if (isLabReport)
+        {
+            personVOColl = ( (LabResultProxyContainer) proxyVO).getThePersonContainerCollection();
+        }
+        if (patientUid != null && personVOColl != null && !personVOColl.isEmpty())
+        {
+            for (PersonContainer pVO : personVOColl) {
+                if (pVO == null || pVO.getThePersonDto() == null) {
                     continue;
                 }
-
-                String typeCd = partDT.getTypeCd();
-                String subjectClassCd = partDT.getSubjectClassCd();
-                if (typeCd != null && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR101_TYP_CD)
-                        || typeCd.equalsIgnoreCase(NEDSSConstant.MOB_PHYSICIAN_OF_MORB_REPORT))
-                        && subjectClassCd != null && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PERSON_CLASS_CODE)) {
-                    providerUid = partDT.getSubjectEntityUid();
-                } else if (typeCd != null
-                        && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR110_TYP_CD)
-                        || typeCd.equalsIgnoreCase(NEDSSConstant.MOB_SUBJECT_OF_MORB_REPORT))) {
-                    patientUid = partDT.getSubjectEntityUid();
-                } else if (typeCd != null
-                        && (typeCd.equalsIgnoreCase(NEDSSConstant.PAR102_TYP_CD))) {
-                    orderingFacilityUid = partDT.getSubjectEntityUid();
-                } else if (jurisdictionDerivationInd != null
-                        && jurisdictionDerivationInd.equals(NEDSSConstant.YES)
-                        && typeCd != null
-                        && typeCd.equalsIgnoreCase(NEDSSConstant.PAR111_TYP_CD)
-                        && subjectClassCd != null
-                        && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR111_SUB_CD)
-                        && rootObsDT != null
-                        && rootObsDT.getCtrlCdDisplayForm() != null
-                        && rootObsDT.getCtrlCdDisplayForm().equalsIgnoreCase(NEDSSConstant.LAB_REPORT)
-                        && rootObsDT.getElectronicInd() != null
-                        && rootObsDT.getElectronicInd().equals(NEDSSConstant.EXTERNAL_USER_IND))
-                    reportingFacilityUid = partDT.getSubjectEntityUid();
+                if (pVO.getThePersonDto().getPersonUid().compareTo(patientUid) == 0) {
+                    patientVO = pVO;
+                    break;
+                }
             }
+        }
 
-            //Get the provider vo from db
-            PersonContainer providerVO = null;
-            OrganizationContainer orderingFacilityVO = null;
-            OrganizationContainer reportingFacilityVO = null;
-            try
+        //Derive the jurisdictionCd
+        Map<String, String> jMap = null;
+        if (patientVO != null)
+        {
+            jMap = resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
+        }
+
+        //set jurisdiction for order test
+        if (rootObsDT != null) {
+            if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY))
             {
-                if (providerUid != null)
-                {
-                    providerVO = patientRepositoryUtil.loadPerson(providerUid);
-                }
-                if (orderingFacilityUid != null)
-                {
-                    // orderingFacilityVO = getOrganization(orderingFacilityUid);
-                    orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
-                }
-                if(reportingFacilityUid!=null)
-                {
-                    // reportingFacilityVO = getOrganization(reportingFacilityUid);
-                    //it was assigned to orderingFacilityVO in the first implementation.not sure if it was correct.
-                    reportingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
-                }
-            }
-            catch (Exception rex)
-            {
-                throw new DataProcessingException("Error retieving provider with UID:"+ providerUid +" OR Ordering Facility, its uid is: " + orderingFacilityUid);
-            }
-
-            //Get the patient subject
-            PersonContainer patientVO = null;
-            Collection<PersonContainer>  personVOColl = null;
-            if (isLabReport)
-            {
-                personVOColl = ( (LabResultProxyContainer) proxyVO).getThePersonContainerCollection();
-            }
-//            if (isMorbReport)
-//            {
-//                personVOColl = ( (MorbidityProxyVO) proxyVO).getThePersonVOCollection();
-//
-//            }
-            if (patientUid != null && personVOColl != null && !personVOColl.isEmpty())
-            {
-                for (PersonContainer pVO : personVOColl) {
-                    if (pVO == null || pVO.getThePersonDto() == null) {
-                        continue;
-                    }
-                    if (pVO.getThePersonDto().getPersonUid().compareTo(patientUid) == 0) {
-                        patientVO = pVO;
-                        break;
-                    }
-                }
-            }
-
-            //Derive the jurisdictionCd
-            Map<String, String> jMap = null;
-            if (patientVO != null)
-            {
-
-                try
-                {
-                    jMap = resolveLabReportJurisdiction(patientVO, providerVO, orderingFacilityVO, reportingFacilityVO);
-                }
-                catch (Exception cex)
-                {
-                    throw new DataProcessingException("Error creating jurisdiction services.");
-                }
-            }
-
-            //set jurisdiction for order test
-            if (rootObsDT != null) {
-                if (jMap != null && jMap.containsKey(ELRConstant.JURISDICTION_HASHMAP_KEY))
-                {
-                    rootObsDT.setJurisdictionCd(jMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY));
-                }
-                else
-                {
-                    rootObsDT.setJurisdictionCd(null);
-                }
-            }
-
-
-            //Return errors if any
-            if (jMap != null && jMap.containsKey(ERROR))
-            {
-                return jMap.get(ERROR);
+                rootObsDT.setJurisdictionCd(jMap.get(ELRConstant.JURISDICTION_HASHMAP_KEY));
             }
             else
             {
-                return null;
+                rootObsDT.setJurisdictionCd(null);
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        }
+
+
+        //Return errors if any
+        if (jMap != null && jMap.containsKey(ERROR))
+        {
+            return jMap.get(ERROR);
+        }
+        else
+        {
+            return null;
         }
 
     }
@@ -260,84 +238,80 @@ public class JurisdictionService implements IJurisdictionService {
                                                                  PersonContainer providerContainer,
                                                                  OrganizationContainer organizationContainer,
                                                                  OrganizationContainer organizationContainer2) throws DataProcessingException {
-        try {
-            Collection<String> patientJurisdictionCollection;
-            Collection<String> providerJurisdictionCollection;
-            Collection<String> organizationJurisdictionCollection = null;
-            HashMap<String, String> map = new HashMap<>();
-            detailError = new StringBuilder();
-            String jurisdiction =null;
-            //Initial value was not set in the first implementation.
-            detailError.append("Patient: ");
-            patientJurisdictionCollection = findJurisdiction(patientContainer.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
+        Collection<String> patientJurisdictionCollection;
+        Collection<String> providerJurisdictionCollection;
+        Collection<String> organizationJurisdictionCollection = null;
+        HashMap<String, String> map = new HashMap<>();
+        detailError = new StringBuilder();
+        String jurisdiction =null;
+        //Initial value was not set in the first implementation.
+        detailError.append("Patient: ");
+        patientJurisdictionCollection = findJurisdiction(patientContainer.getTheEntityLocatorParticipationDtoCollection(), "H", "PST");
 
-            // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
-            if (patientJurisdictionCollection.size() <= 1)
+        // Check to see the subject size.  Only proceed if the subject size is not greater than 1.
+        if (patientJurisdictionCollection.size() <= 1)
+        {
+            // Check the result to make sure that there is a value for the subject's jurisdiction.
+            // If not then go and find the jurisdiction based on the provider
+            if (patientJurisdictionCollection.size() == 1)
             {
-                // Check the result to make sure that there is a value for the subject's jurisdiction.
-                // If not then go and find the jurisdiction based on the provider
-                if (patientJurisdictionCollection.size() == 1)
-                {
-                    Iterator<String> iter = patientJurisdictionCollection.iterator();
+                Iterator<String> iter = patientJurisdictionCollection.iterator();
+                jurisdiction = iter.next();
+                map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+            }
+
+            if (jurisdiction==null && providerContainer !=null)
+            {
+                detailError.append("Provider: ");
+                providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                if(providerJurisdictionCollection.size() == 1) {
+                    // Check the result to make sure that there is a value for the provider's jurisdiction.
+                    // If not then go and find the jurisdiction based on the provider
+                    Iterator<String> iter = providerJurisdictionCollection.iterator();
                     jurisdiction = iter.next();
                     map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                 }
+            }
 
-                if (jurisdiction==null && providerContainer !=null)
+            if(jurisdiction==null){
+                if (organizationContainer != null)
                 {
-                    detailError.append("Provider: ");
-                    providerJurisdictionCollection = findJurisdiction(providerContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
-                    if(providerJurisdictionCollection.size() == 1) {
-                        // Check the result to make sure that there is a value for the provider's jurisdiction.
-                        // If not then go and find the jurisdiction based on the provider
-                        Iterator<String> iter = providerJurisdictionCollection.iterator();
-                        jurisdiction = iter.next();
-                        map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                    }
+                    detailError.append("Ordering Facility: ");
+                    organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
                 }
-
-                if(jurisdiction==null){
-                    if (organizationContainer != null)
-                    {
-                        detailError.append("Ordering Facility: ");
-                        organizationJurisdictionCollection = findJurisdiction(organizationContainer.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
-                    }
-                    if (organizationJurisdictionCollection != null && organizationJurisdictionCollection.size() == 1)
-                    {
-                        // Check the result to make sure that there is a value for the organization's jurisdiction.
-                        // If not then go and find the jurisdiction based on the organization
-                        Iterator<String> iter = organizationJurisdictionCollection.iterator();
-                        jurisdiction = iter.next();
-                        map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                    }
-                }
-
-                if (jurisdiction == null) {
-                    organizationJurisdictionCollection = null;
-                    if (organizationContainer2 != null) {
-                        detailError.append("Ordering Facility: ");
-                        organizationJurisdictionCollection = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
-                    }
-                    if (organizationJurisdictionCollection != null && organizationJurisdictionCollection.size() == 1) {
-                        // Check to see the organization size. Only proceed if the
-                        // organization size is not greater than 1.
-                        // Check the result to make sure that there is a value
-                        // for the organization's jurisdiction.
-                        // If not then go and find the jurisdiction based on the
-                        // organization
-                        Iterator<String> iter = organizationJurisdictionCollection.iterator();
-                        jurisdiction = iter.next();
-                        map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
-                    }
+                if (organizationJurisdictionCollection != null && organizationJurisdictionCollection.size() == 1)
+                {
+                    // Check the result to make sure that there is a value for the organization's jurisdiction.
+                    // If not then go and find the jurisdiction based on the organization
+                    Iterator<String> iter = organizationJurisdictionCollection.iterator();
+                    jurisdiction = iter.next();
+                    map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
                 }
             }
 
-            detailError= null;
-            return map;
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-            throw new DataProcessingException(e.getMessage(), e);
+            if (jurisdiction == null) {
+                organizationJurisdictionCollection = null;
+                if (organizationContainer2 != null) {
+                    detailError.append("Ordering Facility: ");
+                    organizationJurisdictionCollection = findJurisdiction(organizationContainer2.getTheEntityLocatorParticipationDtoCollection(), "WP", "PST");
+                }
+                if (organizationJurisdictionCollection != null && organizationJurisdictionCollection.size() == 1) {
+                    // Check to see the organization size. Only proceed if the
+                    // organization size is not greater than 1.
+                    // Check the result to make sure that there is a value
+                    // for the organization's jurisdiction.
+                    // If not then go and find the jurisdiction based on the
+                    // organization
+                    Iterator<String> iter = organizationJurisdictionCollection.iterator();
+                    jurisdiction = iter.next();
+                    map.put(ELRConstant.JURISDICTION_HASHMAP_KEY, jurisdiction);
+                }
+            }
         }
+
+        detailError= null;
+        return map;
+
     }
 
     @SuppressWarnings("java:S3776")

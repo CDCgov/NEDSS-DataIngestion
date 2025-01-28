@@ -57,13 +57,8 @@ public class EdxPatientMatchRepositoryUtil {
         if (typeCd == null || matchString == null) {
             return new EdxPatientMatchDto();
         }
-        try {
-            return edxPatientMatchStoreProcRepository.getEdxPatientMatch(typeCd, matchString);
+        return edxPatientMatchStoreProcRepository.getEdxPatientMatch(typeCd, matchString);
 
-        } catch (Exception ex) {
-            logger.error("Exception in EdxPatientMatchDAO.getEdxPatientMatchOnMatchString for typeCd={} match string={}: ERROR = {}", typeCd, matchString, ex.getMessage());
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
     }
 
     public EdxEntityMatchDto getEdxEntityMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {

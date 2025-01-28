@@ -68,32 +68,26 @@ public class AnswerService implements IAnswerService {
         this.nbsActEntityHistRepository = nbsActEntityHistRepository;
     }
 
-    public PageContainer getNbsAnswerAndAssociation(Long uid) throws DataProcessingException {
+    public PageContainer getNbsAnswerAndAssociation(Long uid) {
         PageContainer pageContainer = new PageContainer();
-        try {
+        Map<Object,Object> answerDTReturnMap = getPageAnswerDTMaps(uid);
+        Map<Object, NbsAnswerDto> nbsAnswerMap;
+        Map<Object, Object> nbsRepeatingAnswerMap;
+        nbsAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
+        nbsRepeatingAnswerMap=(HashMap<Object, Object>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
 
-            Map<Object,Object> answerDTReturnMap = getPageAnswerDTMaps(uid);
-            Map<Object, NbsAnswerDto> nbsAnswerMap;
-            Map<Object, Object> nbsRepeatingAnswerMap;
-            nbsAnswerMap=(HashMap<Object, NbsAnswerDto>)answerDTReturnMap.get(NEDSSConstant.NON_REPEATING_QUESTION);
-            nbsRepeatingAnswerMap=(HashMap<Object, Object>)answerDTReturnMap.get(NEDSSConstant.REPEATING_QUESTION);
+        pageContainer.setAnswerDTMap(nbsAnswerMap);
+        pageContainer.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
 
-            pageContainer.setAnswerDTMap(nbsAnswerMap);
-            pageContainer.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
-
-            var result = nbsActEntityRepository.getNbsActEntitiesByActUid(uid);
-            Collection<NbsActEntityDto> pageCaseEntityDTCollection= new ArrayList<>();
-            if (result.isPresent()) {
-                for(var item : result.get()) {
-                    var elem = new NbsActEntityDto(item);
-                    pageCaseEntityDTCollection.add(elem);
-                }
+        var result = nbsActEntityRepository.getNbsActEntitiesByActUid(uid);
+        Collection<NbsActEntityDto> pageCaseEntityDTCollection= new ArrayList<>();
+        if (result.isPresent()) {
+            for(var item : result.get()) {
+                var elem = new NbsActEntityDto(item);
+                pageCaseEntityDTCollection.add(elem);
             }
-            pageContainer.setActEntityDTCollection(pageCaseEntityDTCollection);
-
-        } catch (Exception e) {
-            throw new DataProcessingException("InterviewAnswerRootDAOImpl:answerCollection- could not be returned", e);
         }
+        pageContainer.setActEntityDTCollection(pageCaseEntityDTCollection);
         return pageContainer;
 
     }
@@ -209,22 +203,18 @@ public class AnswerService implements IAnswerService {
 
 
     public void storePageAnswer(PageContainer pageContainer, ObservationDto observationDto) throws DataProcessingException{
-        try {
-            delete(observationDto);
-            if(pageContainer != null && pageContainer.getAnswerDTMap() != null)
-            {
-                storeAnswerDTCollection(new ArrayList<>( pageContainer.getAnswerDTMap().values()), observationDto);
-            }
-            if(pageContainer != null && pageContainer.getPageRepeatingAnswerDTMap() != null)
-            {
-                storeAnswerDTCollection(pageContainer.getPageRepeatingAnswerDTMap().values(), observationDto);
-            }
+        delete(observationDto);
+        if(pageContainer != null && pageContainer.getAnswerDTMap() != null)
+        {
+            storeAnswerDTCollection(new ArrayList<>( pageContainer.getAnswerDTMap().values()), observationDto);
+        }
+        if(pageContainer != null && pageContainer.getPageRepeatingAnswerDTMap() != null)
+        {
+            storeAnswerDTCollection(pageContainer.getPageRepeatingAnswerDTMap().values(), observationDto);
+        }
 
-            if (pageContainer != null) {
-                insertActEntityDTCollection(pageContainer.getActEntityDTCollection(), observationDto);
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException("InterviewAnswerRootDAOImpl:store- answerDTColl could not be stored", e);
+        if (pageContainer != null) {
+            insertActEntityDTCollection(pageContainer.getActEntityDTCollection(), observationDto);
         }
     }
 
@@ -275,96 +265,77 @@ public class AnswerService implements IAnswerService {
 
     @SuppressWarnings("java:S1172")
     protected void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) throws DataProcessingException {
-        try {
-            if (answerDTColl != null){
-                for (Object o : answerDTColl) {
-                    NbsAnswerDto answerDT = (NbsAnswerDto) o;
-                    if (answerDT.isItDirty() || answerDT.isItNew()) {
-                        nbsAnswerRepository.save(new NbsAnswer(answerDT));
-                    } else if (answerDT.isItDelete()) {
-                        nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
-                    }
+        if (answerDTColl != null){
+            for (Object o : answerDTColl) {
+                NbsAnswerDto answerDT = (NbsAnswerDto) o;
+                if (answerDT.isItDirty() || answerDT.isItNew()) {
+                    nbsAnswerRepository.save(new NbsAnswer(answerDT));
+                } else if (answerDT.isItDelete()) {
+                    nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
                 }
             }
-        } catch(Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
     protected void delete(ObservationDto rootDTInterface) throws DataProcessingException{
-        try {
-            Collection<Object> answerCollection = null;
+        Collection<Object> answerCollection = null;
 
-            var result = nbsAnswerRepository.getPageAnswerByActUid(rootDTInterface.getObservationUid());
-            if (result.isPresent()) {
-                answerCollection = new ArrayList<>();
-                for(var item : result.get()) {
-                    answerCollection.add(new NbsAnswerDto(item));
-                }
+        var result = nbsAnswerRepository.getPageAnswerByActUid(rootDTInterface.getObservationUid());
+        if (result.isPresent()) {
+            answerCollection = new ArrayList<>();
+            for(var item : result.get()) {
+                answerCollection.add(new NbsAnswerDto(item));
             }
-            if(answerCollection!=null && !answerCollection.isEmpty()) {
-                insertAnswerHistoryDTCollection(answerCollection);
-            }
-
-            var actEntityResult = nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getObservationUid());
-            Collection<NbsActEntityDto> actEntityCollection = null;
-            if (actEntityResult.isPresent()) {
-                actEntityCollection = new ArrayList<>();
-                for(var item: actEntityResult.get()) {
-                    actEntityCollection.add(new NbsActEntityDto(item));
-                }
-            }
-
-            if(actEntityCollection!=null && !actEntityCollection.isEmpty()) {
-                insertPageEntityHistoryDTCollection(actEntityCollection, rootDTInterface);
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException("InterviewAnswerRootDAOImpl:answerCollection- could not be returned", e);
+        }
+        if(answerCollection!=null && !answerCollection.isEmpty()) {
+            insertAnswerHistoryDTCollection(answerCollection);
         }
 
+        var actEntityResult = nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getObservationUid());
+        Collection<NbsActEntityDto> actEntityCollection = null;
+        if (actEntityResult.isPresent()) {
+            actEntityCollection = new ArrayList<>();
+            for(var item: actEntityResult.get()) {
+                actEntityCollection.add(new NbsActEntityDto(item));
+            }
+        }
+
+        if(actEntityCollection!=null && !actEntityCollection.isEmpty()) {
+            insertPageEntityHistoryDTCollection(actEntityCollection, rootDTInterface);
+        }
     }
 
 
     protected void insertAnswerHistoryDTCollection(Collection<Object> oldAnswerDTCollection) throws DataProcessingException {
-        try {
-            if (oldAnswerDTCollection != null) {
-                for (Object obj : oldAnswerDTCollection) {
-                    if (obj instanceof ArrayList<?> && !((ArrayList<Object>) obj).isEmpty()) {
-                        for (NbsAnswerDto answerDT : (ArrayList<NbsAnswerDto>) obj) {
-                            nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
-                            nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
-                        }
-                    } else if (obj instanceof NbsAnswerDto) {
-                        NbsAnswerDto answerDT = (NbsAnswerDto) obj;
+        if (oldAnswerDTCollection != null) {
+            for (Object obj : oldAnswerDTCollection) {
+                if (obj instanceof ArrayList<?> && !((ArrayList<Object>) obj).isEmpty()) {
+                    for (NbsAnswerDto answerDT : (ArrayList<NbsAnswerDto>) obj) {
                         nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
                         nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
                     }
+                } else if (obj instanceof NbsAnswerDto) {
+                    NbsAnswerDto answerDT = (NbsAnswerDto) obj;
+                    nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
+                    nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
                 }
             }
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 
     protected void insertPageEntityHistoryDTCollection(Collection<NbsActEntityDto> nbsCaseEntityDTColl, ObservationDto oldrootDTInterface)
             throws DataProcessingException {
-        try {
+        if (nbsCaseEntityDTColl != null) {
+            for (NbsActEntityDto nbsActEntityDto : nbsCaseEntityDTColl) {
+                nbsActEntityRepository.deleteNbsEntityAct(nbsActEntityDto.getNbsActEntityUid());
 
-            if (nbsCaseEntityDTColl != null) {
-                for (NbsActEntityDto nbsActEntityDto : nbsCaseEntityDTColl) {
-                    nbsActEntityRepository.deleteNbsEntityAct(nbsActEntityDto.getNbsActEntityUid());
-
-                    var data = new NbsActEntityHist(nbsActEntityDto);
-                    data.setLastChgTime(oldrootDTInterface.getLastChgTime());
-                    data.setLastChgUserId(oldrootDTInterface.getLastChgUserId());
-                    data.setRecordStatusCd(oldrootDTInterface.getRecordStatusCd());
-                    data.setRecordStatusTime(oldrootDTInterface.getRecordStatusTime());
-                    nbsActEntityHistRepository.save(data);
-                }
+                var data = new NbsActEntityHist(nbsActEntityDto);
+                data.setLastChgTime(oldrootDTInterface.getLastChgTime());
+                data.setLastChgUserId(oldrootDTInterface.getLastChgUserId());
+                data.setRecordStatusCd(oldrootDTInterface.getRecordStatusCd());
+                data.setRecordStatusTime(oldrootDTInterface.getRecordStatusTime());
+                nbsActEntityHistRepository.save(data);
             }
-        } catch (Exception ex) // NO SONAR
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
         }
     }
 }

@@ -50,60 +50,56 @@ public class ObservationUtil {
                         String uidListType, String uidClassCd, String uidTypeCd,
                         String uidActClassCd, String uidRecordStatusCd) throws DataProcessingException {
         Long anUid = null;
-        try {
-            if (participationDtoCollection != null) {
-                for (ParticipationDto partDT : participationDtoCollection) {
-                    if (
-                            (
-                                    (
-                                            partDT.getSubjectClassCd() != null
-                                                    && partDT.getSubjectClassCd().equalsIgnoreCase(uidClassCd)
-                                    )
-                                            && (partDT.getTypeCd() != null
-                                            && partDT.getTypeCd().equalsIgnoreCase(uidTypeCd))
-                                            && (partDT.getActClassCd() != null
-                                            && partDT.getActClassCd().equalsIgnoreCase(uidActClassCd))
-                                            && (partDT.getRecordStatusCd() != null
-                                            && partDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd))
-                            )
-                    )
-                    {
-                        anUid = partDT.getSubjectEntityUid();
+
+        if (participationDtoCollection != null) {
+            for (ParticipationDto partDT : participationDtoCollection) {
+                if (
+                        (
+                                (
+                                        partDT.getSubjectClassCd() != null
+                                                && partDT.getSubjectClassCd().equalsIgnoreCase(uidClassCd)
+                                )
+                                        && (partDT.getTypeCd() != null
+                                        && partDT.getTypeCd().equalsIgnoreCase(uidTypeCd))
+                                        && (partDT.getActClassCd() != null
+                                        && partDT.getActClassCd().equalsIgnoreCase(uidActClassCd))
+                                        && (partDT.getRecordStatusCd() != null
+                                        && partDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd))
+                        )
+                )
+                {
+                    anUid = partDT.getSubjectEntityUid();
+                }
+            }
+        }
+        else if (actRelationshipDtoCollection != null) {
+            for (ActRelationshipDto actRelDT : actRelationshipDtoCollection) {
+                if (
+                        (
+                                actRelDT.getSourceClassCd() != null
+                                        && actRelDT.getSourceClassCd().equalsIgnoreCase(uidClassCd)
+                        )
+                                && (
+                                actRelDT.getTypeCd() != null
+                                        && actRelDT.getTypeCd().equalsIgnoreCase(uidTypeCd)
+                        )
+                                && (
+                                actRelDT.getTargetClassCd() != null
+                                        && actRelDT.getTargetClassCd().equalsIgnoreCase(uidActClassCd)
+                        )
+                                && (
+                                actRelDT.getRecordStatusCd() != null
+                                        && actRelDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd)
+                        )
+
+                ) {
+                    if (uidListType.equalsIgnoreCase(NEDSSConstant.ACT_UID_LIST_TYPE)) {
+                        anUid = actRelDT.getTargetActUid();
+                    } else if (uidListType.equalsIgnoreCase(NEDSSConstant.SOURCE_ACT_UID_LIST_TYPE)) {
+                        anUid = actRelDT.getSourceActUid();
                     }
                 }
             }
-            else if (actRelationshipDtoCollection != null) {
-                for (ActRelationshipDto actRelDT : actRelationshipDtoCollection) {
-                    if (
-                            (
-                                    actRelDT.getSourceClassCd() != null
-                                            && actRelDT.getSourceClassCd().equalsIgnoreCase(uidClassCd)
-                            )
-                                    && (
-                                    actRelDT.getTypeCd() != null
-                                            && actRelDT.getTypeCd().equalsIgnoreCase(uidTypeCd)
-                            )
-                                    && (
-                                    actRelDT.getTargetClassCd() != null
-                                            && actRelDT.getTargetClassCd().equalsIgnoreCase(uidActClassCd)
-                            )
-                                    && (
-                                    actRelDT.getRecordStatusCd() != null
-                                            && actRelDT.getRecordStatusCd().equalsIgnoreCase(uidRecordStatusCd)
-                            )
-
-                    ) {
-                        if (uidListType.equalsIgnoreCase(NEDSSConstant.ACT_UID_LIST_TYPE)) {
-                            anUid = actRelDT.getTargetActUid();
-                        } else if (uidListType.equalsIgnoreCase(NEDSSConstant.SOURCE_ACT_UID_LIST_TYPE)) {
-                            anUid = actRelDT.getSourceActUid();
-                        }
-                    }
-                }
-            }
-
-        } catch (Exception ex) {
-            throw new DataProcessingException("Error while retrieving a " + uidListType + " uid. " + ex.getMessage(), ex);
         }
 
         return anUid;

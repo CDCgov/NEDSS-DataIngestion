@@ -208,21 +208,14 @@ public class ObservationService implements IObservationService {
 
     public void setLabInvAssociation(Long labUid, Long investigationUid) throws DataProcessingException {
         LabReportSummaryContainer labReportSummaryVO = new LabReportSummaryContainer();
+        labReportSummaryVO.setTouched(true);
+        labReportSummaryVO.setAssociated(true);
+        labReportSummaryVO.setObservationUid(labUid);
+        labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
+        Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
+        labReportSummaryVOColl.add(labReportSummaryVO);
 
-        try {
-
-            labReportSummaryVO.setTouched(true);
-            labReportSummaryVO.setAssociated(true);
-            labReportSummaryVO.setObservationUid(labUid);
-            labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
-            Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
-            labReportSummaryVOColl.add(labReportSummaryVO);
-
-            setObservationAssociations(investigationUid, labReportSummaryVOColl);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
+        setObservationAssociations(investigationUid, labReportSummaryVOColl);
     }
 
     /**
@@ -779,7 +772,7 @@ public class ObservationService implements IObservationService {
             lrProxyVO.setPageVO(pageContainer);
         } catch (Exception e) {
             logger.error("Exception while getting data from NBS Answer for Lab");
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         }
 
         return lrProxyVO;
@@ -994,25 +987,12 @@ public class ObservationService implements IObservationService {
             {
                 logger.debug("Iniside participation Collection<Object>  Loop - Lab");
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
-
-                    logger.debug("Inside loop size of participations: {}", labResultProxyVO.getTheParticipationDtoCollection().size());
-                    try {
-                        if (dt != null) {
-                            if (dt.isItDelete()) {
-                                participationService.saveParticipationHist(dt);
-                            }
-
-                            participationService.saveParticipation(dt);
-
-
-                            logger.debug("got the participationDto, the ACTUID is {}",
-                                    dt.getActUid());
-                            logger.debug("got the participationDto, the subjectEntityUid is {}",
-                                    dt.getSubjectEntityUid());
+                    if (dt != null) {
+                        if (dt.isItDelete()) {
+                            participationService.saveParticipationHist(dt);
                         }
-                    } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage(),e);
-                    } 
+                        participationService.saveParticipation(dt);
+                    }
                 }
             }
 

@@ -145,33 +145,17 @@ public class InvestigationService implements IInvestigationService {
                                 Collection<Object> treatmentSumColl,
                                 Boolean isNNDResendCheckRequired) throws DataProcessingException {
         InvestigationContainer invVO = new InvestigationContainer();
-        try {
-            if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty() ){
-                setObservationAssociationsImpl(investigationUID, reportSumVOCollection);
-            }
-            if(isNNDResendCheckRequired){
-                 invVO = getInvestigationProxy(investigationUID);
-                updateAutoResendNotificationsAsync(invVO);
-            }
-            if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty()){
-                retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(investigationUID, reportSumVOCollection);
-            }
+        if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty() ){
+            setObservationAssociationsImpl(investigationUID, reportSumVOCollection);
         }
-        catch (Exception e) {
-//            NNDActivityLogDto nndActivityLogDT = new  NNDActivityLogDto();
-//            String phcLocalId = invVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getLocalId();
-//            nndActivityLogDT.setErrorMessageTxt(e.toString());
-//            if (phcLocalId!=null)
-//            {
-//                nndActivityLogDT.setLocalId(phcLocalId);
-//            }
-//            else
-//            {
-//                nndActivityLogDT.setLocalId("N/A");
-//            }
-//            n1.persistNNDActivityLog(nndActivityLogDT);
-            throw new DataProcessingException(e.getMessage(), e);
+        if(isNNDResendCheckRequired){
+             invVO = getInvestigationProxy(investigationUID);
+            updateAutoResendNotificationsAsync(invVO);
         }
+        if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty()){
+            retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(investigationUID, reportSumVOCollection);
+        }
+
     }
 
     /**
@@ -547,7 +531,7 @@ public class InvestigationService implements IInvestigationService {
 
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         }
 
 

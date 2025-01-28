@@ -87,28 +87,21 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 localIdhshCd = localId.hashCode();
             }
             if (localId != null) {
-                try {
-                    // Try to get the matching with the match string and type (was hash code)
-//                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
-                    EdxEntityMatchDto edxEntityMatchingDT =
-                            edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
-                    if (edxEntityMatchingDT != null
-                            && edxEntityMatchingDT.getEntityUid() != null) {
-                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                        edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
-                                + edxEntityMatchingDT.getEntityUid());
-                        edxActivityDetailLogDto
-                                .setRecordType(String.valueOf(MsgType.Organization));
-                        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
-                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-                        return edxActivityDetailLogDto;
-                    }
-                } catch (Exception ex) {
-                    logger.error("Error in getEdxEntityMatchOnMatchString in the  matching Organization");
-                    throw new DataProcessingException(
-                            "Error in getEdxEntityMatchOnMatchString " + ex.getMessage(),
-                            ex);
+                // Try to get the matching with the match string and type (was hash code)
+    //                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
+    //                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
+                EdxEntityMatchDto edxEntityMatchingDT =
+                        edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
+                if (edxEntityMatchingDT != null
+                        && edxEntityMatchingDT.getEntityUid() != null) {
+                    edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
+                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                            + edxEntityMatchingDT.getEntityUid());
+                    edxActivityDetailLogDto
+                            .setRecordType(String.valueOf(MsgType.Organization));
+                    edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
+                    edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+                    return edxActivityDetailLogDto;
                 }
             }  //localId != null
             if (localId != null) {
@@ -130,34 +123,27 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         identifier = identifier.toUpperCase();
                         identifierHshCd = identifier.hashCode();
                     }
-                    try {
-                        // Try to get the matching with the type and match string
+                    // Try to get the matching with the type and match string
 //                        EdxEntityMatchDto edxEntityMatchingDT = edxDao
 //                                .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
-                        EdxEntityMatchDto edxEntityMatchingDT =
-                                edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
-                        if (edxEntityMatchingDT != null
-                                && edxEntityMatchingDT.getEntityUid() != null) {
-                            if (localEdxEntityMatchDT != null) {
-                                localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
-                                        .getEntityUid());
+                    EdxEntityMatchDto edxEntityMatchingDT =
+                            edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
+                    if (edxEntityMatchingDT != null
+                            && edxEntityMatchingDT.getEntityUid() != null) {
+                        if (localEdxEntityMatchDT != null) {
+                            localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
+                                    .getEntityUid());
 //                                edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
-                                edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
-                            }
-                            edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                            edxActivityDetailLogDto
-                                    .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
-                                            + edxEntityMatchingDT.getEntityUid());
-                            edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
-                            edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
-                            edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-                            return edxActivityDetailLogDto;
+                            edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                         }
-                    } catch (Exception ex) {
-                        logger.error("Error in saveEdxEntityMatch in the matching Organization");
-                        throw new DataProcessingException(
-                                "Error in saveEdxEntityMatch matching Organization"
-                                        + ex.getMessage(), ex);
+                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
+                        edxActivityDetailLogDto
+                                .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                                        + edxEntityMatchingDT.getEntityUid());
+                        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
+                        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
+                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+                        return edxActivityDetailLogDto;
                     }
                     if (identifier != null) {
                         EdxEntityMatchDto edxEntityMatchDT = new EdxEntityMatchDto();
@@ -178,37 +164,28 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
             }
             if (nameAddStrSt1 != null) {
-
-                try {
-                    // Try to get the matching with the type and match string
+                // Try to get the matching with the type and match string
 //                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
 //                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
-                    EdxEntityMatchDto edxEntityMatchingDT =
-                            edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
-                    if (edxEntityMatchingDT != null
-                            && edxEntityMatchingDT.getEntityUid() != null) {
-                        if (localEdxEntityMatchDT != null) {
-                            localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
-                                    .getEntityUid());
+                EdxEntityMatchDto edxEntityMatchingDT =
+                        edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
+                if (edxEntityMatchingDT != null
+                        && edxEntityMatchingDT.getEntityUid() != null) {
+                    if (localEdxEntityMatchDT != null) {
+                        localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
+                                .getEntityUid());
 //                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
-                            edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
-                        }
-                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                        edxActivityDetailLogDto
-                                .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
-                                        + edxEntityMatchingDT.getEntityUid());
-                        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
-                        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
-                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-                        return edxActivityDetailLogDto;
+                        edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                     }
-                } catch (Exception ex) {
-                    logger.error(LOG_ERROR_MATCHING_ORG);
-                    throw new DataProcessingException(
-                            LOG_ERROR_MATCHING_ORG
-                                    + ex.getMessage(), ex);
+                    edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
+                    edxActivityDetailLogDto
+                            .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                                    + edxEntityMatchingDT.getEntityUid());
+                    edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
+                    edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
+                    edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+                    return edxActivityDetailLogDto;
                 }
-
             }
             // Continue for name Telephone with no extension
             String nameTelePhone;
@@ -219,52 +196,40 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 nameTelePhonehshCd = nameTelePhone.hashCode();
             }
             if (nameTelePhone != null) {
-                try {
 //                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
 //                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
-                    EdxEntityMatchDto edxEntityMatchingDT =
-                            edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
-                    if (edxEntityMatchingDT != null
-                            && edxEntityMatchingDT.getEntityUid() != null) {
-                        if (localEdxEntityMatchDT != null) {
-                            localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
-                                    .getEntityUid());
+                EdxEntityMatchDto edxEntityMatchingDT =
+                        edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
+                if (edxEntityMatchingDT != null
+                        && edxEntityMatchingDT.getEntityUid() != null) {
+                    if (localEdxEntityMatchDT != null) {
+                        localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
+                                .getEntityUid());
 //                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
-                            edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
-                        }
-                        edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                        edxActivityDetailLogDto
-                                .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
-                                        + edxEntityMatchingDT.getEntityUid());
-                        edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
-                        edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
-                        edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-                        return edxActivityDetailLogDto;
+                        edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                     }
-                } catch (Exception ex) {
-                    logger.error(LOG_ERROR_MATCHING_ORG);
-                    throw new DataProcessingException(
-                            LOG_ERROR_MATCHING_ORG
-                                    + ex.getMessage(), ex);
+                    edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
+                    edxActivityDetailLogDto
+                            .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                                    + edxEntityMatchingDT.getEntityUid());
+                    edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
+                    edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
+                    edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+                    return edxActivityDetailLogDto;
                 }
 
             }
             // Create the provider in case if the provider is not there in the DB
-            try {
-                //Legacy code
-                //EntityController.java
-                //public Long setOrganization    (OrganizationContainer organizationContainer, String businessTriggerCd, NBSSecurityObj nbsSecurityObj)
+            //Legacy code
+            //EntityController.java
+            //public Long setOrganization    (OrganizationContainer organizationContainer, String businessTriggerCd, NBSSecurityObj nbsSecurityObj)
 //                EntityController entityController = getEntityController();
 //                String businessTriggerCd = NEDSSConstant.ORG_CR;
 //                entityUid = entityController.setOrganization(organizationContainer,
 //                        businessTriggerCd, nbsSecurityObj);
-                String businessTriggerCd = NEDSSConstant.ORG_CR;
-                entityUid=organizationRepositoryUtil.setOrganization(organizationContainer,
-                        businessTriggerCd);
-            } catch (Exception e) {
-                logger.error("Error in getting the entity Controller or setting the Organization");
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            String businessTriggerCd = NEDSSConstant.ORG_CR;
+            entityUid=organizationRepositoryUtil.setOrganization(organizationContainer,
+                    businessTriggerCd);
             // Create the name and address with no street 2(only street1)
             if (nameAddStrSt1 != null) {
                 EdxEntityMatchDto edxEntityMatchDT = new EdxEntityMatchDto();
@@ -272,14 +237,8 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT.setTypeCd(NEDSSConstant.ORGANIZATION);
                 edxEntityMatchDT.setMatchString(nameAddStrSt1);
                 edxEntityMatchDT.setMatchStringHashCode((long) nameAddStrSt1hshCd);
-                try {
 //                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
-                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
-                } catch (Exception e) {
-                    logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1: {} {}", nameAddStrSt1, e.getMessage());
-                    throw new DataProcessingException(e.getMessage(), e);
-                }
-
+                edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
             }
 
             // Create the name and address with nameTelePhone
@@ -289,11 +248,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT.setTypeCd(NEDSSConstant.ORGANIZATION);
                 edxEntityMatchDT.setMatchString(nameTelePhone);
                 edxEntityMatchDT.setMatchStringHashCode((long) nameTelePhonehshCd);
-                try {
-                    edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
-                } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage(), e);
-                }
+                edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
             }
             if (localEdxEntityMatchDT != null)
             {
@@ -332,71 +287,65 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         List<String> identifierList = new ArrayList<>();
         String identifier = null;
         Collection<EntityIdDto> newEntityIdDTColl = new ArrayList<>();
-        try {
-            if (organizationContainer.getTheEntityIdDtoCollection() != null
-                    && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                Collection<EntityIdDto> entityIdDTColl = organizationContainer
-                        .getTheEntityIdDtoCollection();
-                for (EntityIdDto entityIdDT : entityIdDTColl) {
-                    if ((entityIdDT.getStatusCd()
-                            .equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
+        if (organizationContainer.getTheEntityIdDtoCollection() != null
+                && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            Collection<EntityIdDto> entityIdDTColl = organizationContainer
+                    .getTheEntityIdDtoCollection();
+            for (EntityIdDto entityIdDT : entityIdDTColl) {
+                if ((entityIdDT.getStatusCd()
+                        .equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
 
-                        if ((entityIdDT.getRootExtensionTxt() != null)
-                                && (entityIdDT.getTypeCd() != null)
-                                && (entityIdDT.getAssigningAuthorityCd() != null)
-                                && (entityIdDT.getAssigningAuthorityDescTxt() != null)
-                                && (entityIdDT.getAssigningAuthorityIdType() != null)) {
-                            identifier = entityIdDT.getRootExtensionTxt()
-                                    + carrot + entityIdDT.getTypeCd() + carrot
-                                    + entityIdDT.getAssigningAuthorityCd()
-                                    + carrot
-                                    + entityIdDT.getAssigningAuthorityDescTxt()
-                                    + carrot + entityIdDT.getAssigningAuthorityIdType();
-                        } else {
-                            try {
-                                Coded coded = new Coded();
-                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
-                                coded.setCodesetName(NEDSSConstant.EI_AUTH_ORG);
-                                coded.setCodesetTableName("CODE_VALUE_GENERAL");//DataTables.CODE_VALUE_GENERAL
+                    if ((entityIdDT.getRootExtensionTxt() != null)
+                            && (entityIdDT.getTypeCd() != null)
+                            && (entityIdDT.getAssigningAuthorityCd() != null)
+                            && (entityIdDT.getAssigningAuthorityDescTxt() != null)
+                            && (entityIdDT.getAssigningAuthorityIdType() != null)) {
+                        identifier = entityIdDT.getRootExtensionTxt()
+                                + carrot + entityIdDT.getTypeCd() + carrot
+                                + entityIdDT.getAssigningAuthorityCd()
+                                + carrot
+                                + entityIdDT.getAssigningAuthorityDescTxt()
+                                + carrot + entityIdDT.getAssigningAuthorityIdType();
+                    } else {
+                        try {
+                            Coded coded = new Coded();
+                            coded.setCode(entityIdDT.getAssigningAuthorityCd());
+                            coded.setCodesetName(NEDSSConstant.EI_AUTH_ORG);
+                            coded.setCodesetTableName("CODE_VALUE_GENERAL");//DataTables.CODE_VALUE_GENERAL
 
-                                //TODO: This call out to code value general Repos and Caching the recrod
+                            //TODO: This call out to code value general Repos and Caching the recrod
 //                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
 //                                lookupDAO.retrieveSRTCodeInfo(coded);
 
-                                if (entityIdDT.getRootExtensionTxt() != null
-                                        && entityIdDT.getTypeCd() != null
-                                        && coded.getCode() != null
-                                        && coded.getCodeDescription() != null
-                                        && coded.getCodeSystemCd() != null) {
-                                    identifier = entityIdDT.getRootExtensionTxt()
-                                            + carrot + entityIdDT.getTypeCd() + carrot
-                                            + coded.getCode() + carrot
-                                            + coded.getCodeDescription() + carrot
-                                            + coded.getCodeSystemCd();
-                                }
-                            } catch (Exception ex) {
-                                String errorMessage = "The assigning authority "
-                                        + entityIdDT.getAssigningAuthorityCd()
-                                        + " does not exists in the system. ";
-                                logger.debug("{} {}", ex.getMessage(), errorMessage);
+                            if (entityIdDT.getRootExtensionTxt() != null
+                                    && entityIdDT.getTypeCd() != null
+                                    && coded.getCode() != null
+                                    && coded.getCodeDescription() != null
+                                    && coded.getCodeSystemCd() != null) {
+                                identifier = entityIdDT.getRootExtensionTxt()
+                                        + carrot + entityIdDT.getTypeCd() + carrot
+                                        + coded.getCode() + carrot
+                                        + coded.getCodeDescription() + carrot
+                                        + coded.getCodeSystemCd();
                             }
+                        } catch (Exception ex) {
+                            String errorMessage = "The assigning authority "
+                                    + entityIdDT.getAssigningAuthorityCd()
+                                    + " does not exists in the system. ";
+                            logger.error("{} {}", ex.getMessage(), errorMessage);
                         }
-                        if (entityIdDT.getTypeCd() != null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
-                            newEntityIdDTColl.add(entityIdDT);
-                        }
-                        if (identifier != null) {
-                            identifierList.add(identifier);
-                        }
-
                     }
+                    if (entityIdDT.getTypeCd() != null && !entityIdDT.getTypeCd().equalsIgnoreCase("LR")) {
+                        newEntityIdDTColl.add(entityIdDT);
+                    }
+                    if (identifier != null) {
+                        identifierList.add(identifier);
+                    }
+
                 }
             }
-            organizationContainer.setTheEntityIdDtoCollection(newEntityIdDTColl);
-        } catch (Exception ex) {
-            String errorMessage = "Exception while creating hashcode for organization entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
-            throw new DataProcessingException(errorMessage, ex);
         }
+        organizationContainer.setTheEntityIdDtoCollection(newEntityIdDTColl);
         return identifierList;
     }
     @SuppressWarnings({"java:S3776", "java:S1066"})

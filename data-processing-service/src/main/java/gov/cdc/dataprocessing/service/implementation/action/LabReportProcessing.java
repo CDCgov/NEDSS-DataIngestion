@@ -56,7 +56,7 @@ public class LabReportProcessing implements ILabReportProcessing {
         }catch(Exception ex){
             edxLabInformationDT.setLabIsMarkedAsReviewed(false);
             edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_12);
-            throw new DataProcessingException(EdxELRConstant.ELR_MASTER_MSG_ID_12);
+            throw new DataProcessingException(EdxELRConstant.ELR_MASTER_MSG_ID_12, ex);
         }
         return markAsReviewedFlag;
 

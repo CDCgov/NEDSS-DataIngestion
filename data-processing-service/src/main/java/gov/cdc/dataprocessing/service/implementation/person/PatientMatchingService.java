@@ -142,20 +142,15 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       localId = localId.toUpperCase();
     }
 
-    try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
-          .getEdxPatientMatchOnMatchString(cd, localId);
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        return edxPatientMatchDto;
-      } else {
-        return null;
-      }
-    } catch (Exception ex) {
-      logger.error(LOG_ERROR_MATCHING_PATIENT);
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
+    EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+        .getEdxPatientMatchOnMatchString(cd, localId);
+    if (edxPatientMatchDto != null
+        && !edxPatientMatchDto.isMultipleMatch()
+        && edxPatientMatchDto.getPatientUid() != null
+        && edxPatientMatchDto.getPatientUid() > 0) {
+      return edxPatientMatchDto;
+    } else {
+      return null;
     }
 
   }
@@ -209,22 +204,16 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       return null;
     }
 
-    try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
-          .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
+    EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+        .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
 
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        return edxPatientMatchDto;
-      } else {
-        return null;
-      }
-
-    } catch (Exception ex) {
-      logger.error(LOG_ERROR_MATCHING_PATIENT);
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
+    if (edxPatientMatchDto != null
+        && !edxPatientMatchDto.isMultipleMatch()
+        && edxPatientMatchDto.getPatientUid() != null
+        && edxPatientMatchDto.getPatientUid() > 0) {
+      return edxPatientMatchDto;
+    } else {
+      return null;
     }
   }
 
@@ -242,16 +231,12 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     // No match was found. create a new person
     if (!matchFound) {
       filterLREntityId(personContainer);
-      try {
-        // NOTE: If personDto.cd is 'PAT' then create a new person entry
-        if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
-          patientPersonUid = setAndCreateNewPerson(personContainer);
-          personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-          personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-          personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
-        }
-      } catch (Exception e) {
-        throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
+      // NOTE: If personDto.cd is 'PAT' then create a new person entry
+      if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
+        patientPersonUid = setAndCreateNewPerson(personContainer);
+        personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+        personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+        personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
       }
     }
 
@@ -261,12 +246,8 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
   // It appears a revision is always created during ingestion, even if a match was
   // not found and a new MPR was created
   private void createPatientRevision(PersonContainer personContainer) throws DataProcessingException {
-    try {
-      Long patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
-      personContainer.getThePersonDto().setPersonUid(patientUid);
-    } catch (Exception e) {
-      throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
-    }
+    Long patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
+    personContainer.getThePersonDto().setPersonUid(patientUid);
   }
 
   // Filter out LR EntityId

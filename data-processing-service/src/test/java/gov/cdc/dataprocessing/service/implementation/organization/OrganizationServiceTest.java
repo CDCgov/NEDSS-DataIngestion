@@ -44,7 +44,7 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void processingOrganization_with_role_sf() throws DataProcessingConsumerException {
+    void processingOrganization_with_role_sf() throws DataProcessingConsumerException, DataProcessingException {
         LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
         Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
         OrganizationContainer organizationContainer= new OrganizationContainer();

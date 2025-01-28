@@ -293,30 +293,26 @@ public class MaterialService implements IMaterialService {
 
     }
     private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) throws DataProcessingException {
-        try {
-            Iterator<EntityIdDto> anIterator;
-            ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
-            anIterator = entityList.iterator();
-            int maxSeq = 0;
-            while (anIterator.hasNext()) {
-                EntityIdDto entityID = anIterator.next();
-                if(maxSeq == 0) {
-                    if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {
-                        entityID.setEntityUid(uid);
-                    }
-                    var result = entityIdRepository.findMaxEntityId(entityID.getEntityUid());
-
-                    if (result.isPresent()) {
-                        maxSeq = result.get();
-                    }
+        Iterator<EntityIdDto> anIterator;
+        ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
+        anIterator = entityList.iterator();
+        int maxSeq = 0;
+        while (anIterator.hasNext()) {
+            EntityIdDto entityID = anIterator.next();
+            if(maxSeq == 0) {
+                if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {
+                    entityID.setEntityUid(uid);
                 }
+                var result = entityIdRepository.findMaxEntityId(entityID.getEntityUid());
 
-                entityID.setEntityIdSeq(maxSeq++);
-                EntityId data = new EntityId(entityID, tz);
-                entityIdRepository.save(data);
+                if (result.isPresent()) {
+                    maxSeq = result.get();
+                }
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+
+            entityID.setEntityIdSeq(maxSeq++);
+            EntityId data = new EntityId(entityID, tz);
+            entityIdRepository.save(data);
         }
 
     }
