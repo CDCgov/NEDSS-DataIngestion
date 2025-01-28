@@ -121,7 +121,6 @@ services:
      - "8080:8080"
     environment:
       DB_URI: "mssql+pyodbc://sa:fake.fake.fake.1234@di-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
-      USE_MSSQL: true
     networks:
       - dataingestion
 
