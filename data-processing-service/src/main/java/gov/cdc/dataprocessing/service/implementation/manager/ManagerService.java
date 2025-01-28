@@ -146,9 +146,9 @@ public class ManagerService implements IManagerService {
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-        nbsInterfaceModel = res.get();
+            nbsInterfaceModel = res.get();
 
-//        if (res.isPresent()) {
+//            if (res.isPresent()) {
 //            } else {
 //                throw new DataProcessingException("NBS Interface Data Not Exist");
 //            }
@@ -638,7 +638,7 @@ public class ManagerService implements IManagerService {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
                 String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
-                //kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
+                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
     }

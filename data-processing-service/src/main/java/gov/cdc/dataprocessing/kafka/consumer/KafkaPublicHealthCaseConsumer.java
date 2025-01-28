@@ -58,15 +58,15 @@ public class KafkaPublicHealthCaseConsumer {
 
     @KafkaListener(
             topics = "${kafka.topic.elr_health_case}",
-            containerFactory = "kafkaListenerContainerFactory2"
+            containerFactory = "kafkaListenerContainerFactoryStep2"
     )
-    public void handleMessageForPublicHealthCase(String message) {
+    public void handleMessageForPublicHealthCase(String message, Acknowledgment acknowledgment) {
         try {
             var profile = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
             PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
             managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
-//            acknowledgment.acknowledge();
+            acknowledgment.acknowledge();
         } catch (Exception e) {
             logger.error("KafkaPublicHealthCaseConsumer.handleMessageForPublicHealthCase: {}", e.getMessage());
         }
