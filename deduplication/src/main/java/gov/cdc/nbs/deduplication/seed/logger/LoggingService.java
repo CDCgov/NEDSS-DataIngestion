@@ -1,3 +1,4 @@
+
 package gov.cdc.nbs.deduplication.seed.logger;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,9 +14,9 @@ public class LoggingService {
 
   private static final String QUERY = """
       INSERT INTO job_logs
-        (step_name, message, exception_type, exception_message)
+        (step_name, message, exception_type, exception_message,failed_ids)
       VALUES
-        (:step_name, :message, :exception_type, :exception_message);
+        (:step_name, :message, :exception_type, :exception_message, :failed_ids);
       """;
 
   private final NamedParameterJdbcTemplate template;
@@ -25,16 +26,18 @@ public class LoggingService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void logError(String stepName, String message, Throwable throwable) {
-    template.update(QUERY, createParameterSource(stepName, message, throwable));
+  public void logError(String stepName, String message, String failedIds, Throwable throwable) {
+    template.update(QUERY, createParameterSource(stepName, message, failedIds, throwable));
   }
 
-  SqlParameterSource createParameterSource(String stepName, String message, Throwable throwable) {
+  SqlParameterSource createParameterSource(String stepName, String message, String failedIds, Throwable throwable) {
     return new MapSqlParameterSource()
         .addValue("step_name", stepName)
         .addValue("message", message)
         .addValue("exception_type", throwable.getClass().getName())
-        .addValue("exception_message", throwable.getMessage());
+        .addValue("failed_ids", failedIds)
+        .addValue("exception_message", throwable.getMessage()
+        );
   }
 
 }

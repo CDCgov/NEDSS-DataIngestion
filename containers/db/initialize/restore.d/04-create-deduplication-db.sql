@@ -42,9 +42,10 @@ CREATE TABLE job_logs (
     id INT IDENTITY(1,1) PRIMARY KEY,
     step_name NVARCHAR(255) NOT NULL,
     message NVARCHAR(MAX),
-    timestamp DATETIME NOT NULL,
+    timestamp DATETIME NOT NULL DEFAULT GETDATE(),
     exception_type NVARCHAR(255),
-    exception_message NVARCHAR(MAX)
+    exception_message NVARCHAR(MAX),
+    failed_ids NVARCHAR(MAX)
 );
 
 GO

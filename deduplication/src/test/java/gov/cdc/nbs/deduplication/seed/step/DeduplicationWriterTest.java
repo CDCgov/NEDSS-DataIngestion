@@ -91,9 +91,9 @@ class DeduplicationWriterTest {
     Exception exception = assertThrows(RuntimeException.class, () ->
         writer.write(chunk));
 
-
+    String nbsFailedPersonIds = "1,3";
     verify(loggingService).logError(eq("DeduplicationWriter"), eq("Error writing nbs_mpi mapping to the database."),
-        any(RuntimeException.class));
+        eq(nbsFailedPersonIds), any(RuntimeException.class));
     assertThat(exception.getMessage()).contains("Database error");
   }
 

@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
 import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +15,7 @@ import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
@@ -35,16 +37,20 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
   }
 
   @Override
-  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk)  {
+  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) {
     try {
       List<SqlParameterSource> batchParams = new ArrayList<>();
       for (DeduplicationEntry entry : chunk) {
         batchParams.add(createParameterSource(entry));
       }
       template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
-    } catch (
-        Exception e) {
-      loggingService.logError("DeduplicationWriter", "Error writing nbs_mpi mapping to the database.", e);
+    } catch (Exception e) {
+      String nbsPersonIdsStr = chunk.getItems().stream()
+          .map(DeduplicationEntry::nbsPersonId)
+          .map(String::valueOf)
+          .collect(Collectors.joining(","));
+      loggingService.logError("DeduplicationWriter", "Error writing nbs_mpi mapping to the database.",
+          String.join(",", nbsPersonIdsStr), e);
       throw e;
     }
   }

@@ -166,9 +166,10 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
 
   @Override
   public void write(@NonNull Chunk<? extends NbsPerson> chunk) throws Exception {
+    List<String> personParentUids = null;
     try {
       // Extract person_parent_uids from the chunk
-      List<String> personParentUids = chunk.getItems().stream()
+      personParentUids = chunk.getItems().stream()
           .map(NbsPerson::personParentUid)
           .toList();
 
@@ -186,7 +187,8 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
           .retrieve()
           .body(MpiResponse.class);
     } catch (Exception e) {
-      loggingService.logError("SeedWriter", "Error during MPI persons batch seeding.", e);
+      String failedPersonIds = personParentUids != null ? String.join(",", personParentUids) : null;
+      loggingService.logError("SeedWriter", "Error during MPI persons batch seeding.", failedPersonIds, e);
       throw e;
     }
   }

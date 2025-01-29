@@ -26,15 +26,17 @@ class LoggingServiceTest {
   void testLogError() {
     String stepName = "Test Step";
     String message = "Test error message";
+    String nbsFailedPersonIds = "100,101,102";
     Throwable throwable = new RuntimeException("Test exception");
 
     SqlParameterSource expectedParameterSource = new MapSqlParameterSource()
         .addValue("step_name", stepName)
         .addValue("message", message)
         .addValue("exception_type", throwable.getClass().getName())
-        .addValue("exception_message", throwable.getMessage());
+        .addValue("exception_message", throwable.getMessage())
+        .addValue("failed_ids", nbsFailedPersonIds);
 
-    loggingService.logError(stepName, message, throwable);
+    loggingService.logError(stepName, message, nbsFailedPersonIds, throwable);
 
     ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<SqlParameterSource> paramsCaptor = ArgumentCaptor.forClass(SqlParameterSource.class);
@@ -45,8 +47,12 @@ class LoggingServiceTest {
 
     assertThat(actualParameterSource.getValue("step_name")).isEqualTo(expectedParameterSource.getValue("step_name"));
     assertThat(actualParameterSource.getValue("message")).isEqualTo(expectedParameterSource.getValue("message"));
-    assertThat(actualParameterSource.getValue("exception_type")).isEqualTo(expectedParameterSource.getValue("exception_type"));
-    assertThat(actualParameterSource.getValue("exception_message")).isEqualTo(expectedParameterSource.getValue("exception_message"));
+    assertThat(actualParameterSource.getValue("exception_type")).isEqualTo(
+        expectedParameterSource.getValue("exception_type"));
+    assertThat(actualParameterSource.getValue("exception_message")).isEqualTo(
+        expectedParameterSource.getValue("exception_message"));
+    assertThat(actualParameterSource.getValue("failed_ids")).isEqualTo(expectedParameterSource.getValue("failed_ids"));
+
   }
 
 

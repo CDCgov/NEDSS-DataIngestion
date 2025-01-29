@@ -50,13 +50,13 @@ class SeedWriterTest {
 
   @Test
   void initializes() {
-    SeedWriter newWriter = new SeedWriter(jdbcTemplate,mapper, restClient,loggingService);
+    SeedWriter newWriter = new SeedWriter(jdbcTemplate, mapper, restClient, loggingService);
     assertThat(newWriter).isNotNull();
   }
 
   @Test
   void writesChunk() throws Exception {
-    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient,loggingService);
+    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient, loggingService);
 
     when(restClient.post()).thenReturn(uriSpec);
     when(uriSpec.uri("/seed")).thenReturn(bodySpec);
@@ -72,7 +72,7 @@ class SeedWriterTest {
   }
 
   @Test
-  void writesChunkThrowsException()  {
+  void writesChunkThrowsException() {
     final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient, loggingService);
 
     when(restClient.post()).thenReturn(uriSpec);
@@ -86,14 +86,15 @@ class SeedWriterTest {
 
     Exception exception = assertThrows(RuntimeException.class, () ->
         writer.write(chunk));
-
-    verify(loggingService).logError(eq("SeedWriter"), eq("Error during MPI persons batch seeding."), any(RuntimeException.class));
+    verify(loggingService).logError(eq("SeedWriter"), eq("Error during MPI persons batch seeding."), eq("100,200"),
+        any(RuntimeException.class));
     assertThat(exception.getMessage()).contains("API error");
   }
 
   private Chunk<NbsPerson> createChunk() {
     List<NbsPerson> nbsPersons = new ArrayList<>();
-    nbsPersons.add(new NbsPerson("100", "1"));
+    nbsPersons.add(new NbsPerson("100", "100"));
+    nbsPersons.add(new NbsPerson("200", "200"));
     return new Chunk<>(nbsPersons);
   }
 
