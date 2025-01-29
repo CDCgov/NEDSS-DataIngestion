@@ -23,7 +23,6 @@ import org.springframework.web.client.RestClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.*;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
 
 /**
