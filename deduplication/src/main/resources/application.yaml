@@ -31,7 +31,7 @@ spring:
       password: ${MPI_DB_PASSWORD}
 
 recordLinkage:
-  url: http://localhost:8080
+  url: ${RECORD_LINKER_URL}
 
 batch:
   chunk:
