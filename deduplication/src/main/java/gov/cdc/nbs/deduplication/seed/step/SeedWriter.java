@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
 import org.springframework.batch.item.Chunk;
@@ -42,8 +43,7 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
           nested.address,
           nested.phone,
           nested.name,
-          nested.drivers_license,
-          nested.ssn,
+          nested.identifiers,
           nested.race
       FROM
           person p WITH (NOLOCK)
@@ -74,17 +74,18 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                                   AND pl.street_addr1 IS NOT NULL FOR json path
                           ) AS address
                   ) AS address,
-                  --ssn
+                  -- identifiers
                   (
                       SELECT
                           (
                               SELECT
-                                  TOP 1 eid.root_extension_txt
+                                eid.type_cd type,
+                                  STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt,'-',''),' ',''), 'json') value,
+                                  eid.assigning_authority_cd authority
                               FROM
                                   entity_id eid WITH (NOLOCK)
                               WHERE
-                                  eid.entity_uid = p.person_uid
-                              AND eid.type_cd = 'SS') as ssn) as ssn,
+                                  eid.entity_uid = p.person_uid FOR json path) as identifiers) as identifiers,
                   -- person races
                   (
                       SELECT
@@ -127,21 +128,7 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                               WHERE
                                   person_uid = p.person_uid FOR json path
                           ) AS name
-                  ) AS name,
-                  -- Drivers license
-                  (
-                      SELECT
-                          (
-                              SELECT
-                                  ei.assigning_authority_cd authority,
-                                  STRING_ESCAPE(REPLACE(REPLACE(ei.root_extension_txt,'-',''),' ',''), 'json') value
-                              FROM
-                                  entity_id ei WITH (NOLOCK)
-                              WHERE
-                                  ei.entity_uid = p.person_uid
-                                  AND ei.type_cd = 'DL' FOR json path
-                          ) AS drivers_license
-                  ) AS drivers_license
+                  ) AS name
               ) AS nested
       WHERE
           p.person_parent_uid IN (:ids);

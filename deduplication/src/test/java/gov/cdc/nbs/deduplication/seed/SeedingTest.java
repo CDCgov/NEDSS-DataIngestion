@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.MpiPerson;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 
 @SpringBootTest
 @SpringBatchTest
@@ -107,6 +107,11 @@ class SeedingTest {
     String rawData = mpiTemplate.queryForObject(MPI_DATA_SELECT, String.class);
     MpiPerson mpiData = mapper.readValue(rawData, MpiPerson.class);
 
+    validatePatientData(mpiData);
+
+  }
+
+  private void validatePatientData(MpiPerson mpiData) {
     // Personal
     assertThat(mpiData.birth_date()).isEqualTo("1990-01-01");
     assertThat(mpiData.sex()).isEqualTo("M");
@@ -134,6 +139,12 @@ class SeedingTest {
     assertThat(mpiData.telecom().get(0).value()).isEqualTo("2323222222");
     assertThat(mpiData.telecom().get(1).value()).isEqualTo("4562323222");
     assertThat(mpiData.telecom().get(2).value()).isEqualTo("2323222222");
+
+    // Identifiers
+    assertThat(mpiData.identifiers()).hasSize(1);
+    assertThat(mpiData.identifiers().get(0).value()).isEqualTo("3453453533");
+    assertThat(mpiData.identifiers().get(0).type()).isEqualTo("AN");
+    assertThat(mpiData.identifiers().get(0).authority()).isEqualTo("GA");
   }
 
   private void validateCounts() {

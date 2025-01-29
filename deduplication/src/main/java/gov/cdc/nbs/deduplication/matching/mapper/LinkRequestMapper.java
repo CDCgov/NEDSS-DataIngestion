@@ -16,11 +16,11 @@ import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.EntityIdDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PersonNameDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PostalLocatorDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.TeleLocatorDto;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Address;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.DriversLicense;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.MpiPerson;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Name;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Telecom;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 
 public class LinkRequestMapper {
 
@@ -54,14 +54,12 @@ public class LinkRequestMapper {
         null,
         birthDate,
         sex,
-        null,
+        gender,
         toAddresses(request.postalLocators()),
         toNames(request.names()),
         toTelecoms(request.teleLocators()),
-        toSsn(request.identifications()),
         race,
-        gender,
-        toDriversLicense(request.identifications())));
+        new ArrayList<>()));
   }
 
   List<Address> toAddresses(List<PostalLocatorDto> postalLocators) {
@@ -70,8 +68,8 @@ public class LinkRequestMapper {
         .stream()
         .map(pl -> new Address(
             Stream.of(
-                    pl.streetAddr1(),
-                    pl.streetAddr2())
+                pl.streetAddr1(),
+                pl.streetAddr2())
                 .filter(Strings::isNotBlank)
                 .toList(),
             pl.cityDescTxt(),
@@ -88,13 +86,13 @@ public class LinkRequestMapper {
         .stream()
         .map(n -> new Name(
             Stream.of(
-                    n.firstNm(),
-                    n.middleNm())
+                n.firstNm(),
+                n.middleNm())
                 .filter(Strings::isNotBlank)
                 .toList(),
             n.lastNm(),
             Stream.of(
-                    n.nmSuffix())
+                n.nmSuffix())
                 .filter(Strings::isNotBlank)
                 .toList()))
         .toList();
@@ -108,25 +106,13 @@ public class LinkRequestMapper {
         .toList();
   }
 
-  DriversLicense toDriversLicense(List<EntityIdDto> identifications) {
+  List<Identifier> toIdentifiers(List<EntityIdDto> identifications) {
     return Optional.ofNullable(identifications)
         .orElseGet(ArrayList::new)
         .stream()
-        .filter(id -> "DL".equals(id.typeCd()))
-        .map(id -> new DriversLicense(id.rootExtensionTxt(), id.assigningAuthorityCd()))
-        .findFirst()
-        .orElse(null);
-
-  }
-
-  String toSsn(List<EntityIdDto> identifications) {
-    return Optional.ofNullable(identifications)
-        .orElseGet(ArrayList::new)
-        .stream()
-        .filter(id -> "SS".equals(id.typeCd()))
-        .map(id -> id.rootExtensionTxt())
-        .findFirst()
-        .orElse(null);
+        .filter(id -> id != null && MpiPerson.Identifier.SUPPORTED_IDENTIFIERS.contains(id.typeCd()))
+        .map(id -> new Identifier(id.typeCd(), id.rootExtensionTxt(), id.assigningAuthorityCd()))
+        .toList();
 
   }
 
