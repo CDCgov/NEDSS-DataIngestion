@@ -1,6 +1,10 @@
 package gov.cdc.nbs.deduplication.seed;
 
+import static com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.io.support.ClassicRequestBuilder.post;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 import java.sql.ResultSet;
@@ -15,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.test.JobLauncherTestUtils;
@@ -22,6 +27,7 @@ import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,6 +39,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
@@ -269,7 +277,6 @@ class SeedingTest {
     );
   }
 
-
   @Test
   void startSeed_subsequentRun() throws Exception {
     // Mock behavior for a subsequent run (lastProcessedId exists)
@@ -391,5 +398,52 @@ class SeedingTest {
             eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"),
             anyMap());
   }
+  @Test
+  void testGetLargestProcessedId_NoProcessedId() {
+    when(nbsNamedJdbcTemplate.queryForObject(anyString(), any(HashMap.class), eq(Long.class)))
+            .thenReturn(null); // simulate no processed records
 
+    Long result = seedController.getLargestProcessedId();
+    assertNull(result, "Should return null if no records are processed yet");
+  }
+  @Test
+  void testGetLargestProcessedId_whenSuccess_returnsLargestProcessedId() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(5L); // Simulate existing lastProcessedId of 5
+
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(10L); // Simulate largestProcessedId retrieval
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isEqualTo(10L);
+  }
+  @Test
+  void testGetSmallestPersonId_whenFailure_throwsException() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new DataAccessException("Database error") {});
+
+    assertThatThrownBy(() -> seedController.getSmallestPersonId())
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Could not retrieve the smallest person ID from the nbs.person table.");
+  }
+  @Test
+  void testGetLastProcessedId_whenRecordFound_returnsLastProcessedId() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(100L); // Simulate a record being found
+
+    Long result = seedController.getLastProcessedId();
+    assertThat(result).isEqualTo(100L);
+  }
 }
