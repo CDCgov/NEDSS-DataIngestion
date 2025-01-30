@@ -6,6 +6,7 @@ on:
       - rel-**
     paths:
       - "deduplication/**"
+  workflow_dispatch:
 
 jobs:
   sonar_scan:
