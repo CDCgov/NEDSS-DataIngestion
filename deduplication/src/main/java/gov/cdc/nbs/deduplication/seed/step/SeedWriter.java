@@ -128,7 +128,8 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
                   ) AS name
               ) AS nested
       WHERE
-          p.person_parent_uid IN (:ids);
+          p.person_parent_uid IN (:ids)
+          AND p.record_status_cd = 'ACTIVE';
       """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
