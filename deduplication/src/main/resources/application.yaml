@@ -3,7 +3,11 @@ server:
 
 spring:
   application.name: deduplication
-  batch.job.enabled: false
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
   jpa:
     properties:
       hibernate:
@@ -25,12 +29,9 @@ spring:
       url: ${MPI_DB_URL}
       username: ${MPI_DB_USERNAME}
       password: ${MPI_DB_PASSWORD}
-    batch:
-      jdbc:
-        initialize-schema: always
 
 recordLinkage:
-  url: http://localhost:8080
+  url: ${RECORD_LINKER_URL}
 
 batch:
   chunk:
