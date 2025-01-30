@@ -64,7 +64,7 @@ public class SeedController {
   }
 
   // Method to get the last processed ID from the database
-  private Long getLastProcessedId() {
+  public Long getLastProcessedId() {
     String sql = "SELECT last_processed_id FROM last_processed_id WHERE id = 1";
     try {
       return deduplicationNamedJdbcTemplate.queryForObject(sql, new HashMap<>(), Long.class);
@@ -74,7 +74,7 @@ public class SeedController {
   }
 
   // Method to get the smallest person_id from the NBS database
-  private Long getSmallestPersonId() {
+  public Long getSmallestPersonId() {
     String smallestIdSql = "SELECT MIN(person_uid) FROM person";
     try {
       return nbsNamedJdbcTemplate.queryForObject(smallestIdSql, new HashMap<>(), Long.class);
@@ -84,7 +84,7 @@ public class SeedController {
   }
 
   // Method to get the largest processed person_id after the seeding job
-  private Long getLargestProcessedId() {
+  public Long getLargestProcessedId() {
     String largestIdSql = "SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId";
     HashMap<String, Object> params = new HashMap<>();
     params.put("lastProcessedId", getLastProcessedId());
@@ -96,7 +96,7 @@ public class SeedController {
   }
 
   // Method to update the last processed ID in the database
-  private void updateLastProcessedId(Long largestProcessedId) {
+  public void updateLastProcessedId(Long largestProcessedId) {
     String updateSql = "UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1";
     HashMap<String, Object> params = new HashMap<>();
     params.put("largestProcessedId", largestProcessedId);

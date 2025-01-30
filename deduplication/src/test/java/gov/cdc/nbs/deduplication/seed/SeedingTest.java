@@ -22,6 +22,7 @@ import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -345,6 +346,50 @@ class SeedingTest {
 
     // Verify the job is not launched because no records are available for seeding
     verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+
+  @Test
+  void testGetLastProcessedId_whenNoRecordFound_returnsNull() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new EmptyResultDataAccessException(1)); // Simulate no record found
+
+    Long result = seedController.getLastProcessedId();
+    assertThat(result).isNull();
+  }
+  @Test
+  void testGetSmallestPersonId_whenSuccess_returnsSmallestPersonId() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(1L); // Simulate successful query
+
+    Long result = seedController.getSmallestPersonId();
+    assertThat(result).isEqualTo(1L);
+  }
+  @Test
+  void testGetLargestProcessedId_whenNoLastProcessedId_returnsNull() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null); // Simulate no last processed id
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isNull();
+  }
+  @Test
+  void testUpdateLastProcessedId_whenSuccess_updatesLastProcessedId() {
+    doReturn(1).when(deduplicationNamedJdbcTemplate).update(anyString(), anyMap()); // Simulate successful update
+
+    seedController.updateLastProcessedId(10L);
+
+    verify(deduplicationNamedJdbcTemplate).update(
+            eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"),
+            anyMap());
   }
 
 }
