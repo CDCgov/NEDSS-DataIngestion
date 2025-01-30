@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/deduplication/seed")
@@ -45,6 +46,7 @@ public class SeedController {
     if (lastProcessedId == null) {
       lastProcessedId = getSmallestPersonId();
     }
+    lastProcessedId = Optional.ofNullable(lastProcessedId).orElse(0L);
 
     // Pass the lastProcessedId to the job parameters
     JobParameters parameters = new JobParametersBuilder()

@@ -35,25 +35,24 @@ public class LastProcessedIdListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             Long lastProcessedId = jobExecution.getJobParameters().getLong("lastProcessedId");
+            LOGGER.info("Received lastProcessedId: {}", lastProcessedId);
 
             if (lastProcessedId != null) {
                 String updateSql = "UPDATE last_processed_id SET last_processed_id = :lastProcessedId WHERE id = 1";
                 Map<String, Object> params = new HashMap<>();
                 params.put("lastProcessedId", lastProcessedId);
 
-                try {
-                    int rowsUpdated = deduplicationNamedJdbcTemplate.update(updateSql, params);
-                    LOGGER.info("Updated {} row(s) in last_processed_id table with ID: {}", rowsUpdated, lastProcessedId);
-                } catch (Exception e) {
-                    LOGGER.error("Failed to update last_processed_id in the database.", e);
-                    throw new IllegalStateException("Error updating last_processed_id", e);
-                }
+                LOGGER.info("Executing SQL: {} with params: {}", updateSql, params);
+                // Directly execute the update without try-catch
+                int rowsUpdated = deduplicationNamedJdbcTemplate.update(updateSql, params);
+                LOGGER.info("Rows updated: {}", rowsUpdated);
             } else {
-                LOGGER.warn("Job completed, but no lastProcessedId was found in job parameters.");
+                LOGGER.warn("No lastProcessedId found in job parameters.");
             }
         } else {
             LOGGER.error("Job did not complete successfully. Status: {}", jobExecution.getStatus());
         }
     }
+
 }
 
