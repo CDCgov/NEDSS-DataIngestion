@@ -44,7 +44,6 @@ public class SeedController {
     Long lastProcessedId = getLastProcessedId();
     if (lastProcessedId == null) {
       lastProcessedId = getSmallestPersonId();
-      System.out.println("Using smallest person ID: " + lastProcessedId);
     }
 
     // Pass the lastProcessedId to the job parameters
@@ -52,7 +51,6 @@ public class SeedController {
             .addLong("startTime", System.currentTimeMillis())
             .addLong("lastProcessedId", lastProcessedId)
             .toJobParameters();
-    System.out.println("Job Parameters: " + parameters.getParameters());
 
     launcher.run(seedJob, parameters);
 
