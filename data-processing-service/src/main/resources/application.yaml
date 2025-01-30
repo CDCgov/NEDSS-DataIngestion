@@ -30,7 +30,7 @@ cache:
 features:
   modernizedMatching:
     enabled: ${MODERNIZED_MATCHING_ENABLED:false}
-    url:
+    url: ${MODERNIZED_MATCHING_URL}
 
 spring:
   application:

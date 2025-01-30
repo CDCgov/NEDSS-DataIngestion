@@ -17,13 +17,13 @@ import org.springframework.lang.Nullable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 import gov.cdc.nbs.deduplication.seed.model.NbsAddress;
 import gov.cdc.nbs.deduplication.seed.model.NbsName;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Address;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.DriversLicense;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.MpiPerson;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Name;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Telecom;
 
 public class MpiPersonMapper implements RowMapper<MpiPerson> {
 
@@ -47,7 +47,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
 
     List<Telecom> phones = mapPhones(rs.getString("phone"));
 
-    DriversLicense driversLicense = mapDriversLicense(rs.getString("drivers_license"));
+    List<Identifier> identifiers = mapIdentifiers(rs.getString("identifiers"));
 
     String race = mapRace(rs.getString("race"));
 
@@ -56,14 +56,12 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         rs.getString("person_parent_uid"),
         rs.getString("birth_date"),
         rs.getString("sex"),
-        null,
+        rs.getString("gender"),
         addresses,
         names,
         phones,
-        rs.getString("ssn"),
         race,
-        null,
-        driversLicense);
+        identifiers);
   }
 
   <T> Optional<T> tryParse(String stringValue, TypeReference<T> reference) {
@@ -151,31 +149,15 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         }).orElseGet(() -> new ArrayList<>());
   }
 
-  /**
-   * Returns the first Drivers-License entry found.
-   * If none is found, creates and returns a new DriversLicense with the given license value
-   * and an empty string as the authority if the authority is null or blank.
-   */
-  DriversLicense mapDriversLicense(String driversLicenseString) {
-    List<DriversLicense> licenses = tryParse(
-        driversLicenseString,
-        new TypeReference<List<DriversLicense>>() {
-        }).orElseGet(() -> new ArrayList<>());
-
-    // Get the first drivers-license or set it to null
-    DriversLicense license = licenses.stream().findFirst().orElse(null);
-
-    // If the license is null or blank, return null
-    if (license == null) {
-      return null;
-    }
-
-    // If the authority is null or blank, set a default value
-    if (license.authority() == null || license.authority().isBlank()) {
-      return new DriversLicense(license.value(), "");
-    }
-
-    return license;
+  List<Identifier> mapIdentifiers(String identifierString) {
+    return tryParse(
+        identifierString,
+        new TypeReference<List<Identifier>>() {
+        })
+        .orElseGet(() -> new ArrayList<>())
+        .stream()
+        .filter(i -> i != null && MpiPerson.Identifier.SUPPORTED_IDENTIFIERS.contains(i.type()))
+        .toList();
   }
 
   /** Convert Race_cd to acceptable value for Record Linkage */

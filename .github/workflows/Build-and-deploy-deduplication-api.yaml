@@ -1,4 +1,4 @@
-name: Build and push deduplication-api images to ECR
+name: Build and push deduplication-api image to ECR
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - "deduplication/**"
 
 jobs:
- sonar_scan:
+  sonar_scan:
     uses: ./.github/workflows/sonar.yaml
     secrets:
       CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
