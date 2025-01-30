@@ -42,19 +42,17 @@ public class SeedController {
           JobInstanceAlreadyCompleteException,
           JobParametersInvalidException {
     Long lastProcessedId = getLastProcessedId();
-
     if (lastProcessedId == null) {
-      // First run: get the smallest person_id from NBS
       lastProcessedId = getSmallestPersonId();
+      System.out.println("Using smallest person ID: " + lastProcessedId);
     }
-
-    System.out.println("Starting job with lastProcessedId: " + lastProcessedId);
 
     // Pass the lastProcessedId to the job parameters
     JobParameters parameters = new JobParametersBuilder()
             .addLong("startTime", System.currentTimeMillis())
             .addLong("lastProcessedId", lastProcessedId)
             .toJobParameters();
+    System.out.println("Job Parameters: " + parameters.getParameters());
 
     launcher.run(seedJob, parameters);
 
