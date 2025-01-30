@@ -293,4 +293,58 @@ class SeedingTest {
     verify(deduplicationNamedJdbcTemplate).update(eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"), any(HashMap.class));
   }
 
+  @Test
+  void startSeed_invalidSqlQueryForLastProcessedId() throws Exception {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new SQLException("Database error"));
+
+    Assertions.assertThrows(SQLException.class, () -> seedController.startSeed());
+  }
+  @Test
+  void startSeed_noDataInNbs() throws Exception {
+    // Mock behavior for the first run (lastProcessedId is null)
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);
+
+    // Mock that there are no records in NBS
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // No records in NBS
+
+    // Verify that the job does not proceed or handles the case
+    doNothing().when(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    seedController.startSeed();
+
+    // Verify that no seeding job is run if no data is available
+    verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+  @Test
+  void startSeed_lastProcessedIdGreaterThanMaxPersonId() throws Exception {
+    // Mock behavior for a subsequent run
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(100L);  // Last processed ID greater than any person_uid in the NBS table
+
+    // Mock the max person_uid from NBS as smaller than lastProcessedId
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null); // No records with person_uid greater than 100
+
+    // Verify the job is not launched because no records are available for seeding
+    verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+
 }
