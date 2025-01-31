@@ -216,7 +216,6 @@ class SeedingTest {
     }
   }
 
-
   @Test
   void startSeed_firstRun() throws Exception {
     // Mock behavior for the first run (lastProcessedId is null)
@@ -306,6 +305,7 @@ class SeedingTest {
 
     Assertions.assertThrows(SQLException.class, () -> seedController.startSeed());
   }
+
   @Test
   void startSeed_noDataInNbs() throws Exception {
     // Mock behavior for the first run (lastProcessedId is null)
@@ -330,6 +330,7 @@ class SeedingTest {
     // Verify that no seeding job is run if no data is available
     verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
   }
+
   @Test
   void startSeed_lastProcessedIdGreaterThanMaxPersonId() throws Exception {
     // Mock behavior for a subsequent run
@@ -361,6 +362,7 @@ class SeedingTest {
     Long result = seedController.getLastProcessedId();
     assertThat(result).isNull();
   }
+
   @Test
   void testGetSmallestPersonId_whenSuccess_returnsSmallestPersonId() {
     when(nbsNamedJdbcTemplate.queryForObject(
@@ -372,6 +374,7 @@ class SeedingTest {
     Long result = seedController.getSmallestPersonId();
     assertThat(result).isEqualTo(1L);
   }
+
   @Test
   void testGetLargestProcessedId_whenNoLastProcessedId_returnsNull() {
     when(deduplicationNamedJdbcTemplate.queryForObject(
@@ -383,6 +386,7 @@ class SeedingTest {
     Long result = seedController.getLargestProcessedId();
     assertThat(result).isNull();
   }
+
   @Test
   void testUpdateLastProcessedId_whenSuccess_updatesLastProcessedId() {
     doReturn(1).when(deduplicationNamedJdbcTemplate).update(anyString(), anyMap()); // Simulate successful update
@@ -393,6 +397,7 @@ class SeedingTest {
             eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"),
             anyMap());
   }
+
   @Test
   void testGetLargestProcessedId_NoProcessedId() {
     when(nbsNamedJdbcTemplate.queryForObject(anyString(), any(HashMap.class), eq(Long.class)))
@@ -401,6 +406,7 @@ class SeedingTest {
     Long result = seedController.getLargestProcessedId();
     assertNull(result, "Should return null if no records are processed yet");
   }
+
   @Test
   void testGetLargestProcessedId_whenSuccess_returnsLargestProcessedId() {
     when(deduplicationNamedJdbcTemplate.queryForObject(
@@ -418,6 +424,7 @@ class SeedingTest {
     Long result = seedController.getLargestProcessedId();
     assertThat(result).isEqualTo(10L);
   }
+
   @Test
   void testGetSmallestPersonId_whenFailure_throwsException() {
     when(nbsNamedJdbcTemplate.queryForObject(
@@ -430,6 +437,16 @@ class SeedingTest {
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Could not retrieve the smallest person ID from the nbs.person table.");
   }
+
+  @Test
+  void testUpdateLastProcessedId_whenUpdateFails_throwsException() {
+    doThrow(new DataAccessException("Update failed") {}).when(deduplicationNamedJdbcTemplate).update(anyString(), anyMap());
+
+    assertThatThrownBy(() -> seedController.updateLastProcessedId(10L))
+            .isInstanceOf(DataAccessException.class)
+            .hasMessageContaining("Update failed");
+  }
+
   @Test
   void testGetLastProcessedId_whenRecordFound_returnsLastProcessedId() {
     when(deduplicationNamedJdbcTemplate.queryForObject(
