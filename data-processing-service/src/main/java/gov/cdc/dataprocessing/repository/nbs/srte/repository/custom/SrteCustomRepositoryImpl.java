@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class SrteCustomRepositoryImpl implements SrteCustomRepository{
 
 
     //THIS ONE IS  FOR CACHING
+    @Transactional
     public List<LabResult> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()  {
         String codeSql =
                 "Select  Lab_result.LAB_RESULT_CD , lab_result_desc_txt  FROM "

@@ -37,6 +37,7 @@ public class EdxPatientMatchStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public EdxPatientMatchDto getEdxPatientMatch(String typeCd, String matchString) throws DataProcessingException {
         EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
 
@@ -74,6 +75,7 @@ public class EdxPatientMatchStoredProcRepository {
     }
 
 
+    @Transactional
     public EdxEntityMatchDto getEdxEntityMatch(String typeCd, String matchString) throws DataProcessingException {
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 

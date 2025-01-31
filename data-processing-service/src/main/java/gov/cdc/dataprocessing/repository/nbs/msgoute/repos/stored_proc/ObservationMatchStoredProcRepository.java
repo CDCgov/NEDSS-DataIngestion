@@ -43,6 +43,7 @@ public class ObservationMatchStoredProcRepository {
     @PersistenceContext(unitName = "nbsEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public Long getMatchedObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         ObservationContainer observationContainer = edxLabInformationDto.getRootObservationContainer();
         String clia = edxLabInformationDto.getSendingFacilityClia();

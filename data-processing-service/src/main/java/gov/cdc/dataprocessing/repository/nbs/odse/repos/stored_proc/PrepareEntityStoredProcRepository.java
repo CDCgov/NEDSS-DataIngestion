@@ -7,6 +7,7 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
@@ -37,6 +38,7 @@ public class PrepareEntityStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public PrepareEntity getPrepareEntity(String businessTriggerCd, String moduleCd, Long uid, String tableName) throws DataProcessingException {
         PrepareEntity entity = new PrepareEntity();
         try {
