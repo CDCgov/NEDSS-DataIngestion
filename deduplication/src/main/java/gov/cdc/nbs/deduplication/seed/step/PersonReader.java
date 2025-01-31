@@ -16,10 +16,14 @@ import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
   private final NbsPersonMapper mapper = new NbsPersonMapper();
+  private final PagingQueryProvider queryProvider;
+  private final DataSource dataSource; // Store the DataSource
 
   public PersonReader(
           @Qualifier("nbs") DataSource dataSource,
           @Value("${lastProcessedId:0}") Long lastProcessedId) throws Exception {
+
+    this.dataSource = dataSource; // Store the DataSource reference
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
@@ -40,11 +44,27 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
     this.setName("nbsPersonReader");
     this.setDataSource(dataSource);
-    PagingQueryProvider queryProvider = provider.getObject();
-    if (queryProvider != null) {
+    this.setPageSize(10000);
+    this.queryProvider = provider.getObject();
+
+    if (this.queryProvider != null) {
       this.setQueryProvider(queryProvider);
     }
     this.setRowMapper(mapper);
-    this.setPageSize(10000);
+  }
+
+  // Expose the Query Provider for testing
+  public PagingQueryProvider getQueryProviderInstance() {
+    return this.queryProvider;
+  }
+
+  // Expose the DataSource for testing
+  public DataSource getDataSourceInstance() {
+    return this.dataSource;
+  }
+
+  // Expose the RowMapper for testing
+  public NbsPersonMapper getRowMapperInstance() {
+    return this.mapper;
   }
 }
