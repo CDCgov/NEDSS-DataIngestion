@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.MessageLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.MessageLogRepository;
 import gov.cdc.dataprocessing.service.interfaces.log.IMessageLogService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 

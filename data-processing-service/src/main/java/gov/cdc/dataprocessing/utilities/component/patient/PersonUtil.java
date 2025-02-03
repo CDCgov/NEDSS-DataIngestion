@@ -10,7 +10,6 @@ import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingServ
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 

@@ -9,7 +9,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.Participat
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 

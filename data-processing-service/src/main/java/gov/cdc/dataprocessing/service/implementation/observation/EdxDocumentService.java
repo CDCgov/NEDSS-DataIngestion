@@ -5,7 +5,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxDocumentRepository;
 import gov.cdc.dataprocessing.service.interfaces.observation.IEdxDocumentService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
