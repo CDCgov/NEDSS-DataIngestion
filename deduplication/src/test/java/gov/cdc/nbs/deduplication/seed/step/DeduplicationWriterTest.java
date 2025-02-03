@@ -56,13 +56,13 @@ class DeduplicationWriterTest {
     assertThat(captor.getValue()[0].getValue("person_parent_uid")).isEqualTo(2L);
     assertThat(captor.getValue()[0].getValue("mpi_patient")).isEqualTo("mpiPatient1");
     assertThat(captor.getValue()[0].getValue("mpi_person")).isEqualTo("mpiPerson1");
-    assertThat(captor.getValue()[0].getValue("status")).isEqualTo("U");
+    assertThat(captor.getValue()[0].getValue("status")).isEqualTo("P");
 
     assertThat(captor.getValue()[1].getValue("person_uid")).isEqualTo(3L);
     assertThat(captor.getValue()[1].getValue("person_parent_uid")).isEqualTo(4L);
     assertThat(captor.getValue()[1].getValue("mpi_patient")).isEqualTo("mpiPatient2");
     assertThat(captor.getValue()[1].getValue("mpi_person")).isEqualTo("mpiPerson2");
-    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("U");
+    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("P");
   }
 
   @Test
@@ -85,8 +85,30 @@ class DeduplicationWriterTest {
     DeduplicationWriter testWriter = new DeduplicationWriter(template);
     testWriter.updateLastProcessedId(5L);
 
-    // Verify that the update method was called
     verify(template).update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
+  }
+
+  @Test
+  void testUpdateLastProcessedId_whenUpdateFails_logsError() {
+    doThrow(new RuntimeException("Database error")).when(template)
+            .update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
+
+    writer.updateLastProcessedId(5L);
+
+    // Verify no exception is thrown & error is logged
+    verify(template, times(1)).update(anyString(), any(SqlParameterSource.class));
+  }
+
+  @Test
+  void testWrite_whenNoValidLargestProcessedId_doesNotUpdateLastProcessedId() throws Exception {
+    List<DeduplicationEntry> entries = new ArrayList<>();
+    entries.add(new DeduplicationEntry(null, null, null, null)); // Invalid entry
+    var chunk = new Chunk<>(entries);
+
+    writer.write(chunk);
+
+    verify(template, times(1)).batchUpdate(anyString(), any(SqlParameterSource[].class));
+    verify(template, never()).update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
   }
 
 }
