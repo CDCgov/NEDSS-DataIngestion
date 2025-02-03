@@ -31,12 +31,6 @@ class DeduplicationWriterTest {
   @InjectMocks
   private DeduplicationWriter writer;
 
-  @Test
-  void initializes() {
-    DeduplicationWriter newWriter = new DeduplicationWriter(template);
-    assertThat(newWriter).isNotNull();
-  }
-
   @Mock
   private Logger logger;
 
@@ -51,6 +45,12 @@ class DeduplicationWriterTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Test
+  void initializes() {
+    DeduplicationWriter newWriter = new DeduplicationWriter(template);
+    assertThat(newWriter).isNotNull();
   }
 
   @Test
