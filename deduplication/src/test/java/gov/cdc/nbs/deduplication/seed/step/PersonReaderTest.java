@@ -8,11 +8,13 @@ import java.sql.DatabaseMetaData;
 
 import javax.sql.DataSource;
 
+import gov.cdc.nbs.deduplication.seed.mapper.NbsPersonMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.database.PagingQueryProvider;
+import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 
 @ExtendWith(MockitoExtension.class)
 class PersonReaderTest {
@@ -41,6 +43,20 @@ class PersonReaderTest {
   }
 
   @Test
+  void testWhereClauseWithLastProcessedIdZero() throws Exception {
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
+
+    PersonReader reader = new PersonReader(dataSource, 0L);
+    PagingQueryProvider queryProvider = reader.getQueryProviderInstance();
+
+    assertThat(queryProvider).isNotNull();
+    String query = queryProvider.generateFirstPageQuery(10);
+    assertThat(query).contains("WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT' AND person_uid > 0");
+  }
+
+  @Test
   void initializesReaderWithNonZeroLastProcessedId() throws Exception {
     when(dataSource.getConnection()).thenReturn(connection);
     when(connection.getMetaData()).thenReturn(metadata);
@@ -66,6 +82,30 @@ class PersonReaderTest {
 
     String query = queryProvider.generateFirstPageQuery(10); // Generate SQL for the first page
     assertThat(query).contains("WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT' AND person_uid > 100");
+  }
+
+  @Test
+  void testSortKeyIsApplied() throws Exception {
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
+
+    PersonReader reader = new PersonReader(dataSource, 50L);
+    PagingQueryProvider queryProvider = reader.getQueryProviderInstance();
+
+    assertThat(queryProvider).isNotNull();
+    assertThat(queryProvider.getSortKeys()).containsKey("person_uid");
+  }
+
+  @Test
+  void testRowMapperIsSet() throws Exception {
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
+
+    PersonReader reader = new PersonReader(dataSource, 100L);
+
+    assertThat(reader.getRowMapperInstance()).isInstanceOf(NbsPersonMapper.class);
   }
 
 }
