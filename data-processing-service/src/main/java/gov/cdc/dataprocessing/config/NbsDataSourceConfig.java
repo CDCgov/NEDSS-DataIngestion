@@ -81,14 +81,7 @@ public class NbsDataSourceConfig {
 
     @Bean(name = "nbsDataSource")
     public DataSource nbsDataSource() {
-//        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-//
-//        dataSourceBuilder.driverClassName(driverClassName);
-//        dataSourceBuilder.url(dbUrl);
-//        dataSourceBuilder.username(dbUserName);
-//        dataSourceBuilder.password(dbUserPassword);
-//
-//        return dataSourceBuilder.build();
+
 
 
         HikariConfig hikariConfig = new HikariConfig();

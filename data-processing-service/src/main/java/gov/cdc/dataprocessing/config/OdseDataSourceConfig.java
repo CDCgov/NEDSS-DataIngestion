@@ -82,14 +82,6 @@ public class OdseDataSourceConfig {
 
     @Bean(name = "odseDataSource")
     public DataSource odseDataSource() {
-//        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-//
-//        dataSourceBuilder.driverClassName(driverClassName);
-//        dataSourceBuilder.url(dbUrl);
-//        dataSourceBuilder.username(dbUserName);
-//        dataSourceBuilder.password(dbUserPassword);
-//
-//        return dataSourceBuilder.build();
 
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driverClassName);
