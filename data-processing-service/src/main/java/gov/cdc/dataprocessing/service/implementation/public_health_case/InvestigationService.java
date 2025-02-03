@@ -143,12 +143,11 @@ public class InvestigationService implements IInvestigationService {
                                 Collection<Object>  summaryDTColl,
                                 Collection<Object> treatmentSumColl,
                                 Boolean isNNDResendCheckRequired) throws DataProcessingException {
-        InvestigationContainer invVO = new InvestigationContainer();
         if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty() ){
             setObservationAssociationsImpl(investigationUID, reportSumVOCollection);
         }
         if(isNNDResendCheckRequired){
-             invVO = getInvestigationProxy(investigationUID);
+             var invVO = getInvestigationProxy(investigationUID);
             updateAutoResendNotificationsAsync(invVO);
         }
         if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty()){

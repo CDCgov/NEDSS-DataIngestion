@@ -75,7 +75,7 @@ public class AuthUserService implements IAuthUserService {
             else {
                 throw new DataProcessingException("Auth User Not Found");
             }
-            AuthUserProfile.authUserProfileInfo = authUserData;
+            AuthUserProfile.authUserProfileInfo = authUserData; //NOSONAR
         }
 
         return AuthUserProfile.authUserProfileInfo;

@@ -819,7 +819,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         return isAdvancedInvCriteriaMet;
     }
 
-    private void processAction(EdxLabInformationDto edxRuleAlgorothmManagerDT, Algorithm algorithm) throws DataProcessingException {
+    private void processAction(EdxLabInformationDto edxRuleAlgorothmManagerDT, Algorithm algorithm)  {
         //applicationMap
         Map<Object, Object> applicationMap= new HashMap<>();
         ActionType actionType = algorithm.getAction();

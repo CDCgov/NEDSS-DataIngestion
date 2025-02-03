@@ -288,7 +288,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_Exception() throws DataProcessingException {
+    void initiatingInvestigationAndPublicHealthCase_Exception()  {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -1084,7 +1084,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep2KafkaFailed() throws DataProcessingException {
+    void initiateStep2KafkaFailed()  {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
@@ -1098,7 +1098,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep2KafkaFailed_ResetCache() throws DataProcessingException {
+    void initiateStep2KafkaFailed_ResetCache()  {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep2 = 100000;
         var nbs = new NbsInterfaceModel();
@@ -1114,7 +1114,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep3KafkaFailed() throws DataProcessingException {
+    void initiateStep3KafkaFailed()  {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
@@ -1130,7 +1130,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void initiateStep3KafkaFailed_ResetCache() throws DataProcessingException {
+    void initiateStep3KafkaFailed_ResetCache()  {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep3 = 100000;
         var nbs = new NbsInterfaceModel();

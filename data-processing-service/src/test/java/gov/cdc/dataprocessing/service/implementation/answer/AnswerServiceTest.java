@@ -104,7 +104,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testGetNbsAnswerAndAssociationResultNotPresent() throws DataProcessingException {
+    void testGetNbsAnswerAndAssociationResultNotPresent()  {
         Long uid = 1L;
 
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(uid)).thenReturn(Optional.empty());
@@ -121,7 +121,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void getNbsAnswerAndAssociation_Success() throws DataProcessingException {
+    void getNbsAnswerAndAssociation_Success()  {
         long uid = 10L;
 
         // getPageAnswerDTMaps 52

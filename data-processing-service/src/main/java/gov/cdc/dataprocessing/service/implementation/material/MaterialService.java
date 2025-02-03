@@ -291,7 +291,7 @@ public class MaterialService implements IMaterialService {
         }
 
     }
-    private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) throws DataProcessingException {
+    private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) {
         Iterator<EntityIdDto> anIterator;
         ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
         anIterator = entityList.iterator();

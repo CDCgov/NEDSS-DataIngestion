@@ -48,7 +48,7 @@ public class ObservationUtil {
     public Long getUid(Collection<ParticipationDto> participationDtoCollection,
                         Collection<ActRelationshipDto> actRelationshipDtoCollection,
                         String uidListType, String uidClassCd, String uidTypeCd,
-                        String uidActClassCd, String uidRecordStatusCd) throws DataProcessingException {
+                        String uidActClassCd, String uidRecordStatusCd)  {
         Long anUid = null;
 
         if (participationDtoCollection != null) {

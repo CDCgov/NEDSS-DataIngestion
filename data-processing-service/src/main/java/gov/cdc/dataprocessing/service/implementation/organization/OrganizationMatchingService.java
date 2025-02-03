@@ -280,7 +280,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     @SuppressWarnings("java:S3776")
 
     // getting identifiers for PHCR Organizations
-    private List<String> getIdentifier(OrganizationContainer organizationContainer) throws DataProcessingException {
+    private List<String> getIdentifier(OrganizationContainer organizationContainer)  {
         String carrot = "^";
         List<String> identifierList = new ArrayList<>();
         String identifier = null;

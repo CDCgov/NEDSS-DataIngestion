@@ -648,7 +648,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
     @SuppressWarnings("java:S3776")
-    protected void setPersonToMatchEntityNok(PersonContainer personContainer) throws DataProcessingException {
+    protected void setPersonToMatchEntityNok(PersonContainer personContainer)  {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientMatchDto;
         String cdDescTxt = personContainer.thePersonDto.getCdDescTxt();

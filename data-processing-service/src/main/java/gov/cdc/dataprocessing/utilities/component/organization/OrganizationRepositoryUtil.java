@@ -147,18 +147,12 @@ public class OrganizationRepositoryUtil {
         /**
          * Starts inserting a new organization
          */
-        if (organizationContainer != null) {
-            try {
-                // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
-                organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
-                organizationContainer.getTheOrganizationDto().setLocalId(localUid);
-                organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
-                insertOrganization(organizationContainer);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+        // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
+        organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
+        organizationContainer.getTheOrganizationDto().setLocalId(localUid);
+        organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
+        insertOrganization(organizationContainer);
 
-        }
         if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
             insertOrganizationNames(organizationContainer);
         }

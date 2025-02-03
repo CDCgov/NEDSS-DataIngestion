@@ -463,7 +463,7 @@ public class LookupService implements ILookupService {
     }
 
 
-    protected Collection<LookupMappingDto>  getPrePopMapping() throws DataProcessingException {
+    protected Collection<LookupMappingDto>  getPrePopMapping()  {
          return retrievePrePopMapping();
     }
 

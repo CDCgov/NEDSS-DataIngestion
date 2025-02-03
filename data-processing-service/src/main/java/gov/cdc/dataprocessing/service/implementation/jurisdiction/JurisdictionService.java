@@ -237,7 +237,7 @@ public class JurisdictionService implements IJurisdictionService {
     private HashMap<String, String> resolveLabReportJurisdiction(PersonContainer patientContainer,
                                                                  PersonContainer providerContainer,
                                                                  OrganizationContainer organizationContainer,
-                                                                 OrganizationContainer organizationContainer2) throws DataProcessingException {
+                                                                 OrganizationContainer organizationContainer2)  {
         Collection<String> patientJurisdictionCollection;
         Collection<String> providerJurisdictionCollection;
         Collection<String> organizationJurisdictionCollection = null;

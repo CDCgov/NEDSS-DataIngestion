@@ -75,14 +75,14 @@ public class ParticipationService implements IParticipationService {
             deleteParticipationByPk(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getActClassCd());
         }
     }
-    private void persistingParticipation(ParticipationDto participationDto) throws DataProcessingException {
+    private void persistingParticipation(ParticipationDto participationDto)  {
         if (participationDto.getSubjectEntityUid() != null && participationDto.getActUid() != null) {
             var data = new Participation(participationDto);
             participationRepository.save(data);
         }
     }
 
-    private void deleteParticipationByPk(Long subjectId, Long actId, String classCode) throws DataProcessingException {
+    private void deleteParticipationByPk(Long subjectId, Long actId, String classCode)  {
         dataModifierReposJdbc.deleteParticipationByPk(subjectId, actId, classCode);
     }
 

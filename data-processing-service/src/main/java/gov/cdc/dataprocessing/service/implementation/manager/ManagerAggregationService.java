@@ -161,7 +161,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S4144"})
     protected void progAndJurisdictionAggregationHelper(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,

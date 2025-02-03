@@ -31,7 +31,7 @@ import java.util.List;
 
 @Service
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
-  private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class);
+  private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class); // NOSONAR
 
   private final boolean modernizedMatchingEnabled;
   private final DeduplicationService deduplicationService;
