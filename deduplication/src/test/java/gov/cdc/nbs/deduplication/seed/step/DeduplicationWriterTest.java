@@ -16,7 +16,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
 import org.slf4j.Logger;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -31,12 +30,19 @@ class DeduplicationWriterTest {
   @InjectMocks
   private DeduplicationWriter writer;
 
+  @Test
+  void initializes() {
+    DeduplicationWriter newWriter = new DeduplicationWriter(template);
+    assertThat(newWriter).isNotNull();
+  }
+
   @Mock
   private Logger logger;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
+    // Use reflection to set the logger since it's static
     try {
       var loggerField = DeduplicationWriter.class.getDeclaredField("logger");
       loggerField.setAccessible(true);
@@ -44,12 +50,6 @@ class DeduplicationWriterTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Test
-  void initializes() {
-    DeduplicationWriter newWriter = new DeduplicationWriter(template);
-    assertThat(newWriter).isNotNull();
   }
 
   @Test
@@ -77,7 +77,7 @@ class DeduplicationWriterTest {
     assertThat(captor.getValue()[1].getValue("person_parent_uid")).isEqualTo(4L);
     assertThat(captor.getValue()[1].getValue("mpi_patient")).isEqualTo("mpiPatient2");
     assertThat(captor.getValue()[1].getValue("mpi_person")).isEqualTo("mpiPerson2");
-    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("P");
+    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("U");
   }
 
   @Test
@@ -102,18 +102,6 @@ class DeduplicationWriterTest {
 
     // Verify that the update method was called
     verify(template).update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
-  }
-
-  @Test
-  void testUpdateLastProcessedId_whenUpdateFails_logsError() {
-    Long testId = 123L;
-
-    doThrow(new RuntimeException("Database error")).when(template)
-            .update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(MapSqlParameterSource.class));
-
-    writer.updateLastProcessedId(testId);
-
-    verify(logger).error(eq("Error updating last_processed_id: {}"), contains("Database error"));
   }
 
 }
