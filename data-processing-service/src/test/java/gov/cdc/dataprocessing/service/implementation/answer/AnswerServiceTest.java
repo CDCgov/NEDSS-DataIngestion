@@ -769,7 +769,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_AnswerCollectionNull() throws DataProcessingException {
+    void testDelete_AnswerCollectionNull()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -781,7 +781,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_AnswerCollectionEmpty() throws DataProcessingException {
+    void testDelete_AnswerCollectionEmpty()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -794,7 +794,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_ActEntityCollectionNull() throws DataProcessingException {
+    void testDelete_ActEntityCollectionNull()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -808,7 +808,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_ActEntityCollectionEmpty() throws DataProcessingException {
+    void testDelete_ActEntityCollectionEmpty()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
