@@ -263,7 +263,7 @@ public class AnswerService implements IAnswerService {
     }
 
     @SuppressWarnings("java:S1172")
-    protected void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) throws DataProcessingException {
+    protected void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) {
         if (answerDTColl != null){
             for (Object o : answerDTColl) {
                 NbsAnswerDto answerDT = (NbsAnswerDto) o;
@@ -305,7 +305,7 @@ public class AnswerService implements IAnswerService {
     }
 
 
-    protected void insertAnswerHistoryDTCollection(Collection<Object> oldAnswerDTCollection) throws DataProcessingException {
+    protected void insertAnswerHistoryDTCollection(Collection<Object> oldAnswerDTCollection)  {
         if (oldAnswerDTCollection != null) {
             for (Object obj : oldAnswerDTCollection) {
                 if (obj instanceof ArrayList<?> && !((ArrayList<Object>) obj).isEmpty()) {
@@ -323,7 +323,7 @@ public class AnswerService implements IAnswerService {
     }
 
     protected void insertPageEntityHistoryDTCollection(Collection<NbsActEntityDto> nbsCaseEntityDTColl, ObservationDto oldrootDTInterface)
-            throws DataProcessingException {
+    {
         if (nbsCaseEntityDTColl != null) {
             for (NbsActEntityDto nbsActEntityDto : nbsCaseEntityDTColl) {
                 nbsActEntityRepository.deleteNbsEntityAct(nbsActEntityDto.getNbsActEntityUid());

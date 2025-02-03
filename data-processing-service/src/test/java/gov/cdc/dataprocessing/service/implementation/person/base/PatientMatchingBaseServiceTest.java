@@ -723,7 +723,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_ValidInputs() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_ValidInputs()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -756,7 +756,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_EmptyCdDescTxt() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_EmptyCdDescTxt()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -772,7 +772,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_EmptyNameAddressStreetOneStrList() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_EmptyNameAddressStreetOneStrList()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
