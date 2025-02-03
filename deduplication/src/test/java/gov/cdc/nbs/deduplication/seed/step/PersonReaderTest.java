@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.database.PagingQueryProvider;
-import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 
 @ExtendWith(MockitoExtension.class)
 class PersonReaderTest {

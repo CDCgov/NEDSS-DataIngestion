@@ -19,6 +19,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -399,6 +400,45 @@ class SeedingTest {
   }
 
   @Test
+  void testStartSeed_withBoundaryLastProcessedId() throws Exception {
+    // Mock behavior for boundary value of lastProcessedId (max possible value)
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(Long.MAX_VALUE);  // Set lastProcessedId to max value
+
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // No records with person_uid greater than Long.MAX_VALUE
+
+    // Verify the job does not run since no records are found
+    verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+
+  @Test
+  void testStartSeed_whenJobLauncherIsNotAvailable_throwsException() {
+    // Simulate missing JobLauncher
+    seedController = new SeedController(null, seedJob, deduplicationNamedJdbcTemplate, nbsNamedJdbcTemplate);
+
+    assertThatThrownBy(() -> seedController.startSeed())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("launcher");
+  }
+
+  @Test
+  void testStartSeed_whenSeedJobIsNotAvailable_throwsException() {
+    // Simulate missing SeedJob
+    seedController = new SeedController(launcher, null, deduplicationNamedJdbcTemplate, nbsNamedJdbcTemplate);
+
+    assertThatThrownBy(() -> seedController.startSeed())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("seedJob");
+  }
+
+  @Test
   void testGetLargestProcessedId_NoProcessedId() {
     when(nbsNamedJdbcTemplate.queryForObject(anyString(), any(HashMap.class), eq(Long.class)))
             .thenReturn(null); // simulate no processed records
@@ -458,4 +498,49 @@ class SeedingTest {
     Long result = seedController.getLastProcessedId();
     assertThat(result).isEqualTo(100L);
   }
+
+  @Test
+  void testGetSmallestPersonId_whenNoRecordsFound_returnsNull() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // Simulate no records in NBS
+
+    Long result = seedController.getSmallestPersonId();
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testGetLargestProcessedId_whenNoProcessedRecords_returnsNull() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // Simulate no processed records
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void startSeed_jobExecutionFails_throwsJobExecutionException() throws Exception {
+    // Mock behavior for the first run (lastProcessedId is null)
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);
+
+    // Mock that the job execution fails
+    doThrow(new JobExecutionAlreadyRunningException("Job already running"))
+            .when(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    // Verify that the exception is thrown
+    assertThatThrownBy(() -> seedController.startSeed())
+            .isInstanceOf(JobExecutionAlreadyRunningException.class)
+            .hasMessageContaining("Job already running");
+  }
+
+
 }
