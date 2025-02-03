@@ -83,6 +83,7 @@ public class AuthUserService implements IAuthUserService {
     }
 
 
+    @SuppressWarnings("java:S1874")
     private Optional<AuthUser> findAuthUserByUserId(String userId) {
         return jdbcTemplateOdse.query(
                 SELECT_AUTH_USER_BY_USER_ID,

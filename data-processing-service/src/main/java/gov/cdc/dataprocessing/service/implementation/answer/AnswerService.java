@@ -276,7 +276,7 @@ public class AnswerService implements IAnswerService {
         }
     }
 
-    protected void delete(ObservationDto rootDTInterface) throws DataProcessingException{
+    protected void delete(ObservationDto rootDTInterface) {
         Collection<Object> answerCollection = null;
 
         var result = nbsAnswerRepository.getPageAnswerByActUid(rootDTInterface.getObservationUid());

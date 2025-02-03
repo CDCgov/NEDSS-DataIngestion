@@ -56,6 +56,7 @@ class AuthUserServiceTest {
         Mockito.reset(authUserRepository, customAuthUserRepository, authUtil);
     }
 
+    @SuppressWarnings("java:S1874")
     @Test
     void getAuthUserInfo_Success() throws DataProcessingException {
 
@@ -77,6 +78,7 @@ class AuthUserServiceTest {
 
     }
 
+    @SuppressWarnings("java:S1874")
     @Test
     void getAuthUserInfo_Exception()  {
         String authUserId = "Test";

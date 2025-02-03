@@ -604,7 +604,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void insertAnswerHistoryDTCollection_Test_2() throws DataProcessingException {
+    void insertAnswerHistoryDTCollection_Test_2()  {
         var anCol1 = new ArrayList<>();
         var an1 = new NbsAnswerDto();
         anCol1.add(an1);
@@ -745,7 +745,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testStoreAnswerDTCollection_NullCollection() throws DataProcessingException {
+    void testStoreAnswerDTCollection_NullCollection()  {
         ObservationDto interfaceDT = new ObservationDto();
 
         answerService.storeAnswerDTCollection(null, interfaceDT);
@@ -754,7 +754,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testStoreAnswerDTCollection_DeleteCase() throws DataProcessingException {
+    void testStoreAnswerDTCollection_DeleteCase()  {
         Collection<Object> answerDTColl = new ArrayList<>();
         NbsAnswerDto answerDT = mock(NbsAnswerDto.class);
         when(answerDT.isItDelete()).thenReturn(true);
@@ -822,7 +822,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertAnswerHistoryDTCollection_NullCollection() throws DataProcessingException {
+    void testInsertAnswerHistoryDTCollection_NullCollection()  {
         answerService.insertAnswerHistoryDTCollection(null);
 
         verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
@@ -830,7 +830,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertAnswerHistoryDTCollection_EmptyCollection() throws DataProcessingException {
+    void testInsertAnswerHistoryDTCollection_EmptyCollection()  {
         answerService.insertAnswerHistoryDTCollection(Collections.emptyList());
 
         verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
@@ -838,7 +838,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertAnswerHistoryDTCollection_InvalidObject() throws DataProcessingException {
+    void testInsertAnswerHistoryDTCollection_InvalidObject()  {
         Collection<Object> invalidCollection = new ArrayList<>();
         invalidCollection.add("InvalidObject");
 
@@ -850,7 +850,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testInsertPageEntityHistoryDTCollection_NullCollection() throws DataProcessingException {
+    void testInsertPageEntityHistoryDTCollection_NullCollection()  {
         ObservationDto oldRootDTInterface = mock(ObservationDto.class);
         answerService.insertPageEntityHistoryDTCollection(null, oldRootDTInterface);
 
@@ -859,7 +859,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertPageEntityHistoryDTCollection_EmptyCollection() throws DataProcessingException {
+    void testInsertPageEntityHistoryDTCollection_EmptyCollection()  {
         ObservationDto oldRootDTInterface = mock(ObservationDto.class);
         answerService.insertPageEntityHistoryDTCollection(Collections.emptyList(), oldRootDTInterface);
 
