@@ -9,13 +9,14 @@ import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
-import org.slf4j.Logger;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -34,22 +35,6 @@ class DeduplicationWriterTest {
   void initializes() {
     DeduplicationWriter newWriter = new DeduplicationWriter(template);
     assertThat(newWriter).isNotNull();
-  }
-
-  @Mock
-  private Logger logger;
-
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-    // Use reflection to set the logger since it's static
-    try {
-      var loggerField = DeduplicationWriter.class.getDeclaredField("logger");
-      loggerField.setAccessible(true);
-      loggerField.set(null, logger);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Test
