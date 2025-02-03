@@ -9,14 +9,14 @@ import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
+import org.slf4j.Logger;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -35,6 +35,22 @@ class DeduplicationWriterTest {
   void initializes() {
     DeduplicationWriter newWriter = new DeduplicationWriter(template);
     assertThat(newWriter).isNotNull();
+  }
+
+  @Mock
+  private Logger logger;
+
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    // Use reflection to set the logger since it's static
+    try {
+      var loggerField = DeduplicationWriter.class.getDeclaredField("logger");
+      loggerField.setAccessible(true);
+      loggerField.set(null, logger);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
@@ -87,6 +103,18 @@ class DeduplicationWriterTest {
 
     // Verify that the update method was called
     verify(template).update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(SqlParameterSource.class));
+  }
+
+  @Test
+  void testUpdateLastProcessedId_whenUpdateFails_logsError() {
+    Long testId = 123L;
+
+    doThrow(new RuntimeException("Database error")).when(template)
+            .update(eq(DeduplicationWriter.UPDATE_LAST_PROCESSED_ID), any(MapSqlParameterSource.class));
+
+    writer.updateLastProcessedId(testId);
+
+    verify(logger).error(eq("Error updating last_processed_id: {}"), contains("Database error"));
   }
 
 }
