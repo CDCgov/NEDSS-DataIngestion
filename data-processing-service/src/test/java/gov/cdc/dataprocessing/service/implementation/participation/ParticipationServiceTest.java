@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,6 +26,8 @@ class ParticipationServiceTest {
 
     @Mock
     ParticipationRepository participationRepository;
+    @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
 
     @Mock
     ParticipationHistRepository participationHistRepository;
@@ -84,10 +87,10 @@ class ParticipationServiceTest {
         participationDto.setSubjectEntityUid(1L);
         participationDto.setActUid(2L);
 
-        doNothing().when(participationRepository).deleteParticipationByPk(any(), any(), any());
+        doNothing().when(dataModifierReposJdbc).deleteParticipationByPk(any(), any(), any());
 
         participationService.saveParticipation(participationDto);
 
-        verify(participationRepository, times(1)).deleteParticipationByPk(any(), any(), any());
+        verify(dataModifierReposJdbc, times(1)).deleteParticipationByPk(any(), any(), any());
     }
 }

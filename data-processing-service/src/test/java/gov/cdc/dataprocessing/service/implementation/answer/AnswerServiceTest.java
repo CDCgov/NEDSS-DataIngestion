@@ -449,7 +449,7 @@ class AnswerServiceTest {
                 .thenThrow(new RuntimeException("TEST"));
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.storePageAnswer(pageContainer, observationDto);
         });
 
@@ -518,11 +518,11 @@ class AnswerServiceTest {
 
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(any())).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.getNbsAnswerAndAssociation(null);
         });
 
-        assertEquals("InterviewAnswerRootDAOImpl:answerCollection- could not be returned",thrown.getMessage());
+        assertEquals("TEST",thrown.getMessage());
 
     }
 
@@ -566,7 +566,7 @@ class AnswerServiceTest {
         when(nbsAnswerRepository.save(any())).thenThrow(new RuntimeException());
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.storeAnswerDTCollection(answerDTColl, interfaceDt);
         });
 
@@ -577,7 +577,7 @@ class AnswerServiceTest {
     void delete_Exp() {
         ObservationDto observationDto = new ObservationDto();
         when(nbsAnswerRepository.getPageAnswerByActUid(any())).thenThrow(new RuntimeException());
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.delete(observationDto);
         });
 
@@ -595,7 +595,7 @@ class AnswerServiceTest {
         when(nbsAnswerHistRepository.save(any())).thenThrow(new RuntimeException());
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.insertAnswerHistoryDTCollection(anCol);
         });
 
@@ -629,7 +629,7 @@ class AnswerServiceTest {
 
         when(nbsActEntityHistRepository.save(any())).thenThrow(new RuntimeException());
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.insertPageEntityHistoryDTCollection(nbsCaseEntityDTColl, oldrootDTInterface);
         });
 

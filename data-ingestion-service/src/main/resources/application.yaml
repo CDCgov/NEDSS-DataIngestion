@@ -78,6 +78,8 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  rti:
+    topic: dp_elr_unprocessed
   topics: elr_raw,elr_validated
   retry:
     suffix: _retry

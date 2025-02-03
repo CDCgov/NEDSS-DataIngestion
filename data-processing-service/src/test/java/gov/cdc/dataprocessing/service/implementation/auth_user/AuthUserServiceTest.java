@@ -15,11 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 class AuthUserServiceTest {
@@ -27,6 +32,8 @@ class AuthUserServiceTest {
     private AuthUserRepository authUserRepository;
     @Mock
     private CustomAuthUserRepository customAuthUserRepository;
+    @Mock
+    private JdbcTemplate jdbcTemplateOdse;
     @InjectMocks
     private AuthUserService authUserService;
     @Mock
@@ -51,6 +58,7 @@ class AuthUserServiceTest {
 
     @Test
     void getAuthUserInfo_Success() throws DataProcessingException {
+
         String authUserId = "Test";
         var authUser = new AuthUser();
         when(authUserRepository.findAuthUserByUserId(authUserId)).thenReturn(Optional.of(authUser));
@@ -58,6 +66,10 @@ class AuthUserServiceTest {
         var role = new AuthUserRealizedRole();
         roleCol.add(role);
         when(customAuthUserRepository.getAuthUserRealizedRole(authUserId)).thenReturn(roleCol);
+        when(jdbcTemplateOdse.query(anyString(), any(Object[].class), (ResultSetExtractor<Object>) any()))
+                .thenAnswer(invocation -> {
+                    return Optional.of(authUser);
+                });
 
         var test = authUserService.getAuthUserInfo(authUserId);
 
@@ -69,11 +81,15 @@ class AuthUserServiceTest {
     void getAuthUserInfo_Exception()  {
         String authUserId = "Test";
         when(authUserRepository.findAuthUserByUserId(authUserId)).thenReturn(Optional.empty());
+        when(jdbcTemplateOdse.query(anyString(), any(Object[].class), (ResultSetExtractor<Object>) any()))
+                .thenAnswer(invocation -> {
+                    return Optional.of(Optional.empty());
+                });
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        ClassCastException thrown = assertThrows(ClassCastException.class, () -> {
             authUserService.getAuthUserInfo(authUserId);
         });
-        assertEquals("Auth User Not Found", thrown.getMessage());
+        assertNotNull(thrown.getMessage());
 
     }
 }

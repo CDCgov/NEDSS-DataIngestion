@@ -85,6 +85,9 @@ public class KafkaConsumerService {
     @Value("${kafka.xml-conversion.topic}")
     private String convertedToXmlTopic = "xml_converted";
 
+    @Value("${kafka.rti.topic}")
+    private String rtiTopic = "dp_elr_unprocessed";
+
     @Value("${kafka.raw.topic}")
     private String rawTopic = "elr_raw";
 
@@ -262,7 +265,7 @@ public class KafkaConsumerService {
             iReportStatusRepository.save(reportStatusIdData);
 
             if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "dp_elr_unprocessed", 0);
+                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), rtiTopic, 0);
             }
             else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
@@ -538,7 +541,7 @@ public class KafkaConsumerService {
             }
 
             if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "dp_elr_unprocessed", 0); //NOSONAR
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), rtiTopic, 0); //NOSONAR
             } else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
             }

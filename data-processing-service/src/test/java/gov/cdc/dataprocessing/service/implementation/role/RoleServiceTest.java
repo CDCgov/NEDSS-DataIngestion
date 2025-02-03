@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.*;
 class RoleServiceTest {
     @Mock
     private RoleRepository roleRepositoryMock;
+    @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelperMock;
 
@@ -117,9 +120,9 @@ class RoleServiceTest {
     void saveRole_forDelete() {
         RoleDto roleDto = getRoleDto();
         roleDto.setItDelete(true);
-        doNothing().when(roleRepositoryMock).deleteRoleByPk(1234L,"SF",1L);
+        doNothing().when(dataModifierReposJdbc).deleteRoleByPk(1234L,"SF",1L);
         roleService.saveRole(roleDto);
-        verify(roleRepositoryMock).deleteRoleByPk(1234L,"SF",1L);
+        verify(dataModifierReposJdbc).deleteRoleByPk(1234L,"SF",1L);
     }
 
     @Test
