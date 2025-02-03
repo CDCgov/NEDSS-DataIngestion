@@ -525,22 +525,30 @@ class SeedingTest {
 
   @Test
   void startSeed_jobExecutionFails_throwsJobExecutionException() throws Exception {
-    // Mock behavior for the first run (lastProcessedId is null)
     when(deduplicationNamedJdbcTemplate.queryForObject(
             eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
             anyMap(),
             eq(Long.class))
     ).thenReturn(null);
 
-    // Mock that the job execution fails
     doThrow(new JobExecutionAlreadyRunningException("Job already running"))
             .when(launcher).run(eq(seedJob), any(JobParameters.class));
 
-    // Verify that the exception is thrown
     assertThatThrownBy(() -> seedController.startSeed())
             .isInstanceOf(JobExecutionAlreadyRunningException.class)
             .hasMessageContaining("Job already running");
   }
 
+  @Test
+  void testGetLargestProcessedId_whenQueryFails_returnsNull() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new DataAccessException("Database error") {});
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isNull();
+  }
 
 }
