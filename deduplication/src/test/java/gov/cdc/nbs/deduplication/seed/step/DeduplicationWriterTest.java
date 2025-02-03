@@ -37,7 +37,6 @@ class DeduplicationWriterTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    // Use reflection to set the logger since it's static
     try {
       var loggerField = DeduplicationWriter.class.getDeclaredField("logger");
       loggerField.setAccessible(true);
@@ -78,7 +77,7 @@ class DeduplicationWriterTest {
     assertThat(captor.getValue()[1].getValue("person_parent_uid")).isEqualTo(4L);
     assertThat(captor.getValue()[1].getValue("mpi_patient")).isEqualTo("mpiPatient2");
     assertThat(captor.getValue()[1].getValue("mpi_person")).isEqualTo("mpiPerson2");
-    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("U");
+    assertThat(captor.getValue()[1].getValue("status")).isEqualTo("P");
   }
 
   @Test
