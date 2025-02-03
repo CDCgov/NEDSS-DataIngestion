@@ -146,12 +146,12 @@ public class ManagerService implements IManagerService {
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-            nbsInterfaceModel = res.get();
-
-//            if (res.isPresent()) {
-//            } else {
-//                throw new DataProcessingException("NBS Interface Data Not Exist");
-//            }
+            if (res.isEmpty()) {
+                throw new DataProcessingException("NBS Interface Data Not Exist");
+            }
+            else {
+                nbsInterfaceModel = res.get();
+            }
 //
 //            synchronized (PropertyUtilCache.class) {
 //                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
@@ -261,13 +261,14 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-            nbsInterfaceModel = res.get();
 
-//        if (res.isPresent()) {
-//                nbsInterfaceModel = res.get();
-//            } else {
-//                throw new DataProcessingException("NBS Interface Data Not Exist");
-//            }
+            if (res.isPresent()) {
+                    nbsInterfaceModel = res.get();
+            }
+            else
+            {
+                throw new DataProcessingException("NBS Interface Data Not Exist");
+            }
 
 //            synchronized (PropertyUtilCache.class)
 //            {
@@ -332,7 +333,7 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setPublicHealthCaseUid(phcUid);
                     edxLabInformationDto.setLabAssociatedToInv(true);
                 }
-                else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null)
+                else if (observationDto.getJurisdictionCd() != null && observationDto.getProgAreaCd() != null && pamProxyVO != null)
                 {
                     phcUid = pamService.setPamProxyWithAutoAssoc(pamProxyVO, edxLabInformationDto.getRootObserbationUid(), NEDSSConstant.LABRESULT_CODE);
 

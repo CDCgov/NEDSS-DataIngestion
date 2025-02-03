@@ -66,7 +66,7 @@ public class AuthUserService implements IAuthUserService {
         if (AuthUserProfile.authUserProfileInfo  == null) {
             var authUser = this.findAuthUserByUserId(authUserId);
             AuthUserProfileInfo authUserData;
-            if (authUser.isPresent()) {
+            if (authUser != null && authUser.isPresent()) {
                 authUserData = new AuthUserProfileInfo();
                 authUserData.setAuthUser(authUser.get());
                 var authUserRoleRes = this.customAuthUserRepository.getAuthUserRealizedRole(authUserId);
