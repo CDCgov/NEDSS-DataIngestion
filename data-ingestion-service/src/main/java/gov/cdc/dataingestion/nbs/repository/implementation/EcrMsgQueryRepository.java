@@ -19,13 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     @PersistenceContext(unitName = "nbs")
     private EntityManager entityManager;
@@ -34,29 +27,6 @@ public class EcrMsgQueryRepository implements IEcrMsgQueryRepository {
     private static final String INV_LOCAL_ID = "INV_LOCAL_ID";
     private static final String IXS_LOCAL_ID = "IXS_LOCAL_ID";
 
-
-
-    public EcrMsgContainerDto fetchMsgContainerForApplicableEcr() throws EcrCdaXmlException {
-        String queryString = loadSqlFromFile("ecr_msg_container.sql");
-        Query query = entityManager.createNativeQuery(queryString);
-
-        EcrMsgContainerDto ecrMsgContainerDto = new EcrMsgContainerDto();
-        List<Object[]> results = query.getResultList();
-        if (results != null && !results.isEmpty()) {
-            var val = results.get(0);
-            ecrMsgContainerDto.setMsgContainerUid(nullCheckInt(val[0]));
-            ecrMsgContainerDto.setInvLocalId((nullToString(val[1])));
-            ecrMsgContainerDto.setNbsInterfaceUid(nullCheckInt(val[2]));
-            ecrMsgContainerDto.setReceivingSystem((nullToString(val[3])));
-            ecrMsgContainerDto.setOngoingCase((nullToString(val[4])));
-            ecrMsgContainerDto.setVersionCtrNbr(nullCheckInt(val[5]));
-            ecrMsgContainerDto.setDataMigrationStatus(nullCheckInt(val[6]));
-            return ecrMsgContainerDto;
-
-        }
-
-        return null;
-    }
 
     public List<EcrMsgPatientDto> fetchMsgPatientForApplicableEcr(Integer containerId) throws EcrCdaXmlException {
         String queryString = loadSqlFromFile("ecr_msg_patient.sql");

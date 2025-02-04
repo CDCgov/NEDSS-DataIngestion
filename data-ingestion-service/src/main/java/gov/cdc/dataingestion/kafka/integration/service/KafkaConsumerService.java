@@ -20,7 +20,7 @@ import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
@@ -103,7 +103,7 @@ public class KafkaConsumerService {
     private final IElrDeadLetterRepository elrDeadLetterRepository;
 
     private final ICdaMapper cdaMapper;
-    private final IEcrMsgQueryService ecrMsgQueryService;
+    private final EcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
@@ -123,7 +123,7 @@ public class KafkaConsumerService {
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             IElrDeadLetterRepository elrDeadLetterRepository,
             ICdaMapper cdaMapper,
-            IEcrMsgQueryService ecrMsgQueryService,
+            EcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
             TimeMetricsBuilder timeMetricsBuilder) {
@@ -352,17 +352,6 @@ public class KafkaConsumerService {
             }
 
     )
-    @KafkaListener(
-            topics = "ecr_cda"
-    )
-    public void handleMessageForPhdcEcrTransformToCda(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
-        log.debug(topicDebugLog, message, topic);
-        var result = ecrMsgQueryService.getSelectedEcrRecord();
-        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
-        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
-                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
-    }
 
     @KafkaListener(
             topics = "xml_prep_dlt_manual"
