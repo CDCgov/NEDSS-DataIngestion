@@ -181,7 +181,8 @@ public class KafkaConsumerService {
 
     )
     @KafkaListener(
-            topics = "${kafka.raw.topic}"
+            topics = "${kafka.raw.topic}",
+            containerFactory = "kafkaListenerContainerFactoryRaw"
     )
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -231,7 +232,8 @@ public class KafkaConsumerService {
 
     )
     @KafkaListener(
-            topics = "${kafka.raw.xml-topic}"
+            topics = "${kafka.raw.xml-topic}",
+            containerFactory = "kafkaListenerContainerFactoryRawXml"
     )
     public void handleMessageForElrXml(String message,
                                        @Header(KafkaHeaders.RECEIVED_KEY) String messageId,
@@ -300,7 +302,9 @@ public class KafkaConsumerService {
                     JAXBException.class
             }
     )
-    @KafkaListener(topics = "${kafka.validation.topic}")
+    @KafkaListener(topics = "${kafka.validation.topic}",
+            containerFactory = "kafkaListenerContainerFactoryValidate"
+    )
     public void handleMessageForValidatedElr(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                              @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
@@ -318,7 +322,8 @@ public class KafkaConsumerService {
     /**
      * XML Conversion
      * */
-    @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
+    @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}",
+            containerFactory = "kafkaListenerContainerFactoryXml")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
@@ -353,7 +358,8 @@ public class KafkaConsumerService {
 
     )
     @KafkaListener(
-            topics = "ecr_cda"
+            topics = "ecr_cda",
+            containerFactory = "kafkaListenerContainerFactoryEcrCda"
     )
     public void handleMessageForPhdcEcrTransformToCda(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
@@ -365,7 +371,8 @@ public class KafkaConsumerService {
     }
 
     @KafkaListener(
-            topics = "xml_prep_dlt_manual"
+            topics = "xml_prep_dlt_manual",
+            containerFactory = "kafkaListenerContainerFactoryDltManual"
     )
     public void handleDltManual(
             String message,
@@ -509,7 +516,7 @@ public class KafkaConsumerService {
             // Modified from debug ==> info to capture xml for analysis.
             // Please leave below at "info" level for the time being, before going live,
             // this will be changed to debug
-            log.info("rhapsodyXml: {}", rhapsodyXml);
+            log.debug("rhapsodyXml: {}", rhapsodyXml);
 
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
             NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
