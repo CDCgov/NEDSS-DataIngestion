@@ -43,10 +43,9 @@ public class MatchController {
     return matchService.getMatchingConfiguration();
   }
 
-  // Update /algorithm (Before calling /match)
   @CrossOrigin(origins = "http://localhost:3000")
   @PostMapping("/update-algorithm")
-  public void updateAlgorithm() {
-    matchService.updateAlgorithm();
+  public void updateAlgorithm(@RequestBody MatchingConfigRequest request) {
+    matchService.updateAlgorithm(request);  // Pass the MatchingConfigRequest to the service
   }
 }

@@ -1,20 +1,14 @@
 package gov.cdc.nbs.deduplication.matching.model;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import gov.cdc.nbs.deduplication.matching.dto.Pass;
-
 import java.util.List;
+import gov.cdc.nbs.deduplication.matching.dto.AlgorithmPass;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class MatchingConfigRequest {
+public class AlgorithmUpdateRequest {
     private String label;
     private String description;
     private boolean isDefault;
     private boolean includeMultipleMatches;
-    private List<Pass> passes;
-
-    // Default constructor
-    public MatchingConfigRequest() {}
+    private Double[] belongingnessRatio;
+    private List<AlgorithmPass> passes;
 
     // Getters and Setters
     public String getLabel() {
@@ -37,7 +31,7 @@ public class MatchingConfigRequest {
         return isDefault;
     }
 
-    public void setDefault(boolean isDefault) {
+    public void setIsDefault(boolean isDefault) {
         this.isDefault = isDefault;
     }
 
@@ -49,12 +43,19 @@ public class MatchingConfigRequest {
         this.includeMultipleMatches = includeMultipleMatches;
     }
 
-    public List<Pass> getPasses() {
+    public Double[] getBelongingnessRatio() {
+        return belongingnessRatio;
+    }
+
+    public void setBelongingnessRatio(Double[] belongingnessRatio) {
+        this.belongingnessRatio = belongingnessRatio;
+    }
+
+    public List<AlgorithmPass> getPasses() {
         return passes;
     }
 
-    public void setPasses(List<Pass> passes) {
+    public void setPasses(List<AlgorithmPass> passes) {
         this.passes = passes;
     }
 }
-

@@ -1,5 +1,7 @@
 package gov.cdc.nbs.deduplication.matching.model;
 
+import gov.cdc.nbs.deduplication.matching.dto.Pass;
+
 import java.util.List;
 
 public class MatchingConfiguration {

@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.matching;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.matching.dto.Pass;
 import gov.cdc.nbs.deduplication.matching.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestClient;
 
 import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
+import gov.cdc.nbs.deduplication.matching.mapper.AlgorithmRequestMapper;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
 
 @Service
@@ -49,8 +51,8 @@ public class MatchService {
   private static final Logger log = LoggerFactory.getLogger(MatchService.class);
 
   public MatchService(
-      @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient,
-      @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+          @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient,
+          @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
     this.recordLinkageClient = recordLinkageClient;
     this.template = template;
   }
@@ -90,40 +92,40 @@ public class MatchService {
 
     if (response == null) {
       throw new MatchException(
-          "Record Linkage failed to create new entry for patient: " + linkResponse.patient_reference_id());
+              "Record Linkage failed to create new entry for patient: " + linkResponse.patient_reference_id());
     }
 
     // Add newly created person identifier to response
     LinkResponse newLinkReponse = new LinkResponse(
-        response.patient_reference_id(),
-        response.person_reference_id(),
-        linkResponse.prediction(),
-        linkResponse.results());
+            response.patient_reference_id(),
+            response.person_reference_id(),
+            linkResponse.prediction(),
+            linkResponse.results());
     return new MatchResponse(null, MatchType.POSSIBLE, newLinkReponse);
   }
 
   private LinkResponse sendLinkRequest(LinkRequest linkRequest) {
     return recordLinkageClient.post()
-        .uri("/link")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(linkRequest)
-        .retrieve()
-        .body(LinkResponse.class);
+            .uri("/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(linkRequest)
+            .retrieve()
+            .body(LinkResponse.class);
   }
 
   private CreatePersonResponse sendCreatePersonRequest(String mpiPatientId) {
     return recordLinkageClient.post()
-        .uri(String.format("/patient/%s/person", mpiPatientId))
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .retrieve()
-        .body(CreatePersonResponse.class);
+            .uri(String.format("/patient/%s/person", mpiPatientId))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .body(CreatePersonResponse.class);
   }
 
   private Long findNbsPersonParentId(String mpiPerson) {
     SqlParameterSource parameters = new MapSqlParameterSource()
-        .addValue("mpi_person", mpiPerson);
+            .addValue("mpi_person", mpiPerson);
     return template.queryForObject(FIND_NBS_PERSON_QUERY, parameters, Long.class);
   }
 
@@ -135,40 +137,42 @@ public class MatchService {
     String status = isPossibleMatch ? "R" : "P"; // Review, Processed
 
     SqlParameterSource parameters = new MapSqlParameterSource()
-        .addValue("person_uid", request.nbsPerson())
-        .addValue("person_parent_uid", request.nbsPersonParent())
-        .addValue("mpi_patient", request.linkResponse().patient_reference_id())
-        .addValue("mpi_person", request.linkResponse().person_reference_id())
-        .addValue("status", status);
+            .addValue("person_uid", request.nbsPerson())
+            .addValue("person_parent_uid", request.nbsPersonParent())
+            .addValue("mpi_patient", request.linkResponse().patient_reference_id())
+            .addValue("mpi_person", request.linkResponse().person_reference_id())
+            .addValue("status", status);
     template.update(LINK_NBS_MPI_QUERY, parameters);
 
     // If possible match, persist match options
     if (isPossibleMatch) {
       if (request.linkResponse().results() == null
-          || request.linkResponse().results().isEmpty()) {
+              || request.linkResponse().results().isEmpty()) {
         throw new MatchException("Results specify possible match but no possible matches are returned");
       }
       request.linkResponse().results().forEach(r -> {
         SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
-            .addValue("person_uid", request.nbsPerson())
-            .addValue("mpi_person_id", r.person_reference_id());
+                .addValue("person_uid", request.nbsPerson())
+                .addValue("mpi_person_id", r.person_reference_id());
         template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
       });
     }
   }
+  // ------------------------------
+  // CONFIGURATION MANAGEMENT
+  // ------------------------------
+
   public void configureMatching(MatchingConfigRequest request) {
     saveMatchingConfiguration(request);
+    updateAlgorithm(request);  // Update algorithm after saving
   }
 
   public void saveMatchingConfiguration(MatchingConfigRequest request) {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       String jsonConfig = objectMapper.writeValueAsString(request);
-
       String sql = "INSERT INTO match_configuration (configuration) VALUES (:configuration)";
-      SqlParameterSource params = new MapSqlParameterSource()
-              .addValue("configuration", jsonConfig);
-
+      SqlParameterSource params = new MapSqlParameterSource().addValue("configuration", jsonConfig);
       template.update(sql, params);
     } catch (JsonProcessingException e) {
       throw new RuntimeException("Error converting MatchingConfigRequest to JSON", e);
@@ -179,35 +183,75 @@ public class MatchService {
     String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
     try {
       String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
-
       if (jsonConfig == null || jsonConfig.isEmpty()) {
         log.warn("No matching configuration found in database.");
-        return null; // Return null instead of throwing an exception
+        return null;
       }
-
       ObjectMapper objectMapper = new ObjectMapper();
       return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
     } catch (EmptyResultDataAccessException e) {
       log.warn("No matching configuration found in database.");
-      return null; // Return null instead of causing a 404 error
+      return null;
     } catch (Exception e) {
       log.error("Error retrieving matching configuration", e);
       throw new RuntimeException("Error retrieving matching configuration from the database", e);
     }
   }
 
+  public void updateAlgorithm(MatchingConfigRequest configRequest) {
+    // Convert MatchingConfigRequest → MatchingConfiguration
+    MatchingConfiguration config = mapToMatchingConfiguration(configRequest);
 
-  public void updateAlgorithm() {
-    // Retrieve the latest configuration from the database
-    MatchingConfigRequest config = getMatchingConfiguration();
+    // Convert MatchingConfiguration → AlgorithmUpdateRequest
+    AlgorithmUpdateRequest algorithmRequest = AlgorithmRequestMapper.mapToAlgorithmRequest(config);
 
-    // Send updated matching configuration to the /algorithm API
-    recordLinkageClient.post()
-            .uri("/algorithm")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .body(config)  // Sending the latest configuration
-            .retrieve()
-            .body(Void.class);
+    // Map the first pass for label, description, belongingnessRatio, and passes
+    if (configRequest.getPasses() != null && !configRequest.getPasses().isEmpty()) {
+      Pass firstPass = configRequest.getPasses().get(0);
+
+      // Set label and description from the first pass
+      algorithmRequest.setLabel(firstPass.getName());
+      algorithmRequest.setDescription(firstPass.getDescription());
+
+      // Set belongingnessRatio from lowerBound and upperBound values of the first pass
+      if (firstPass.getLowerBound() != null && firstPass.getUpperBound() != null) {
+        algorithmRequest.setBelongingnessRatio(new Double[]{firstPass.getLowerBound(), firstPass.getUpperBound()});
+      }
+    }
+
+    // Send request to /algorithm API
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonRequest = objectMapper.writeValueAsString(algorithmRequest);
+      log.info("Sending request to /algorithm: {}", jsonRequest);
+      recordLinkageClient.post()
+              .uri("/algorithm")
+              .contentType(MediaType.APPLICATION_JSON)
+              .accept(MediaType.APPLICATION_JSON)
+              .bodyValue(algorithmRequest)
+              .retrieve()
+              .body(Void.class);
+      log.info("Algorithm updated successfully.");
+    } catch (Exception e) {
+      log.error("Failed to update algorithm: {}", e.getMessage());
+      throw new RuntimeException("Error updating algorithm", e);
+    }
+  }
+
+
+
+
+  // ------------------------------
+  // MAPPING METHODS
+  // ------------------------------
+
+  private MatchingConfiguration mapToMatchingConfiguration(MatchingConfigRequest configRequest) {
+    MatchingConfiguration config = new MatchingConfiguration();
+    config.setLabel(configRequest.getLabel());
+    config.setDescription(configRequest.getDescription());
+    config.setDefault(configRequest.isDefault());
+    config.setIncludeMultipleMatches(configRequest.isIncludeMultipleMatches());
+    config.setPasses(configRequest.getPasses());
+    return config;
   }
 }
