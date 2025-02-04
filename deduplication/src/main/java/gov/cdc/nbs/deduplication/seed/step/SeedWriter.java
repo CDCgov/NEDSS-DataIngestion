@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import gov.cdc.nbs.deduplication.seed.logger.LoggingService;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
 import org.springframework.batch.item.Chunk;
@@ -14,14 +16,14 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
-import gov.cdc.nbs.deduplication.seed.model.SeedRequest.*;
+import gov.cdc.nbs.deduplication.seed.model.SeedRequest.Cluster;
 
 /**
  * Submits Seed request to Record Linkage API
@@ -136,36 +138,46 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
   private final MpiPersonMapper mapper = new MpiPersonMapper();
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
+  private final LoggingService loggingService;
 
   public SeedWriter(
       @Qualifier("nbsTemplate") JdbcTemplate template,
       ObjectMapper objectMapper,
-      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient) {
+      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient,
+      final LoggingService loggingService) {
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(template);
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
+    this.loggingService = loggingService;
   }
 
   @Override
-  public void write(Chunk<? extends NbsPerson> chunk) throws Exception {
-    // Extract person_parent_uids from the chunk
-    List<String> personParentUids = chunk.getItems().stream()
-        .map(NbsPerson::personParentUid)
-        .toList();
+  public void write(@NonNull Chunk<? extends NbsPerson> chunk) throws Exception {
+    List<String> personParentUids = null;
+    try {
+      // Extract person_parent_uids from the chunk
+      personParentUids = chunk.getItems().stream()
+          .map(NbsPerson::personParentUid)
+          .toList();
 
-    List<Cluster> clusters = fetchClusters(personParentUids);
+      List<Cluster> clusters = fetchClusters(personParentUids);
 
-    // Send Clusters to MPI
-    SeedRequest request = new SeedRequest(clusters);
-    String requestJson = objectMapper.writeValueAsString(request);
+      // Send Clusters to MPI
+      SeedRequest request = new SeedRequest(clusters);
+      String requestJson = objectMapper.writeValueAsString(request);
 
-    recordLinkageClient.post()
-        .uri("/seed")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(requestJson)
-        .retrieve()
-        .body(MpiResponse.class);
+      recordLinkageClient.post()
+          .uri("/seed")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+          .body(requestJson)
+          .retrieve()
+          .body(MpiResponse.class);
+    } catch (Exception e) {
+      String failedPersonIds = personParentUids != null ? String.join(",", personParentUids) : null;
+      loggingService.logError("SeedWriter", "Error during MPI persons batch seeding.", failedPersonIds, e);
+      throw e;
+    }
   }
 
   private List<Cluster> fetchClusters(List<String> personParentUids) {
@@ -181,7 +193,8 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
     return personParentUids.stream()
         .map(personParentUid -> new Cluster(
             clusterDataMap.get(personParentUid),
-            personParentUid))
+            personParentUid
+        ))
         .toList();
   }
 }

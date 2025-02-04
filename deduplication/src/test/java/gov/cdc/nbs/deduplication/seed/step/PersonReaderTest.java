@@ -25,6 +25,7 @@ class PersonReaderTest {
   @Mock
   private DatabaseMetaData metadata;
 
+
   @Test
   void initializesReader() throws Exception {
     when(dataSource.getConnection()).thenReturn(connection);

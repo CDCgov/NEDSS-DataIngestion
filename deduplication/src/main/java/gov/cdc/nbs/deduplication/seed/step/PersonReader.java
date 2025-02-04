@@ -14,11 +14,8 @@ import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 @Component
 public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
-  private final NbsPersonMapper mapper = new NbsPersonMapper();
 
-  public PersonReader(
-      @Qualifier("nbs") DataSource dataSource) throws Exception {
-
+  public PersonReader(@Qualifier("nbs") DataSource dataSource) throws Exception {
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
     provider.setSelectClause("SELECT person_uid, person_parent_uid");
@@ -32,8 +29,7 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
     if (queryProvider != null) {
       this.setQueryProvider(queryProvider);
     }
-    this.setRowMapper(mapper);
+    this.setRowMapper(new NbsPersonMapper());
     this.setPageSize(10000);
   }
-
 }

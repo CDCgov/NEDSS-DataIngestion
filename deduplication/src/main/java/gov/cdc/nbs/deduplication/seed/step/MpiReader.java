@@ -20,7 +20,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
         patient.external_person_id person_parent_uid,
         patient.reference_id mpi_patient_uuid,
         person.reference_id mpi_person_uuid
-             """;
+      """;
 
   private static final String FROM = """
       FROM
@@ -28,10 +28,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
       JOIN mpi_person person ON patient.person_id = person.id
       """;
 
-  private final DeduplicationEntryMapper mapper = new DeduplicationEntryMapper();
-
   public MpiReader(@Qualifier("mpi") DataSource dataSource) throws Exception {
-
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
     provider.setSelectClause(SELECT);
@@ -44,7 +41,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
     if (queryProvider != null) {
       this.setQueryProvider(queryProvider);
     }
-    this.setRowMapper(mapper);
+    this.setRowMapper(new DeduplicationEntryMapper());
     this.setPageSize(1000);
   }
 }

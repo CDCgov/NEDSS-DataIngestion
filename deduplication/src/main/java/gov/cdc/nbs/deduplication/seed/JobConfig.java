@@ -27,10 +27,10 @@ public class JobConfig {
   final MpiReader mpiReader;
   final DeduplicationWriter deduplicationWriter;
 
-  @Value("${batch.chunk.size.step1:100}") // Default value is 100
+  @Value("${batch.chunk.size.step1:100}") // default value is 100
   private int step1ChunkSize;
 
-  @Value("${batch.chunk.size.step2:1000}") // Default value for step2
+  @Value("${batch.chunk.size.step2:1000}") // default value is 1000
   private int step2ChunkSize;
 
   public JobConfig(
@@ -47,9 +47,11 @@ public class JobConfig {
   @Bean("readNbsWriteToMpi")
   public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
     return new StepBuilder("Read and transform NBS data", jobRepository)
-        .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager) // Process 10 items per chunk
+        .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager)
         .reader(personReader) // page ids to be processed from NBS
         .writer(seedWriter) // fetch details and send cluster to MPI for seeding
+        .faultTolerant()
+        .skip(Exception.class) // skip any exception
         .build();
   }
 
@@ -59,6 +61,8 @@ public class JobConfig {
         .<DeduplicationEntry, DeduplicationEntry>chunk(step2ChunkSize, transactionManager)
         .reader(mpiReader) // page UUID <-> NBS id data from MPI
         .writer(deduplicationWriter) // insert mapping and status into deduplication database
+        .faultTolerant()
+        .skip(Exception.class) // skip any exception
         .build();
   }
 
