@@ -198,47 +198,90 @@ public class MatchService {
     }
   }
 
+  public void updateDibbsConfigurations(MatchingConfigRequest configRequest) {
+    // Step 1: Set is_default to false for dibbs-basic
+    setDibbsBasicToFalse();
+
+    // Step 2: Proceed with updating dibbs-enhanced
+    updateAlgorithm(configRequest);
+  }
+
+  // Step 1: Set is_default to false for dibbs-basic
+  private void setDibbsBasicToFalse() {
+    try {
+      // Prepare the request body to set is_default to false for dibbs-basic
+      AlgorithmUpdateRequest updateRequest = new AlgorithmUpdateRequest();
+      updateRequest.setLabel("dibbs-basic");
+      updateRequest.setIsDefault(false);  // Set is_default to false
+
+      // Send PUT request to /algorithm/dibbs-basic
+      recordLinkageClient.put()
+              .uri("/algorithm/dibbs-basic")
+              .contentType(MediaType.APPLICATION_JSON)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(updateRequest)  // Sending the updated request body
+              .retrieve()
+              .body(Void.class);  // No response body needed
+      log.info("Dibbs-basic configuration set to is_default = false.");
+    } catch (Exception e) {
+      log.error("Error while updating dibbs-basic configuration: ", e);
+      throw new RuntimeException("Error updating dibbs-basic configuration", e);
+    }
+  }
+
+  // Step 2: Proceed with updating dibbs-enhanced configuration
   public void updateAlgorithm(MatchingConfigRequest configRequest) {
-    // Convert MatchingConfigRequest → MatchingConfiguration
     MatchingConfiguration config = mapToMatchingConfiguration(configRequest);
 
-    // Convert MatchingConfiguration → AlgorithmUpdateRequest
     AlgorithmUpdateRequest algorithmRequest = AlgorithmRequestMapper.mapToAlgorithmRequest(config);
 
-    // Map the first pass for label, description, belongingnessRatio, and passes
+    algorithmRequest.setLabel("dibbs-enhanced");
+
+    // Ensure that lowerBound and upperBound are valid
     if (configRequest.getPasses() != null && !configRequest.getPasses().isEmpty()) {
-      Pass firstPass = configRequest.getPasses().get(0);
+      Pass firstPass = configRequest.getPasses().get(0);  // Get the first pass
 
-      // Set label and description from the first pass
-      algorithmRequest.setLabel(firstPass.getName());
-      algorithmRequest.setDescription(firstPass.getDescription());
+      String lowerBound = firstPass.getLowerBound();
+      String upperBound = firstPass.getUpperBound();
 
-      // Set belongingnessRatio from lowerBound and upperBound values of the first pass
-      if (firstPass.getLowerBound() != null && firstPass.getUpperBound() != null) {
-        algorithmRequest.setBelongingnessRatio(new Double[]{firstPass.getLowerBound(), firstPass.getUpperBound()});
+      if (lowerBound != null && upperBound != null) {
+        try {
+          double lower = Double.parseDouble(lowerBound);
+          double upper = Double.parseDouble(upperBound);
+          algorithmRequest.setBelongingnessRatio(new Double[]{lower, upper});
+        } catch (NumberFormatException e) {
+          log.error("Invalid lowerBound or upperBound format: {} {}", lowerBound, upperBound);
+          algorithmRequest.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
+        }
+      } else {
+        log.warn("Lower/Upper bounds missing, using default values.");
+        algorithmRequest.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
       }
+    } else {
+      log.warn("No passes found, using default belongingnessRatio.");
+      algorithmRequest.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
     }
 
-    // Send request to /algorithm API
+    // Send request to /algorithm/dibbs-enhanced PUT API endpoint
     try {
       ObjectMapper objectMapper = new ObjectMapper();
       String jsonRequest = objectMapper.writeValueAsString(algorithmRequest);
-      log.info("Sending request to /algorithm: {}", jsonRequest);
-      recordLinkageClient.post()
-              .uri("/algorithm")
+      log.info("Sending PUT request to /algorithm/dibbs-enhanced: {}", jsonRequest);
+
+      recordLinkageClient.put()  // Change POST to PUT for the endpoint
+              .uri("/algorithm/dibbs-enhanced")  // Endpoint updated as per your requirement
               .contentType(MediaType.APPLICATION_JSON)
               .accept(MediaType.APPLICATION_JSON)
-              .bodyValue(algorithmRequest)
+              .body(algorithmRequest)
               .retrieve()
-              .body(Void.class);
+              .body(Void.class);  // No response body needed
+
       log.info("Algorithm updated successfully.");
     } catch (Exception e) {
       log.error("Failed to update algorithm: {}", e.getMessage());
       throw new RuntimeException("Error updating algorithm", e);
     }
   }
-
-
 
 
   // ------------------------------

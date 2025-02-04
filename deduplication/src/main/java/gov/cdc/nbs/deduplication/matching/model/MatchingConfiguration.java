@@ -11,19 +11,21 @@ public class MatchingConfiguration {
     private boolean isDefault;
     private boolean includeMultipleMatches;
     private List<Pass> passes;  // Matching logic passes
+    private Double[] belongingnessRatio;  // New field for belongingness ratio (array of two doubles)
 
     // Default Constructor
     public MatchingConfiguration() {
     }
 
     // Constructor with fields
-    public MatchingConfiguration(Long id, String label, String description, boolean isDefault, boolean includeMultipleMatches, List<Pass> passes) {
+    public MatchingConfiguration(Long id, String label, String description, boolean isDefault, boolean includeMultipleMatches, List<Pass> passes, Double[] belongingnessRatio) {
         this.id = id;
         this.label = label;
         this.description = description;
         this.isDefault = isDefault;
         this.includeMultipleMatches = includeMultipleMatches;
         this.passes = passes;
+        this.belongingnessRatio = belongingnessRatio;
     }
 
     // Getters and Setters
@@ -73,5 +75,14 @@ public class MatchingConfiguration {
 
     public void setPasses(List<Pass> passes) {
         this.passes = passes;
+    }
+
+    // Getter and Setter for belongingnessRatio
+    public Double[] getBelongingnessRatio() {
+        return belongingnessRatio;
+    }
+
+    public void setBelongingnessRatio(Double[] belongingnessRatio) {
+        this.belongingnessRatio = belongingnessRatio;
     }
 }

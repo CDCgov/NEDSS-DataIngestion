@@ -1,13 +1,27 @@
 package gov.cdc.nbs.deduplication.matching.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import gov.cdc.nbs.deduplication.matching.dto.AlgorithmPass;
 
 public class AlgorithmUpdateRequest {
+
+    @JsonProperty("label")
     private String label;
+
+    @JsonProperty("description")
     private String description;
+
+    @JsonProperty("is_default")
     private boolean isDefault;
+
+    @JsonProperty("include_multiple_matches")
     private boolean includeMultipleMatches;
+
+    @JsonProperty("belongingness_ratio")
     private Double[] belongingnessRatio;
+
+    @JsonProperty("passes")
     private List<AlgorithmPass> passes;
 
     // Getters and Setters

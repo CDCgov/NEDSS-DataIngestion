@@ -3,10 +3,12 @@ package gov.cdc.nbs.deduplication.matching.mapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import gov.cdc.nbs.deduplication.matching.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.matching.dto.Evaluator;
+import gov.cdc.nbs.deduplication.matching.dto.Pass;
 import gov.cdc.nbs.deduplication.matching.model.MatchingConfiguration;
 import gov.cdc.nbs.deduplication.matching.model.AlgorithmUpdateRequest;
 import org.slf4j.Logger;
@@ -25,7 +27,7 @@ public class AlgorithmRequestMapper {
             Map.entry("Current sex", "SEX"),
             Map.entry("Gender", "GENDER"),
             Map.entry("Race", "RACE"),
-            Map.entry("Address", "ADDRESS"),
+            Map.entry("Street address", "ADDRESS"),
             Map.entry("City", "CITY"),
             Map.entry("State", "STATE"),
             Map.entry("Zip", "ZIP"),
@@ -65,31 +67,64 @@ public class AlgorithmRequestMapper {
         return mappedFunc;
     }
 
-    // Map MatchingConfiguration to AlgorithmUpdateRequest for the API
     public static AlgorithmUpdateRequest mapToAlgorithmRequest(MatchingConfiguration config) {
         AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        request.setLabel(config.getLabel());
-        request.setDescription(config.getDescription());
+
+        request.setLabel("dibbs-enhanced");
+
+        request.setDescription("description");
         request.setIsDefault(config.isDefault());
         request.setIncludeMultipleMatches(config.isIncludeMultipleMatches());
-        request.setBelongingnessRatio(new Double[]{0.1, 0.2});  // Example belongingness ratio
+
+        // Ensure belongingness_ratio is correctly set (defaults to [0.0, 1.0] if invalid)
+        if (config.getPasses() != null && !config.getPasses().isEmpty()) {
+            Pass firstPass = config.getPasses().get(0);  // Get the first pass
+
+            String lowerBound = firstPass.getLowerBound();
+            String upperBound = firstPass.getUpperBound();
+
+            if (lowerBound != null && upperBound != null) {
+                try {
+                    double lower = Double.parseDouble(lowerBound);
+                    double upper = Double.parseDouble(upperBound);
+                    request.setBelongingnessRatio(new Double[]{lower, upper});
+                } catch (NumberFormatException e) {
+                    log.error("Invalid lowerBound or upperBound format: {} {}", lowerBound, upperBound);
+                    request.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
+                }
+            } else {
+                log.warn("Lower/Upper bounds missing, using default values.");
+                request.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
+            }
+        }
 
         // Map passes with necessary field and function validations
         List<AlgorithmPass> algorithmPasses = config.getPasses().stream()
                 .map(pass -> {
                     AlgorithmPass algorithmPass = new AlgorithmPass();
 
-                    // Map blockingKeys with correct field names
-                    algorithmPass.setBlockingKeys(pass.getBlockingCriteria().stream()
-                            .map(blocking -> mapField(blocking.getField().getName()))  // Convert UI field names to API field names
-                            .collect(Collectors.toList()));
+                    // Ensure blocking_keys is set and valid
+                    if (pass.getBlockingCriteria() != null && !pass.getBlockingCriteria().isEmpty()) {
+                        // Map the blocking criteria (make sure field names are valid)
+                        algorithmPass.setBlockingKeys(pass.getBlockingCriteria().stream()
+                                .map(blocking -> mapField(blocking.getField().getName()))  // Ensure valid field names
+                                .collect(Collectors.toList()));
+                    } else {
+                        // Log a warning if blocking keys are missing, and throw an exception to signal the issue
+                        log.warn("Blocking keys are missing for pass: {}", pass);
+                        throw new IllegalArgumentException("Blocking keys are required for each pass.");
+                    }
 
-                    // Map evaluators with valid function mappings
-                    algorithmPass.setEvaluators(pass.getMatchingCriteria().stream()
-                            .map(matching -> new Evaluator(
-                                    mapField(matching.getField().getName()),   // Extract name from field object
-                                    mapFunc(matching.getMethod().getValue()))) // Extract value from method object
-                            .collect(Collectors.toList()));
+                    // Map evaluators
+                    if (pass.getMatchingCriteria() != null) {
+                        algorithmPass.setEvaluators(pass.getMatchingCriteria().stream()
+                                .map(matching -> new Evaluator(
+                                        mapField(matching.getField().getName()),  // Valid field names
+                                        mapFunc(matching.getMethod().getValue())))  // Valid functions
+                                .collect(Collectors.toList()));
+                    } else {
+                        log.warn("Matching criteria is missing for pass: {}", pass);
+                    }
 
                     algorithmPass.setRule("func:recordlinker.linking.matchers.rule_match");
                     algorithmPass.setKwargs(new HashMap<>());
@@ -100,4 +135,11 @@ public class AlgorithmRequestMapper {
         request.setPasses(algorithmPasses);
         return request;
     }
+
+
+    // Method to generate a random string (e.g., UUID)
+    private static String generateRandomString() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 8);  // Generate a short random string
+    }
+
 }

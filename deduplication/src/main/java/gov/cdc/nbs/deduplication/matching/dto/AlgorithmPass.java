@@ -1,13 +1,22 @@
 package gov.cdc.nbs.deduplication.matching.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
-import java.util.Map;
 
 public class AlgorithmPass {
+
+    @JsonProperty("blocking_keys")
     private List<String> blockingKeys;
+
+    @JsonProperty("evaluators")
     private List<Evaluator> evaluators;
+
+    @JsonProperty("rule")
     private String rule;
-    private Map<String, Object> kwargs;
+
+    @JsonProperty("kwargs")
+    private Object kwargs;
 
     // Getters and Setters
     public List<String> getBlockingKeys() {
@@ -34,11 +43,11 @@ public class AlgorithmPass {
         this.rule = rule;
     }
 
-    public Map<String, Object> getKwargs() {
+    public Object getKwargs() {
         return kwargs;
     }
 
-    public void setKwargs(Map<String, Object> kwargs) {
+    public void setKwargs(Object kwargs) {
         this.kwargs = kwargs;
     }
 }
