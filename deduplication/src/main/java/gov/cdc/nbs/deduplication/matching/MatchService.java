@@ -1,24 +1,24 @@
 package gov.cdc.nbs.deduplication.matching;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.matching.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
-import gov.cdc.nbs.deduplication.matching.model.CreatePersonResponse;
-import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
-import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
-import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
-import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
-import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
 
-@Component
+@Service
 public class MatchService {
   private static final String FIND_NBS_PERSON_QUERY = """
       SELECT TOP 1
@@ -46,6 +46,7 @@ public class MatchService {
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate template;
   private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
+  private static final Logger log = LoggerFactory.getLogger(MatchService.class);
 
   public MatchService(
       @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient,
@@ -155,5 +156,58 @@ public class MatchService {
       });
     }
   }
+  public void configureMatching(MatchingConfigRequest request) {
+    saveMatchingConfiguration(request);
+  }
 
+  public void saveMatchingConfiguration(MatchingConfigRequest request) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      String jsonConfig = objectMapper.writeValueAsString(request);
+
+      String sql = "INSERT INTO match_configuration (configuration) VALUES (:configuration)";
+      SqlParameterSource params = new MapSqlParameterSource()
+              .addValue("configuration", jsonConfig);
+
+      template.update(sql, params);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Error converting MatchingConfigRequest to JSON", e);
+    }
+  }
+
+  public MatchingConfigRequest getMatchingConfiguration() {
+    String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
+    try {
+      String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
+
+      if (jsonConfig == null || jsonConfig.isEmpty()) {
+        log.warn("No matching configuration found in database.");
+        return null; // Return null instead of throwing an exception
+      }
+
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
+    } catch (EmptyResultDataAccessException e) {
+      log.warn("No matching configuration found in database.");
+      return null; // Return null instead of causing a 404 error
+    } catch (Exception e) {
+      log.error("Error retrieving matching configuration", e);
+      throw new RuntimeException("Error retrieving matching configuration from the database", e);
+    }
+  }
+
+
+  public void updateAlgorithm() {
+    // Retrieve the latest configuration from the database
+    MatchingConfigRequest config = getMatchingConfiguration();
+
+    // Send updated matching configuration to the /algorithm API
+    recordLinkageClient.post()
+            .uri("/algorithm")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(config)  // Sending the latest configuration
+            .retrieve()
+            .body(Void.class);
+  }
 }

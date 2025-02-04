@@ -1,9 +1,8 @@
 package gov.cdc.nbs.deduplication.matching;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import gov.cdc.nbs.deduplication.matching.model.MatchingConfigRequest;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
@@ -30,4 +29,24 @@ public class MatchController {
     matchService.relateNbsIdToMpiId(request);
   }
 
+  // Expose the configureMatching method via a POST endpoint
+  @CrossOrigin(origins = "http://localhost:3000")
+  @PostMapping("/configure-matching")
+  public void configureMatching(@RequestBody MatchingConfigRequest request) {
+    matchService.configureMatching(request);  // calls the configureMatching method in MatchService
+  }
+
+  // Fetch Matching Configuration (UI retrieves this)
+  @CrossOrigin(origins = "http://localhost:3000")
+  @GetMapping("/matching-configuration")
+  public MatchingConfigRequest getMatchingConfiguration() {
+    return matchService.getMatchingConfiguration();
+  }
+
+  // Update /algorithm (Before calling /match)
+  @CrossOrigin(origins = "http://localhost:3000")
+  @PostMapping("/update-algorithm")
+  public void updateAlgorithm() {
+    matchService.updateAlgorithm();
+  }
 }
