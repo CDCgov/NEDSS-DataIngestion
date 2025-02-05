@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -240,5 +241,15 @@ class AlgorithmServiceTest {
 
         // Verify that the default belongingness ratio was set (0.0, 1.0) due to missing bounds
         verify(algorithmUpdateRequest).setBelongingnessRatio(new Double[]{0.0, 1.0});
+    }
+
+    @Test
+    void testSetDibbsBasicToFalse_jsonProcessingException() throws Exception {
+        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("JSON Error") {});
+
+        algorithmService.setDibbsBasicToFalse();
+
+        // Verify that REST client interaction never happens due to JSON error
+        verify(recordLinkageClient, never()).put();
     }
 }
