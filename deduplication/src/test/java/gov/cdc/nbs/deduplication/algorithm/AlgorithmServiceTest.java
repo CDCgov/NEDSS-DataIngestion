@@ -15,13 +15,14 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
+import org.springframework.http.MediaType;
 import java.util.List;
 
 class AlgorithmServiceTest {
 
     @Mock private RestClient recordLinkageClient;
     @Mock private NamedParameterJdbcTemplate template;
+    @Mock private ObjectMapper objectMapper;
     @InjectMocks private AlgorithmService algorithmService;
 
     @BeforeEach
@@ -34,10 +35,16 @@ class AlgorithmServiceTest {
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("test");
 
-        // Test configureMatching logic
-        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);  // Correct usage for update method
+        // Mock the update method to simulate a database update
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
 
-        doNothing().when(recordLinkageClient).put();  // Correct usage for void methods
+        // Mocking the non-void method chain for 'put()'
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
         algorithmService.configureMatching(request);
 
@@ -50,9 +57,11 @@ class AlgorithmServiceTest {
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("test");
 
-        ObjectMapper objectMapper = mock(ObjectMapper.class);
-        when(objectMapper.writeValueAsString(request)).thenReturn("{\"label\":\"test\"}");  // Fix to mock writeValueAsString correctly
-        doNothing().when(template).update(anyString(), any(SqlParameterSource.class));  // Correct for void method
+        // Mocking ObjectMapper to simulate successful conversion to JSON
+        mock(ObjectMapper.class);
+        when(objectMapper.writeValueAsString(request)).thenReturn("{\"label\":\"test\"}");
+        // Mock the update method to simulate a database update
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
 
         algorithmService.saveMatchingConfiguration(request);
 
@@ -60,41 +69,42 @@ class AlgorithmServiceTest {
     }
 
     @Test
-    void testGetMatchingConfiguration() {
-        String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
-        String mockConfigJson = "{\"label\":\"test\"}";
-
-        when(template.queryForObject(eq(sql), any(MapSqlParameterSource.class), eq(String.class))).thenReturn(mockConfigJson);
-
-        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
-
-        assertNotNull(result);
-        assertEquals("test", result.getLabel());
-    }
-
-    @Test
     void testUpdateDibbsConfigurations() {
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("dibbs-enhanced");
 
-        doNothing().when(recordLinkageClient).put();  // Correct for void method
+        // Mocking the non-void method chain for 'put()'
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
         algorithmService.updateDibbsConfigurations(request);
 
-        verify(recordLinkageClient, times(2)).put();  // Verify PUT request is called twice
+        verify(recordLinkageClient, times(2)).put();
     }
 
     @Test
-    void testSetDibbsBasicToFalse(){
+    void testSetDibbsBasicToFalse() {
         AlgorithmUpdateRequest updateRequest = new AlgorithmUpdateRequest();
         updateRequest.setLabel("dibbs-basic");
 
-        doNothing().when(recordLinkageClient).put();  // Correct for void method
-        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);  // Correct for non-void method
+        // Mocking the non-void method chain for 'put()'
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+
+        // Mocking template update method
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
 
         algorithmService.setDibbsBasicToFalse();
 
-        verify(recordLinkageClient, times(1)).put();  // Verify PUT request is called once
+        verify(recordLinkageClient, times(1)).put();
     }
 
     @Test
@@ -107,11 +117,17 @@ class AlgorithmServiceTest {
         pass.setUpperBound("0.8");
         request.setPasses(List.of(pass));
 
-        doNothing().when(recordLinkageClient).put();  // Correct for void method
+        // Mocking the non-void method chain for 'put()'
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
         algorithmService.updateAlgorithm(request);
 
-        verify(recordLinkageClient, times(1)).put();  // Verify PUT request is called once
+        verify(recordLinkageClient, times(1)).put();
     }
 
     @Test
@@ -119,15 +135,38 @@ class AlgorithmServiceTest {
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("dibbs-enhanced");
 
+        // Create a Pass with invalid bounds
         Pass pass = new Pass();
-        pass.setLowerBound("invalid");
-        pass.setUpperBound("invalid");
+        pass.setLowerBound("invalid");  // Invalid lower bound
+        pass.setUpperBound("invalid");  // Invalid upper bound
         request.setPasses(List.of(pass));
 
-        doNothing().when(recordLinkageClient).put();  // Correct for void method
+        // Mocking the non-void method chain for 'put()'
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
+        // Execute the updateAlgorithm method
         algorithmService.updateAlgorithm(request);
 
-        verify(recordLinkageClient, times(1)).put();  // Verify PUT request is called once
+        // Verify that the put() method was called once
+        verify(recordLinkageClient, times(1)).put();
+    }
+
+    @Test
+    void testGetMatchingConfiguration() {
+        String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
+        String mockConfigJson = "{\"label\":\"test\"}";
+
+        // Use when(...).thenReturn(...) for methods that return values
+        when(template.queryForObject(eq(sql), any(MapSqlParameterSource.class), eq(String.class))).thenReturn(mockConfigJson);
+
+        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
+
+        assertNotNull(result);
+        assertEquals("test", result.getLabel());
     }
 }

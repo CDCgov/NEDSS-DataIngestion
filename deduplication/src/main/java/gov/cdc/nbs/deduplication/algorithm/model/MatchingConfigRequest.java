@@ -13,8 +13,9 @@ public class MatchingConfigRequest {
     private boolean includeMultipleMatches;
     private List<Pass> passes;
 
-    // Default constructor
-    public MatchingConfigRequest() {}
+    public MatchingConfigRequest() {
+        // Default constructor
+    }
 
     // Getters and Setters
     public String getLabel() {
