@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import gov.cdc.nbs.deduplication.algorithm.dto.*;
 import gov.cdc.nbs.deduplication.algorithm.model.*;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
@@ -252,4 +253,25 @@ class AlgorithmServiceTest {
         // Verify that REST client interaction never happens due to JSON error
         verify(recordLinkageClient, never()).put();
     }
+
+    @Test
+    void testGetMatchingConfiguration_genericException() {
+        when(template.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class)))
+                .thenThrow(new RuntimeException("DB Error"));
+
+        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
+
+        assertNull(result, "Expected null when database throws an error");
+    }
+
+    @Test
+    void testGetMatchingConfiguration_emptyResultException() {
+        when(template.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class)))
+                .thenThrow(new EmptyResultDataAccessException(1));
+
+        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
+
+        assertNull(result, "Expected null when no matching config found");
+    }
+
 }
