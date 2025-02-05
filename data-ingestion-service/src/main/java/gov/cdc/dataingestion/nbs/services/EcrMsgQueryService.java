@@ -8,6 +8,8 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedInterview;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedTreatment;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,17 +19,20 @@ import java.util.List;
 public class EcrMsgQueryService {
     private final IEcrMsgQueryRepository ecrMsgQueryRepository;
     private final EcrMsgContainerResolver ecrMsgContainerResolver;
+    private final Integer batchSize;
 
     public EcrMsgQueryService(
             final IEcrMsgQueryRepository ecrMsgQueryRepository,
-            final EcrMsgContainerResolver ecrMsgContainerResolver) {
+            final EcrMsgContainerResolver ecrMsgContainerResolver,
+            @Value("${ecr.processing.batchsize:100}") final Integer batchSize) {
         this.ecrMsgQueryRepository = ecrMsgQueryRepository;
         this.ecrMsgContainerResolver = ecrMsgContainerResolver;
+        this.batchSize = batchSize;
     }
 
     public List<EcrSelectedRecord> getSelectedEcrRecord() throws EcrCdaXmlException {
         List<EcrSelectedRecord> selectedRecords = new ArrayList<>();
-        List<EcrMsgContainerDto> msgContainers = this.ecrMsgContainerResolver.resolve(100)
+        List<EcrMsgContainerDto> msgContainers = this.ecrMsgContainerResolver.resolve(batchSize)
                 .stream()
                 .filter(c -> c != null && c.msgContainerUid() != null)
                 .toList();

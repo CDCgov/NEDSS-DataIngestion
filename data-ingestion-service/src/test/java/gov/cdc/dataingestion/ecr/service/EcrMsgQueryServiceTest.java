@@ -30,7 +30,7 @@ class EcrMsgQueryServiceTest {
     @BeforeEach
     public void setUpEach() {
         MockitoAnnotations.openMocks(this);
-        target = new EcrMsgQueryService(ecrMsgQueryRepository, ecrMsgContainerResolver);
+        target = new EcrMsgQueryService(ecrMsgQueryRepository, ecrMsgContainerResolver, 100);
     }
 
     @Test

@@ -31,7 +31,7 @@ public class EcrMessagePollService {
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
     }
 
-    @Scheduled(initialDelay = 1000, fixedRate = 3000)
+    @Scheduled(initialDelay = 1000, fixedRateString = "${ecr.processing.interval:3000}")
     public void fetchMessageContainerData() throws EcrCdaXmlException {
         List<EcrSelectedRecord> records = ecrMsgQueryService.getSelectedEcrRecord();
 
