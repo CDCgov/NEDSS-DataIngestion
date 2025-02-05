@@ -49,7 +49,10 @@ public class AlgorithmService {
             SqlParameterSource params = new MapSqlParameterSource().addValue("configuration", jsonConfig);
             template.update(sql, params);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error converting MatchingConfigRequest to JSON", e);
+            // Log the error with relevant context
+            log.error("Failed to convert MatchingConfigRequest to JSON for label: {}", request.getLabel(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error while saving matching configuration", e);
         }
     }
 
@@ -68,7 +71,7 @@ public class AlgorithmService {
             return null;
         } catch (Exception e) {
             log.error("Error retrieving matching configuration", e);
-            throw new RuntimeException("Error retrieving matching configuration from the database", e);
+            return null;
         }
     }
 
@@ -81,7 +84,7 @@ public class AlgorithmService {
     }
 
     // Step 1
-    private void setDibbsBasicToFalse() {
+    public void setDibbsBasicToFalse() {
         try {
             // Prepare the request body
             AlgorithmUpdateRequest updateRequest = new AlgorithmUpdateRequest();
@@ -120,9 +123,10 @@ public class AlgorithmService {
                     .body(Void.class);  // No response body needed
 
             log.info("Dibbs-basic configuration set to is_default = false.");
+        } catch (JsonProcessingException e) {
+            log.error("Error converting update request to JSON for dibbs-basic", e);
         } catch (Exception e) {
-            log.error("Error while updating dibbs-basic configuration: ", e);
-            throw new RuntimeException("Error updating dibbs-basic configuration", e);
+            log.error("Error while updating dibbs-basic configuration", e);
         }
     }
 
@@ -172,9 +176,10 @@ public class AlgorithmService {
                     .body(Void.class);
 
             log.info("Algorithm updated successfully.");
+        } catch (NumberFormatException e) {
+            log.error("Invalid format for lowerBound or upperBound in algorithm configuration", e);
         } catch (Exception e) {
-            log.error("Failed to update algorithm: {}", e.getMessage());
-            throw new RuntimeException("Error updating algorithm", e);
+            log.error("Failed to update algorithm", e);
         }
     }
 

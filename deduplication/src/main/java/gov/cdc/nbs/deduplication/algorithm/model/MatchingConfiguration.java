@@ -13,8 +13,8 @@ public class MatchingConfiguration {
     private List<Pass> passes;  // Matching logic passes
     private Double[] belongingnessRatio;  // New field for belongingness ratio (array of two doubles)
 
-    // Default Constructor
     public MatchingConfiguration() {
+        // Default Constructor
     }
 
     // Constructor with fields

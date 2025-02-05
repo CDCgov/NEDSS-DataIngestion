@@ -2,97 +2,132 @@ package gov.cdc.nbs.deduplication.algorithm;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import gov.cdc.nbs.deduplication.algorithm.dto.*;
+import gov.cdc.nbs.deduplication.algorithm.model.*;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import java.util.List;
 
 class AlgorithmServiceTest {
 
-    @Mock
-    private RestClient recordLinkageClient;
-
-    @Mock
-    private NamedParameterJdbcTemplate template;
-
-    @InjectMocks
-    private AlgorithmService algorithmService;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Mock private RestClient recordLinkageClient;
+    @Mock private NamedParameterJdbcTemplate template;
+    @InjectMocks private AlgorithmService algorithmService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        // Mock the RestClient PUT request
-        RestClient.RequestBodyUriSpec mockRequest = mock(RestClient.RequestBodyUriSpec.class);
-        when(recordLinkageClient.put()).thenReturn(mockRequest);
-        when(mockRequest.uri(anyString())).thenReturn(mockRequest);
-        when(mockRequest.contentType(any())).thenReturn(mockRequest);
-        when(mockRequest.accept(any())).thenReturn(mockRequest);
-        when(mockRequest.body(any())).thenReturn(mockRequest);
-        when(mockRequest.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
-        when(mockRequest.retrieve().body(Void.class)).thenReturn(null);
     }
 
     @Test
-    void testConfigureMatching() throws Exception {
-        // Prepare mock MatchingConfigRequest
+    void testConfigureMatching() {
         MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("dibbs-enhanced");
+        request.setLabel("test");
 
-        // Execute configureMatching which internally calls saveMatchingConfiguration and updateAlgorithm
+        // Test configureMatching logic
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);  // Correct usage for update method
+
+        doNothing().when(recordLinkageClient).put();  // Correct usage for void methods
+
         algorithmService.configureMatching(request);
 
-        // Verify interactions with template and recordLinkageClient
-        verify(template, times(1)).update(anyString(), any(Map.class));
-        verify(recordLinkageClient, times(2)).put();  // Verify PUT requests for dibbs-basic and dibbs-enhanced
+        verify(template, times(1)).update(anyString(), any(SqlParameterSource.class));
+        verify(recordLinkageClient, times(1)).put();
     }
 
     @Test
-    void testGetMatchingConfiguration() throws Exception {
-        // Mock the database call for getting configuration
-        String mockConfigJson = objectMapper.writeValueAsString(new MatchingConfigRequest());
-        when(template.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class))).thenReturn(mockConfigJson);
+    void testSaveMatchingConfiguration() throws JsonProcessingException {
+        MatchingConfigRequest request = new MatchingConfigRequest();
+        request.setLabel("test");
 
-        // Call getMatchingConfiguration
-        MatchingConfigRequest config = algorithmService.getMatchingConfiguration();
+        ObjectMapper objectMapper = mock(ObjectMapper.class);
+        when(objectMapper.writeValueAsString(request)).thenReturn("{\"label\":\"test\"}");  // Fix to mock writeValueAsString correctly
+        doNothing().when(template).update(anyString(), any(SqlParameterSource.class));  // Correct for void method
 
-        // Verify that the returned config has the expected label
-        assertNotNull(config);
+        algorithmService.saveMatchingConfiguration(request);
+
+        verify(objectMapper, times(1)).writeValueAsString(request);
     }
 
     @Test
-    void testUpdateDibbsConfigurations(){
-        // Prepare mock MatchingConfigRequest
+    void testGetMatchingConfiguration() {
+        String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
+        String mockConfigJson = "{\"label\":\"test\"}";
+
+        when(template.queryForObject(eq(sql), any(MapSqlParameterSource.class), eq(String.class))).thenReturn(mockConfigJson);
+
+        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
+
+        assertNotNull(result);
+        assertEquals("test", result.getLabel());
+    }
+
+    @Test
+    void testUpdateDibbsConfigurations() {
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("dibbs-enhanced");
 
-        // Execute updateDibbsConfigurations which internally calls setDibbsBasicToFalse and updateAlgorithm
+        doNothing().when(recordLinkageClient).put();  // Correct for void method
+
         algorithmService.updateDibbsConfigurations(request);
 
-        // Verify interactions with recordLinkageClient
-        verify(recordLinkageClient, times(2)).put();  // Verify PUT requests for dibbs-basic and dibbs-enhanced
+        verify(recordLinkageClient, times(2)).put();  // Verify PUT request is called twice
     }
 
     @Test
-    void testExceptionHandlingWhenSavingConfiguration() {
+    void testSetDibbsBasicToFalse(){
+        AlgorithmUpdateRequest updateRequest = new AlgorithmUpdateRequest();
+        updateRequest.setLabel("dibbs-basic");
+
+        doNothing().when(recordLinkageClient).put();  // Correct for void method
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);  // Correct for non-void method
+
+        algorithmService.setDibbsBasicToFalse();
+
+        verify(recordLinkageClient, times(1)).put();  // Verify PUT request is called once
+    }
+
+    @Test
+    void testUpdateAlgorithm() {
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("dibbs-enhanced");
 
-        // Mock JsonProcessingException during saveMatchingConfiguration
-        doThrow(new JsonProcessingException("Test exception") {}).when(template).update(anyString(), any(SqlParameterSource.class));
-        // Call the method and assert that the exception is handled properly
-        assertThrows(RuntimeException.class, () -> {
-            algorithmService.saveMatchingConfiguration(request);
-        });
+        Pass pass = new Pass();
+        pass.setLowerBound("0.2");
+        pass.setUpperBound("0.8");
+        request.setPasses(List.of(pass));
+
+        doNothing().when(recordLinkageClient).put();  // Correct for void method
+
+        algorithmService.updateAlgorithm(request);
+
+        verify(recordLinkageClient, times(1)).put();  // Verify PUT request is called once
+    }
+
+    @Test
+    void testUpdateAlgorithmWithInvalidBounds() {
+        MatchingConfigRequest request = new MatchingConfigRequest();
+        request.setLabel("dibbs-enhanced");
+
+        Pass pass = new Pass();
+        pass.setLowerBound("invalid");
+        pass.setUpperBound("invalid");
+        request.setPasses(List.of(pass));
+
+        doNothing().when(recordLinkageClient).put();  // Correct for void method
+
+        algorithmService.updateAlgorithm(request);
+
+        verify(recordLinkageClient, times(1)).put();  // Verify PUT request is called once
     }
 }

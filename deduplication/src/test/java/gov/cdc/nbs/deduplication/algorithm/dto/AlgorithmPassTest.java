@@ -1,6 +1,5 @@
 package gov.cdc.nbs.deduplication.algorithm.dto;
 
-import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

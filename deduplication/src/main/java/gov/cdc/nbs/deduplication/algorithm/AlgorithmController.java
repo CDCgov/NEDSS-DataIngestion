@@ -17,7 +17,6 @@ public class AlgorithmController {
         this.algorithmService = algorithmService;
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/configure-matching")
     public void configureMatching(@RequestBody MatchingConfigRequest request) {
         try {
@@ -28,13 +27,11 @@ public class AlgorithmController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/matching-configuration")
     public MatchingConfigRequest getMatchingConfiguration() {
         return algorithmService.getMatchingConfiguration();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/update-algorithm")
     public void updateAlgorithm(@RequestBody MatchingConfigRequest request) {
         algorithmService.updateDibbsConfigurations(request);

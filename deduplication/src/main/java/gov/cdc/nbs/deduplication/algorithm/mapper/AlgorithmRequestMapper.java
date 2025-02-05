@@ -3,8 +3,6 @@ package gov.cdc.nbs.deduplication.algorithm.mapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
@@ -47,6 +45,10 @@ public class AlgorithmRequestMapper {
             "compare_probabilistic_fuzzy_match", "func:recordlinker.linking.matchers.compare_probabilistic_fuzzy_match"
     );
 
+    private AlgorithmRequestMapper() {
+        // to prevent instantiation
+    }
+
     // Map UI field names to API field names
     public static String mapField(String fieldName) {
         String mappedField = FIELD_NAME_MAP.get(fieldName);
@@ -71,8 +73,22 @@ public class AlgorithmRequestMapper {
         AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
 
         request.setLabel("dibbs-enhanced");
+        request.setDescription(getDibbsEnhancedDescription());
+        request.setIsDefault(true);
+        request.setIncludeMultipleMatches(config.isIncludeMultipleMatches());
 
-        request.setDescription("The DIBBs Log-Odds Algorithm. This optional algorithm " +
+        // Set belongingness ratio
+        setBelongingnessRatio(config, request);
+
+        // Map passes with necessary field and function validations
+        List<AlgorithmPass> algorithmPasses = mapPasses(config);
+        request.setPasses(algorithmPasses);
+
+        return request;
+    }
+
+    private static String getDibbsEnhancedDescription() {
+        return "The DIBBs Log-Odds Algorithm. This optional algorithm " +
                 "uses statistical correction to adjust the links between incoming " +
                 "records and previously processed patients (it does so by taking " +
                 "advantage of the fact that some fields are more informative than others—e.g., " +
@@ -82,11 +98,10 @@ public class AlgorithmRequestMapper {
                 "Algorithm can create higher-quality links, it is dependent on statistical " +
                 "updating and pre-calculated population analysis, which requires some work on " +
                 "the part of the user. For those cases where additional precision or stronger matching " +
-                "criteria are required, the Log-Odds algorithm is detailed below.");
-        request.setIsDefault(true);
-        request.setIncludeMultipleMatches(config.isIncludeMultipleMatches());
+                "criteria are required, the Log-Odds algorithm is detailed below.";
+    }
 
-        // Ensure belongingness_ratio is correctly set (defaults to [0.0, 1.0] if invalid)
+    private static void setBelongingnessRatio(MatchingConfiguration config, AlgorithmUpdateRequest request) {
         if (config.getPasses() != null && !config.getPasses().isEmpty()) {
             Pass firstPass = config.getPasses().get(0);  // Get the first pass
 
@@ -107,42 +122,40 @@ public class AlgorithmRequestMapper {
                 request.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
             }
         }
+    }
 
-        // Map passes with necessary field and function validations
-        List<AlgorithmPass> algorithmPasses = config.getPasses().stream()
-                .map(pass -> {
-                    AlgorithmPass algorithmPass = new AlgorithmPass();
+    private static List<AlgorithmPass> mapPasses(MatchingConfiguration config) {
+        return config.getPasses().stream()
+                .map(pass -> mapPass(pass))
+                .toList();
+    }
 
-                    // Ensure blocking_keys is set and valid
-                    if (pass.getBlockingCriteria() != null && !pass.getBlockingCriteria().isEmpty()) {
-                        // Map the blocking criteria (make sure field names are valid)
-                        algorithmPass.setBlockingKeys(pass.getBlockingCriteria().stream()
-                                .map(blocking -> mapField(blocking.getField().getName()))  // Ensure valid field names
-                                .collect(Collectors.toList()));
-                    } else {
-                        // Log a warning if blocking keys are missing, and throw an exception to signal the issue
-                        log.warn("Blocking keys are missing for pass: {}", pass);
-                        throw new IllegalArgumentException("Blocking keys are required for each pass.");
-                    }
+    private static AlgorithmPass mapPass(Pass pass) {
+        AlgorithmPass algorithmPass = new AlgorithmPass();
 
-                    // Map evaluators
-                    if (pass.getMatchingCriteria() != null) {
-                        algorithmPass.setEvaluators(pass.getMatchingCriteria().stream()
-                                .map(matching -> new Evaluator(
-                                        mapField(matching.getField().getName()),  // Valid field names
-                                        mapFunc(matching.getMethod().getValue())))  // Valid functions
-                                .collect(Collectors.toList()));
-                    } else {
-                        log.warn("Matching criteria is missing for pass: {}", pass);
-                    }
+        // Ensure blocking_keys is set and valid
+        if (pass.getBlockingCriteria() != null && !pass.getBlockingCriteria().isEmpty()) {
+            algorithmPass.setBlockingKeys(pass.getBlockingCriteria().stream()
+                    .map(blocking -> mapField(blocking.getField().getName()))  // Ensure valid field names
+                    .toList());
+        } else {
+            log.warn("Blocking keys are missing for pass: {}", pass);
+            throw new IllegalArgumentException("Blocking keys are required for each pass.");
+        }
 
-                    algorithmPass.setRule("func:recordlinker.linking.matchers.rule_match");
-                    algorithmPass.setKwargs(new HashMap<>());
-                    return algorithmPass;
-                })
-                .collect(Collectors.toList());
+        // Map evaluators
+        if (pass.getMatchingCriteria() != null) {
+            algorithmPass.setEvaluators(pass.getMatchingCriteria().stream()
+                    .map(matching -> new Evaluator(
+                            mapField(matching.getField().getName()),  // Valid field names
+                            mapFunc(matching.getMethod().getValue())))  // Valid functions
+                    .toList());
+        } else {
+            log.warn("Matching criteria is missing for pass: {}", pass);
+        }
 
-        request.setPasses(algorithmPasses);
-        return request;
+        algorithmPass.setRule("func:recordlinker.linking.matchers.rule_match");
+        algorithmPass.setKwargs(new HashMap<>());
+        return algorithmPass;
     }
 }

@@ -4,8 +4,9 @@ public class BlockingCriteria {
     private Field field;
     private Method method;
 
-    // Default constructor
-    public BlockingCriteria() {}
+    public BlockingCriteria() {
+        // default constuctor
+    }
 
     // Getters and Setters
     public Field getField() {

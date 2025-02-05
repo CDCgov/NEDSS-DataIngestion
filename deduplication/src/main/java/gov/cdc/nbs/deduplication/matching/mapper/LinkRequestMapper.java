@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jdk.jfr.Category;
 import org.apache.logging.log4j.util.Strings;
 
 import gov.cdc.nbs.deduplication.matching.exception.MappingException;
