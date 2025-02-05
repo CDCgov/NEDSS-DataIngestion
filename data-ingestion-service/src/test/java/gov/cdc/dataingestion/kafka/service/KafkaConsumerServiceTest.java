@@ -160,8 +160,6 @@ class KafkaConsumerServiceTest {
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
                 elrDeadLetterRepository,
-                cdaMapper,
-                ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
                 timeMetricsBuilder);
