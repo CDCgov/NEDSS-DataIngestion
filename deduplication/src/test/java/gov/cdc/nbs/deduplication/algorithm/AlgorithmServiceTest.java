@@ -281,4 +281,18 @@ class AlgorithmServiceTest {
         assertNull(result, "Expected null when no matching config found");
     }
 
+    @Test
+    void testSaveMatchingConfiguration_jsonProcessingException() throws Exception {
+        MatchingConfigRequest request = new MatchingConfigRequest();
+        request.setLabel("TestConfig");
+
+        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("JSON error") {});
+
+        assertDoesNotThrow(() -> algorithmService.saveMatchingConfiguration(request));
+
+        // Ensure DB update was never called due to serialization failure
+        verify(template, never()).update(anyString(), any(SqlParameterSource.class));
+    }
+
+
 }
