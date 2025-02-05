@@ -113,34 +113,41 @@ class AlgorithmServiceTest {
         pass.setLowerBound("0.2");
         pass.setUpperBound("0.8");
 
-        // Add blocking criteria to the pass (this is required to avoid NullPointerException)
+        // Add blocking criteria to the pass
         BlockingCriteria blockingCriteria = new BlockingCriteria();
         Field field = new Field();
-        field.setName("BIRTHDATE"); // Set a valid field name
+        field.setName("Date of birth"); // Set a valid field name
         blockingCriteria.setField(field);
         pass.setBlockingCriteria(List.of(blockingCriteria)); // Set valid blocking criteria
 
         request.setPasses(List.of(pass)); // Set valid passes here
 
+        // Mock RestClient behavior for setDibbsBasicToFalse()
         RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
         when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
-
-        when(mockRequestBodyUriSpec.uri(eq("/algorithm/dibbs-basic"), any(Object[].class))).thenReturn(mockRequestBodyUriSpec);  // Make uri() call specific
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-
         when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
-
         when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
-        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1); // Simulate successful database update
+        // Mock database update for setDibbsBasicToFalse()
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
+
+        // Spy on algorithmService to verify updateAlgorithm is called
+        AlgorithmService spyService = spy(algorithmService);
+        doNothing().when(spyService).updateAlgorithm(any(MatchingConfigRequest.class));
 
         // Call the method to test
-        algorithmService.updateDibbsConfigurations(request);
+        spyService.updateDibbsConfigurations(request);
 
-        verify(recordLinkageClient, times(2)).put(); // Verifying updateAlgorithm call
-        verify(template, times(1)).update(anyString(), any(SqlParameterSource.class)); // Verifying setDibbsBasicToFalse call
+        // Verify that Step 1 (setDibbsBasicToFalse) was called
+        verify(template, times(1)).update(anyString(), any(SqlParameterSource.class));
+
+        // Verify that Step 2 (updateAlgorithm) was called
+        verify(spyService, times(1)).updateAlgorithm(request);
     }
+
 
     @Test
     void testUpdateAlgorithm_withValidBounds() throws Exception {
