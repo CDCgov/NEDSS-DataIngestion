@@ -154,18 +154,14 @@ class AlgorithmServiceTest {
 
     @Test
     void testUpdateAlgorithm_withMissingBlockingCriteria() throws Exception {
-        // Setup mock data with invalid bounds and missing blocking criteria
         MatchingConfigRequest configRequest = new MatchingConfigRequest();
         Pass pass = new Pass();
         pass.setLowerBound("0.1");
         pass.setUpperBound("0.9");
-        // No blocking criteria added here to simulate the missing blocking criteria
         configRequest.setPasses(List.of(pass));
 
-        // Mock ObjectMapper behavior
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
 
-        // Mock RestClient behavior
         RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
         when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
@@ -174,38 +170,67 @@ class AlgorithmServiceTest {
         when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
-        // Mock static logger using Mockito's MockedStatic
         try (MockedStatic<LoggerFactory> loggerFactoryMock = Mockito.mockStatic(LoggerFactory.class)) {
             Logger mockLogger = mock(Logger.class);
             loggerFactoryMock.when(() -> LoggerFactory.getLogger(AlgorithmRequestMapper.class)).thenReturn(mockLogger);
 
-            // Call the method under test and assert that it throws an IllegalArgumentException
             Exception exception = assertThrows(IllegalArgumentException.class, () -> {
                 algorithmService.updateAlgorithm(configRequest);
             });
 
-            // Verify that the correct exception message is logged when blocking criteria is missing
             assertEquals("Blocking keys are required for each pass.", exception.getMessage());
 
-            // Verify that the error log was called with the expected message
             verify(mockLogger, times(1)).error(eq("Blocking keys are required for each pass."), any(IllegalArgumentException.class));
 
-            // Verify that the interaction with RestClient never happens due to missing blocking criteria
             verify(recordLinkageClient, never()).put();
         }
     }
 
+    @Test
+    void testUpdateAlgorithm_withValidBounds() throws Exception {
+        // Setup mock data with valid bounds
+        MatchingConfigRequest configRequest = new MatchingConfigRequest();
+        Pass pass = new Pass();
+        pass.setLowerBound("0.1");
+        pass.setUpperBound("0.9");
+        configRequest.setPasses(List.of(pass));
+
+        // Mock ObjectMapper behavior
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
+
+        // Mock RestClient's behavior to cover the chained methods
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+        when(mockRequestBodyUriSpec.body(Void.class)).thenReturn(mockRequestBodyUriSpec);  // Covering the .body(Void.class) line
+
+        // Call the method under test
+        algorithmService.updateAlgorithm(configRequest);
+
+        // Verify interactions with RestClient's request chain
+        verify(recordLinkageClient, times(1)).put();
+        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
+        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
+        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
+        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
+        verify(mockRequestBodyUriSpec, times(1)).retrieve();
+        verify(mockRequestBodyUriSpec, times(1)).body(Void.class);  // Verify body(Void.class) was called
+    }
+
+
 
     @Test
     void testUpdateAlgorithm_withMissingBounds() throws Exception {
-        // Setup mock data with missing bounds
         MatchingConfigRequest configRequest = new MatchingConfigRequest();
         Pass pass = new Pass();
         pass.setLowerBound(null);
         pass.setUpperBound(null);
         configRequest.setPasses(List.of(pass));
 
-        // Mock ObjectMapper behavior
         AlgorithmUpdateRequest algorithmUpdateRequest = mock(AlgorithmUpdateRequest.class);
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
 
@@ -236,7 +261,6 @@ class AlgorithmServiceTest {
 
         algorithmService.setDibbsBasicToFalse();
 
-        // Verify that REST client interaction never happens due to JSON error
         verify(recordLinkageClient, never()).put();
     }
 
@@ -262,17 +286,13 @@ class AlgorithmServiceTest {
 
     @Test
     void testSaveMatchingConfiguration_jsonProcessingException() throws Exception {
-        // Create a MatchingConfigRequest object
         MatchingConfigRequest request = new MatchingConfigRequest();
         request.setLabel("TestConfig");
 
-        // Mock ObjectMapper to throw JsonProcessingException when called
         when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("JSON error") {});
 
-        // Call the method and verify it does not propagate exceptions
         assertDoesNotThrow(() -> algorithmService.saveMatchingConfiguration(request));
 
-        // Verify that template.update() was **never** called since JSON conversion failed
         verify(template, never()).update(anyString(), any(SqlParameterSource.class));
     }
 
