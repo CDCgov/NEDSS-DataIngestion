@@ -1,4 +1,4 @@
-package gov.cdc.nbs.deduplication.matching.mapper;
+package gov.cdc.nbs.deduplication.algorithm.mapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import gov.cdc.nbs.deduplication.matching.dto.AlgorithmPass;
-import gov.cdc.nbs.deduplication.matching.dto.Evaluator;
-import gov.cdc.nbs.deduplication.matching.dto.Pass;
-import gov.cdc.nbs.deduplication.matching.model.MatchingConfiguration;
-import gov.cdc.nbs.deduplication.matching.model.AlgorithmUpdateRequest;
+import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
+import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
+import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
+import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +72,18 @@ public class AlgorithmRequestMapper {
 
         request.setLabel("dibbs-enhanced");
 
-        request.setDescription("description");
-        request.setIsDefault(config.isDefault());
+        request.setDescription("The DIBBs Log-Odds Algorithm. This optional algorithm " +
+                "uses statistical correction to adjust the links between incoming " +
+                "records and previously processed patients (it does so by taking " +
+                "advantage of the fact that some fields are more informative than others—e.g., " +
+                "two records matching on MRN is stronger evidence that they should be linked " +
+                "than if the records matched on zip code). It can be used if additional " +
+                "granularity in matching links is desired. However, while the DIBBs Log-Odds " +
+                "Algorithm can create higher-quality links, it is dependent on statistical " +
+                "updating and pre-calculated population analysis, which requires some work on " +
+                "the part of the user. For those cases where additional precision or stronger matching " +
+                "criteria are required, the Log-Odds algorithm is detailed below.");
+        request.setIsDefault(true);
         request.setIncludeMultipleMatches(config.isIncludeMultipleMatches());
 
         // Ensure belongingness_ratio is correctly set (defaults to [0.0, 1.0] if invalid)
@@ -135,11 +145,4 @@ public class AlgorithmRequestMapper {
         request.setPasses(algorithmPasses);
         return request;
     }
-
-
-    // Method to generate a random string (e.g., UUID)
-    private static String generateRandomString() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 8);  // Generate a short random string
-    }
-
 }

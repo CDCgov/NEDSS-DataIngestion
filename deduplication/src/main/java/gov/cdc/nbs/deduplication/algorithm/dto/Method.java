@@ -1,11 +1,12 @@
-package gov.cdc.nbs.deduplication.matching.dto;
+package gov.cdc.nbs.deduplication.algorithm.dto;
 
-public class Field {
+public class Method {
     private String value;
     private String name;
 
-    // Default constructor
-    public Field() {}
+    public Method() {
+        // Default constructor
+    }
 
     // Getters and Setters
     public String getValue() {

@@ -1,4 +1,4 @@
-package gov.cdc.nbs.deduplication.matching.dto;
+package gov.cdc.nbs.deduplication.algorithm.dto;
 
 import java.util.List;
 
@@ -10,8 +10,9 @@ public class Pass {
     private List<BlockingCriteria> blockingCriteria;
     private List<MatchingCriteria> matchingCriteria;
 
-    // Default constructor
-    public Pass() {}
+    public Pass() {
+        // Default constructor
+    }
 
     // Getters and Setters
     public String getName() {

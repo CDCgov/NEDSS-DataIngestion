@@ -1,20 +1,28 @@
-package gov.cdc.nbs.deduplication.matching.model;
+package gov.cdc.nbs.deduplication.algorithm.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import gov.cdc.nbs.deduplication.matching.dto.Pass;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class MatchingConfigRequest {
+public class AlgorithmUpdateRequest {
+
+    @JsonProperty("label")
     private String label;
-    private String description;
-    private boolean isDefault;
-    private boolean includeMultipleMatches;
-    private List<Pass> passes;
 
-    // Default constructor
-    public MatchingConfigRequest() {}
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("is_default")
+    private boolean isDefault;
+
+    @JsonProperty("include_multiple_matches")
+    private boolean includeMultipleMatches;
+
+    @JsonProperty("belongingness_ratio")
+    private Double[] belongingnessRatio;
+
+    @JsonProperty("passes")
+    private List<AlgorithmPass> passes;
 
     // Getters and Setters
     public String getLabel() {
@@ -37,7 +45,7 @@ public class MatchingConfigRequest {
         return isDefault;
     }
 
-    public void setDefault(boolean isDefault) {
+    public void setIsDefault(boolean isDefault) {
         this.isDefault = isDefault;
     }
 
@@ -49,12 +57,19 @@ public class MatchingConfigRequest {
         this.includeMultipleMatches = includeMultipleMatches;
     }
 
-    public List<Pass> getPasses() {
+    public Double[] getBelongingnessRatio() {
+        return belongingnessRatio;
+    }
+
+    public void setBelongingnessRatio(Double[] belongingnessRatio) {
+        this.belongingnessRatio = belongingnessRatio;
+    }
+
+    public List<AlgorithmPass> getPasses() {
         return passes;
     }
 
-    public void setPasses(List<Pass> passes) {
+    public void setPasses(List<AlgorithmPass> passes) {
         this.passes = passes;
     }
 }
-

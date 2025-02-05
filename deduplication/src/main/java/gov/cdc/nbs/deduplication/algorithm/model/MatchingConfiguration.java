@@ -1,6 +1,6 @@
-package gov.cdc.nbs.deduplication.matching.model;
+package gov.cdc.nbs.deduplication.algorithm.model;
 
-import gov.cdc.nbs.deduplication.matching.dto.Pass;
+import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 
 import java.util.List;
 

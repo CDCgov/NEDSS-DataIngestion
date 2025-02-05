@@ -1,11 +1,11 @@
-package gov.cdc.nbs.deduplication.matching.dto;
+package gov.cdc.nbs.deduplication.algorithm.dto;
 
-public class MatchingCriteria {
+public class BlockingCriteria {
     private Field field;
     private Method method;
 
     // Default constructor
-    public MatchingCriteria() {}
+    public BlockingCriteria() {}
 
     // Getters and Setters
     public Field getField() {
@@ -24,3 +24,4 @@ public class MatchingCriteria {
         this.method = method;
     }
 }
+

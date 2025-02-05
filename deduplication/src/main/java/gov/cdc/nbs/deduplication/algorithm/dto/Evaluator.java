@@ -1,4 +1,4 @@
-package gov.cdc.nbs.deduplication.matching.dto;
+package gov.cdc.nbs.deduplication.algorithm.dto;
 
 public class Evaluator {
     private String feature;

@@ -1,28 +1,20 @@
-package gov.cdc.nbs.deduplication.matching.model;
+package gov.cdc.nbs.deduplication.algorithm.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
+
 import java.util.List;
-import gov.cdc.nbs.deduplication.matching.dto.AlgorithmPass;
 
-public class AlgorithmUpdateRequest {
-
-    @JsonProperty("label")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class MatchingConfigRequest {
     private String label;
-
-    @JsonProperty("description")
     private String description;
-
-    @JsonProperty("is_default")
     private boolean isDefault;
-
-    @JsonProperty("include_multiple_matches")
     private boolean includeMultipleMatches;
+    private List<Pass> passes;
 
-    @JsonProperty("belongingness_ratio")
-    private Double[] belongingnessRatio;
-
-    @JsonProperty("passes")
-    private List<AlgorithmPass> passes;
+    // Default constructor
+    public MatchingConfigRequest() {}
 
     // Getters and Setters
     public String getLabel() {
@@ -45,7 +37,7 @@ public class AlgorithmUpdateRequest {
         return isDefault;
     }
 
-    public void setIsDefault(boolean isDefault) {
+    public void setDefault(boolean isDefault) {
         this.isDefault = isDefault;
     }
 
@@ -57,19 +49,12 @@ public class AlgorithmUpdateRequest {
         this.includeMultipleMatches = includeMultipleMatches;
     }
 
-    public Double[] getBelongingnessRatio() {
-        return belongingnessRatio;
-    }
-
-    public void setBelongingnessRatio(Double[] belongingnessRatio) {
-        this.belongingnessRatio = belongingnessRatio;
-    }
-
-    public List<AlgorithmPass> getPasses() {
+    public List<Pass> getPasses() {
         return passes;
     }
 
-    public void setPasses(List<AlgorithmPass> passes) {
+    public void setPasses(List<Pass> passes) {
         this.passes = passes;
     }
 }
+
