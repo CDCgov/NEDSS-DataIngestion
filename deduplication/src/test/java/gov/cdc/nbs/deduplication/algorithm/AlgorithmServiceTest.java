@@ -139,4 +139,106 @@ class AlgorithmServiceTest {
         verify(recordLinkageClient, times(2)).put(); // Verifying updateAlgorithm call
         verify(template, times(1)).update(anyString(), any(SqlParameterSource.class)); // Verifying setDibbsBasicToFalse call
     }
+
+    @Test
+    void testUpdateAlgorithm_withValidBounds() throws Exception {
+        // Setup mock data
+        MatchingConfigRequest configRequest = new MatchingConfigRequest();
+        Pass pass = new Pass();
+        pass.setLowerBound("0.1");
+        pass.setUpperBound("0.9");
+        configRequest.setPasses(List.of(pass));
+
+        // Mock ObjectMapper behavior
+        AlgorithmUpdateRequest algorithmUpdateRequest = mock(AlgorithmUpdateRequest.class);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
+
+        // Mock RestClient
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+
+        // Call the method to test
+        algorithmService.updateAlgorithm(configRequest);
+
+        // Verify interactions with RestClient
+        verify(recordLinkageClient, times(1)).put();
+        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
+        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
+
+        // Verify that the belongingness ratio was set correctly
+        verify(algorithmUpdateRequest).setBelongingnessRatio(new Double[]{0.1, 0.9});
+    }
+
+    @Test
+    void testUpdateAlgorithm_withInvalidBounds() throws Exception {
+        // Setup mock data with invalid bounds
+        MatchingConfigRequest configRequest = new MatchingConfigRequest();
+        Pass pass = new Pass();
+        pass.setLowerBound("invalid");
+        pass.setUpperBound("invalid");
+        configRequest.setPasses(List.of(pass));
+
+        // Mock ObjectMapper behavior
+        AlgorithmUpdateRequest algorithmUpdateRequest = mock(AlgorithmUpdateRequest.class);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
+
+        // Mock RestClient
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+
+        // Call the method to test
+        algorithmService.updateAlgorithm(configRequest);
+
+        // Verify interactions with RestClient
+        verify(recordLinkageClient, times(1)).put();
+        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
+        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
+
+        // Verify that the default belongingness ratio was set (0.0, 1.0) due to invalid bounds
+        verify(algorithmUpdateRequest).setBelongingnessRatio(new Double[]{0.0, 1.0});
+    }
+
+    @Test
+    void testUpdateAlgorithm_withMissingBounds() throws Exception {
+        // Setup mock data with missing bounds
+        MatchingConfigRequest configRequest = new MatchingConfigRequest();
+        Pass pass = new Pass();
+        pass.setLowerBound(null);
+        pass.setUpperBound(null);
+        configRequest.setPasses(List.of(pass));
+
+        // Mock ObjectMapper behavior
+        AlgorithmUpdateRequest algorithmUpdateRequest = mock(AlgorithmUpdateRequest.class);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
+
+        // Mock RestClient
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+
+        // Call the method to test
+        algorithmService.updateAlgorithm(configRequest);
+
+        // Verify interactions with RestClient
+        verify(recordLinkageClient, times(1)).put();
+        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
+        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
+
+        // Verify that the default belongingness ratio was set (0.0, 1.0) due to missing bounds
+        verify(algorithmUpdateRequest).setBelongingnessRatio(new Double[]{0.0, 1.0});
+    }
 }
