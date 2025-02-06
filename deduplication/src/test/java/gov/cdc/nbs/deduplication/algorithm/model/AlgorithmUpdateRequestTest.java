@@ -11,7 +11,6 @@ class AlgorithmUpdateRequestTest {
 
     @Test
     void testEqualsAndHashCode() {
-        // Creating sample AlgorithmUpdateRequest
         AlgorithmUpdateRequest request1 = new AlgorithmUpdateRequest(
                 "Test Label",
                 "Test Description",
@@ -50,7 +49,7 @@ class AlgorithmUpdateRequestTest {
                 List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
         );
 
-        // Creating another AlgorithmUpdateRequest with different values
+        // Creating another AlgorithmUpdateRequest with a different value for `label`
         AlgorithmUpdateRequest request2 = new AlgorithmUpdateRequest(
                 "Different Label",
                 "Test Description",
@@ -62,6 +61,17 @@ class AlgorithmUpdateRequestTest {
 
         // Verify that the two objects are not equal
         assertNotEquals(request1, request2);
+
+        // Check with a difference in `belongingnessRatio`
+        AlgorithmUpdateRequest request3 = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.1, 0.9}, // Different ratio
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+        assertNotEquals(request1, request3);
     }
 
     @Test
@@ -77,7 +87,9 @@ class AlgorithmUpdateRequestTest {
         );
 
         // Expected string representation of the object
-        String expectedString = "AlgorithmUpdateRequest {label = Test Labeldescription = Test Descriptionis_default = trueinclude_multiple_matches = truebelongingness_ratio = [0.0, 1.0]passes = [gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass@"+ request.passes().hashCode() +"]}";
+        String expectedString = "AlgorithmUpdateRequest {label = Test Label, description = Test Description, " +
+                "is_default = true, include_multiple_matches = true, " +
+                "belongingness_ratio = [0.0, 1.0], passes = [AlgorithmPass(blockingKeys=[FIRST_NAME], evaluators=[], rule=rule, kwargs=null)]}";
 
         // Verify the toString method
         assertEquals(expectedString, request.toString());

@@ -3,7 +3,6 @@ package gov.cdc.nbs.deduplication.algorithm.mapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
@@ -111,17 +110,18 @@ public class AlgorithmRequestMapper {
         List<String> blockingKeys = pass.blockingCriteria() != null
                 ? pass.blockingCriteria().stream()
                 .map(blocking -> mapField(blocking.field().name()))
-                .collect(Collectors.toList())
-                : List.of();
+                .toList()
+                : List.of();  // Empty list as fallback
 
         List<Evaluator> evaluators = pass.matchingCriteria() != null
                 ? pass.matchingCriteria().stream()
                 .map(matching -> new Evaluator(
-                        mapField(matching.field().name()),
-                        mapFunc(matching.method().name())))
-                .collect(Collectors.toList())
-                : List.of();
+                        mapField(matching.field().name()),  // Map field names
+                        mapFunc(matching.method().name())))  // Map function names
+                .toList()
+                : List.of();  // Empty list as fallback
 
         return new AlgorithmPass(blockingKeys, evaluators, "func:recordlinker.linking.matchers.rule_match", new HashMap<>());
     }
+
 }
