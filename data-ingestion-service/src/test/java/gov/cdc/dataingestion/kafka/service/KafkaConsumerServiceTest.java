@@ -14,7 +14,7 @@ import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
@@ -96,7 +96,7 @@ class KafkaConsumerServiceTest {
     private ICdaMapper cdaMapper;
 
     @Mock
-    private IEcrMsgQueryService ecrMsgQueryService;
+    private EcrMsgQueryService ecrMsgQueryService;
     @Container
     @SuppressWarnings("resource") // We do not want to immediately close the container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
@@ -160,8 +160,6 @@ class KafkaConsumerServiceTest {
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
                 elrDeadLetterRepository,
-                cdaMapper,
-                ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
                 timeMetricsBuilder);
