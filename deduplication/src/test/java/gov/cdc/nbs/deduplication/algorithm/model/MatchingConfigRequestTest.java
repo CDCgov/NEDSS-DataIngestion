@@ -10,77 +10,49 @@ import static org.junit.jupiter.api.Assertions.*;
 class MatchingConfigRequestTest {
 
     @Test
-    void testSetAndGetLabel() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("Test Label");
+    void testEqualsAndHashCode() {
+        // Create sample data for MatchingConfigRequest
+        Pass pass1 = new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of());
+        MatchingConfigRequest config1 = new MatchingConfigRequest(
+                "Test Label", "Test Description", true, true, List.of(pass1)
+        );
+        MatchingConfigRequest config2 = new MatchingConfigRequest(
+                "Test Label", "Test Description", true, true, List.of(pass1)
+        );
 
-        assertEquals("Test Label", request.getLabel());
+        // Verify that two identical MatchingConfigRequest objects are equal
+        assertEquals(config1, config2);
+
+        // Verify that their hash codes are the same
+        assertEquals(config1.hashCode(), config2.hashCode());
     }
 
     @Test
-    void testSetAndGetDescription() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setDescription("Test Description");
+    void testNotEquals() {
+        // Create different MatchingConfigRequest objects
+        Pass pass1 = new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of());
+        MatchingConfigRequest config1 = new MatchingConfigRequest(
+                "Test Label", "Test Description", true, true, List.of(pass1)
+        );
+        MatchingConfigRequest config2 = new MatchingConfigRequest(
+                "Different Label", "Test Description", true, true, List.of(pass1)
+        );
 
-        assertEquals("Test Description", request.getDescription());
+        // Verify that the two objects are not equal
+        assertNotEquals(config1, config2);
     }
 
     @Test
-    void testSetAndGetIsDefault() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setDefault(true);
+    void testToString() {
+        // Create a MatchingConfigRequest object
+        Pass pass1 = new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of());
+        MatchingConfigRequest config = new MatchingConfigRequest(
+                "Test Label", "Test Description", true, true, List.of(pass1)
+        );
 
-        assertTrue(request.isDefault());
-    }
-
-    @Test
-    void testSetAndGetIncludeMultipleMatches() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setIncludeMultipleMatches(true);
-
-        assertTrue(request.isIncludeMultipleMatches());
-    }
-
-    @Test
-    void testSetAndGetPasses() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        Pass pass = new Pass();  // Mock Pass object
-        request.setPasses(List.of(pass));
-
-        assertNotNull(request.getPasses());
-        assertEquals(1, request.getPasses().size());
-        assertEquals(pass, request.getPasses().get(0));
-    }
-
-    @Test
-    void testJsonIncludeBehavior() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-
-        // Passes is not set, so it should not be included in the serialized JSON
-        assertNull(request.getPasses());
-
-        // Set passes to check inclusion
-        Pass pass = new Pass();
-        request.setPasses(List.of(pass));
-
-        assertNotNull(request.getPasses());
-    }
-
-    @Test
-    void testFullObject() {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("Test Label");
-        request.setDescription("Test Description");
-        request.setDefault(true);
-        request.setIncludeMultipleMatches(true);
-        Pass pass = new Pass();
-        request.setPasses(List.of(pass));
-
-        assertEquals("Test Label", request.getLabel());
-        assertEquals("Test Description", request.getDescription());
-        assertTrue(request.isDefault());
-        assertTrue(request.isIncludeMultipleMatches());
-        assertEquals(1, request.getPasses().size());
+        // Verify the string representation
+        String expectedString = "MatchingConfigRequest {label='Test Label', description='Test Description', isDefault=true, includeMultipleMatches=true, passes=[" +
+                "Pass[name=TestPass, description=Description, lowerBound=0.1, upperBound=0.9, blockingCriteria=[], matchingCriteria=[]]]}";
+        assertEquals(expectedString, config.toString());
     }
 }
-

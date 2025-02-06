@@ -1,26 +1,20 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
-import org.junit.jupiter.api.BeforeEach;
+import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+@ExtendWith(MockitoExtension.class)
 class AlgorithmControllerTest {
-
-    private MockMvc mockMvc;
 
     @Mock
     private AlgorithmService algorithmService;
@@ -28,62 +22,74 @@ class AlgorithmControllerTest {
     @InjectMocks
     private AlgorithmController algorithmController;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Test
+    void testConfigureMatching() {
+        // Create a List of Pass objects (dummy example, replace with actual Pass objects)
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(algorithmController).build();
+        // Creating MatchingConfigRequest with the required parameters
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label",      // String parameter (label)
+                "Test Description", // String parameter (description)
+                true,               // boolean parameter (isDefault)
+                true,               // boolean parameter (includeMultipleMatches)
+                passes              // List<Pass> parameter (passes)
+        );
+
+        // Simulating the service method call
+        doNothing().when(algorithmService).configureMatching(request);
+
+        // Call the controller method
+        algorithmController.configureMatching(request);
+
+        // Verify that the service method was called once with the request
+        verify(algorithmService, times(1)).configureMatching(request);
     }
 
     @Test
-    void testConfigureMatching() throws Exception {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("Test Config");
+    void testGetMatchingConfiguration() {
+        // Create a List of Pass objects (dummy example)
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
 
-        mockMvc.perform(post("/api/deduplication/configure-matching")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+        // Simulate the service method call
+        MatchingConfigRequest expectedConfig = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                passes
+        );
 
-        // Capture the argument passed to the service
-        ArgumentCaptor<MatchingConfigRequest> captor = ArgumentCaptor.forClass(MatchingConfigRequest.class);
-        verify(algorithmService, times(1)).configureMatching(captor.capture());
+        when(algorithmService.getMatchingConfiguration()).thenReturn(expectedConfig);
 
-        // Assert the captured request has the expected label
-        assertEquals("Test Config", captor.getValue().getLabel());
-    }
+        // Call the controller method
+        MatchingConfigRequest actualConfig = algorithmController.getMatchingConfiguration();
 
-
-    @Test
-    void testGetMatchingConfiguration() throws Exception {
-        MatchingConfigRequest mockResponse = new MatchingConfigRequest();
-        mockResponse.setLabel("Test Config");
-
-        when(algorithmService.getMatchingConfiguration()).thenReturn(mockResponse);
-
-        mockMvc.perform(get("/api/deduplication/matching-configuration"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.label").value("Test Config"));
-
-        verify(algorithmService, times(1)).getMatchingConfiguration();
+        // Verify the returned configuration matches
+        assertEquals(expectedConfig, actualConfig);
     }
 
     @Test
-    void testUpdateAlgorithm() throws Exception {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("Updated Config");
+    void testUpdateAlgorithm() {
+        // Create a List of Pass objects (dummy example)
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
 
-        mockMvc.perform(post("/api/deduplication/update-algorithm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+        // Creating MatchingConfigRequest with the required parameters
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                passes
+        );
 
-        // Capture the argument passed to the service
-        ArgumentCaptor<MatchingConfigRequest> captor = ArgumentCaptor.forClass(MatchingConfigRequest.class);
-        verify(algorithmService, times(1)).updateDibbsConfigurations(captor.capture());
+        // Simulate the service method call
+        doNothing().when(algorithmService).updateDibbsConfigurations(request);
 
-        // Assert the values inside the captured object
-        assertEquals("Updated Config", captor.getValue().getLabel());
+        // Call the controller method
+        algorithmController.updateAlgorithm(request);
+
+        // Verify that the service method was called once with the request
+        verify(algorithmService, times(1)).updateDibbsConfigurations(request);
     }
 }

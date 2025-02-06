@@ -10,73 +10,98 @@ import static org.junit.jupiter.api.Assertions.*;
 class AlgorithmUpdateRequestTest {
 
     @Test
-    void testSetAndGetLabel() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        request.setLabel("Test Label");
+    void testEqualsAndHashCode() {
+        // Creating sample AlgorithmUpdateRequest
+        AlgorithmUpdateRequest request1 = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
 
-        assertEquals("Test Label", request.getLabel());
+        // Creating another AlgorithmUpdateRequest with the same values
+        AlgorithmUpdateRequest request2 = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        // Verify that both objects are considered equal
+        assertEquals(request1, request2);
+
+        // Verify that the hash codes of both objects are the same
+        assertEquals(request1.hashCode(), request2.hashCode());
     }
 
     @Test
-    void testSetAndGetDescription() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        request.setDescription("Test Description");
+    void testNotEquals() {
+        // Creating sample AlgorithmUpdateRequest
+        AlgorithmUpdateRequest request1 = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
 
-        assertEquals("Test Description", request.getDescription());
+        // Creating another AlgorithmUpdateRequest with different values
+        AlgorithmUpdateRequest request2 = new AlgorithmUpdateRequest(
+                "Different Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        // Verify that the two objects are not equal
+        assertNotEquals(request1, request2);
     }
 
     @Test
-    void testSetAndGetIsDefault() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        request.setIsDefault(true);
+    void testToString() {
+        // Creating sample AlgorithmUpdateRequest
+        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
 
+        // Expected string representation of the object
+        String expectedString = "AlgorithmUpdateRequest {label = Test Labeldescription = Test Descriptionis_default = trueinclude_multiple_matches = truebelongingness_ratio = [0.0, 1.0]passes = [gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass@"+ request.passes().hashCode() +"]}";
+
+        // Verify the toString method
+        assertEquals(expectedString, request.toString());
+    }
+
+    @Test
+    void testConstructorAndGetters() {
+        // Creating sample AlgorithmUpdateRequest
+        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                false,
+                new Double[]{0.1, 0.9},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        // Verify that the constructor correctly sets the values
+        assertEquals("Test Label", request.label());
+        assertEquals("Test Description", request.description());
         assertTrue(request.isDefault());
-    }
-
-    @Test
-    void testSetAndGetIncludeMultipleMatches() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        request.setIncludeMultipleMatches(true);
-
-        assertTrue(request.isIncludeMultipleMatches());
-    }
-
-    @Test
-    void testSetAndGetBelongingnessRatio() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        Double[] ratio = {0.2, 0.8};
-        request.setBelongingnessRatio(ratio);
-
-        assertArrayEquals(ratio, request.getBelongingnessRatio());
-    }
-
-    @Test
-    void testSetAndGetPasses() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        AlgorithmPass pass = new AlgorithmPass();
-        request.setPasses(List.of(pass));
-
-        assertNotNull(request.getPasses());
-        assertEquals(1, request.getPasses().size());
-        assertEquals(pass, request.getPasses().get(0));
-    }
-
-    @Test
-    void testFullObject() {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-        request.setLabel("Test Label");
-        request.setDescription("Test Description");
-        request.setIsDefault(true);
-        request.setIncludeMultipleMatches(true);
-        request.setBelongingnessRatio(new Double[]{0.1, 0.9});
-        AlgorithmPass pass = new AlgorithmPass();
-        request.setPasses(List.of(pass));
-
-        assertEquals("Test Label", request.getLabel());
-        assertEquals("Test Description", request.getDescription());
-        assertTrue(request.isDefault());
-        assertTrue(request.isIncludeMultipleMatches());
-        assertArrayEquals(new Double[]{0.1, 0.9}, request.getBelongingnessRatio());
-        assertEquals(1, request.getPasses().size());
+        assertFalse(request.includeMultipleMatches());
+        assertArrayEquals(new Double[]{0.1, 0.9}, request.belongingnessRatio());
+        assertNotNull(request.passes());
+        assertEquals(1, request.passes().size());
     }
 }

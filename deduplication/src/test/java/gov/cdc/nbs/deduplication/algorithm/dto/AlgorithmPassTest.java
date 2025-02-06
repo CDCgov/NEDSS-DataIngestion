@@ -1,85 +1,33 @@
 package gov.cdc.nbs.deduplication.algorithm.dto;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AlgorithmPassTest {
 
     @Test
-    void testSetAndGetBlockingKeys() {
-        AlgorithmPass pass = new AlgorithmPass();
-        List<String> blockingKeys = List.of("FIRST_NAME", "LAST_NAME", "ADDRESS");
-
-        pass.setBlockingKeys(blockingKeys);
-
-        assertEquals(blockingKeys, pass.getBlockingKeys());
-    }
-
-    @Test
-    void testSetAndGetEvaluators() {
-        AlgorithmPass pass = new AlgorithmPass();
+    void testAlgorithmPass() {
         Evaluator evaluator = new Evaluator("FIRST_NAME", "func:recordlinker.linking.matchers.compare_fuzzy_match");
-        List<Evaluator> evaluators = List.of(evaluator);
 
-        pass.setEvaluators(evaluators);
+        AlgorithmPass algorithmPass = new AlgorithmPass(
+                List.of("FIRST_NAME", "LAST_NAME"),
+                List.of(evaluator),
+                "func:recordlinker.linking.matchers.rule_match",
+                null
+        );
 
-        assertEquals(evaluators, pass.getEvaluators());
-        assertEquals("FIRST_NAME", pass.getEvaluators().get(0).getFeature());  // Verify evaluator's feature
-        assertEquals("func:recordlinker.linking.matchers.compare_fuzzy_match", pass.getEvaluators().get(0).getFunc());  // Verify evaluator's func
-    }
+        assertEquals(2, algorithmPass.blockingKeys().size());
+        assertTrue(algorithmPass.blockingKeys().contains("FIRST_NAME"));
+        assertTrue(algorithmPass.blockingKeys().contains("LAST_NAME"));
 
-    @Test
-    void testSetAndGetRule() {
-        AlgorithmPass pass = new AlgorithmPass();
-        String rule = "func:recordlinker.linking.matchers.rule_match";
+        assertEquals(1, algorithmPass.evaluators().size());
+        assertEquals("FIRST_NAME", algorithmPass.evaluators().get(0).feature());  // Using feature() directly
+        assertEquals("func:recordlinker.linking.matchers.compare_fuzzy_match", algorithmPass.evaluators().get(0).func());  // Using func() directly
 
-        pass.setRule(rule);
+        assertEquals("func:recordlinker.linking.matchers.rule_match", algorithmPass.rule());
 
-        assertEquals(rule, pass.getRule());
-    }
-
-    @Test
-    void testSetAndGetKwargs() {
-        AlgorithmPass pass = new AlgorithmPass();
-
-        // Test with a simple String object
-        String kwargsString = "some_parameter_value";
-        pass.setKwargs(kwargsString);
-
-        assertEquals(kwargsString, pass.getKwargs());
-
-        // Test with a Map object
-        Map<String, String> kwargsMap = Map.of("key1", "value1", "key2", "value2");
-        pass.setKwargs(kwargsMap);
-
-        assertEquals(kwargsMap, pass.getKwargs());
-    }
-
-    @Test
-    void testFullObject() {
-        AlgorithmPass pass = new AlgorithmPass();
-        pass.setBlockingKeys(List.of("FIRST_NAME", "LAST_NAME"));
-        pass.setEvaluators(List.of(new Evaluator("FIRST_NAME", "func:recordlinker.linking.matchers.compare_fuzzy_match")));
-        pass.setRule("func:recordlinker.linking.matchers.rule_match");
-        pass.setKwargs(Map.of("key1", "value1"));
-
-        assertNotNull(pass.getBlockingKeys());
-        assertEquals(2, pass.getBlockingKeys().size());
-        assertEquals("FIRST_NAME", pass.getBlockingKeys().get(0));
-
-        assertNotNull(pass.getEvaluators());
-        assertEquals(1, pass.getEvaluators().size());
-        assertEquals("FIRST_NAME", pass.getEvaluators().get(0).getFeature());
-
-        assertEquals("func:recordlinker.linking.matchers.rule_match", pass.getRule());
-
-        assertNotNull(pass.getKwargs());
-        assertTrue(pass.getKwargs() instanceof Map);
-        assertEquals("value1", ((Map) pass.getKwargs()).get("key1"));
+        assertNull(algorithmPass.kwargs());
     }
 }
-

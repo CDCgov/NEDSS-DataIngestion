@@ -1,4 +1,4 @@
-./## Development environment setup
+## Development environment setup
 Following this guide will set up a fully functioning local development environment. You will be able to ingest and process Electronic Lab Reports (ELRs), debug the various services, and view the processed patient data within NBS 6.
 
 ### Building

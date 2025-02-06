@@ -1,52 +1,23 @@
 package gov.cdc.nbs.deduplication.algorithm.dto;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class BlockingCriteriaTest {
 
     @Test
-    void testSetAndGetField() {
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Field field = new Field();
-        field.setName("BIRTHDATE");
+    void testBlockingCriteria() {
+        // Use the correct constructor for Field and Method
+        Field field = new Field("FIRST_NAME", "STRING");  // Field expects both name and type
+        Method method = new Method("exact", "matcher");  // Method expects both value and name
 
-        blockingCriteria.setField(field);
+        // Create the BlockingCriteria instance
+        BlockingCriteria blockingCriteria = new BlockingCriteria(field, method);
 
-        assertNotNull(blockingCriteria.getField());
-        assertEquals("BIRTHDATE", blockingCriteria.getField().getName());
-    }
-
-    @Test
-    void testSetAndGetMethod() {
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Method method = new Method();
-        method.setValue("exact");
-
-        blockingCriteria.setMethod(method);
-
-        assertNotNull(blockingCriteria.getMethod());
-        assertEquals("exact", blockingCriteria.getMethod().getValue());
-    }
-
-    @Test
-    void testFullObject() {
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-
-        Field field = new Field();
-        field.setName("ADDRESS");
-        blockingCriteria.setField(field);
-
-        Method method = new Method();
-        method.setValue("compare_match_any");
-        blockingCriteria.setMethod(method);
-
-        assertNotNull(blockingCriteria.getField());
-        assertEquals("ADDRESS", blockingCriteria.getField().getName());
-
-        assertNotNull(blockingCriteria.getMethod());
-        assertEquals("compare_match_any", blockingCriteria.getMethod().getValue());
+        // Assert that the Field and Method values are correctly set
+        assertEquals("FIRST_NAME", blockingCriteria.field().value());
+        assertEquals("STRING", blockingCriteria.field().name());  // Check name as well
+        assertEquals("exact", blockingCriteria.method().value());
+        assertEquals("matcher", blockingCriteria.method().name());  // Check name as well
     }
 }
-

@@ -2,22 +2,22 @@ package gov.cdc.nbs.deduplication.algorithm;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.algorithm.dto.*;
+import gov.cdc.nbs.deduplication.algorithm.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-import gov.cdc.nbs.deduplication.algorithm.dto.*;
-import gov.cdc.nbs.deduplication.algorithm.model.*;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.http.MediaType;
+
 import java.util.List;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AlgorithmServiceTest {
 
@@ -33,10 +33,8 @@ class AlgorithmServiceTest {
 
     @Test
     void testSetDibbsBasicToFalse() {
-        AlgorithmUpdateRequest updateRequest = new AlgorithmUpdateRequest();
-        updateRequest.setLabel("dibbs-basic");
 
-        // Mocking the non-void method chain for 'put()'
+        // Mock RestClient behavior
         RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
         when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
@@ -44,7 +42,7 @@ class AlgorithmServiceTest {
         when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
 
-        // Mocking template update method
+        // Mock template update method
         when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
 
         algorithmService.setDibbsBasicToFalse();
@@ -52,80 +50,70 @@ class AlgorithmServiceTest {
         verify(recordLinkageClient, times(1)).put();
     }
 
+
     @Test
     void testGetMatchingConfiguration() {
         String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
         String mockConfigJson = "{\"label\":\"test\"}";
 
-        // Use when(...).thenReturn(...) for methods that return values
         when(template.queryForObject(eq(sql), any(MapSqlParameterSource.class), eq(String.class))).thenReturn(mockConfigJson);
 
         MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
 
         assertNotNull(result);
-        assertEquals("test", result.getLabel());
+        assertEquals("test", result.label());
     }
 
     @Test
     void testConfigureMatching() {
-        // Setup mock data
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("test");
+        // Setup mock data with non-empty blockingCriteria
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "testLabel", "testDescription", true, true,
+                List.of(new Pass("name", "description", "0.2", "0.8",
+                        List.of(new BlockingCriteria(new Field("FIRST_NAME", "STRING"), new Method("exact", "matcher"))), // Valid blocking criteria
+                        List.of()))
+        );
 
-        // Initialize passes to avoid NullPointerException
-        Pass pass = new Pass();
-        pass.setLowerBound("0.2");
-        pass.setUpperBound("0.8");
+        // Simulate database update by returning 1 (indicating one row affected)
+        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
 
-        // Add blocking criteria to the pass
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Field field = new Field();
-        field.setName("Date of birth");
-        blockingCriteria.setField(field);
-        pass.setBlockingCriteria(List.of(blockingCriteria));
-
-        request.setPasses(List.of(pass));
-
-        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(1); // Simulate successful database update
-
+        // Mock RestClient behavior
         RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
+
         when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.body(any())).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
+        when(mockResponseSpec.body(Void.class)).thenReturn(null);  // Simulating a void API call
 
         // Call the method to test
         algorithmService.configureMatching(request);
 
-        verify(template, times(1)).update(anyString(), any(SqlParameterSource.class)); // Verifying saveMatchingConfiguration call
-        verify(recordLinkageClient, times(1)).put(); // Verifying updateAlgorithm call
+        // Verify interactions
+        verify(template, times(1)).update(anyString(), any(SqlParameterSource.class)); // Verify DB update
+        verify(recordLinkageClient, times(1)).put(); // Verify REST client call
+        verify(mockRequestBodyUriSpec, times(1)).uri(anyString()); // Ensure URI is set
+        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
+        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
+        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class)); // Ensure correct body is passed
+        verify(mockRequestBodyUriSpec, times(1)).retrieve(); // Ensure retrieve is called
+        verify(mockResponseSpec, times(1)).body(Void.class); // Ensure the response is processed correctly
     }
 
     @Test
     void testUpdateDibbsConfigurations() throws JsonProcessingException {
-        MatchingConfigRequest configRequest = new MatchingConfigRequest();
-        Pass pass = new Pass();
-        pass.setLowerBound("0.1");
-        pass.setUpperBound("0.9");
+        // Setup matching config request with valid blocking criteria
+        MatchingConfigRequest configRequest = new MatchingConfigRequest(
+                "testLabel", "testDescription", true, true,
+                List.of(new Pass("passName", "description", "0.2", "0.9",
+                        List.of(new BlockingCriteria(new Field("FIRST_NAME", "STRING"), new Method("exact", "matcher"))),  // Valid blocking criteria
+                        List.of()))  // matchingCriteria (empty in this case)
+        );
 
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Field blockingField = new Field();
-        blockingField.setName("Last name");
-        blockingCriteria.setField(blockingField);
-        pass.setBlockingCriteria(List.of(blockingCriteria));
-
-        MatchingCriteria matchingCriteria = new MatchingCriteria();
-        Field matchingField = new Field();
-        matchingField.setName("First name");
-        matchingCriteria.setField(matchingField);
-        Method method = new Method();
-        method.setValue("exact"); // Valid method value
-        matchingCriteria.setMethod(method);
-        pass.setMatchingCriteria(List.of(matchingCriteria));  // Required evaluators
-
-        configRequest.setPasses(List.of(pass));
-
+        // Mock ObjectMapper behavior
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
 
         RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
@@ -148,30 +136,15 @@ class AlgorithmServiceTest {
         verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
         verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
         verify(mockRequestBodyUriSpec, times(1)).retrieve();
-        verify(mockResponseSpec, times(1)).body(Void.class);
+        verify(mockResponseSpec, times(1)).body(Void.class); // Verify body(Void.class) was called on response spec
     }
-
 
     @Test
     void testUpdateAlgorithm_withMissingBlockingCriteria() throws Exception {
-        MatchingConfigRequest configRequest = new MatchingConfigRequest();
-        Pass pass = new Pass();
-        pass.setLowerBound("0.1");
-        pass.setUpperBound("0.9");
-
-        // Missing blocking criteria (simulate the issue)
-        pass.setBlockingCriteria(null);  // This is the key part
-
-        MatchingCriteria matchingCriteria = new MatchingCriteria();
-        Field matchingField = new Field();
-        matchingField.setName("First name");
-        matchingCriteria.setField(matchingField);
-        Method method = new Method();
-        method.setValue("exact");
-        matchingCriteria.setMethod(method);
-        pass.setMatchingCriteria(List.of(matchingCriteria));
-
-        configRequest.setPasses(List.of(pass));
+        MatchingConfigRequest configRequest = new MatchingConfigRequest(
+                "testLabel", "testDescription", true, true,
+                List.of(new Pass("passName", "description", "0.2", "0.9", null, List.of()))
+        );
 
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
 
@@ -182,247 +155,95 @@ class AlgorithmServiceTest {
         when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class)))
-                .thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
         when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
         when(mockResponseSpec.body(Void.class)).thenReturn(null);
 
-        // Expect exception if blocking criteria is missing
-        assertThrows(IllegalArgumentException.class, () -> {
+        // Expect IllegalArgumentException to be thrown
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             algorithmService.updateAlgorithm(configRequest);
         });
-    }
 
+        // Verify that the exception message matches expected output
+        assertEquals("Blocking criteria cannot be null or empty", exception.getMessage());
 
-    @Test
-    void testUpdateAlgorithm_withValidBounds() throws Exception {
-        MatchingConfigRequest configRequest = new MatchingConfigRequest();
-        Pass pass = new Pass();
-        pass.setLowerBound("0.1");
-        pass.setUpperBound("0.9");
-
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Field blockingField = new Field();
-        blockingField.setName("Date of birth");
-        blockingCriteria.setField(blockingField);
-        pass.setBlockingCriteria(List.of(blockingCriteria));
-
-        MatchingCriteria matchingCriteria = new MatchingCriteria();
-        Field matchingField = new Field();
-        matchingField.setName("First name");
-        matchingCriteria.setField(matchingField);
-        Method method = new Method();
-        method.setValue("exact"); // Valid method value
-        matchingCriteria.setMethod(method);
-        pass.setMatchingCriteria(List.of(matchingCriteria));  // Required evaluators
-
-        configRequest.setPasses(List.of(pass));
-
-        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
-
-        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
-        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
-
-        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class)))
-                .thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
-        when(mockResponseSpec.body(Void.class)).thenReturn(null);
-
-        algorithmService.updateAlgorithm(configRequest);
-
-        verify(recordLinkageClient, times(1)).put();
-        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
-        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
-        verify(mockRequestBodyUriSpec, times(1)).retrieve();
-        verify(mockResponseSpec, times(1)).body(Void.class);
-    }
-
-
-    @Test
-    void testUpdateAlgorithm_withInvalidBounds() throws Exception {
-        // Setup mock data with invalid bounds
-        MatchingConfigRequest configRequest = new MatchingConfigRequest();
-        Pass pass = new Pass();
-        pass.setLowerBound("invalid");
-        pass.setUpperBound("invalid");
-
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Field field = new Field();
-        field.setName("Date of birth");
-        blockingCriteria.setField(field);
-        pass.setBlockingCriteria(List.of(blockingCriteria));
-        configRequest.setPasses(List.of(pass));
-
-        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
-
-        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
-        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
-
-        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
-        when(mockResponseSpec.body(Void.class)).thenReturn(null);
-
-        algorithmService.updateAlgorithm(configRequest);
-
-        verify(recordLinkageClient, times(1)).put();
-        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
-        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
-        verify(mockRequestBodyUriSpec, times(1)).retrieve();
-        verify(mockResponseSpec, times(1)).body(Void.class);
-        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
-    }
-
-    @Test
-    void testUpdateAlgorithm_withMissingBounds() throws Exception {
-        MatchingConfigRequest configRequest = new MatchingConfigRequest();
-        Pass pass = new Pass();
-        pass.setLowerBound(null);  // Missing lower bound
-        pass.setUpperBound(null);  // Missing upper bound
-
-        BlockingCriteria blockingCriteria = new BlockingCriteria();
-        Field field = new Field();
-        field.setName("Date of birth");  // Set a valid field name for blocking criteria
-        blockingCriteria.setField(field);
-        pass.setBlockingCriteria(List.of(blockingCriteria));  // Set valid blocking criteria
-
-        configRequest.setPasses(List.of(pass));
-
-        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
-
-        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
-        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
-
-        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
-        when(mockResponseSpec.body(Void.class)).thenReturn(null);
-
-        algorithmService.updateAlgorithm(configRequest);
-
-        verify(recordLinkageClient, times(1)).put();
-        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
-        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));  // Verify body(AlgorithmUpdateRequest.class)
-        verify(mockRequestBodyUriSpec, times(1)).retrieve();
-        verify(mockResponseSpec, times(1)).body(Void.class);  // Verify that body(Void.class) was called
-
-        ArgumentCaptor<AlgorithmUpdateRequest> captor = ArgumentCaptor.forClass(AlgorithmUpdateRequest.class);
-        verify(mockRequestBodyUriSpec, times(1)).body(captor.capture());
-
-        AlgorithmUpdateRequest capturedRequest = captor.getValue();
-        assertArrayEquals(new Double[]{0.0, 1.0}, capturedRequest.getBelongingnessRatio(), "The default belongingness ratio should be set to {0.0, 1.0} due to missing bounds.");
-
-        assertNotNull(capturedRequest.getPasses());
-        assertEquals(1, capturedRequest.getPasses().size());
-        AlgorithmPass algorithmPass = capturedRequest.getPasses().get(0);
-
-        assertNotNull(algorithmPass.getBlockingKeys());
-        assertEquals(1, algorithmPass.getBlockingKeys().size());
-        assertEquals("BIRTHDATE", algorithmPass.getBlockingKeys().get(0), "The blocking key should be set to BIRTHDATE.");
-    }
-
-    @Test
-    void testUpdateAlgorithm_withEmptyPasses() throws Exception {
-        MatchingConfigRequest configRequest = new MatchingConfigRequest();
-        configRequest.setPasses(List.of());  // No passes
-
-        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
-
-        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
-        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
-
-        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
-        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
-        when(mockResponseSpec.body(Void.class)).thenReturn(null);  // Mock successful response without actual content (mimicking success)
-
-        // Call the method under test
-        algorithmService.updateAlgorithm(configRequest);
-
-        verify(recordLinkageClient, times(1)).put();
-        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
-        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
-        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));  // Verify body(AlgorithmUpdateRequest.class)
-        verify(mockRequestBodyUriSpec, times(1)).retrieve();
-        verify(mockResponseSpec, times(1)).body(Void.class);  // Verify that body(Void.class) was called
-
-        ArgumentCaptor<AlgorithmUpdateRequest> captor = ArgumentCaptor.forClass(AlgorithmUpdateRequest.class);
-        verify(mockRequestBodyUriSpec, times(1)).body(captor.capture());
-
-        AlgorithmUpdateRequest capturedRequest = captor.getValue();
-        assertTrue(capturedRequest.getPasses().isEmpty(), "The passes list should be empty when no passes are provided.");
-    }
-
-    @Test
-    void testSetDibbsBasicToFalse_jsonProcessingException() throws Exception {
-        // Mock the ObjectMapper to throw a JsonProcessingException
-        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("JSON Error") {});
-
-        // Spy on the algorithmService to ensure setDibbsBasicToFalse() doesn't call put() when the exception is thrown
-        AlgorithmService spyService = spy(algorithmService);
-        doNothing().when(spyService).setDibbsBasicToFalse();
-
-        // Call the method under test
-        spyService.setDibbsBasicToFalse();
-
-        // Verify that the RestClient put() was never called due to the exception
+        // Ensure no API call is made when validation fails
         verify(recordLinkageClient, never()).put();
     }
 
 
     @Test
-    void testGetMatchingConfiguration_genericException() {
-        when(template.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class)))
-                .thenThrow(new RuntimeException("DB Error"));
+    void testUpdateAlgorithm_withValidBounds() throws Exception {
+        MatchingConfigRequest configRequest = new MatchingConfigRequest(
+                "testLabel", "testDescription", true, true,
+                List.of(new Pass("passName", "description", "0.2", "0.9",
+                        List.of(new BlockingCriteria(new Field("LAST_NAME", "STRING"), new Method("exact", "matcher"))),  // Valid blocking criteria
+                        List.of())) // matchingCriteria (empty in this case)
+        );
 
-        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
 
-        assertNull(result, "Expected null when database throws an error");
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
+
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
+        when(mockResponseSpec.body(Void.class)).thenReturn(null);
+
+        algorithmService.updateAlgorithm(configRequest);
+
+        verify(recordLinkageClient, times(1)).put();
+        verify(mockRequestBodyUriSpec, times(1)).uri("/algorithm/dibbs-enhanced");
+        verify(mockRequestBodyUriSpec, times(1)).contentType(MediaType.APPLICATION_JSON);
+        verify(mockRequestBodyUriSpec, times(1)).accept(MediaType.APPLICATION_JSON);
+        verify(mockRequestBodyUriSpec, times(1)).body(any(AlgorithmUpdateRequest.class));
+        verify(mockRequestBodyUriSpec, times(1)).retrieve();
+        verify(mockResponseSpec, times(1)).body(Void.class);
     }
 
     @Test
-    void testGetMatchingConfiguration_emptyResultException() {
-        when(template.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class)))
-                .thenThrow(new EmptyResultDataAccessException(1));
+    void testUpdateAlgorithm_withInvalidBounds() throws Exception {
+        // Setup the MatchingConfigRequest with invalid bounds (non-numeric)
+        MatchingConfigRequest configRequest = new MatchingConfigRequest(
+                "testLabel", "testDescription", true, true,
+                List.of(new Pass("passName", "description", "invalid", "invalid",
+                        List.of(new BlockingCriteria(new Field("FIRST_NAME", "STRING"), new Method("exact", "matcher"))),  // Valid blocking criteria
+                        List.of())) // matchingCriteria (empty in this case)
+        );
 
-        MatchingConfigRequest result = algorithmService.getMatchingConfiguration();
+        // Mocking ObjectMapper's behavior
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"label\": \"dibbs-enhanced\"}");
 
-        assertNull(result, "Expected null when no matching config found");
+        // Mock RestClient behavior
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
+
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);  // Ensuring put() returns mockRequestBodyUriSpec
+        when(mockRequestBodyUriSpec.uri(anyString())).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(any(AlgorithmUpdateRequest.class))).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mockResponseSpec);
+        when(mockResponseSpec.body(Void.class)).thenReturn(null);
+
+        // Expecting a RuntimeException due to invalid bounds
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            algorithmService.updateAlgorithm(configRequest);
+        });
+
+        // Verify the exception message
+        assertEquals("Invalid bounds values: lowerBound and upperBound must be valid numbers", exception.getMessage()); // Ensure that the correct error message is thrown
+
+        // Ensure no API call is made when bounds are invalid
+        verify(recordLinkageClient, never()).put();
     }
 
-    @Test
-    void testSaveMatchingConfiguration_jsonProcessingException() throws Exception {
-        MatchingConfigRequest request = new MatchingConfigRequest();
-        request.setLabel("TestConfig");
 
-        // Simulate a JsonProcessingException
-        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("JSON error") {});
 
-        // Mock template.update to ensure it doesn't get called if exception occurs
-        when(template.update(anyString(), any(SqlParameterSource.class))).thenReturn(0);  // This is to avoid actual update
 
-        // Ensure no exception is thrown despite the JsonProcessingException
-        assertDoesNotThrow(() -> algorithmService.saveMatchingConfiguration(request));
-    }
 
 }

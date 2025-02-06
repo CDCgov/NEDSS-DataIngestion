@@ -7,32 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class FieldTest {
 
     @Test
-    void testSetAndGetValue() {
-        Field field = new Field();
-        field.setValue("123456");
+    void testConstructorAndGetters() {
+        // Create a Field instance using the constructor
+        Field field = new Field("BIRTHDATE", "STRING");
 
-        assertEquals("123456", field.getValue());
-    }
-
-    @Test
-    void testSetAndGetName() {
-        Field field = new Field();
-        field.setName("BIRTHDATE");
-
-        assertEquals("BIRTHDATE", field.getName());
-    }
-
-    @Test
-    void testFullObject() {
-        Field field = new Field();
-        field.setValue("123456");
-        field.setName("BIRTHDATE");
-
-        assertNotNull(field.getValue());
-        assertEquals("123456", field.getValue());
-
-        assertNotNull(field.getName());
-        assertEquals("BIRTHDATE", field.getName());
+        // Assert that the values are correctly set
+        assertNotNull(field);
+        assertEquals("BIRTHDATE", field.value());
+        assertEquals("STRING", field.name());
     }
 }
-

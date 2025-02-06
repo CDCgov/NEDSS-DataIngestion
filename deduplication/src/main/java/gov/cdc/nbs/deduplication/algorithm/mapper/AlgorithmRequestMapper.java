@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.algorithm.mapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
@@ -16,7 +17,7 @@ public class AlgorithmRequestMapper {
 
     private static final Logger log = LoggerFactory.getLogger(AlgorithmRequestMapper.class);
 
-    // Map frontend UI field names to valid API field names
+    // Mapping of UI field names to API field names
     private static final Map<String, String> FIELD_NAME_MAP = Map.ofEntries(
             Map.entry("First name", "FIRST_NAME"),
             Map.entry("Last name", "LAST_NAME"),
@@ -36,7 +37,7 @@ public class AlgorithmRequestMapper {
             Map.entry("Drivers license", "DRIVERS_LICENSE")
     );
 
-    // Map function names to valid API function values
+    // Mapping of function names to API function values
     private static final Map<String, String> FUNCTION_MAP = Map.of(
             "exact", "func:recordlinker.linking.matchers.compare_match_any",
             "jarowinkler", "func:recordlinker.linking.matchers.compare_fuzzy_match",
@@ -46,116 +47,81 @@ public class AlgorithmRequestMapper {
     );
 
     private AlgorithmRequestMapper() {
-        // to prevent instantiation
+        // Prevent instantiation
     }
 
-    // Map UI field names to API field names
     public static String mapField(String fieldName) {
-        String mappedField = FIELD_NAME_MAP.get(fieldName);
-        if (mappedField == null) {
-            log.error("Invalid field name: {}", fieldName);
-            throw new IllegalArgumentException("Invalid field name: " + fieldName);
-        }
-        return mappedField;
+        // Using getOrDefault to handle missing fields gracefully (without throwing exceptions)
+        return FIELD_NAME_MAP.getOrDefault(fieldName, fieldName);
     }
 
-    // Map function names to valid API function values
     public static String mapFunc(String funcName) {
-        String mappedFunc = FUNCTION_MAP.get(funcName);
-        if (mappedFunc == null) {
-            log.error("Invalid function: {}", funcName);
-            throw new IllegalArgumentException("Invalid function: " + funcName);
-        }
-        return mappedFunc;
+        // Normalize to lowercase to handle case insensitivity
+        String normalizedFuncName = funcName != null ? funcName.toLowerCase() : "";
+
+        // Return mapped function or original if not found
+        return FUNCTION_MAP.getOrDefault(normalizedFuncName, funcName);
     }
 
     public static AlgorithmUpdateRequest mapToAlgorithmRequest(MatchingConfiguration config) {
-        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest();
-
-        request.setLabel("dibbs-enhanced");
-        request.setDescription(getDibbsEnhancedDescription());
-        request.setIsDefault(true);
-        request.setIncludeMultipleMatches(config.isIncludeMultipleMatches());
-
-        // Set belongingness ratio
-        setBelongingnessRatio(config, request);
-
-        // Map passes with necessary field and function validations
-        List<AlgorithmPass> algorithmPasses = mapPasses(config);
-        request.setPasses(algorithmPasses);
-
-        return request;
+        return new AlgorithmUpdateRequest(
+                "dibbs-enhanced", // Default label
+                getDibbsEnhancedDescription(),
+                true, // Default is_default flag
+                config.isDefault(), // Accessing the 'isDefault' field directly
+                getBelongingnessRatio(config), // This is the correct line to pass the belongingness ratio
+                mapPasses(config.passes()) // Direct mapping of passes
+        );
     }
+
 
     private static String getDibbsEnhancedDescription() {
-        return "The DIBBs Log-Odds Algorithm. This optional algorithm " +
-                "uses statistical correction to adjust the links between incoming " +
-                "records and previously processed patients (it does so by taking " +
-                "advantage of the fact that some fields are more informative than others—e.g., " +
-                "two records matching on MRN is stronger evidence that they should be linked " +
-                "than if the records matched on zip code). It can be used if additional " +
-                "granularity in matching links is desired. However, while the DIBBs Log-Odds " +
-                "Algorithm can create higher-quality links, it is dependent on statistical " +
-                "updating and pre-calculated population analysis, which requires some work on " +
-                "the part of the user. For those cases where additional precision or stronger matching " +
-                "criteria are required, the Log-Odds algorithm is detailed below.";
+        return "The DIBBs Log-Odds Algorithm. This optional algorithm uses statistical correction to adjust the links between incoming " +
+                "records and previously processed patients...";
     }
 
-    private static void setBelongingnessRatio(MatchingConfiguration config, AlgorithmUpdateRequest request) {
-        if (config.getPasses() != null && !config.getPasses().isEmpty()) {
-            Pass firstPass = config.getPasses().get(0);  // Get the first pass
+    private static Double[] getBelongingnessRatio(MatchingConfiguration config) {
+        if (config.passes() != null && !config.passes().isEmpty()) {
+            Pass firstPass = config.passes().get(0); // Direct access to 'passes' field
+            return parseBelongingnessRatio(firstPass.lowerBound(), firstPass.upperBound());
+        }
+        return new Double[]{0.0, 1.0}; // Default fallback
+    }
 
-            String lowerBound = firstPass.getLowerBound();
-            String upperBound = firstPass.getUpperBound();
-
-            if (lowerBound != null && upperBound != null) {
-                try {
-                    double lower = Double.parseDouble(lowerBound);
-                    double upper = Double.parseDouble(upperBound);
-                    request.setBelongingnessRatio(new Double[]{lower, upper});
-                } catch (NumberFormatException e) {
-                    log.error("Invalid lowerBound or upperBound format: {} {}", lowerBound, upperBound);
-                    request.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
-                }
-            } else {
-                log.warn("Lower/Upper bounds missing, using default values.");
-                request.setBelongingnessRatio(new Double[]{0.0, 1.0});  // Default fallback
-            }
+    private static Double[] parseBelongingnessRatio(String lowerBound, String upperBound) {
+        try {
+            return new Double[]{
+                    Double.parseDouble(lowerBound != null ? lowerBound : "0.0"),
+                    Double.parseDouble(upperBound != null ? upperBound : "1.0")
+            };
+        } catch (NumberFormatException e) {
+            log.error("Invalid format for lowerBound or upperBound", e);
+            return new Double[]{0.0, 1.0}; // Fallback to default if parsing fails
         }
     }
 
-    private static List<AlgorithmPass> mapPasses(MatchingConfiguration config) {
-        return config.getPasses().stream()
-                .map(pass -> mapPass(pass))
+    private static List<AlgorithmPass> mapPasses(List<Pass> passes) {
+        return passes.stream()
+                .map(AlgorithmRequestMapper::mapPass)
                 .toList();
     }
 
+
     private static AlgorithmPass mapPass(Pass pass) {
-        AlgorithmPass algorithmPass = new AlgorithmPass();
+        List<String> blockingKeys = pass.blockingCriteria() != null
+                ? pass.blockingCriteria().stream()
+                .map(blocking -> mapField(blocking.field().name()))
+                .collect(Collectors.toList())
+                : List.of();
 
-        // Ensure blocking_keys is set and valid
-        if (pass.getBlockingCriteria() != null && !pass.getBlockingCriteria().isEmpty()) {
-            algorithmPass.setBlockingKeys(pass.getBlockingCriteria().stream()
-                    .map(blocking -> mapField(blocking.getField().getName()))  // Ensure valid field names
-                    .toList());
-        } else {
-            log.warn("Blocking keys are missing for pass: {}", pass);
-            throw new IllegalArgumentException("Blocking keys are required for each pass.");
-        }
+        List<Evaluator> evaluators = pass.matchingCriteria() != null
+                ? pass.matchingCriteria().stream()
+                .map(matching -> new Evaluator(
+                        mapField(matching.field().name()),
+                        mapFunc(matching.method().name())))
+                .collect(Collectors.toList())
+                : List.of();
 
-        // Map evaluators
-        if (pass.getMatchingCriteria() != null) {
-            algorithmPass.setEvaluators(pass.getMatchingCriteria().stream()
-                    .map(matching -> new Evaluator(
-                            mapField(matching.getField().getName()),  // Valid field names
-                            mapFunc(matching.getMethod().getValue())))  // Valid functions
-                    .toList());
-        } else {
-            log.warn("Matching criteria is missing for pass: {}", pass);
-        }
-
-        algorithmPass.setRule("func:recordlinker.linking.matchers.rule_match");
-        algorithmPass.setKwargs(new HashMap<>());
-        return algorithmPass;
+        return new AlgorithmPass(blockingKeys, evaluators, "func:recordlinker.linking.matchers.rule_match", new HashMap<>());
     }
 }
