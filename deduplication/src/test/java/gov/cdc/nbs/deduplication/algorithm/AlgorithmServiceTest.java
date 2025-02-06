@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -240,7 +241,81 @@ class AlgorithmServiceTest {
 
         // Ensure no API call is made when bounds are invalid
         verify(recordLinkageClient, never()).put();
+
     }
+    @Test
+    void testSaveMatchingConfigurationJsonProcessingException() throws Exception {
+        // Setup
+        RestClient mockRestClient = mock(RestClient.class);
+        NamedParameterJdbcTemplate mockTemplate = mock(NamedParameterJdbcTemplate.class);
+        AlgorithmService service = new AlgorithmService(mockRestClient, mockTemplate);
+        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+
+        MatchingConfigRequest request = new MatchingConfigRequest("Test Label", "Test Description", true, true, List.of());
+
+        // Simulate JsonProcessingException
+        doThrow(JsonProcessingException.class).when(mockObjectMapper).writeValueAsString(any());
+
+        // Act & Assert
+        assertDoesNotThrow(() -> service.saveMatchingConfiguration(request));
+    }
+
+    @Test
+    void testGetMatchingConfigurationEmptyResultDataAccessException() throws Exception {
+        // Setup
+        RestClient mockRestClient = mock(RestClient.class);
+        NamedParameterJdbcTemplate mockTemplate = mock(NamedParameterJdbcTemplate.class);
+        AlgorithmService service = new AlgorithmService(mockRestClient, mockTemplate);
+
+        // Simulate EmptyResultDataAccessException
+        when(mockTemplate.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class)))
+                .thenThrow(new EmptyResultDataAccessException(1));
+
+        // Act & Assert
+        assertNull(service.getMatchingConfiguration());
+    }
+
+    @Test
+    void testUpdateAlgorithmJsonProcessingException() throws Exception {
+        // Setup
+        RestClient mockRestClient = mock(RestClient.class);
+        NamedParameterJdbcTemplate mockTemplate = mock(NamedParameterJdbcTemplate.class);
+        AlgorithmService service = new AlgorithmService(mockRestClient, mockTemplate);
+        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+
+        // Provide a valid MatchingConfigRequest with a non-empty 'passes' list and valid 'blockingCriteria'
+        Pass pass1 = new Pass("TestPass", "Description", "0.1", "0.9",
+                List.of(new BlockingCriteria(new Field("someField", "fieldName"), new Method("someMethod", "matcher"))), // Non-empty blockingCriteria with two String arguments
+                List.of());
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label", "Test Description", true, true, List.of(pass1)
+        );
+
+        // Simulate JsonProcessingException
+        doThrow(JsonProcessingException.class).when(mockObjectMapper).writeValueAsString(any());
+
+        // Act & Assert: Expect the JsonProcessingException to be thrown
+        assertDoesNotThrow(() -> service.updateAlgorithm(request));
+    }
+
+
+
+    @Test
+    void testUpdateAlgorithmGeneralException() throws Exception {
+        // Setup
+        RestClient mockRestClient = mock(RestClient.class);
+        NamedParameterJdbcTemplate mockTemplate = mock(NamedParameterJdbcTemplate.class);
+        AlgorithmService service = new AlgorithmService(mockRestClient, mockTemplate);
+
+        // Provide an empty 'passes' list to trigger the IllegalArgumentException
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label", "Test Description", true, true, List.of()
+        );
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> service.updateAlgorithm(request), "Passes cannot be null or empty");
+    }
+
 
 
 
