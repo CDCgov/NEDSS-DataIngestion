@@ -44,12 +44,13 @@ public class AlgorithmService {
     public void saveMatchingConfiguration(MatchingConfigRequest request) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
+            // Attempt to serialize the request
             String jsonConfig = objectMapper.writeValueAsString(request);
             String sql = "INSERT INTO match_configuration (configuration) VALUES (:configuration)";
             SqlParameterSource params = new MapSqlParameterSource().addValue("configuration", jsonConfig);
+
             template.update(sql, params);
         } catch (JsonProcessingException e) {
-            // Log the error with relevant context
             log.error("Failed to convert MatchingConfigRequest to JSON for label: {}", request.getLabel(), e);
         } catch (Exception e) {
             log.error("Unexpected error while saving matching configuration", e);

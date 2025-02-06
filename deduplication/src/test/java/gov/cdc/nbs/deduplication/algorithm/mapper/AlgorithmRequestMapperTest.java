@@ -62,7 +62,7 @@ class AlgorithmRequestMapperTest {
         matchingCriteria.setField(matchingField);
 
         Method matchingMethod = new Method();
-        matchingMethod.setValue("func:recordlinker.linking.matchers.compare_fuzzy_match"); // Set valid method value
+        matchingMethod.setValue("jarowinkler"); // Set valid method value
         matchingCriteria.setMethod(matchingMethod);
 
         pass.setMatchingCriteria(List.of(matchingCriteria)); // Add matching criteria
@@ -90,7 +90,7 @@ class AlgorithmRequestMapperTest {
                 "criteria are required, the Log-Odds algorithm is detailed below.", request.getDescription());
         assertTrue(request.isDefault());
         assertTrue(request.isIncludeMultipleMatches());
-        assertArrayEquals(new Double[]{0.0, 1.0}, request.getBelongingnessRatio());
+        assertArrayEquals(new Double[]{0.1, 0.9}, request.getBelongingnessRatio());
 
         // Verify passes are correctly mapped
         assertNotNull(request.getPasses());
@@ -100,13 +100,13 @@ class AlgorithmRequestMapperTest {
         // Verify blocking keys
         assertNotNull(algorithmPass.getBlockingKeys());
         assertEquals(1, algorithmPass.getBlockingKeys().size());  // Only 1 blocking key in this case
-        assertEquals("Date of birth", algorithmPass.getBlockingKeys().get(0));  // Verify field mapping
+        assertEquals("BIRTHDATE", algorithmPass.getBlockingKeys().get(0));  // Verify field mapping
 
         // Verify evaluator mapping
         assertNotNull(algorithmPass.getEvaluators());
         assertEquals(1, algorithmPass.getEvaluators().size());
         Evaluator evaluator = algorithmPass.getEvaluators().get(0);
-        assertEquals("First name", evaluator.getFeature());  // Corrected to getFeature()
+        assertEquals("FIRST_NAME", evaluator.getFeature());  // Corrected to getFeature()
         assertEquals("func:recordlinker.linking.matchers.compare_fuzzy_match", evaluator.getFunc());
     }
 
