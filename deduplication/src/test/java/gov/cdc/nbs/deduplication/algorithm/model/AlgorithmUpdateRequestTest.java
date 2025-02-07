@@ -169,4 +169,30 @@ class AlgorithmUpdateRequestTest {
         assertNotNull(request.passes());
         assertEquals(1, request.passes().size());
     }
+
+    @Test
+    void testEqualsAndHashCode_withNullFields() {
+        AlgorithmUpdateRequest request1 = new AlgorithmUpdateRequest(
+                null, // null label
+                null, // null description
+                true,
+                true,
+                new Double[]{},
+                List.of()
+        );
+
+        AlgorithmUpdateRequest request2 = new AlgorithmUpdateRequest(
+                null, // null label
+                null, // null description
+                true,
+                true,
+                new Double[]{},
+                List.of()
+        );
+
+        // Verify that two objects with null fields are equal
+        assertEquals(request1, request2);
+        assertEquals(request1.hashCode(), request2.hashCode());
+    }
+
 }
