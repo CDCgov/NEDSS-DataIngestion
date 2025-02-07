@@ -1,9 +1,7 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration.BelongingnessRatio;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,48 +24,72 @@ class AlgorithmControllerTest {
 
     @Test
     void testConfigureMatching() {
-        // Create a List of Pass objects (dummy example, replace with actual Pass
-        // objects)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", List.of(), List.of()));
+        // Create a List of Pass objects (dummy example, replace with actual Pass objects)
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
 
         // Creating MatchingConfigRequest with the required parameters
-        MatchingConfiguration request = new MatchingConfiguration(
-                "Test Label", // String parameter (label)
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label",      // String parameter (label)
                 "Test Description", // String parameter (description)
-                true, // boolean parameter (isDefault)
-                passes, // List<Pass> parameter (passes)
-                new BelongingnessRatio(0.0, 1.0));
+                true,               // boolean parameter (isDefault)
+                true,               // boolean parameter (includeMultipleMatches)
+                passes              // List<Pass> parameter (passes)
+        );
 
         // Simulating the service method call
-        doNothing().when(algorithmService).save(request);
+        doNothing().when(algorithmService).configureMatching(request);
 
         // Call the controller method
-        algorithmController.save(request);
+        algorithmController.configureMatching(request);
 
         // Verify that the service method was called once with the request
-        verify(algorithmService, times(1)).save(request);
+        verify(algorithmService, times(1)).configureMatching(request);
     }
 
     @Test
     void testGetMatchingConfiguration() {
         // Create a List of Pass objects (dummy example)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", List.of(), List.of()));
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
 
         // Simulate the service method call
-        MatchingConfiguration expectedConfig = new MatchingConfiguration(
+        MatchingConfigRequest expectedConfig = new MatchingConfigRequest(
                 "Test Label",
                 "Test Description",
                 true,
-                passes,
-                new BelongingnessRatio(0.0, 1.0));
+                true,
+                passes
+        );
 
         when(algorithmService.getMatchingConfiguration()).thenReturn(expectedConfig);
 
         // Call the controller method
-        MatchingConfiguration actualConfig = algorithmController.getMatchingConfiguration();
+        MatchingConfigRequest actualConfig = algorithmController.getMatchingConfiguration();
 
         // Verify the returned configuration matches
         assertEquals(expectedConfig, actualConfig);
     }
 
+    @Test
+    void testUpdateAlgorithm() {
+        // Create a List of Pass objects (dummy example)
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
+
+        // Creating MatchingConfigRequest with the required parameters
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                passes
+        );
+
+        // Simulate the service method call
+        doNothing().when(algorithmService).updateDibbsConfigurations(request);
+
+        // Call the controller method
+        algorithmController.updateAlgorithm(request);
+
+        // Verify that the service method was called once with the request
+        verify(algorithmService, times(1)).updateDibbsConfigurations(request);
+    }
 }

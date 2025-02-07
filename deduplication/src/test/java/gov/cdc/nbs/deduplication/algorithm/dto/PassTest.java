@@ -14,11 +14,13 @@ class PassTest {
         BlockingCriteria blockingCriteria = new BlockingCriteria(field, method);
         MatchingCriteria matchingCriteria = new MatchingCriteria(new Field("LAST_NAME", "STRING"), new Method("exact", "matcher"));
 
-        Pass pass = new Pass("Test Name", "Test Description",
+        Pass pass = new Pass("Test Name", "Test Description", "0.1", "0.9",
                 List.of(blockingCriteria), List.of(matchingCriteria));
 
         assertEquals("Test Name", pass.name());
         assertEquals("Test Description", pass.description());
+        assertEquals("0.1", pass.lowerBound());
+        assertEquals("0.9", pass.upperBound());
         assertEquals(1, pass.blockingCriteria().size());
         assertEquals("STRING", pass.blockingCriteria().get(0).field().name());
         assertEquals("exact", pass.blockingCriteria().get(0).method().value());

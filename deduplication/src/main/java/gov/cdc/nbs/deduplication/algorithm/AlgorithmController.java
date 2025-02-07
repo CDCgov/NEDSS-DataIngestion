@@ -1,17 +1,12 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/deduplication/algorithm")
+@RequestMapping("/api/deduplication")
 public class AlgorithmController {
 
     private final AlgorithmService algorithmService;
@@ -22,19 +17,23 @@ public class AlgorithmController {
         this.algorithmService = algorithmService;
     }
 
-    @PutMapping()
-    public void save(@RequestBody MatchingConfiguration request) {
+    @PostMapping("/configure-matching")
+    public void configureMatching(@RequestBody MatchingConfigRequest request) {
         try {
             log.info("Received configure matching request: {}", request);
-            algorithmService.save(request);
+            algorithmService.configureMatching(request);
         } catch (Exception e) {
             log.error("Error while processing the configure matching request: ", e);
         }
     }
 
-    @GetMapping()
-    public MatchingConfiguration getMatchingConfiguration() {
+    @GetMapping("/matching-configuration")
+    public MatchingConfigRequest getMatchingConfiguration() {
         return algorithmService.getMatchingConfiguration();
     }
 
+    @PostMapping("/update-algorithm")
+    public void updateAlgorithm(@RequestBody MatchingConfigRequest request) {
+        algorithmService.updateDibbsConfigurations(request);
+    }
 }
