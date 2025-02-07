@@ -173,4 +173,27 @@ class MatchingConfigRequestTest {
         assertNotNull(request.passes());
         assertEquals(1, request.passes().size());
     }
+    @Test
+    void testEqualsWithNullPasses() {
+        MatchingConfigRequest request1 = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                null  // Null passes
+        );
+
+        MatchingConfigRequest request2 = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                null  // Null passes
+        );
+
+        // Verify that both objects with null passes are equal
+        assertEquals(request1, request2);
+        assertEquals(request1.hashCode(), request2.hashCode());
+    }
+
 }
