@@ -106,8 +106,6 @@ class AlgorithmServiceTest {
 
     @Test
     void testUpdateDibbsConfigurations() throws JsonProcessingException {
-
-        // Create a spy to verify calls to specific methods
         AlgorithmService spyAlgorithmService = spy(algorithmService);
 
         // Setup matching config request with valid blocking criteria

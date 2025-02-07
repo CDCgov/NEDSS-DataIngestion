@@ -111,7 +111,7 @@ class MatchingConfigRequestTest {
         );
 
         // Compare with null, should return false
-        assertNotEquals(request, null);
+        assertNotEquals(null, request);
     }
 
     @Test
