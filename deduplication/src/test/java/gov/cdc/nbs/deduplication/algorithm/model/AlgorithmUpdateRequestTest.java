@@ -38,8 +38,7 @@ class AlgorithmUpdateRequestTest {
     }
 
     @Test
-    void testNotEquals() {
-        // Creating sample AlgorithmUpdateRequest
+    void testNotEqualsWithDifferentValues() {
         AlgorithmUpdateRequest request1 = new AlgorithmUpdateRequest(
                 "Test Label",
                 "Test Description",
@@ -49,7 +48,7 @@ class AlgorithmUpdateRequestTest {
                 List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
         );
 
-        // Creating another AlgorithmUpdateRequest with a different value for `label`
+        // Different label
         AlgorithmUpdateRequest request2 = new AlgorithmUpdateRequest(
                 "Different Label",
                 "Test Description",
@@ -62,16 +61,70 @@ class AlgorithmUpdateRequestTest {
         // Verify that the two objects are not equal
         assertNotEquals(request1, request2);
 
-        // Check with a difference in `belongingnessRatio`
+        // Different belongingnessRatio
         AlgorithmUpdateRequest request3 = new AlgorithmUpdateRequest(
                 "Test Label",
                 "Test Description",
                 true,
                 true,
-                new Double[]{0.1, 0.9}, // Different ratio
+                new Double[]{0.1, 0.9},
                 List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
         );
         assertNotEquals(request1, request3);
+    }
+
+    @Test
+    void testEqualsWithDifferentClass() {
+        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        // Compare with an object of a different class
+        assertNotEquals(request, new Object());
+    }
+
+    @Test
+    void testEqualsWithNull() {
+        AlgorithmUpdateRequest request = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        // Compare with null, should return false
+        assertNotEquals(request, null);
+    }
+
+    @Test
+    void testHashCodeWithDifferentValues() {
+        AlgorithmUpdateRequest request1 = new AlgorithmUpdateRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        AlgorithmUpdateRequest request2 = new AlgorithmUpdateRequest(
+                "Different Label",
+                "Test Description",
+                true,
+                true,
+                new Double[]{0.0, 1.0},
+                List.of(new AlgorithmPass(List.of("FIRST_NAME"), List.of(), "rule", null))
+        );
+
+        // Verify that the hash codes are different for objects with different values
+        assertNotEquals(request1.hashCode(), request2.hashCode());
     }
 
     @Test

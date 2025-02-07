@@ -301,7 +301,7 @@ class AlgorithmServiceTest {
 
 
     @Test
-    void testUpdateAlgorithmGeneralException() throws Exception {
+    void testUpdateAlgorithmGeneralException(){
         // Setup
         RestClient mockRestClient = mock(RestClient.class);
         NamedParameterJdbcTemplate mockTemplate = mock(NamedParameterJdbcTemplate.class);
@@ -315,10 +315,5 @@ class AlgorithmServiceTest {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> service.updateAlgorithm(request), "Passes cannot be null or empty");
     }
-
-
-
-
-
 
 }
