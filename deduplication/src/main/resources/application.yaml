@@ -34,7 +34,7 @@ spring:
     allow-circular-references: true
 
 recordLinkage:
-  url: ${RECORD_LINKER_URL}
+  url: http://localhost:8080
 
 batch:
   chunk:
