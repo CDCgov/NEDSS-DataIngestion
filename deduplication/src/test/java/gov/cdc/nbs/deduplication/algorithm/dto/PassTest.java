@@ -9,7 +9,6 @@ class PassTest {
 
     @Test
     void testPass() {
-        // Assuming the Field constructor requires both name and type
         Field field = new Field("FIRST_NAME", "STRING");  // Pass both parameters
         Method method = new Method("exact", "matcher");  // Pass both parameters
         BlockingCriteria blockingCriteria = new BlockingCriteria(field, method);

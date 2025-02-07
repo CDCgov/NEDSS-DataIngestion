@@ -48,8 +48,6 @@ public class AlgorithmService {
             String sql = "INSERT INTO match_configuration (configuration) VALUES (:configuration)";
             SqlParameterSource params = new MapSqlParameterSource().addValue("configuration", jsonConfig);
             template.update(sql, params);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to convert MatchingConfigRequest to JSON for label: {}", request.label(), e);
         } catch (Exception e) {
             log.error("Unexpected error while saving matching configuration", e);
         }
@@ -60,7 +58,6 @@ public class AlgorithmService {
         try {
             String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
             if (jsonConfig == null || jsonConfig.isEmpty()) {
-                log.warn("No matching configuration found in database.");
                 return null;
             }
             ObjectMapper objectMapper = new ObjectMapper();
