@@ -1,60 +1,73 @@
 package gov.cdc.nbs.deduplication.algorithm.mapper;
 
-import gov.cdc.nbs.deduplication.algorithm.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import gov.cdc.nbs.deduplication.algorithm.dto.BlockingCriteria;
+import gov.cdc.nbs.deduplication.algorithm.dto.Field;
+import gov.cdc.nbs.deduplication.algorithm.dto.MatchingCriteria;
+import gov.cdc.nbs.deduplication.algorithm.dto.Method;
+import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmUpdateRequest;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.List;
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration.BelongingnessRatio;
 
 class AlgorithmRequestMapperTest {
 
     @Test
     void testMapField() {
         // Test known field mappings
-        assertEquals("FIRST_NAME", AlgorithmRequestMapper.mapField("First name"));
-        assertEquals("LAST_NAME", AlgorithmRequestMapper.mapField("Last name"));
+        assertThat(AlgorithmRequestMapper.mapField("First name")).isEqualTo("FIRST_NAME");
+        assertThat(AlgorithmRequestMapper.mapField("Last name")).isEqualTo("LAST_NAME");
 
         // Test unknown field (should return original value)
-        assertEquals("Unknown field", AlgorithmRequestMapper.mapField("Unknown field"));
+        assertThat(AlgorithmRequestMapper.mapField("Unknown field")).isEqualTo("Unknown field");
     }
 
     @Test
     void testMapFunc() {
         // Test known function mappings
-        assertEquals("func:recordlinker.linking.matchers.compare_fuzzy_match", AlgorithmRequestMapper.mapFunc("jarowinkler"));
-        assertEquals("func:recordlinker.linking.matchers.compare_match_any", AlgorithmRequestMapper.mapFunc("compare_match_any"));
+        assertThat(AlgorithmRequestMapper.mapFunc("jarowinkler"))
+                .isEqualTo("func:recordlinker.linking.matchers.compare_fuzzy_match");
+        assertThat(AlgorithmRequestMapper.mapFunc("compare_match_any"))
+                .isEqualTo("func:recordlinker.linking.matchers.compare_match_any");
 
         // Test unknown function (should return original value)
-        assertEquals("unknown_func", AlgorithmRequestMapper.mapFunc("unknown_func"));
+        assertThat(AlgorithmRequestMapper.mapFunc("unknown_func")).isEqualTo("unknown_func");
     }
 
     @Test
     void testMapToAlgorithmRequest() {
         // Mocking the MatchingConfiguration with relevant values
         MatchingConfiguration config = new MatchingConfiguration(
-                1L, // id
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("Pass 1", "Description", "0.1", "0.9",
-                        List.of(new BlockingCriteria(new Field("FIRST_NAME", "STRING"), new Method("exact", "matcher"))),
-                        List.of(new MatchingCriteria(new Field("LAST_NAME", "STRING"), new Method("exact", "matcher"))))),
-                new Double[]{0.1, 0.9}
-        );
+                List.of(new Pass("Pass 1", "Description",
+                        List.of(new BlockingCriteria(new Field("FIRST_NAME", "STRING"),
+                                new Method("exact", "matcher"))),
+                        List.of(new MatchingCriteria(new Field("LAST_NAME", "STRING"),
+                                new Method("exact", "matcher"))))),
+                new BelongingnessRatio(0.1, 0.9));
 
         // Calling the mapToAlgorithmRequest method from AlgorithmRequestMapper
         AlgorithmUpdateRequest algorithmUpdateRequest = AlgorithmRequestMapper.mapToAlgorithmRequest(config);
 
         // Assertions to verify the values have been correctly mapped
-        assertEquals("dibbs-enhanced", algorithmUpdateRequest.label());
-        assertEquals("The DIBBs Log-Odds Algorithm. This optional algorithm uses statistical correction to adjust the links between incoming " +
-                "records and previously processed patients...", algorithmUpdateRequest.description());
-        assertTrue(algorithmUpdateRequest.isDefault());
-        assertNotNull(algorithmUpdateRequest.passes());
-        assertEquals(1, algorithmUpdateRequest.passes().size()); // Verifying that the pass list has one entry
-
+        assertThat(algorithmUpdateRequest.label()).isEqualTo("dibbs-enhanced");
+        assertThat(algorithmUpdateRequest.description()).isEqualTo(
+                "The DIBBs Log-Odds Algorithm. This optional algorithm uses statistical correction to adjust the links between incoming "
+                        +
+                        "records and previously processed patients...");
+        assertThat(algorithmUpdateRequest.isDefault()).isTrue();
+        assertThat(algorithmUpdateRequest.passes()).isNotNull();
+        assertThat(algorithmUpdateRequest.passes()).hasSize(1); // Verifying that the pass list has one entry
         // Verify the belongingnessRatio is set correctly
-        assertArrayEquals(new Double[]{0.1, 0.9}, algorithmUpdateRequest.belongingnessRatio());
+        assertThat(algorithmUpdateRequest.belongingnessRatio()).isEqualTo(new Double[] { 0.1, 0.9 });
+
     }
+
 }

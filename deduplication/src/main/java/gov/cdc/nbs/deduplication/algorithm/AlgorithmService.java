@@ -7,8 +7,9 @@ import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmRequestMapper;
 import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmUpdateRequest;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration.BelongingnessRatio;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,21 +27,24 @@ import java.util.List;
 public class AlgorithmService {
     private final RestClient recordLinkageClient;
     private final NamedParameterJdbcTemplate template;
+    private final ObjectMapper mapper;
     private static final Logger log = LoggerFactory.getLogger(AlgorithmService.class);
 
     public AlgorithmService(
             @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient,
-            @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+            @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
+            final ObjectMapper mapper) {
         this.recordLinkageClient = recordLinkageClient;
         this.template = template;
+        this.mapper = mapper;
     }
 
-    public void configureMatching(MatchingConfigRequest request) {
+    public void save(MatchingConfiguration request) {
         saveMatchingConfiguration(request);
         updateAlgorithm(request);
     }
 
-    public void saveMatchingConfiguration(MatchingConfigRequest request) {
+    public void saveMatchingConfiguration(MatchingConfiguration request) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String jsonConfig = objectMapper.writeValueAsString(request);
@@ -52,7 +56,7 @@ public class AlgorithmService {
         }
     }
 
-    public MatchingConfigRequest getMatchingConfiguration() {
+    public MatchingConfiguration getMatchingConfiguration() {
         String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
 
         // Let the exception propagate
@@ -62,20 +66,12 @@ public class AlgorithmService {
             return null;
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
-            return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
+            return mapper.readValue(jsonConfig, MatchingConfiguration.class);
         } catch (Exception e) {
             log.error("Error retrieving matching configuration", e);
             return null;
         }
-    }
-
-
-    public void updateDibbsConfigurations(MatchingConfigRequest configRequest) {
-        setDibbsBasicToFalse();
-        updateAlgorithm(configRequest);
     }
 
     public void setDibbsBasicToFalse() {
@@ -88,14 +84,13 @@ public class AlgorithmService {
                             "while minimizing false positives",
                     false,
                     true,
-                    new Double[]{0.0, 1.0},
+                    new Double[] { 0.0, 1.0 },
                     List.of(new AlgorithmPass(
                             List.of("BIRTHDATE", "ADDRESS", "ZIP"),
-                            List.of(new Evaluator("FIRST_NAME", "func:recordlinker.linking.matchers.compare_fuzzy_match")),
+                            List.of(new Evaluator("FIRST_NAME",
+                                    "func:recordlinker.linking.matchers.compare_fuzzy_match")),
                             "func:recordlinker.linking.matchers.rule_match",
-                            new HashMap<>()
-                    ))
-            );
+                            new HashMap<>())));
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonRequest = objectMapper.writeValueAsString(updateRequest);
@@ -117,35 +112,31 @@ public class AlgorithmService {
         }
     }
 
-    public void updateAlgorithm(MatchingConfigRequest configRequest) {
+    public void updateAlgorithm(MatchingConfiguration configRequest) {
         if (configRequest.passes() == null || configRequest.passes().isEmpty()) {
             throw new IllegalArgumentException("Passes cannot be null or empty");
+        }
+
+        if (configRequest.belongingnessRatio() == null
+                || configRequest.belongingnessRatio().lower() == null
+                || configRequest.belongingnessRatio().upper() == null) {
+            throw new IllegalArgumentException(
+                    "Invalid bounds values: lowerBound and upperBound must be valid numbers");
         }
 
         for (Pass pass : configRequest.passes()) {
             if (pass.blockingCriteria() == null || pass.blockingCriteria().isEmpty()) {
                 throw new IllegalArgumentException("Blocking criteria cannot be null or empty");
             }
-
-            // Validate bounds for each pass
-            try {
-                Double.parseDouble(pass.lowerBound());
-                Double.parseDouble(pass.upperBound());
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid bounds values: lowerBound and upperBound must be valid numbers", e);
-            }
         }
 
         AlgorithmUpdateRequest algorithmRequest = AlgorithmRequestMapper.mapToAlgorithmRequest(
                 new MatchingConfiguration(
-                        null,
                         configRequest.label(),
                         configRequest.description(),
                         configRequest.isDefault(),
                         configRequest.passes(),
-                        new Double[]{0.0, 1.0}
-                )
-        );
+                        new BelongingnessRatio(0.0, 1.0)));
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
