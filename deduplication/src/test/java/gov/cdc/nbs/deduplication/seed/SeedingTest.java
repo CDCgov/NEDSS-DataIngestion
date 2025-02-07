@@ -1,24 +1,42 @@
 package gov.cdc.nbs.deduplication.seed;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
@@ -90,6 +108,28 @@ class SeedingTest {
 
   @Autowired
   private ObjectMapper mapper;
+
+  @Mock
+  private JobLauncher launcher;
+
+  @Mock
+  private Job seedJob;
+
+  @Mock
+  private NamedParameterJdbcTemplate deduplicationNamedJdbcTemplate;
+
+  @Mock
+  private NamedParameterJdbcTemplate nbsNamedJdbcTemplate;
+
+  @InjectMocks
+  private SeedController seedController;
+
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
+
+
 
   @Test
   void seedMpiTest(@Autowired Job seedJob) throws Exception {
@@ -175,6 +215,340 @@ class SeedingTest {
     public RowCount mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
       return new RowCount(rs.getInt("unique_persons"), rs.getInt("total_records"));
     }
+  }
+
+  @Test
+  void startSeed_firstRun() throws Exception {
+    // Mock behavior for the first run (lastProcessedId is null)
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);
+
+    // Mock the minimum person_uid
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(5L);
+
+    // Mock the maximum person_uid
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(100L);
+
+    // Verify the parameters passed to the job launcher
+    doAnswer(invocation -> {
+      JobParameters parameters = invocation.getArgument(1);
+      Long lastProcessedIdParam = parameters.getLong("lastProcessedId");
+
+      // Assert lastProcessedId is correctly set and is not null
+      Assertions.assertNotNull(lastProcessedIdParam, "lastProcessedId should not be null");
+      Assertions.assertEquals(Long.valueOf(5L), lastProcessedIdParam, "lastProcessedId should be 5");
+
+      return null;
+    }).when(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    // Call the method
+    seedController.startSeed();
+
+    // Verify the minimum person_uid query was called
+    verify(nbsNamedJdbcTemplate).queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class)
+    );
+
+    // Verify the job launcher was called with the correct parameters
+    verify(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    // Verify the last_processed_id was updated
+    verify(deduplicationNamedJdbcTemplate).update(
+            eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"),
+            anyMap()
+    );
+  }
+
+  @Test
+  void startSeed_subsequentRun() throws Exception {
+    // Mock behavior for a subsequent run (lastProcessedId exists)
+    when(deduplicationNamedJdbcTemplate.queryForObject(eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"), any(HashMap.class), eq(Long.class)))
+            .thenReturn(100L); // Existing lastProcessedId
+    when(nbsNamedJdbcTemplate.queryForObject(eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"), any(HashMap.class), eq(Long.class)))
+            .thenReturn(200L); // Largest processed ID
+
+    // Mock the job launcher
+    doNothing().when(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    // Call the method
+    seedController.startSeed();
+
+    // Verify the lastProcessedId is fetched
+    verify(deduplicationNamedJdbcTemplate).queryForObject(eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"), any(HashMap.class), eq(Long.class));
+
+    // Verify the job launcher is invoked with the correct parameters
+    verify(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    // Verify the largestProcessedId is updated
+    verify(deduplicationNamedJdbcTemplate).update(eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"), any(HashMap.class));
+  }
+
+  @Test
+  void startSeed_invalidSqlQueryForLastProcessedId() throws Exception {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new SQLException("Database error"));
+
+    Assertions.assertThrows(SQLException.class, () -> seedController.startSeed());
+  }
+
+  @Test
+  void startSeed_noDataInNbs() throws Exception {
+    // Mock behavior for the first run (lastProcessedId is null)
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);
+
+    // Mock that there are no records in NBS
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // No records in NBS
+
+    // Verify that the job does not proceed or handles the case
+    doNothing().when(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    seedController.startSeed();
+
+    // Verify that no seeding job is run if no data is available
+    verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+
+  @Test
+  void startSeed_lastProcessedIdGreaterThanMaxPersonId() throws Exception {
+    // Mock behavior for a subsequent run
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(100L);  // Last processed ID greater than any person_uid in the NBS table
+
+    // Mock the max person_uid from NBS as smaller than lastProcessedId
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null); // No records with person_uid greater than 100
+
+    // Verify the job is not launched because no records are available for seeding
+    verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+
+  @Test
+  void testGetLastProcessedId_whenNoRecordFound_returnsNull() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new EmptyResultDataAccessException(1)); // Simulate no record found
+
+    Long result = seedController.getLastProcessedId();
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testGetSmallestPersonId_whenSuccess_returnsSmallestPersonId() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(1L); // Simulate successful query
+
+    Long result = seedController.getSmallestPersonId();
+    assertThat(result).isEqualTo(1L);
+  }
+
+  @Test
+  void testGetLargestProcessedId_whenNoLastProcessedId_returnsNull() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null); // Simulate no last processed id
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testUpdateLastProcessedId_whenSuccess_updatesLastProcessedId() {
+    doReturn(1).when(deduplicationNamedJdbcTemplate).update(anyString(), anyMap()); // Simulate successful update
+
+    seedController.updateLastProcessedId(10L);
+
+    verify(deduplicationNamedJdbcTemplate).update(
+            eq("UPDATE last_processed_id SET last_processed_id = :largestProcessedId WHERE id = 1"),
+            anyMap());
+  }
+
+  @Test
+  void testStartSeed_withBoundaryLastProcessedId() throws Exception {
+    // Mock behavior for boundary value of lastProcessedId (max possible value)
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(Long.MAX_VALUE);  // Set lastProcessedId to max value
+
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // No records with person_uid greater than Long.MAX_VALUE
+
+    // Verify the job does not run since no records are found
+    verify(launcher, never()).run(eq(seedJob), any(JobParameters.class));
+  }
+
+  @Test
+  void testStartSeed_whenJobLauncherIsNotAvailable_throwsException() {
+    // Simulate missing JobLauncher
+    seedController = new SeedController(null, seedJob, deduplicationNamedJdbcTemplate, nbsNamedJdbcTemplate);
+
+    assertThatThrownBy(() -> seedController.startSeed())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("launcher");
+  }
+
+  @Test
+  void testStartSeed_whenSeedJobIsNotAvailable_throwsException() {
+    // Simulate missing SeedJob
+    seedController = new SeedController(launcher, null, deduplicationNamedJdbcTemplate, nbsNamedJdbcTemplate);
+
+    assertThatThrownBy(() -> seedController.startSeed())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("seedJob");
+  }
+
+  @Test
+  void testGetLargestProcessedId_NoProcessedId() {
+    when(nbsNamedJdbcTemplate.queryForObject(anyString(), any(HashMap.class), eq(Long.class)))
+            .thenReturn(null); // simulate no processed records
+
+    Long result = seedController.getLargestProcessedId();
+    assertNull(result, "Should return null if no records are processed yet");
+  }
+
+  @Test
+  void testGetLargestProcessedId_whenSuccess_returnsLargestProcessedId() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(5L); // Simulate existing lastProcessedId of 5
+
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(10L); // Simulate largestProcessedId retrieval
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isEqualTo(10L);
+  }
+
+  @Test
+  void testGetSmallestPersonId_whenFailure_throwsException() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new DataAccessException("Database error") {});
+
+    assertThatThrownBy(() -> seedController.getSmallestPersonId())
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Could not retrieve the smallest person ID from the nbs.person table.");
+  }
+
+  @Test
+  void testUpdateLastProcessedId_whenUpdateFails_throwsException() {
+    doThrow(new DataAccessException("Update failed") {}).when(deduplicationNamedJdbcTemplate).update(anyString(), anyMap());
+
+    assertThatThrownBy(() -> seedController.updateLastProcessedId(10L))
+            .isInstanceOf(DataAccessException.class)
+            .hasMessageContaining("Update failed");
+  }
+
+  @Test
+  void testGetLastProcessedId_whenRecordFound_returnsLastProcessedId() {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(100L); // Simulate a record being found
+
+    Long result = seedController.getLastProcessedId();
+    assertThat(result).isEqualTo(100L);
+  }
+
+  @Test
+  void testGetSmallestPersonId_whenNoRecordsFound_returnsNull() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MIN(person_uid) FROM person"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // Simulate no records in NBS
+
+    Long result = seedController.getSmallestPersonId();
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testGetLargestProcessedId_whenNoProcessedRecords_returnsNull() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);  // Simulate no processed records
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void startSeed_jobExecutionFails_throwsJobExecutionException() throws Exception {
+    when(deduplicationNamedJdbcTemplate.queryForObject(
+            eq("SELECT last_processed_id FROM last_processed_id WHERE id = 1"),
+            anyMap(),
+            eq(Long.class))
+    ).thenReturn(null);
+
+    doThrow(new JobExecutionAlreadyRunningException("Job already running"))
+            .when(launcher).run(eq(seedJob), any(JobParameters.class));
+
+    assertThatThrownBy(() -> seedController.startSeed())
+            .isInstanceOf(JobExecutionAlreadyRunningException.class)
+            .hasMessageContaining("Job already running");
+  }
+
+  @Test
+  void testGetLargestProcessedId_whenQueryFails_returnsNull() {
+    when(nbsNamedJdbcTemplate.queryForObject(
+            eq("SELECT MAX(person_uid) FROM person WHERE person_uid > :lastProcessedId"),
+            anyMap(),
+            eq(Long.class))
+    ).thenThrow(new DataAccessException("Database error") {});
+
+    Long result = seedController.getLargestProcessedId();
+    assertThat(result).isNull();
   }
 
 }

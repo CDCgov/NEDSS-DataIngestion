@@ -7,6 +7,18 @@ GO
 USE [deduplication];
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'last_processed_id')
+BEGIN
+CREATE TABLE last_processed_id (
+                                   id BIGINT PRIMARY KEY,
+                                   last_processed_id BIGINT
+);
+
+-- Insert default row with id = 1 and last_processed_id = NULL
+INSERT INTO last_processed_id (id, last_processed_id)
+VALUES (1, NULL);
+END
+GO
 
 CREATE TABLE data_element_configuration (
 	id int IDENTITY (1,1) PRIMARY KEY,

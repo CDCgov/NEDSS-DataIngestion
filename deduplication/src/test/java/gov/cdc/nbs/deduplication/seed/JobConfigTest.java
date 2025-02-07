@@ -15,6 +15,8 @@ import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
 import gov.cdc.nbs.deduplication.seed.step.MpiReader;
 import gov.cdc.nbs.deduplication.seed.step.PersonReader;
 import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
+import gov.cdc.nbs.deduplication.seed.listener.LastProcessedIdListener;
+
 
 @ExtendWith(MockitoExtension.class)
 class JobConfigTest {
@@ -30,13 +32,15 @@ class JobConfigTest {
   private JobRepository jobRepository;
   @Mock
   private PlatformTransactionManager transactionManager;
+  @Mock
+  private LastProcessedIdListener listener;
 
   @Test
   void buildsValidConfig() {
     JobConfig config = new JobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
     assertThat(config).isNotNull();
 
-    Job seedJob = config.seedJob(jobRepository, null, null);
+    Job seedJob = config.seedJob(jobRepository, null, null, listener);
     assertThat(seedJob).isNotNull();
 
   }
