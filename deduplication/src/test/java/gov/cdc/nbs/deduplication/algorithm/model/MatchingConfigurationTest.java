@@ -175,4 +175,87 @@ class MatchingConfigurationTest {
         assertEquals(1, config.passes().size());
         assertArrayEquals(new Double[]{0.0, 1.0}, config.belongingnessRatio());
     }
+
+    @Test
+    void testEqualsWithNullBelongingnessRatio() {
+        MatchingConfiguration config1 = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                null  // belongingnessRatio is null
+        );
+
+        MatchingConfiguration config2 = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                null  // belongingnessRatio is also null
+        );
+
+        assertEquals(config1, config2);  // Should be equal as both have null belongingnessRatio
+
+        MatchingConfiguration config3 = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                new Double[]{0.0, 1.0}  // belongingnessRatio is not null
+        );
+
+        assertNotEquals(config1, config3);  // Should not be equal because belongingnessRatio is different
+    }
+
+    @Test
+    void testEqualsWithNullPasses() {
+        MatchingConfiguration config1 = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                null,  // passes is null
+                new Double[]{0.0, 1.0}
+        );
+
+        MatchingConfiguration config2 = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                null,  // passes is null
+                new Double[]{0.0, 1.0}
+        );
+
+        assertEquals(config1, config2);  // Should be equal because both have null passes
+
+        MatchingConfiguration config3 = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                new Double[]{0.0, 1.0}
+        );
+
+        assertNotEquals(config1, config3);  // Should not be equal because passes is different (null vs non-null)
+    }
+
+    @Test
+    void testEqualsWithIdenticalObjects() {
+        MatchingConfiguration config = new MatchingConfiguration(
+                1L,
+                "Test Label",
+                "Test Description",
+                true,
+                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                new Double[]{0.0, 1.0}
+        );
+
+        // Should be equal because it's the same object
+        assertEquals(config, config);
+    }
 }
