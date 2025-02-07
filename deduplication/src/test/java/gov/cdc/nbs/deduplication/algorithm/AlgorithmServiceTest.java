@@ -106,8 +106,6 @@ class AlgorithmServiceTest {
 
     @Test
     void testUpdateDibbsConfigurations() throws JsonProcessingException {
-        // Create the actual AlgorithmService instance
-        AlgorithmService algorithmService = new AlgorithmService(recordLinkageClient, template);
 
         // Create a spy to verify calls to specific methods
         AlgorithmService spyAlgorithmService = spy(algorithmService);
