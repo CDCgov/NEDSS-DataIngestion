@@ -335,4 +335,33 @@ class AlgorithmServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.updateAlgorithm(request), "Passes cannot be null or empty");
     }
 
+    @Test
+    void testGetMatchingConfiguration_HandleGeneralException() throws Exception {
+        // Setup
+        RestClient mockRestClient = mock(RestClient.class);
+        NamedParameterJdbcTemplate mockTemplate = mock(NamedParameterJdbcTemplate.class);
+        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+
+        // Create the service with mocked dependencies
+        AlgorithmService service = new AlgorithmService(mockRestClient, mockTemplate);
+
+        // Simulate the SQL query returning a valid JSON string
+        String mockJsonConfig = "{\"label\": \"testLabel\"}";
+        when(mockTemplate.queryForObject(anyString(), any(SqlParameterSource.class), eq(String.class)))
+                .thenReturn(mockJsonConfig);
+
+        // Simulate ObjectMapper.readValue() throwing an exception
+        when(mockObjectMapper.readValue(anyString(), eq(MatchingConfigRequest.class)))
+                .thenThrow(new RuntimeException("Unexpected error during deserialization"));
+
+        // Act
+        MatchingConfigRequest result = service.getMatchingConfiguration();
+
+        // Verify that the result is a MatchingConfigRequest object with default values
+        MatchingConfigRequest expected = new MatchingConfigRequest("testLabel", null, false, false, null);
+        assertEquals(expected, result);
+
+    }
+
+
 }

@@ -12,7 +12,6 @@ import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -55,21 +54,23 @@ public class AlgorithmService {
 
     public MatchingConfigRequest getMatchingConfiguration() {
         String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
-        try {
-            String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
-            if (jsonConfig == null || jsonConfig.isEmpty()) {
-                return null;
-            }
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
-        } catch (EmptyResultDataAccessException e) {
-            log.warn("No matching configuration found in database.");
-            return null;
-        } catch (Exception e) {
-            log.error("Error retrieving matching configuration", e);
+
+        // Let the exception propagate
+        String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
+
+        if (jsonConfig == null || jsonConfig.isEmpty()) {
             return null;
         }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
+        } catch (Exception e) {
+            log.error("Error retrieving matching configuration", e);
+        }
     }
+
 
     public void updateDibbsConfigurations(MatchingConfigRequest configRequest) {
         setDibbsBasicToFalse();
