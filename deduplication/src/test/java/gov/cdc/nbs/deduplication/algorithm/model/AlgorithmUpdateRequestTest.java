@@ -142,7 +142,7 @@ class AlgorithmUpdateRequestTest {
         // Expected string representation of the object
         String expectedString = "AlgorithmUpdateRequest {label = Test Label, description = Test Description, " +
                 "is_default = true, include_multiple_matches = true, " +
-                "belongingness_ratio = [0.0, 1.0], passes = [AlgorithmPass(blockingKeys=[FIRST_NAME], evaluators=[], rule=rule, kwargs=null)]}";
+                "belongingness_ratio = [0.0, 1.0], passes = [AlgorithmPass[blockingKeys=[FIRST_NAME], evaluators=[], rule=rule, kwargs=null]]}";
 
         // Verify the toString method
         assertEquals(expectedString, request.toString());
