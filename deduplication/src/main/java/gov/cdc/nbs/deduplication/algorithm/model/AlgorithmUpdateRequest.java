@@ -14,12 +14,13 @@ public record AlgorithmUpdateRequest(
         @JsonProperty("is_default") boolean isDefault,
         @JsonProperty("include_multiple_matches") boolean includeMultipleMatches,
         @JsonProperty("belongingness_ratio") Double[] belongingnessRatio,
-        @JsonProperty("passes") List<AlgorithmPass> passes
-) {
+        @JsonProperty("passes") List<AlgorithmPass> passes) {
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         AlgorithmUpdateRequest that = (AlgorithmUpdateRequest) o;
         return isDefault == that.isDefault &&
                 includeMultipleMatches == that.includeMultipleMatches &&
@@ -38,13 +39,13 @@ public record AlgorithmUpdateRequest(
 
     @Override
     public String toString() {
-        return "AlgorithmUpdateRequest {"+
+        return "AlgorithmUpdateRequest {" +
                 "label = " + label +
-                "description = " + description +
-                "is_default = " + isDefault +
-                "include_multiple_matches = " + includeMultipleMatches +
-                "belongingness_ratio = " + Arrays.toString(belongingnessRatio) +
-                "passes = " + passes +
+                ", description = " + description +
+                ", is_default = " + isDefault +
+                ", include_multiple_matches = " + includeMultipleMatches +
+                ", belongingness_ratio = " + Arrays.toString(belongingnessRatio) +
+                ", passes = " + passes +
                 "}";
 
     }

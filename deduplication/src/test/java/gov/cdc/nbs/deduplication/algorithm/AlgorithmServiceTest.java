@@ -291,7 +291,7 @@ class AlgorithmServiceTest {
                 .thenThrow(new EmptyResultDataAccessException(1));
 
         // Act & Assert
-        assertNull(service.getMatchingConfiguration());
+        assertThrows(EmptyResultDataAccessException.class, service::getMatchingConfiguration);
     }
 
     @Test
