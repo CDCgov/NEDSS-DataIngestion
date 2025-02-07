@@ -68,6 +68,7 @@ public class AlgorithmService {
             return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
         } catch (Exception e) {
             log.error("Error retrieving matching configuration", e);
+            return null;
         }
     }
 
