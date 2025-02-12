@@ -30,11 +30,18 @@ spring:
       username: ${MPI_DB_USERNAME}
       password: ${MPI_DB_PASSWORD}
 
+  main:
+    allow-circular-references: true
+
 recordLinkage:
-  url: ${RECORD_LINKER_URL}
+  url: http://localhost:8080
 
 batch:
   chunk:
     size:
-      step1: 100
-      step2: 1000
+      readNbsWriteToMpi: 100
+      readMpiWriteDeduplication: 1000
+      deduplicationStep: 100
+  job:
+    schedule:
+      cron: "0 0 1 * * ?"  # run daily at 1 AM

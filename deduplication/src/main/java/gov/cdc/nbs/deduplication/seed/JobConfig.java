@@ -27,10 +27,10 @@ public class JobConfig {
   final MpiReader mpiReader;
   final DeduplicationWriter deduplicationWriter;
 
-  @Value("${batch.chunk.size.step1:100}") // Default value is 100
+  @Value("${batch.chunk.size.readNbsWriteToMpi:100}")
   private int step1ChunkSize;
 
-  @Value("${batch.chunk.size.step2:1000}") // Default value for step2
+  @Value("${batch.chunk.size.readMpiWriteDeduplication:1000}")
   private int step2ChunkSize;
 
   public JobConfig(

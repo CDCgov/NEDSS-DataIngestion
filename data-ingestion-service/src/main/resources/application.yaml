@@ -30,6 +30,10 @@ auth:
   token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
   introspect-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token/introspect
 
+ecr:
+  processing:
+    batchSize: 100 # How many records are processed at a time
+    interval: 3000 # How often (in milliseconds) the database is queried for records to process
 ---
 spring:
   config:

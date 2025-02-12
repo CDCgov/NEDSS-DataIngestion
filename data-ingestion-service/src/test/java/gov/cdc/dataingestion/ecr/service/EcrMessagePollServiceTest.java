@@ -15,13 +15,10 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+
+import java.util.ArrayList;
+import java.util.List;
+
 class EcrMessagePollServiceTest {
 
     @Mock
@@ -48,9 +45,9 @@ class EcrMessagePollServiceTest {
     void testFetchMessageContainerDataWithValidResult() throws EcrCdaXmlException {
         EcrSelectedRecord mockRecord = mock(EcrSelectedRecord.class);
         when(mockRecord.getMsgContainer()).thenReturn(ecrMsgContainerDto);
-        when(mockRecord.getMsgContainer().getNbsInterfaceUid()).thenReturn(123456);
-        when(mockRecord.getMsgContainer().getDataMigrationStatus()).thenReturn(-2);
-        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(mockRecord);
+        when(mockRecord.getMsgContainer().nbsInterfaceUid()).thenReturn(123456);
+        when(mockRecord.getMsgContainer().dataMigrationStatus()).thenReturn(-2);
+        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(List.of(mockRecord));
         when(cdaMapper.tranformSelectedEcrToCDAXml(mockRecord)).thenReturn("<xml>result</xml>");
 
         ecrMessagePollService.fetchMessageContainerData();
@@ -61,7 +58,7 @@ class EcrMessagePollServiceTest {
 
     @Test
     void testFetchMessageContainerDataWithNullResult() throws EcrCdaXmlException {
-        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(null);
+        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(new ArrayList<>());
 
         ecrMessagePollService.fetchMessageContainerData();
 
@@ -73,10 +70,11 @@ class EcrMessagePollServiceTest {
     void testFetchMessageContainerDataWithEcrCdaXmlException() throws EcrCdaXmlException {
         EcrSelectedRecord mockRecord = mock(EcrSelectedRecord.class);
         when(mockRecord.getMsgContainer()).thenReturn(ecrMsgContainerDto);
-        when(mockRecord.getMsgContainer().getNbsInterfaceUid()).thenReturn(123456);
-        when(mockRecord.getMsgContainer().getDataMigrationStatus()).thenReturn(-2);
-        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(mockRecord);
-        when(cdaMapper.tranformSelectedEcrToCDAXml(mockRecord)).thenThrow(new EcrCdaXmlException("Error during transformation"));
+        when(mockRecord.getMsgContainer().nbsInterfaceUid()).thenReturn(123456);
+        when(mockRecord.getMsgContainer().dataMigrationStatus()).thenReturn(-2);
+        when(ecrMsgQueryService.getSelectedEcrRecord()).thenReturn(List.of(mockRecord));
+        when(cdaMapper.tranformSelectedEcrToCDAXml(mockRecord))
+                .thenThrow(new EcrCdaXmlException("Error during transformation"));
 
         assertThrows(EcrCdaXmlException.class, () -> ecrMessagePollService.fetchMessageContainerData());
     }

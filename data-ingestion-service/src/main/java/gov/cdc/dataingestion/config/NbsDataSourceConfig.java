@@ -10,6 +10,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -19,23 +20,15 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "nbsEntityManagerFactory",
-        transactionManagerRef = "nbsTransactionManager",
-        basePackages = {
-                "gov.cdc.dataingestion.nbs.repository"
-        }
+    entityManagerFactoryRef = "nbsEntityManagerFactory", 
+    transactionManagerRef = "nbsTransactionManager",
+    basePackages = {
+        "gov.cdc.dataingestion.nbs.repository"
+    }
 )
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class NbsDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;
@@ -75,6 +68,7 @@ public class NbsDataSourceConfig {
         hikariConfig.setUsername(dbUserName);
         hikariConfig.setPassword(dbUserPassword);
 
+
         // HikariCP-specific settings
         hikariConfig.setMaximumPoolSize(maximumPoolSize);
         hikariConfig.setMinimumIdle(minimumIdle);
@@ -86,6 +80,11 @@ public class NbsDataSourceConfig {
         return new HikariDataSource(hikariConfig);
     }
 
+    @Bean(name = "nbsTemplate")
+    public NamedParameterJdbcTemplate nbsTemplate(@Qualifier("nbsDataSource") DataSource nbsDataSource) {
+        return new NamedParameterJdbcTemplate(nbsDataSource);
+    }
+
     @Bean(name = "nbsEntityManagerFactoryBuilder")
     public EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
@@ -93,19 +92,18 @@ public class NbsDataSourceConfig {
 
     @Bean(name = "nbsEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
-                    EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
-                    @Qualifier("nbsDataSource") DataSource nbsDataSource ) {
+            EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
+            @Qualifier("nbsDataSource") DataSource nbsDataSource) {
         return nbsEntityManagerFactoryBuilder
                 .dataSource(nbsDataSource)
                 .packages("gov.cdc.dataingestion.nbs.repository.model")
-                //.packages(EntityNbsInterface.class)
                 .persistenceUnit("nbs")
                 .build();
     }
 
     @Bean(name = "nbsTransactionManager")
     public PlatformTransactionManager nbsTransactionManager(
-            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory ) {
+            @Qualifier("nbsEntityManagerFactory") EntityManagerFactory nbsEntityManagerFactory) {
         return new JpaTransactionManager(nbsEntityManagerFactory);
     }
 }

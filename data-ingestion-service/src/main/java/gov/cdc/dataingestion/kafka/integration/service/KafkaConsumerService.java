@@ -17,10 +17,8 @@ import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
-import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
@@ -55,13 +53,6 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 
 @Service
 @Slf4j
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class KafkaConsumerService {
 
     //region VARIABLE
@@ -102,8 +93,6 @@ public class KafkaConsumerService {
 
     private final IElrDeadLetterRepository elrDeadLetterRepository;
 
-    private final ICdaMapper cdaMapper;
-    private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
@@ -122,8 +111,6 @@ public class KafkaConsumerService {
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             IElrDeadLetterRepository elrDeadLetterRepository,
-            ICdaMapper cdaMapper,
-            IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
             TimeMetricsBuilder timeMetricsBuilder) {
@@ -134,8 +121,6 @@ public class KafkaConsumerService {
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterRepository = elrDeadLetterRepository;
-        this.cdaMapper = cdaMapper;
-        this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
         this.timeMetricsBuilder = timeMetricsBuilder;
@@ -357,19 +342,6 @@ public class KafkaConsumerService {
             }
 
     )
-    @KafkaListener(
-            topics = "ecr_cda",
-            containerFactory = "kafkaListenerContainerFactoryEcrCda"
-    )
-    public void handleMessageForPhdcEcrTransformToCda(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
-        log.debug(topicDebugLog, message, topic);
-        var result = ecrMsgQueryService.getSelectedEcrRecord();
-        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
-        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
-                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
-    }
-
     @KafkaListener(
             topics = "xml_prep_dlt_manual",
             containerFactory = "kafkaListenerContainerFactoryDltManual"
