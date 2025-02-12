@@ -59,7 +59,7 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9092}
-    thread: ${KAFKA_CONCURRENCY:10}
+    thread: ${KAFKA_CONCURRENCY:1}
     group-id-default: data-ingestion-group
     group-id-raw: data-ingestion-group-raw
     group-id-raw-xml: data-ingestion-group-raw-xml
