@@ -223,7 +223,8 @@ public class KafkaConsumerService {
     public void handleMessageForElrXml(String message,
                                        @Header(KafkaHeaders.RECEIVED_KEY) String messageId,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                       @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
+                                       @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)
+    {
 
         timeMetricsBuilder.recordElrRawXmlEventTime(() -> {
             log.debug(topicDebugLog, messageId, topic);
@@ -469,6 +470,15 @@ public class KafkaConsumerService {
     public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) {
         String hl7Msg = "";
         try {
+            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
+            if (validatedELRModel.isEmpty()) {
+                throw new XmlConversionException("Message Not Found in Validated");
+            }
+            var statusCheck = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
+            if (statusCheck.isPresent() && statusCheck.get().getNbsInterfaceUid() != null) {
+                logger.info("Kafka Rebalancing Error Hit");
+                return;
+            }
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                 Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
                 hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
@@ -504,7 +514,6 @@ public class KafkaConsumerService {
             else {
                 customMetricsBuilder.incrementXmlConversionRequestedSuccess();
                 ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-                Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
                 reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
                 reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
                 reportStatusIdData.setCreatedBy(convertedToXmlTopic);
@@ -538,17 +547,8 @@ public class KafkaConsumerService {
         }
     }
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
-
-        // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
-        // TODO: considering breaking down this logic (NOTE) //NOSONAR
-        // PROCESS as follow:
-        //  - HL7 -> XML
-                // xml conversion can be broke down into multiple smaller pipeline
-        //  - Saving record to status table can also be broke to downstream pipeline
-//        CompletableFuture.runAsync(() -> {//Caused the classnotfoundexception.//NOSONAR
-            log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
-            xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
-//        });//NOSONAR
+        log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
+        xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
     }
     private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
