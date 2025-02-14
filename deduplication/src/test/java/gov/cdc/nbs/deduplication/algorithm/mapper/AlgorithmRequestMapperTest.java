@@ -84,6 +84,6 @@ class AlgorithmRequestMapperTest {
         assertEquals(1, mappedPass.evaluators().size());
         Evaluator mappedEvaluator = mappedPass.evaluators().get(0);
         assertEquals("LAST_NAME", mappedEvaluator.feature());
-        assertEquals("func:recordlinker.linking.matchers.compare_match_any", mappedEvaluator.func()); // Ensure method mapping
+        assertEquals("matcher", mappedEvaluator.func()); // Ensure method mapping
     }
 }
