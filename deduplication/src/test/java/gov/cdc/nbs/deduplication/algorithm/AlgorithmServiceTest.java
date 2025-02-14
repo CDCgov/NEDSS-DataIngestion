@@ -60,14 +60,16 @@ class AlgorithmServiceTest {
         String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
         String mockConfigJson = "{\"label\":\"test\"}";
 
-        when(template.queryForObject(eq(sql), any(MapSqlParameterSource.class), eq(String.class))).thenReturn(mockConfigJson);
+        when(template.queryForObject(eq(sql), any(MapSqlParameterSource.class), eq(String.class)))
+                .thenReturn(mockConfigJson);
+
         when(objectMapper.readValue(mockConfigJson, MatchingConfigRequest.class))
                 .thenReturn(new MatchingConfigRequest("test", "Test Description", true, true, List.of()));
 
         List<Pass> result = algorithmService.getMatchingConfiguration();
 
-        assertNotNull(result);
-        assertEquals(0, result.size()); // Since the mock config has no passes
+        assertNotNull(result, "The result should not be null.");
+        assertTrue(result.isEmpty(), "The result should be an empty list.");
     }
 
     @Test
@@ -144,28 +146,71 @@ class AlgorithmServiceTest {
     }
 
     @Test
-    void testFetchDefaultConfiguration_Success() {
-        when(recordLinkageClient.get().uri("/algorithm/dibbs-enhanced").retrieve().body(AlgorithmUpdateRequest.class))
-                .thenReturn(new AlgorithmUpdateRequest("defaultLabel", "defaultDesc", true, true, new Double[]{0.1, 0.9}, List.of()));
+    void testUpdateAlgorithm_withInvalidBounds() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true);
+        List<Pass> passes = List.of(new Pass("passName", "description", "invalid", "invalid", blockingCriteria, List.of()));
 
-        when(algorithmConfigMapper.mapAlgorithmUpdateRequestToMatchingConfigRequest(any()))
-                .thenReturn(new MatchingConfigRequest("defaultLabel", "defaultDesc", true, true, List.of()));
+        MatchingConfigRequest configRequest = new MatchingConfigRequest("Test Label", "Test Description", true, true, passes);
 
-        List<Pass> result = algorithmService.getMatchingConfiguration();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            algorithmService.updateAlgorithm(configRequest);
+        });
 
-        assertNotNull(result);
-        assertEquals(0, result.size()); // Since no passes are defined
+        assertEquals("Invalid bounds values: lowerBound and upperBound must be valid numbers", exception.getMessage());
     }
 
     @Test
+    void testFetchDefaultConfiguration_Success() {
+        RestClient.RequestHeadersUriSpec mockRequestHeadersUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
+
+        when(recordLinkageClient.get()).thenReturn(mockRequestHeadersUriSpec);
+        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersUriSpec);
+        when(mockRequestHeadersUriSpec.retrieve()).thenReturn(mockResponseSpec);
+
+        AlgorithmUpdateRequest mockResponse = new AlgorithmUpdateRequest(
+                "defaultLabel", "defaultDesc", true, true, new Double[]{0.1, 0.9}, List.of()
+        );
+        when(mockResponseSpec.body(AlgorithmUpdateRequest.class)).thenReturn(mockResponse);
+
+        try (var mockedStatic = mockStatic(AlgorithmConfigMapper.class)) {
+            when(AlgorithmConfigMapper.mapAlgorithmUpdateRequestToMatchingConfigRequest(any()))
+                    .thenReturn(new MatchingConfigRequest("defaultLabel", "defaultDesc", true, true, List.of()));
+
+            List<Pass> result = algorithmService.getMatchingConfiguration();
+
+            assertNotNull(result, "The result should not be null.");
+            assertTrue(result.isEmpty(), "Expected an empty list since no passes are defined.");
+        }
+    }
+
+
+    @Test
     void testFetchDefaultConfiguration_ApiFailure() {
-        when(recordLinkageClient.get().uri("/algorithm/dibbs-enhanced").retrieve().body(AlgorithmUpdateRequest.class))
+        RestClient.RequestHeadersUriSpec mockRequestHeadersUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
+
+        when(recordLinkageClient.get()).thenReturn(mockRequestHeadersUriSpec);
+        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersUriSpec);
+        when(mockRequestHeadersUriSpec.retrieve()).thenReturn(mockResponseSpec);
+
+        when(mockResponseSpec.body(AlgorithmUpdateRequest.class))
                 .thenThrow(new RuntimeException("API error"));
 
         List<Pass> result = algorithmService.getMatchingConfiguration();
 
         assertNotNull(result);
-        assertEquals(0, result.size()); // Should return empty list on API failure
+        assertTrue(result.isEmpty());
     }
+
+    @Test
+    void testSaveMatchingConfiguration_JsonProcessingException() throws Exception {
+        MatchingConfigRequest request = new MatchingConfigRequest("Test Label", "Test Description", true, true, List.of());
+
+        doThrow(JsonProcessingException.class).when(objectMapper).writeValueAsString(any());
+
+        assertDoesNotThrow(() -> algorithmService.saveMatchingConfiguration(request));
+    }
+
 }
 

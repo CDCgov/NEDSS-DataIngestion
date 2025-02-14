@@ -58,14 +58,18 @@ public class AlgorithmService {
         String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
         try {
             String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
+            log.info("Fetched JSON Config: {}", jsonConfig);
 
             if (jsonConfig == null || jsonConfig.isEmpty()) {
+                log.info("Config was null or empty, fetching default configuration.");
                 return fetchDefaultConfiguration();
             }
+
             ObjectMapper objectMapper = new ObjectMapper();
             MatchingConfigRequest configRequest = objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
+            log.info("Parsed MatchingConfigRequest: {}", configRequest);
 
-            return configRequest.passes();
+            return configRequest.passes() != null ? configRequest.passes() : List.of();
         } catch (EmptyResultDataAccessException e) {
             log.warn("No matching configuration found in database. Fetching default.");
             return fetchDefaultConfiguration();
@@ -74,6 +78,7 @@ public class AlgorithmService {
             return List.of();
         }
     }
+
 
     public void updateDibbsConfigurations(MatchingConfigRequest configRequest) {
         setDibbsBasicToFalse();

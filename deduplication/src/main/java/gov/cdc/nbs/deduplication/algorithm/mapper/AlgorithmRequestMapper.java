@@ -117,7 +117,7 @@ public class AlgorithmRequestMapper {
 
         // Set existing blocking fields to 'true'
         if (pass.blockingCriteria() != null) {
-            pass.blockingCriteria().forEach((field, isBlocking) -> blockingKeys.put(field, isBlocking));
+            blockingKeys.putAll(pass.blockingCriteria());
         }
 
         List<Evaluator> evaluators = pass.matchingCriteria() != null
