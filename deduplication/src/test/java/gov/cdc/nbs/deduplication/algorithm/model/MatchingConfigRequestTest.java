@@ -93,7 +93,7 @@ class MatchingConfigRequestTest {
 
         String expectedString = "MatchingConfigRequest {label='Test Label', description='Test Description', " +
                 "isDefault=true, includeMultipleMatches=true, passes=[Pass[name=passName, description=description, " +
-                "lowerBound=0.1, upperBound=0.9, blockingCriteria={FIRST_NAME=true, LAST_NAME=false}, matchingCriteria=[]]]}";
+                "lowerBound=0.1, upperBound=0.9, blockingCriteria={LAST_NAME=false, FIRST_NAME=true}, matchingCriteria=[]]]}";
 
         assertEquals(expectedString, request.toString());
     }
