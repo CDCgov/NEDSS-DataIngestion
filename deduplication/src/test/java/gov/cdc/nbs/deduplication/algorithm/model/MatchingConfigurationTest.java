@@ -109,7 +109,7 @@ class MatchingConfigurationTest {
 
         String expectedString = "MatchingConfiguration{id=1, label='Test Label', description='Test Description', " +
                 "isDefault=true, passes=[Pass[name=passName, description=description, lowerBound=0.1, upperBound=0.9, " +
-                "blockingCriteria={LAST_NAME=false, FIRST_NAME=true}, matchingCriteria=[]]], belongingnessRatio=[0.0, 1.0]}";
+                "blockingCriteria={FIRST_NAME=true, LAST_NAME=false}, matchingCriteria=[]]], belongingnessRatio=[0.0, 1.0]}";
 
         assertEquals(expectedString, config.toString());
     }
