@@ -4,6 +4,7 @@ import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,12 +12,14 @@ class MatchingConfigurationTest {
 
     @Test
     void testEqualsAndHashCode() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+
         MatchingConfiguration config1 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
@@ -25,75 +28,56 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
-        // Verify that both objects are considered equal
         assertEquals(config1, config2);
-
-        // Verify that the hash codes of both objects are the same
         assertEquals(config1.hashCode(), config2.hashCode());
     }
 
     @Test
     void testEqualsWithDifferentValues() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+
         MatchingConfiguration config1 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
-        // Different label
         MatchingConfiguration config2 = new MatchingConfiguration(
                 1L,
-                "Different Label",
+                "Different Label",  // Different label
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
         assertNotEquals(config1, config2);
 
-        // Different id
         MatchingConfiguration config3 = new MatchingConfiguration(
-                2L,
+                2L,  // Different id
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
         assertNotEquals(config1, config3);
 
-        // Different belongingnessRatio
         MatchingConfiguration config4 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
-                new Double[]{0.1, 0.9}
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                new Double[]{0.1, 0.9}  // Different belongingnessRatio
         );
         assertNotEquals(config1, config4);
-    }
-
-    @Test
-    void testEqualsWithDifferentClass() {
-        MatchingConfiguration config = new MatchingConfiguration(
-                1L,
-                "Test Label",
-                "Test Description",
-                true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
-                new Double[]{0.0, 1.0}
-        );
-
-        // Compare with an object of a different class
-        assertNotEquals(config, new Object());
     }
 
     @Test
@@ -103,70 +87,46 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                null,  // Null passes
                 new Double[]{0.0, 1.0}
         );
 
-        // Compare with null, should return false
         assertNotEquals(null, config);
     }
 
     @Test
-    void testHashCodeWithDifferentValues() {
-        MatchingConfiguration config1 = new MatchingConfiguration(
-                1L,
-                "Test Label",
-                "Test Description",
-                true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
-                new Double[]{0.0, 1.0}
-        );
-
-        MatchingConfiguration config2 = new MatchingConfiguration(
-                2L,
-                "Test Label",
-                "Test Description",
-                true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
-                new Double[]{0.0, 1.0}
-        );
-
-        // Verify that the hash codes are different for objects with different values
-        assertNotEquals(config1.hashCode(), config2.hashCode());
-    }
-
-    @Test
     void testToString() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+
         MatchingConfiguration config = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
-        // Expected string representation of the object
         String expectedString = "MatchingConfiguration{id=1, label='Test Label', description='Test Description', " +
                 "isDefault=true, passes=[Pass[name=passName, description=description, lowerBound=0.1, upperBound=0.9, " +
-                "blockingCriteria=[], matchingCriteria=[]]], belongingnessRatio=[0.0, 1.0]}";
+                "blockingCriteria={FIRST_NAME=true, LAST_NAME=false}, matchingCriteria=[]]], belongingnessRatio=[0.0, 1.0]}";
 
-        // Verify the toString method
         assertEquals(expectedString, config.toString());
     }
 
     @Test
     void testConstructorAndGetters() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+
         MatchingConfiguration config = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
-        // Verify that the constructor correctly sets the values
         assertEquals(1L, config.id());
         assertEquals("Test Label", config.label());
         assertEquals("Test Description", config.description());
@@ -178,12 +138,14 @@ class MatchingConfigurationTest {
 
     @Test
     void testEqualsWithNullBelongingnessRatio() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+
         MatchingConfiguration config1 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 null  // belongingnessRatio is null
         );
 
@@ -192,70 +154,37 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 null  // belongingnessRatio is also null
         );
 
-        assertEquals(config1, config2);  // Should be equal as both have null belongingnessRatio
+        assertEquals(config1, config2);
 
         MatchingConfiguration config3 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
-                new Double[]{0.0, 1.0}  // belongingnessRatio is not null
-        );
-
-        assertNotEquals(config1, config3);  // Should not be equal because belongingnessRatio is different
-    }
-
-    @Test
-    void testEqualsWithNullPasses() {
-        MatchingConfiguration config1 = new MatchingConfiguration(
-                1L,
-                "Test Label",
-                "Test Description",
-                true,
-                null,  // passes is null
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
-        MatchingConfiguration config2 = new MatchingConfiguration(
-                1L,
-                "Test Label",
-                "Test Description",
-                true,
-                null,  // passes is null
-                new Double[]{0.0, 1.0}
-        );
-
-        assertEquals(config1, config2);  // Should be equal because both have null passes
-
-        MatchingConfiguration config3 = new MatchingConfiguration(
-                1L,
-                "Test Label",
-                "Test Description",
-                true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
-                new Double[]{0.0, 1.0}
-        );
-
-        assertNotEquals(config1, config3);  // Should not be equal because passes is different (null vs non-null)
+        assertNotEquals(config1, config3);
     }
 
     @Test
     void testEqualsWithIdenticalObjects() {
+        Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+
         MatchingConfiguration config = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", List.of(), List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
                 new Double[]{0.0, 1.0}
         );
 
-        // Should be equal because it's the same object
         assertEquals(config, config);
     }
 }

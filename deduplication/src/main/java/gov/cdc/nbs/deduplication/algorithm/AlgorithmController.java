@@ -1,9 +1,13 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
+import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/deduplication")
@@ -28,8 +32,9 @@ public class AlgorithmController {
     }
 
     @GetMapping("/matching-configuration")
-    public MatchingConfigRequest getMatchingConfiguration() {
-        return algorithmService.getMatchingConfiguration();
+    public Map<String, List<Pass>> getMatchingConfiguration() {
+        List<Pass> passes = algorithmService.getMatchingConfiguration();
+        return Map.of("passes", passes);
     }
 
     @PostMapping("/update-algorithm")

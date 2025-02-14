@@ -1,7 +1,7 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,57 +25,76 @@ class AlgorithmControllerTest {
 
     @Test
     void testConfigureMatching() {
-        // Create a List of Pass objects (dummy example, replace with actual Pass objects)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
-
-        // Creating MatchingConfigRequest with the required parameters
-        MatchingConfigRequest request = new MatchingConfigRequest(
-                "Test Label",      // String parameter (label)
-                "Test Description", // String parameter (description)
-                true,               // boolean parameter (isDefault)
-                true,               // boolean parameter (includeMultipleMatches)
-                passes              // List<Pass> parameter (passes)
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
         );
 
-        // Simulating the service method call
+        List<Pass> passes = List.of(new Pass(
+                "TestPass",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria,
+                List.of()
+        ));
+
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                passes
+        );
+
         doNothing().when(algorithmService).configureMatching(request);
 
-        // Call the controller method
         algorithmController.configureMatching(request);
 
-        // Verify that the service method was called once with the request
         verify(algorithmService, times(1)).configureMatching(request);
     }
 
     @Test
     void testGetMatchingConfiguration() {
-        // Create a List of Pass objects (dummy example)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
-
-        // Simulate the service method call
-        MatchingConfigRequest expectedConfig = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                passes
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
         );
 
-        when(algorithmService.getMatchingConfiguration()).thenReturn(expectedConfig);
+        List<Pass> passes = List.of(new Pass(
+                "TestPass",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria, // Updated to Map<String, Boolean>
+                List.of()
+        ));
 
-        // Call the controller method
-        MatchingConfigRequest actualConfig = algorithmController.getMatchingConfiguration();
+        when(algorithmService.getMatchingConfiguration()).thenReturn(passes);
 
-        // Verify the returned configuration matches
-        assertEquals(expectedConfig, actualConfig);
+        Map<String, List<Pass>> actualResponse = algorithmController.getMatchingConfiguration();
+
+        assertNotNull(actualResponse);
+        assertTrue(actualResponse.containsKey("passes"));
+        assertEquals(passes, actualResponse.get("passes"));
     }
 
     @Test
     void testUpdateAlgorithm() {
-        // Create a List of Pass objects (dummy example)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
+        );
 
-        // Creating MatchingConfigRequest with the required parameters
+        List<Pass> passes = List.of(new Pass(
+                "TestPass",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria, // Updated to Map<String, Boolean>
+                List.of()
+        ));
+
         MatchingConfigRequest request = new MatchingConfigRequest(
                 "Test Label",
                 "Test Description",
@@ -83,13 +103,10 @@ class AlgorithmControllerTest {
                 passes
         );
 
-        // Simulate the service method call
         doNothing().when(algorithmService).updateDibbsConfigurations(request);
 
-        // Call the controller method
         algorithmController.updateAlgorithm(request);
 
-        // Verify that the service method was called once with the request
         verify(algorithmService, times(1)).updateDibbsConfigurations(request);
     }
 }
