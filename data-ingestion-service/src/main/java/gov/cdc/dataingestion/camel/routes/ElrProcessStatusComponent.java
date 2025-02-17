@@ -80,7 +80,7 @@ public class ElrProcessStatusComponent {
                     status = body;
                 }
             }
-        logger.info("ElrProcessStatusComponent status:{}", status);
+        logger.debug("ElrProcessStatusComponent status:{}", status);
         return status;
     }
 }

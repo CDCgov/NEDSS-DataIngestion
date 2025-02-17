@@ -1,8 +1,8 @@
 package gov.cdc.dataingestion.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -32,16 +32,7 @@ import java.util.HashMap;
         }
 )
 @Configuration
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class DataSourceConfig {
-    private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
-
     @Value("${spring.datasource.driverClassName}")
     private String className;
 
@@ -54,21 +45,48 @@ public class DataSourceConfig {
     @Value("${spring.datasource.password}")
     private String password;
 
+
+    @Value("${spring.datasource.hikari.maximum-pool-size:100}")
+    private int maximumPoolSize;
+
+    @Value("${spring.datasource.hikari.minimum-idle:50}")
+    private int minimumIdle;
+
+    @Value("${spring.datasource.hikari.idle-timeout:120000}")
+    private long idleTimeout;
+
+    @Value("${spring.datasource.hikari.max-lifetime:1200000}")
+    private long maxLifetime;
+
+    @Value("${spring.datasource.hikari.connection-timeout:300000}")
+    private long connectionTimeout;
+
+    @Value("${spring.datasource.hikari.pool-name:OdseHikariCP}")
+    private String poolName;
+
     @Bean()
     public DataSource dataSource() {
         String driverClassName = this.className;
-        String dbUrl = this.dbUrl;
+        String url = this.dbUrl;
         String dbUserName = this.userName;
         String dbUserPassword = this.password;
 
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(driverClassName);
+        hikariConfig.setJdbcUrl(dbUrl);
+        hikariConfig.setUsername(dbUserName);
+        hikariConfig.setPassword(dbUserPassword);
 
-        dataSourceBuilder.driverClassName(driverClassName);
-        dataSourceBuilder.url(dbUrl);
-        dataSourceBuilder.username(dbUserName);
-        dataSourceBuilder.password(dbUserPassword);
+        // HikariCP-specific settings
+        hikariConfig.setMaximumPoolSize(maximumPoolSize);
+        hikariConfig.setMinimumIdle(minimumIdle);
+        hikariConfig.setIdleTimeout(idleTimeout);
+        hikariConfig.setMaxLifetime(maxLifetime);
+        hikariConfig.setConnectionTimeout(connectionTimeout);
+        hikariConfig.setPoolName(poolName);
 
-        return dataSourceBuilder.build();
+        return new HikariDataSource(hikariConfig);
+
     }
 
     @Bean

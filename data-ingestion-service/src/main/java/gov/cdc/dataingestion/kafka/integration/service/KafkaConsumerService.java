@@ -17,10 +17,8 @@ import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
-import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
@@ -55,13 +53,6 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 
 @Service
 @Slf4j
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class KafkaConsumerService {
 
     //region VARIABLE
@@ -105,8 +96,6 @@ public class KafkaConsumerService {
 
     private final IElrDeadLetterRepository elrDeadLetterRepository;
 
-    private final ICdaMapper cdaMapper;
-    private final IEcrMsgQueryService ecrMsgQueryService;
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
@@ -125,8 +114,6 @@ public class KafkaConsumerService {
             IHL7DuplicateValidator iHL7DuplicateValidator,
             NbsRepositoryServiceProvider nbsRepositoryServiceProvider,
             IElrDeadLetterRepository elrDeadLetterRepository,
-            ICdaMapper cdaMapper,
-            IEcrMsgQueryService ecrMsgQueryService,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
             TimeMetricsBuilder timeMetricsBuilder) {
@@ -137,8 +124,6 @@ public class KafkaConsumerService {
         this.iHL7DuplicateValidator = iHL7DuplicateValidator;
         this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
         this.elrDeadLetterRepository = elrDeadLetterRepository;
-        this.cdaMapper = cdaMapper;
-        this.ecrMsgQueryService = ecrMsgQueryService;
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
         this.timeMetricsBuilder = timeMetricsBuilder;
@@ -184,7 +169,8 @@ public class KafkaConsumerService {
 
     )
     @KafkaListener(
-            topics = "${kafka.raw.topic}"
+            topics = "${kafka.raw.topic}",
+            containerFactory = "kafkaListenerContainerFactoryRaw"
     )
     public void handleMessageForRawElr(String message,
                               @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -234,12 +220,14 @@ public class KafkaConsumerService {
 
     )
     @KafkaListener(
-            topics = "${kafka.raw.xml-topic}"
+            topics = "${kafka.raw.xml-topic}",
+            containerFactory = "kafkaListenerContainerFactoryRawXml"
     )
     public void handleMessageForElrXml(String message,
                                        @Header(KafkaHeaders.RECEIVED_KEY) String messageId,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                       @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
+                                       @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)
+    {
 
         timeMetricsBuilder.recordElrRawXmlEventTime(() -> {
             log.debug(topicDebugLog, messageId, topic);
@@ -268,7 +256,8 @@ public class KafkaConsumerService {
                 kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), rtiTopic, 0);
             }
             else {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                kafkaProducerService.sendMessageAfterConvertedToXml(
+                        nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
             }
         });
 
@@ -303,7 +292,9 @@ public class KafkaConsumerService {
                     JAXBException.class
             }
     )
-    @KafkaListener(topics = "${kafka.validation.topic}")
+    @KafkaListener(topics = "${kafka.validation.topic}",
+            containerFactory = "kafkaListenerContainerFactoryValidate"
+    )
     public void handleMessageForValidatedElr(String message,
                                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                              @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
@@ -321,7 +312,8 @@ public class KafkaConsumerService {
     /**
      * XML Conversion
      * */
-    @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}")
+    @KafkaListener(topics = "${kafka.xml-conversion-prep.topic}",
+            containerFactory = "kafkaListenerContainerFactoryXml")
     public void handleMessageForXmlConversionElr(String message,
                                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                                  @Header(KafkaHeaderValue.MESSAGE_OPERATION) String operation,
@@ -356,19 +348,8 @@ public class KafkaConsumerService {
 
     )
     @KafkaListener(
-            topics = "ecr_cda"
-    )
-    public void handleMessageForPhdcEcrTransformToCda(String message,
-                                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws EcrCdaXmlException {
-        log.debug(topicDebugLog, message, topic);
-        var result = ecrMsgQueryService.getSelectedEcrRecord();
-        var xmlResult = this.cdaMapper.tranformSelectedEcrToCDAXml(result);
-        nbsRepositoryServiceProvider.saveEcrCdaXmlMessage(result.getMsgContainer().getNbsInterfaceUid().toString()
-                , result.getMsgContainer().getDataMigrationStatus(), xmlResult);
-    }
-
-    @KafkaListener(
-            topics = "xml_prep_dlt_manual"
+            topics = "xml_prep_dlt_manual",
+            containerFactory = "kafkaListenerContainerFactoryDltManual"
     )
     public void handleDltManual(
             String message,
@@ -493,6 +474,15 @@ public class KafkaConsumerService {
     public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) {
         String hl7Msg = "";
         try {
+            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
+            if (validatedELRModel.isEmpty()) {
+                throw new XmlConversionException("Message Not Found in Validated");
+            }
+            var statusCheck = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
+            if (statusCheck.isPresent() && statusCheck.get().getNbsInterfaceUid() != null) {
+                logger.info("Kafka Rebalancing Error Hit");
+                return;
+            }
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                 Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
                 hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
@@ -512,7 +502,7 @@ public class KafkaConsumerService {
             // Modified from debug ==> info to capture xml for analysis.
             // Please leave below at "info" level for the time being, before going live,
             // this will be changed to debug
-            log.info("rhapsodyXml: {}", rhapsodyXml);
+            log.debug("rhapsodyXml: {}", rhapsodyXml);
 
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
             NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
@@ -528,7 +518,6 @@ public class KafkaConsumerService {
             else {
                 customMetricsBuilder.incrementXmlConversionRequestedSuccess();
                 ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-                Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
                 reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
                 reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
                 reportStatusIdData.setCreatedBy(convertedToXmlTopic);
@@ -562,17 +551,8 @@ public class KafkaConsumerService {
         }
     }
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
-
-        // Update: changed method to async process, intensive process in this method cause consumer lagging, delay and strange behavior
-        // TODO: considering breaking down this logic (NOTE) //NOSONAR
-        // PROCESS as follow:
-        //  - HL7 -> XML
-                // xml conversion can be broke down into multiple smaller pipeline
-        //  - Saving record to status table can also be broke to downstream pipeline
-//        CompletableFuture.runAsync(() -> {//Caused the classnotfoundexception.//NOSONAR
-            log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
-            xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
-//        });//NOSONAR
+        log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
+        xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
     }
     private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
         Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);

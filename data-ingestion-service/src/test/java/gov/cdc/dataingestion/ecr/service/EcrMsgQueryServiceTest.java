@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.ecr.service;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
+import gov.cdc.dataingestion.nbs.ecr.resolver.EcrMsgContainerResolver;
 import gov.cdc.dataingestion.nbs.repository.IEcrMsgQueryRepository;
 import gov.cdc.dataingestion.nbs.repository.model.dto.*;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
@@ -18,138 +19,130 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class EcrMsgQueryServiceTest {
     @Mock
     private IEcrMsgQueryRepository ecrMsgQueryRepository;
+    @Mock
+    private EcrMsgContainerResolver ecrMsgContainerResolver;
     @InjectMocks
     private EcrMsgQueryService target;
 
     @BeforeEach
     public void setUpEach() {
         MockitoAnnotations.openMocks(this);
-        target = new EcrMsgQueryService(ecrMsgQueryRepository);
+        target = new EcrMsgQueryService(ecrMsgQueryRepository, ecrMsgContainerResolver, 100);
     }
 
     @Test
     void getSelectedEcrRecord_Test() throws EcrCdaXmlException {
-        EcrMsgContainerDto container = new EcrMsgContainerDto();
-        container.setMsgContainerUid(1);
-        container.setInvLocalId("1");
-        container.setNbsInterfaceUid(1);
-        container.setReceivingSystem("test");
-        container.setOngoingCase("test");
-        container.setVersionCtrNbr(1);
-        container.setDataMigrationStatus(1);
-        when(ecrMsgQueryRepository.fetchMsgContainerForApplicableEcr()).thenReturn(container);
+        EcrMsgContainerDto container = new EcrMsgContainerDto(1, "1", 1, "test", "test", 1, 1);
+        when(ecrMsgContainerResolver.resolve(100)).thenReturn(List.of(container));
 
         EcrMsgPatientDto patient = new EcrMsgPatientDto();
         List<EcrMsgPatientDto> patientList = new ArrayList<>();
         patientList.add(patient);
-        when(ecrMsgQueryRepository.fetchMsgPatientForApplicableEcr(container.getMsgContainerUid())).thenReturn(patientList);
+        when(ecrMsgQueryRepository.fetchMsgPatientForApplicableEcr(container.msgContainerUid()))
+                .thenReturn(patientList);
 
         EcrMsgCaseDto cases = new EcrMsgCaseDto();
         cases.setInvLocalId("test");
         List<EcrMsgCaseDto> caseList = new ArrayList<>();
         caseList.add(cases);
-        when(ecrMsgQueryRepository.fetchMsgCaseForApplicableEcr(container.getMsgContainerUid())).thenReturn(caseList);
+        when(ecrMsgQueryRepository.fetchMsgCaseForApplicableEcr(container.msgContainerUid())).thenReturn(caseList);
 
         EcrMsgCaseParticipantDto casePar = new EcrMsgCaseParticipantDto();
         List<EcrMsgCaseParticipantDto> caseParList = new ArrayList<>();
         caseParList.add(casePar);
-        when(ecrMsgQueryRepository.fetchMsgCaseParticipantForApplicableEcr(container.getMsgContainerUid(),
-                cases.getInvLocalId())).thenReturn(caseParList);
+        when(ecrMsgQueryRepository.fetchMsgCaseParticipantForApplicableEcr(
+                container.msgContainerUid(),
+                cases.getInvLocalId()))
+                .thenReturn(caseParList);
 
         EcrMsgCaseAnswerDto caseAns = new EcrMsgCaseAnswerDto();
         List<EcrMsgCaseAnswerDto> caseAnsList = new ArrayList<>();
         caseAnsList.add(caseAns);
-        when(ecrMsgQueryRepository.fetchMsgCaseAnswerForApplicableEcr(container.getMsgContainerUid(),
+        when(ecrMsgQueryRepository.fetchMsgCaseAnswerForApplicableEcr(container.msgContainerUid(),
                 cases.getInvLocalId())).thenReturn(caseAnsList);
 
         EcrMsgCaseAnswerDto caseAnsRe = new EcrMsgCaseAnswerDto();
         List<EcrMsgCaseAnswerDto> caseAnsReList = new ArrayList<>();
         caseAnsReList.add(caseAnsRe);
-        when(ecrMsgQueryRepository.fetchMsgCaseAnswerRepeatForApplicableEcr(container.getMsgContainerUid(),
+        when(ecrMsgQueryRepository.fetchMsgCaseAnswerRepeatForApplicableEcr(container.msgContainerUid(),
                 cases.getInvLocalId())).thenReturn(caseAnsReList);
 
         EcrMsgXmlAnswerDto xmlAns = new EcrMsgXmlAnswerDto();
         List<EcrMsgXmlAnswerDto> xmlAnsList = new ArrayList<>();
         xmlAnsList.add(xmlAns);
-        when(ecrMsgQueryRepository.fetchMsgXmlAnswerForApplicableEcr(container.getMsgContainerUid(),
+        when(ecrMsgQueryRepository.fetchMsgXmlAnswerForApplicableEcr(container.msgContainerUid(),
                 cases.getInvLocalId())).thenReturn(xmlAnsList);
 
         EcrMsgProviderDto provider = new EcrMsgProviderDto();
         List<EcrMsgProviderDto> providerList = new ArrayList<>();
         providerList.add(provider);
-        when(ecrMsgQueryRepository.fetchMsgProviderForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgProviderForApplicableEcr(container.msgContainerUid()))
                 .thenReturn(providerList);
 
         EcrMsgOrganizationDto org = new EcrMsgOrganizationDto();
         List<EcrMsgOrganizationDto> orgList = new ArrayList<>();
         orgList.add(org);
-        when(ecrMsgQueryRepository.fetchMsgOrganizationForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgOrganizationForApplicableEcr(container.msgContainerUid()))
                 .thenReturn(orgList);
 
         EcrMsgPlaceDto plc = new EcrMsgPlaceDto();
         List<EcrMsgPlaceDto> plcList = new ArrayList<>();
         plcList.add(plc);
-        when(ecrMsgQueryRepository.fetchMsgPlaceForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgPlaceForApplicableEcr(container.msgContainerUid()))
                 .thenReturn(plcList);
 
         EcrMsgInterviewDto inx = new EcrMsgInterviewDto();
         inx.setIxsLocalId("test");
         List<EcrMsgInterviewDto> inxList = new ArrayList<>();
         inxList.add(inx);
-        when(ecrMsgQueryRepository.fetchMsgInterviewForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgInterviewForApplicableEcr(container.msgContainerUid()))
                 .thenReturn(inxList);
 
         EcrMsgProviderDto providerInx = new EcrMsgProviderDto();
         List<EcrMsgProviderDto> providerInxList = new ArrayList<>();
         providerInxList.add(providerInx);
-        when(ecrMsgQueryRepository.fetchMsgInterviewProviderForApplicableEcr(container.getMsgContainerUid(),
+        when(ecrMsgQueryRepository.fetchMsgInterviewProviderForApplicableEcr(container.msgContainerUid(),
                 inx.getIxsLocalId())).thenReturn(providerInxList);
 
         EcrMsgCaseAnswerDto caseAnsInx = new EcrMsgCaseAnswerDto();
         List<EcrMsgCaseAnswerDto> caseAnsInxList = new ArrayList<>();
         caseAnsInxList.add(caseAnsInx);
-        when(ecrMsgQueryRepository.fetchMsgInterviewAnswerForApplicableEcr(container.getMsgContainerUid(),
+        when(ecrMsgQueryRepository.fetchMsgInterviewAnswerForApplicableEcr(container.msgContainerUid(),
                 inx.getIxsLocalId())).thenReturn(caseAnsInxList);
 
         EcrMsgCaseAnswerDto caseAnsReInx = new EcrMsgCaseAnswerDto();
         List<EcrMsgCaseAnswerDto> caseAnsReInxList = new ArrayList<>();
         caseAnsReInxList.add(caseAnsReInx);
-        when(ecrMsgQueryRepository.fetchMsgInterviewAnswerRepeatForApplicableEcr(container.getMsgContainerUid(),
+        when(ecrMsgQueryRepository.fetchMsgInterviewAnswerRepeatForApplicableEcr(container.msgContainerUid(),
                 inx.getIxsLocalId())).thenReturn(caseAnsReInxList);
 
         EcrMsgTreatmentDto treat = new EcrMsgTreatmentDto();
         List<EcrMsgTreatmentDto> treatList = new ArrayList<>();
         treatList.add(treat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentForApplicableEcr(container.getMsgContainerUid()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentForApplicableEcr(container.msgContainerUid()))
                 .thenReturn(treatList);
 
         EcrMsgProviderDto providerTreat = new EcrMsgProviderDto();
         List<EcrMsgProviderDto> providerTreatList = new ArrayList<>();
         providerTreatList.add(providerTreat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(eq(container.getMsgContainerUid()), anyString()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentProviderForApplicableEcr(eq(container.msgContainerUid()),
+                anyString()))
                 .thenReturn(providerTreatList);
 
         EcrMsgOrganizationDto orgTreat = new EcrMsgOrganizationDto();
         List<EcrMsgOrganizationDto> orgTreatList = new ArrayList<>();
         orgTreatList.add(orgTreat);
-        when(ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(eq(container.getMsgContainerUid()), anyString()))
+        when(ecrMsgQueryRepository.fetchMsgTreatmentOrganizationForApplicableEcr(eq(container.msgContainerUid()),
+                anyString()))
                 .thenReturn(orgTreatList);
 
-        var result = target.getSelectedEcrRecord();
+        var result = target.getSelectedEcrRecord().get(0);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.getMsgPatients().size());
-
 
         var ecrCaseDto = result.getMsgCases().get(0).getMsgCase();
         nullCheckAssertionForEcrMsgCase(ecrCaseDto);
