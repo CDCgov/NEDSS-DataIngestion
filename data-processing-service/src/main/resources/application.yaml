@@ -85,7 +85,7 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    thread: ${KAFKA_THREAD:10}
+    thread: ${KAFKA_THREAD:1}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
