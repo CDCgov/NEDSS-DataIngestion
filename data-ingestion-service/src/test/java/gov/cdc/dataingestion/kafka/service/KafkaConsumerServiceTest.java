@@ -454,7 +454,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void xmlPreparationConsumerTestNewFlow_Exception() throws XmlConversionException {
+    void xmlPreparationConsumerTestNewFlow_Exception()  {
         when(iValidatedELRRepository.findById(any())).thenReturn(Optional.empty());
         kafkaConsumerService.xmlConversionHandlerProcessing("123", EnumKafkaOperation.INJECTION.name(), "true");
 
