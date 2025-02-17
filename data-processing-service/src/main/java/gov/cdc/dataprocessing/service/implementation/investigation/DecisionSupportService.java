@@ -34,7 +34,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
@@ -96,7 +98,6 @@ public class DecisionSupportService implements IDecisionSupportService {
     final Comparator<DsmLabMatchHelper> AlGORITHM_NM_ORDER = (e1, e2) -> e1.getAlgorithmNm().compareToIgnoreCase(e2.getAlgorithmNm()); //NOSONAR
 
     @SuppressWarnings({"java:S3776", "java:S135"})
-    @Transactional
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
                                                        EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
@@ -202,67 +203,62 @@ public class DecisionSupportService implements IDecisionSupportService {
                                                              List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
         boolean elrAlgorithmsPresent;
         // Validating existing WDS Algorithm
-        try {
-            WdsReport report = new WdsReport();
-            Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
-            if (algorithmCollection == null || algorithmCollection.isEmpty())  {
-                //no algorithms defined
-                report.setAlgorithmMatched(false);
-                report.setMessage("No WDS Algorithm found");
-                edxLabInformationDT.getWdsReports().add(report);
-                return false;
-            }
+        WdsReport report = new WdsReport();
+        Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
+        if (algorithmCollection == null || algorithmCollection.isEmpty())  {
+            //no algorithms defined
+            report.setAlgorithmMatched(false);
+            report.setMessage("No WDS Algorithm found");
+            edxLabInformationDT.getWdsReports().add(report);
+            return false;
+        }
 
-            elrAlgorithmsPresent = false; //could be only inactive algorithms or only Case reports
-            for (DsmAlgorithm dsmAlgorithm : algorithmCollection)
+        elrAlgorithmsPresent = false; //could be only inactive algorithms or only Case reports
+        for (DsmAlgorithm dsmAlgorithm : algorithmCollection)
+        {
+            DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(dsmAlgorithm);
+            String algorithmString = algorithmDT.getAlgorithmPayload();
+            //skip inactive and case reports
+            if (algorithmDT.getStatusCd() != null
+                    && algorithmDT.getStatusCd().equals(NEDSSConstant.INACTIVE) ||
+                    algorithmDT.getEventType() != null
+                            && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
             {
-                DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(dsmAlgorithm);
-                String algorithmString = algorithmDT.getAlgorithmPayload();
-                //skip inactive and case reports
-                if (algorithmDT.getStatusCd() != null
-                        && algorithmDT.getStatusCd().equals(NEDSSConstant.INACTIVE) ||
-                        algorithmDT.getEventType() != null
-                                && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
-                {
-                    continue; //skip inactive
-                }
-
-                // Suppose to be Algorithm
-                Algorithm algorithmDocument = null;
-
-                if (algorithmString != null) {
-                    algorithmDocument = parseAlgorithmXml(algorithmString);
-                }
-                //helper class DSMLabMatchHelper will assist with algorithm matching
-                DsmLabMatchHelper dsmLabMatchHelper = null;
-                try {
-                    if (algorithmDocument != null)
-                    {
-                        dsmLabMatchHelper = new DsmLabMatchHelper(algorithmDocument);
-                    }
-                } catch (Exception e) {
-                    //if one fails to parse - continue processing with error
-                    logger.info(e.getMessage());
-                }
-
-
-                if (dsmLabMatchHelper != null) {
-                    activeElrAlgorithmList.add(dsmLabMatchHelper);
-                    elrAlgorithmsPresent = true;
-                }
-                //parseXmDocument(algorithmDocument);
-            } //hasNext
-            //didn't find any?
-
-            if (!elrAlgorithmsPresent) {
-                report.setAlgorithmMatched(false);
-                report.setMessage("No active WDS Algorithm found");
-                edxLabInformationDT.getWdsReports().add(report);
-                return false;
+                continue; //skip inactive
             }
 
-        } catch (Exception e1) {
-            throw new DataProcessingException("ERROR:-ValidateDecisionSupport.validateProxyVO unable to process algorithm as NEDSSAppException . Please check."+e1);
+            // Suppose to be Algorithm
+            Algorithm algorithmDocument = null;
+
+            if (algorithmString != null) {
+                algorithmDocument = parseAlgorithmXml(algorithmString);
+            }
+            //helper class DSMLabMatchHelper will assist with algorithm matching
+            DsmLabMatchHelper dsmLabMatchHelper = null;
+            try {
+                if (algorithmDocument != null)
+                {
+                    dsmLabMatchHelper = new DsmLabMatchHelper(algorithmDocument);
+                }
+            } catch (Exception e) {
+                //if one fails to parse - continue processing with error
+                logger.info(e.getMessage());
+            }
+
+
+            if (dsmLabMatchHelper != null) {
+                activeElrAlgorithmList.add(dsmLabMatchHelper);
+                elrAlgorithmsPresent = true;
+            }
+            //parseXmDocument(algorithmDocument);
+        } //hasNext
+        //didn't find any?
+
+        if (!elrAlgorithmsPresent) {
+            report.setAlgorithmMatched(false);
+            report.setMessage("No active WDS Algorithm found");
+            edxLabInformationDT.getWdsReports().add(report);
+            return false;
         }
         return true;
     }
@@ -367,7 +363,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                                 Collection<PersonContainer> personVOCollection,
                                                 EdxLabInformationDto edxLabInformationDT,
                                                 WdsReport wdsReport,
-                                                Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
+                                                Map<Object, Object> questionIdentifierMap) throws DataProcessingException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
         PageActProxyContainer pageActProxyContainer = null;
         PamProxyContainer pamProxyVO = null;
         PublicHealthCaseContainer publicHealthCaseContainer;
@@ -498,50 +494,46 @@ public class DecisionSupportService implements IDecisionSupportService {
                         else {
                             logger.error("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
                         }
-                        try {
-                            if (metaData.getDataLocation() != null
-                                    && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
-                            {
-                                validateDecisionSupport.processNbsObject(edxRuleManageDT, publicHealthCaseContainer, metaData);
+                        if (metaData.getDataLocation() != null
+                                && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
+                        {
+                            validateDecisionSupport.processNbsObject(edxRuleManageDT, publicHealthCaseContainer, metaData);
+                        }
+                        else if (metaData.getDataLocation() != null
+                                && metaData.getDataLocation().trim().toUpperCase().startsWith("NBS_CASE_ANSWER"))
+                        {
+                            validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseContainer, pamVO, metaData);
+                        }
+                        else if (metaData.getDataLocation() != null
+                                && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_CD"))
+                        {
+                            validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+                        }
+                        else if (metaData.getDataLocation() != null
+                                && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_TIME"))
+                        {
+                            validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+                        }
+                        else if (metaData.getDataLocation() != null
+                                && metaData.getDataLocation().trim().toUpperCase().startsWith("ACT_ID.ROOT_EXTENSION_TXT"))
+                        {
+                            validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
+                        }
+                        else if (metaData.getDataLocation() != null
+                                && metaData.getDataLocation().trim().toUpperCase().startsWith("CASE_MANAGEMENT")
+                                && obj instanceof PageActProxyContainer)
+                        {
+                            validateDecisionSupport.processNBSCaseManagementDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+                        }
+                        else if (metaData.getDataLocation() != null
+                                && metaData.getDataType().toUpperCase().startsWith("PART"))
+                        {
+                            entityMapCollection.add(edxRuleManageDT);
+                            if (edxRuleManageDT.getParticipationTypeCode() == null
+                                    || edxRuleManageDT.getParticipationUid() == null
+                                    || edxRuleManageDT.getParticipationClassCode() == null) {
+                                throw new DataProcessingException("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
                             }
-                            else if (metaData.getDataLocation() != null
-                                    && metaData.getDataLocation().trim().toUpperCase().startsWith("NBS_CASE_ANSWER"))
-                            {
-                                validateDecisionSupport.processNBSCaseAnswerDT(edxRuleManageDT, publicHealthCaseContainer, pamVO, metaData);
-                            }
-                            else if (metaData.getDataLocation() != null
-                                    && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_CD"))
-                            {
-                                validateDecisionSupport.processConfirmationMethodCodeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
-                            }
-                            else if (metaData.getDataLocation() != null
-                                    && metaData.getDataLocation().trim().toUpperCase().startsWith("CONFIRMATION_METHOD.CONFIRMATION_METHOD_TIME"))
-                            {
-                                validateDecisionSupport.processConfirmationMethodTimeDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
-                            }
-                            else if (metaData.getDataLocation() != null
-                                    && metaData.getDataLocation().trim().toUpperCase().startsWith("ACT_ID.ROOT_EXTENSION_TXT"))
-                            {
-                                validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
-                            }
-                            else if (metaData.getDataLocation() != null
-                                    && metaData.getDataLocation().trim().toUpperCase().startsWith("CASE_MANAGEMENT")
-                                    && obj instanceof PageActProxyContainer)
-                            {
-                                validateDecisionSupport.processNBSCaseManagementDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
-                            }
-                            else if (metaData.getDataLocation() != null
-                                    && metaData.getDataType().toUpperCase().startsWith("PART"))
-                            {
-                                entityMapCollection.add(edxRuleManageDT);
-                                if (edxRuleManageDT.getParticipationTypeCode() == null
-                                        || edxRuleManageDT.getParticipationUid() == null
-                                        || edxRuleManageDT.getParticipationClassCode() == null) {
-                                    throw new DataProcessingException("ValidateDecisionSupport.validateProxyVO Exception thrown for edxRuleManageDT:-" + edxRuleManageDT);
-                                }
-                            }
-                        } catch (Exception e) {
-                            throw new DataProcessingException("ERROR:-ValidateDecisionSupport.validateProxyVO Exception thrown Please check." + e, e);
                         }
 
                     }

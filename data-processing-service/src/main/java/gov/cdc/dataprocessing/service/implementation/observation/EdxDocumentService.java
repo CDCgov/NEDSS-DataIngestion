@@ -55,7 +55,7 @@ public class EdxDocumentService implements IEdxDocumentService {
         return edxDocumentDtoCollection;
     }
 
-    @Transactional
+    
     public EDXDocumentDto saveEdxDocument(EDXDocumentDto edxDocumentDto) {
         EdxDocument data = new EdxDocument(edxDocumentDto);
         var res = edxDocumentRepository.save(data);

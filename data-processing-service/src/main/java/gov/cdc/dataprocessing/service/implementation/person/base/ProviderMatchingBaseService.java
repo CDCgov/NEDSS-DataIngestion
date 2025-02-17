@@ -121,81 +121,65 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 
     @SuppressWarnings("java:S1172")
     protected Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
-        try {
-            boolean callOrgHashCode= false;
-            if(personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
-                    && !personContainer.getThePersonDto().isCaseInd()){
-                callOrgHashCode= true;
-                personContainer.getThePersonDto().setEdxInd("Y");
-            }
-            long personUid= persistingProvider(personContainer, "PROVIDER", businessTriggerCd );
-
-            if(callOrgHashCode){
-                try {
-                    personContainer.getThePersonDto().setPersonUid(personUid);
-                    /**
-                     * THIS CODE HAS THING TO DO WITH ORGANIZATION
-                     * */
-                    setProvidertoEntityMatch(personContainer);
-                } catch (Exception e) {
-                    logger.error("EntityControllerEJB.setProvider method exception thrown for matching criteria: {}", e.getMessage());
-                    throw new DataProcessingException("EntityControllerEJB.setProvider method exception thrown for matching criteria:"+e);
-                }
-            }
-            return personUid;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        boolean callOrgHashCode= false;
+        if(personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
+                && !personContainer.getThePersonDto().isCaseInd()){
+            callOrgHashCode= true;
+            personContainer.getThePersonDto().setEdxInd("Y");
         }
+        long personUid= persistingProvider(personContainer, "PROVIDER", businessTriggerCd );
+
+        if(callOrgHashCode){
+            personContainer.getThePersonDto().setPersonUid(personUid);
+            setProvidertoEntityMatch(personContainer);
+        }
+        return personUid;
+
     }
 
     @SuppressWarnings("java:S1172")
     protected Long persistingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException  {
         Long personUID ;
         String localId ;
-        try {
-            localId = personContainer.getThePersonDto().getLocalId();
-            if (localId == null) {
-                personContainer.getThePersonDto().setEdxInd("Y");
-            }
-
-            Collection<EntityLocatorParticipationDto> collParLocator ;
-            Collection<RoleDto> colRole;
-            Collection<ParticipationDto> colPar ;
-
-
-            collParLocator = personContainer.getTheEntityLocatorParticipationDtoCollection();
-            if (collParLocator != null) {
-                getEntityHelper().iterateELPDTForEntityLocatorParticipation(collParLocator);
-                personContainer.setTheEntityLocatorParticipationDtoCollection(collParLocator);
-            }
-
-            colRole = personContainer.getTheRoleDtoCollection();
-            if (colRole != null) {
-                getEntityHelper().iterateRDT(colRole);
-                personContainer.setTheRoleDtoCollection(colRole);
-            }
-            colPar = personContainer.getTheParticipationDtoCollection();
-            if (colPar != null) {
-                getEntityHelper().iteratePDTForParticipation(colPar);
-                personContainer.setTheParticipationDtoCollection(colPar);
-            }
-
-            getPatientRepositoryUtil().preparePersonNameBeforePersistence(personContainer);
-
-            if (personContainer.isItNew()) {
-                Person p = getPatientRepositoryUtil().createPerson(personContainer);
-                personUID = p.getPersonUid();
-            }
-            else {
-                getPatientRepositoryUtil().updateExistingPerson(personContainer);
-                personUID = personContainer.getThePersonDto().getPersonUid();
-
-            }
-
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        localId = personContainer.getThePersonDto().getLocalId();
+        if (localId == null) {
+            personContainer.getThePersonDto().setEdxInd("Y");
         }
+
+        Collection<EntityLocatorParticipationDto> collParLocator ;
+        Collection<RoleDto> colRole;
+        Collection<ParticipationDto> colPar ;
+
+
+        collParLocator = personContainer.getTheEntityLocatorParticipationDtoCollection();
+        if (collParLocator != null) {
+            getEntityHelper().iterateELPDTForEntityLocatorParticipation(collParLocator);
+            personContainer.setTheEntityLocatorParticipationDtoCollection(collParLocator);
+        }
+
+        colRole = personContainer.getTheRoleDtoCollection();
+        if (colRole != null) {
+            getEntityHelper().iterateRDT(colRole);
+            personContainer.setTheRoleDtoCollection(colRole);
+        }
+        colPar = personContainer.getTheParticipationDtoCollection();
+        if (colPar != null) {
+            getEntityHelper().iteratePDTForParticipation(colPar);
+            personContainer.setTheParticipationDtoCollection(colPar);
+        }
+
+        getPatientRepositoryUtil().preparePersonNameBeforePersistence(personContainer);
+
+        if (personContainer.isItNew()) {
+            Person p = getPatientRepositoryUtil().createPerson(personContainer);
+            personUID = p.getPersonUid();
+        }
+        else {
+            getPatientRepositoryUtil().updateExistingPerson(personContainer);
+            personUID = personContainer.getThePersonDto().getPersonUid();
+
+        }
+
         return personUID;
 
     }
@@ -220,12 +204,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                     edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
                     edxEntityMatchDto.setMatchString(identifier);
                     edxEntityMatchDto.setMatchStringHashCode((long) identifierHshCd);
-                    try {
-                        getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
-                    } catch (Exception e) {
-                        logger.error("Error in creating the EdxEntityMatchDT with identifier: {} {}", identifier, e.getMessage());
-                        throw new DataProcessingException(e.getMessage(), e);
-                    }
+                    getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
                 }
 
             }
@@ -258,13 +237,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDto.setMatchString(nameAddStrSt1);
             edxEntityMatchDto.setMatchStringHashCode((long)nameAddStrSt1hshCd);
-            try {
-                getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
-            } catch (Exception e) {
-                logger.error("Error in creating the EdxEntityMatchDT with nameAddStrSt1: {} {}", nameAddStrSt1, e.getMessage());
-                throw new DataProcessingException(e.getMessage(), e);
-            }
-
+            getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
         }
         // Create the name and address with nameTelePhone
         if (nameTelePhone != null) {
@@ -273,11 +246,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             edxEntityMatchDto.setTypeCd(NEDSSConstant.PRV);
             edxEntityMatchDto.setMatchString(nameTelePhone);
             edxEntityMatchDto.setMatchStringHashCode((long)nameTelePhonehshCd);
-            try {
-                getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(edxEntityMatchDto);
         }
         if (edxEntityMatchDto != null) {
             getPatientRepositoryUtil().updateExistingPersonEdxIndByUid(edxEntityMatchDto.getEntityUid());
@@ -290,84 +259,63 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         List<String> identifierList = new ArrayList<>();
         String identifier = null;
         Collection<EntityIdDto> newEntityIdDtoColl = new ArrayList<>();
-        try{
-            if (personContainer.getTheEntityIdDtoCollection() != null
-                    && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
-                for (EntityIdDto entityIdDto : entityIdDtoColl) {
-                    if ((entityIdDto.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
-                        if ((entityIdDto.getRootExtensionTxt() != null)
-                                && (entityIdDto.getTypeCd() != null)
-                                && (entityIdDto.getAssigningAuthorityCd() != null)
-                                && (entityIdDto.getAssigningAuthorityDescTxt() != null)
-                                && (entityIdDto.getAssigningAuthorityIdType() != null)) {
-                            identifier = entityIdDto.getRootExtensionTxt()
-                                    + carrot + entityIdDto.getTypeCd() + carrot
-                                    + entityIdDto.getAssigningAuthorityCd()
-                                    + carrot
-                                    + entityIdDto.getAssigningAuthorityDescTxt()
-                                    + carrot + entityIdDto.getAssigningAuthorityIdType();
-                        } else {
-                            try {
+        if (personContainer.getTheEntityIdDtoCollection() != null
+                && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            Collection<EntityIdDto> entityIdDtoColl = personContainer.getTheEntityIdDtoCollection();
+            for (EntityIdDto entityIdDto : entityIdDtoColl) {
+                if ((entityIdDto.getStatusCd().equalsIgnoreCase(NEDSSConstant.STATUS_ACTIVE))) {
+                    if ((entityIdDto.getRootExtensionTxt() != null)
+                            && (entityIdDto.getTypeCd() != null)
+                            && (entityIdDto.getAssigningAuthorityCd() != null)
+                            && (entityIdDto.getAssigningAuthorityDescTxt() != null)
+                            && (entityIdDto.getAssigningAuthorityIdType() != null)) {
+                        identifier = entityIdDto.getRootExtensionTxt()
+                                + carrot + entityIdDto.getTypeCd() + carrot
+                                + entityIdDto.getAssigningAuthorityCd()
+                                + carrot
+                                + entityIdDto.getAssigningAuthorityDescTxt()
+                                + carrot + entityIdDto.getAssigningAuthorityIdType();
+                    } else {
+                        try {
 
-//                                Coded coded = new Coded();
-//                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
-//                                coded.setCodesetName(NEDSSConstant.EI_AUTH_PRV);
-//                                coded.setCodesetTableName(DataTable.CODE_VALUE_GENERAL);
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
+                            Coded coded = new Coded();
+                            coded.setCode(entityIdDto.getAssigningAuthorityCd());
+                            coded.setCodesetName(NEDSSConstant.EI_AUTH);
+                            coded.setCodesetTableName("Code_value_general");
 
-                                Coded coded = new Coded();
-                                coded.setCode(entityIdDto.getAssigningAuthorityCd());
-                                coded.setCodesetName(NEDSSConstant.EI_AUTH);
-                                coded.setCodesetTableName("Code_value_general");
-
-                                //TODO: This call out to code value general Repos and Caching the recrod
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
-
-//                                var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
-
-
-                                if (entityIdDto.getRootExtensionTxt() != null
-                                        && entityIdDto.getTypeCd() != null
-                                        && coded.getCode() != null
-                                        && coded.getCodeDescription() != null
-                                        && coded.getCodeSystemCd() != null) {
-                                    identifier = entityIdDto.getRootExtensionTxt()
-                                            + carrot + entityIdDto.getTypeCd() + carrot
-                                            + coded.getCode() + carrot
-                                            + coded.getCodeDescription() + carrot
-                                            + coded.getCodeSystemCd();
-                                }
-
-
-                            } catch (Exception ex) {
-                                String errorMessage = "The assigning authority "
-                                        + entityIdDto.getAssigningAuthorityCd()
-                                        + " does not exists in the system. ";
-                                logger.debug("{} {}", ex.getMessage(), errorMessage);
+                            if (entityIdDto.getRootExtensionTxt() != null
+                                    && entityIdDto.getTypeCd() != null
+                                    && coded.getCode() != null
+                                    && coded.getCodeDescription() != null
+                                    && coded.getCodeSystemCd() != null) {
+                                identifier = entityIdDto.getRootExtensionTxt()
+                                        + carrot + entityIdDto.getTypeCd() + carrot
+                                        + coded.getCode() + carrot
+                                        + coded.getCodeDescription() + carrot
+                                        + coded.getCodeSystemCd();
                             }
-                        }
-                        if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
-                            newEntityIdDtoColl.add(entityIdDto);
-                        }
-                        if (identifier != null) {
-                            identifierList.add(identifier);
-                        }
 
+
+                        } catch (Exception ex) {
+                            String errorMessage = "The assigning authority "
+                                    + entityIdDto.getAssigningAuthorityCd()
+                                    + " does not exists in the system. ";
+                            logger.debug("{} {}", ex.getMessage(), errorMessage);
+                        }
+                    }
+                    if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
+                        newEntityIdDtoColl.add(entityIdDto);
+                    }
+                    if (identifier != null) {
+                        identifierList.add(identifier);
                     }
 
                 }
 
             }
-            personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
 
-        }catch (Exception ex) {
-            String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
-            throw new DataProcessingException(errorMessage, ex);
         }
+        personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
         return identifierList;
 
     }

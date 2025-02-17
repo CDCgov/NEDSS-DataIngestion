@@ -1,14 +1,12 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @Setter
@@ -146,6 +144,9 @@ public class Organization {
 
     @Column(name = "edx_ind", length = 1)
     private String edxInd;
+
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<OrganizationName> organizationNames;
 
     public Organization() {
     }

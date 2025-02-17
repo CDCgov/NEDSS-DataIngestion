@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +71,7 @@ class LookupServiceTest {
     }
 
     @Test
-    void testGetToPrePopFormMapping_CacheHit() throws DataProcessingException {
+    void testGetToPrePopFormMapping_CacheHit() throws DataProcessingException, IOException, ClassNotFoundException {
         String formCd = "testFormCd";
         TreeMap<Object, Object> expectedMap = new TreeMap<>();
         OdseCache.toPrePopFormMapping.put(formCd, expectedMap);
@@ -82,7 +83,7 @@ class LookupServiceTest {
 
 
     @Test
-    void testGetToPrePopFormMapping_Test2() throws DataProcessingException {
+    void testGetToPrePopFormMapping_Test2() throws DataProcessingException, IOException, ClassNotFoundException {
         String formCd = "TO_FORM";
 
         List<LookupQuestionExtended> lookQLst = new ArrayList<>();

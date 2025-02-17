@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.entity;
 
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.EntityIdId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -45,6 +46,10 @@ public class EntityId {
     @Id
     @Column(name = "entity_id_seq", nullable = false)
     private Integer entityIdSeq;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entity_uid", nullable = false, insertable = false, updatable = false)
+    private EntityODSE entity;
 
     @Column(name = "add_reason_cd", length = 20)
     private String addReasonCode;
@@ -117,10 +122,7 @@ public class EntityId {
 
     @Column(name = "assigning_authority_id_type", length = 50)
     private String assigningAuthorityIdType;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "entity_uid", referencedColumnName = "entityUid", insertable = false, updatable = false)
-//    private Entity entity;
+
 
     // Constructors and other methods (if needed)
     public EntityId() {

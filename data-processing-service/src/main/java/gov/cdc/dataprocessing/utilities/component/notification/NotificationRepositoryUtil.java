@@ -113,7 +113,7 @@ public class NotificationRepositoryUtil {
     }
 
 
-    @Transactional
+    
     public Long setNotification(NotificationContainer notificationContainer) throws DataProcessingException
     {
         Long notificationUid;

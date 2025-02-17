@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Transactional
 /**
  125 - Comment complaint
  3776 - Complex complaint

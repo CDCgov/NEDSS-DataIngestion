@@ -186,7 +186,6 @@ public class ObservationService implements IObservationService {
     /**
      * Origin: sendLabResultToProxy
      * */
-    @Transactional
     public ObservationDto processingLabResultContainer(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
         if (labResultProxyContainer == null) {
             throw new DataProcessingException("Lab Result Container Is Null");
@@ -201,7 +200,6 @@ public class ObservationService implements IObservationService {
     }
 
 
-    @Transactional
     public boolean processObservation(Long observationUid) throws DataProcessingException {
         return processObservationWithProcessingDecision(observationUid,
                 null, null);
@@ -210,20 +208,14 @@ public class ObservationService implements IObservationService {
 
     public void setLabInvAssociation(Long labUid, Long investigationUid) throws DataProcessingException {
         LabReportSummaryContainer labReportSummaryVO = new LabReportSummaryContainer();
+        labReportSummaryVO.setTouched(true);
+        labReportSummaryVO.setAssociated(true);
+        labReportSummaryVO.setObservationUid(labUid);
+        labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
+        Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
+        labReportSummaryVOColl.add(labReportSummaryVO);
 
-        try {
-
-            labReportSummaryVO.setTouched(true);
-            labReportSummaryVO.setAssociated(true);
-            labReportSummaryVO.setObservationUid(labUid);
-            labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
-            Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
-            labReportSummaryVOColl.add(labReportSummaryVO);
-
-            setObservationAssociations(investigationUid, labReportSummaryVOColl);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        setObservationAssociations(investigationUid, labReportSummaryVOColl);
 
     }
 
@@ -790,11 +782,10 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> setLabResultProxy(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
             //saving LabResultProxyVO before updating auto resend notifications
+            // persiting OBS and related objects to ODSE
             Map<Object, Object> returnVal = setLabResultProxyWithoutNotificationAutoResend(labResultProxyVO);
 
             updateLabResultWithAutoResendNotification(labResultProxyVO);
-
-            //TODO: EMAIL NOTIFICATION IS FLAGGED HERE
 
             if(labResultProxyVO.getMessageLogDCollection()!=null
                     && !labResultProxyVO.getMessageLogDCollection().isEmpty()){
@@ -826,12 +817,7 @@ public class ObservationService implements IObservationService {
             Collection<ObservationContainer> observationCollection  = labResultProxyVO.getTheObservationContainerCollection();
             ObservationContainer obsVO = findObservationByCode(observationCollection, NEDSSConstant.LAB_REPORT);
             String localId = obsVO.getTheObservationDto().getLocalId(); //NOSONAR
-            if (localId!=null)
-            {
-                nndActivityLogDto.setLocalId(localId);
-            }
-            else
-                nndActivityLogDto.setLocalId("N/A");
+            nndActivityLogDto.setLocalId(Objects.requireNonNullElse(localId, "N/A"));
             //catch & store auto resend notifications exceptions in NNDActivityLog table
             nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
             logger.error("Exception occurred while calling nndMessageSenderHelper.updateAutoResendNotificationsAsync");
@@ -841,16 +827,14 @@ public class ObservationService implements IObservationService {
         return nndActivityLogDto;
     }
     @SuppressWarnings({"java:S3776", "java:S1199"})
+    /**
+     * Desc - 1: Add patient or provide assoc with OBS
+     * Desc - 2: Create OBS in ODSE
+     * */
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
         //Set flag for type of processing
-        boolean ELR_PROCESSING = false; // NOSONAR
-
-        // We need specific auth User for elr processing, but probably wont applicable for data processing
-        if (AuthUtil.authUser != null || (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT)))
-        {
-            ELR_PROCESSING = true;
-        }
+        boolean ELR_PROCESSING = true  ; // NOSONAR
 
         //All well to proceed
         Map<Object, Object> returnVal = new HashMap<>();
@@ -998,23 +982,12 @@ public class ObservationService implements IObservationService {
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
 
                     logger.debug("Inside loop size of participations: {}", labResultProxyVO.getTheParticipationDtoCollection().size());
-                    try {
-                        if (dt != null) {
-                            if (dt.isItDelete()) {
-                                participationService.saveParticipationHist(dt);
-                            }
-
-                            participationService.saveParticipation(dt);
-
-
-                            logger.debug("got the participationDto, the ACTUID is {}",
-                                    dt.getActUid());
-                            logger.debug("got the participationDto, the subjectEntityUid is {}",
-                                    dt.getSubjectEntityUid());
+                    if (dt != null) {
+                        if (dt.isItDelete()) {
+                            participationService.saveParticipationHist(dt);
                         }
-                    } catch (Exception e) {
-                        throw new DataProcessingException(e.getMessage(),e);
-                    } 
+                        participationService.saveParticipation(dt);
+                    }
                 }
             }
 
@@ -1025,13 +998,8 @@ public class ObservationService implements IObservationService {
             {
                 logger.debug("Act relationship size: {}", labResultProxyVO.getTheActRelationshipDtoCollection().size());
                 for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
-                    try {
-                        if (actRelationshipDto != null) {
-                            actRelationshipService.saveActRelationship(actRelationshipDto);
-                        }
-                    } catch (Exception e) {
-                        logger.info(e.getMessage());
-                        throw new DataProcessingException(e.getMessage(), e);
+                    if (actRelationshipDto != null) {
+                        actRelationshipService.saveActRelationship(actRelationshipDto);
                     }
                 }
             }
@@ -1128,13 +1096,6 @@ public class ObservationService implements IObservationService {
             return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
         }
 
-        //If coming from morbidity, processing this way
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                return processMorbObsVOCollection( (MorbidityProxyVO) proxyVO,
-//                        securityObj);
-//            }
-
         //If not above, abort the operation
         else
         {
@@ -1145,44 +1106,10 @@ public class ObservationService implements IObservationService {
 
     /**
      * Original Name: processLabReportObsVOCollection
+     * Desc: Create Observation in ODSE
      * */
     private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
-        Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
-        ObservationContainer observationContainer;
         Map<Object, Object> returnObsVal;
-        boolean isMannualLab = false;
-
-        //Find out if it is mannual lab
-        String electronicInd = observationUtil.getRootObservationDto(labResultProxyVO).getElectronicInd();
-        if(electronicInd != null && !electronicInd.equals(NEDSSConstant.YES))
-        {
-            isMannualLab = true;
-        }
-
-        if (obsContainerCollection != null && !obsContainerCollection.isEmpty())
-        {
-            for (ObservationContainer item : obsContainerCollection) {
-                observationContainer = item;
-                if (observationContainer == null) {
-                    continue;
-                }
-
-                // NOTE: data toward DP will never be manual lab
-                if (isMannualLab) {
-                    /**
-                    // Removed for Rel 1.1.3 - as we are not doing a reverse translation for ORdered test and Resulted Test
-                    if (isOrderedTest || isResultedTest) {
-                        //Retrieve lab test code
-
-                        //Do loinc and snomed lookups for oredered and resulted tests
-                        observationContainer = srteCodeObsService.labLoincSnomedLookup(observationContainer, labResultProxyVO.getLabClia());
-                    }
-                    logger.debug("observationUID: " + observationContainer.getTheObservationDto().getObservationUid());
-                     **/
-                }
-            }
-        }
-
         //Process the ordered test further
         returnObsVal = processLabReportOrderTest(labResultProxyVO, ELR_PROCESSING);
 
@@ -1201,12 +1128,6 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> processLabReportOrderTest(LabResultProxyContainer labResultProxyVO, boolean isELR) throws DataProcessingException {
             //Retrieve the ordered test
             ObservationContainer orderTest = observationUtil.getRootObservationContainer(labResultProxyVO);
-
-            //Overrides rptToStateTime to current date/time for external user
-            if (AuthUtil.authUser.getUserType() != null && AuthUtil.authUser.getUserType().equalsIgnoreCase(NEDSSConstant.SEC_USERTYPE_EXTERNAL))
-            {
-                orderTest.getTheObservationDto().setRptToStateTime(getCurrentTimeStamp(tz));
-            }
 
             //Assign program area cd if necessary, and return any errors to the client
             Map<Object, Object> returnErrors = new HashMap<>();
@@ -1238,7 +1159,7 @@ public class ObservationService implements IObservationService {
             //Manipulate jurisdiction for preparing vo
             jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
             if(jurisdictionCd != null
-                && (jurisdictionCd.trim().equals("")
+                && (jurisdictionCd.trim().isEmpty()
                     || jurisdictionCd.equals("ANY")
                     || jurisdictionCd.equals("NONE")
                 )
@@ -1257,26 +1178,19 @@ public class ObservationService implements IObservationService {
     private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid) throws DataProcessingException {
         Map<Object, Object> localIds = null;
 
-        try
-        {
-            //Find observation local id
-            localIds = new HashMap<>();
-            var resObs = observationRepository.findById(observationUid);
-            ObservationDto obsDT = new ObservationDto();
-            if (resObs.isPresent()) {
-                obsDT = new ObservationDto(resObs.get());
-            }
-            localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
-            localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
-            //Find mpr local id
-            var resPat = personRepository.findById(personMprUid);
-            if (resPat.isPresent()) {
-                localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
-            }
+        //Find observation local id
+        localIds = new HashMap<>();
+        var resObs = observationRepository.findById(observationUid);
+        ObservationDto obsDT = new ObservationDto();
+        if (resObs.isPresent()) {
+            obsDT = new ObservationDto(resObs.get());
         }
-        catch (Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
+        localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
+        localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
+        //Find mpr local id
+        var resPat = personRepository.findById(personMprUid);
+        if (resPat.isPresent()) {
+            localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
         }
         return localIds;
     }
@@ -1335,73 +1249,64 @@ public class ObservationService implements IObservationService {
     }
     @SuppressWarnings("java:S3776")
     private Long storeObservationVOCollection(BaseContainer proxyVO) throws DataProcessingException {
-        try {
-            //Iterates the observation collection and process each observation vo
-            Collection<ObservationContainer>  obsVOColl = null;
-            boolean isLabResultProxyVO = false;
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
-                obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
-                isLabResultProxyVO = true;
-            }
-
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationContainerCollection();
-//            }
-
-            ObservationContainer observationContainer ;
-            Long returnObsVal = null;
-
-            if (obsVOColl != null && !obsVOColl.isEmpty())
-            {
-                for (ObservationContainer item : obsVOColl) {
-                    observationContainer = item;
-
-                    if (observationContainer == null) {
-                        continue;
-                    }
-
-                    //If lab report's order test, set a flag
-                    boolean isRootObs = false;
-
-                    String obsDomainCdSt1 = observationContainer.getTheObservationDto().
-                            getObsDomainCdSt1();
-                    if (isLabResultProxyVO && obsDomainCdSt1 != null &&
-                            obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)) {
-                        isRootObs = true;
-                    }
-
-                    //If a root morbidity, set a flag so to return the observation uid
-                    String ctrlCdDisplayForm = observationContainer.getTheObservationDto().
-                            getCtrlCdDisplayForm();
-                    if (ctrlCdDisplayForm != null &&
-                            ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)) {
-                        isRootObs = true;
-                    }
-
-                    //Persist the observation vo
-                    Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
-
-                    //Update associations with real uid if new
-                    if (observationContainer.isItNew()) {
-                        Long falseUid = observationContainer.getTheObservationDto().getObservationUid();
-                        if (falseUid.intValue() < 0) {
-                            uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
-                        }
-                    }
-
-
-                    //Return the order test uid
-                    if (observationUid != null && isRootObs) {
-                        returnObsVal = observationUid;
-                    }
-                } //end of for loop
-            } //end of main if
-            return returnObsVal;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        //Iterates the observation collection and process each observation vo
+        Collection<ObservationContainer>  obsVOColl = null;
+        boolean isLabResultProxyVO = false;
+        if (proxyVO instanceof LabResultProxyContainer)
+        {
+            obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
+            isLabResultProxyVO = true;
         }
+
+        ObservationContainer observationContainer ;
+        Long returnObsVal = null;
+
+        if (obsVOColl != null && !obsVOColl.isEmpty())
+        {
+            for (ObservationContainer item : obsVOColl) {
+                observationContainer = item;
+
+                if (observationContainer == null) {
+                    continue;
+                }
+
+                //If lab report's order test, set a flag
+                boolean isRootObs = false;
+
+                String obsDomainCdSt1 = observationContainer.getTheObservationDto().
+                        getObsDomainCdSt1();
+                if (isLabResultProxyVO && obsDomainCdSt1 != null &&
+                        obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)) {
+                    isRootObs = true;
+                }
+
+                //If a root morbidity, set a flag so to return the observation uid
+                String ctrlCdDisplayForm = observationContainer.getTheObservationDto().
+                        getCtrlCdDisplayForm();
+                if (ctrlCdDisplayForm != null &&
+                        ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)) {
+                    isRootObs = true;
+                }
+
+                //Persist the observation vo
+                Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
+
+                //Update associations with real uid if new
+                if (observationContainer.isItNew()) {
+                    Long falseUid = observationContainer.getTheObservationDto().getObservationUid();
+                    if (falseUid.intValue() < 0) {
+                        uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
+                    }
+                }
+
+
+                //Return the order test uid
+                if (observationUid != null && isRootObs) {
+                    returnObsVal = observationUid;
+                }
+            } //end of for loop
+        } //end of main if
+        return returnObsVal;
     }
 
 
@@ -1409,57 +1314,49 @@ public class ObservationService implements IObservationService {
 
     protected boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
 
-        try
+        ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+
+        ObservationDto observationDT = observationVO.getTheObservationDto();
+        observationDT.setProcessingDecisionCd(processingDecisionCd);
+        if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
         {
-            ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+            observationDT.setProcessingDecisionTxt(processingDecisionTxt);
+        }
 
-            ObservationDto observationDT = observationVO.getTheObservationDto();
-            observationDT.setProcessingDecisionCd(processingDecisionCd);
-            if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
-            {
-                observationDT.setProcessingDecisionTxt(processingDecisionTxt);
-            }
+        String observationType = observationDT.getCtrlCdDisplayForm();
+        String businessTrigger;
+        String businessObjLookupName;
 
-            String observationType = observationDT.getCtrlCdDisplayForm();
-            String businessTrigger;
-            String businessObjLookupName;
-
-            if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
-                businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
-                businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
-
-            }
-            else{
-                throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
-            }
-
-            if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
-            {
-                observationDT.setItNew(false);
-                observationDT.setItDirty(true);
-
-                RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
-                        observationDT,
-                        businessObjLookupName,
-                        businessTrigger,
-                        "OBSERVATION",
-                        NEDSSConstant.BASE,
-                        observationDT.getVersionCtrlNbr()
-                );
-
-                observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
-                observationRepositoryUtil.saveObservation(observationVO);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+        if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
+            businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
+            businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
 
         }
-        catch (Exception ex)
+        else{
+            throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
+        }
+
+        if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
         {
-            throw new DataProcessingException(ex.getMessage(), ex);
+            observationDT.setItNew(false);
+            observationDT.setItDirty(true);
+
+            RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
+                    observationDT,
+                    businessObjLookupName,
+                    businessTrigger,
+                    "OBSERVATION",
+                    NEDSSConstant.BASE,
+                    observationDT.getVersionCtrlNbr()
+            );
+
+            observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
+            observationRepositoryUtil.saveObservation(observationVO);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

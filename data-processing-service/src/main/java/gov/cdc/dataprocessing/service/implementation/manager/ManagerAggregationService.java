@@ -24,7 +24,9 @@ import gov.cdc.dataprocessing.service.model.person.PersonAggContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,20 +115,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
     public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException {
-        PersonAggContainer personAggContainer;
-        OrganizationContainer organizationContainer;
-        Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
-        Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
-        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-        personAggContainer =  patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-        organizationContainer= organizationService.processingOrganization(labResult);
-        roleAggregation(labResult);
-        progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-    }
-
-    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException {
+            DataProcessingException, DataProcessingConsumerException, IOException, ClassNotFoundException {
         PersonAggContainer personAggContainer;
         OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
@@ -134,18 +123,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
         observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
         personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-
-        Map<Long, Long> patientCount = personContainerCollection.stream()
-                .collect(Collectors.groupingBy(
-                        pc -> pc.getThePersonDto().getPersonUid(),
-                        Collectors.counting()
-                ));
-        long repetitiveCount = patientCount.entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .count();
-        if (repetitiveCount > 0) {
-            logger.info("CRITICAL, multiple repetitive uid found. {}", repetitiveCount);
-        }
 
         organizationContainer = organizationService.processingOrganization(labResult);
 
@@ -156,7 +133,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
                                                                           EdxLabInformationDto edxLabInformationDto,
                                                                           PersonAggContainer personAggContainer,
-                                                                          OrganizationContainer organizationContainer) {
+                                                                          OrganizationContainer organizationContainer) throws DataProcessingException {
             // Pulling Jurisdiction and Program from OBS
             ObservationContainer observationRequest = null;
             Collection<ObservationContainer> observationResults = new ArrayList<>();
@@ -175,20 +152,12 @@ public class ManagerAggregationService implements IManagerAggregationService {
             }
 
             if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-                try {
-                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
             }
 
             if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-                try {
-                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                            organizationContainer, observationRequest);
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                        organizationContainer, observationRequest);
             }
 
     }
@@ -198,7 +167,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     protected void progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,
-                                                                        OrganizationContainer organizationContainer) {
+                                                                        OrganizationContainer organizationContainer) throws DataProcessingException {
         ObservationContainer observationRequest = null;
         Collection<ObservationContainer> observationResults = new ArrayList<>();
         for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
@@ -216,57 +185,15 @@ public class ManagerAggregationService implements IManagerAggregationService {
         }
 
         if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-            try {
-                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-            } catch (DataProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
+
         }
 
         if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-            try {
-                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                        organizationContainer, observationRequest);
-            } catch (DataProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                    organizationContainer, observationRequest);
         }
 
-//        return CompletableFuture.runAsync(() -> {
-//            // Pulling Jurisdiction and Program from OBS
-//            ObservationContainer observationRequest = null;
-//            Collection<ObservationContainer> observationResults = new ArrayList<>();
-//            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-//                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
-//
-//                // Observation hit this is originated from Observation Result
-//                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-//                    observationResults.add(obsVO);
-//                }
-//
-//                // Observation hit is originated from Observation Request (ROOT)
-//                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
-//                    observationRequest = obsVO;
-//                }
-//            }
-//
-//            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-//                try {
-//                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-//                } catch (DataProcessingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-//                try {
-//                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-//                            organizationContainer, observationRequest);
-//                } catch (DataProcessingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        });
     }
 
     @SuppressWarnings("java:S3776")
@@ -411,7 +338,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     protected PersonAggContainer patientAggregation(LabResultProxyContainer labResultProxyContainer,
                                                     EdxLabInformationDto edxLabInformationDto,
-                                                  Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException {
+                                                  Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException, IOException, ClassNotFoundException {
 
         PersonAggContainer container = new PersonAggContainer();
         PersonContainer personContainerObj = null;

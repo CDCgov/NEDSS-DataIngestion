@@ -10,7 +10,9 @@ import gov.cdc.srtedataservice.repository.nbs.odse.repository.LocalUidGeneratorR
 import gov.cdc.srtedataservice.service.interfaces.IOdseIdGeneratorWCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,31 +31,34 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
         boolean newKeyRequired = false;
-        LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
+//        LocalUidModel localUidModel = LocalUidCacheModel.localUidMap.get(localIdClass.name());
 
-        if (localUidModel != null) {
-            if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
-                if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
-                    updateCounters(localUidModel, true);
-                } else if (localUidModel.getGaTypeUid() == null) {
-                    updateCounters(localUidModel, false);
-                } else {
-                    newKeyRequired = true;
-                }
-            } else {
-                newKeyRequired = true;
-            }
-        } else {
-            newKeyRequired = true;
-        }
+//        if (localUidModel != null) {
+//            if (localUidModel.getClassTypeUid().getUsedCounter() < localUidModel.getClassTypeUid().getCounter()) {
+//                if (localUidModel.getGaTypeUid() != null && localUidModel.getGaTypeUid().getUsedCounter() < localUidModel.getGaTypeUid().getCounter()) {
+//                    updateCounters(localUidModel, true);
+//                } else if (localUidModel.getGaTypeUid() == null) {
+//                    updateCounters(localUidModel, false);
+//                } else {
+//                    newKeyRequired = true;
+//                }
+//            } else {
+//                newKeyRequired = true;
+//            }
+//        } else {
+//            newKeyRequired = true;
+//        }
 
-        if (newKeyRequired) {
-            localUidModel = createNewLocalUid(localIdClass, gaApplied);
-            LocalUidCacheModel.localUidMap.put(localUidModel.getPrimaryClassName(), localUidModel);
-        }
+//        if (newKeyRequired) {
+//            localUidModel = createNewLocalUid(localIdClass, gaApplied);
+//            LocalUidCacheModel.localUidMap.put(localUidModel.getPrimaryClassName(), localUidModel);
+//        }
+
+        var localUidModel = createNewLocalUid(localIdClass, gaApplied);
+
 
         return localUidModel;
     }
@@ -74,6 +79,8 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
     private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
         LocalUidGeneratorDto localId = fetchLocalId(localIdClass);
+
+
         LocalUidGeneratorDto gaLocalId = gaApplied ? fetchLocalId(GA) : null;
 
         var localUidModel = new LocalUidModel();
@@ -86,7 +93,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
     private LocalUidGeneratorDto fetchLocalId(LocalIdClass localIdClass) throws RtiCacheException {
         try {
-            Optional<LocalUidGenerator> localUidOpt = localUidGeneratorRepository.findById(localIdClass.name());
+            Optional<LocalUidGenerator> localUidOpt = localUidGeneratorRepository.findByIdForUpdate(localIdClass.name());
             if (localUidOpt.isPresent()) {
                 LocalUidGeneratorDto localId = new LocalUidGeneratorDto(localUidOpt.get());
                 localId.setCounter(LocalUidCacheModel.SEED_COUNTER);
@@ -98,7 +105,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
                 newLocalId.setUidPrefixCd(localId.getUidPrefixCd());
                 newLocalId.setTypeCd(localId.getTypeCd());
                 newLocalId.setClassNameCd(localId.getClassNameCd());
-                newLocalId.setSeedValueNbr(seed + LocalUidCacheModel.SEED_COUNTER + 1);
+                newLocalId.setSeedValueNbr(seed + LocalUidCacheModel.SEED_COUNTER + 2);
                 localUidGeneratorRepository.save(newLocalId);
 
                 return localId;

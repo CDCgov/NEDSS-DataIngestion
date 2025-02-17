@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -67,6 +69,7 @@ public interface ActRelationshipRepository extends JpaRepository<ActRelationship
      String DELETE_BY_PK = "DELETE from Act_relationship where target_act_uid = ? and source_act_uid = ? and type_cd = ?"
      * */
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query("DELETE FROM ActRelationship data WHERE data.targetActUid = ?1 AND data.sourceActUid = ?2 AND data.typeCd = ?3")
     void deleteActRelationshipByPk(Long subjectUid, Long actUid, String typeCode);
 

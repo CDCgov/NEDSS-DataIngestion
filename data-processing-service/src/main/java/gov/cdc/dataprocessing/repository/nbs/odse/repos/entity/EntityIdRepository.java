@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -51,8 +52,9 @@ public interface EntityIdRepository extends JpaRepository<EntityId, Long> {
     Optional<List<EntityId>> findByEntityUid(@Param("entityUid") Long entityUid);
 
 
-    @Transactional
+    
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query("DELETE FROM EntityId pn WHERE pn.entityUid = :entityUid AND pn.entityIdSeq = :entityIdSeq")
     void deleteEntityIdAndSeq (@Param("entityUid") Long entityUid, @Param("entityIdSeq") Integer entityIdSeq);
 }

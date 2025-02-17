@@ -247,7 +247,7 @@ public class KafkaConsumerService {
             iReportStatusRepository.save(reportStatusIdData);
 
             if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "elr_unprocessed", 0);
+                kafkaProducerService.sendMessageAfterConvertedToXml(String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "dp_elr_unprocessed", 0);
             }
             else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
@@ -512,7 +512,7 @@ public class KafkaConsumerService {
             }
 
             if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "elr_unprocessed", 0); //NOSONAR
+                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), "dp_elr_unprocessed", 0); //NOSONAR
             } else {
                 kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
             }

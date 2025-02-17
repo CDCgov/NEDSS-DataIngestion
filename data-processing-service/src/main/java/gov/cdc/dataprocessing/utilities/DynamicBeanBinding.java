@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.utilities;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -42,79 +43,64 @@ public class DynamicBeanBinding {
      * returns
      */
     public static void populateBean(Object bean, String colNm, String colVal, String tz)
-            throws DataProcessingException {
+            throws DataProcessingException, InvocationTargetException, IllegalAccessException {
 
-        try {
+        //final SimpleDateFormat DATE_STORE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
-            //final SimpleDateFormat DATE_STORE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+        String methodName = getSetterName(colNm);
+        Map<Object, Object> methodMap = getMethods(bean.getClass());
 
-            String methodName = getSetterName(colNm);
-            Map<Object, Object> methodMap = getMethods(bean.getClass());
-
-            Method method = (Method) methodMap.get(methodName);
-            if(method==null){
-                return;
-            }
-            Object[] parmTypes = method.getParameterTypes();
-            String pType = ((Class<?>) parmTypes[0]).getName();
-            Object[] arg = { "" };
-            Object[] nullArg = null;
-
-            if (colVal!=null && !colVal.equals("")) {
-                if (pType.equalsIgnoreCase("java.sql.Timestamp")) {
-
-                    Timestamp ts = TimeStampUtil.getCurrentTimeStamp(tz);
-                    arg[0] = ts;
-
-                } else if (pType.equalsIgnoreCase("java.lang.String")) {
-                    arg[0] = colVal;
-
-                } else if (pType.equalsIgnoreCase("java.lang.Long")) {
-                    arg[0] = Long.valueOf(colVal);
-
-
-                } else if (pType.equalsIgnoreCase("java.lang.Integer")) {
-                    arg[0] = Integer.valueOf(colVal);
-
-                } else if (pType.equalsIgnoreCase("java.math.BigDecimal")) {
-                    arg[0] = BigDecimal.valueOf(Long.parseLong(colVal));
-
-                } else if (pType.equalsIgnoreCase("boolean")) {
-                    arg[0] = colVal;
-                }
-            }else {
-                arg[0] = nullArg;
-            }
-            try {
-                if(colVal==null) {
-                    Object[] nullargs = { null };
-                    method.invoke(bean, nullargs);
-                }else
-                    method.invoke(bean, arg);
-//                logger.debug("Successfully called methodName for bean " + bean
-//                        + " with value " + colVal);
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        Method method = (Method) methodMap.get(methodName);
+        if(method==null){
+            return;
         }
+        Object[] parmTypes = method.getParameterTypes();
+        String pType = ((Class<?>) parmTypes[0]).getName();
+        Object[] arg = { "" };
+        Object[] nullArg = null;
+
+        if (colVal!=null && !colVal.equals("")) {
+            if (pType.equalsIgnoreCase("java.sql.Timestamp")) {
+
+                Timestamp ts = TimeStampUtil.getCurrentTimeStamp(tz);
+                arg[0] = ts;
+
+            } else if (pType.equalsIgnoreCase("java.lang.String")) {
+                arg[0] = colVal;
+
+            } else if (pType.equalsIgnoreCase("java.lang.Long")) {
+                arg[0] = Long.valueOf(colVal);
+
+
+            } else if (pType.equalsIgnoreCase("java.lang.Integer")) {
+                arg[0] = Integer.valueOf(colVal);
+
+            } else if (pType.equalsIgnoreCase("java.math.BigDecimal")) {
+                arg[0] = BigDecimal.valueOf(Long.parseLong(colVal));
+
+            } else if (pType.equalsIgnoreCase("boolean")) {
+                arg[0] = colVal;
+            }
+        }else {
+            arg[0] = nullArg;
+        }
+        if(colVal==null) {
+            Object[] nullargs = { null };
+            method.invoke(bean, nullargs);
+        }else
+            method.invoke(bean, arg);
     }
 
     private static String getSetterName(String columnName) throws DataProcessingException {
-        try {
-            StringBuilder sb = new StringBuilder("set");
-            StringTokenizer st = new StringTokenizer(columnName, "_");
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken();
-                s = s.substring(0, 1).toUpperCase()
-                        + s.substring(1).toLowerCase();
-                sb.append(s);
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        StringBuilder sb = new StringBuilder("set");
+        StringTokenizer st = new StringTokenizer(columnName, "_");
+        while (st.hasMoreTokens()) {
+            String s = st.nextToken();
+            s = s.substring(0, 1).toUpperCase()
+                    + s.substring(1).toLowerCase();
+            sb.append(s);
         }
+        return sb.toString();
     }
 
 

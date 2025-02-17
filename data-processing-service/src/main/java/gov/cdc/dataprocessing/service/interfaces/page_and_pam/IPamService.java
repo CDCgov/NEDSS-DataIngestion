@@ -5,6 +5,8 @@ import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 
+import java.io.IOException;
+
 /**
  125 - Comment complaint
  3776 - Complex complaint
@@ -36,6 +38,6 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface IPamService {
 
-    Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException;
+    Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException, IOException, ClassNotFoundException;
     void insertPamVO(BasePamContainer pamVO, PublicHealthCaseContainer publichHealthCaseVO) throws DataProcessingException;
 }

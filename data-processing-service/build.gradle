@@ -196,7 +196,7 @@ dependencies {
 
     // Misc
     implementation 'com.google.code.gson:gson:2.11.0'
-    implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'com.zaxxer:HikariCP:6.2.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.2'
     implementation 'org.hibernate.validator:hibernate-validator'
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'

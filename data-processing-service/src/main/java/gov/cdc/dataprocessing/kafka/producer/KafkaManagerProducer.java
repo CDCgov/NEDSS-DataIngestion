@@ -38,19 +38,17 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
 
 
     @Value("${kafka.topic.elr_health_case}")
-    private String phcTopic = "elr_processing_public_health_case";
+    private String phcTopic = "dp_elr_processing_public_health_case";
 
     @Value("${kafka.topic.elr_handle_lab}")
-    private String labHandleTopic = "elr_processing_handle_lab" ;
+    private String labHandleTopic = "dp_elr_processing_handle_lab" ;
 
     @Value("${kafka.topic.elr_action_tracker}")
-    private String actionTrackerTopic = "elr_action_tracker" ;
+    private String actionTrackerTopic = "dp_elr_action_tracker" ;
 
     @Value("${kafka.topic.elr_edx_log}")
-    private String edxLogTopic = "elr_edx_log";
+    private String edxLogTopic = "dp_elr_edx_log";
 
-    @Value("${kafka.topic.elr_micro_transaction}")
-    private String unprocessedTopic = "elr_unprocessed_transaction";
 
     public KafkaManagerProducer(KafkaTemplate<String, String> kafkaTemplate) {
         super(kafkaTemplate);

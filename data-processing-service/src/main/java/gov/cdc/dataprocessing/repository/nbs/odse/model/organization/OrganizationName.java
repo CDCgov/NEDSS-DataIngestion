@@ -2,8 +2,12 @@ package gov.cdc.dataprocessing.repository.nbs.odse.model.organization;
 
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationNameId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -51,6 +55,12 @@ public class OrganizationName {
 
     @Column(name = "default_nm_ind", length = 1)
     private String defaultNameIndicator;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_uid", nullable = false, insertable = false, updatable = false)
+    private Organization organization;
+
 
     public OrganizationName() {
     }

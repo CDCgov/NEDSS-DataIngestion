@@ -40,7 +40,7 @@ public class MessageLogService implements IMessageLogService {
         this.messageLogRepository = messageLogRepository;
     }
 
-    @Transactional
+    
     public void saveMessageLog(Collection<MessageLogDto> messageLogDtoCollection) throws DataProcessingException {
         try{
             if(messageLogDtoCollection !=null)

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -66,7 +67,7 @@ public class LookupService implements ILookupService {
         this.catchingValueService = catchingValueService;
     }
 
-    public TreeMap<Object, Object> getToPrePopFormMapping(String formCd) throws DataProcessingException {
+    public TreeMap<Object, Object> getToPrePopFormMapping(String formCd) throws DataProcessingException, IOException, ClassNotFoundException {
         TreeMap<Object, Object> returnMap;
         returnMap = (TreeMap<Object, Object>) OdseCache.toPrePopFormMapping.get(formCd);
         if (returnMap == null) {
@@ -177,7 +178,7 @@ public class LookupService implements ILookupService {
     }
 
     @SuppressWarnings("java:S3776")
-    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
+    private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws DataProcessingException, IOException, ClassNotFoundException {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
@@ -186,20 +187,36 @@ public class LookupService implements ILookupService {
 
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
-        try {
-            if (!coll.isEmpty()) {
-                for (LookupMappingDto lookupMappingDto : coll) {
-                    sizecount++;
-                    qMetadata = new PrePopMappingDto(lookupMappingDto);
+        if (!coll.isEmpty()) {
+            for (LookupMappingDto lookupMappingDto : coll) {
+                sizecount++;
+                qMetadata = new PrePopMappingDto(lookupMappingDto);
 
-                    if (qMetadata.getFromFormCd() != null) {
+                if (qMetadata.getFromFormCd() != null) {
 
-                        if (loopcount == 0) {
-                            previousFormCode = qMetadata.getFromFormCd();
+                    if (loopcount == 0) {
+                        previousFormCode = qMetadata.getFromFormCd();
+                        String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
+                                : qMetadata.getFromQuestionIdentifier();
+                        String fromAns = qMetadata.getFromAnswerCode();
+                        map[count] = new TreeMap<>();
+                        if (!fromQuestionId.equals("")) {
+                            if (fromAns != null) {
+                                fromQuestionId = fromQuestionId + "$" + fromAns;
+                                map[count].put(fromQuestionId, qMetadata);
+                            }
+                            PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
+                            qMetadata1.setFromAnswerCode(null);
+                            map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
+                            loopcount++;
+                        }
+
+                    } else {
+                        currentFormCode = qMetadata.getFromFormCd();
+                        if (currentFormCode.equals(previousFormCode)) {
                             String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                     : qMetadata.getFromQuestionIdentifier();
                             String fromAns = qMetadata.getFromAnswerCode();
-                            map[count] = new TreeMap<>();
                             if (!fromQuestionId.equals("")) {
                                 if (fromAns != null) {
                                     fromQuestionId = fromQuestionId + "$" + fromAns;
@@ -208,64 +225,43 @@ public class LookupService implements ILookupService {
                                 PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                 qMetadata1.setFromAnswerCode(null);
                                 map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
-                                loopcount++;
                             }
 
                         } else {
-                            currentFormCode = qMetadata.getFromFormCd();
-                            if (currentFormCode.equals(previousFormCode)) {
-                                String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
-                                        : qMetadata.getFromQuestionIdentifier();
-                                String fromAns = qMetadata.getFromAnswerCode();
-                                if (!fromQuestionId.equals("")) {
-                                    if (fromAns != null) {
-                                        fromQuestionId = fromQuestionId + "$" + fromAns;
-                                        map[count].put(fromQuestionId, qMetadata);
-                                    }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
-                                    qMetadata1.setFromAnswerCode(null);
-                                    map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
+                            OdseCache.fromPrePopFormMapping.put(previousFormCode, map[count]);
+                            count = count + 1;
+                            String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
+                                    : qMetadata.getFromQuestionIdentifier();
+                            String fromAns = qMetadata.getFromAnswerCode();
+                            if (!fromQuestionId.equals("")) {
+                                map[count] = new TreeMap<>();
+                                if (fromAns != null) {
+                                    fromQuestionId = fromQuestionId + "$" + fromAns;
+                                    map[count].put(fromQuestionId, qMetadata);
                                 }
-
-                            } else {
-                                OdseCache.fromPrePopFormMapping.put(previousFormCode, map[count]);
-                                count = count + 1;
-                                String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
-                                        : qMetadata.getFromQuestionIdentifier();
-                                String fromAns = qMetadata.getFromAnswerCode();
-                                if (!fromQuestionId.equals("")) {
-                                    map[count] = new TreeMap<>();
-                                    if (fromAns != null) {
-                                        fromQuestionId = fromQuestionId + "$" + fromAns;
-                                        map[count].put(fromQuestionId, qMetadata);
-                                    }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
-                                    qMetadata1.setFromAnswerCode(null);
-                                    map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
-                                }
-
+                                PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
+                                qMetadata1.setFromAnswerCode(null);
+                                map[count].put(qMetadata.getFromQuestionIdentifier(), qMetadata1);
                             }
-                            previousFormCode = currentFormCode;
-                            loopcount++;
-                        }
 
-                    }
-                    if (sizecount == coll.size()) {
-                        OdseCache.fromPrePopFormMapping.put(qMetadata.getFromFormCd(), map[count]);
+                        }
+                        previousFormCode = currentFormCode;
+                        loopcount++;
                     }
 
                 }
+                if (sizecount == coll.size()) {
+                    OdseCache.fromPrePopFormMapping.put(qMetadata.getFromFormCd(), map[count]);
+                }
 
             }
-        } catch (Exception ex) {
-            throw new DataProcessingException("The from prepop caching failed due to question label :"
-                    + qMetadata.getFromQuestionIdentifier() + EXCEPTION_APPENDING_MSG + qMetadata.getFromFormCd());
+
         }
 
     }
 
     @SuppressWarnings("java:S3776")
-    private static void createPrePopToMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
+    private static void createPrePopToMap(Collection<LookupMappingDto> coll) throws DataProcessingException, IOException, ClassNotFoundException {
         int count = 0;
         int loopcount = 0;
         int sizecount = 0;
@@ -274,22 +270,63 @@ public class LookupService implements ILookupService {
 
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
         PrePopMappingDto qMetadata = null;
-        try {
-            if (!coll.isEmpty()) {
-                for (LookupMappingDto lookupMappingDto : coll) {
-                    sizecount++;
-                    qMetadata = new PrePopMappingDto(lookupMappingDto);
+        if (!coll.isEmpty()) {
+            for (LookupMappingDto lookupMappingDto : coll) {
+                sizecount++;
+                qMetadata = new PrePopMappingDto(lookupMappingDto);
 
-                    if (qMetadata.getToFormCd() != null) {
+                if (qMetadata.getToFormCd() != null) {
 
-                        if (loopcount == 0) {
-                            previousFormCode = qMetadata.getToFormCd();
+                    if (loopcount == 0) {
+                        previousFormCode = qMetadata.getToFormCd();
+                        String toQuestionId = qMetadata.getToQuestionIdentifier() == null ? ""
+                                : qMetadata.getToQuestionIdentifier();
+                        String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
+                                : qMetadata.getFromQuestionIdentifier();
+                        toQuestionId = toQuestionId + '^' + fromQuestionId;
+                        String fromAns = qMetadata.getFromAnswerCode();
+                        String toQuestionIdWithAns;
+                        map[count] = new TreeMap<>();
+                        if (!toQuestionId.equals("")) {
+                            if (fromAns != null) {
+                                toQuestionIdWithAns = toQuestionId + "$" + fromAns;
+                                map[count].put(toQuestionIdWithAns, qMetadata);
+                            }
+                            PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
+                            qMetadata1.setToAnswerCode(null);
+                            map[count].put(toQuestionId, qMetadata1);
+                            loopcount++;
+                        }
+
+                    } else {
+                        currentFormCode = qMetadata.getToFormCd();
+                        if (currentFormCode.equals(previousFormCode)) {
                             String toQuestionId = qMetadata.getToQuestionIdentifier() == null ? ""
                                     : qMetadata.getToQuestionIdentifier();
+                            String fromAns = qMetadata.getFromAnswerCode();
+                            String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
+                                    : qMetadata.getFromQuestionIdentifier();
+                            String toQuestionIdWithAns;
+                            toQuestionId = toQuestionId + '^' + fromQuestionId;
+                            if (!toQuestionId.equals("")) {
+                                if (fromAns != null) {
+                                    toQuestionIdWithAns = toQuestionId + "$" + fromAns;
+                                    map[count].put(toQuestionIdWithAns, qMetadata);
+                                }
+                                PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
+                                qMetadata1.setToAnswerCode(null);
+                                map[count].put(toQuestionId, qMetadata1);
+                            }
+
+                        } else {
+                            OdseCache.toPrePopFormMapping.put(previousFormCode, map[count]);
+                            count = count + 1;
+                            String toQuestionId = qMetadata.getToQuestionIdentifier() == null ? ""
+                                    : qMetadata.getToQuestionIdentifier();
+                            String fromAns = qMetadata.getFromAnswerCode();
                             String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                     : qMetadata.getFromQuestionIdentifier();
                             toQuestionId = toQuestionId + '^' + fromQuestionId;
-                            String fromAns = qMetadata.getFromAnswerCode();
                             String toQuestionIdWithAns;
                             map[count] = new TreeMap<>();
                             if (!toQuestionId.equals("")) {
@@ -300,66 +337,20 @@ public class LookupService implements ILookupService {
                                 PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
                                 qMetadata1.setToAnswerCode(null);
                                 map[count].put(toQuestionId, qMetadata1);
-                                loopcount++;
                             }
 
-                        } else {
-                            currentFormCode = qMetadata.getToFormCd();
-                            if (currentFormCode.equals(previousFormCode)) {
-                                String toQuestionId = qMetadata.getToQuestionIdentifier() == null ? ""
-                                        : qMetadata.getToQuestionIdentifier();
-                                String fromAns = qMetadata.getFromAnswerCode();
-                                String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
-                                        : qMetadata.getFromQuestionIdentifier();
-                                String toQuestionIdWithAns;
-                                toQuestionId = toQuestionId + '^' + fromQuestionId;
-                                if (!toQuestionId.equals("")) {
-                                    if (fromAns != null) {
-                                        toQuestionIdWithAns = toQuestionId + "$" + fromAns;
-                                        map[count].put(toQuestionIdWithAns, qMetadata);
-                                    }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
-                                    qMetadata1.setToAnswerCode(null);
-                                    map[count].put(toQuestionId, qMetadata1);
-                                }
-
-                            } else {
-                                OdseCache.toPrePopFormMapping.put(previousFormCode, map[count]);
-                                count = count + 1;
-                                String toQuestionId = qMetadata.getToQuestionIdentifier() == null ? ""
-                                        : qMetadata.getToQuestionIdentifier();
-                                String fromAns = qMetadata.getFromAnswerCode();
-                                String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
-                                        : qMetadata.getFromQuestionIdentifier();
-                                toQuestionId = toQuestionId + '^' + fromQuestionId;
-                                String toQuestionIdWithAns;
-                                map[count] = new TreeMap<>();
-                                if (!toQuestionId.equals("")) {
-                                    if (fromAns != null) {
-                                        toQuestionIdWithAns = toQuestionId + "$" + fromAns;
-                                        map[count].put(toQuestionIdWithAns, qMetadata);
-                                    }
-                                    PrePopMappingDto qMetadata1 = (PrePopMappingDto) qMetadata.deepCopy();
-                                    qMetadata1.setToAnswerCode(null);
-                                    map[count].put(toQuestionId, qMetadata1);
-                                }
-
-                            }
-                            previousFormCode = currentFormCode;
-                            loopcount++;
                         }
-
-                    }
-                    if (sizecount == coll.size() && qMetadata.getToFormCd() != null) {
-                        OdseCache.toPrePopFormMapping.put(qMetadata.getToFormCd(), map[count]);
+                        previousFormCode = currentFormCode;
+                        loopcount++;
                     }
 
                 }
+                if (sizecount == coll.size() && qMetadata.getToFormCd() != null) {
+                    OdseCache.toPrePopFormMapping.put(qMetadata.getToFormCd(), map[count]);
+                }
 
             }
-        } catch (Exception ex) {
-            throw new DataProcessingException("The to prepop caching failed due to question Identifier :"
-                    + qMetadata.getToQuestionIdentifier() + EXCEPTION_APPENDING_MSG + qMetadata.getToFormCd());
+
         }
 
     }
@@ -449,11 +440,8 @@ public class LookupService implements ILookupService {
 
     protected Collection<LookupMappingDto>  getPrePopMapping() throws DataProcessingException {
 
-        try {
-            return retrievePrePopMapping();
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        return retrievePrePopMapping();
+
     }
 
 

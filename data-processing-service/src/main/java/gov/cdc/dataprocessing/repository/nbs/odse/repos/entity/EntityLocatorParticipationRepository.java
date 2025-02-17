@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +50,8 @@ public interface EntityLocatorParticipationRepository extends JpaRepository<Enti
     Optional<List<Long>> findLocatorUidsByEntityUid(@Param("entityUid") Long entityUid);
 
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query(value = "DELETE FROM EntityLocatorParticipation x WHERE x.entityUid = :entityUid AND x.locatorUid = :locatorUid", nativeQuery = false)
     void deleteLocatorById(@Param("entityUid") Long entityUid, @Param("locatorUid") Long locatorUid);
 
-    @Modifying
-    @Query(value = "UPDATE EntityLocatorParticipation x SET x.recordStatusCd = :recordStatus, x.statusCd = :statusCd WHERE x.entityUid = :entityUid AND x.locatorUid = :locatorUid", nativeQuery = false)
-    void updateLocatorStatus(@Param("entityUid") Long entityUid, @Param("locatorUid") Long locatorUid,
-                             @Param("recordStatus") String recordStatus,  @Param("statusCd") String statusCd);
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -46,14 +47,8 @@ public interface PersonRaceRepository extends JpaRepository<PersonRace, PersonRa
     @Query("SELECT pn FROM PersonRace pn WHERE pn.personUid = :parentUid")
     Optional<List<PersonRace>> findByParentUid(@Param("parentUid") Long parentUid);
 
-    @Transactional
     @Modifying
-    @Query("DELETE FROM PersonRace pn WHERE pn.personUid = :personUid AND pn.raceCd = :raceCd")
-    void deletePersonRaceByUidAndCode (@Param("personUid") Long personUid, @Param("raceCd") String raceCd);
-
-
-    @Transactional
-    @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query("DELETE FROM PersonRace pn WHERE pn.personUid = :personUid AND pn.raceCd NOT IN :raceCds")
     void deletePersonRaceByUid (@Param("personUid") Long personUid,@Param("raceCds") List<String> raceCds);
 }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -38,8 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface EdxPatientMatchRepository extends JpaRepository<EdxPatientMatch, Long> {
-    @Transactional
+    
     @Modifying
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Query(value = "DELETE FROM EdxPatientMatch e WHERE e.patientUid = ?1 AND e.matchString NOT LIKE 'LR^%'", nativeQuery = false)
     void deleteByPatientUidAndMatchStringNotLike(Long patientUid);
 }

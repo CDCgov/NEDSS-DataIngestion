@@ -58,14 +58,11 @@ public class PersonUtil {
 
     @SuppressWarnings("java:S3776")
 
-    @Transactional
     public Long processLabPersonContainerCollection(Collection<PersonContainer> personContainerCollection, boolean morbidityApplied,
                                                     BaseContainer dataContainer) throws DataProcessingException {
         if (personContainerCollection == null || personContainerCollection.isEmpty()) {
             throw new DataProcessingException("Person container collection is null");
         }
-
-        boolean isMorbReport = morbidityApplied;
 
 
         PersonContainer personContainer;
@@ -95,7 +92,7 @@ public class PersonUtil {
             if (
                 electronicInd != null
                 && (
-                    isMorbReport
+                    morbidityApplied
                     && electronicInd.equals(NEDSSConstant.EXTERNAL_USER_IND)
                     || electronicInd.equals(NEDSSConstant.YES)
                 )
@@ -140,13 +137,11 @@ public class PersonUtil {
     @SuppressWarnings("java:S2589")
     private Long setPersonForObservationFlow(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException
     {
-        try
-        {
             if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
             {
                 return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
             }
-            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
+            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || isExternal))
             {
                 return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
             }
@@ -154,11 +149,6 @@ public class PersonUtil {
             {
                 throw new IllegalArgumentException("Expected a valid person type: " + personType);
             }
-        }
-        catch (Exception rex)
-        {
-            throw new DataProcessingException(rex.getMessage(), rex);
-        }
     }
 
 

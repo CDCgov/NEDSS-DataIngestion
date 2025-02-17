@@ -101,12 +101,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
     public Map<Object,Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException {
         Map<Object,Object> documentSummaryVOColl;
-        try {
-            documentSummaryVOColl = customRepository.retrieveDocumentSummaryVOForInv(publicHealthUID);
-        }
-        catch (Exception rsuex) {
-            throw new DataProcessingException(rsuex.getMessage());
-        }
+        documentSummaryVOColl = customRepository.retrieveDocumentSummaryVOForInv(publicHealthUID);
         return documentSummaryVOColl;
     } // retrieveDocumentSummaryList
 

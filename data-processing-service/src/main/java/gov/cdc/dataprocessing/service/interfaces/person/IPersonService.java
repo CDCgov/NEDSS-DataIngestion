@@ -6,6 +6,8 @@ import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 
+import java.io.IOException;
+
 /**
  125 - Comment complaint
  3776 - Complex complaint
@@ -36,8 +38,8 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface IPersonService {
-    PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingConsumerException, DataProcessingException;
-    PersonContainer processingNextOfKin(LabResultProxyContainer labResultProxyContainer, PersonContainer personContainer) throws DataProcessingException;
+    PersonContainer processingPatient(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer) throws DataProcessingConsumerException, DataProcessingException, IOException, ClassNotFoundException;
+    PersonContainer processingNextOfKin(LabResultProxyContainer labResultProxyContainer, PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException;
     PersonContainer processingProvider(LabResultProxyContainer labResultProxyContainer, EdxLabInformationDto edxLabInformationDto, PersonContainer personContainer, boolean orderingProviderIndicator) throws DataProcessingConsumerException, DataProcessingException;
 
     Long getMatchedPersonUID(LabResultProxyContainer matchedlabResultProxyVO);

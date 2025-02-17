@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -61,8 +62,8 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
-    public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException {
+    
+    public EdxPatientMatchDto getMatchingNextOfKin(PersonContainer personContainer) throws DataProcessingException, IOException, ClassNotFoundException {
         Long patientUid = personContainer.getThePersonDto().getPersonUid();
         EdxPatientMatchDto edxPatientFoundDT = null;
         EdxPatientMatchDto edxPatientMatchFoundDT = null;
@@ -80,25 +81,15 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                 if (nameAddStrSt1 != null) {
                     nameAddStrSt1 = nameAddStrSt1.toUpperCase();
                     nameAddStrSt1hshCd = nameAddStrSt1.hashCode();
-                    try {
-                        if (nameAddStrSt1 != null) {
-                            edxPatientFoundDT = new EdxPatientMatchDto();
-                            edxPatientFoundDT.setPatientUid(patientUid);
-                            edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
-                            edxPatientFoundDT.setMatchString(nameAddStrSt1);
-                            edxPatientFoundDT.setMatchStringHashCode((long) (nameAddStrSt1hshCd));
-                        }
-                        // Try to get the Next of Kin matching with the match string
-                        edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameAddStrSt1);
-                        if (edxPatientMatchFoundDT.getPatientUid() == null || (edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() <= 0)) {
-                            matchFound = false;
-                        } else {
-                            matchFound = true;
-                        }
-                    } catch (Exception ex) {
-                        logger.error("Error in geting the  matching Next of Kin");
-                        throw new DataProcessingException("Error in geting the  matching Next of Kin" + ex.getMessage(), ex);
-                    }
+                    edxPatientFoundDT = new EdxPatientMatchDto();
+                    edxPatientFoundDT.setPatientUid(patientUid);
+                    edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
+                    edxPatientFoundDT.setMatchString(nameAddStrSt1);
+                    edxPatientFoundDT.setMatchStringHashCode((long) (nameAddStrSt1hshCd));
+                    // Try to get the Next of Kin matching with the match string
+                    edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameAddStrSt1);
+                    matchFound = edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() > 0;
+
                 }
             }
         }
@@ -113,23 +104,14 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                     if (nameTelePhone != null) {
                         nameTelePhone = nameTelePhone.toUpperCase();
                         nameTelePhonehshCd = nameTelePhone.hashCode();
-                        try {
-                            edxPatientFoundDT = new EdxPatientMatchDto();
-                            edxPatientFoundDT.setPatientUid(patientUid);
-                            edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
-                            edxPatientFoundDT.setMatchString(nameTelePhone);
-                            edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
-                            // Try to get the matching with the match string
-                            edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
-                            if (edxPatientMatchFoundDT.getPatientUid() == null || edxPatientMatchFoundDT.getPatientUid() <= 0) {
-                                matchFound = false;
-                            } else {
-                                matchFound = true;
-                            }
-                        } catch (Exception ex) {
-                            logger.error(LOG_ERROR_MATCHING_PATIENT);
-                            throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
-                        }
+                        edxPatientFoundDT = new EdxPatientMatchDto();
+                        edxPatientFoundDT.setPatientUid(patientUid);
+                        edxPatientFoundDT.setTypeCd(NEDSSConstant.NOK);
+                        edxPatientFoundDT.setMatchString(nameTelePhone);
+                        edxPatientFoundDT.setMatchStringHashCode((long) (nameTelePhonehshCd));
+                        // Try to get the matching with the match string
+                        edxPatientMatchFoundDT = getEdxPatientMatchRepositoryUtil().getEdxPatientMatchOnMatchString(edxPatientFoundDT.getTypeCd(), nameTelePhone);
+                        matchFound = edxPatientMatchFoundDT.getPatientUid() != null && edxPatientMatchFoundDT.getPatientUid() > 0;
                     }
                 }
             }
@@ -147,19 +129,12 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
                 }
                 personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
             }
-            try {
-                if (personContainer.getThePersonDto().getCd()!=null && personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
-                    patientPersonUid = setAndCreateNewPerson(personContainer);
-                    personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-                    personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-                    personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
-
-                    newPersonCreationApplied = true;
-
-                }
-            } catch (Exception e) {
-                logger.error("{}: {}", LOG_ERROR_ENTITY_PATIENT, e.getMessage(), e);
-                throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
+            if (personContainer.getThePersonDto().getCd()!=null && personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
+                patientPersonUid = setAndCreateNewPerson(personContainer);
+                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+                personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+                personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
+                newPersonCreationApplied = true;
             }
             personContainer.setPatientMatchedFound(false);
         }
@@ -167,23 +142,16 @@ public class NokMatchingService  extends NokMatchingBaseService implements INokM
             personContainer.setPatientMatchedFound(true);
         }
 
-        try {
-
-            //REVISION
-            if (!newPersonCreationApplied) {
-                personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
-            } else {
-                personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-            }
-
-            patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.NOK);
-            personContainer.getThePersonDto().setPersonUid(patientUid);
-
-
-        } catch (Exception e) {
-            logger.error("{}: {}", LOG_ERROR_ENTITY_PATIENT, e.getMessage(), e);
-            throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
+        //REVISION
+        if (!newPersonCreationApplied) {
+            personContainer.getThePersonDto().setPersonParentUid(edxPatientMatchFoundDT.getPatientUid());
+        } else {
+            personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
         }
+
+        patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.NOK);
+        personContainer.getThePersonDto().setPersonUid(patientUid);
+
         return edxPatientMatchFoundDT;
     }
 }

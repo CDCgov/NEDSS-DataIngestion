@@ -35,6 +35,7 @@ import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
+import gov.cdc.dataprocessing.utilities.component.nbs_interface.NbsInterfaceReposUtilJdbc;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -91,6 +93,8 @@ public class ManagerService implements IManagerService {
 
     private final KafkaManagerProducer kafkaManagerProducer;
 
+    private final NbsInterfaceReposUtilJdbc nbsInterfaceReposUtilJdbc;
+
     private final IManagerAggregationService managerAggregationService;
     private final ILabReportProcessing labReportProcessing;
     private final IPageService pageService;
@@ -105,7 +109,7 @@ public class ManagerService implements IManagerService {
                           NbsInterfaceRepository nbsInterfaceRepository,
                           IDecisionSupportService decisionSupportService,
                           ManagerUtil managerUtil,
-                          KafkaManagerProducer kafkaManagerProducer,
+                          KafkaManagerProducer kafkaManagerProducer, NbsInterfaceReposUtilJdbc nbsInterfaceReposUtilJdbc,
                           IManagerAggregationService managerAggregationService,
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
@@ -119,6 +123,7 @@ public class ManagerService implements IManagerService {
         this.decisionSupportService = decisionSupportService;
         this.managerUtil = managerUtil;
         this.kafkaManagerProducer = kafkaManagerProducer;
+        this.nbsInterfaceReposUtilJdbc = nbsInterfaceReposUtilJdbc;
         this.managerAggregationService = managerAggregationService;
         this.labReportProcessing = labReportProcessing;
         this.pageService = pageService;
@@ -126,7 +131,6 @@ public class ManagerService implements IManagerService {
         this.investigationNotificationService = investigationNotificationService;
     }
 
-    @Transactional
     public void processDistribution(Integer data) throws DataProcessingConsumerException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
@@ -136,130 +140,87 @@ public class ManagerService implements IManagerService {
 
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
-    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
-        NbsInterfaceModel nbsInterfaceModel = null;
-        EdxLabInformationDto edxLabInformationDto = null;
-        String detailedMsg = "";
-        boolean  kafkaFailedCheck = false;
-        try {
-            edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
-            ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
-            LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
-            var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-            if (res.isPresent()) {
-                nbsInterfaceModel = res.get();
-            } else {
-                throw new DataProcessingException("NBS Interface Data Not Exist");
-            }
+    @Override
+    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data) throws DataProcessingException {
 
-            synchronized (PropertyUtilCache.class) {
-                if (res.get().getRecordStatusCd().equalsIgnoreCase("RTI_SUCCESS_STEP_2")) {
-                    if (PropertyUtilCache.kafkaFailedCheckStep2 == 100000) {
-                        PropertyUtilCache.kafkaFailedCheckStep2 = 0;
-                    }
-                    ++PropertyUtilCache.kafkaFailedCheckStep2; // NOSONAR
-
-                    kafkaFailedCheck = true;
-                    logger.info("Kafka failed check at Step 2: {}", PropertyUtilCache.kafkaFailedCheckStep2);
-                    return;
-                }
-            }
-
-
-            if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
-                edxLabInformationDto.setLabIsUpdateSuccess(true);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_15);
-            } else if (edxLabInformationDto.isLabIsUpdateDRSA()) {
-                edxLabInformationDto.setLabIsUpdateSuccess(true);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
-            }
-            decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
-
-            WdsTrackerView trackerView = new WdsTrackerView();
-            trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
-
-            Long patUid = -1L;
-            Long patParentUid = -1L;
-            String patFirstName = null;
-            String patLastName = null;
-            for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
-                if (item.getThePersonDto().getCd().equals("PAT")) {
-                    patUid = item.getThePersonDto().getUid();
-                    patParentUid = item.getThePersonDto().getPersonParentUid();
-                    patFirstName = item.getThePersonDto().getFirstNm();
-                    patLastName = item.getThePersonDto().getLastNm();
-                    break;
-                }
-            }
-
-            trackerView.setPatientUid(patUid);
-            trackerView.setPatientParentUid(patParentUid);
-            trackerView.setPatientFirstName(patFirstName);
-            trackerView.setPatientLastName(patLastName);
-
-            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-            nbsInterfaceRepository.save(nbsInterfaceModel);
-
-            PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-            phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-            phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-            phcContainer.setObservationDto(observationDto);
-            phcContainer.setWdsTrackerView(trackerView);
-
-            if (edxLabInformationDto.getPageActContainer() != null
-            || edxLabInformationDto.getPamContainer() != null) {
-                if (edxLabInformationDto.getPageActContainer() != null) {
-                    var pageActProxyVO = edxLabInformationDto.getPageActContainer();
-                    trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                }
-                else
-                {
-                    var pamProxyVO = edxLabInformationDto.getPamContainer();
-                    trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-                }
-            }
-
-
-            String trackerString = GSON.toJson(trackerView);
-            kafkaManagerProducer.sendDataActionTracker(trackerString);
-
-            String jsonString = GSON.toJson(phcContainer);
-            kafkaManagerProducer.sendDataLabHandling(jsonString);
-
-        } catch (Exception e) {
-            logger.error("STEP 2 ERROR: {}", e.getMessage());
-            detailedMsg = e.getMessage();
-            if (nbsInterfaceModel != null) {
-                nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
-                nbsInterfaceRepository.save(nbsInterfaceModel);
-            }
-
-        }
-        finally
-        {
-            if(nbsInterfaceModel != null && !kafkaFailedCheck) {
-                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
-                edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                String jsonString = GSON.toJson(edxLabInformationDto.getEdxActivityLogDto());
-                kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
-            }
-        }
-
-        logger.info("Completed 2nd Step");
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    @Transactional
+    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer, NbsInterfaceModel nbsInterfaceModel) throws DataProcessingException, IOException, ClassNotFoundException {
+        EdxLabInformationDto edxLabInformationDto = null;
+        edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
+        ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
+        LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
+
+        if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
+            edxLabInformationDto.setLabIsUpdateSuccess(true);
+            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_15);
+        } else if (edxLabInformationDto.isLabIsUpdateDRSA()) {
+            edxLabInformationDto.setLabIsUpdateSuccess(true);
+            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_22);
+        }
+        decisionSupportService.validateProxyContainer(labResultProxyContainer, edxLabInformationDto);
+
+        WdsTrackerView trackerView = new WdsTrackerView();
+        trackerView.setWdsReport(edxLabInformationDto.getWdsReports());
+
+        Long patUid = -1L;
+        Long patParentUid = -1L;
+        String patFirstName = null;
+        String patLastName = null;
+        for(var item : publicHealthCaseFlowContainer.getLabResultProxyContainer().getThePersonContainerCollection()) {
+            if (item.getThePersonDto().getCd().equals("PAT")) {
+                patUid = item.getThePersonDto().getUid();
+                patParentUid = item.getThePersonDto().getPersonParentUid();
+                patFirstName = item.getThePersonDto().getFirstNm();
+                patLastName = item.getThePersonDto().getLastNm();
+                break;
+            }
+        }
+
+        trackerView.setPatientUid(patUid);
+        trackerView.setPatientParentUid(patParentUid);
+        trackerView.setPatientFirstName(patFirstName);
+        trackerView.setPatientLastName(patLastName);
+
+        nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
+        nbsInterfaceRepository.save(nbsInterfaceModel);
+
+        PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
+        phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+        phcContainer.setLabResultProxyContainer(labResultProxyContainer);
+        phcContainer.setEdxLabInformationDto(edxLabInformationDto);
+        phcContainer.setObservationDto(observationDto);
+        phcContainer.setWdsTrackerView(trackerView);
+
+        if (edxLabInformationDto.getPageActContainer() != null
+        || edxLabInformationDto.getPamContainer() != null) {
+            if (edxLabInformationDto.getPageActContainer() != null) {
+                var pageActProxyVO = edxLabInformationDto.getPageActContainer();
+                trackerView.setPublicHealthCase(pageActProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
+            }
+            else
+            {
+                var pamProxyVO = edxLabInformationDto.getPamContainer();
+                trackerView.setPublicHealthCase(pamProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto());
+            }
+        }
+
+//        this.initiatingLabProcessing(phcContainer, nbsInterfaceModel);
+        String jsonString = GSON.toJson(phcContainer);
+        kafkaManagerProducer.sendDataLabHandling(jsonString);
+    }
+
+    @SuppressWarnings({"java:S6541", "java:S3776"})
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) {
-        NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto=null;
         boolean kafkaFailedCheck = false;
+        NbsInterfaceModel nbsInterfaceModel = null;
+
         try {
             edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
             ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
+
             var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
             if (res.isPresent()) {
                 nbsInterfaceModel = res.get();
@@ -280,7 +241,6 @@ public class ManagerService implements IManagerService {
                     return;
                 }
             }
-
 
             PageActProxyContainer pageActProxyContainer = null;
             PamProxyContainer pamProxyVO = null;
@@ -369,9 +329,7 @@ public class ManagerService implements IManagerService {
             }
             nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
             nbsInterfaceRepository.save(nbsInterfaceModel);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("STEP 3 ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
@@ -384,16 +342,15 @@ public class ManagerService implements IManagerService {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_9);
                 }
             }
-            else if ((edxLabInformationDto.getPageActContainer() != null
-                            || edxLabInformationDto.getPamContainer() != null)
-                            && edxLabInformationDto.isInvestigationSuccessfullyCreated()){
+            else if (edxLabInformationDto.getPageActContainer() != null || edxLabInformationDto.getPamContainer() != null){
                 if (edxLabInformationDto.isNotificationMissingFields()) {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
                 } else {
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
                 }
             }
-        }finally {
+        }
+        finally {
             if(nbsInterfaceModel != null && !kafkaFailedCheck) {
                 edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
                 edxLogService.addActivityDetailLogsForWDS(edxLabInformationDto, "");
@@ -402,7 +359,6 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
-
         logger.info("Completed 3rd Step");
     }
 
@@ -414,8 +370,7 @@ public class ManagerService implements IManagerService {
         String detailedMsg = "";
         boolean kafkaFailedCheck = false;
         try {
-
-            var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
+            var obj = nbsInterfaceReposUtilJdbc.findByNbsInterfaceUid(data);
             if (obj.isPresent()) {
                 nbsInterfaceModel = obj.get();
             } else {
@@ -455,7 +410,7 @@ public class ManagerService implements IManagerService {
 
 
             // This process patient, provider, nok, and organization. Then it will update both parsedData and edxLabInformationDto accordingly
-            managerAggregationService.serviceAggregationAsync(labResultProxyContainer, edxLabInformationDto);
+            managerAggregationService.serviceAggregation(labResultProxyContainer, edxLabInformationDto);
 
 
             // Hit when Obs is matched
@@ -502,9 +457,10 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-            String jsonString = GSON.toJson(phcContainer);
-            kafkaManagerProducer.sendDataPhc(jsonString);
-            logger.info("Completed 1st Step");
+//            String jsonString = GSON.toJson(phcContainer);
+//            kafkaManagerProducer.sendDataPhc(jsonString);
+            this.initiatingInvestigationAndPublicHealthCase(phcContainer, nbsInterfaceModel);
+            logger.info("Completed");
 
             //return result;
         }
@@ -647,11 +603,6 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDT.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(
                         new ArrayList<>());
             }
-
-            //TODO: LOGGING
-//            setActivityDetailLog((ArrayList<Object>) edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails(),
-//                    String.valueOf(edxLabInformationDT.getLocalId()),
-//                    EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, errorTxt);
 
             edxLabInformationDT.setInvestigationMissingFields(true);
             throw new DataProcessingException("MISSING REQUIRED FIELDS: "+errorTxt);

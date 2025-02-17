@@ -271,14 +271,9 @@ public class ObservationCodeService implements IObservationCodeService {
                 NEDSSConstant.RECORD_STATUS_ACTIVE);
 
         OrganizationContainer reportingLabVO = null;
-        try {
-            if (reportingLabUid != null) {
-                reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
-            }
-        } catch (Exception rex) {
-            throw new DataProcessingException("Error while retriving reporting organization vo, its uid is: " + reportingLabUid, rex);
+        if (reportingLabUid != null) {
+            reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
         }
-
         // Get the CLIA
         String reportingLabCLIA = null;
 
