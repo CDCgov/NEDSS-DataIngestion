@@ -5,10 +5,10 @@ import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
@@ -24,6 +24,7 @@ import java.util.Map;
 public class AlgorithmController {
 
     private final AlgorithmService algorithmService;
+
     private final ObjectMapper objectMapper;
 
     private static final Logger log = LoggerFactory.getLogger(AlgorithmController.class);
@@ -73,6 +74,7 @@ public class AlgorithmController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(new InputStreamResource(byteArrayInputStream));
+    }
 
     @PostMapping("/import-configuration")
     public ResponseEntity<String> importConfiguration(@RequestBody MatchingConfigRequest configRequest) {
