@@ -73,5 +73,10 @@ public class AlgorithmController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(new InputStreamResource(byteArrayInputStream));
+
+    @PostMapping("/import-configuration")
+    public ResponseEntity<String> importConfiguration(@RequestBody MatchingConfigRequest configRequest) {
+        algorithmService.saveMatchingConfiguration(configRequest);
+        return ResponseEntity.ok("Configuration imported successfully.");
     }
 }

@@ -7,11 +7,18 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,8 +36,15 @@ class AlgorithmControllerTest {
     @InjectMocks
     private AlgorithmController algorithmController;
 
-    @Mock
     private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(algorithmController).build();
+    }
 
     @Test
     void testConfigureMatching() {
@@ -134,5 +148,28 @@ class AlgorithmControllerTest {
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
         assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("attachment; filename="));
     }
-}
 
+    @Test
+    void testImportConfiguration() throws Exception {
+        // Prepare mock data
+        MatchingConfigRequest mockConfigRequest = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                List.of()
+        );
+
+        doNothing().when(algorithmService).saveMatchingConfiguration(mockConfigRequest);
+
+        String jsonRequest = objectMapper.writeValueAsString(mockConfigRequest);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/deduplication/import-configuration")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Configuration imported successfully."));
+
+        verify(algorithmService).saveMatchingConfiguration(mockConfigRequest);
+    }
+}
