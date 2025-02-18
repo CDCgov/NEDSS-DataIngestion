@@ -7,20 +7,20 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +36,8 @@ class AlgorithmControllerTest {
     @InjectMocks
     private AlgorithmController algorithmController;
 
-    private ObjectMapper objectMapper;
-
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -134,24 +133,34 @@ class AlgorithmControllerTest {
     }
 
     @Test
-    void testExportConfiguration() throws IOException {
+    void testExportConfiguration() throws IOException, NoSuchFieldException, IllegalAccessException {
         List<Pass> mockPasses = List.of(new Pass("pass1", "description", "0.1", "0.9",
                 Map.of("FIRST_NAME", true, "LAST_NAME", false), List.of()));
 
         when(algorithmService.getMatchingConfiguration()).thenReturn(mockPasses);
 
-        doReturn("[{\"name\":\"pass1\",\"description\":\"description\",\"lowerBound\":\"0.1\",\"upperBound\":\"0.9\",\"blockingCriteria\":{\"FIRST_NAME\":true,\"LAST_NAME\":false},\"matchingCriteria\":[]}]")
-                .when(objectMapper).writeValueAsString(mockPasses);
+        String expectedJson = "[{\"name\":\"pass1\",\"description\":\"description\",\"lowerBound\":\"0.1\",\"upperBound\":\"0.9\",\"blockingCriteria\":{\"FIRST_NAME\":true,\"LAST_NAME\":false},\"matchingCriteria\":[]}]";
+        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+        doReturn(expectedJson).when(mockObjectMapper).writeValueAsString(mockPasses);
+
+        injectMockObjectMapper(mockObjectMapper);
 
         ResponseEntity<InputStreamResource> response = algorithmController.exportConfiguration();
 
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
         assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("attachment; filename="));
+
+        ByteArrayInputStream inputStream = (ByteArrayInputStream) response.getBody().getInputStream();
+        String actualJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        assertEquals(expectedJson, actualJson);
+
+        verify(mockObjectMapper).writeValueAsString(mockPasses);
     }
+
 
     @Test
     void testImportConfiguration() throws Exception {
-        // Prepare mock data
+        // Prepare data
         MatchingConfigRequest mockConfigRequest = new MatchingConfigRequest(
                 "Test Label",
                 "Test Description",
@@ -164,6 +173,8 @@ class AlgorithmControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(mockConfigRequest);
 
+        assertNotNull(jsonRequest, "Request JSON is null");
+
         mockMvc.perform(MockMvcRequestBuilders.post("/api/deduplication/import-configuration")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
@@ -171,5 +182,11 @@ class AlgorithmControllerTest {
                 .andExpect(MockMvcResultMatchers.content().string("Configuration imported successfully."));
 
         verify(algorithmService).saveMatchingConfiguration(mockConfigRequest);
+    }
+
+    private void injectMockObjectMapper(ObjectMapper mockObjectMapper) throws NoSuchFieldException, IllegalAccessException {
+        java.lang.reflect.Field field = AlgorithmController.class.getDeclaredField("objectMapper");
+        field.setAccessible(true);
+        field.set(algorithmController, mockObjectMapper);
     }
 }
