@@ -5,16 +5,15 @@ import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -54,26 +53,25 @@ public class AlgorithmController {
     public void updateAlgorithm(@RequestBody MatchingConfigRequest request) {
         algorithmService.updateDibbsConfigurations(request);
     }
+
     @GetMapping("/export-configuration")
-    public ResponseEntity<Resource> exportConfiguration() throws IOException {
+    public ResponseEntity<InputStreamResource> exportConfiguration() throws IOException {
+        // Fetch the configuration from the service
         List<Pass> passes = algorithmService.getMatchingConfiguration();
 
-        // Generate timestamped filename
+        // Convert to JSON string
+        String jsonConfig = objectMapper.writeValueAsString(passes);
+
+        // Convert to bytes and create an InputStream
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jsonConfig.getBytes(StandardCharsets.UTF_8));
+
+        // Generate a timestamped filename
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "record_linker_config_" + timestamp + ".json";
-        String tempDir = System.getProperty("java.io.tmpdir");
-        Path filePath = Paths.get(tempDir, fileName);
 
-        // Convert the list of passes to JSON and save as a file
-        objectMapper.writeValue(filePath.toFile(), passes);
-
-        log.info("File exported to : {}", filePath);
-
-        // serving the file for download
-        Resource file = new FileSystemResource(filePath);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-                .body(file);
+                .body(new InputStreamResource(byteArrayInputStream));
     }
 }
