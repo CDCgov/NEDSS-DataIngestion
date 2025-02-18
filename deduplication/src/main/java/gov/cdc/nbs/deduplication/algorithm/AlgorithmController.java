@@ -8,9 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -76,6 +78,22 @@ public class AlgorithmController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(file);
+    }
+
+    @PostMapping("/import-configuration")
+    public ResponseEntity<String> importConfiguration(@RequestParam("file") MultipartFile file) {
+        try {
+            // Parse the uploaded JSON file
+            MatchingConfigRequest configRequest = objectMapper.readValue(file.getInputStream(), MatchingConfigRequest.class);
+
+            // Pass the configuration to the service layer to save it
+            algorithmService.saveMatchingConfiguration(configRequest);
+
+            return ResponseEntity.ok("Configuration imported successfully.");
+        } catch (IOException e) {
+            // Handle errors while reading or parsing the file
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error importing configuration: " + e.getMessage());
+        }
     }
 
 }
