@@ -1,8 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.mapper;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
@@ -107,11 +105,20 @@ public class AlgorithmRequestMapper {
 
 
     private static AlgorithmPass mapPass(Pass pass) {
-        List<String> blockingKeys = pass.blockingCriteria() != null
-                ? pass.blockingCriteria().stream()
-                .map(blocking -> mapField(blocking.field().name()))
-                .toList()
-                : List.of();  // Empty list as fallback
+        // Define all possible data elements (fields)
+        Set<String> allFields = Set.of(
+                "BIRTHDATE", "FIRST_NAME", "LAST_NAME", "SEX", "ADDRESS", "CITY",
+                "STATE", "ZIP", "MRN", "SSN", "PHONE", "EMAIL", "RACE"
+        );
+
+        // Initialize blockingKeys map with default 'false' values
+        Map<String, Boolean> blockingKeys = new HashMap<>();
+        allFields.forEach(field -> blockingKeys.put(field, false));
+
+        // Set existing blocking fields to 'true'
+        if (pass.blockingCriteria() != null) {
+            blockingKeys.putAll(pass.blockingCriteria());
+        }
 
         List<Evaluator> evaluators = pass.matchingCriteria() != null
                 ? pass.matchingCriteria().stream()
@@ -119,9 +126,11 @@ public class AlgorithmRequestMapper {
                         mapField(matching.field().name()),  // Map field names
                         mapFunc(matching.method().name())))  // Map function names
                 .toList()
-                : List.of();  // Empty list as fallback
+                : List.of(); // Empty list fallback
 
-        return new AlgorithmPass(blockingKeys, evaluators, "func:recordlinker.linking.matchers.rule_match", new HashMap<>());
+        return new AlgorithmPass(new ArrayList<>(blockingKeys.keySet()), evaluators,
+                "func:recordlinker.linking.matchers.rule_match", new HashMap<>());
     }
+
 
 }

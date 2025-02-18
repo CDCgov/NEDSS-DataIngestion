@@ -6,6 +6,7 @@ import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
+import java.util.Map;
 
 class AlgorithmRequestMapperTest {
 
@@ -31,30 +32,58 @@ class AlgorithmRequestMapperTest {
 
     @Test
     void testMapToAlgorithmRequest() {
-        // Mocking the MatchingConfiguration with relevant values
+        // Mocking blocking criteria as a Map<String, Boolean>
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
+        );
+
+        // Creating a sample Pass with blocking criteria and matching criteria
+        List<Pass> passes = List.of(new Pass(
+                "Pass 1",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria, // Use the new Map-based structure
+                List.of(new MatchingCriteria(
+                        new Field("LAST_NAME", "Last name"),
+                        new Method("exact", "matcher")
+                ))
+        ));
+
+        // Creating a MatchingConfiguration with the new Pass structure
         MatchingConfiguration config = new MatchingConfiguration(
                 1L, // id
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("Pass 1", "Description", "0.1", "0.9",
-                        List.of(new BlockingCriteria(new Field("FIRST_NAME", "STRING"), new Method("exact", "matcher"))),
-                        List.of(new MatchingCriteria(new Field("LAST_NAME", "STRING"), new Method("exact", "matcher"))))),
+                passes,
                 new Double[]{0.1, 0.9}
         );
 
-        // Calling the mapToAlgorithmRequest method from AlgorithmRequestMapper
+        // Calling the method under test
         AlgorithmUpdateRequest algorithmUpdateRequest = AlgorithmRequestMapper.mapToAlgorithmRequest(config);
 
-        // Assertions to verify the values have been correctly mapped
+        // Assertions to verify correct mappings
         assertEquals("dibbs-enhanced", algorithmUpdateRequest.label());
         assertEquals("The DIBBs Log-Odds Algorithm. This optional algorithm uses statistical correction to adjust the links between incoming " +
                 "records and previously processed patients...", algorithmUpdateRequest.description());
         assertTrue(algorithmUpdateRequest.isDefault());
         assertNotNull(algorithmUpdateRequest.passes());
-        assertEquals(1, algorithmUpdateRequest.passes().size()); // Verifying that the pass list has one entry
+        assertEquals(1, algorithmUpdateRequest.passes().size()); // Ensure one pass is mapped
 
         // Verify the belongingnessRatio is set correctly
         assertArrayEquals(new Double[]{0.1, 0.9}, algorithmUpdateRequest.belongingnessRatio());
+
+        // Verify the blocking keys are mapped correctly
+        AlgorithmPass mappedPass = algorithmUpdateRequest.passes().get(0);
+        assertTrue(mappedPass.blockingKeys().contains("FIRST_NAME")); // Ensure mapped field
+        assertFalse(mappedPass.blockingKeys().contains("UNKNOWN_FIELD")); // Ensure unknown fields are not included
+
+        // Verify matching criteria mapping
+        assertEquals(1, mappedPass.evaluators().size());
+        Evaluator mappedEvaluator = mappedPass.evaluators().get(0);
+        assertEquals("LAST_NAME", mappedEvaluator.feature());
+        assertEquals("matcher", mappedEvaluator.func()); // Ensure method mapping
     }
 }
