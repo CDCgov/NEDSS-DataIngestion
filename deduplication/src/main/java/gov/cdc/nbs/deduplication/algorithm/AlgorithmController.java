@@ -4,6 +4,7 @@ import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class AlgorithmController {
 
     private static final Logger log = LoggerFactory.getLogger(AlgorithmController.class);
 
-    public AlgorithmController(final AlgorithmService algorithmService) {
+    public AlgorithmController(AlgorithmService algorithmService) {
         this.algorithmService = algorithmService;
     }
 
@@ -40,5 +41,11 @@ public class AlgorithmController {
     @PostMapping("/update-algorithm")
     public void updateAlgorithm(@RequestBody MatchingConfigRequest request) {
         algorithmService.updateDibbsConfigurations(request);
+    }
+
+    @PostMapping("/import-configuration")
+    public ResponseEntity<String> importConfiguration(@RequestBody MatchingConfigRequest configRequest) {
+        algorithmService.saveMatchingConfiguration(configRequest);
+        return ResponseEntity.ok("Configuration imported successfully.");
     }
 }
