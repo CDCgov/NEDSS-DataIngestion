@@ -160,6 +160,7 @@ class AlgorithmServiceTest {
     }
 
     @Test
+    @SuppressWarnings(value = {"rawtypes", "unchecked"})
     void testFetchDefaultConfiguration_Success() {
         RestClient.RequestHeadersUriSpec mockRequestHeadersUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
         RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
@@ -186,6 +187,7 @@ class AlgorithmServiceTest {
 
 
     @Test
+    @SuppressWarnings(value = {"rawtypes", "unchecked"})
     void testFetchDefaultConfiguration_ApiFailure() {
         RestClient.RequestHeadersUriSpec mockRequestHeadersUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
         RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
