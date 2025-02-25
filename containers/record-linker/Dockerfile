@@ -1,4 +1,4 @@
-FROM ghcr.io/cdcgov/recordlinker:v25.1.0
+FROM ghcr.io/cdcgov/recordlinker:v25.2.0
 
 
 # Install drivers for mssql database connection
