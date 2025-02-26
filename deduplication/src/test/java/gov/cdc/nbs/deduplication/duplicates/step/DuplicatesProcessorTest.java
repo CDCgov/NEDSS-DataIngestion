@@ -34,13 +34,13 @@ class DuplicatesProcessorTest {
   @Test
   void processReturnsMatchCandidateForPossibleMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson(null, null, null, null, null,
+    MpiPerson patientRecord = new MpiPerson(null, null, null, null,
         null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
     LinkResult linkResult = mock(LinkResult.class);
     List<LinkResult> linkResults = Collections.singletonList(linkResult);
 
-    when(patientRecordService.fetchPatientDetails(personUid)).thenReturn(patientRecord);
+    when(patientRecordService.fetchMostRecentPatient(personUid)).thenReturn(patientRecord);
     when(recordLinkerService.findDuplicateRecords(any(MpiPerson.class))).thenReturn(response);
     when(response.prediction()).thenReturn(MatchResponse.Prediction.POSSIBLE_MATCH);
     when(response.results()).thenReturn(linkResults);
@@ -59,11 +59,11 @@ class DuplicatesProcessorTest {
   @Test
   void processReturnsMatchCandidateWithNullForNoMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson(null, null, null, null, null,
+    MpiPerson patientRecord = new MpiPerson(null, null, null, null,
         null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
 
-    when(patientRecordService.fetchPatientDetails(personUid)).thenReturn(patientRecord);
+    when(patientRecordService.fetchMostRecentPatient(personUid)).thenReturn(patientRecord);
     when(recordLinkerService.findDuplicateRecords(patientRecord)).thenReturn(response);
     when(response.prediction()).thenReturn(MatchResponse.Prediction.NO_MATCH);
 
@@ -78,11 +78,11 @@ class DuplicatesProcessorTest {
   @Test
   void processReturnsMatchCandidateWithNullForMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson(null, null, null, null, null,
+    MpiPerson patientRecord = new MpiPerson( null, null, null, null,
         null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
 
-    when(patientRecordService.fetchPatientDetails(personUid)).thenReturn(patientRecord);
+    when(patientRecordService.fetchMostRecentPatient(personUid)).thenReturn(patientRecord);
     when(recordLinkerService.findDuplicateRecords(any(MpiPerson.class))).thenReturn(response);
     when(response.prediction()).thenReturn(MatchResponse.Prediction.MATCH);
 

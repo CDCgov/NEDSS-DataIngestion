@@ -8,7 +8,6 @@ public record MpiPerson(
     String parent_id,
     String birth_date,
     String sex,
-    String gender,
     List<Address> address,
     List<Name> name,
     List<Telecom> telecom,

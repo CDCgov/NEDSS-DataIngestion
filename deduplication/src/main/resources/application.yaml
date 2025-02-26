@@ -45,3 +45,12 @@ batch:
   job:
     schedule:
       cron: "0 0 1 * * ?"  # run daily at 1 AM
+
+kafka:
+  topics:
+    person: test.NBS_ODSE.dbo.Person
+    person_name: test.NBS_ODSE.dbo.Person_name
+    person_race: test.NBS_ODSE.dbo.Person_race
+    entity_id: test.NBS_ODSE.dbo.Entity_id
+    tele_locator: test.NBS_ODSE.dbo.Tele_locator
+    postal_locator: test.NBS_ODSE.dbo.Postal_locator
