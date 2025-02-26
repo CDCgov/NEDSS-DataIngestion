@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +45,25 @@ public class DataSourceConfig {
     @Value("${spring.datasource.password}")
     private String password;
 
+
+    @Value("${spring.datasource.hikari.maximum-pool-size:100}")
+    private int maximumPoolSize;
+
+    @Value("${spring.datasource.hikari.minimum-idle:50}")
+    private int minimumIdle;
+
+    @Value("${spring.datasource.hikari.idle-timeout:120000}")
+    private long idleTimeout;
+
+    @Value("${spring.datasource.hikari.max-lifetime:1200000}")
+    private long maxLifetime;
+
+    @Value("${spring.datasource.hikari.connection-timeout:300000}")
+    private long connectionTimeout;
+
+    @Value("${spring.datasource.hikari.pool-name:OdseHikariCP}")
+    private String poolName;
+
     @Bean()
     public DataSource dataSource() {
         String driverClassName = this.className;
@@ -50,14 +71,22 @@ public class DataSourceConfig {
         String dbUserName = this.userName;
         String dbUserPassword = this.password;
 
-        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(driverClassName);
+        hikariConfig.setJdbcUrl(dbUrl);
+        hikariConfig.setUsername(dbUserName);
+        hikariConfig.setPassword(dbUserPassword);
 
-        dataSourceBuilder.driverClassName(driverClassName);
-        dataSourceBuilder.url(url);
-        dataSourceBuilder.username(dbUserName);
-        dataSourceBuilder.password(dbUserPassword);
+        // HikariCP-specific settings
+        hikariConfig.setMaximumPoolSize(maximumPoolSize);
+        hikariConfig.setMinimumIdle(minimumIdle);
+        hikariConfig.setIdleTimeout(idleTimeout);
+        hikariConfig.setMaxLifetime(maxLifetime);
+        hikariConfig.setConnectionTimeout(connectionTimeout);
+        hikariConfig.setPoolName(poolName);
 
-        return dataSourceBuilder.build();
+        return new HikariDataSource(hikariConfig);
+
     }
 
     @Bean

@@ -34,7 +34,7 @@ spring:
     allow-circular-references: true
 
 recordLinkage:
-  url: http://localhost:8080
+  url: http://localhost:8062
 
 batch:
   chunk:

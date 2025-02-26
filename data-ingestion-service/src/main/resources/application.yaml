@@ -44,8 +44,13 @@ spring:
     password: ${NBS_DBPASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 10
+      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
+      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+      pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
     dataingest:
       url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
     msgoute:
@@ -58,7 +63,14 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9092}
-    group-id: data-ingestion-group
+    thread: ${KAFKA_CONCURRENCY:1}
+    group-id-default: data-ingestion-group
+    group-id-raw: data-ingestion-group-raw
+    group-id-raw-xml: data-ingestion-group-raw-xml
+    group-id-validate: data-ingestion-group-validate
+    group-id-xml: data-ingestion-group-xml
+    group-id-ecr-cda: data-ingestion-group-ecr-cda
+    group-id-dlt-manual: data-ingestion-group-dlt-manual
     consumer:
       maxPollIntervalMs: 30000
 

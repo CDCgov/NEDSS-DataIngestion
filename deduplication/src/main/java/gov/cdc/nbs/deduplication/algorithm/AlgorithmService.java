@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
+import gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmConfigMapper;
 import gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmRequestMapper;
 import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmUpdateRequest;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
@@ -12,6 +13,7 @@ import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -52,23 +54,28 @@ public class AlgorithmService {
         }
     }
 
-    public MatchingConfigRequest getMatchingConfiguration() {
+    public List<Pass> getMatchingConfiguration() {
         String sql = "SELECT TOP 1 configuration FROM match_configuration ORDER BY add_time DESC";
-
-        // Let the exception propagate
-        String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
-
-        if (jsonConfig == null || jsonConfig.isEmpty()) {
-            return null;
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
-            return objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
+            String jsonConfig = template.queryForObject(sql, new MapSqlParameterSource(), String.class);
+            log.info("Fetched JSON Config: {}", jsonConfig);
+
+            if (jsonConfig == null || jsonConfig.isEmpty()) {
+                log.info("Config was null or empty, fetching default configuration.");
+                return fetchDefaultConfiguration();
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MatchingConfigRequest configRequest = objectMapper.readValue(jsonConfig, MatchingConfigRequest.class);
+            log.info("Parsed MatchingConfigRequest: {}", configRequest);
+
+            return configRequest.passes() != null ? configRequest.passes() : List.of();
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("No matching configuration found in database. Fetching default.");
+            return fetchDefaultConfiguration();
         } catch (Exception e) {
             log.error("Error retrieving matching configuration", e);
-            return null;
+            return List.of();
         }
     }
 
@@ -163,6 +170,21 @@ public class AlgorithmService {
             log.info("Algorithm updated successfully.");
         } catch (Exception e) {
             log.error("Failed to update algorithm", e);
+        }
+    }
+
+    private List<Pass> fetchDefaultConfiguration() {
+        try {
+            AlgorithmUpdateRequest response = recordLinkageClient.get()
+                    .uri("/algorithm/dibbs-enhanced")
+                    .retrieve()
+                    .body(AlgorithmUpdateRequest.class);
+
+            MatchingConfigRequest configRequest = AlgorithmConfigMapper.mapAlgorithmUpdateRequestToMatchingConfigRequest(response);
+            return configRequest.passes();
+        } catch (Exception e) {
+            log.error("Failed to fetch default algorithm configuration", e);
+            return List.of();
         }
     }
 
