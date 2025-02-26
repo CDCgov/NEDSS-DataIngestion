@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.nbs.deduplication.sync.service.PersonInsertSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,23 +15,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaConsumerService {
 
-  @Value("${kafka.topics.person}")
-  private String personTopic;
-
-  @Value("${kafka.topics.person_name}")
-  private String personNameTopic;
-
-  @Value("${kafka.topics.person_race}")
-  private String personRaceTopic;
-
-  @Value("${kafka.topics.entity_id}")
-  private String entityIdTopic;
-
-  @Value("${kafka.topics.tele_locator}")
-  private String teleLocatorTopic;
-
-  @Value("${kafka.topics.postal_locator}")
-  private String postalLocatorTopic;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final PersonInsertSyncHandler insertHandler;
@@ -44,7 +26,7 @@ public class KafkaConsumerService {
   }
 
   // Consumer method for person-related messages
-  @KafkaListener(topics = "#{kafkaConsumerService.personTopic}", groupId = "mpiDataSyncerGroup")
+  @KafkaListener(topics = "${kafka.topics.person}", groupId = "mpiDataSyncerGroup")
   public void consumePersonMessage(String message) {
     try {
       JsonNode payloadNode = objectMapper.readTree(message).path("payload");
@@ -60,11 +42,11 @@ public class KafkaConsumerService {
   // Consumer method for person-related-data messages
   @KafkaListener(
       topics = {
-          "#{kafkaConsumerService.personNameTopic}",
-          "#{kafkaConsumerService.personRaceTopic}",
-          "#{kafkaConsumerService.entityIdTopic}",
-          "#{kafkaConsumerService.teleLocatorTopic}",
-          "#{kafkaConsumerService.postalLocatorTopic}"
+          "${kafka.topics.person_name}",
+          "${kafka.topics.person_race}",
+          "${kafka.topics.entity_id}",
+          "${kafka.topics.tele_locator}",
+          "${kafka.topics.postal_locator}"
       },
       groupId = "mpiDataSyncerGroup"
   )
@@ -86,7 +68,7 @@ public class KafkaConsumerService {
     if ("c".equals(operation)) {
       insertHandler.handleInsert(payloadNode); // c for adding a new row
     } else if ("u".equals(operation)) {
-      updateHandler.handleUpdate(payloadNode, "person"); // u for update
+      updateHandler.handleUpdate(payloadNode, "Person"); // u for update
     }
   }
 
