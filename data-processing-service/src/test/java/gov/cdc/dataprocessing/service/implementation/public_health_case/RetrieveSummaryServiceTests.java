@@ -117,7 +117,7 @@ class RetrieveSummaryServiceTests {
         when(customRepository.retrieveDocumentSummaryVOForInv(10L)).thenThrow(
               new RuntimeException("TEST")
         );
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             retrieveSummaryService.retrieveDocumentSummaryVOForInv(uid);
         });
 

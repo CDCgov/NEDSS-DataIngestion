@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxPatientMatch
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.EdxPatientMatchStoredProcRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.*;
 class EdxPatientMatchRepositoryUtilTest {
     @Mock
     private EdxPatientMatchRepository edxPatientMatchRepository;
+    @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
     @Mock
     private EdxEntityMatchRepository edxEntityMatchRepository;
     @Mock
@@ -49,7 +52,7 @@ class EdxPatientMatchRepositoryUtilTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(edxPatientMatchRepository, edxEntityMatchRepository, edxPatientMatchStoreProcRepository, authUtil);
+        Mockito.reset(edxPatientMatchRepository, edxEntityMatchRepository, edxPatientMatchStoreProcRepository, authUtil, dataModifierReposJdbc);
     }
 
     @Test
@@ -81,7 +84,7 @@ class EdxPatientMatchRepositoryUtilTest {
 
         when(edxPatientMatchStoreProcRepository.getEdxPatientMatch(any(), any())).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(typeCd, matchString);
         });
         assertNotNull(thrown);
@@ -147,7 +150,7 @@ class EdxPatientMatchRepositoryUtilTest {
         var uid = 10L;
         edxPatientMatchRepositoryUtil.deleteEdxPatientMatchDTColl(uid);
 
-        verify(edxPatientMatchRepository, times(1)).deleteByPatientUidAndMatchStringNotLike(any());
+        verify(dataModifierReposJdbc, times(1)).deleteByPatientUidAndMatchStringNotLike(any());
 
     }
 

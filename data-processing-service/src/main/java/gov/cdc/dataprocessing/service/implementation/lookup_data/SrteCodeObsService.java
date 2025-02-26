@@ -581,7 +581,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         }
         catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
         return lastPACode;
@@ -614,7 +614,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
             }
         }
         catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
             return null; //????leave observation.progAreaCd == null?????
         } //end of catch
         return lastPACode;

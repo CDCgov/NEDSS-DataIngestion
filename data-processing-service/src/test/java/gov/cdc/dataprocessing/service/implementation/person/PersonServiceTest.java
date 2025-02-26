@@ -71,7 +71,7 @@ class PersonServiceTest {
         PersonContainer personContainer=new PersonContainer();
         personContainer.thePersonDto.setPersonUid(null);
         LabResultProxyContainer labResultProxyContainer=new LabResultProxyContainer();
-        assertThrows(DataProcessingException.class, () -> personService.processingNextOfKin(labResultProxyContainer,personContainer));
+        assertThrows(NullPointerException.class, () -> personService.processingNextOfKin(labResultProxyContainer,personContainer));
     }
 
     @Test

@@ -24,18 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_ENTITY_PATIENT;
-import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_ERROR_MATCHING_PATIENT;
-
 @Service
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
-  private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class);
+  private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class); // NOSONAR
 
   private final boolean modernizedMatchingEnabled;
   private final DeduplicationService deduplicationService;
@@ -57,7 +53,6 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     this.deduplicationService = deduplicationService.getIfAvailable();
   }
 
-  @Transactional
   public EdxPatientMatchDto getMatchingPatient(PersonContainer personContainer) throws DataProcessingException {
     String patientRole = personContainer.getRole();
 
@@ -143,20 +138,15 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       localId = localId.toUpperCase();
     }
 
-    try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
-          .getEdxPatientMatchOnMatchString(cd, localId);
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        return edxPatientMatchDto;
-      } else {
-        return null;
-      }
-    } catch (Exception ex) {
-      logger.error(LOG_ERROR_MATCHING_PATIENT);
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
+    EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+        .getEdxPatientMatchOnMatchString(cd, localId);
+    if (edxPatientMatchDto != null
+        && !edxPatientMatchDto.isMultipleMatch()
+        && edxPatientMatchDto.getPatientUid() != null
+        && edxPatientMatchDto.getPatientUid() > 0) {
+      return edxPatientMatchDto;
+    } else {
+      return null;
     }
 
   }
@@ -210,22 +200,16 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       return null;
     }
 
-    try {
-      EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
-          .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
+    EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
+        .getEdxPatientMatchOnMatchString(cd, namesdobcursexStr.toUpperCase());
 
-      if (edxPatientMatchDto != null
-          && !edxPatientMatchDto.isMultipleMatch()
-          && edxPatientMatchDto.getPatientUid() != null
-          && edxPatientMatchDto.getPatientUid() > 0) {
-        return edxPatientMatchDto;
-      } else {
-        return null;
-      }
-
-    } catch (Exception ex) {
-      logger.error(LOG_ERROR_MATCHING_PATIENT);
-      throw new DataProcessingException(LOG_ERROR_MATCHING_PATIENT + ex.getMessage(), ex);
+    if (edxPatientMatchDto != null
+        && !edxPatientMatchDto.isMultipleMatch()
+        && edxPatientMatchDto.getPatientUid() != null
+        && edxPatientMatchDto.getPatientUid() > 0) {
+      return edxPatientMatchDto;
+    } else {
+      return null;
     }
   }
 
@@ -240,34 +224,31 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     personContainer.getThePersonDto().setPersonParentUid(matchUid);
     personContainer.setPatientMatchedFound(matchFound);
 
+    boolean newPersonCreated = false;
     // No match was found. create a new person
     if (!matchFound) {
       filterLREntityId(personContainer);
-      try {
-        // NOTE: If personDto.cd is 'PAT' then create a new person entry
-        if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
-          patientPersonUid = setAndCreateNewPerson(personContainer);
-          personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
-          personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
-          personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
-        }
-      } catch (Exception e) {
-        throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
+      // NOTE: If personDto.cd is 'PAT' then create a new person entry
+      if (personContainer.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) { // Patient
+        patientPersonUid = setAndCreateNewPerson(personContainer);
+        newPersonCreated = true;
+        personContainer.getThePersonDto().setPersonParentUid(patientPersonUid.getPersonParentId());
+        personContainer.getThePersonDto().setLocalId(patientPersonUid.getLocalId());
+        personContainer.getThePersonDto().setPersonUid(patientPersonUid.getPersonId());
       }
     }
 
+    // newPersonCreated flag prevent revision log for do another unnecessary MPR update
+    personContainer.setNewPersonCreated(newPersonCreated);
     createPatientRevision(personContainer);
+    personContainer.setNewPersonCreated(false);
   }
 
   // It appears a revision is always created during ingestion, even if a match was
   // not found and a new MPR was created
   private void createPatientRevision(PersonContainer personContainer) throws DataProcessingException {
-    try {
-      Long patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
-      personContainer.getThePersonDto().setPersonUid(patientUid);
-    } catch (Exception e) {
-      throw new DataProcessingException(LOG_ERROR_ENTITY_PATIENT + e.getMessage(), e);
-    }
+    Long patientUid = setPatientRevision(personContainer, NEDSSConstant.PAT_CR, NEDSSConstant.PAT);
+    personContainer.getThePersonDto().setPersonUid(patientUid);
   }
 
   // Filter out LR EntityId
@@ -283,7 +264,6 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     }
   }
 
-  @Transactional
   public Long updateExistingPerson(PersonContainer personContainer, String businessTriggerCd)
       throws DataProcessingException {
     return updateExistingPerson(personContainer, businessTriggerCd,

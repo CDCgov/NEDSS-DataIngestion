@@ -6,6 +6,7 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
@@ -37,6 +38,7 @@ public class NbsInterfaceStoredProcRepository {
     @PersistenceContext(unitName = "nbsEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public void updateSpecimenCollDateSP(Long nbsInterfaceUid, Timestamp specimentCollectionDate) throws DataProcessingException {
         try {
 

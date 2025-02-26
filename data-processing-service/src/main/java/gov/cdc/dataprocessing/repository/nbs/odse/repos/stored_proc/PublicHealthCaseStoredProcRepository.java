@@ -160,7 +160,6 @@ public class PublicHealthCaseStoredProcRepository {
 
     }
 
-
     @Transactional
     public   Map<String, EDXEventProcessDto> getEDXEventProcessMap(Long nbsDocumentUid) throws DataProcessingException {
         Map<String, EDXEventProcessDto> eventProcessMap = new HashMap<>();

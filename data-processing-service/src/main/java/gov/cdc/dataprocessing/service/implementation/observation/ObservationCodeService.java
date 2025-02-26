@@ -271,12 +271,8 @@ public class ObservationCodeService implements IObservationCodeService {
                 NEDSSConstant.RECORD_STATUS_ACTIVE);
 
         OrganizationContainer reportingLabVO = null;
-        try {
-            if (reportingLabUid != null) {
-                reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
-            }
-        } catch (Exception rex) {
-            throw new DataProcessingException("Error while retriving reporting organization vo, its uid is: " + reportingLabUid, rex);
+        if (reportingLabUid != null) {
+            reportingLabVO = organizationRepositoryUtil.loadObject(reportingLabUid, null);
         }
 
         // Get the CLIA
@@ -362,7 +358,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 try {
                     conditionCd = srteCodeObsService.getConditionForSnomedCode(snomedCd);
                 } catch (Exception e) {
-                    logger.info(e.getMessage());
+                    logger.error(e.getMessage());
                 }
                 if (conditionCd != null && !conditionCd.isEmpty()) {
                     snomedConditionList.add(conditionCd);
@@ -415,7 +411,7 @@ public class ObservationCodeService implements IObservationCodeService {
         try {
             conditionCd = srteCodeObsService.getConditionForLoincCode(loincCd);
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         }
         return (conditionCd);
 

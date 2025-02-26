@@ -65,7 +65,8 @@ public class KafkaManagerConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_micro}"
+            topics = "${kafka.topic.elr_micro}",
+            containerFactory = "kafkaListenerContainerFactoryStep1"
     )
     public void handleMessage(String messages, Acknowledgment acknowledgment)
             throws DataProcessingException {

@@ -105,7 +105,7 @@ class NokMatchingServiceTest {
         entLocPartDT.setThePostalLocatorDto(postLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
+        assertThrows(NullPointerException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
 
     @Test
@@ -187,7 +187,7 @@ class NokMatchingServiceTest {
         personNameDto.setFirstNm("TEST_FIRST_NM");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
+        assertThrows(NullPointerException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
     @Test
     void getMatchingNextOfKin_entityId_throw_exp() throws DataProcessingException {
@@ -219,12 +219,12 @@ class NokMatchingServiceTest {
         EdxPatientMatchDto edxPatientMatchFoundDT = new EdxPatientMatchDto();
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any())).thenReturn(edxPatientMatchFoundDT);
 
-        assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
+        assertThrows(NullPointerException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
     @Test
     void getMatchingNextOfKin_throw_exp() {
         PersonContainer personContainer = new PersonContainer();
         personContainer.thePersonDto.setPersonUid(123L);
-        assertThrows(DataProcessingException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
+        assertThrows(NullPointerException.class, () -> nokMatchingService.getMatchingNextOfKin(personContainer));
     }
 }

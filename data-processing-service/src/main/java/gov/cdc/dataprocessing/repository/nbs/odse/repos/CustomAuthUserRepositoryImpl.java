@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class CustomAuthUserRepositoryImpl implements CustomAuthUserRepository {
         // For Unit Test
     }
 
+    @Transactional
     public Collection<AuthUserRealizedRole> getAuthUserRealizedRole(String userId) {
         Query query = entityManager.createNativeQuery(SELECT_REALIZED_ROLES_FOR_USER_ID);
         Collection<AuthUserRealizedRole> authUserRealizedRoles = new ArrayList<>();

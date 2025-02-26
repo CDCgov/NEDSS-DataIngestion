@@ -194,7 +194,7 @@ class OrganizationMatchingServiceTest {
         organizationContainer.getTheEntityIdDtoCollection().add(entityIdDT);
 
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(anyString(), anyString())).thenReturn(edxEntityMatchDto);
-        assertThrows(DataProcessingException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
+        assertThrows(NullPointerException.class, () -> organizationMatchingService.getMatchingOrganization(organizationContainer));
     }
 
     @Test

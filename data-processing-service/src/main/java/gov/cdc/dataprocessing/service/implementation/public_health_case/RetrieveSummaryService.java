@@ -82,7 +82,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                 //TODO: LOGGING PIPELINE
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
@@ -100,14 +100,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
 
     public Map<Object,Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException {
-        Map<Object,Object> documentSummaryVOColl;
-        try {
-            documentSummaryVOColl = customRepository.retrieveDocumentSummaryVOForInv(publicHealthUID);
-        }
-        catch (Exception rsuex) {
-            throw new DataProcessingException(rsuex.getMessage());
-        }
-        return documentSummaryVOColl;
+        return customRepository.retrieveDocumentSummaryVOForInv(publicHealthUID);
     } // retrieveDocumentSummaryList
 
     @SuppressWarnings({"java:S3776","java:S1066"})

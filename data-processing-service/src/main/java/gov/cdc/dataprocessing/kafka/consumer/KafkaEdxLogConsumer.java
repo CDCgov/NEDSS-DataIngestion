@@ -44,10 +44,10 @@ public class KafkaEdxLogConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_edx_log}"
+            topics = "${kafka.topic.elr_edx_log}",
+            containerFactory = "kafkaListenerContainerFactoryStep4"
     )
-
-    public void handleMessage(String message, Acknowledgment acknowledgment){
+    public void handleMessage(String message, Acknowledgment acknowledgment) {
         try {
             EDXActivityLogDto edxActivityLogDto = GSON.fromJson(message, EDXActivityLogDto.class);
             edxLogService.saveEdxActivityLogs(edxActivityLogDto);

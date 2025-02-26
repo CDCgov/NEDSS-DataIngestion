@@ -90,7 +90,7 @@ class NbsDocumentRepositoryUtilTest {
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(new PersonContainer());
         when(participationRepositoryUtil.getParticipation(any(), any())).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(uid);
         });
         assertNotNull(thrown);
@@ -109,7 +109,7 @@ class NbsDocumentRepositoryUtilTest {
         docDto.setPhdcDocDerived("TEST");
         when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(doc);
         });
         assertNotNull(thrown);

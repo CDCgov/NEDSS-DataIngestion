@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Transactional
 /**
  125 - Comment complaint
  3776 - Complex complaint
@@ -73,6 +72,7 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
                     "AND person_parent_uid = :personParentUid";
 
 
+    @Transactional
     @Override
     public Collection<Observation_Summary> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause) {
         var sql = findAllActiveLabReportUidListForManage_SQL + whereClause;
@@ -93,6 +93,7 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
         return lst;
     }
 
+    @Transactional
     @Override
     public Optional<Collection<Observation_Lab_Summary_ForWorkUp_New>> findLabSummaryForWorkupNew(Long personParentUid, String whereClause) {
         var sql = SELECT_LABSUMMARY_FORWORKUPNEW + whereClause;

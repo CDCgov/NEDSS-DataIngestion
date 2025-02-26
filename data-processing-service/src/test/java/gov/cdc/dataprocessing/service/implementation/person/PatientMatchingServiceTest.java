@@ -631,7 +631,7 @@ class PatientMatchingServiceTest {
         edxPatientMatchFoundDT.setMultipleMatch(true);
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(any(), any()))
                 .thenReturn(edxPatientMatchFoundDT);
-        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
+        assertThrows(NullPointerException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
     }
 
     @Test
@@ -944,7 +944,7 @@ class PatientMatchingServiceTest {
 
         when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(anyString(), anyString()))
                 .thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(DataProcessingException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
+        assertThrows(NullPointerException.class, () -> patientMatchingService.getMatchingPatient(personContainer));
     }
 
     @Test

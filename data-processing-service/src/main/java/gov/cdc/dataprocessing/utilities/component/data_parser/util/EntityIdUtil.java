@@ -152,7 +152,7 @@ public class EntityIdUtil {
             }
         }
         catch (Exception e) {
-            logger.info("string could not be parsed into time");
+            logger.error("string could not be parsed into time");
             return null;
         }
     }

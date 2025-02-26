@@ -57,7 +57,8 @@ public class KafkaPublicHealthCaseConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_health_case}"
+            topics = "${kafka.topic.elr_health_case}",
+            containerFactory = "kafkaListenerContainerFactoryStep2"
     )
     public void handleMessageForPublicHealthCase(String message, Acknowledgment acknowledgment) {
         try {

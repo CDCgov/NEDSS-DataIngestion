@@ -23,6 +23,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -45,6 +47,8 @@ class EntityLocatorParticipationServiceTest {
     private  TeleLocatorRepository teleLocatorRepository;
     @Mock
     private  PostalLocatorRepository postalLocatorRepository;
+    @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
     @Mock
     private  PhysicalLocatorRepository physicalLocatorRepository;
     @Mock
@@ -77,7 +81,7 @@ class EntityLocatorParticipationServiceTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(entityLocatorParticipationRepository, teleLocatorRepository, postalLocatorRepository, physicalLocatorRepository,
-                iOdseIdGeneratorWCacheService, authUtil, personRepository);
+                iOdseIdGeneratorWCacheService, authUtil, personRepository, dataModifierReposJdbc);
     }
 
     @Test
@@ -373,7 +377,7 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(dataModifierReposJdbc).deletePostalLocatorById(any());
 
     }
 
@@ -387,7 +391,7 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(dataModifierReposJdbc).deletePostalLocatorById(any());
 
     }
 
@@ -402,7 +406,7 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(dataModifierReposJdbc).deletePostalLocatorById(any());
     }
 
     @Test
@@ -417,7 +421,7 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(dataModifierReposJdbc).deletePostalLocatorById(any());
     }
     private EntityLocatorParticipationDto createEntityLocatorParticipationDto(String classCd, boolean itDelete, String useCd) {
         EntityLocatorParticipationDto dto = new EntityLocatorParticipationDto();
@@ -442,8 +446,8 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
-        verify(entityLocatorParticipationRepository).deleteLocatorById(any(), any());
+        verify(dataModifierReposJdbc).deletePostalLocatorById(any());
+        verify(dataModifierReposJdbc).deleteLocatorById(any(), any());
     }
 
     @Test
@@ -457,14 +461,14 @@ class EntityLocatorParticipationServiceTest {
         dto.setClassCd(NEDSSConstant.POSTAL);
         dto.setItDelete(true);
         dto.setUseCd("BIR");
+        dto.setLocatorUid(1L);
         locatorCollectionMock.add(dto);
 
-        doThrow(new RuntimeException()).when(postalLocatorRepository).deletePostalLocatorById(any());
+        doThrow(new RuntimeException()).when(dataModifierReposJdbc).deletePostalLocatorById(any());
 
-        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L);
+        assertThrows(RuntimeException.class, () -> entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, 1L));
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
-        verify(entityLocatorParticipationRepository, never()).deleteLocatorById(any(), any());
+        verify(dataModifierReposJdbc, never()).deleteLocatorById(any(), any());
     }
 
     @Test
@@ -505,8 +509,8 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
 
-        verify(postalLocatorRepository, times(2)).deletePostalLocatorById(1L);
-        verify(entityLocatorParticipationRepository).deleteLocatorById(parentUid, 1L);
+        verify(dataModifierReposJdbc, times(2)).deletePostalLocatorById(1L);
+        verify(dataModifierReposJdbc).deleteLocatorById(parentUid, 1L);
     }
 
     @Test
@@ -543,11 +547,11 @@ class EntityLocatorParticipationServiceTest {
         when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid)).thenReturn(Optional.of(List.of(1L)));
         when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
 
-        doThrow(new RuntimeException()).when(postalLocatorRepository).deletePostalLocatorById(anyLong());
+        doThrow(new RuntimeException()).when(dataModifierReposJdbc).deletePostalLocatorById(anyLong());
 
-        entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
+        assertThrows(RuntimeException.class, () -> entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid));
 
-        verify(entityLocatorParticipationRepository, never()).deleteLocatorById(parentUid, 1L);
+        verify(dataModifierReposJdbc, never()).deleteLocatorById(parentUid, 1L);
     }
 
     @Test
@@ -586,7 +590,7 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
 
-        verify(postalLocatorRepository).deletePostalLocatorById(any());
+        verify(dataModifierReposJdbc).deletePostalLocatorById(any());
     }
 
     @Test
@@ -628,6 +632,6 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
 
-         verify(postalLocatorRepository, times(0)).updatePostalStatus(any(), any());
+         verify(postalLocatorRepository, times(0)).save(any());
     }
 }

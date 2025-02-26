@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -126,68 +125,55 @@ public class OrganizationRepositoryUtil {
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
     }
 
-    @Transactional
     public Organization findOrganizationByUid(Long orgUid) {
         var result = organizationRepository.findById(orgUid);
         return result.orElseGet(Organization::new);
 
     }
 
-    @Transactional
     public long createOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         Long organizationUid ;
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
-        try {
-            String localUid ;
-            var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
-            organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
-            localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
-            if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
-                organizationContainer.getTheOrganizationDto().setLocalId(localUid);
-            }
-            /**
-             * Starts inserting a new organization
-             */
-            if (organizationContainer != null) {
-                try {
-                    // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
-                    organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
-                    organizationContainer.getTheOrganizationDto().setLocalId(localUid);
-                    organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
-                    insertOrganization(organizationContainer);
-                } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage(), e);
-                }
+        String localUid ;
+        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+        organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
+        localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
-            }
-            if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
-                insertOrganizationNames(organizationContainer);
-            }
-            //NOTE: Upsert EntityID
-            if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                createEntityId(organizationContainer);
-            }
-            //NOTE: Create Entity Locator Participation
-            if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                createEntityLocatorParticipation(organizationContainer);
-            }
-            //NOTE: Create Role
-            if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
-                createRole(organizationContainer);
-            }
-
-            organizationContainer.getTheOrganizationDto().setOrganizationUid(oldOrgUid);
-
-        } catch (Exception ex) {
-            logger.error("Error while creating Organization {}", ex.getMessage());
-            throw new DataProcessingException(ex.getMessage(), ex);
+        if (organizationContainer.getTheOrganizationDto().getLocalId() == null || organizationContainer.getTheOrganizationDto().getLocalId().trim().length() == 0) {
+            organizationContainer.getTheOrganizationDto().setLocalId(localUid);
         }
+        /**
+         * Starts inserting a new organization
+         */
+        // Upper stream require this id to not mutated (must be negative), so falseToNew Method can parse the id correctly
+        organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
+        organizationContainer.getTheOrganizationDto().setLocalId(localUid);
+        organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
+        insertOrganization(organizationContainer);
+
+        if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
+            insertOrganizationNames(organizationContainer);
+        }
+        //NOTE: Upsert EntityID
+        if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            createEntityId(organizationContainer);
+        }
+        //NOTE: Create Entity Locator Participation
+        if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+            createEntityLocatorParticipation(organizationContainer);
+        }
+        //NOTE: Create Role
+        if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
+            createRole(organizationContainer);
+        }
+
+        organizationContainer.getTheOrganizationDto().setOrganizationUid(oldOrgUid);
+
         return organizationUid;
     }
 
-    @Transactional
     public void updateOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
         try {
@@ -343,7 +329,6 @@ public class OrganizationRepositoryUtil {
      * @param businessTriggerCd     the String
      * @return organizationUID the Long
      */
-    @Transactional
     public Long setOrganization(OrganizationContainer organizationContainer,
                                 String businessTriggerCd)
             throws DataProcessingException {
@@ -357,7 +342,6 @@ public class OrganizationRepositoryUtil {
         return organizationUID;
     }
     @SuppressWarnings("java:S3776")
-    @Transactional
     public Long setOrganizationInternal(OrganizationContainer organizationContainer, String businessTriggerCd) throws DataProcessingException {
         Long organizationUID;
         try {
@@ -464,7 +448,6 @@ public class OrganizationRepositoryUtil {
      * the participation to have a substantial amount of Reporting labs with the same
      * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
      */
-    @Transactional
     public OrganizationContainer loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
         OrganizationContainer ovo = new OrganizationContainer();
 
@@ -512,7 +495,6 @@ public class OrganizationRepositoryUtil {
         return ovo;
     }
 
-    @Transactional
     public OrganizationDto selectOrganization(long organizationUID) throws DataProcessingException {
         OrganizationDto organizationDto;
         /**

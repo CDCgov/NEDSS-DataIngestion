@@ -6,6 +6,7 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class ProgAreaSnomeCodeStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
+    @Transactional
     public Map<String, Object> getSnomed(String code, String type, String clia) throws DataProcessingException {
         Map<String, Object> map = new HashMap<>();
         try {
@@ -77,6 +79,7 @@ public class ProgAreaSnomeCodeStoredProcRepository {
     }
 
 
+    @Transactional
     public Map<String, Object> getProgAreaCd(String code, String type, String clia) throws DataProcessingException {
         Map<String, Object> map = new HashMap<>();
         try {

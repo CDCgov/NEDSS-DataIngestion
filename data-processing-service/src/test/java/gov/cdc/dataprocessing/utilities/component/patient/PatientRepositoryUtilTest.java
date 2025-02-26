@@ -31,6 +31,7 @@ import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorW
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,6 +59,8 @@ class PatientRepositoryUtilTest {
     private PersonNameRepository personNameRepository;
     @Mock
     private PersonRaceRepository personRaceRepository;
+    @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
     @Mock
     private PersonEthnicRepository personEthnicRepository;
     @Mock
@@ -89,7 +92,7 @@ class PatientRepositoryUtilTest {
     void tearDown() {
         Mockito.reset(personRepository, entityRepositoryUtil, personNameRepository, personRaceRepository,
                 personEthnicRepository, entityIdRepository, roleRepository,
-                odseIdGeneratorService, entityLocatorParticipationService, authUtil);
+                odseIdGeneratorService, entityLocatorParticipationService, authUtil, dataModifierReposJdbc);
     }
 
     @Test
@@ -402,7 +405,7 @@ class PatientRepositoryUtilTest {
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
-        verify(personRaceRepository, times(1)).deletePersonRaceByUid(eq(10L),any());
+        verify(dataModifierReposJdbc, times(1)).deletePersonRaceByUid(eq(10L),any());
     }
 
     @Test
@@ -414,13 +417,13 @@ class PatientRepositoryUtilTest {
         retainingRaceCodeList.add("TEST");
 
 
-        doThrow(new RuntimeException("TEST")).when(personRaceRepository).deletePersonRaceByUid(eq(10L), any());
+        doThrow(new RuntimeException("TEST")).when(dataModifierReposJdbc).deletePersonRaceByUid(eq(10L), any());
         when(personRaceRepository.findByParentUid(11L)).thenThrow(new RuntimeException("TEST"));
 
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
-        verify(personRaceRepository, times(0)).deletePersonRaceByUid(eq(11L),any());
+        verify(dataModifierReposJdbc, times(0)).deletePersonRaceByUid(eq(11L),any());
     }
 
     @Test
@@ -438,7 +441,7 @@ class PatientRepositoryUtilTest {
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
-        verify(personRaceRepository, times(0)).deletePersonRaceByUid(eq(11L),any());
+        verify(dataModifierReposJdbc, times(0)).deletePersonRaceByUid(eq(11L),any());
     }
 
 
@@ -454,6 +457,6 @@ class PatientRepositoryUtilTest {
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
-        verify(personRaceRepository, times(0)).deletePersonRaceByUid(eq(10L),any());
+        verify(dataModifierReposJdbc, times(0)).deletePersonRaceByUid(eq(10L),any());
     }
 }
