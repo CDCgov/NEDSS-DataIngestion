@@ -60,7 +60,7 @@ class KafkaConsumerServiceTest {
 
     kafkaConsumerService.consumePersonMessage(message);
 
-    verify(updateHandler, times(1)).handleUpdate(payloadNode, "person");
+    verify(updateHandler, times(1)).handleUpdate(payloadNode, "Person");
     verify(insertHandler, never()).handleInsert(any());
   }
 
