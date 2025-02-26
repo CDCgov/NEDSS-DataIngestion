@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,12 +18,6 @@ import java.util.List;
 @Component
 public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
 
-  private static final String QUERY = """
-      INSERT INTO nbs_mpi_mapping
-        (person_uid, person_parent_uid, mpi_patient, mpi_person, status)
-      VALUES
-        (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
-      """;
 
   private final NamedParameterJdbcTemplate template;
 
@@ -36,7 +31,7 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
     for (DeduplicationEntry entry : chunk) {
       batchParams.add(createParameterSource(entry));
     }
-    template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
+    template.batchUpdate(QueryConstants.NBS_MPI_QUERY, batchParams.toArray(new SqlParameterSource[0]));
   }
 
   SqlParameterSource createParameterSource(DeduplicationEntry entry) {

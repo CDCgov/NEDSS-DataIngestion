@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.duplicates.step;
 
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidate;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
@@ -15,16 +16,7 @@ import java.util.List;
 @Component
 public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
-  private static final String MATCH_CANDIDATES_QUERY = """
-      INSERT INTO match_candidates (nbs_id, possible_match_nbs_id)
-      VALUES (:nbsId, :possibleMatchNbsId)
-      """;
 
-  private static final String NBS_MAPPING_QUERY = """
-      UPDATE nbs_mpi_mapping
-      SET status = 'P'
-      WHERE person_uid IN (:personIds)
-      """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -57,7 +49,7 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
       }
     }
     if (!batchParams.isEmpty()) {
-      namedParameterJdbcTemplate.batchUpdate(MATCH_CANDIDATES_QUERY, batchParams.toArray(new MapSqlParameterSource[0]));
+      namedParameterJdbcTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY, batchParams.toArray(new MapSqlParameterSource[0]));
     }
   }
 
@@ -65,7 +57,7 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
     if (!personIds.isEmpty()) {
       MapSqlParameterSource parameters = new MapSqlParameterSource();
       parameters.addValue("personIds", personIds);
-      namedParameterJdbcTemplate.update(NBS_MAPPING_QUERY, parameters);
+      namedParameterJdbcTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSONS, parameters);
     }
   }
 

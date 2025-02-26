@@ -46,17 +46,11 @@ public class LinkRequestMapper {
       sex = request.personDto().currSexCd();
     }
 
-    String gender = null;
-    if (request.personDto() != null) {
-      gender = request.personDto().additionalGenderCd();
-    }
-
     return new LinkRequest(new MpiPerson(
         null,
         null,
         birthDate,
         sex,
-        gender,
         toAddresses(request.postalLocators()),
         toNames(request.names()),
         toTelecoms(request.teleLocators()),
