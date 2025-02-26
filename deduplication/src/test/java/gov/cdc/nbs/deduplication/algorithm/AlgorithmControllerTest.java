@@ -1,14 +1,28 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
+import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,59 +36,87 @@ class AlgorithmControllerTest {
     @InjectMocks
     private AlgorithmController algorithmController;
 
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(algorithmController).build();
+    }
+
     @Test
     void testConfigureMatching() {
-        // Create a List of Pass objects (dummy example, replace with actual Pass objects)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
-
-        // Creating MatchingConfigRequest with the required parameters
-        MatchingConfigRequest request = new MatchingConfigRequest(
-                "Test Label",      // String parameter (label)
-                "Test Description", // String parameter (description)
-                true,               // boolean parameter (isDefault)
-                true,               // boolean parameter (includeMultipleMatches)
-                passes              // List<Pass> parameter (passes)
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
         );
 
-        // Simulating the service method call
+        List<Pass> passes = List.of(new Pass(
+                "TestPass",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria,
+                List.of()
+        ));
+
+        MatchingConfigRequest request = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                passes
+        );
+
         doNothing().when(algorithmService).configureMatching(request);
 
-        // Call the controller method
         algorithmController.configureMatching(request);
 
-        // Verify that the service method was called once with the request
         verify(algorithmService, times(1)).configureMatching(request);
     }
 
     @Test
     void testGetMatchingConfiguration() {
-        // Create a List of Pass objects (dummy example)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
-
-        // Simulate the service method call
-        MatchingConfigRequest expectedConfig = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                passes
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
         );
 
-        when(algorithmService.getMatchingConfiguration()).thenReturn(expectedConfig);
+        List<Pass> passes = List.of(new Pass(
+                "TestPass",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria, // Updated to Map<String, Boolean>
+                List.of()
+        ));
 
-        // Call the controller method
-        MatchingConfigRequest actualConfig = algorithmController.getMatchingConfiguration();
+        when(algorithmService.getMatchingConfiguration()).thenReturn(passes);
 
-        // Verify the returned configuration matches
-        assertEquals(expectedConfig, actualConfig);
+        Map<String, List<Pass>> actualResponse = algorithmController.getMatchingConfiguration();
+
+        assertNotNull(actualResponse);
+        assertTrue(actualResponse.containsKey("passes"));
+        assertEquals(passes, actualResponse.get("passes"));
     }
 
     @Test
     void testUpdateAlgorithm() {
-        // Create a List of Pass objects (dummy example)
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", List.of(), List.of()));
+        Map<String, Boolean> blockingCriteria = Map.of(
+                "FIRST_NAME", true,
+                "LAST_NAME", false
+        );
 
-        // Creating MatchingConfigRequest with the required parameters
+        List<Pass> passes = List.of(new Pass(
+                "TestPass",
+                "Description",
+                "0.1",
+                "0.9",
+                blockingCriteria, // Updated to Map<String, Boolean>
+                List.of()
+        ));
+
         MatchingConfigRequest request = new MatchingConfigRequest(
                 "Test Label",
                 "Test Description",
@@ -83,13 +125,68 @@ class AlgorithmControllerTest {
                 passes
         );
 
-        // Simulate the service method call
         doNothing().when(algorithmService).updateDibbsConfigurations(request);
 
-        // Call the controller method
         algorithmController.updateAlgorithm(request);
 
-        // Verify that the service method was called once with the request
         verify(algorithmService, times(1)).updateDibbsConfigurations(request);
+    }
+
+    @Test
+    void testExportConfiguration() throws IOException, NoSuchFieldException, IllegalAccessException {
+        List<Pass> mockPasses = List.of(new Pass("pass1", "description", "0.1", "0.9",
+                Map.of("FIRST_NAME", true, "LAST_NAME", false), List.of()));
+
+        when(algorithmService.getMatchingConfiguration()).thenReturn(mockPasses);
+
+        String expectedJson = "[{\"name\":\"pass1\",\"description\":\"description\",\"lowerBound\":\"0.1\",\"upperBound\":\"0.9\",\"blockingCriteria\":{\"FIRST_NAME\":true,\"LAST_NAME\":false},\"matchingCriteria\":[]}]";
+        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+        doReturn(expectedJson).when(mockObjectMapper).writeValueAsString(mockPasses);
+
+        injectMockObjectMapper(mockObjectMapper);
+
+        ResponseEntity<InputStreamResource> response = algorithmController.exportConfiguration();
+
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+        assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("attachment; filename="));
+
+        ByteArrayInputStream inputStream = (ByteArrayInputStream) response.getBody().getInputStream();
+        String actualJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        assertEquals(expectedJson, actualJson);
+
+        verify(mockObjectMapper).writeValueAsString(mockPasses);
+    }
+
+
+    @Test
+    void testImportConfiguration() throws Exception {
+        // Prepare data
+        MatchingConfigRequest mockConfigRequest = new MatchingConfigRequest(
+                "Test Label",
+                "Test Description",
+                true,
+                true,
+                List.of()
+        );
+
+        doNothing().when(algorithmService).saveMatchingConfiguration(mockConfigRequest);
+
+        String jsonRequest = objectMapper.writeValueAsString(mockConfigRequest);
+
+        assertNotNull(jsonRequest, "Request JSON is null");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/deduplication/import-configuration")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Configuration imported successfully."));
+
+        verify(algorithmService).saveMatchingConfiguration(mockConfigRequest);
+    }
+
+    private void injectMockObjectMapper(ObjectMapper mockObjectMapper) throws NoSuchFieldException, IllegalAccessException {
+        java.lang.reflect.Field field = AlgorithmController.class.getDeclaredField("objectMapper");
+        field.setAccessible(true);
+        field.set(algorithmController, mockObjectMapper);
     }
 }
