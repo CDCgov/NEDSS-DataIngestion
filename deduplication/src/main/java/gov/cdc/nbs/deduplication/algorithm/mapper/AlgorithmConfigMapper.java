@@ -92,7 +92,8 @@ public class AlgorithmConfigMapper {
                             lowerBound,
                             upperBound,
                             mapBlockingCriteria(pass.blockingKeys()),
-                            mapMatchingCriteria(pass.evaluators())
+                            mapMatchingCriteria(pass.evaluators()),
+                            mapKwargs((Kwargs) pass.kwargs())
                     );
                 })
                 .toList();
@@ -107,5 +108,18 @@ public class AlgorithmConfigMapper {
         }
 
         return blockingMap;
+    }
+
+    private static Kwargs mapKwargs(Kwargs algorithmKwargs) {
+        if (algorithmKwargs == null) {
+            return null;
+        }
+
+        return new Kwargs(
+                algorithmKwargs.similarityMeasure(),
+                algorithmKwargs.thresholds(),
+                algorithmKwargs.trueMatchThreshold(),
+                algorithmKwargs.logOdds()
+        );
     }
 }

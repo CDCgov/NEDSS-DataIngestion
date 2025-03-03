@@ -9,5 +9,6 @@ public record Pass (
         String lowerBound,
         String upperBound,
         Map<String, Boolean> blockingCriteria, // Map instead of List
-        List<MatchingCriteria> matchingCriteria
+        List<MatchingCriteria> matchingCriteria,
+        Kwargs kwargs
 ) {}

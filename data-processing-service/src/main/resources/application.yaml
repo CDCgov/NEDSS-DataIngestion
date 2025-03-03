@@ -29,7 +29,7 @@ cache:
 
 features:
   modernizedMatching:
-    enabled: ${MODERNIZED_MATCHING_ENABLED:false}
+    enabled: ${MODERNIZED_MATCHING_ENABLED:true}
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
