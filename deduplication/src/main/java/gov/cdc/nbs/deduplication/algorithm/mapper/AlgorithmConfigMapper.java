@@ -93,7 +93,7 @@ public class AlgorithmConfigMapper {
                             upperBound,
                             mapBlockingCriteria(pass.blockingKeys()),
                             mapMatchingCriteria(pass.evaluators()),
-                            mapKwargs((Kwargs) pass.kwargs())
+                            mapKwargs(pass.kwargs())
                     );
                 })
                 .toList();
@@ -110,16 +110,32 @@ public class AlgorithmConfigMapper {
         return blockingMap;
     }
 
-    private static Kwargs mapKwargs(Kwargs algorithmKwargs) {
-        if (algorithmKwargs == null) {
+    public static Kwargs mapKwargs(Object rawKwargs) {
+        if (rawKwargs == null) {
             return null;
         }
 
-        return new Kwargs(
-                algorithmKwargs.similarityMeasure(),
-                algorithmKwargs.thresholds(),
-                algorithmKwargs.trueMatchThreshold(),
-                algorithmKwargs.logOdds()
-        );
+        if (rawKwargs instanceof Kwargs kwargs) {
+            return kwargs;
+        }
+
+        if (rawKwargs instanceof Map<?, ?> kwargsMap) {
+
+            return new Kwargs(
+                    (String) kwargsMap.get("similarity_measure"),
+                    castToMap(kwargsMap.get("thresholds")),
+                    kwargsMap.get("true_match_threshold") instanceof Number
+                            ? ((Number) kwargsMap.get("true_match_threshold")).doubleValue()
+                            : null,
+                    castToMap(kwargsMap.get("log_odds"))
+            );
+        }
+
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Double> castToMap(Object obj) {
+        return obj instanceof Map<?, ?> ? (Map<String, Double>) obj : null;
     }
 }
