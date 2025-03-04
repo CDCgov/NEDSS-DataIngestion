@@ -93,8 +93,8 @@ class AlgorithmServiceTest {
         AlgorithmService spyAlgorithmService = spy(algorithmService);
 
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-        Kwargs Kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
-        List<Pass> passes = List.of(new Pass("passName", "description", "0.2", "0.9", blockingCriteria, List.of(),Kwargs));
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+        List<Pass> passes = List.of(new Pass("passName", "description", "0.2", "0.9", blockingCriteria, List.of(), kwargs));
 
         MatchingConfigRequest configRequest = new MatchingConfigRequest("testLabel", "testDescription", true, true, passes);
 

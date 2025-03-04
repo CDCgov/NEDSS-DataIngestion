@@ -77,10 +77,9 @@ class MatchingConfigRequestTest {
         assertNotEquals(request1, request5);
     }
 
-    Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
-
     @Test
     void testEqualsWithNull() {
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfigRequest request = new MatchingConfigRequest(
                 "Test Label", "Test Description", true, true,
                 List.of(new Pass("passName", "description", "0.1", "0.9", Map.of(), List.of(), kwargs))

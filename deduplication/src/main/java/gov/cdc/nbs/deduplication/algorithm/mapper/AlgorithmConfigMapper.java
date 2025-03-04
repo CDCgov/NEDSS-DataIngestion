@@ -135,7 +135,7 @@ public class AlgorithmConfigMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<String, Double> castToMap(Object obj) {
+    public static Map<String, Double> castToMap(Object obj) {
         return obj instanceof Map<?, ?> ? (Map<String, Double>) obj : null;
     }
 }
