@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.algorithm;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmConfigMapper;
 import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmUpdateRequest;
@@ -75,7 +76,8 @@ class AlgorithmServiceTest {
     @Test
     void testConfigureMatching() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", blockingCriteria, List.of()));
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+        List<Pass> passes = List.of(new Pass("TestPass", "Description", "0.1", "0.9", blockingCriteria, List.of(), kwargs));
 
         MatchingConfigRequest request = new MatchingConfigRequest("testLabel", "testDescription", true, true, passes);
 
@@ -91,7 +93,8 @@ class AlgorithmServiceTest {
         AlgorithmService spyAlgorithmService = spy(algorithmService);
 
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-        List<Pass> passes = List.of(new Pass("passName", "description", "0.2", "0.9", blockingCriteria, List.of()));
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+        List<Pass> passes = List.of(new Pass("passName", "description", "0.2", "0.9", blockingCriteria, List.of(), kwargs));
 
         MatchingConfigRequest configRequest = new MatchingConfigRequest("testLabel", "testDescription", true, true, passes);
 
@@ -110,9 +113,10 @@ class AlgorithmServiceTest {
 
     @Test
     void testUpdateAlgorithm_withMissingBlockingCriteria() {
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfigRequest configRequest = new MatchingConfigRequest(
                 "testLabel", "testDescription", true, true,
-                List.of(new Pass("passName", "description", "0.2", "0.9", null, List.of()))
+                List.of(new Pass("passName", "description", "0.2", "0.9", null, List.of(), kwargs))
         );
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -135,8 +139,9 @@ class AlgorithmServiceTest {
 
     @Test
     void testUpdateAlgorithmJsonProcessingException() throws Exception {
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-        Pass pass = new Pass("TestPass", "Description", "0.1", "0.9", blockingCriteria, List.of());
+        Pass pass = new Pass("TestPass", "Description", "0.1", "0.9", blockingCriteria, List.of(), kwargs);
 
         MatchingConfigRequest request = new MatchingConfigRequest("Test Label", "Test Description", true, true, List.of(pass));
 
@@ -148,7 +153,8 @@ class AlgorithmServiceTest {
     @Test
     void testUpdateAlgorithm_withInvalidBounds() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true);
-        List<Pass> passes = List.of(new Pass("passName", "description", "invalid", "invalid", blockingCriteria, List.of()));
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+        List<Pass> passes = List.of(new Pass("passName", "description", "invalid", "invalid", blockingCriteria, List.of(), kwargs));
 
         MatchingConfigRequest configRequest = new MatchingConfigRequest("Test Label", "Test Description", true, true, passes);
 
