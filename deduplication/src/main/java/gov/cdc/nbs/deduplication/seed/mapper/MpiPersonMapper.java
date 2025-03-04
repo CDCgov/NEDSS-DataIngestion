@@ -56,7 +56,6 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
         rs.getString("person_parent_uid"),
         rs.getString("birth_date"),
         rs.getString("sex"),
-        rs.getString("gender"),
         addresses,
         names,
         phones,

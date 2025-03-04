@@ -28,7 +28,7 @@ public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate
   @Override
   public MatchCandidate process(String personUid) {
 
-    MpiPerson patientRecord = patientRecordService.fetchPatientDetails(personUid);
+    MpiPerson patientRecord = patientRecordService.fetchMostRecentPatient(personUid);
     MatchResponse response = recordLinkerService.findDuplicateRecords(patientRecord);
 
     // Process only "possible_match" responses for manual review
