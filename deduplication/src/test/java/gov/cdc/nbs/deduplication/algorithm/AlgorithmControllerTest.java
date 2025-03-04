@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
 import org.springframework.core.io.InputStreamResource;
@@ -52,13 +53,19 @@ class AlgorithmControllerTest {
                 "LAST_NAME", false
         );
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",
+                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
+                12.2,
+                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+
         List<Pass> passes = List.of(new Pass(
                 "TestPass",
                 "Description",
                 "0.1",
                 "0.9",
                 blockingCriteria,
-                List.of()
+                List.of(),
+                kwargs
         ));
 
         MatchingConfigRequest request = new MatchingConfigRequest(
@@ -83,13 +90,19 @@ class AlgorithmControllerTest {
                 "LAST_NAME", false
         );
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",
+                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
+                12.2,
+                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+
         List<Pass> passes = List.of(new Pass(
                 "TestPass",
                 "Description",
                 "0.1",
                 "0.9",
-                blockingCriteria, // Updated to Map<String, Boolean>
-                List.of()
+                blockingCriteria,
+                List.of(),
+                kwargs
         ));
 
         when(algorithmService.getMatchingConfiguration()).thenReturn(passes);
@@ -108,13 +121,19 @@ class AlgorithmControllerTest {
                 "LAST_NAME", false
         );
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",
+                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
+                12.2,
+                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+
         List<Pass> passes = List.of(new Pass(
                 "TestPass",
                 "Description",
                 "0.1",
                 "0.9",
-                blockingCriteria, // Updated to Map<String, Boolean>
-                List.of()
+                blockingCriteria,
+                List.of(),
+                kwargs
         ));
 
         MatchingConfigRequest request = new MatchingConfigRequest(
@@ -134,12 +153,24 @@ class AlgorithmControllerTest {
 
     @Test
     void testExportConfiguration() throws IOException, NoSuchFieldException, IllegalAccessException {
-        List<Pass> mockPasses = List.of(new Pass("pass1", "description", "0.1", "0.9",
-                Map.of("FIRST_NAME", true, "LAST_NAME", false), List.of()));
+        Kwargs kwargs = new Kwargs("JaroWinkler",
+                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
+                12.2,
+                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+
+        List<Pass> mockPasses = List.of(new Pass(
+                "pass1",
+                "description",
+                "0.1",
+                "0.9",
+                Map.of("FIRST_NAME", true, "LAST_NAME", false),
+                List.of(),
+                kwargs
+        ));
 
         when(algorithmService.getMatchingConfiguration()).thenReturn(mockPasses);
 
-        String expectedJson = "[{\"name\":\"pass1\",\"description\":\"description\",\"lowerBound\":\"0.1\",\"upperBound\":\"0.9\",\"blockingCriteria\":{\"FIRST_NAME\":true,\"LAST_NAME\":false},\"matchingCriteria\":[]}]";
+        String expectedJson = objectMapper.writeValueAsString(mockPasses);
         ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
         doReturn(expectedJson).when(mockObjectMapper).writeValueAsString(mockPasses);
 
@@ -157,10 +188,8 @@ class AlgorithmControllerTest {
         verify(mockObjectMapper).writeValueAsString(mockPasses);
     }
 
-
     @Test
     void testImportConfiguration() throws Exception {
-        // Prepare data
         MatchingConfigRequest mockConfigRequest = new MatchingConfigRequest(
                 "Test Label",
                 "Test Description",

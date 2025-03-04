@@ -37,6 +37,7 @@ class AlgorithmRequestMapperTest {
                 "FIRST_NAME", true,
                 "LAST_NAME", false
         );
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
 
         // Creating a sample Pass with blocking criteria and matching criteria
         List<Pass> passes = List.of(new Pass(
@@ -48,7 +49,8 @@ class AlgorithmRequestMapperTest {
                 List.of(new MatchingCriteria(
                         new Field("LAST_NAME", "Last name"),
                         new Method("exact", "matcher")
-                ))
+                )),
+                kwargs
         ));
 
         // Creating a MatchingConfiguration with the new Pass structure
