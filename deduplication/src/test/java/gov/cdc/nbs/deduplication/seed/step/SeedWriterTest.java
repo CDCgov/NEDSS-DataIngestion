@@ -43,13 +43,13 @@ class SeedWriterTest {
 
   @Test
   void initializes() {
-    SeedWriter newWriter = new SeedWriter(jdbcTemplate,mapper, restClient);
+    SeedWriter newWriter = new SeedWriter(jdbcTemplate,mapper, restClient, 100L);
     assertThat(newWriter).isNotNull();
   }
 
   @Test
   void writesChunk() throws Exception {
-    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient);
+    final SeedWriter writer = new SeedWriter(jdbcTemplate, mapper, restClient, 100L);
 
     when(restClient.post()).thenReturn(uriSpec);
     when(uriSpec.uri("/seed")).thenReturn(bodySpec);

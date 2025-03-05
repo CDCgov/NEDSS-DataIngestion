@@ -31,7 +31,7 @@ class PersonReaderTest {
     when(connection.getMetaData()).thenReturn(metadata);
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
 
-    final PersonReader reader = new PersonReader(dataSource);
+    final PersonReader reader = new PersonReader(dataSource, 100L);
     assertThat(reader).isNotNull();
   }
 

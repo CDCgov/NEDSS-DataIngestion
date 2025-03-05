@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.seed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.cdc.nbs.deduplication.seed.listener.LastProcessedIdListener;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,13 +31,15 @@ class JobConfigTest {
   private JobRepository jobRepository;
   @Mock
   private PlatformTransactionManager transactionManager;
+  @Mock
+  private LastProcessedIdListener listener;
 
   @Test
   void buildsValidConfig() {
     JobConfig config = new JobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
     assertThat(config).isNotNull();
 
-    Job seedJob = config.seedJob(jobRepository, null, null);
+    Job seedJob = config.seedJob(jobRepository, null, null, listener);
     assertThat(seedJob).isNotNull();
 
   }
