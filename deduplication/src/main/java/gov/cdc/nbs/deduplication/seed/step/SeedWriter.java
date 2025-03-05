@@ -10,6 +10,7 @@ import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -129,21 +130,26 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
               ) AS nested
       WHERE
           p.person_parent_uid IN (:ids)
-          AND p.record_status_cd = 'ACTIVE';
+          AND p.record_status_cd = 'ACTIVE'
+          AND p.person_uid > :lastProcessedId
+          AND (m.status != 'P' OR m.status IS NULL);
       """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final MpiPersonMapper mapper = new MpiPersonMapper();
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
+  private final Long lastProcessedId;
 
   public SeedWriter(
       @Qualifier("nbsTemplate") JdbcTemplate template,
       ObjectMapper objectMapper,
-      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient) {
+      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient,
+      @Value("${lastProcessedId:0}") Long lastProcessedId) {
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(template);
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
+    this.lastProcessedId = lastProcessedId;
   }
 
   @Override
@@ -171,9 +177,11 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
   private List<Cluster> fetchClusters(List<String> personParentUids) {
     // fetch all cluster data for the current batch of person_parent_uids
     List<MpiPerson> clusterEntries = namedParameterJdbcTemplate.query(
-        CLUSTER_QUERY,
-        new MapSqlParameterSource("ids", personParentUids),
-        mapper);
+            CLUSTER_QUERY,
+            new MapSqlParameterSource()
+                    .addValue("ids", personParentUids)
+                    .addValue("lastProcessedId", lastProcessedId),
+            mapper);
 
     Map<String, List<MpiPerson>> clusterDataMap = clusterEntries.stream()
         .collect(Collectors.groupingBy(MpiPerson::parent_id));

@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import gov.cdc.nbs.deduplication.seed.listener.LastProcessedIdListener;
+
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/deduplication/seed")
 public class SeedController {
@@ -28,14 +32,29 @@ public class SeedController {
   }
 
   @PostMapping
-  public void startSeed() throws JobExecutionAlreadyRunningException,
+  public void startSeed(LastProcessedIdListener listener) throws JobExecutionAlreadyRunningException,
       JobRestartException,
       JobInstanceAlreadyCompleteException,
       JobParametersInvalidException {
+
+    Long lastProcessedId = listener.getLastProcessedId();
+
+    if (lastProcessedId == null) {
+      lastProcessedId = listener.getSmallestPersonId();
+    }
+
+    lastProcessedId = Optional.ofNullable(lastProcessedId).orElse(0L);
+
     JobParameters parameters = new JobParametersBuilder()
         .addLong("startTime", System.currentTimeMillis())
+        .addLong("lastProcessedId", lastProcessedId)
         .toJobParameters();
     launcher.run(seedJob, parameters);
-  }
 
+    // After seeding, update the lastProcessedId to the largest person_id processed
+    Long largestProcessedId = listener.getLargestProcessedId();
+    if (largestProcessedId != null) {
+      listener.updateLastProcessedId(largestProcessedId);
+    }
+  }
 }

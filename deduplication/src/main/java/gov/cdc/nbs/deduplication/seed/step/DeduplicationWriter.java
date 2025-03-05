@@ -1,5 +1,7 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,6 +33,8 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
       """;
 
   private final NamedParameterJdbcTemplate template;
+
+  private static final Logger logger = LoggerFactory.getLogger(DeduplicationWriter.class);
 
   public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
     this.template = template;
@@ -72,6 +76,6 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
             .addValue("person_parent_uid", entry.nbsPersonParentId())
             .addValue("mpi_patient", entry.mpiPatientId())
             .addValue("mpi_person", entry.mpiPersonId())
-            .addValue("status", "P");
+            .addValue("status", "U");
   }
 }

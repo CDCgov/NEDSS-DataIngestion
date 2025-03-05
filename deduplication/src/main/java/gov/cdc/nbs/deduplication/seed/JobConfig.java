@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.seed;
 
+import gov.cdc.nbs.deduplication.seed.listener.LastProcessedIdListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -65,10 +66,12 @@ public class JobConfig {
   @Bean("seedJob")
   public Job seedJob(JobRepository jobRepository,
       @Qualifier("readNbsWriteToMpi") Step step1,
-      @Qualifier("readMpiWriteDeduplication") Step step2) {
+      @Qualifier("readMpiWriteDeduplication") Step step2,
+                     LastProcessedIdListener listener) {
     return new JobBuilder("Seed MPI", jobRepository)
         .start(step1)
         .next(step2)
+        .listener(listener)
         .build();
   }
 
