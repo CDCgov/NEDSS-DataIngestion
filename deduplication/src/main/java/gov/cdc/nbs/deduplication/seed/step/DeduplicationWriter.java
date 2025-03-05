@@ -24,6 +24,12 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
         (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
       """;
 
+  public static final String UPDATE_LAST_PROCESSED_ID = """
+      UPDATE last_processed_id
+      SET last_processed_id = :lastProcessedId
+      WHERE id = 1
+      """;
+
   private final NamedParameterJdbcTemplate template;
 
   public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
@@ -33,19 +39,39 @@ public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
   @Override
   public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
     List<SqlParameterSource> batchParams = new ArrayList<>();
-    for (DeduplicationEntry entry : chunk) {
+    Long largestProcessedId = null;
+
+    for (DeduplicationEntry entry : chunk.getItems()) {
       batchParams.add(createParameterSource(entry));
+      if (largestProcessedId == null || entry.nbsPersonId() > largestProcessedId) {
+        largestProcessedId = entry.nbsPersonId();
+      }
     }
+
     template.batchUpdate(QUERY, batchParams.toArray(new SqlParameterSource[0]));
+
+    if (largestProcessedId != null) {
+      updateLastProcessedId(largestProcessedId);
+    }
+  }
+
+  public void updateLastProcessedId(Long lastProcessedId) {
+    SqlParameterSource params = new MapSqlParameterSource()
+            .addValue("lastProcessedId", lastProcessedId);
+
+    try {
+      template.update(UPDATE_LAST_PROCESSED_ID, params);
+    } catch (Exception e) {
+      logger.error("Error updating last_processed_id: {}", e.getMessage());
+    }
   }
 
   SqlParameterSource createParameterSource(DeduplicationEntry entry) {
     return new MapSqlParameterSource()
-        .addValue("person_uid", entry.nbsPersonId())
-        .addValue("person_parent_uid", entry.nbsPersonParentId())
-        .addValue("mpi_patient", entry.mpiPatientId())
-        .addValue("mpi_person", entry.mpiPersonId())
-        .addValue("status", "U");
+            .addValue("person_uid", entry.nbsPersonId())
+            .addValue("person_parent_uid", entry.nbsPersonParentId())
+            .addValue("mpi_patient", entry.mpiPatientId())
+            .addValue("mpi_person", entry.mpiPersonId())
+            .addValue("status", "P");
   }
-
 }
