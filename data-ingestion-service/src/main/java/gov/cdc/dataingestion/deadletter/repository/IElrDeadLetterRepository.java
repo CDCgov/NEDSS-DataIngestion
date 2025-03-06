@@ -22,6 +22,11 @@ public interface IElrDeadLetterRepository extends JpaRepository<ElrDeadLetterMod
 
     @Modifying
     @Transactional
+    @Query(value = "UPDATE elr_dlt SET dlt_occurrence = :dltOccurrence WHERE error_message_id =:id)", nativeQuery = true)
+    void updateDltOccurrenceForRawId(String id, int dltOccurrence);
+
+    @Modifying
+    @Transactional
     @Query(value = "UPDATE elr_dlt SET dlt_status = 'PROCESSED' WHERE error_message_id = :id", nativeQuery = true)
     void updateErrorStatusForRawId(String id, String errorStatus);
 

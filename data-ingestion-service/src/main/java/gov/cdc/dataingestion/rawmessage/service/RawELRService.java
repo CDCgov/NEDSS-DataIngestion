@@ -89,7 +89,7 @@ public class RawELRService {
                         version);
             }
         } catch (KafkaProducerException e) {
-            iElrDeadLetterRepository.addErrorStatusForRawId(rawElrDto.getId(), topicName, rawElrDto.getType(), rawElrDto.getPayload(), errorStatus, dltOccurrence + 1);
+            iElrDeadLetterRepository.updateDltOccurrenceForRawId(rawElrDto.getId(), dltOccurrence + 1);
             throw new KafkaProducerException("Failed publishing message again to kafka topic: " + topicName + " with UUID: " + rawElrDto.getId());
         }
     }

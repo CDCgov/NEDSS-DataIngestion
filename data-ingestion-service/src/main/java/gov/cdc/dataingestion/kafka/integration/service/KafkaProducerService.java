@@ -186,7 +186,7 @@ public class KafkaProducerService {
     private void sendMessage(ProducerRecord<String, String> prodRecord) throws KafkaProducerException {
         try {
 //            kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
-            String result = future.get(3, TimeUnit.SECONDS); // Wait with a timeout of 5 seconds
+            String result = future.get(3, TimeUnit.SECONDS);
             System.out.println("result is..." + result);
             System.err.println("Printing the send..." );
         } catch (TimeoutException | InterruptedException | ExecutionException e) {

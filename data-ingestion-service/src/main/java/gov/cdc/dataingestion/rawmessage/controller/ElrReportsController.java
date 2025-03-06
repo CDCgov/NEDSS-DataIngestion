@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
 import gov.cdc.dataingestion.rawmessage.service.RawELRService;
@@ -70,7 +71,7 @@ public class ElrReportsController {
     )
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs")
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,
-                                       @RequestHeader(name = "version", defaultValue = "1") String version) {
+                                       @RequestHeader(name = "version", defaultValue = "1") String version) throws KafkaProducerException {
         if (type.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
         } else {
