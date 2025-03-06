@@ -18,8 +18,8 @@ public class QueryConstants {
       """;
 
   public static final String MATCH_CANDIDATES_QUERY = """
-      INSERT INTO match_candidates (nbs_id, possible_match_nbs_id)
-      VALUES (:nbsId, :possibleMatchNbsId)
+      INSERT INTO match_candidates (person_uid,mpi_person_id)
+      VALUES (:personUid, :mpiPersonId)
       """;
 
   public static final String NBS_MPI_QUERY = """ 

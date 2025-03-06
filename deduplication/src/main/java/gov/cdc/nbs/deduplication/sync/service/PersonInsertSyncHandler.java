@@ -71,10 +71,10 @@ public class PersonInsertSyncHandler {
     MpiResponse mpiResponse = insertNewPersonIntoMpi(mpiPerson);
     linkNbsToMpi(new NbsMpiLinkDto(mpiResponse));
     MatchCandidate matchCandidate = checkForPossibleMatch(mpiPerson);
-    if (matchCandidate.possibleMatchNbsId() != null) {
+    if (matchCandidate.possibleMatchList() != null) {
       insertMatchCandidates(matchCandidate);
     }
-    updateStatus(matchCandidate.nbsId());
+    updateStatus(matchCandidate.personUid());
   }
 
   private void insertNewMpiPatient(MpiPerson mpiPerson) throws JsonProcessingException {
@@ -116,21 +116,21 @@ public class PersonInsertSyncHandler {
   private MatchCandidate checkForPossibleMatch(MpiPerson mpiPerson) {
     MatchResponse matchResponse = duplicateCheckService.findDuplicateRecords(mpiPerson);
     if (MatchResponse.Prediction.POSSIBLE_MATCH == matchResponse.prediction()) {
-      List<String> possibleMatchNbsIds = matchResponse.results().stream()
+      List<String> possibleMatchList = matchResponse.results().stream()
           .map(LinkResult::personReferenceId)
           .map(UUID::toString)
           .toList();
-      return new MatchCandidate(mpiPerson.external_id(), possibleMatchNbsIds);
+      return new MatchCandidate(mpiPerson.external_id(), possibleMatchList);
     }
     return new MatchCandidate(mpiPerson.external_id(), null);
   }
 
   private void insertMatchCandidates(MatchCandidate candidate) {
     List<MapSqlParameterSource> batchParams = new ArrayList<>();
-    for (String possibleMatchNbsId : candidate.possibleMatchNbsId()) {
+    for (String possibleMatchMpiId : candidate.possibleMatchList()) {
       batchParams.add(new MapSqlParameterSource()
-          .addValue("nbsId", candidate.nbsId())
-          .addValue("possibleMatchNbsId", possibleMatchNbsId));
+          .addValue("personUid", candidate.personUid())
+          .addValue("mpiPersonId", possibleMatchMpiId));
     }
     if (!batchParams.isEmpty()) {
       deduplicationTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY,

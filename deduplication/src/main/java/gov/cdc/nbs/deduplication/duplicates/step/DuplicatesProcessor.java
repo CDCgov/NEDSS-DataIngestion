@@ -33,12 +33,12 @@ public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate
 
     // Process only "possible_match" responses for manual review
     if (MatchResponse.Prediction.POSSIBLE_MATCH == response.prediction()) {
-      List<String> possibleMatchNbsIds = response.results().stream()
+      List<String> possibleMatchList = response.results().stream()
           .map(LinkResult::personReferenceId)
           .map(UUID::toString)
           .toList();
 
-      return new MatchCandidate(personUid, possibleMatchNbsIds);
+      return new MatchCandidate(personUid, possibleMatchList);
     }
     return new MatchCandidate(personUid, null);
   }

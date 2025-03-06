@@ -69,7 +69,7 @@ class KafkaConsumerServiceTest {
     String message = "{\"payload\": {\"op\": \"d\"}}";
     kafkaConsumerService.consumePersonMessage(message);
 
-    verify(updateHandler, never()).handleUpdate(any(),any());
+    verify(updateHandler, never()).handleUpdate(any(), any());
     verify(insertHandler, never()).handleInsert(any());
   }
 
@@ -93,7 +93,7 @@ class KafkaConsumerServiceTest {
   void testConsumePersonDataMessage_CreateOperation() throws Exception {
     String message = "{\"payload\": {\"op\": \"c\"}}";
     String topic = "test.NBS_ODSE.dbo.Person_name";
-    kafkaConsumerService.consumePersonDataMessage(topic,message);
+    kafkaConsumerService.consumePersonDataMessage(topic, message);
     verify(updateHandler, times(1)).handleUpdate(any(), any());
 
   }
@@ -102,7 +102,7 @@ class KafkaConsumerServiceTest {
   void testConsumePersonDataMessage_UpdateOperation() throws Exception {
     String message = "{\"payload\": {\"op\": \"u\"}}";
     String topic = "test.NBS_ODSE.dbo.Person_name";
-    kafkaConsumerService.consumePersonDataMessage(topic,message);
+    kafkaConsumerService.consumePersonDataMessage(topic, message);
     verify(updateHandler, times(1)).handleUpdate(any(), any());
   }
 
@@ -110,9 +110,9 @@ class KafkaConsumerServiceTest {
   void testConsumePersonDataMessage_otherOperation() throws Exception {
     String message = "{\"payload\": {\"op\": \"d\"}}";
     String topic = "test.NBS_ODSE.dbo.Person_name";
-    kafkaConsumerService.consumePersonDataMessage(topic,message);
+    kafkaConsumerService.consumePersonDataMessage(topic, message);
 
-    verify(updateHandler, never()).handleUpdate(any(),any());
+    verify(updateHandler, never()).handleUpdate(any(), any());
     verify(insertHandler, never()).handleInsert(any());
   }
 

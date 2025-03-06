@@ -49,9 +49,9 @@ class DuplicatesProcessorTest {
     MatchCandidate result = duplicatesProcessor.process(personUid);
 
     assertThat(result).isNotNull();
-    assertThat(result.nbsId()).isEqualTo(personUid);
-    assertThat(result.possibleMatchNbsId()).isNotNull();
-    assertThat(result.possibleMatchNbsId()).hasSize(1);
+    assertThat(result.personUid()).isEqualTo(personUid);
+    assertThat(result.personUid()).isNotNull();
+    assertThat(result.possibleMatchList()).hasSize(1);
   }
 
 
@@ -70,15 +70,15 @@ class DuplicatesProcessorTest {
     MatchCandidate result = duplicatesProcessor.process(personUid);
 
     assertThat(result).isNotNull();
-    assertThat(result.nbsId()).isEqualTo(personUid);
-    assertThat(result.possibleMatchNbsId()).isNull();
+    assertThat(result.personUid()).isEqualTo(personUid);
+    assertThat(result.possibleMatchList()).isNull();
   }
 
 
   @Test
   void processReturnsMatchCandidateWithNullForMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson( null, null, null, null,
+    MpiPerson patientRecord = new MpiPerson(null, null, null, null,
         null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
 
@@ -89,8 +89,8 @@ class DuplicatesProcessorTest {
     MatchCandidate result = duplicatesProcessor.process(personUid);
 
     assertThat(result).isNotNull();
-    assertThat(result.nbsId()).isEqualTo(personUid);
-    assertThat(result.possibleMatchNbsId()).isNull();
+    assertThat(result.personUid()).isEqualTo(personUid);
+    assertThat(result.possibleMatchList()).isNull();
   }
 
 

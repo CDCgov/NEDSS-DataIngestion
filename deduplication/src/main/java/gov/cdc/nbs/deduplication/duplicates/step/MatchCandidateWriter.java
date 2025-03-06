@@ -30,8 +30,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
     List<String> personIds = new ArrayList<>();
     List<MatchCandidate> candidatesToInsert = new ArrayList<>();
     for (MatchCandidate candidate : chunk.getItems()) {
-      personIds.add(candidate.nbsId());
-      if (candidate.possibleMatchNbsId() != null) {
+      personIds.add(candidate.personUid());
+      if (candidate.possibleMatchList() != null) {
         candidatesToInsert.add(candidate);
       }
     }
@@ -42,14 +42,15 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   private void insertMatchCandidates(List<MatchCandidate> candidates) {
     List<MapSqlParameterSource> batchParams = new ArrayList<>();
     for (MatchCandidate candidate : candidates) {
-      for (String possibleMatchNbsId : candidate.possibleMatchNbsId()) {
+      for (String possibleMatchMpiId : candidate.possibleMatchList()) {
         batchParams.add(new MapSqlParameterSource()
-            .addValue("nbsId", candidate.nbsId())
-            .addValue("possibleMatchNbsId", possibleMatchNbsId));
+            .addValue("personUid", candidate.personUid())
+            .addValue("mpiPersonId", possibleMatchMpiId));
       }
     }
     if (!batchParams.isEmpty()) {
-      namedParameterJdbcTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY, batchParams.toArray(new MapSqlParameterSource[0]));
+      namedParameterJdbcTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY,
+          batchParams.toArray(new MapSqlParameterSource[0]));
     }
   }
 
