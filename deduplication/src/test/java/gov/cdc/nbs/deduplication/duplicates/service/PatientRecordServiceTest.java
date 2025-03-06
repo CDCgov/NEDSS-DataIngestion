@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.junit.jupiter.api.Test;
@@ -28,9 +29,9 @@ class PatientRecordServiceTest {
 
 
   @Test
-  void fetchPatientDetailsReturnsMpiPerson() {
+  void fetchMostRecentPatientReturnsMpiPerson() {
     String personParentUid = "123";
-    MpiPerson expectedPerson = new MpiPerson(null, null, null, null, null,
+    MpiPerson expectedPerson = new MpiPerson(null, personParentUid, null, null,
         null, null, null, null, null);
     List<MpiPerson> mpiPersons = Collections.singletonList(expectedPerson);
 
@@ -38,14 +39,14 @@ class PatientRecordServiceTest {
         any(MpiPersonMapper.class)))
         .thenReturn(mpiPersons);
 
-    MpiPerson actualPerson = patientRecordService.fetchPatientDetails(personParentUid);
+    MpiPerson actualPerson = patientRecordService.fetchMostRecentPatient(personParentUid);
 
     assertThat(actualPerson).isEqualTo(expectedPerson);
   }
 
 
   @Test
-  void fetchPatientDetailsReturnsNullWhenNoRecordsFound() {
+  void fetchMostRecentPatientReturnsNullWhenNoRecordsFound() {
     String personParentUid = "123";
     List<MpiPerson> mpiPersons = Collections.emptyList();
 
@@ -53,7 +54,23 @@ class PatientRecordServiceTest {
         any(MpiPersonMapper.class)))
         .thenReturn(mpiPersons);
 
-    MpiPerson actualPerson = patientRecordService.fetchPatientDetails(personParentUid);
+    MpiPerson actualPerson = patientRecordService.fetchMostRecentPatient(personParentUid);
     assertThat(actualPerson).isNull();
+  }
+  @Test
+  void fetchPersonRecord_ReturnsMpiPerson() {
+    String personUid = "123";
+    MpiPerson expectedPerson = new MpiPerson(personUid, null, null, null,
+        null, null, null, null, null);
+
+    when(namedParameterJdbcTemplate.queryForObject(
+        eq(QueryConstants.PERSON_RECORD_BY_PERSON_ID),
+        any(MapSqlParameterSource.class),
+        any(MpiPersonMapper.class)
+    )).thenReturn(expectedPerson);
+
+    MpiPerson actualPerson = patientRecordService.fetchPersonRecord(personUid);
+
+    assertThat(actualPerson).isEqualTo(expectedPerson);
   }
 }

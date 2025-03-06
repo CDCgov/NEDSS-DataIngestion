@@ -56,7 +56,6 @@ class MpiPersonMapperTest {
     final String EXTERNAL_ID = "123";
     final String BIRTH_DATE = "1990-01-01";
     final String SEX = "M";
-    final String GENDER = "Gender";
     ResultSet rs = Mockito.mock(ResultSet.class);
     when(rs.getString("address")).thenReturn(ADDRESS_STRING);
     when(rs.getString("name")).thenReturn(NAME_STRING);
@@ -66,7 +65,6 @@ class MpiPersonMapperTest {
     when(rs.getString("external_id")).thenReturn(EXTERNAL_ID);
     when(rs.getString("birth_date")).thenReturn(BIRTH_DATE);
     when(rs.getString("sex")).thenReturn(SEX);
-    when(rs.getString("gender")).thenReturn(GENDER);
 
     MpiPerson person = mapper.mapRow(rs, 0);
     assertThat(person.address()).hasSize(2);
@@ -74,7 +72,6 @@ class MpiPersonMapperTest {
     assertThat(person.telecom()).hasSize(2);
     assertThat(person.race()).isEqualTo("WHITE");
     assertThat(person.sex()).isEqualTo(SEX);
-    assertThat(person.gender()).isEqualTo(GENDER);
     assertThat(person.birth_date()).isEqualTo(BIRTH_DATE);
 
     assertThat(person.identifiers()).hasSize(2);

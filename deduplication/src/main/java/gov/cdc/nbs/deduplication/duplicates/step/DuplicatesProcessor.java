@@ -28,17 +28,17 @@ public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate
   @Override
   public MatchCandidate process(String personUid) {
 
-    MpiPerson patientRecord = patientRecordService.fetchPatientDetails(personUid);
+    MpiPerson patientRecord = patientRecordService.fetchMostRecentPatient(personUid);
     MatchResponse response = recordLinkerService.findDuplicateRecords(patientRecord);
 
     // Process only "possible_match" responses for manual review
     if (MatchResponse.Prediction.POSSIBLE_MATCH == response.prediction()) {
-      List<String> possibleMatchNbsIds = response.results().stream()
+      List<String> possibleMatchList = response.results().stream()
           .map(LinkResult::personReferenceId)
           .map(UUID::toString)
           .toList();
 
-      return new MatchCandidate(personUid, possibleMatchNbsIds);
+      return new MatchCandidate(personUid, possibleMatchList);
     }
     return new MatchCandidate(personUid, null);
   }

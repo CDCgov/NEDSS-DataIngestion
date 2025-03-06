@@ -44,7 +44,7 @@ class DuplicateCheckServiceTest {
 
   @Test
   void findDuplicateRecordsTest() {
-    MpiPerson personRecord = new MpiPerson(null, null, null, null, null,
+    MpiPerson personRecord = new MpiPerson(null, null, null, null,
         null, null, null, null, null);
 
     LinkResult linkResult1 = new LinkResult(UUID.randomUUID(), 0.85);
