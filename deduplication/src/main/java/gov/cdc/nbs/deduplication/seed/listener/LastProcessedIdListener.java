@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,11 +22,13 @@ public class LastProcessedIdListener implements JobExecutionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(LastProcessedIdListener.class);
 
     public LastProcessedIdListener(
-            @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate jdbcTemplate,
+            @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationNamedJdbcTemplate,
             @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsNamedJdbcTemplate) {
-        this.deduplicationNamedJdbcTemplate = jdbcTemplate;
+
+        this.deduplicationNamedJdbcTemplate = deduplicationNamedJdbcTemplate;
         this.nbsNamedJdbcTemplate = nbsNamedJdbcTemplate;
     }
+
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
@@ -35,7 +38,7 @@ public class LastProcessedIdListener implements JobExecutionListener {
     @Override
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-            Long lastProcessedId = jobExecution.getJobParameters().getLong("lastProcessedId");
+            Long lastProcessedId = jobExecutionx.getJobParameters().getLong("lastProcessedId");
             LOGGER.info("Received lastProcessedId: {}", lastProcessedId);
 
             if (lastProcessedId != null) {
