@@ -77,6 +77,8 @@ public class EcrReportsController {
 
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs/test")
     public ResponseEntity<String> saveIncomingEcr(@RequestBody final String payload) {
+        var nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(payload, "TEST", "TEST");
+
         return ResponseEntity.ok("TEST");
 
     }

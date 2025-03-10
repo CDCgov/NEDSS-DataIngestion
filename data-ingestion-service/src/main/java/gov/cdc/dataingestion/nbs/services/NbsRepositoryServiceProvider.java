@@ -42,8 +42,8 @@ public class NbsRepositoryServiceProvider {
 	private static Logger log = LoggerFactory.getLogger(NbsRepositoryServiceProvider.class);
 
 	private static final String IMPEXP_CD = "I";
-	private static final String STATUS_UNPROCESSED = "QUEUED";
-	private static final String STATUS_UNPROCESSED_V2 = "RTI_QUEUED";
+	private static final String STATUS_UNPROCESSED = "QUEUED_TEST";
+	private static final String STATUS_UNPROCESSED_V2 = "RTI_QUEUED_TEST";
 
 	private static final String SYSTEM_NAME_NBS = "NBS";
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
