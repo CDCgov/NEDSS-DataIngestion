@@ -36,7 +36,6 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
           p.person_parent_uid,
           cast(p.birth_time as Date) birth_date,
           p.curr_sex_cd sex,
-          p.additional_gender_cd gender,
           nested.address,
           nested.phone,
           nested.name,

@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.model;
 
+import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +15,14 @@ class MatchingConfigRequestTest {
     void testEqualsAndHashCode() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+
         MatchingConfigRequest request1 = new MatchingConfigRequest(
                 "Test Label",
                 "Test Description",
                 true,
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
 
         MatchingConfigRequest request2 = new MatchingConfigRequest(
@@ -27,7 +30,7 @@ class MatchingConfigRequestTest {
                 "Test Description",
                 true,
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
 
         assertEquals(request1, request2);
@@ -38,29 +41,31 @@ class MatchingConfigRequestTest {
     void testEqualsWithDifferentValues() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+
         MatchingConfigRequest request1 = new MatchingConfigRequest(
                 "Test Label", "Test Description", true, true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
 
         // Different label
         MatchingConfigRequest request2 = new MatchingConfigRequest(
                 "Different Label", "Test Description", true, true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
         assertNotEquals(request1, request2);
 
         // Different isDefault value
         MatchingConfigRequest request3 = new MatchingConfigRequest(
                 "Test Label", "Test Description", false, true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
         assertNotEquals(request1, request3);
 
         // Different includeMultipleMatches value
         MatchingConfigRequest request4 = new MatchingConfigRequest(
                 "Test Label", "Test Description", true, false,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
         assertNotEquals(request1, request4);
 
@@ -74,9 +79,10 @@ class MatchingConfigRequestTest {
 
     @Test
     void testEqualsWithNull() {
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfigRequest request = new MatchingConfigRequest(
                 "Test Label", "Test Description", true, true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", Map.of(), List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", Map.of(), List.of(), kwargs))
         );
 
         assertNotEquals(null, request);
@@ -85,10 +91,11 @@ class MatchingConfigRequestTest {
     @Test
     void testToString() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
 
         MatchingConfigRequest request = new MatchingConfigRequest(
                 "Test Label", "Test Description", true, true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
 
         String actualString = request.toString();
@@ -106,9 +113,11 @@ class MatchingConfigRequestTest {
     void testConstructorAndGetters() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+
         MatchingConfigRequest request = new MatchingConfigRequest(
                 "Test Label", "Test Description", true, false,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of()))
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs))
         );
 
         assertEquals("Test Label", request.label());

@@ -75,7 +75,6 @@ class LinkRequestMapperTest {
     LinkRequest linkRequest = mapper.map(request);
 
     assertThat(linkRequest.record().sex()).isEqualTo("sex");
-    assertThat(linkRequest.record().gender()).isEqualTo("gender");
   }
 
   @Test

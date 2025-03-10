@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.model;
 
+import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import org.junit.jupiter.api.Test;
 
@@ -13,13 +14,13 @@ class MatchingConfigurationTest {
     @Test
     void testEqualsAndHashCode() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfiguration config1 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 
@@ -28,7 +29,7 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 
@@ -39,13 +40,13 @@ class MatchingConfigurationTest {
     @Test
     void testEqualsWithDifferentValues() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfiguration config1 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 
@@ -54,7 +55,7 @@ class MatchingConfigurationTest {
                 "Different Label",  // Different label
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
         assertNotEquals(config1, config2);
@@ -64,7 +65,7 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
         assertNotEquals(config1, config3);
@@ -74,7 +75,7 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.1, 0.9}  // Different belongingnessRatio
         );
         assertNotEquals(config1, config4);
@@ -97,13 +98,13 @@ class MatchingConfigurationTest {
     @Test
     void testToString() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfiguration config = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 
@@ -121,13 +122,13 @@ class MatchingConfigurationTest {
     @Test
     void testConstructorAndGetters() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfiguration config = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 
@@ -143,13 +144,13 @@ class MatchingConfigurationTest {
     @Test
     void testEqualsWithNullBelongingnessRatio() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
-
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
         MatchingConfiguration config1 = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 null  // belongingnessRatio is null
         );
 
@@ -158,7 +159,7 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 null  // belongingnessRatio is also null
         );
 
@@ -169,7 +170,7 @@ class MatchingConfigurationTest {
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 
@@ -180,12 +181,14 @@ class MatchingConfigurationTest {
     void testEqualsWithIdenticalObjects() {
         Map<String, Boolean> blockingCriteria = Map.of("FIRST_NAME", true, "LAST_NAME", false);
 
+        Kwargs kwargs = new Kwargs("JaroWinkler",Map.of("FIRST_NAME", 0.35), 12.2, Map.of("LAST_NAME", 0.35) );
+
         MatchingConfiguration config = new MatchingConfiguration(
                 1L,
                 "Test Label",
                 "Test Description",
                 true,
-                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of())),
+                List.of(new Pass("passName", "description", "0.1", "0.9", blockingCriteria, List.of(), kwargs)),
                 new Double[]{0.0, 1.0}
         );
 

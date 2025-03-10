@@ -10,6 +10,8 @@ import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmConfigMapper.mapKwargs;
+
 public class AlgorithmRequestMapper {
 
     private static final Logger log = LoggerFactory.getLogger(AlgorithmRequestMapper.class);
@@ -128,9 +130,10 @@ public class AlgorithmRequestMapper {
                 .toList()
                 : List.of(); // Empty list fallback
 
-        return new AlgorithmPass(new ArrayList<>(blockingKeys.keySet()), evaluators,
-                "func:recordlinker.linking.matchers.rule_match", new HashMap<>());
+        return new AlgorithmPass(new ArrayList<>(blockingKeys.keySet()),
+                evaluators,
+                "func:recordlinker.linking.matchers.rule_match",
+                mapKwargs(pass.kwargs())
+        );
     }
-
-
 }

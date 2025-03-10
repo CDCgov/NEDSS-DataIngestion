@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.nbs.deduplication.algorithm.dto.AlgorithmPass;
 import gov.cdc.nbs.deduplication.algorithm.dto.Evaluator;
+import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
 import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
 import gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmConfigMapper;
 import gov.cdc.nbs.deduplication.algorithm.mapper.AlgorithmRequestMapper;
@@ -21,7 +22,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -100,7 +100,7 @@ public class AlgorithmService {
                             List.of("BIRTHDATE", "ADDRESS", "ZIP"),
                             List.of(new Evaluator("FIRST_NAME", "func:recordlinker.linking.matchers.compare_fuzzy_match")),
                             "func:recordlinker.linking.matchers.rule_match",
-                            new HashMap<>()
+                            new Kwargs(null, null, null, null)
                     ))
             );
 

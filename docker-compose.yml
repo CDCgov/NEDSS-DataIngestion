@@ -33,7 +33,7 @@ services:
         condition: service_healthy
     container_name: srte-data-service
     env_file:
-       - dataingestion.env
+      - dataingestion.env
     networks:
       - dataingestion
 
@@ -70,7 +70,38 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
     networks:
       - dataingestion
-  
+
+  debezium-connect:
+    image: debezium/connect:2.4
+    hostname: kafka-connect
+    container_name: kafka-connect
+    depends_on:
+      - broker
+      - zookeeper
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: broker:29092
+      GROUP_ID: connect-cluster
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      OFFSET_STORAGE_FILE_FILENAME: /tmp/connect.offsets
+      OFFSET_FLUSH_INTERVAL_MS: 10000
+      PLUGIN_PATH: /kafka/connect
+
+      CONFIG_STORAGE_TOPIC: connect-configs
+      OFFSET_STORAGE_TOPIC: connect-offsets
+      STATUS_STORAGE_TOPIC: connect-status
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+    volumes:
+      - ./debezium/plugins:/kafka/connect
+    networks:
+      - dataingestion
+
   di-mssql:
     build: 
       context: ./containers/db
@@ -112,15 +143,6 @@ services:
       - "9991:9990"
       - "7002:7001"
       - "8788:8787"
-    networks:
-      - dataingestion
-  record-linker:
-    build: ./containers/record-linker
-    container_name: record-linker
-    ports:
-     - "8062:8080"
-    environment:
-      DB_URI: "mssql+pyodbc://sa:${NBS_DBPASSWORD:-fake.fake.fake.1234}@di-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
     networks:
       - dataingestion
 

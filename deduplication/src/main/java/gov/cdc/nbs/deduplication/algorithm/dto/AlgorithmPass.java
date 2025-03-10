@@ -7,5 +7,5 @@ public record AlgorithmPass(
         @JsonProperty("blocking_keys") List<String> blockingKeys,
         @JsonProperty("evaluators") List<Evaluator> evaluators,
         @JsonProperty("rule") String rule,
-        @JsonProperty("kwargs") Object kwargs
+        @JsonProperty("kwargs") Kwargs kwargs
 ) {}
