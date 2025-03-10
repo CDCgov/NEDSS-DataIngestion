@@ -14,9 +14,10 @@ import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.nbs.services.interfaces.IEcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.report.repository.IRawELRRepository;
 import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
@@ -53,8 +54,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 /**
@@ -96,7 +96,7 @@ class KafkaConsumerServiceTest {
     private ICdaMapper cdaMapper;
 
     @Mock
-    private IEcrMsgQueryService ecrMsgQueryService;
+    private EcrMsgQueryService ecrMsgQueryService;
     @Container
     @SuppressWarnings("resource") // We do not want to immediately close the container
     public static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"))
@@ -160,8 +160,6 @@ class KafkaConsumerServiceTest {
                 iHL7DuplicateValidator,
                 nbsRepositoryServiceProvider,
                 elrDeadLetterRepository,
-                cdaMapper,
-                ecrMsgQueryService,
                 iReportStatusRepository,
                 customMetricsBuilder,
                 timeMetricsBuilder);
@@ -454,6 +452,53 @@ class KafkaConsumerServiceTest {
         verify(iValidatedELRRepository, times(2)).findById(guidForTesting);
 
     }
+
+    @Test
+    void xmlPreparationConsumerTestNewFlow_Exception()  {
+        when(iValidatedELRRepository.findById(any())).thenReturn(Optional.empty());
+        kafkaConsumerService.xmlConversionHandlerProcessing("123", EnumKafkaOperation.INJECTION.name(), "true");
+
+        verify(iValidatedELRRepository, times(1)).findById(any());
+
+    }
+
+    @Test
+    void xmlPreparationConsumerTestNewFlow_KafkaExistResult()  {
+
+
+        // Produce a test message to the topic
+        String message =  guidForTesting;
+        produceMessage(xmlPrepTopic, message, EnumKafkaOperation.INJECTION);
+
+        // Consume the message
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+
+        // Perform assertions
+        assertEquals(1, records.count());
+
+        ConsumerRecord<String, String> firstRecord = records.iterator().next();
+        String value = firstRecord.value();
+
+        ValidatedELRModel model = new ValidatedELRModel();
+        model.setId(guidForTesting);
+        model.setRawMessage(testHL7Message);
+
+        when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
+
+        var rpt = new ReportStatusIdData();
+        rpt.setNbsInterfaceUid(1);
+        when(iReportStatusRepository.
+                findByRawMessageId(any())).thenReturn(Optional.of(rpt));
+
+
+
+        kafkaConsumerService.xmlConversionHandlerProcessing(value, EnumKafkaOperation.INJECTION.name(), "true");
+
+        verify(iReportStatusRepository, times(1)).findByRawMessageId(any());
+
+    }
+
+
 
 
     @Test

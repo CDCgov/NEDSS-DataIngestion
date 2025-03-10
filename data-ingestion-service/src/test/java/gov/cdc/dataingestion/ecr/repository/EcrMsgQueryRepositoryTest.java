@@ -22,13 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-/**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 @RunWith(MockitoJUnitRunner.class)
 class EcrMsgQueryRepositoryTest {
     @InjectMocks
@@ -40,37 +33,6 @@ class EcrMsgQueryRepositoryTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void fetchMsgContainerForApplicableEcr_Test() throws Exception {
-        // Arrange
-        Query mockQuery = mock(Query.class);
-        when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
-
-        List<Object[]> mockResults = new ArrayList<>();
-        mockResults.add(new Object[]{
-                0,
-                "1",
-                2,
-                "3",
-                "4",
-                5,
-                6});
-        when(mockQuery.getResultList()).thenReturn(mockResults);
-
-        // Act
-        EcrMsgContainerDto result = target.fetchMsgContainerForApplicableEcr();
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(0, result.getMsgContainerUid());
-        assertEquals("1", result.getInvLocalId());
-        assertEquals(2, result.getNbsInterfaceUid());
-        assertEquals("3", result.getReceivingSystem());
-        assertEquals("4", result.getOngoingCase());
-        assertEquals(5, result.getVersionCtrNbr());
-        assertEquals(6, result.getDataMigrationStatus());
     }
 
 
