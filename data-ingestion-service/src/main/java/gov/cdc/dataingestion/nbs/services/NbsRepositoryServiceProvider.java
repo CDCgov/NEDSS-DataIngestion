@@ -49,7 +49,7 @@ public class NbsRepositoryServiceProvider {
 	private static final String DOCUMENT_TYPE_CODE = "11648804";
 
 	private static final String ECR_DOC_TYPE = "PHC236";
-	private static final String ECR_STATUS = "ORIG_QUEUED";
+	private static final String ECR_STATUS = "ORIG_QUEUED_TEST";
 
 	private final NbsInterfaceRepository nbsInterfaceRepo;
 
