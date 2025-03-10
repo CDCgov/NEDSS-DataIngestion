@@ -75,14 +75,6 @@ public class EcrReportsController {
         }
     }
 
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs/test")
-    public ResponseEntity<String> saveIncomingEcr(@RequestBody final String payload) {
-        var nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(payload, "TEST", "TEST");
-
-        return ResponseEntity.ok("TEST");
-
-    }
-
     private String extractXmlContent(String textInput, String startTag, String endTag) {
         int startIndex = textInput.indexOf(startTag) + startTag.length();
         int endIndex = textInput.indexOf(endTag, startIndex);

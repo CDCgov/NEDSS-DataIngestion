@@ -3,8 +3,8 @@ server:
   servlet:
     context-path: /ingestion
   tomcat:
-    max-http-form-post-size: 100MB
-    max-swallow-size: 100MB
+    max-http-form-post-size:  ${API_PAYLOAD_MAX_SIZE:100MB}
+    max-swallow-size: ${API_PAYLOAD_MAX_SIZE:100MB}
 
 management:
   endpoint:
