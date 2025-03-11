@@ -1,4 +1,4 @@
-package gov.cdc.nbs.deduplication.duplicates;
+package gov.cdc.nbs.deduplication.duplicates.controller;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;

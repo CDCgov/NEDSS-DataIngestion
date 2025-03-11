@@ -1,7 +1,8 @@
-package gov.cdc.nbs.deduplication.duplicates;
+package gov.cdc.nbs.deduplication.duplicates.controller;
 
 import static org.mockito.Mockito.*;
 
+import gov.cdc.nbs.deduplication.duplicates.controller.TestController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
