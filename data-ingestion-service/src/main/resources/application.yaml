@@ -37,7 +37,7 @@ ecr:
 
 dlt:
   scheduler:
-    enabled: ${SCHEDULER_ENABLED:true}
+    enabled: ${SCHEDULER_ENABLED:false}
     cron: ${SCHEDULER_CRON:0/30 * * * * *}
 
 ---
