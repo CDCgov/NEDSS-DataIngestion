@@ -3,8 +3,8 @@ package gov.cdc.dataingestion.rawmessage.controller;
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
-import gov.cdc.dataingestion.rawmessage.service.RawELRService;
+import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,12 +39,12 @@ import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class ElrReportsController {
 
-    private final RawELRService rawELRService;
+    private final RawElrService rawELRService;
     private final CustomMetricsBuilder customMetricsBuilder;
     private IHL7Service hl7Service;
 
     @Autowired
-    public ElrReportsController(RawELRService rawELRService,
+    public ElrReportsController(RawElrService rawELRService,
                                 CustomMetricsBuilder customMetricsBuilder,
                                 IHL7Service hl7Service) {
         this.rawELRService = rawELRService;
@@ -78,20 +78,22 @@ public class ElrReportsController {
             type = type.toUpperCase();
         }
 
-        RawERLDto rawERLDto = new RawERLDto();
+        RawElrDto rawElrDto = new RawElrDto();
         customMetricsBuilder.incrementMessagesProcessed();
 
         if (type.equalsIgnoreCase(HL7_ELR)) {
-            rawERLDto.setType(type);
-            rawERLDto.setPayload(payload);
-            rawERLDto.setValidationActive(true);
-            return ResponseEntity.ok(rawELRService.submission(rawERLDto, version));
+            rawElrDto.setType(type);
+            rawElrDto.setPayload(payload);
+            rawElrDto.setValidationActive(true);
+            rawElrDto.setVersion(version);
+            return ResponseEntity.ok(rawELRService.submission(rawElrDto));
         }
         else if (type.equalsIgnoreCase(XML_ELR)) {
-            rawERLDto.setType(type);
-            rawERLDto.setPayload(payload);
-            rawERLDto.setValidationActive(true);
-            return ResponseEntity.ok(rawELRService.submission(rawERLDto, version));
+            rawElrDto.setType(type);
+            rawElrDto.setPayload(payload);
+            rawElrDto.setValidationActive(true);
+            rawElrDto.setVersion(version);
+            return ResponseEntity.ok(rawELRService.submission(rawElrDto));
         }
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");

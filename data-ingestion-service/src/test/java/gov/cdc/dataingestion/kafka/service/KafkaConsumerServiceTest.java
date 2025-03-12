@@ -7,6 +7,7 @@ import gov.cdc.dataingestion.custommetrics.TimeMetricsBuilder;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.exception.XmlConversionException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
@@ -15,8 +16,8 @@ import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.report.repository.IRawElrRepository;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -73,7 +74,7 @@ class KafkaConsumerServiceTest {
     @Mock
     private IHL7v2Validator iHl7v2Validator;
     @Mock
-    private IRawELRRepository iRawELRRepository;
+    private IRawElrRepository iRawELRRepository;
     @Mock
     private IValidatedELRRepository iValidatedELRRepository;
     @Mock
@@ -188,7 +189,7 @@ class KafkaConsumerServiceTest {
         ConsumerRecord<String, String> firstRecord = records.iterator().next();
         String value = firstRecord.value();
 
-        RawERLModel rawModel = new RawERLModel();
+        RawElrModel rawModel = new RawElrModel();
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
 
@@ -227,7 +228,7 @@ class KafkaConsumerServiceTest {
         ConsumerRecord<String, String> firstRecord = records.iterator().next();
         String value = firstRecord.value();
 
-        RawERLModel rawModel = new RawERLModel();
+        RawElrModel rawModel = new RawElrModel();
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
 
@@ -422,7 +423,7 @@ class KafkaConsumerServiceTest {
 
 
     @Test
-    void xmlPreparationConsumerTestNewFlow() throws XmlConversionException {
+    void xmlPreparationConsumerTestNewFlow() throws XmlConversionException, KafkaProducerException {
 
 
         // Produce a test message to the topic
@@ -454,7 +455,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void xmlPreparationConsumerTestNewFlow_Exception()  {
+    void xmlPreparationConsumerTestNewFlow_Exception() throws KafkaProducerException {
         when(iValidatedELRRepository.findById(any())).thenReturn(Optional.empty());
         kafkaConsumerService.xmlConversionHandlerProcessing("123", EnumKafkaOperation.INJECTION.name(), "true");
 
@@ -463,7 +464,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void xmlPreparationConsumerTestNewFlow_KafkaExistResult()  {
+    void xmlPreparationConsumerTestNewFlow_KafkaExistResult() throws KafkaProducerException {
 
 
         // Produce a test message to the topic
@@ -651,7 +652,7 @@ class KafkaConsumerServiceTest {
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
 
-        RawERLModel rawModel = new RawERLModel();
+        RawElrModel rawModel = new RawElrModel();
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
         rawModel.setPayload(testHL7Message);
@@ -669,7 +670,7 @@ class KafkaConsumerServiceTest {
         initialDataInsertionAndSelection(rawTopic);
         String message =  guidForTesting;
 
-        RawERLModel rawModel = new RawERLModel();
+        RawElrModel rawModel = new RawElrModel();
         rawModel.setId(guidForTesting);
         rawModel.setType("HL7");
         rawModel.setPayload(testHL7Message);

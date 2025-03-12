@@ -5,11 +5,15 @@ import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.RawElrService;
+import gov.cdc.dataingestion.report.repository.IRawElrRepository;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +31,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 /**
  1118 - require constructor complaint
  125 - comment complaint
@@ -41,7 +46,7 @@ class ElrDeadLetterServiceTest {
     private IElrDeadLetterRepository dltRepository;
 
     @Mock
-    private IRawELRRepository rawELRRepository;
+    private IRawElrRepository rawELRRepository;
 
     @Mock
     private IValidatedELRRepository validatedELRRepository;
@@ -52,12 +57,18 @@ class ElrDeadLetterServiceTest {
     @InjectMocks
     private ElrDeadLetterService elrDeadLetterService;
 
+    @Mock
+    private RawElrService rawElrService;
+
+    @Mock
+    private RawElrDto rawElrDto;
+
     private String guidForTesting = "8DC5E410-4A2E-4018-8C28-A4F6AB99E802";
 
     @BeforeEach
     public void setUpEach() {
         MockitoAnnotations.openMocks(this);
-        elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService);
+        elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService, rawElrService);
     }
 
 
@@ -107,7 +118,7 @@ class ElrDeadLetterServiceTest {
         List<ElrDeadLetterModel> listData = new ArrayList<>();
         listData.add(model);
 
-        RawERLModel rawModel = new RawERLModel();
+        RawElrModel rawModel = new RawElrModel();
         rawModel.setId(guidForTesting);
         rawModel.setPayload("HL7 message");
 
@@ -124,7 +135,7 @@ class ElrDeadLetterServiceTest {
     }
 
     @Test
-    void testUpdateAndReprocessingMessage_RawElr_Success() throws DeadLetterTopicException {
+    void testUpdateAndReprocessingMessage_RawElr_Success() throws DeadLetterTopicException, KafkaProducerException {
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -133,31 +144,26 @@ class ElrDeadLetterServiceTest {
         elrDltModel.setErrorMessageSource("elr_raw");
 
 
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setPayload("HL7 message");
-        rawERLModel.setId(elrDltModel.getErrorMessageId());
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setPayload("HL7 message");
+        rawElrModel.setId(elrDltModel.getErrorMessageId());
         elrDltModel.setDltStatus(EnumElrDltStatus.ERROR.name());
 
         when(dltRepository.findById(elrDltModel.getErrorMessageId()))
                 .thenReturn(Optional.of(elrDltModel));
         when(rawELRRepository.findById(elrDltModel.getErrorMessageId()))
-                .thenReturn(Optional.of(rawERLModel));
-        when(rawELRRepository.save(rawERLModel)).thenReturn(rawERLModel);
+                .thenReturn(Optional.of(rawElrModel));
+        when(rawELRRepository.save(rawElrModel)).thenReturn(rawElrModel);
         when(dltRepository.save(any(ElrDeadLetterModel.class))).thenReturn(elrDltModel);
 
         var result = elrDeadLetterService.updateAndReprocessingMessage(primaryIdForTesting, "HL7 message");
 
         assertEquals("HL7 message", result.getMessage());
         assertEquals(1, result.getDltOccurrence());
-
-
-
-
-
     }
 
     @Test
-    void testUpdateAndReprocessingMessage_ValidatedElr_Success() throws DeadLetterTopicException {
+    void testUpdateAndReprocessingMessage_ValidatedElr_Success() throws DeadLetterTopicException, KafkaProducerException {
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -186,7 +192,7 @@ class ElrDeadLetterServiceTest {
     }
 
     @Test
-    void testUpdateAndReprocessingMessage_FhirPrep_Success() throws DeadLetterTopicException {
+    void testUpdateAndReprocessingMessage_FhirPrep_Success() throws DeadLetterTopicException, KafkaProducerException {
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -209,7 +215,7 @@ class ElrDeadLetterServiceTest {
     }
 
     @Test
-    void testUpdateAndReprocessingMessage_XmlPrep_Success() throws DeadLetterTopicException {
+    void testUpdateAndReprocessingMessage_XmlPrep_Success() throws DeadLetterTopicException, KafkaProducerException {
         String primaryIdForTesting = guidForTesting;
 
         ElrDeadLetterModel elrDltModel = new ElrDeadLetterModel();
@@ -272,4 +278,71 @@ class ElrDeadLetterServiceTest {
         assertEquals(savedDto.getUpdatedBy(), dto.getUpdatedBy());
     }
 
+    @Test
+    void testProcessFailedMessagesFromKafka_WithMessages() throws KafkaProducerException {
+        List<ElrDeadLetterModel> dltMessagesList = getElrDeadLetterModels();
+
+        when(dltRepository.getAllErrorDltRecordForKafkaError()).thenReturn(dltMessagesList);
+
+        elrDeadLetterService.processFailedMessagesFromKafka();
+
+        verify(dltRepository, times(2)).updateErrorStatusForRawId(anyString(), anyString());
+        verify(rawElrService, times(2)).updateRawMessageAfterRetry(any(RawElrDto.class), anyInt()); //This line is correct.
+
+        verify(dltRepository).updateErrorStatusForRawId("test1", "PROCESSED");
+        verify(dltRepository).updateErrorStatusForRawId("test2", "PROCESSED");
+    }
+
+    private static @NotNull List<ElrDeadLetterModel> getElrDeadLetterModels() {
+        List<ElrDeadLetterModel> dltMessagesList = new ArrayList<>();
+        ElrDeadLetterModel message1 = new ElrDeadLetterModel();
+        message1.setErrorMessageId("test1");
+        message1.setDltStatus("KAFKA_ERROR_HL7");
+        message1.setMessage("test_hl7_payload");
+        dltMessagesList.add(message1);
+
+        ElrDeadLetterModel message2 = new ElrDeadLetterModel();
+        message2.setErrorMessageId("test2");
+        message2.setDltStatus("KAFKA_ERROR_HL7_XML");
+        message2.setMessage("test_hl7_xml_payload");
+        dltMessagesList.add(message2);
+        return dltMessagesList;
+    }
+
+    @Test
+    void testProcessFailedMessagesFromKafka_NoMessages() throws KafkaProducerException {
+        when(dltRepository.getAllErrorDltRecordForKafkaError()).thenReturn(new ArrayList<>());
+
+        elrDeadLetterService.processFailedMessagesFromKafka();
+
+        verify(dltRepository, times(0)).updateErrorStatusForRawId(anyString(), anyString());
+        verify(rawElrService, times(0)).updateRawMessageAfterRetry(any(RawElrDto.class), anyInt());
+    }
+
+    @Test
+    void testGetElrMessageType_WithDelimiter() {
+        String dltStatus = "KAFKA_ERROR_HL7";
+
+        String result = elrDeadLetterService.getElrMessageType(dltStatus);
+
+        assertEquals("HL7", result);
+    }
+
+    @Test
+    void testGetElrMessageType_WithDelimiterXml() {
+        String dltStatus = "KAFKA_ERROR_HL7_XML";
+
+        String result = elrDeadLetterService.getElrMessageType(dltStatus);
+
+        assertEquals("HL7_XML", result);
+    }
+
+    @Test
+    void testGetElrMessageType_NoTypeDelimiter() {
+        String dltStatus = "SOMEPREFIXKAFKAERROR";
+
+        String result = elrDeadLetterService.getElrMessageType(dltStatus);
+
+        assertEquals("", result);
+    }
 }

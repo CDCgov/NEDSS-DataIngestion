@@ -22,14 +22,14 @@ public interface IElrDeadLetterRepository extends JpaRepository<ElrDeadLetterMod
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE elr_dlt SET dlt_occurrence = :dltOccurrence WHERE error_message_id =:id)", nativeQuery = true)
-    void updateDltOccurrenceForRawId(String id, int dltOccurrence);
+    @Query(value = "UPDATE elr_dlt SET dlt_occurrence = :dltOccurrence, dlt_status = :errorStatus WHERE error_message_id =:id", nativeQuery = true)
+    void updateDltOccurrenceForRawId(String id, int dltOccurrence, String errorStatus);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE elr_dlt SET dlt_status = 'PROCESSED' WHERE error_message_id = :id", nativeQuery = true)
+    @Query(value = "UPDATE elr_dlt SET dlt_status = :errorStatus WHERE error_message_id = :id", nativeQuery = true)
     void updateErrorStatusForRawId(String id, String errorStatus);
 
     @Query(value = "SELECT * FROM elr_dlt WHERE dlt_status LIKE '%KAFKA%' AND dlt_occurrence <= 2", nativeQuery = true)
-    List<ElrDeadLetterModel> getAllErrorDltRecordFromKafka();
+    List<ElrDeadLetterModel> getAllErrorDltRecordForKafkaError();
 }

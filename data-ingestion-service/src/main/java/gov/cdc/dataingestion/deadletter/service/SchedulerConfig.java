@@ -13,7 +13,7 @@ public class SchedulerConfig {
     @Value("${dlt.scheduler.enabled}")
     private boolean isSchedulerEnabled;
 
-    private ElrDeadLetterService elrDeadLetterService;
+    private final ElrDeadLetterService elrDeadLetterService;
 
     public SchedulerConfig(ElrDeadLetterService elrDeadLetterService) {
         this.elrDeadLetterService = elrDeadLetterService;

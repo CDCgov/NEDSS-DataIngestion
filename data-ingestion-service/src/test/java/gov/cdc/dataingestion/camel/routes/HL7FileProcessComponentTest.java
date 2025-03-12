@@ -1,7 +1,8 @@
 package gov.cdc.dataingestion.camel.routes;
 
-import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
-import gov.cdc.dataingestion.rawmessage.service.RawELRService;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
+import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class HL7FileProcessComponentTest {
     @Mock
-    private RawELRService rawELRService;
+    private RawElrService rawELRService;
 
     @InjectMocks
     private HL7FileProcessComponent hL7FileProcessComponent;
@@ -30,16 +31,17 @@ class HL7FileProcessComponentTest {
     }
 
     @Test
-    void testSaveHL7Message() {
+    void testSaveHL7Message() throws KafkaProducerException {
         String hl7Payload = "testmessage";
         String messageType = "HL7";
 
-        RawERLDto rawERLDto = new RawERLDto();
-        rawERLDto.setType(messageType);
-        rawERLDto.setPayload(hl7Payload);
-        rawERLDto.setValidationActive(true);
+        RawElrDto rawElrDto = new RawElrDto();
+        rawElrDto.setType(messageType);
+        rawElrDto.setPayload(hl7Payload);
+        rawElrDto.setValidationActive(true);
+        rawElrDto.setVersion("1");
 
-        when(rawELRService.submission(rawERLDto,"1")).thenReturn("OK");
+        when(rawELRService.submission(rawElrDto)).thenReturn("OK");
         String status = hL7FileProcessComponent.process(hl7Payload);
         Assertions.assertEquals("OK",status);
     }

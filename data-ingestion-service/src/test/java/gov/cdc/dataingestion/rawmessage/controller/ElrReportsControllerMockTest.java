@@ -1,9 +1,10 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
-import gov.cdc.dataingestion.rawmessage.service.RawELRService;
+import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 class ElrReportsControllerMockTest {
     @Mock
-    private RawELRService rawELRService;
+    private RawElrService rawELRService;
 
     @Mock
     private CustomMetricsBuilder customMetricsBuilder;
@@ -48,13 +49,13 @@ class ElrReportsControllerMockTest {
     }
 
     @Test
-    void testSave_HL7_ELR_Type() {
+    void testSave_HL7_ELR_Type() throws KafkaProducerException {
         String payload = "HL7 message";
         String type = HL7_ELR;
         String version = "1";
         String expectedResponse = "Submission successful";
 
-        when(rawELRService.submission(any(RawERLDto.class), eq(version))).thenReturn(expectedResponse);
+        when(rawELRService.submission(any(RawElrDto.class))).thenReturn(expectedResponse);
 
         ResponseEntity<String> response = elrReportsController.save(payload, type, version);
 
@@ -64,13 +65,13 @@ class ElrReportsControllerMockTest {
     }
 
     @Test
-    void testSave_XML_ELR_Type() {
+    void testSave_XML_ELR_Type() throws KafkaProducerException {
         String payload = "XML message";
         String type = XML_ELR;
         String version = "1";
         String expectedResponse = "Submission successful";
 
-        when(rawELRService.submission(any(RawERLDto.class), eq(version))).thenReturn(expectedResponse);
+        when(rawELRService.submission(any(RawElrDto.class))).thenReturn(expectedResponse);
 
         ResponseEntity<String> response = elrReportsController.save(payload, type, version);
 

@@ -6,14 +6,13 @@ import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
+import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -35,9 +34,9 @@ public class KafkaProducerService {
 
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final IRawELRRepository iRawELRRepository;
+    private final IRawElrRepository iRawELRRepository;
 
-    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate, IRawELRRepository iRawELRRepository) {
+    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate, IRawElrRepository iRawELRRepository) {
         this.kafkaTemplate = kafkaTemplate;
         this.iRawELRRepository = iRawELRRepository;
     }
@@ -175,27 +174,12 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<String> future = executor.submit(() -> {
-        Thread.sleep(1000000000);
-        return "Task completed";
-    });
-
-
-
     private void sendMessage(ProducerRecord<String, String> prodRecord) throws KafkaProducerException {
         try {
-//            kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
-            String result = future.get(3, TimeUnit.SECONDS);
-            System.out.println("result is..." + result);
-            System.err.println("Printing the send..." );
+            kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
         } catch (TimeoutException | InterruptedException | ExecutionException e) {
-            System.err.println("Printing the exception..." + Arrays.toString(e.getStackTrace()));
-//            logger.error
-            System.err.println("Failed publishing message to kafka topic: " + prodRecord.topic() + " with UUID: " + prodRecord.value());
             throw new KafkaProducerException("Failed publishing message to kafka topic: " + prodRecord.topic() + " with UUID: " + prodRecord.value());
         }
     }
-
 
 }
