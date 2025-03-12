@@ -1,3 +1,5 @@
-ALTER TABLE NBS_MSGOUTE.dbo.NBS_interface
-    ADD original_payload_RR TEXT,
-    original_doc_type_cd_RR varchar(100);
+ALTER TABLE NBS_DataIngest.dbo.elr_raw
+    ADD version VARCHAR(1);
+
+ALTER TABLE NBS_DataIngest.dbo.elr_dlt
+ALTER COLUMN dlt_status NVARCHAR(30);

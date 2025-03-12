@@ -37,9 +37,8 @@ ecr:
 
 dlt:
   scheduler:
-    enabled: true
-    cron:
-      expression: 0/10 * * * * *
+    enabled: ${SCHEDULER_ENABLED:true}
+    cron: ${SCHEDULER_CRON:0/30 * * * * *}
 
 ---
 spring:

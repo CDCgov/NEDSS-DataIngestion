@@ -19,7 +19,7 @@ public class SchedulerConfig {
         this.elrDeadLetterService = elrDeadLetterService;
     }
 
-    @Scheduled(cron = "${dlt.scheduler.cron.expression}")
+    @Scheduled(cron = "${dlt.scheduler.cron}")
     public void scheduleTask() throws KafkaProducerException {
         if (isSchedulerEnabled) {
             elrDeadLetterService.processFailedMessagesFromKafka();
