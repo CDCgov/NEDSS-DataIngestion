@@ -218,7 +218,12 @@ dependencies {
   implementation 'ca.uhn.hapi:hapi-base:2.3'
   implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
   implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
-
+	// FHIR JSON conversion
+  implementation 'ca.uhn.hapi.fhir:hapi-fhir-base:7.6.1'
+  implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.6.1'
+  implementation 'ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:8.0.0'
+  implementation 'org.openehealth.ipf.oht.mdht:ipf-oht-mdht-uml-cda:1.2.0.201212201425'
+  implementation 'org.openehealth.ipf.modules:ipf-modules-cda-mdht:5.0.0'
   // Logging  
   implementation 'org.slf4j:slf4j-api:2.0.16'
   implementation 'io.prometheus:simpleclient:0.16.0'
