@@ -3,7 +3,7 @@ package gov.cdc.dataingestion.validation.integration.validator;
 import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ class HL7v2ValidatorTests
 
         String id = "1";
 
-        RawERLModel model = new RawERLModel();
+        RawElrModel model = new RawElrModel();
         model.setPayload(data);
         model.setId(id);
         model.setCreatedOn(null);
@@ -70,7 +70,7 @@ class HL7v2ValidatorTests
 
         String id = "1";
 
-        RawERLModel model = new RawERLModel();
+        RawElrModel model = new RawElrModel();
         model.setPayload(data);
         model.setId(id);
         model.setCreatedOn(null);
@@ -106,7 +106,7 @@ class HL7v2ValidatorTests
 
         String id = "1";
 
-        RawERLModel model = new RawERLModel();
+        RawElrModel model = new RawElrModel();
         model.setPayload(data);
         model.setId(id);
 
@@ -140,7 +140,7 @@ class HL7v2ValidatorTests
 
         String id = "1";
 
-        RawERLModel model = new RawERLModel();
+        RawElrModel model = new RawElrModel();
         model.setPayload(data);
         model.setId(id);
 
@@ -162,7 +162,7 @@ class HL7v2ValidatorTests
         String data = "Invalid Message";
         String id = "1";
 
-        RawERLModel model = new RawERLModel();
+        RawElrModel model = new RawElrModel();
         model.setPayload(data);
         model.setId(id);
 

@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.deadletter.controller;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -87,7 +88,7 @@ public class ElrDeadLetterController {
                             schema = @Schema(type = "string"))}
     )
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs/{dlt-id}")
-    public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException {
+    public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException, KafkaProducerException {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(dltId, payload));
     }
 }

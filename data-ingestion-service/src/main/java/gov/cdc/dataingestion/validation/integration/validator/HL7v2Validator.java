@@ -3,7 +3,7 @@ package gov.cdc.dataingestion.validation.integration.validator;
 import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 
@@ -32,8 +32,8 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.processFhsMessage(message);
     }
 
-    public ValidatedELRModel messageValidation(String id, RawERLModel rawERLModel, String topicName, boolean validationActive) throws DiHL7Exception {
-        String replaceSpecialCharacters = messageStringValidation(rawERLModel.getPayload());
+    public ValidatedELRModel messageValidation(String id, RawElrModel rawElrModel, String topicName, boolean validationActive) throws DiHL7Exception {
+        String replaceSpecialCharacters = messageStringValidation(rawElrModel.getPayload());
 
         // validationActive check is obsoleted
         if (validationActive) {

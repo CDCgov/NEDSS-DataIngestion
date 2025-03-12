@@ -1,7 +1,7 @@
 package gov.cdc.dataingestion.camel.routes;
 
-import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
-import gov.cdc.dataingestion.rawmessage.service.RawELRService;
+import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import org.apache.camel.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +19,10 @@ import org.springframework.stereotype.Component;
 public class HL7FileProcessComponent {
     private static Logger logger = LoggerFactory.getLogger(HL7FileProcessComponent.class);
     String msgType = "HL7";
-    private RawELRService rawELRService;
+    private RawElrService rawELRService;
 
     @Autowired
-    public HL7FileProcessComponent(RawELRService rawELRService){
+    public HL7FileProcessComponent(RawElrService rawELRService){
         this.rawELRService=rawELRService;
     }
     @Handler
@@ -34,11 +34,12 @@ public class HL7FileProcessComponent {
             String hl7Str = body;
             logger.debug("HL7 Message:{}", hl7Str);
             if (hl7Str != null && !hl7Str.trim().isEmpty()) {
-                RawERLDto rawERLDto = new RawERLDto();
-                rawERLDto.setType(msgType);
-                rawERLDto.setValidationActive(true);
-                rawERLDto.setPayload(hl7Str);
-                elrId = rawELRService.submission(rawERLDto,version);
+                RawElrDto rawElrDto = new RawElrDto();
+                rawElrDto.setType(msgType);
+                rawElrDto.setValidationActive(true);
+                rawElrDto.setPayload(hl7Str);
+                rawElrDto.setVersion(version);
+                elrId = rawELRService.submission(rawElrDto);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());

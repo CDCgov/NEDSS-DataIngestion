@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.validation.integration.validator;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -39,7 +40,7 @@ public class HL7DuplicateValidator implements IHL7DuplicateValidator {
     }
 
     @Override
-    public void validateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException {
+    public void validateHL7Document(ValidatedELRModel hl7ValidatedModel) throws DuplicateHL7FileFoundException, KafkaProducerException {
         String hashedString = null;
         try {
             MessageDigest digestString = MessageDigest.getInstance("SHA-256");

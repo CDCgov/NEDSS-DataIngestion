@@ -19,8 +19,8 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.report.repository.IRawElrRepository;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
@@ -86,7 +86,7 @@ public class KafkaConsumerService {
     private String prepFhirTopic = "fhir_prep";
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
-    private final IRawELRRepository iRawELRRepository;
+    private final IRawElrRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
     private final IHL7DuplicateValidator iHL7DuplicateValidator;
     private final NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
@@ -105,7 +105,7 @@ public class KafkaConsumerService {
     //region CONSTRUCTOR
     public KafkaConsumerService(
             IValidatedELRRepository iValidatedELRRepository,
-            IRawELRRepository iRawELRRepository,
+            IRawElrRepository iRawELRRepository,
             KafkaProducerService kafkaProducerService,
             IHL7v2Validator iHl7v2Validator,
             IHL7DuplicateValidator iHL7DuplicateValidator,
@@ -182,7 +182,7 @@ public class KafkaConsumerService {
             }
             try {
                 validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
-            } catch (DuplicateHL7FileFoundException | DiHL7Exception e) {
+            } catch (DuplicateHL7FileFoundException | DiHL7Exception | KafkaProducerException e) {
                 throw new RuntimeException(e); //NOSONAR
             }
         });
@@ -250,12 +250,20 @@ public class KafkaConsumerService {
             iReportStatusRepository.save(reportStatusIdData);
 
             if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(
-                        String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "dp_elr_unprocessed", 0);
+                try {
+                    kafkaProducerService.sendMessageAfterConvertedToXml(
+                            String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "dp_elr_unprocessed", 0);
+                } catch (KafkaProducerException e) {
+                    throw new RuntimeException(e); //NOSONAR
+                }
             }
             else {
-                kafkaProducerService.sendMessageAfterConvertedToXml(
-                        nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                try {
+                    kafkaProducerService.sendMessageAfterConvertedToXml(
+                            nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                } catch (KafkaProducerException e) {
+                    throw new RuntimeException(e); //NOSONAR
+                }
             }
         });
 
@@ -318,7 +326,11 @@ public class KafkaConsumerService {
                                                  @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable)  {
         timeMetricsBuilder.recordXmlPrepTime(() -> {
             log.debug(topicDebugLog, message, topic);
-            xmlConversionHandler(message, operation, dataProcessingEnable);
+            try {
+                xmlConversionHandler(message, operation, dataProcessingEnable);
+            } catch (KafkaProducerException e) {
+                throw new RuntimeException(e); //NOSONAR
+            }
         });
     }
 
@@ -455,7 +467,7 @@ public class KafkaConsumerService {
         return erroredSource;
     }
 
-    private void preparationForConversionHandler(String message, String dataProcessingEnable) throws ConversionPrepareException {
+    private void preparationForConversionHandler(String message, String dataProcessingEnable) throws ConversionPrepareException, KafkaProducerException {
         Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
         if(validatedElrResponse.isPresent()) {
             kafkaProducerService.sendMessagePreparationTopic(validatedElrResponse.get(), prepXmlTopic, TopicPreparationType.XML, 0, dataProcessingEnable);
@@ -469,7 +481,7 @@ public class KafkaConsumerService {
      * make this public so we can add unit test for now.
      * we need to implementation interface pattern for NBS convert and transformation classes. it better for unit testing
      * */
-    public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) {
+    public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {
         String hl7Msg = "";
         try {
             Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
@@ -548,13 +560,13 @@ public class KafkaConsumerService {
             );
         }
     }
-    private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) {
+    private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {
         log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
         xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
     }
-    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception {
-        Optional<RawERLModel> rawElrResponse = this.iRawELRRepository.findById(message);
-        RawERLModel elrModel;
+    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception, KafkaProducerException {
+        Optional<RawElrModel> rawElrResponse = this.iRawELRRepository.findById(message);
+        RawElrModel elrModel;
         if (!rawElrResponse.isEmpty()) {
             elrModel = rawElrResponse.get();
         } else {
