@@ -18,6 +18,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -319,30 +321,14 @@ class ElrDeadLetterServiceTest {
         verify(rawElrService, times(0)).updateRawMessageAfterRetry(any(RawElrDto.class), anyInt());
     }
 
-    @Test
-    void testGetElrMessageType_WithDelimiter() {
-        String dltStatus = "KAFKA_ERROR_HL7";
-
+    @ParameterizedTest
+    @CsvSource({
+            "KAFKA_ERROR_HL7, HL7",
+            "KAFKA_ERROR_HL7_XML, HL7_XML",
+            "SOMEPREFIXKAFKAERROR, ''"
+    })
+    void testGetElrMessageType(String dltStatus, String expectedResult) {
         String result = elrDeadLetterService.getElrMessageType(dltStatus);
-
-        assertEquals("HL7", result);
-    }
-
-    @Test
-    void testGetElrMessageType_WithDelimiterXml() {
-        String dltStatus = "KAFKA_ERROR_HL7_XML";
-
-        String result = elrDeadLetterService.getElrMessageType(dltStatus);
-
-        assertEquals("HL7_XML", result);
-    }
-
-    @Test
-    void testGetElrMessageType_NoTypeDelimiter() {
-        String dltStatus = "SOMEPREFIXKAFKAERROR";
-
-        String result = elrDeadLetterService.getElrMessageType(dltStatus);
-
-        assertEquals("", result);
+        assertEquals(expectedResult, result);
     }
 }

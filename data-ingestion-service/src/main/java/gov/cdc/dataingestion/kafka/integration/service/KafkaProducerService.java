@@ -6,7 +6,6 @@ import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
-import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 /**
@@ -34,11 +35,9 @@ public class KafkaProducerService {
 
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final IRawElrRepository iRawELRRepository;
 
-    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate, IRawElrRepository iRawELRRepository) {
+    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.iRawELRRepository = iRawELRRepository;
     }
 
     public void sendMessageFromController(String msg,
@@ -90,6 +89,9 @@ public class KafkaProducerService {
     }
 
 
+    /**
+     * @deprecated This method is deprecated and will be removed in a future release.
+     */
     @Deprecated
     @SuppressWarnings("java:S1133")
     public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) throws KafkaProducerException {
@@ -177,7 +179,12 @@ public class KafkaProducerService {
     private void sendMessage(ProducerRecord<String, String> prodRecord) throws KafkaProducerException {
         try {
             kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
-        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new KafkaProducerException("Thread was interrupted while sending Kafka message to topic: "
+                    + prodRecord.topic() + " with UUID: " + prodRecord.value());
+        }
+        catch (TimeoutException | ExecutionException e) {
             throw new KafkaProducerException("Failed publishing message to kafka topic: " + prodRecord.topic() + " with UUID: " + prodRecord.value());
         }
     }

@@ -38,7 +38,7 @@ class RawElrServiceTest {
 
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
         target = new RawElrService(rawELRRepository, kafkaProducerService, iElrDeadLetterRepository);
     }
@@ -97,7 +97,7 @@ class RawElrServiceTest {
         model.setCreatedBy("test");
         model.setUpdatedBy("test");
 
-        when(rawELRRepository.getById(any())).thenReturn(model);
+        when(rawELRRepository.getReferenceById(any())).thenReturn(model);
 
         var result = target.getById(modelDto.getId());
 

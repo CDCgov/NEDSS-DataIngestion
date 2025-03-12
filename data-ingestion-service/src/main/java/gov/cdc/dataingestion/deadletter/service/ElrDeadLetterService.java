@@ -216,7 +216,6 @@ public class ElrDeadLetterService {
             Iterator<ElrDeadLetterModel> iterator = dltMessagesList.iterator();
             while (iterator.hasNext()) {
                 ElrDeadLetterModel message = iterator.next();
-                System.err.println(message.getErrorMessageId());
                 RawElrDto rawElrDto = new RawElrDto();
                 rawElrDto.setId(message.getErrorMessageId());
                 rawElrDto.setType(getElrMessageType(message.getDltStatus()));

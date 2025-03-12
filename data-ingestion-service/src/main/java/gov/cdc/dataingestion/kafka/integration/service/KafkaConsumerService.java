@@ -254,7 +254,7 @@ public class KafkaConsumerService {
                     kafkaProducerService.sendMessageAfterConvertedToXml(
                             String.valueOf(nbsInterfaceModel.getNbsInterfaceUid()), "dp_elr_unprocessed", 0);
                 } catch (KafkaProducerException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(e); //NOSONAR
                 }
             }
             else {
@@ -262,7 +262,7 @@ public class KafkaConsumerService {
                     kafkaProducerService.sendMessageAfterConvertedToXml(
                             nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
                 } catch (KafkaProducerException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(e); //NOSONAR
                 }
             }
         });
@@ -329,7 +329,7 @@ public class KafkaConsumerService {
             try {
                 xmlConversionHandler(message, operation, dataProcessingEnable);
             } catch (KafkaProducerException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); //NOSONAR
             }
         });
     }

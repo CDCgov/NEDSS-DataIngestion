@@ -91,7 +91,7 @@ public class RawElrService {
     }
 
     public RawElrDto getById(String id) {
-        RawElrModel rawElrModel = rawElrRepository.getById(id);
+        RawElrModel rawElrModel = rawElrRepository.getReferenceById(id);
         return convert(rawElrModel);
     }
 
