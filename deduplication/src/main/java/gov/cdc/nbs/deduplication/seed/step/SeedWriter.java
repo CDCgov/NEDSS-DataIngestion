@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
@@ -23,6 +24,7 @@ import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest.*;
 
+
 /**
  * Submits Seed request to Record Linkage API
  */
@@ -30,106 +32,6 @@ import gov.cdc.nbs.deduplication.seed.model.SeedRequest.*;
 @Component
 public class SeedWriter implements ItemWriter<NbsPerson> {
 
-  private static final String CLUSTER_QUERY = """
-      SELECT
-          p.person_uid external_id,
-          p.person_parent_uid,
-          cast(p.birth_time as Date) birth_date,
-          p.curr_sex_cd sex,
-          nested.address,
-          nested.phone,
-          nested.name,
-          nested.identifiers,
-          nested.race
-      FROM
-          person p WITH (NOLOCK)
-          OUTER apply (
-              SELECT
-                  *
-              FROM
-                  -- address
-                  (
-                      SELECT
-                          (
-                              SELECT
-                                  STRING_ESCAPE(pl.street_addr1, 'json') street,
-                                  STRING_ESCAPE(pl.street_addr2, 'json') street2,
-                                  city_desc_txt city,
-                                  sc.code_desc_txt state,
-                                  zip_cd zip,
-                                  scc.code_desc_txt county
-                              FROM
-                                  Entity_locator_participation elp WITH (NOLOCK)
-                                  JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
-                                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-                              WHERE
-                                  elp.entity_uid = p.person_uid
-                                  AND elp.class_cd = 'PST'
-                                  AND elp.status_cd = 'A'
-                                  AND pl.street_addr1 IS NOT NULL FOR json path
-                          ) AS address
-                  ) AS address,
-                  -- identifiers
-                  (
-                      SELECT
-                          (
-                              SELECT
-                                eid.type_cd type,
-                                  STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt,'-',''),' ',''), 'json') value,
-                                  eid.assigning_authority_cd authority
-                              FROM
-                                  entity_id eid WITH (NOLOCK)
-                              WHERE
-                                  eid.entity_uid = p.person_uid FOR json path) as identifiers) as identifiers,
-                  -- person races
-                  (
-                      SELECT
-                          (
-                              SELECT TOP 1
-                                  pr.race_category_cd value
-                              FROM
-                                  Person_race pr WITH (NOLOCK)
-                              WHERE
-                                  person_uid = p.person_uid
-                          ) AS race
-                  ) AS race,
-                  -- person phone
-                  (
-                      SELECT
-                          (
-                              SELECT
-                                  REPLACE(REPLACE(tl.phone_nbr_txt,'-',''),' ','') value
-                              FROM
-                                  Entity_locator_participation elp WITH (NOLOCK)
-                                  JOIN Tele_locator tl WITH (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
-                              WHERE
-                                  elp.entity_uid = p.person_uid
-                                  AND elp.class_cd = 'TELE'
-                                  AND elp.status_cd = 'A'
-                                  AND tl.phone_nbr_txt IS NOT NULL FOR json path
-                          ) AS phone
-                  ) AS phone,
-                  -- person_names
-                  (
-                      SELECT
-                          (
-                              SELECT
-                                  STRING_ESCAPE(REPLACE(pn.last_nm,'-',' '), 'json') lastNm,
-                                  STRING_ESCAPE(pn.middle_nm, 'json') middleNm,
-                                  STRING_ESCAPE(pn.first_nm, 'json') firstNm,
-                                  pn.nm_suffix nmSuffix
-                              FROM
-                                  person_name pn WITH (NOLOCK)
-                              WHERE
-                                  person_uid = p.person_uid FOR json path
-                          ) AS name
-                  ) AS name
-              ) AS nested
-      WHERE
-          p.person_parent_uid IN (:ids)
-          AND p.record_status_cd = 'ACTIVE';
-      """;
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final MpiPersonMapper mapper = new MpiPersonMapper();
@@ -170,7 +72,7 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
   private List<Cluster> fetchClusters(List<String> personParentUids) {
     // fetch all cluster data for the current batch of person_parent_uids
     List<MpiPerson> clusterEntries = namedParameterJdbcTemplate.query(
-        CLUSTER_QUERY,
+        QueryConstants.PERSON_RECORDS_BY_PARENT_IDS,
         new MapSqlParameterSource("ids", personParentUids),
         mapper);
 
