@@ -6,11 +6,23 @@
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="1" author="liquibase">
-        <sqlFile path="src/main/resources/db/di-service-001.sql" splitStatements="false"/>
+        <sqlFile path="src/main/resources/db/create-nbs-dataingest-db.sql" splitStatements="false"/>
     </changeSet>
 
     <changeSet id="2" author="liquibase">
+        <sqlFile path="src/main/resources/db/di-service-001.sql" splitStatements="false"/>
+    </changeSet>
+
+    <changeSet id="3" author="liquibase">
         <sqlFile path="src/main/resources/db/di-service-002.sql" splitStatements="false"/>
+    </changeSet>
+
+    <changeSet id="4" author="liquibase">
+        <sqlFile path="src/main/resources/db/di-service-003.sql" splitStatements="false"/>
+    </changeSet>
+
+    <changeSet id="5" author="liquibase">
+        <sqlFile path="src/main/resources/db/di-service-004.sql" splitStatements="false"/>
     </changeSet>
 
 </databaseChangeLog>
