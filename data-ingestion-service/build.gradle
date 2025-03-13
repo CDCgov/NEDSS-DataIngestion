@@ -320,8 +320,8 @@ apply plugin: "org.liquibase.gradle"
 liquibase {
 	activities {
 		main {
-			changelogFile './src/main/resources/db/changelog.xml'
-			url "jdbc:sqlserver://${System.env.NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true"
+			changelogFile './data-ingestion-service/src/main/resources/db/changelog.xml'
+			url "jdbc:sqlserver://${System.env.NBS_DBSERVER};databaseName=master;encrypt=true;trustServerCertificate=true"
 			username "${System.env.NBS_DBUSER}"
 			password "${System.env.NBS_DBPASSWORD}"
 		}
