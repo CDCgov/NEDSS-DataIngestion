@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.duplicates.model.MergeStatusRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.PossibleMatchGroup;
 import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -35,7 +35,8 @@ public class MergeGroupHandler {
           List<String> personUids = getPersonIdsByMpiIds(possibleMatchGroup.mpiIds());
           List<MpiPerson> patientRecords = patientRecordService.fetchPersonRecords(personUids);
           String mostRecentName = getMostRecentNameOfTheGroup(patientRecords);
-          return new MergeGroupResponse(possibleMatchGroup.dateIdentified(), mostRecentName, patientRecords);
+          return new MergeGroupResponse(possibleMatchGroup.personUid(), possibleMatchGroup.dateIdentified(),
+              mostRecentName, patientRecords);
         })
         .toList();
   }
@@ -51,9 +52,10 @@ public class MergeGroupHandler {
   }
 
   private PossibleMatchGroup mapRowToPossibleMatchGroup(ResultSet rs, int rowNum) throws SQLException {
+    String personUid = rs.getString("person_uid");
     String mpiPersonIds = rs.getString("mpi_person_ids");
     String dateIdentified = rs.getString("date_identified");
-    return new PossibleMatchGroup(Arrays.asList(mpiPersonIds.split(", ")), dateIdentified);
+    return new PossibleMatchGroup(personUid, Arrays.asList(mpiPersonIds.split(", ")), dateIdentified);
   }
 
   private String getMostRecentNameOfTheGroup(List<MpiPerson> mpiPersonList) {
@@ -70,6 +72,13 @@ public class MergeGroupHandler {
         new MapSqlParameterSource("mpiIds", mpiIds),
         (rs, rowNum) -> rs.getString("person_uid")
     );
+  }
+
+  public void updateMergeStatus(MergeStatusRequest request) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue("personUid", request.personUid());
+    parameters.addValue("isMerge", request.isMerge());
+    deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP, parameters);
   }
 
 }

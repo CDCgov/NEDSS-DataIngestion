@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.MergeStatusRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.PossibleMatchGroup;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,18 @@ class MergeGroupHandlerTest {
     verifyMergeGroupResponse(result);
   }
 
+  @Test
+  void testUpdateMergeStatus() {
+    MergeStatusRequest request = new MergeStatusRequest(100L, false);
+
+    mergeGroupHandler.updateMergeStatus(request);
+
+    verify(deduplicationTemplate, times(1)).update(
+        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP),
+        any(MapSqlParameterSource.class)
+    );
+  }
+
   private List<MpiPerson> getPatientRecords() {
     return Arrays.asList(
         new MpiPerson("personUid1", null, null, null, null,
@@ -78,6 +91,7 @@ class MergeGroupHandlerTest {
 
   private ResultSet mockResultSetForPossibleMatchGroup() throws SQLException {
     ResultSet rs = mock(ResultSet.class);
+    when(rs.getString("person_uid")).thenReturn("personUid");
     when(rs.getString("mpi_person_ids")).thenReturn("mpiId1, mpiId2");
     when(rs.getString("date_identified")).thenReturn("2023-10-01");
     return rs;

@@ -481,13 +481,14 @@ public class QueryConstants {
       """;
 
 
-  public static final String POSSIBLE_MATCH_GROUP ="""
+  public static final String POSSIBLE_MATCH_GROUP = """
       SELECT
           person_uid,
           STRING_AGG(CAST(mpi_person_id AS NVARCHAR(MAX)), ', ') AS mpi_person_ids,
           date_identified
       FROM
           match_candidates
+      WHERE is_merge  is NULL
       GROUP BY
           person_uid,
           date_identified
@@ -502,4 +503,11 @@ public class QueryConstants {
       WHERE mpi_person IN (:mpiIds)
       AND person_uid=person_parent_uid
       """;
+
+  public static final String UPDATE_MERGE_STATUS_FOR_GROUP = """
+      UPDATE match_candidates
+      SET is_merge = :isMerge
+      WHERE person_uid = :personUid
+      """;
+
 }
