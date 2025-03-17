@@ -1,4 +1,4 @@
-package gov.cdc.nbs.deduplication.duplicates;
+package gov.cdc.nbs.deduplication.duplicates.controller;
 
 import static org.mockito.Mockito.*;
 

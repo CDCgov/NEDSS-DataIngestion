@@ -21,6 +21,7 @@ public class PatientRecordService {
   ) {
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
   }
+
   public MpiPerson fetchMostRecentPatient(String personParentUid) {
     MapSqlParameterSource params = new MapSqlParameterSource()
         .addValue("personParentUid", personParentUid);
@@ -38,4 +39,14 @@ public class PatientRecordService {
         new MapSqlParameterSource("personUid", personUid),
         mpiPersonMapper);
   }
+
+  public List<MpiPerson> fetchPersonRecords(List<String> personUids) {
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("ids", personUids);
+    return namedParameterJdbcTemplate.query(
+        QueryConstants.PERSON_RECORDS_BY_PERSON_IDS,
+        params,
+        mpiPersonMapper);
+  }
+
 }
