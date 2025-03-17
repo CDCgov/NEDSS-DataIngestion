@@ -509,4 +509,5 @@ public class QueryConstants {
       SET is_merge = :isMerge
       WHERE person_uid = :personUid
       """;
+
 }

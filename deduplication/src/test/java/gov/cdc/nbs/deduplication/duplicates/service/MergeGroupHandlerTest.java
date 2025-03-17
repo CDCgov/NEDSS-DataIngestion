@@ -43,7 +43,6 @@ class MergeGroupHandlerTest {
   @Test
   void testGetMergeGroups() throws SQLException {
     // Arrange
-
     List<String> personUids = Arrays.asList("personUid1", "personUid2");
     List<MpiPerson> patientRecords = getPatientRecords();
 

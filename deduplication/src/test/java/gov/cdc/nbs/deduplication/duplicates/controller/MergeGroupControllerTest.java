@@ -1,14 +1,13 @@
 package gov.cdc.nbs.deduplication.duplicates.controller;
 
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.util.Arrays;
 import java.util.List;
-
 import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergeStatusRequest;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
@@ -42,6 +41,7 @@ class MergeGroupControllerTest {
     int page = 0;
     int size = 5;
     when(mergeGroupHandler.getMergeGroups(page, size)).thenReturn(expectedMergeGroupResponse());
+
 
     // Act & Assert
     mockMvc.perform(get("/api/deduplication/merge-groups")
@@ -92,5 +92,6 @@ class MergeGroupControllerTest {
     return "[{'personOfTheGroup':'100','dateIdentified': 1990-01-01, 'mostRecentPersonName': 'john smith'}, " +
         "{'personOfTheGroup':'200','dateIdentified': 1990-02-02, 'mostRecentPersonName': 'Andrew James'}]";
   }
+
 
 }
