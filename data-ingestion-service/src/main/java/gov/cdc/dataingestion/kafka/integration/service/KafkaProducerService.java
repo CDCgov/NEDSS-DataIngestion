@@ -5,6 +5,7 @@ import gov.cdc.dataingestion.constant.KafkaHeaderValue;
 import gov.cdc.dataingestion.constant.TopicPreparationType;
 import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 /**
@@ -31,7 +35,8 @@ public class KafkaProducerService {
 
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    public KafkaProducerService( KafkaTemplate<String, String> kafkaTemplate) {
+
+    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -40,7 +45,7 @@ public class KafkaProducerService {
                                           String msgType,
                                           Integer dltOccurrence,
                                           Boolean validationActive,
-                                          String version) {
+                                          String version) throws KafkaProducerException {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
@@ -58,7 +63,7 @@ public class KafkaProducerService {
                                           String topic,
                                           String msgType,
                                           Integer dltOccurrence,
-                                          String payload, String version) {
+                                          String payload, String version) throws KafkaProducerException {
         String uniqueID = msgType + "_" + msgId;
         var prodRecord = new ProducerRecord<>(topic, uniqueID, payload);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
@@ -72,7 +77,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessageFromDltController(
-            String msg, String topic, String msgType, Integer dltOccurrence) {
+            String msg, String topic, String msgType, Integer dltOccurrence) throws KafkaProducerException {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
@@ -84,9 +89,12 @@ public class KafkaProducerService {
     }
 
 
+    /**
+     * @deprecated This method is deprecated and will be removed in a future release.
+     */
     @Deprecated
     @SuppressWarnings("java:S1133")
-    public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) {
+    public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) throws KafkaProducerException {
         String uniqueID = msgType + "_" + UUID.randomUUID();
         Gson gson = new Gson();
         String json = gson.toJson(msg);
@@ -96,7 +104,7 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
 
-    public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence, String dataProcessingEnable) {
+    public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence, String dataProcessingEnable) throws KafkaProducerException {
         String uniqueID =  PREFIX_MSG_VALID + msg.getMessageType() + "_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg.getId());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msg.getMessageType().getBytes());
@@ -108,7 +116,7 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
     @SuppressWarnings({"java:S6880"})
-    public void sendMessagePreparationTopic(ValidatedELRModel msg, String topic, TopicPreparationType topicType, Integer dltOccurrence, String dataProcessingEnable) throws ConversionPrepareException {
+    public void sendMessagePreparationTopic(ValidatedELRModel msg, String topic, TopicPreparationType topicType, Integer dltOccurrence, String dataProcessingEnable) throws ConversionPrepareException, KafkaProducerException {
 
         String uniqueId;
         if (topicType == TopicPreparationType.XML) {
@@ -127,7 +135,7 @@ public class KafkaProducerService {
 
     private void sendMessageHelper(String topic, Integer dltOccurrence, String uniqueId,
                                    String messageOriginId, String messageType, String messageVersion,
-                                   String dataProcessingEnable) {
+                                   String dataProcessingEnable) throws KafkaProducerException {
         var prodRecord = new ProducerRecord<>(topic, uniqueId, messageOriginId);
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, messageType.getBytes());
         prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, messageVersion.getBytes());
@@ -139,7 +147,7 @@ public class KafkaProducerService {
     }
 
     public void sendMessageDlt(String msgShort, String msg, String topic, Integer dltOccurrence,
-                               String stackTrace, String originalTopic) {
+                               String stackTrace, String originalTopic) throws KafkaProducerException {
         String uniqueID = "DLT_" + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
@@ -151,7 +159,7 @@ public class KafkaProducerService {
 
 
 
-    public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) {
+    public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) throws KafkaProducerException {
         String uniqueID = PREFIX_MSG_XML + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(topic, uniqueID, xmlMsg);
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
@@ -160,7 +168,7 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
 
-    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence) {
+    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence) throws KafkaProducerException {
         String uniqueID = PREFIX_MSG_HL7 + UUID.randomUUID();
         var prodRecord = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
         prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
@@ -168,12 +176,17 @@ public class KafkaProducerService {
         sendMessage(prodRecord);
     }
 
-
-
-
-    private void sendMessage(ProducerRecord<String, String> prodRecord) {
-        kafkaTemplate.send(prodRecord);
+    private void sendMessage(ProducerRecord<String, String> prodRecord) throws KafkaProducerException {
+        try {
+            kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new KafkaProducerException("Thread was interrupted while sending Kafka message to topic: "
+                    + prodRecord.topic() + " with UUID: " + prodRecord.value());
+        }
+        catch (TimeoutException | ExecutionException e) {
+            throw new KafkaProducerException("Failed publishing message to kafka topic: " + prodRecord.topic() + " with UUID: " + prodRecord.value());
+        }
     }
-
 
 }

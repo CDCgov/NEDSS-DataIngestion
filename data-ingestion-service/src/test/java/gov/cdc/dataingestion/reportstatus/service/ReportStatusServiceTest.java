@@ -8,8 +8,8 @@ import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.report.repository.IRawElrRepository;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -45,7 +45,7 @@ class ReportStatusServiceTest {
     @Mock
     private NbsInterfaceRepository nbsInterfaceRepositoryMock;
     @Mock
-    private IRawELRRepository iRawELRRepository;
+    private IRawElrRepository iRawELRRepository;
     @Mock
     private IValidatedELRRepository iValidatedELRRepository;
     @Mock
@@ -79,12 +79,12 @@ class ReportStatusServiceTest {
     void testGetMessageDetailStatus_RawExist_ValidateExist_ReportExist_NbsExist() {
         String id = "test";
         Integer nbsId = 123456;
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
@@ -99,7 +99,7 @@ class ReportStatusServiceTest {
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
         nbsModel.setRecordStatusCd("Success");
         nbsModel.setPayload("payload");
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
@@ -130,12 +130,12 @@ class ReportStatusServiceTest {
     @Test
     void testGetMessageDetailStatus_RawExist_ValidateNotExist_DltExist() {
         String id = "test";
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
         ElrDeadLetterModel dltModel = new ElrDeadLetterModel();
         dltModel.setErrorMessageId(id);
         dltModel.setDltStatus("ERROR");
@@ -143,7 +143,7 @@ class ReportStatusServiceTest {
         dltModel.setErrorMessageSource("origin");
         dltModel.setErrorStackTraceShort("short");
 
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.
                 empty());
 
@@ -163,14 +163,14 @@ class ReportStatusServiceTest {
     @Test
     void testGetMessageDetailStatus_RawExist_ValidateNotExist_DltNotExist() {
         String id = "test";
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
 
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.
                 empty());
 
@@ -189,12 +189,12 @@ class ReportStatusServiceTest {
     void testGetMessageDetailStatus_RawExist_ValidateExist_ReportExist_NbsNotExist() {
         String id = "test";
         Integer nbsId = 123456;
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
@@ -209,7 +209,7 @@ class ReportStatusServiceTest {
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
         nbsModel.setRecordStatusCd("Success");
         nbsModel.setPayload("payload");
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.empty());
@@ -223,12 +223,12 @@ class ReportStatusServiceTest {
     @Test
     void testGetMessageDetailStatus_RawExist_ValidateExist_ReportNotExist_DltExist() {
         String id = "test";
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
@@ -241,7 +241,7 @@ class ReportStatusServiceTest {
         dltModel.setErrorMessageSource("origin");
         dltModel.setErrorStackTraceShort("short");
 
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.
                 empty());
@@ -259,12 +259,12 @@ class ReportStatusServiceTest {
     @Test
     void testGetMessageDetailStatus_RawExist_ValidateExist_ReportNotExist_DltNotExist() {
         String id = "test";
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
         validatedELRModel.setRawMessage("payload");
@@ -272,7 +272,7 @@ class ReportStatusServiceTest {
 
 
 
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.
                 empty());
@@ -349,12 +349,12 @@ class ReportStatusServiceTest {
     void testGetMessageDetailStatus_RawExist_ValidateExist_ReportExist_NbsExist_OdseExist() {
         String id = "123";
         Integer nbsId = 123456;
-        RawERLModel rawERLModel = new RawERLModel();
-        rawERLModel.setId(id);
-        rawERLModel.setPayload("payload");
-        rawERLModel.setCreatedOn(getCurrentTimeStamp("UTC"));
-        rawERLModel.setCreatedBy("admin");
-        rawERLModel.setType("HL7");
+        RawElrModel rawElrModel = new RawElrModel();
+        rawElrModel.setId(id);
+        rawElrModel.setPayload("payload");
+        rawElrModel.setCreatedOn(getCurrentTimeStamp("UTC"));
+        rawElrModel.setCreatedBy("admin");
+        rawElrModel.setType("HL7");
 
         ValidatedELRModel validatedELRModel = new ValidatedELRModel();
         validatedELRModel.setId("validate-id");
@@ -380,7 +380,7 @@ class ReportStatusServiceTest {
         nbsModel.setRecordStatusCd("Failure");
         nbsModel.setPayload("payload");
 
-        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawERLModel));
+        when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
         when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));

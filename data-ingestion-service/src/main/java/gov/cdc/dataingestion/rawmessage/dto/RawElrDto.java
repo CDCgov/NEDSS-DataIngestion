@@ -10,11 +10,12 @@ import lombok.Data;
  1135 - todos complaint
  * */
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
-public class RawERLDto {
+public class RawElrDto {
 
     private String id;
     private String type;
     private String payload;
+    private String version;
     private Boolean validationActive = false;
 
 }

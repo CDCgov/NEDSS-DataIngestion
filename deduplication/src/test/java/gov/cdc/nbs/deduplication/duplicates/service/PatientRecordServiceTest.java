@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +45,6 @@ class PatientRecordServiceTest {
     assertThat(actualPerson).isEqualTo(expectedPerson);
   }
 
-
   @Test
   void fetchMostRecentPatientReturnsNullWhenNoRecordsFound() {
     String personParentUid = "123";
@@ -57,6 +57,7 @@ class PatientRecordServiceTest {
     MpiPerson actualPerson = patientRecordService.fetchMostRecentPatient(personParentUid);
     assertThat(actualPerson).isNull();
   }
+
   @Test
   void fetchPersonRecord_ReturnsMpiPerson() {
     String personUid = "123";
@@ -73,4 +74,23 @@ class PatientRecordServiceTest {
 
     assertThat(actualPerson).isEqualTo(expectedPerson);
   }
+
+  @Test
+  void fetchPersonRecords_ReturnsListOfMpiPersons() {
+    List<String> personUids = Arrays.asList("123", "456");
+    MpiPerson person1 = new MpiPerson("123", null, null, null, null, null, null, null, null);
+    MpiPerson person2 = new MpiPerson("456", null, null, null, null, null, null, null, null);
+    List<MpiPerson> expectedPersons = Arrays.asList(person1, person2);
+
+    when(namedParameterJdbcTemplate.query(
+        eq(QueryConstants.PERSON_RECORDS_BY_PERSON_IDS),
+        any(MapSqlParameterSource.class),
+        any(MpiPersonMapper.class)
+    )).thenReturn(expectedPersons);
+
+    List<MpiPerson> actualPersons = patientRecordService.fetchPersonRecords(personUids);
+
+    assertThat(actualPersons).isEqualTo(expectedPersons);
+  }
+
 }

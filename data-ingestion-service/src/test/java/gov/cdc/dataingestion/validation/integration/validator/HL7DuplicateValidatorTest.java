@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.validation.integration.validator;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.exception.DuplicateHL7FileFoundException;
+import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
@@ -44,7 +45,7 @@ class HL7DuplicateValidatorTest {
     }
 
     @Test
-    void testValidateHL7DocumentSuccess() throws DuplicateHL7FileFoundException {
+    void testValidateHL7DocumentSuccess() throws DuplicateHL7FileFoundException, KafkaProducerException {
         ValidatedELRModel validatedELRModel = getValidatedELRModel();
 
         Mockito.when(iValidatedELRRepositoryMock.findByHashedHL7String(any()))
@@ -56,7 +57,7 @@ class HL7DuplicateValidatorTest {
     }
 
     @Test
-    void testValidateHL7DocumentThrowsException() {
+    void testValidateHL7DocumentThrowsException() throws KafkaProducerException {
         String hashedString = "843588fcbfbdca29f9807f81455bbd3ae6935dae6152bcac6851e9568c885c66";
         ValidatedELRModel validatedELRModel = getValidatedELRModel();
 

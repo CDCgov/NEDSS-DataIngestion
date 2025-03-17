@@ -7,8 +7,8 @@ import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityParentLogRepository;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
-import gov.cdc.dataingestion.report.repository.IRawELRRepository;
-import gov.cdc.dataingestion.report.repository.model.RawERLModel;
+import gov.cdc.dataingestion.report.repository.IRawElrRepository;
+import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
@@ -39,7 +39,7 @@ public class ReportStatusService {
     private final IEdxActivityParentLogRepository iEdxActivityParentLogRepository;
     private final NbsInterfaceRepository nbsInterfaceRepository;
 
-    private final IRawELRRepository iRawELRRepository;
+    private final IRawElrRepository iRawELRRepository;
     private final IValidatedELRRepository iValidatedELRRepository;
     private final IElrDeadLetterRepository iElrDeadLetterRepository;
     private final IEdxActivityLogRepository iEdxActivityLogRepository;
@@ -51,7 +51,7 @@ public class ReportStatusService {
 
     public ReportStatusService(IReportStatusRepository iReportStatusRepository,
                                IEdxActivityParentLogRepository iEdxActivityParentLogRepository, NbsInterfaceRepository nbsInterfaceRepository,
-                               IRawELRRepository iRawELRRepository,
+                               IRawElrRepository iRawELRRepository,
                                IValidatedELRRepository iValidatedELRRepository,
                                IElrDeadLetterRepository iElrDeadLetterRepository,
                                IEdxActivityLogRepository iEdxActivityLogRepository) {
@@ -67,7 +67,7 @@ public class ReportStatusService {
     @SuppressWarnings("java:S3776")
     public MessageStatus getMessageStatus(String rawMessageID) {
         MessageStatus msgStatus = new MessageStatus();
-        Optional<RawERLModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
+        Optional<RawElrModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
         if (!rawMessageData.isEmpty()) {
             msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
             //msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));

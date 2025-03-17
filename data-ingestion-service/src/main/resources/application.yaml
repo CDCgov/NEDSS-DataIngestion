@@ -37,6 +37,12 @@ ecr:
   processing:
     batchSize: 100 # How many records are processed at a time
     interval: 3000 # How often (in milliseconds) the database is queried for records to process
+
+dlt:
+  scheduler:
+    enabled: ${SCHEDULER_ENABLED:false}
+    cron: ${SCHEDULER_CRON:0/30 * * * * *}
+
 ---
 spring:
   config:
