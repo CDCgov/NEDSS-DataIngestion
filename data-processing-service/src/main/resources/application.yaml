@@ -1,7 +1,7 @@
-server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#server:
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 management:
   endpoint:
@@ -33,6 +33,8 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
   cache:
@@ -45,11 +47,10 @@ kafka:
   topic:
     elr_micro_transaction: elr_unprocessed_transaction
     elr_micro: dp_elr_unprocessed
-    elr_health_case: elr_processing_public_health_case
-    elr_handle_lab: elr_processing_handle_lab
-    elr_edx_log: elr_edx_log
-    elr_action_tracker: elr_action_tracker
-
+    elr_health_case: dp_elr_processing_public_health_case
+    elr_handle_lab: dp_elr_processing_handle_lab
+    elr_edx_log: dp_elr_edx_log
+    elr_action_tracker: dp_elr_action_tracker
 nbs:
   user: ${NBS_AUTH_USER:superuser}
   data:
@@ -62,24 +63,33 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 20
+      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
+      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+      pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
     nbs:
-      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_MSGOUTE_DB_NAME:NBS_MSGOUTE};encrypt=true;trustServerCertificate=true;
     odse:
-      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_ODSE;encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_ODSE_DB_NAME:NBS_ODSE};encrypt=true;trustServerCertificate=true;
     srte:
-      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_SRTE;encrypt=true;trustServerCertificate=true;
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_SRTE_DB_NAME:NBS_SRTE};encrypt=true;trustServerCertificate=true;
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    group-id: data-processing-group
+    thread: ${KAFKA_THREAD:1}
+    group-id: data-processing-group-init
+    group-id-phc: data-processing-group-phc
+    group-id-lab: data-processing-group-lab
+    group-id-edx: data-processing-group-edx
     consumer:
       maxPollIntervalMs: 30000
 #K8S Profile goes here

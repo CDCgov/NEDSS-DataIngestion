@@ -6,8 +6,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,11 +38,13 @@ import java.util.Collection;
 public class RoleService implements IRoleService {
     private final RoleRepository roleRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
+    private final DataModifierReposJdbc dataModifierReposJdbc;
 
     public RoleService(RoleRepository roleRepository,
-                       PrepareAssocModelHelper prepareAssocModelHelper) {
+                       PrepareAssocModelHelper prepareAssocModelHelper, DataModifierReposJdbc dataModifierReposJdbc) {
         this.roleRepository = roleRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
 
     public Collection<RoleDto> findRoleScopedToPatient(Long uid) {
@@ -61,27 +63,21 @@ public class RoleService implements IRoleService {
         return roleDtoCollection;
     }
 
-    @Transactional
     public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
-        try {
-            if(roleDTColl == null || roleDTColl.isEmpty()) return;
+        if(roleDTColl == null || roleDTColl.isEmpty()) return;
 
-            for (RoleDto roleDT : roleDTColl) {
-                if (roleDT == null) {
-                    continue;
-                }
-
-                roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
-                this.saveRole(roleDT);
+        for (RoleDto roleDT : roleDTColl) {
+            if (roleDT == null) {
+                continue;
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+
+            roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
+            this.saveRole(roleDT);
         }
     }
 
 
 
-    @Transactional
     public void saveRole(RoleDto roleDto) {
         if (roleDto.isItNew() || roleDto.isItDirty()) {
             var data = new Role(roleDto);
@@ -103,7 +99,7 @@ public class RoleService implements IRoleService {
     }
 
     private void removeRole(RoleDto roleDto) {
-        roleRepository.deleteRoleByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
+        dataModifierReposJdbc.deleteRoleByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
     }
 
 }

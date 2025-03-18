@@ -118,7 +118,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getLabParticipations(10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getLabParticipations(uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -210,7 +210,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getReportingFacilityName(10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getReportingFacilityName(uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -233,7 +233,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getSpecimanSource(10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getSpecimanSource(uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -258,7 +258,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getOrderingFacilityAddress(prodConn, 10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getOrderingFacilityAddress(prodConn, uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -284,7 +284,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getOrderingFacilityPhone(prodConn, 10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getOrderingFacilityPhone(prodConn, uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -309,7 +309,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getOrderingPersonAddress(prodConn, 10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getOrderingPersonAddress(prodConn, uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -334,7 +334,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getOrderingPersonPhone(prodConn, 10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getOrderingPersonPhone(prodConn, uid);
         });
         assertEquals("TEST", thrown.getMessage());

@@ -201,179 +201,175 @@ public class PamService implements IPamService {
 
         Long falsePublicHealthCaseUid;
 
-        try {
+        Long falseUid;
+        Long realUid = null;
 
-
-
-            Long falseUid;
-            Long realUid = null;
-
-            Iterator<PersonContainer>  anIteratorPerson;
-            if (pamProxyVO.getThePersonVOCollection() != null) {
-                for (anIteratorPerson = pamProxyVO.getThePersonVOCollection()
-                        .iterator(); anIteratorPerson.hasNext();) {
-                    personVO =  anIteratorPerson.next();
-                    if (personVO.isItNew())
-                    {
-                        if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PAT)) { // Patient
-                            String businessTriggerCd = NEDSSConstant.PAT_CR;
-                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                        }
-                        else if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PRV))
-                        { // Provider
-                            var data = patientRepositoryUtil.createPerson(personVO);
-                            realUid = data.getPersonParentUid();
-                        } // end of else if
-
-                        falseUid = personVO.getThePersonDto().getPersonUid();
-                        // replace the falseId with the realId
-                        if (falseUid.intValue() < 0) {
-                           uidService.setFalseToNewForPam(pamProxyVO, falseUid, realUid);
-                        }
+        Iterator<PersonContainer>  anIteratorPerson;
+        if (pamProxyVO.getThePersonVOCollection() != null) {
+            for (anIteratorPerson = pamProxyVO.getThePersonVOCollection()
+                    .iterator(); anIteratorPerson.hasNext();) {
+                personVO =  anIteratorPerson.next();
+                if (personVO.isItNew())
+                {
+                    if (personVO.getThePersonDto().getCd().equals(
+                            NEDSSConstant.PAT)) { // Patient
+                        String businessTriggerCd = NEDSSConstant.PAT_CR;
+                        realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
                     }
-                    else if (personVO.isItDirty())
-                    {
-                        if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PAT))
-                        {
-                            String businessTriggerCd = NEDSSConstant.PAT_EDIT;
-                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                        }
-                        else if (personVO.getThePersonDto().getCd().equals(
-                                NEDSSConstant.PRV))
-                        { // Provider
-                            var data = patientRepositoryUtil.createPerson(personVO);
-                            realUid = data.getPersonParentUid();
-                        } // end of else
-                    }
-                } // end of for
-            } // end of if(pamProxyVO.getThePersonVOCollection() != null)
+                    else if (personVO.getThePersonDto().getCd().equals(
+                            NEDSSConstant.PRV))
+                    { // Provider
+                        var data = patientRepositoryUtil.createPerson(personVO);
+                        realUid = data.getPersonParentUid();
+                    } // end of else if
 
-            if (pamProxyVO.getPublicHealthCaseContainer() != null) {
-                String businessTriggerCd = null;
-                PublicHealthCaseContainer publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
-                publicHealthCaseContainer.getThePublicHealthCaseDto().setPamCase(true);
-                //TODO: PAM HISTORY
+                    falseUid = personVO.getThePersonDto().getPersonUid();
+                    // replace the falseId with the realId
+                    if (falseUid.intValue() < 0) {
+                       uidService.setFalseToNewForPam(pamProxyVO, falseUid, realUid);
+                    }
+                }
+                else if (personVO.isItDirty())
+                {
+                    if (personVO.getThePersonDto().getCd().equals(
+                            NEDSSConstant.PAT))
+                    {
+                        String businessTriggerCd = NEDSSConstant.PAT_EDIT;
+                        realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
+                    }
+                    else if (personVO.getThePersonDto().getCd().equals(
+                            NEDSSConstant.PRV))
+                    { // Provider
+                        var data = patientRepositoryUtil.createPerson(personVO);
+                        realUid = data.getPersonParentUid();
+                    } // end of else
+                }
+            } // end of for
+        } // end of if(pamProxyVO.getThePersonVOCollection() != null)
+
+        if (pamProxyVO.getPublicHealthCaseContainer() != null) {
+            String businessTriggerCd = null;
+            PublicHealthCaseContainer publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
+            publicHealthCaseContainer.getThePublicHealthCaseDto().setPamCase(true);
+            //TODO: PAM HISTORY
 //                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseContainer());
-                PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
-                RootDtoInterface rootDTInterface = publicHealthCaseDto;
-                String businessObjLookupName = NBSBOLookup.INVESTIGATION;
-                if (pamProxyVO.isItNew()) {
-                    businessTriggerCd = "INV_CR";
-                } else if (pamProxyVO.isItDirty()) {
-                    businessTriggerCd = "INV_EDIT";
-                }
-                String tableName = "PUBLIC_HEALTH_CASE";
-                String moduleCd = "BASE";
-                publicHealthCaseDto = (PublicHealthCaseDto) prepareAssocModelHelper.prepareVO(rootDTInterface, businessObjLookupName,
-                                businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
-                publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCaseDto);
-
-                falsePublicHealthCaseUid = publicHealthCaseContainer
-                        .getThePublicHealthCaseDto().getPublicHealthCaseUid();
-                actualUid = publicHealthCaseService.setPublicHealthCase(
-                        publicHealthCaseContainer);
-                logger.debug("actualUid.intValue() = {}", actualUid.intValue());
-                if (falsePublicHealthCaseUid.intValue() < 0) {
-                    uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
-                    publicHealthCaseContainer.getThePublicHealthCaseDto()
-                            .setPublicHealthCaseUid(actualUid);
-                }
-                logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
+            PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
+            RootDtoInterface rootDTInterface = publicHealthCaseDto;
+            String businessObjLookupName = NBSBOLookup.INVESTIGATION;
+            if (pamProxyVO.isItNew()) {
+                businessTriggerCd = "INV_CR";
+            } else if (pamProxyVO.isItDirty()) {
+                businessTriggerCd = "INV_EDIT";
             }
-            if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && !pamProxyVO.getNbsNoteDTColl().isEmpty()){
-                nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());
+            String tableName = "PUBLIC_HEALTH_CASE";
+            String moduleCd = "BASE";
+            publicHealthCaseDto = (PublicHealthCaseDto) prepareAssocModelHelper.prepareVO(rootDTInterface, businessObjLookupName,
+                            businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
+            publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCaseDto);
 
+            falsePublicHealthCaseUid = publicHealthCaseContainer
+                    .getThePublicHealthCaseDto().getPublicHealthCaseUid();
+            actualUid = publicHealthCaseService.setPublicHealthCase(
+                    publicHealthCaseContainer);
+            logger.debug("actualUid.intValue() = {}", actualUid.intValue());
+            if (falsePublicHealthCaseUid.intValue() < 0) {
+                uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
+                publicHealthCaseContainer.getThePublicHealthCaseDto()
+                        .setPublicHealthCaseUid(actualUid);
             }
-            // this collection should only be populated in edit scenario, xz defect 11861 (10/01/04)
-            if (pamProxyVO.getTheNotificationSummaryVOCollection() != null) {
-                Collection<Object>  notSumVOColl = pamProxyVO.getTheNotificationSummaryVOCollection();
-                for (Object o : notSumVOColl) {
-                    NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer) o;
-                    // Only handles notifications that are not history and not in auto-resend status.
-                    // for auto resend, it'll be handled separately.  xz defect 11861 (10/07/04)
-                    if (notSummaryVO.getIsHistory().equals("F") && notSummaryVO.getAutoResendInd().equals("F")) {
-                        Long notificationUid = notSummaryVO.getNotificationUid();
-                        String phcCd = phcDT.getCd();
-                        String phcClassCd = phcDT.getCaseClassCd();
-                        String progAreaCd = phcDT.getProgAreaCd();
-                        String jurisdictionCd = phcDT.getJurisdictionCd();
-                        String sharedInd = phcDT.getSharedInd();
-                        String notificationRecordStatusCode = notSummaryVO.getRecordStatusCd();
-                        if (notificationRecordStatusCode != null) {
-                            String trigCd = null;
+            logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
+        }
+        if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && !pamProxyVO.getNbsNoteDTColl().isEmpty()){
+            nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());
 
-                            /* The notification status remains same when the
-                             * Investigation or Associated objects are changed
-                             */
-                            if (notificationRecordStatusCode
-                                    .equalsIgnoreCase(NEDSSConstant.APPROVED_STATUS)) {
-                                trigCd = NEDSSConstant.NOT_CR_APR;
-                            }
+        }
+        // this collection should only be populated in edit scenario, xz defect 11861 (10/01/04)
+        if (pamProxyVO.getTheNotificationSummaryVOCollection() != null) {
+            Collection<Object>  notSumVOColl = pamProxyVO.getTheNotificationSummaryVOCollection();
+            for (Object o : notSumVOColl) {
+                NotificationSummaryContainer notSummaryVO = (NotificationSummaryContainer) o;
+                // Only handles notifications that are not history and not in auto-resend status.
+                // for auto resend, it'll be handled separately.  xz defect 11861 (10/07/04)
+                if (notSummaryVO.getIsHistory().equals("F") && notSummaryVO.getAutoResendInd().equals("F")) {
+                    Long notificationUid = notSummaryVO.getNotificationUid();
+                    String phcCd = phcDT.getCd();
+                    String phcClassCd = phcDT.getCaseClassCd();
+                    String progAreaCd = phcDT.getProgAreaCd();
+                    String jurisdictionCd = phcDT.getJurisdictionCd();
+                    String sharedInd = phcDT.getSharedInd();
+                    String notificationRecordStatusCode = notSummaryVO.getRecordStatusCd();
+                    if (notificationRecordStatusCode != null) {
+                        String trigCd = null;
 
-                            // change from pending approval to approved
-                            if (notificationRecordStatusCode
-                                    .equalsIgnoreCase(NEDSSConstant.PENDING_APPROVAL_STATUS)) {
-                                trigCd = NEDSSConstant.NOT_CR_PEND_APR;
-                            }
-                            if (trigCd != null) {
-                                // we only need to update notification when trigCd is not null
-                                retrieveSummaryService.updateNotification(notificationUid, trigCd, phcCd, phcClassCd, progAreaCd, jurisdictionCd, sharedInd);
-                            }
-
+                        /* The notification status remains same when the
+                         * Investigation or Associated objects are changed
+                         */
+                        if (notificationRecordStatusCode
+                                .equalsIgnoreCase(NEDSSConstant.APPROVED_STATUS)) {
+                            trigCd = NEDSSConstant.NOT_CR_APR;
                         }
+
+                        // change from pending approval to approved
+                        if (notificationRecordStatusCode
+                                .equalsIgnoreCase(NEDSSConstant.PENDING_APPROVAL_STATUS)) {
+                            trigCd = NEDSSConstant.NOT_CR_PEND_APR;
+                        }
+                        if (trigCd != null) {
+                            // we only need to update notification when trigCd is not null
+                            retrieveSummaryService.updateNotification(notificationUid, trigCd, phcCd, phcClassCd, progAreaCd, jurisdictionCd, sharedInd);
+                        }
+
                     }
                 }
             }
-            Long docUid = null;
-            if (pamProxyVO.getPublicHealthCaseContainer() != null && pamProxyVO.getPublicHealthCaseContainer()
-                    .getTheActRelationshipDTCollection() != null) {
-                Iterator<ActRelationshipDto>  anIteratorAct = null;
-                for (anIteratorAct = pamProxyVO.getPublicHealthCaseContainer()
-                        .getTheActRelationshipDTCollection().iterator(); anIteratorAct
-                             .hasNext();) {
-                    ActRelationshipDto actRelationshipDT = anIteratorAct
-                            .next();
-                    if(actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC))
-                    {
-                        docUid  = actRelationshipDT.getSourceActUid();
-                    }
-                    if (actRelationshipDT.isItDelete()) {
-                        actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
-
-                    }
-                    actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
+        }
+        Long docUid = null;
+        if (pamProxyVO.getPublicHealthCaseContainer() != null && pamProxyVO.getPublicHealthCaseContainer()
+                .getTheActRelationshipDTCollection() != null) {
+            Iterator<ActRelationshipDto>  anIteratorAct = null;
+            for (anIteratorAct = pamProxyVO.getPublicHealthCaseContainer()
+                    .getTheActRelationshipDTCollection().iterator(); anIteratorAct
+                         .hasNext();) {
+                ActRelationshipDto actRelationshipDT = anIteratorAct
+                        .next();
+                if(actRelationshipDT.getTypeCd() != null && actRelationshipDT.getTypeCd().equals(NEDSSConstant.DocToPHC))
+                {
+                    docUid  = actRelationshipDT.getSourceActUid();
                 }
-            }
-            /*
-             * Updating the Document table
-             */
-            //Getting the DocumentEJB reference
-            if(docUid != null){
-                try{
+                if (actRelationshipDT.isItDelete()) {
+                    actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
 
-                    //TODO: NBS DOCUMENT, not relevant for ELR
-                }catch(Exception e){
-                    throw new DataProcessingException(e.getMessage(),e);
                 }
+                actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
             }
+        }
+        /*
+         * Updating the Document table
+         */
+        //Getting the DocumentEJB reference
+        if(docUid != null){
+            try{
 
-            Iterator<ParticipationDto>  anIteratorPat;
-            if (pamProxyVO.getTheParticipationDTCollection() != null) {
-                for (anIteratorPat = pamProxyVO.getTheParticipationDTCollection().iterator(); anIteratorPat
-                        .hasNext();) {
-                    ParticipationDto participationDT = anIteratorPat
-                            .next();
-                    if (participationDT.isItDelete()) {
-                        participationRepositoryUtil.insertParticipationHist(participationDT);
+                //TODO: NBS DOCUMENT, not relevant for ELR
+            }catch(Exception e){
+                throw new DataProcessingException(e.getMessage(),e);
+            }
+        }
 
-                    }
-                    participationRepositoryUtil.storeParticipation(participationDT);
+        Iterator<ParticipationDto>  anIteratorPat;
+        if (pamProxyVO.getTheParticipationDTCollection() != null) {
+            for (anIteratorPat = pamProxyVO.getTheParticipationDTCollection().iterator(); anIteratorPat
+                    .hasNext();) {
+                ParticipationDto participationDT = anIteratorPat
+                        .next();
+                if (participationDT.isItDelete()) {
+                    participationRepositoryUtil.insertParticipationHist(participationDT);
+
                 }
+                participationRepositoryUtil.storeParticipation(participationDT);
             }
-            //TODO: NBS PAM
+        }
+        //TODO: NBS PAM
 //            if (pamProxyVO.getPamVO() != null && pamProxyVO.isItNew()) {
 //                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
 //            } else if (pamProxyVO.getPamVO() != null && pamProxyVO.isItDirty()) {
@@ -385,9 +381,6 @@ public class PamService implements IPamService {
 //
 //            logger.debug("the actual Uid for PamProxy Publichealthcase is "
 //                    + actualUid);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(),e);
-        }
         return actualUid;
     }
 

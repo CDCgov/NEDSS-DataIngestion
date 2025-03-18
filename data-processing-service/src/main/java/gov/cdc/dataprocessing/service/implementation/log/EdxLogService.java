@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,7 +61,6 @@ public class EdxLogService implements IEdxLogService {
         this.edxActivityDetailLogRepository = edxActivityDetailLogRepository;
     }
 
-    @Transactional
     @Override
     public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
@@ -72,7 +70,8 @@ public class EdxLogService implements IEdxLogService {
         }
         return new EdxActivityDetailLog();
     }
-    @Transactional
+
+
     public void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) {
         EdxActivityLog edxActivityLog = new EdxActivityLog(edxActivityLogDto);
         //Check if the activity log has already been created for the source.

@@ -132,7 +132,7 @@ public class EdxPhcrDocumentUtil {
                 }
             }
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         }
         if(errorTextColl!=null && !errorTextColl.isEmpty()){
             Iterator<Object> iterator = errorTextColl.iterator();

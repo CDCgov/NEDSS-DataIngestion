@@ -1,7 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.repos.locator;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -38,6 +40,7 @@ import java.util.Optional;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface LocalUidGeneratorRepository extends JpaRepository<LocalUidGenerator, String> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select lug from LocalUidGenerator lug where lug.classNameCd = :id")
     Optional<LocalUidGenerator> findByIdForUpdate(String id);
 }

@@ -220,7 +220,7 @@ class ManagerAggregationServiceTest {
         // Mock behavior of services to throw exception
         doThrow(new DataProcessingException("Error")).when(programAreaService).getProgramArea(any(), any(), any());
 
-        assertThrows(RuntimeException.class, () -> managerAggregationService.progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer));
+        assertThrows(DataProcessingException.class, () -> managerAggregationService.progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer));
 
     }
 

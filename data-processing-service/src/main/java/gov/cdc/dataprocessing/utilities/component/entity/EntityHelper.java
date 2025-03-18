@@ -62,19 +62,15 @@ public class EntityHelper {
         Iterator<EntityLocatorParticipationDto> anIterator;
         collection = dtCol;
         logger.debug("Collection<Object> size before iteration in iterateELPDT {}", collection.size());
-        try {
-            for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
-                EntityLocatorParticipationDto elpDT =  anIterator.next();
-                EntityLocatorParticipationDto assocDTInterface = elpDT;
-                logger.debug("Iterating EntityLocatorParticipationDT");
-                elpDT =  prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
-                logger.debug("Came back from PrepareVOUtils");
-                retCol.add(elpDT);
-            }
-        } catch (Exception e) {
-            logger.error("EntityControllerEJB.iterateELPDT: {}", e.getMessage());
-            throw new DataProcessingException(e.getMessage(), e);
+        for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
+            EntityLocatorParticipationDto elpDT =  anIterator.next();
+            EntityLocatorParticipationDto assocDTInterface = elpDT;
+            logger.debug("Iterating EntityLocatorParticipationDT");
+            elpDT =  prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(assocDTInterface);
+            logger.debug("Came back from PrepareVOUtils");
+            retCol.add(elpDT);
         }
+
         logger.debug("Collection<Object> size after iteration in iterateELPDT {}", retCol.size());
         return retCol;
 
@@ -97,20 +93,16 @@ public class EntityHelper {
         Iterator<RoleDto> anIterator ;
         collection = dtCol;
         logger.debug("Collection<Object> size before iteration in iterateRDT {}", collection.size());
-        try {
-            for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
-                RoleDto rDT = anIterator.next();
-                if (rDT.isItDirty() || rDT.isItNew() || rDT.isItDelete()) {
-                    logger.debug("EntityController:rdT.IsItDelete {} rdt.IsItNew: {} rdt.IsItDirty: {}", rDT.isItDelete(), rDT.isItNew(), rDT.isItDirty());
-                    RoleDto assocDTInterface = rDT;
-                    rDT = prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
-                    retCol.add(rDT);
-                }
+        for (anIterator = collection.iterator(); anIterator.hasNext(); ) {
+            RoleDto rDT = anIterator.next();
+            if (rDT.isItDirty() || rDT.isItNew() || rDT.isItDelete()) {
+                logger.debug("EntityController:rdT.IsItDelete {} rdt.IsItNew: {} rdt.IsItDirty: {}", rDT.isItDelete(), rDT.isItNew(), rDT.isItDirty());
+                RoleDto assocDTInterface = rDT;
+                rDT = prepareAssocModel.prepareAssocDTForRole(assocDTInterface);
+                retCol.add(rDT);
             }
-        } catch (Exception e) {
-            logger.error("EntityControllerEJB.iterateRDT: {}", e.getMessage());
-            throw new DataProcessingException(e.getMessage(), e);
         }
+
         logger.debug("Collection<Object> size after iteration in iterateRDT {}", retCol.size());
         return retCol;
 

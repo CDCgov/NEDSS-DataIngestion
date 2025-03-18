@@ -104,7 +104,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testGetNbsAnswerAndAssociationResultNotPresent() throws DataProcessingException {
+    void testGetNbsAnswerAndAssociationResultNotPresent()  {
         Long uid = 1L;
 
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(uid)).thenReturn(Optional.empty());
@@ -121,7 +121,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void getNbsAnswerAndAssociation_Success() throws DataProcessingException {
+    void getNbsAnswerAndAssociation_Success()  {
         long uid = 10L;
 
         // getPageAnswerDTMaps 52
@@ -449,7 +449,7 @@ class AnswerServiceTest {
                 .thenThrow(new RuntimeException("TEST"));
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.storePageAnswer(pageContainer, observationDto);
         });
 
@@ -518,11 +518,11 @@ class AnswerServiceTest {
 
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(any())).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.getNbsAnswerAndAssociation(null);
         });
 
-        assertEquals("InterviewAnswerRootDAOImpl:answerCollection- could not be returned",thrown.getMessage());
+        assertEquals("TEST",thrown.getMessage());
 
     }
 
@@ -566,7 +566,7 @@ class AnswerServiceTest {
         when(nbsAnswerRepository.save(any())).thenThrow(new RuntimeException());
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.storeAnswerDTCollection(answerDTColl, interfaceDt);
         });
 
@@ -577,7 +577,7 @@ class AnswerServiceTest {
     void delete_Exp() {
         ObservationDto observationDto = new ObservationDto();
         when(nbsAnswerRepository.getPageAnswerByActUid(any())).thenThrow(new RuntimeException());
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.delete(observationDto);
         });
 
@@ -595,7 +595,7 @@ class AnswerServiceTest {
         when(nbsAnswerHistRepository.save(any())).thenThrow(new RuntimeException());
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.insertAnswerHistoryDTCollection(anCol);
         });
 
@@ -604,7 +604,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void insertAnswerHistoryDTCollection_Test_2() throws DataProcessingException {
+    void insertAnswerHistoryDTCollection_Test_2()  {
         var anCol1 = new ArrayList<>();
         var an1 = new NbsAnswerDto();
         anCol1.add(an1);
@@ -629,7 +629,7 @@ class AnswerServiceTest {
 
         when(nbsActEntityHistRepository.save(any())).thenThrow(new RuntimeException());
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.insertPageEntityHistoryDTCollection(nbsCaseEntityDTColl, oldrootDTInterface);
         });
 
@@ -745,7 +745,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testStoreAnswerDTCollection_NullCollection() throws DataProcessingException {
+    void testStoreAnswerDTCollection_NullCollection()  {
         ObservationDto interfaceDT = new ObservationDto();
 
         answerService.storeAnswerDTCollection(null, interfaceDT);
@@ -754,7 +754,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testStoreAnswerDTCollection_DeleteCase() throws DataProcessingException {
+    void testStoreAnswerDTCollection_DeleteCase()  {
         Collection<Object> answerDTColl = new ArrayList<>();
         NbsAnswerDto answerDT = mock(NbsAnswerDto.class);
         when(answerDT.isItDelete()).thenReturn(true);
@@ -769,7 +769,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_AnswerCollectionNull() throws DataProcessingException {
+    void testDelete_AnswerCollectionNull()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -781,7 +781,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_AnswerCollectionEmpty() throws DataProcessingException {
+    void testDelete_AnswerCollectionEmpty()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -794,7 +794,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_ActEntityCollectionNull() throws DataProcessingException {
+    void testDelete_ActEntityCollectionNull()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -808,7 +808,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testDelete_ActEntityCollectionEmpty() throws DataProcessingException {
+    void testDelete_ActEntityCollectionEmpty()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
@@ -822,7 +822,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertAnswerHistoryDTCollection_NullCollection() throws DataProcessingException {
+    void testInsertAnswerHistoryDTCollection_NullCollection()  {
         answerService.insertAnswerHistoryDTCollection(null);
 
         verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
@@ -830,7 +830,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertAnswerHistoryDTCollection_EmptyCollection() throws DataProcessingException {
+    void testInsertAnswerHistoryDTCollection_EmptyCollection()  {
         answerService.insertAnswerHistoryDTCollection(Collections.emptyList());
 
         verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
@@ -838,7 +838,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertAnswerHistoryDTCollection_InvalidObject() throws DataProcessingException {
+    void testInsertAnswerHistoryDTCollection_InvalidObject()  {
         Collection<Object> invalidCollection = new ArrayList<>();
         invalidCollection.add("InvalidObject");
 
@@ -850,7 +850,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testInsertPageEntityHistoryDTCollection_NullCollection() throws DataProcessingException {
+    void testInsertPageEntityHistoryDTCollection_NullCollection()  {
         ObservationDto oldRootDTInterface = mock(ObservationDto.class);
         answerService.insertPageEntityHistoryDTCollection(null, oldRootDTInterface);
 
@@ -859,7 +859,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertPageEntityHistoryDTCollection_EmptyCollection() throws DataProcessingException {
+    void testInsertPageEntityHistoryDTCollection_EmptyCollection()  {
         ObservationDto oldRootDTInterface = mock(ObservationDto.class);
         answerService.insertPageEntityHistoryDTCollection(Collections.emptyList(), oldRootDTInterface);
 

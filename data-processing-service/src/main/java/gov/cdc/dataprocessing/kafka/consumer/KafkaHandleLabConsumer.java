@@ -56,7 +56,8 @@ public class KafkaHandleLabConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_handle_lab}"
+            topics = "${kafka.topic.elr_handle_lab}",
+            containerFactory = "kafkaListenerContainerFactoryStep3"
     )
     public void handleMessage(String message, Acknowledgment acknowledgment) {
         try {

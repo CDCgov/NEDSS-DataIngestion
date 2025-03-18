@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.StoredProcRepository;
 import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 /**
@@ -37,7 +36,6 @@ public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
         this.storedProcRepository = storedProcRepository;
     }
 
-    @Transactional
     public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) {
         storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(),
                 edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()

@@ -63,12 +63,13 @@ public class PersonContainer extends LdfBaseContainer implements Serializable {
     private String role;
     private String addReasonCode;
 
+
     /**
      * NEW VARIABLE
      * */
 
     private Boolean patientMatchedFound;
-
+    private boolean newPersonCreated = false;
 
 
     public PersonContainer deepClone() {
@@ -83,7 +84,7 @@ public class PersonContainer extends LdfBaseContainer implements Serializable {
             ObjectInputStream ois = new ObjectInputStream(bis);
             return (PersonContainer) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
             return null;
         }
     }

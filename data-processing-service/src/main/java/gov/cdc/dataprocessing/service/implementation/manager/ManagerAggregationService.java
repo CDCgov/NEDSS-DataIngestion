@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 /**
@@ -112,20 +111,8 @@ public class ManagerAggregationService implements IManagerAggregationService {
         return edxLabInformationDto;
     }
 
-    public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException {
-        PersonAggContainer personAggContainer;
-        OrganizationContainer organizationContainer;
-        Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
-        Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
-        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-        personAggContainer =  patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-        organizationContainer= organizationService.processingOrganization(labResult);
-        roleAggregation(labResult);
-        progAndJurisdictionAggregation(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-    }
 
-    public void serviceAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
+    public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
             DataProcessingException, DataProcessingConsumerException {
         PersonAggContainer personAggContainer;
         OrganizationContainer organizationContainer;
@@ -135,28 +122,16 @@ public class ManagerAggregationService implements IManagerAggregationService {
         observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
         personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
 
-        Map<Long, Long> patientCount = personContainerCollection.stream()
-                .collect(Collectors.groupingBy(
-                        pc -> pc.getThePersonDto().getPersonUid(),
-                        Collectors.counting()
-                ));
-        long repetitiveCount = patientCount.entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .count();
-        if (repetitiveCount > 0) {
-            logger.info("CRITICAL, multiple repetitive uid found. {}", repetitiveCount);
-        }
-
         organizationContainer = organizationService.processingOrganization(labResult);
 
         roleAggregation(labResult);
-        progAndJurisdictionAggregationAsync(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+        progAndJurisdictionAggregationHelper(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
     }
 
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
                                                                           EdxLabInformationDto edxLabInformationDto,
                                                                           PersonAggContainer personAggContainer,
-                                                                          OrganizationContainer organizationContainer) {
+                                                                          OrganizationContainer organizationContainer) throws DataProcessingException {
             // Pulling Jurisdiction and Program from OBS
             ObservationContainer observationRequest = null;
             Collection<ObservationContainer> observationResults = new ArrayList<>();
@@ -175,30 +150,22 @@ public class ManagerAggregationService implements IManagerAggregationService {
             }
 
             if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-                try {
-                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
             }
 
             if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-                try {
-                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
                             organizationContainer, observationRequest);
-                } catch (DataProcessingException e) {
-                    throw new RuntimeException(e);
-                }
             }
 
     }
 
 
-    @SuppressWarnings("java:S3776")
-    protected void progAndJurisdictionAggregationAsync(LabResultProxyContainer labResult,
+    @SuppressWarnings({"java:S3776","java:S4144"})
+    protected void progAndJurisdictionAggregationHelper(LabResultProxyContainer labResult,
                                                                         EdxLabInformationDto edxLabInformationDto,
                                                                         PersonAggContainer personAggContainer,
-                                                                        OrganizationContainer organizationContainer) {
+                                                                        OrganizationContainer organizationContainer) throws DataProcessingException {
         ObservationContainer observationRequest = null;
         Collection<ObservationContainer> observationResults = new ArrayList<>();
         for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
@@ -216,57 +183,13 @@ public class ManagerAggregationService implements IManagerAggregationService {
         }
 
         if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-            try {
-                programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-            } catch (DataProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
         }
 
         if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-            try {
-                jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-                        organizationContainer, observationRequest);
-            } catch (DataProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
+                    organizationContainer, observationRequest);
         }
-
-//        return CompletableFuture.runAsync(() -> {
-//            // Pulling Jurisdiction and Program from OBS
-//            ObservationContainer observationRequest = null;
-//            Collection<ObservationContainer> observationResults = new ArrayList<>();
-//            for (ObservationContainer obsVO : labResult.getTheObservationContainerCollection()) {
-//                String obsDomainCdSt1 = obsVO.getTheObservationDto().getObsDomainCdSt1();
-//
-//                // Observation hit this is originated from Observation Result
-//                if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_RESULT_CD)) {
-//                    observationResults.add(obsVO);
-//                }
-//
-//                // Observation hit is originated from Observation Request (ROOT)
-//                else if (obsDomainCdSt1 != null && obsDomainCdSt1.equalsIgnoreCase(EdxELRConstant.ELR_ORDER_CD)) {
-//                    observationRequest = obsVO;
-//                }
-//            }
-//
-//            if (observationRequest != null && observationRequest.getTheObservationDto().getProgAreaCd() == null) {
-//                try {
-//                    programAreaService.getProgramArea(observationResults, observationRequest, edxLabInformationDto.getSendingFacilityClia());
-//                } catch (DataProcessingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            if (observationRequest != null && observationRequest.getTheObservationDto().getJurisdictionCd() == null) {
-//                try {
-//                    jurisdictionService.assignJurisdiction(personAggContainer.getPersonContainer(), personAggContainer.getProviderContainer(),
-//                            organizationContainer, observationRequest);
-//                } catch (DataProcessingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        });
     }
 
     @SuppressWarnings("java:S3776")

@@ -201,7 +201,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             }
 
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
             eDXActivityDetailLogDT.setLogType(EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name());
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
@@ -289,138 +289,164 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             personDT = personVO.getThePersonDto();
         }
         
-        try {
-            for (Object o : reqFields.keySet()) {
-                Long key = (Long) o;
-                NbsQuestionMetadata metaData = (NbsQuestionMetadata) reqFields.get(key);
-                String dLocation = metaData.getDataLocation() == null ? "" : metaData.getDataLocation();
-                String label = metaData.getQuestionLabel() == null ? "" : metaData.getQuestionLabel();
-                Long nbsQueUid = metaData.getNbsQuestionUid();
-                if (!dLocation.equals("")) {
-                    if (dLocation.startsWith("NBS_Answer.") && answerMap != null) {
-                        if (answerMap.get(key) == null) {
-                            missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
-                        }
+        for (Object o : reqFields.keySet()) {
+            Long key = (Long) o;
+            NbsQuestionMetadata metaData = (NbsQuestionMetadata) reqFields.get(key);
+            String dLocation = metaData.getDataLocation() == null ? "" : metaData.getDataLocation();
+            String label = metaData.getQuestionLabel() == null ? "" : metaData.getQuestionLabel();
+            Long nbsQueUid = metaData.getNbsQuestionUid();
+            if (!dLocation.equals("")) {
+                if (dLocation.startsWith("NBS_Answer.") && answerMap != null) {
+                    if (answerMap.get(key) == null) {
+                        missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
                     }
-                    else if (dLocation.toLowerCase().startsWith("public_health_case.")) {
-                        String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
+                }
+                else if (dLocation.toLowerCase().startsWith("public_health_case.")) {
+                    String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
 
-                        String getterNm = createGetterMethod(attrToChk);
-                        Map<Object, Object> methodMap = getMethods(publicHealthCaseDto.getClass());
-                        Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                    String getterNm = createGetterMethod(attrToChk);
+                    Map<Object, Object> methodMap = getMethods(publicHealthCaseDto.getClass());
+                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                    try {
                         Object obj = method.invoke(publicHealthCaseDto, (Object[]) null);
                         checkObject(obj, missingFields, metaData);
-                    }
-                    else if (dLocation.toLowerCase().startsWith("person."))
-                    {
-                        String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
-                        String getterNm = createGetterMethod(attrToChk);
-                        Map<Object, Object> methodMap = getMethods(personDT.getClass());
-                        Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                        Object obj = method.invoke(personDT, (Object[]) null);
-                        checkObject(obj, missingFields, metaData);
-                    }
-                    else if (dLocation.toLowerCase().startsWith("postal_locator."))
-                    {
-                        String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
-                        String getterNm = createGetterMethod(attrToChk);
-                        PostalLocatorDto postalLocator = new PostalLocatorDto();
-                        Map<Object, Object> methodMap = getMethods(postalLocator.getClass());
-                        Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                        if (personVO != null
-                                && personVO.getTheEntityLocatorParticipationDtoCollection() != null
-                                && !personVO.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                            for (EntityLocatorParticipationDto elp : personVO.getTheEntityLocatorParticipationDtoCollection()) {
-                                if (elp.getThePostalLocatorDto() != null) {
-                                    //check if this is the correct entity locator to check
-                                    if (elp.getUseCd() != null &&
-                                            metaData.getDataUseCd() != null &&
-                                            metaData.getDataUseCd().equalsIgnoreCase(elp.getUseCd())) {
-                                        postalLocator = elp.getThePostalLocatorDto();
-                                        Object obj = method.invoke(postalLocator, (Object[]) null);
-                                        checkObject(obj, missingFields, metaData);
-                                    }
-                                } else if (elp.getClassCd() != null
-                                        && elp.getClassCd().equals("PST")
-                                        && elp.getTheTeleLocatorDto() == null) {
-                                    checkObject(null, missingFields, metaData);
-                                }
-                            }
-                        } else {
-                            checkObject(null, missingFields, metaData);
-                        }
-                    }
-                    else if (dLocation.toLowerCase().startsWith("person_race."))
-                    {
-                        String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
-                        String getterNm = createGetterMethod(attrToChk);
-                        PersonRaceDto personRace = new PersonRaceDto();
-                        Map<Object, Object> methodMap = getMethods(personRace.getClass());
-                        Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                        if (personVO != null
-                                && personVO.getThePersonRaceDtoCollection() != null
-                                && !personVO.getThePersonRaceDtoCollection().isEmpty()) {
-                            for (PersonRaceDto personRaceDto : personVO.getThePersonRaceDtoCollection()) {
-                                personRace = personRaceDto;
-                                Object obj = method.invoke(personRace, (Object[]) null);
-                                checkObject(obj, missingFields, metaData);
-                            }
-                        } else {
-                            checkObject(null, missingFields, metaData);
-                        }
-                    }
-                    else if (dLocation.toLowerCase().startsWith("act_id."))
-                    {
-                        String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
-                        String getterNm = createGetterMethod(attrToChk);
-                        if (actIdColl != null && !actIdColl.isEmpty()) {
-                            for (ActIdDto adt : actIdColl) {
-                                String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
-                                String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
-                                if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().contains(STATE_STR))) {
-                                    Map<Object, Object> methodMap = getMethods(adt.getClass());
-                                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                                    Object obj = method.invoke(adt, (Object[]) null);
-                                    checkObject(obj, missingFields, metaData);
-                                } else if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD)
-                                        && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                                        && (label.toLowerCase().contains(STATE_STR))) {
-                                    Map<Object, Object> methodMap = getMethods(adt.getClass());
-                                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                                    Object obj = method.invoke(adt, (Object[]) null);
-                                    checkObject(obj, missingFields, metaData);
-                                } else if (typeCd.equalsIgnoreCase("CITY")
-                                        && value.equals("") && (label.toLowerCase().contains("city"))) {
-                                    Map<Object, Object> methodMap = getMethods(adt.getClass());
-                                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
-                                    Object obj = method.invoke(adt, (Object[]) null);
-                                    checkObject(obj, missingFields, metaData);
-                                }
-                            }
-                        } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                                && (label.toLowerCase().contains(STATE_STR))) {
-                            missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
-                        }
-                    }
-                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.")
-                            && !(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
-                            || formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)))
-                    {
-                        if (answerMap == null || answerMap.isEmpty() || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
-                            missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
-                        }
-                    }
-                    else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)) &&
-                            answerMap == null || Objects.requireNonNull(answerMap).isEmpty() || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null))
-                    {
-                        missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
+                    } catch (Exception e) {
+                        throw new DataProcessingException(e.getMessage(), e);
                     }
 
                 }
+                else if (dLocation.toLowerCase().startsWith("person."))
+                {
+                    String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
+                    String getterNm = createGetterMethod(attrToChk);
+                    Map<Object, Object> methodMap = getMethods(personDT.getClass());
+                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                    try {
+                        Object obj = method.invoke(personDT, (Object[]) null);
+                        checkObject(obj, missingFields, metaData);
+                    } catch (Exception e) {
+                        throw new DataProcessingException(e.getMessage(), e);
+                    }
+                }
+                else if (dLocation.toLowerCase().startsWith("postal_locator."))
+                {
+                    String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
+                    String getterNm = createGetterMethod(attrToChk);
+                    PostalLocatorDto postalLocator = new PostalLocatorDto();
+                    Map<Object, Object> methodMap = getMethods(postalLocator.getClass());
+                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                    if (personVO != null
+                            && personVO.getTheEntityLocatorParticipationDtoCollection() != null
+                            && !personVO.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+                        for (EntityLocatorParticipationDto elp : personVO.getTheEntityLocatorParticipationDtoCollection()) {
+                            if (elp.getThePostalLocatorDto() != null) {
+                                //check if this is the correct entity locator to check
+                                if (elp.getUseCd() != null &&
+                                        metaData.getDataUseCd() != null &&
+                                        metaData.getDataUseCd().equalsIgnoreCase(elp.getUseCd())) {
+                                    postalLocator = elp.getThePostalLocatorDto();
+                                    try {
+                                        Object obj = method.invoke(postalLocator, (Object[]) null);
+                                        checkObject(obj, missingFields, metaData);
+                                    } catch (Exception e) {
+                                        throw new DataProcessingException(e.getMessage(), e);
+                                    }
+                                }
+                            } else if (elp.getClassCd() != null
+                                    && elp.getClassCd().equals("PST")
+                                    && elp.getTheTeleLocatorDto() == null) {
+                                checkObject(null, missingFields, metaData);
+                            }
+                        }
+                    } else {
+                        checkObject(null, missingFields, metaData);
+                    }
+                }
+                else if (dLocation.toLowerCase().startsWith("person_race."))
+                {
+                    String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
+                    String getterNm = createGetterMethod(attrToChk);
+                    PersonRaceDto personRace = new PersonRaceDto();
+                    Map<Object, Object> methodMap = getMethods(personRace.getClass());
+                    Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                    if (personVO != null
+                            && personVO.getThePersonRaceDtoCollection() != null
+                            && !personVO.getThePersonRaceDtoCollection().isEmpty()) {
+                        for (PersonRaceDto personRaceDto : personVO.getThePersonRaceDtoCollection()) {
+                            personRace = personRaceDto;
+                            try {
+                                Object obj = method.invoke(personRace, (Object[]) null);
+                                checkObject(obj, missingFields, metaData);
+                            } catch (Exception e) {
+                                throw new DataProcessingException(e.getMessage(), e);
+                            }
+                        }
+                    } else {
+                        checkObject(null, missingFields, metaData);
+                    }
+                }
+                else if (dLocation.toLowerCase().startsWith("act_id."))
+                {
+                    String attrToChk = dLocation.substring(dLocation.indexOf(".") + 1);
+                    String getterNm = createGetterMethod(attrToChk);
+                    if (actIdColl != null && !actIdColl.isEmpty()) {
+                        for (ActIdDto adt : actIdColl) {
+                            String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
+                            String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
+                            if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().contains(STATE_STR))) {
+                                Map<Object, Object> methodMap = getMethods(adt.getClass());
+                                Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                                try {
+                                    Object obj = method.invoke(adt, (Object[]) null);
+                                    checkObject(obj, missingFields, metaData);
+                                } catch (Exception e) {
+                                    throw new DataProcessingException(e.getMessage(), e);
+                                }
+                            } else if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD)
+                                    && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
+                                    && (label.toLowerCase().contains(STATE_STR))) {
+                                Map<Object, Object> methodMap = getMethods(adt.getClass());
+                                Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                                try {
+                                    Object obj = method.invoke(adt, (Object[]) null);
+                                    checkObject(obj, missingFields, metaData);
+                                } catch (Exception e) {
+                                    throw new DataProcessingException(e.getMessage(), e);
+                                }
+                            } else if (typeCd.equalsIgnoreCase("CITY")
+                                    && value.equals("") && (label.toLowerCase().contains("city"))) {
+                                Map<Object, Object> methodMap = getMethods(adt.getClass());
+                                Method method = (Method) methodMap.get(getterNm.toLowerCase());
+                                try {
+                                    Object obj = method.invoke(adt, (Object[]) null);
+                                    checkObject(obj, missingFields, metaData);
+                                } catch (Exception e) {
+                                    throw new DataProcessingException(e.getMessage(), e);
+                                }
+                            }
+                        }
+                    } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
+                            && (label.toLowerCase().contains(STATE_STR))) {
+                        missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
+                    }
+                }
+                else if (dLocation.toLowerCase().startsWith("nbs_case_answer.")
+                        && !(formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
+                        || formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)))
+                {
+                    if (answerMap == null || answerMap.isEmpty() || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null)) {
+                        missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
+                    }
+                }
+                else if (dLocation.toLowerCase().startsWith("nbs_case_answer.") && (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)) &&
+                        answerMap == null || Objects.requireNonNull(answerMap).isEmpty() || (answerMap.get(nbsQueUid) == null && answerMap.get(metaData.getQuestionIdentifier()) == null))
+                {
+                    missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
+                }
+
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
+
 
         if (missingFields.isEmpty())
         {

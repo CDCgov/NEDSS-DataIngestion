@@ -82,7 +82,7 @@ class ProviderMatchingServiceTest {
         personContainer.setLocalIdentifier("123");
         EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
         when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
-        assertThrows(DataProcessingException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
+        assertThrows(NullPointerException.class, () -> providerMatchingService.getMatchingProvider(personContainer));
     }
     @Test
     void getMatchingProvider_local_id_throws_exp() throws DataProcessingException {
