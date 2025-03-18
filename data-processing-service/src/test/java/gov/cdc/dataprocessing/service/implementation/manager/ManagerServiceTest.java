@@ -46,7 +46,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -316,7 +315,7 @@ class ManagerServiceTest {
 
 
 
-        assertThrows(NoSuchElementException.class, () -> managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer));
+        assertThrows(DataProcessingException.class, () -> managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer));
 
         verify(nbsInterfaceRepository, times(1)).findByNbsInterfaceUid(any());
 
