@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.data_elements;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import gov.cdc.nbs.deduplication.data_elements.dto.DataElementsDTO;
 import gov.cdc.nbs.deduplication.data_elements.exception.DataElementConfigurationException;
 import gov.cdc.nbs.deduplication.data_elements.repository.DataElementConfigurationRepository;
@@ -8,13 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-@ExtendWith(SpringExtension.class)
-@Import(DataElementsService.class)
+@ExtendWith(MockitoExtension.class)
 class DataElementsServiceTest {
 
     @Mock
@@ -24,7 +23,7 @@ class DataElementsServiceTest {
     private DataElementsService service;
 
     @Test
-    void testSaveDataElementConfiguration() throws DataElementConfigurationException {
+    void testSaveDataElementConfiguration() throws DataElementConfigurationException, JsonProcessingException {
         // Given
         DataElementsDTO dataElementsDTO = new DataElementsDTO(Map.of("firstName", new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8)));
 

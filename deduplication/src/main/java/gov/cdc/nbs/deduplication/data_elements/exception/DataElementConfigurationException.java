@@ -5,8 +5,4 @@ public class DataElementConfigurationException extends RuntimeException {
     public DataElementConfigurationException(String message, Throwable cause) {
         super(message, cause);
     }
-
-    public DataElementConfigurationException(String message) {
-        super(message);
-    }
 }
