@@ -46,7 +46,7 @@ class HL7v2ValidatorTests
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.messageValidation(id, model, "test", false);
+        var result = target.messageValidation(id, model, "test", false,"");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());
@@ -75,7 +75,7 @@ class HL7v2ValidatorTests
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.messageValidation(id, model, "test", false);
+        var result = target.messageValidation(id, model, "test", false,"");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.3.1",result.getMessageVersion());
@@ -110,7 +110,7 @@ class HL7v2ValidatorTests
         model.setPayload(data);
         model.setId(id);
 
-        var result = target.messageValidation(id, model, "test", false);
+        var result = target.messageValidation(id, model, "test", false,"");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());
@@ -147,7 +147,7 @@ class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    target.messageValidation(id, model, "test", false);
+                    target.messageValidation(id, model, "test", false,"");
                 }
         );
 
@@ -168,7 +168,7 @@ class HL7v2ValidatorTests
 
         Exception exception = Assertions.assertThrows(
                 DiHL7Exception.class, () -> {
-                    target.messageValidation(id, model, "test", false);
+                    target.messageValidation(id, model, "test", false,"");
                 }
         );
         String expectedMessage = "Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: Invalid Message";
@@ -187,12 +187,12 @@ class HL7v2ValidatorTests
 
         String id = "1";
 
-        RawERLModel model = new RawERLModel();
+        RawElrModel model = new RawElrModel();
         model.setPayload(data);
         model.setId(id);
         model.setCreatedOn(null);
         model.setUpdatedOn(null);
-        var result = target.messageValidation(id, model, "test", true);
+        var result = target.messageValidation(id, model, "test", true,"");
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("2.5.1",result.getMessageVersion());

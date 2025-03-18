@@ -64,7 +64,7 @@ class KafkaProducerServiceTest {
 
         when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
 
-        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence, false, "false");
+        kafkaProducerService.sendMessageFromController(msg, topic, msgType, dltOccurrence, false, "false","");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
@@ -192,7 +192,7 @@ class KafkaProducerServiceTest {
 
         when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
 
-        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence, false, "false");
+        kafkaProducerService.sendMessageFromController(msg, topic,msgType, occurrence, false, "false","");
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 
