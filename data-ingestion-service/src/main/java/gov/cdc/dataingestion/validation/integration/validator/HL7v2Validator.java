@@ -35,7 +35,7 @@ public class HL7v2Validator implements IHL7v2Validator {
     public ValidatedELRModel messageValidation(String id, RawElrModel rawElrModel, String topicName, boolean validationActive,String customMapper) throws DiHL7Exception {
         String replaceSpecialCharacters = messageStringFormat(rawElrModel.getPayload());
         replaceSpecialCharacters = this.hl7Helper.processFhsMessage(replaceSpecialCharacters);
-        if(customMapper==null || customMapper.isEmpty()) {
+        if(customMapper !=null || !customMapper.isEmpty()) {
             replaceSpecialCharacters =this.hl7Helper.processHl7CustomMapping(replaceSpecialCharacters,customMapper);
         }
 
