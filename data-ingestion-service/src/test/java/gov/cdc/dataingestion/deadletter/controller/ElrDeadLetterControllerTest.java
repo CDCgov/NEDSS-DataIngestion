@@ -50,7 +50,7 @@ class ElrDeadLetterControllerTest {
         when(elrDeadLetterService.getAllErrorDltRecord()).thenReturn(dtoList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/elrs/error-messages")
-                    .with(SecurityMockMvcRequestPostProcessors.jwt())
+                        .with(SecurityMockMvcRequestPostProcessors.jwt())
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].errorMessageId").value("1"))
@@ -73,8 +73,8 @@ class ElrDeadLetterControllerTest {
     @Test
     void testMessageReInject() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs/1")
-                .contentType("text/plain")
-                .content("HL7 message")
+                        .contentType("text/plain")
+                        .content("HL7 message")
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 

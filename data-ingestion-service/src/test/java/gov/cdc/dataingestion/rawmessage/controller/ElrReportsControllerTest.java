@@ -1,16 +1,16 @@
 package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
-import gov.cdc.dataingestion.rawmessage.dto.RawERLDto;
-import gov.cdc.dataingestion.rawmessage.service.RawELRService;
+import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -30,11 +30,11 @@ class ElrReportsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockitoBean
-    private RawELRService rawELRService;
-    @MockitoBean
+    @MockBean
+    private RawElrService rawELRService;
+    @MockBean
     private CustomMetricsBuilder customMetricsBuilder;
-    @MockitoBean
+    @MockBean
     private IHL7Service hl7Service;
     @Test
     void testSaveHL7Message() throws Exception {
@@ -47,12 +47,13 @@ class ElrReportsControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        RawERLDto rawERLDto = new RawERLDto();
-        rawERLDto.setType(messageType);
-        rawERLDto.setPayload(hl7Payload);
-        rawERLDto.setValidationActive(true);
-
-        verify(rawELRService).submission(rawERLDto, "1");
+        RawElrDto rawElrDto = new RawElrDto();
+        rawElrDto.setType(messageType);
+        rawElrDto.setPayload(hl7Payload);
+        rawElrDto.setValidationActive(true);
+        rawElrDto.setVersion("1");
+        rawElrDto.setCustomMapper("");
+        verify(rawELRService).submission(rawElrDto);
 
     }
 
@@ -67,23 +68,26 @@ class ElrReportsControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        RawERLDto rawERLDto = new RawERLDto();
-        rawERLDto.setType(messageType);
-        rawERLDto.setPayload(xmlPayload);
-        rawERLDto.setValidationActive(true);
+        RawElrDto rawElrDto = new RawElrDto();
+        rawElrDto.setType(messageType);
+        rawElrDto.setPayload(xmlPayload);
+        rawElrDto.setValidationActive(true);
+        rawElrDto.setVersion("1");
+        rawElrDto.setCustomMapper(null);
 
-        verify(rawELRService).submission(rawERLDto, "1");
+        verify(rawELRService).submission(rawElrDto);
     }
 
     @Test
     void testSaveHL7Message_no_ValidationActivate() throws Exception {
         String payload = "Test payload";
         String messageType = "HL7";
-        RawERLDto rawERLDto = new RawERLDto();
-        rawERLDto.setType(messageType);
-        rawERLDto.setPayload(payload);
+        RawElrDto rawElrDto = new RawElrDto();
+        rawElrDto.setType(messageType);
+        rawElrDto.setPayload(payload);
+        rawElrDto.setVersion("1");
 
-        when(rawELRService.submission(rawERLDto, "1")).thenReturn("OK");
+        when(rawELRService.submission(rawElrDto)).thenReturn("OK");
         mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
                         .header("msgType", messageType)
