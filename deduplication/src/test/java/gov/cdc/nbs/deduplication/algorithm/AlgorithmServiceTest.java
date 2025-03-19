@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.nbs.deduplication.algorithm.dto.DataElementRecord;
 import gov.cdc.nbs.deduplication.algorithm.dto.ExportConfigRecord;
 import gov.cdc.nbs.deduplication.algorithm.dto.MatchingConfigRecord;
+import gov.cdc.nbs.deduplication.algorithm.exception.ExportConfigurationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,10 +47,6 @@ class AlgorithmServiceTest {
         // Call the method and verify that it returns the expected result
         byte[] result = algorithmService.generateExportJson(exportConfig);
 
-        // Debugging: Print the byte arrays to inspect them
-        System.out.println("Expected: " + new String(mockJsonBytes, StandardCharsets.UTF_8));
-        System.out.println("Actual: " + new String(result, StandardCharsets.UTF_8));
-
         assertArrayEquals(mockJsonBytes, result);
     }
 
@@ -68,13 +64,13 @@ class AlgorithmServiceTest {
         );
 
         // Simulate an exception thrown by ObjectMapper
-        when(objectMapper.writeValueAsBytes(exportConfig)).thenThrow(new RuntimeException("Test exception"));
+        when(objectMapper.writeValueAsBytes(exportConfig)).thenThrow(new JsonProcessingException("Test exception") {});
 
-        // Verify that a RuntimeException is thrown when generating JSON
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        // Verify that an ExportConfigurationException is thrown when generating JSON
+        ExportConfigurationException exception = assertThrows(ExportConfigurationException.class, () -> {
             algorithmService.generateExportJson(exportConfig);
         });
 
-        assertEquals("Test exception", exception.getMessage());
+        assertEquals("Error while exporting configuration", exception.getMessage());
     }
 }

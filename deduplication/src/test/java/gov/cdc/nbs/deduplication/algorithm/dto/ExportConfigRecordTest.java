@@ -10,7 +10,6 @@ class ExportConfigRecordTest {
 
     @Test
     void testExportConfigRecordConstructorAndGetters() {
-        // Sample data for DataElementRecord
         DataElementRecord dataElement1 = new DataElementRecord("firstName", 0.8, 0.5, 0.7);
         DataElementRecord dataElement2 = new DataElementRecord("lastName", 0.9, 0.6, 0.8);
 
@@ -26,7 +25,6 @@ class ExportConfigRecordTest {
                 List.of(dataElement1, dataElement2), List.of(matchingConfig1)
         );
 
-        // Check if the object was created correctly
         assertEquals(2, exportConfig.dataElements().size());
         assertEquals("firstName", exportConfig.dataElements().get(0).field());
         assertEquals(0.8, exportConfig.dataElements().get(0).oddsRatio());

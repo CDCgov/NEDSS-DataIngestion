@@ -20,9 +20,10 @@ public class AlgorithmController {
         // Generate the export JSON based on the UI data
         byte[] jsonBytes = algorithmService.generateExportJson(exportConfig);
 
-        // Return the JSON file as a downloadable response
+        // Return the JSON file as a downloadable response with the appropriate headers
         return ResponseEntity.ok()
                 .header("Content-Disposition", "attachment; filename=deduplication_config.json")
+                .header("Content-Type", "application/json")  // Explicitly set the content type
                 .body(jsonBytes);
     }
 }

@@ -41,7 +41,6 @@ class AlgorithmControllerTest {
 
     @Test
     void testExportConfiguration() throws Exception {
-        // Mocking DataElementRecord list with real values
         List<DataElementRecord> dataElements = List.of(
                 new DataElementRecord("firstName", 0.8, 0.9, 0.75),
                 new DataElementRecord("lastName", 1.2, 1.3, 0.85)
@@ -74,10 +73,9 @@ class AlgorithmControllerTest {
                 )
         );
 
-        // Creating the full ExportConfigRecord object
         ExportConfigRecord exportConfigRecord = new ExportConfigRecord(dataElements, matchingConfiguration);
 
-        // Mocking the service to return the expected byte array
+        // mocking  to return the expected byte array
         byte[] mockJsonBytes = objectMapper.writeValueAsBytes(exportConfigRecord);
         when(algorithmService.generateExportJson(exportConfigRecord)).thenReturn(mockJsonBytes);
 
