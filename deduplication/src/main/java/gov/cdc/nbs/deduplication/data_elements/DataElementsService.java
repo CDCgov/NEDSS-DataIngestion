@@ -93,7 +93,6 @@ public class DataElementsService {
     }
 
     public void updateKwargs(JsonNode kwargs, Map<String, DataElementsDTO.DataElementConfig> dataElements) {
-        // Ensure kwargs is an ObjectNode
         if (!(kwargs instanceof ObjectNode)) {
             throw new IllegalArgumentException("kwargs must be an ObjectNode");
         }
@@ -118,16 +117,18 @@ public class DataElementsService {
                 Map.entry("currentSex", "SEX"),
                 Map.entry("race", "RACE"),
                 Map.entry("suffix", "SUFFIX"),
-                Map.entry("streetAddress", "ADDRESS"),
+                Map.entry("streetAddress1", "ADDRESS"),
                 Map.entry("city", "CITY"),
                 Map.entry("state", "STATE"),
                 Map.entry("zip", "ZIPCODE"),
                 Map.entry("county", "COUNTY"),
                 Map.entry("telephone", "PHONE"),
+                Map.entry("telecom", "PHONE"),
                 Map.entry("email", "EMAIL"),
                 Map.entry("accountNumber", "AN"),
                 Map.entry("driversLicenseNumber", "DL"),
                 Map.entry("medicaidNumber", "MA"),
+                Map.entry("medicalRecordNumber", "MR"),
                 Map.entry("medicareNumber", "MC"),
                 Map.entry("nationalUniqueIdentifier", "NI"),
                 Map.entry("patientExternalIdentifier", "PI"),
@@ -149,8 +150,5 @@ public class DataElementsService {
                 }
             }
         });
-
-        log.info("Updated thresholds: {}", thresholdsNode);
-        log.info("Updated log_odds: {}", logOddsNode);
     }
 }

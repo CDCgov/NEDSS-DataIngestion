@@ -13,6 +13,7 @@ import org.mockito.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,7 +79,6 @@ class DataElementsServiceTest {
         assertEquals("Failed to retrieve current algorithm configuration.", exception.getMessage());
     }
 
-
     @Test
     void testUpdateAlgorithmConfiguration_success() throws Exception {
         // Arrange
@@ -137,6 +137,40 @@ class DataElementsServiceTest {
         assertFalse(logOddsNode.has("LAST_NAME"));
     }
 
+    @Test
+    void testUpdateKwargs_handlesNonObjectNode() {
+        JsonNode invalidNode = mock(JsonNode.class);
+        Map<String, DataElementsDTO.DataElementConfig> dataElements = new HashMap<>();
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            dataElementsService.updateKwargs(invalidNode, dataElements);
+        });
+
+        assertEquals("kwargs must be an ObjectNode", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateKwargs_createsMissingNodes() {
+        ObjectNode kwargs = new ObjectMapper().createObjectNode();
+        Map<String, DataElementsDTO.DataElementConfig> dataElements = new HashMap<>();
+
+        dataElementsService.updateKwargs(kwargs, dataElements);
+
+        assertTrue(kwargs.has("thresholds"));
+        assertTrue(kwargs.has("log_odds"));
+    }
+
+    @Test
+    void testUpdateKwargs_noChangesWithEmptyDataElements() {
+        ObjectNode kwargs = new ObjectMapper().createObjectNode();
+        kwargs.putObject("thresholds");
+        kwargs.putObject("log_odds");
+
+        dataElementsService.updateKwargs(kwargs, Collections.emptyMap());
+
+        assertEquals(0, kwargs.get("thresholds").size());
+        assertEquals(0, kwargs.get("log_odds").size());
+    }
 
     @Test
     void testSaveDataElementConfiguration_JsonProcessingException() throws JsonProcessingException {
@@ -162,4 +196,34 @@ class DataElementsServiceTest {
             dataElementsService.saveDataElementConfiguration(dataElementsDTO);
         });
     }
+
+    @Test
+    void testSaveDataElementConfiguration_fetchFailure() {
+        when(recordLinkageClient.get()).thenThrow(new RuntimeException("API failure"));
+        DataElementsDTO dataElementsDTO = mock(DataElementsDTO.class);
+
+        assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.saveDataElementConfiguration(dataElementsDTO);
+        });
+    }
+
+    @Test
+    void testSaveDataElementConfiguration_updateFailure() throws JsonProcessingException {
+        String algorithmJson = "{ \"passes\": [] }";
+        JsonNode mockAlgorithmConfig = new ObjectMapper().readTree(algorithmJson);
+
+        when(recordLinkageClient.get()).thenReturn(mock(RestClient.RequestHeadersUriSpec.class));
+        when(recordLinkageClient.get().uri("/algorithm/dibbs-enhanced")).thenReturn(mock(RestClient.RequestHeadersUriSpec.class));
+        when(recordLinkageClient.get().uri("/algorithm/dibbs-enhanced").retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+        when(recordLinkageClient.get().uri("/algorithm/dibbs-enhanced").retrieve().body(String.class)).thenReturn(algorithmJson);
+        when(objectMapper.readTree(algorithmJson)).thenReturn(mockAlgorithmConfig);
+        doThrow(new RuntimeException("PUT API failure")).when(recordLinkageClient).put();
+
+        DataElementsDTO dataElementsDTO = mock(DataElementsDTO.class);
+
+        assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.saveDataElementConfiguration(dataElementsDTO);
+        });
+    }
+
 }
