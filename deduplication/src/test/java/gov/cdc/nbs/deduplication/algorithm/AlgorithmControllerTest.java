@@ -1,32 +1,25 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
-import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import gov.cdc.nbs.deduplication.algorithm.dto.DataElementRecord;
+import gov.cdc.nbs.deduplication.algorithm.dto.ExportConfigRecord;
+import gov.cdc.nbs.deduplication.algorithm.dto.MatchingConfigRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class AlgorithmControllerTest {
@@ -47,175 +40,56 @@ class AlgorithmControllerTest {
     }
 
     @Test
-    void testConfigureMatching() {
-        Map<String, Boolean> blockingCriteria = Map.of(
-                "FIRST_NAME", true,
-                "LAST_NAME", false
+    void testExportConfiguration() throws Exception {
+        // Mocking DataElementRecord list with real values
+        List<DataElementRecord> dataElements = List.of(
+                new DataElementRecord("firstName", 0.8, 0.9, 0.75),
+                new DataElementRecord("lastName", 1.2, 1.3, 0.85)
         );
 
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
-
-        List<Pass> passes = List.of(new Pass(
-                "TestPass",
-                "Description",
-                "0.1",
-                "0.9",
-                blockingCriteria,
-                List.of(),
-                kwargs
-        ));
-
-        MatchingConfigRequest request = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                passes
+        // Mocking MatchingConfigRecord with real values
+        List<MatchingConfigRecord> matchingConfiguration = List.of(
+                new MatchingConfigRecord(
+                        "pass1",
+                        "Pass 1 description",
+                        List.of("firstName", "lastName"),
+                        List.of(
+                                List.of("firstName", "Exact"),
+                                List.of("lastName", "jarowinkler")
+                        ),
+                        "0.5",
+                        "0.9",
+                        true
+                ),
+                new MatchingConfigRecord(
+                        "pass2",
+                        "Pass 2 description",
+                        List.of("address"),
+                        List.of(
+                                List.of("address", "jarowinkler")
+                        ),
+                        "0.3",
+                        "0.8",
+                        false
+                )
         );
 
-        doNothing().when(algorithmService).configureMatching(request);
+        // Creating the full ExportConfigRecord object
+        ExportConfigRecord exportConfigRecord = new ExportConfigRecord(dataElements, matchingConfiguration);
 
-        algorithmController.configureMatching(request);
+        // Mocking the service to return the expected byte array
+        byte[] mockJsonBytes = objectMapper.writeValueAsBytes(exportConfigRecord);
+        when(algorithmService.generateExportJson(exportConfigRecord)).thenReturn(mockJsonBytes);
 
-        verify(algorithmService, times(1)).configureMatching(request);
-    }
-
-    @Test
-    void testGetMatchingConfiguration() {
-        Map<String, Boolean> blockingCriteria = Map.of(
-                "FIRST_NAME", true,
-                "LAST_NAME", false
-        );
-
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
-
-        List<Pass> passes = List.of(new Pass(
-                "TestPass",
-                "Description",
-                "0.1",
-                "0.9",
-                blockingCriteria,
-                List.of(),
-                kwargs
-        ));
-
-        when(algorithmService.getMatchingConfiguration()).thenReturn(passes);
-
-        Map<String, List<Pass>> actualResponse = algorithmController.getMatchingConfiguration();
-
-        assertNotNull(actualResponse);
-        assertTrue(actualResponse.containsKey("passes"));
-        assertEquals(passes, actualResponse.get("passes"));
-    }
-
-    @Test
-    void testUpdateAlgorithm() {
-        Map<String, Boolean> blockingCriteria = Map.of(
-                "FIRST_NAME", true,
-                "LAST_NAME", false
-        );
-
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
-
-        List<Pass> passes = List.of(new Pass(
-                "TestPass",
-                "Description",
-                "0.1",
-                "0.9",
-                blockingCriteria,
-                List.of(),
-                kwargs
-        ));
-
-        MatchingConfigRequest request = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                passes
-        );
-
-        doNothing().when(algorithmService).updateDibbsConfigurations(request);
-
-        algorithmController.updateAlgorithm(request);
-
-        verify(algorithmService, times(1)).updateDibbsConfigurations(request);
-    }
-
-    @Test
-    void testExportConfiguration() throws IOException, NoSuchFieldException, IllegalAccessException {
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
-
-        List<Pass> mockPasses = List.of(new Pass(
-                "pass1",
-                "description",
-                "0.1",
-                "0.9",
-                Map.of("FIRST_NAME", true, "LAST_NAME", false),
-                List.of(),
-                kwargs
-        ));
-
-        when(algorithmService.getMatchingConfiguration()).thenReturn(mockPasses);
-
-        String expectedJson = objectMapper.writeValueAsString(mockPasses);
-        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
-        doReturn(expectedJson).when(mockObjectMapper).writeValueAsString(mockPasses);
-
-        injectMockObjectMapper(mockObjectMapper);
-
-        ResponseEntity<InputStreamResource> response = algorithmController.exportConfiguration();
-
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("attachment; filename="));
-
-        ByteArrayInputStream inputStream = (ByteArrayInputStream) response.getBody().getInputStream();
-        String actualJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        assertEquals(expectedJson, actualJson);
-
-        verify(mockObjectMapper).writeValueAsString(mockPasses);
-    }
-
-    @Test
-    void testImportConfiguration() throws Exception {
-        MatchingConfigRequest mockConfigRequest = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                List.of()
-        );
-
-        doNothing().when(algorithmService).saveMatchingConfiguration(mockConfigRequest);
-
-        String jsonRequest = objectMapper.writeValueAsString(mockConfigRequest);
-
-        assertNotNull(jsonRequest, "Request JSON is null");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/deduplication/import-configuration")
+        // Perform the POST request to the export endpoint
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/deduplication/export-configuration")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))
+                        .content(objectMapper.writeValueAsString(exportConfigRecord)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Configuration imported successfully."));
+                .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=deduplication_config.json"))
+                .andExpect(MockMvcResultMatchers.content().bytes(mockJsonBytes));
 
-        verify(algorithmService).saveMatchingConfiguration(mockConfigRequest);
-    }
-
-    private void injectMockObjectMapper(ObjectMapper mockObjectMapper) throws NoSuchFieldException, IllegalAccessException {
-        java.lang.reflect.Field field = AlgorithmController.class.getDeclaredField("objectMapper");
-        field.setAccessible(true);
-        field.set(algorithmController, mockObjectMapper);
+        // Verify that the service method was called once with the correct argument
+        verify(algorithmService, times(1)).generateExportJson(exportConfigRecord);
     }
 }
