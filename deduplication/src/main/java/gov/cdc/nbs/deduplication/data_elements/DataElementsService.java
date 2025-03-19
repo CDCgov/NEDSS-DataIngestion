@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gov.cdc.nbs.deduplication.data_elements.dto.DataElement;
+import gov.cdc.nbs.deduplication.data_elements.dto.DataElements;
 import gov.cdc.nbs.deduplication.data_elements.exception.DataElementConfigurationException;
 import gov.cdc.nbs.deduplication.data_elements.repository.DataElementConfigurationRepository;
 import org.slf4j.Logger;
@@ -11,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import gov.cdc.nbs.deduplication.data_elements.dto.DataElementsDTO;
 import org.springframework.web.client.RestClient;
-
-import java.util.Map;
 
 @Service
 public class DataElementsService {
@@ -34,7 +33,7 @@ public class DataElementsService {
         this.objectMapper = objectMapper;
     }
 
-    public void saveDataElementConfiguration(DataElementsDTO dataElementsDTO) {
+    public void saveDataElementConfiguration(DataElements dataElements) {
         try {
             // Step 1: Fetch current algorithm configuration using RestClient
             JsonNode algorithmConfig = fetchAlgorithmConfiguration();
@@ -44,12 +43,12 @@ public class DataElementsService {
             if (passes.isArray()) {
                 for (JsonNode pass : passes) {
                     JsonNode kwargs = pass.path("kwargs");
-                    updateKwargs(kwargs, dataElementsDTO.dataElements());
+                    updateKwargs(kwargs, dataElements);
                 }
             }
 
             // Step 3: Save to repository
-            repository.saveDataElementConfiguration(dataElementsDTO);
+            repository.saveDataElementConfiguration(dataElements);
 
             // Step 4: Log and send the updated configuration to the PUT API using RestClient
             updateAlgorithmConfiguration(algorithmConfig);
@@ -80,26 +79,48 @@ public class DataElementsService {
     }
 
     // Step 4: Send updated configuration to the PUT API
+    // Does not call this function-- why?
     public void updateAlgorithmConfiguration(JsonNode algorithmConfig) throws DataElementConfigurationException {
         try {
+            // Serialize the algorithmConfig to JSON
             String updatedConfigJson = objectMapper.writeValueAsString(algorithmConfig);
+            log.info("Serialized Updated Algorithm Configuration: {}", updatedConfigJson);
 
-            recordLinkageClient.put()
+            // Sending the request using RestClient
+            var responseEntity = recordLinkageClient.put()
                     .uri("/algorithm/dibbs-enhanced")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .body(updatedConfigJson)
                     .retrieve()
-                    .body(Void.class);
+                    .toEntity(String.class);
+
+            if (responseEntity != null) {
+                log.info("Response Status Code: {}", responseEntity.getStatusCode());
+                if (responseEntity.getBody() != null) {
+                    log.info("Response Body: {}", responseEntity.getBody());
+                }
+            } else {
+                log.error("Received null response from the server.");
+            }
+
+            if (responseEntity != null && !responseEntity.getStatusCode().is2xxSuccessful()) {
+                log.error("Error: Failed to update algorithm configuration. Status: {}", responseEntity.getStatusCode());
+                throw new DataElementConfigurationException("Failed to update algorithm configuration, status: " + responseEntity.getStatusCode());
+            }
+
+            log.info("Successfully updated algorithm configuration");
         } catch (JsonProcessingException e) {
+            log.error("Error serializing algorithm configuration to JSON", e);
             throw new DataElementConfigurationException("Error serializing algorithm configuration to JSON", e);
         } catch (Exception e) {
+            log.error("Failed to update algorithm configuration", e);
             throw new DataElementConfigurationException("Failed to update algorithm configuration", e);
         }
     }
 
-
-    public void updateKwargs(JsonNode kwargs, Map<String, DataElementsDTO.DataElementConfig> dataElements) {
+    // Update kwargs with the new DataElements
+    public void updateKwargs(JsonNode kwargs, DataElements dataElements) {
         if (!(kwargs instanceof ObjectNode)) {
             throw new IllegalArgumentException("kwargs must be an ObjectNode");
         }
@@ -116,46 +137,39 @@ public class DataElementsService {
             logOddsNode = kwargsObject.putObject("log_odds"); // Ensure it's created
         }
 
-        // Map DataElementsDTO fields to API field names
-        Map<String, String> fieldMapping = Map.ofEntries(
-                Map.entry("firstName", "FIRST_NAME"),
-                Map.entry("lastName", "LAST_NAME"),
-                Map.entry("dateOfBirth", "BIRTHDATE"),
-                Map.entry("currentSex", "SEX"),
-                Map.entry("race", "RACE"),
-                Map.entry("suffix", "SUFFIX"),
-                Map.entry("streetAddress1", "ADDRESS"),
-                Map.entry("city", "CITY"),
-                Map.entry("state", "STATE"),
-                Map.entry("zip", "ZIPCODE"),
-                Map.entry("county", "COUNTY"),
-                Map.entry("telephone", "PHONE"),
-                Map.entry("telecom", "PHONE"),
-                Map.entry("email", "EMAIL"),
-                Map.entry("accountNumber", "AN"),
-                Map.entry("driversLicenseNumber", "DL"),
-                Map.entry("medicaidNumber", "MA"),
-                Map.entry("medicalRecordNumber", "MR"),
-                Map.entry("medicareNumber", "MC"),
-                Map.entry("nationalUniqueIdentifier", "NI"),
-                Map.entry("patientExternalIdentifier", "PI"),
-                Map.entry("patientInternalIdentifier", "PT"),
-                Map.entry("personNumber", "PN"),
-                Map.entry("socialSecurity", "SS"),
-                Map.entry("visaPassport", "VS"),
-                Map.entry("wicIdentifier", "WC")
-        );
+        // Map DataElements fields to API field names (?)
+        updateField(thresholdsNode, logOddsNode, "firstName", dataElements.firstName());
+        updateField(thresholdsNode, logOddsNode, "lastName", dataElements.lastName());
+        updateField(thresholdsNode, logOddsNode, "dateOfBirth", dataElements.dateOfBirth());
+        updateField(thresholdsNode, logOddsNode, "currentSex", dataElements.currentSex());
+        updateField(thresholdsNode, logOddsNode, "race", dataElements.race());
+        updateField(thresholdsNode, logOddsNode, "suffix", dataElements.suffix());
+        updateField(thresholdsNode, logOddsNode, "streetAddress1", dataElements.streetAddress1());
+        updateField(thresholdsNode, logOddsNode, "city", dataElements.city());
+        updateField(thresholdsNode, logOddsNode, "state", dataElements.state());
+        updateField(thresholdsNode, logOddsNode, "zip", dataElements.zip());
+        updateField(thresholdsNode, logOddsNode, "county", dataElements.county());
+        updateField(thresholdsNode, logOddsNode, "telephone", dataElements.telephone());
+        updateField(thresholdsNode, logOddsNode, "telecom", dataElements.telecom());
+        updateField(thresholdsNode, logOddsNode, "email", dataElements.email());
+        updateField(thresholdsNode, logOddsNode, "accountNumber", dataElements.accountNumber());
+        updateField(thresholdsNode, logOddsNode, "driversLicenseNumber", dataElements.driversLicenseNumber());
+        updateField(thresholdsNode, logOddsNode, "medicaidNumber", dataElements.medicaidNumber());
+        updateField(thresholdsNode, logOddsNode, "medicalRecordNumber", dataElements.medicalRecordNumber());
+        updateField(thresholdsNode, logOddsNode, "medicareNumber", dataElements.medicareNumber());
+        updateField(thresholdsNode, logOddsNode, "nationalUniqueIdentifier", dataElements.nationalUniqueIdentifier());
+        updateField(thresholdsNode, logOddsNode, "patientExternalIdentifier", dataElements.patientExternalIdentifier());
+        updateField(thresholdsNode, logOddsNode, "patientInternalIdentifier", dataElements.patientInternalIdentifier());
+        updateField(thresholdsNode, logOddsNode, "personNumber", dataElements.personNumber());
+        updateField(thresholdsNode, logOddsNode, "socialSecurity", dataElements.socialSecurity());
+        updateField(thresholdsNode, logOddsNode, "visaPassport", dataElements.visaPassport());
+        updateField(thresholdsNode, logOddsNode, "wicIdentifier", dataElements.wicIdentifier());
+    }
 
-        ObjectNode finalThresholdsNode = thresholdsNode;
-        ObjectNode finalLogOddsNode = logOddsNode;
-        dataElements.forEach((key, value) -> {
-            if (fieldMapping.containsKey(key)) {
-                String apiField = fieldMapping.get(key);
-                if (value.active()) {
-                    finalThresholdsNode.put(apiField, value.threshold());
-                    finalLogOddsNode.put(apiField, value.logOdds());
-                }
-            }
-        });
+    private void updateField(ObjectNode thresholdsNode, ObjectNode logOddsNode, String fieldName, DataElement dataElement) {
+        if (dataElement.active()) {
+            thresholdsNode.put(fieldName, dataElement.threshold());
+            logOddsNode.put(fieldName, dataElement.logOdds());
+        }
     }
 }
