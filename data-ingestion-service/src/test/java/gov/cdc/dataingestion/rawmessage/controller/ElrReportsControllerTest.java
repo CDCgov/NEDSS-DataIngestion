@@ -52,7 +52,7 @@ class ElrReportsControllerTest {
         rawElrDto.setPayload(hl7Payload);
         rawElrDto.setValidationActive(true);
         rawElrDto.setVersion("1");
-
+        rawElrDto.setCustomMapper("");
         verify(rawELRService).submission(rawElrDto);
 
     }
