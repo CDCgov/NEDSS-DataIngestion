@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
 
-public class DataElementsDTOTest {
+class DataElementsDTOTest {
 
     @Test
-    public void testDataElementsDTOConstructorAndGetters() {
+    void testDataElementsDTOConstructorAndGetters() {
         // Arrange
         DataElementsDTO.DataElementConfig config = new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8);
         Map<String, DataElementsDTO.DataElementConfig> dataElementsMap = Map.of("firstName", config);
@@ -25,7 +25,7 @@ public class DataElementsDTOTest {
     }
 
     @Test
-    public void testDataElementConfigFields() {
+    void testDataElementConfigFields() {
         // Arrange
         DataElementsDTO.DataElementConfig config = new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8);
 
@@ -37,7 +37,7 @@ public class DataElementsDTOTest {
     }
 
     @Test
-    public void testDataElementsDTOEquality() {
+    void testDataElementsDTOEquality() {
         // Arrange
         DataElementsDTO.DataElementConfig config1 = new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8);
         DataElementsDTO.DataElementConfig config2 = new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8);
@@ -53,7 +53,7 @@ public class DataElementsDTOTest {
     }
 
     @Test
-    public void testEmptyDataElementsDTO() {
+    void testEmptyDataElementsDTO() {
         // Arrange
         DataElementsDTO dto = new DataElementsDTO(Map.of());
 

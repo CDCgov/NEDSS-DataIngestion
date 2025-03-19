@@ -27,7 +27,7 @@ class DataElementConfigurationRepositoryTest {
     private DataElementsDTO dataElementsDTO;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
 
         // Sample data for the test

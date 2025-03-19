@@ -32,4 +32,32 @@ class DataElementConfigurationExceptionTest {
         assertEquals(message, exception.getMessage());
         assertNull(exception.getCause());
     }
+
+    @Test
+    void testExceptionWithNullMessageAndCause() {
+        // Given
+        String message = null;
+        Throwable cause = new RuntimeException("Root cause");
+
+        // When
+        DataElementConfigurationException exception = new DataElementConfigurationException(message, cause);
+
+        // Then
+        assertNull(exception.getMessage());
+        assertEquals(cause, exception.getCause());
+    }
+
+    @Test
+    void testExceptionWithNullMessageAndNullCause() {
+        // Given
+        String message = null;
+        Throwable cause = null;
+
+        // When
+        DataElementConfigurationException exception = new DataElementConfigurationException(message, cause);
+
+        // Then
+        assertNull(exception.getMessage());
+        assertNull(exception.getCause());
+    }
 }
