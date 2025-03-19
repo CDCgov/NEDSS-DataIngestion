@@ -37,16 +37,7 @@ public class DataElementsService {
     public void saveDataElementConfiguration(DataElementsDTO dataElementsDTO) {
         try {
             // Step 1: Fetch current algorithm configuration using RestClient
-            String algorithmConfigJson = recordLinkageClient.get()
-                    .uri("/algorithm/dibbs-enhanced")
-                    .retrieve()
-                    .body(String.class);
-
-            if (algorithmConfigJson == null) {
-                throw new DataElementConfigurationException("Failed to retrieve current algorithm configuration.");
-            }
-
-            JsonNode algorithmConfig = objectMapper.readTree(algorithmConfigJson);
+            JsonNode algorithmConfig = fetchAlgorithmConfiguration();
 
             // Step 2: Update `log_odds` and `thresholds` in `kwargs`
             JsonNode passes = algorithmConfig.path("passes");
@@ -61,15 +52,7 @@ public class DataElementsService {
             repository.saveDataElementConfiguration(dataElementsDTO);
 
             // Step 4: Log and send the updated configuration to the PUT API using RestClient
-            String updatedConfigJson = objectMapper.writeValueAsString(algorithmConfig);
-
-            recordLinkageClient.put()
-                    .uri("/algorithm/dibbs-enhanced")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .body(updatedConfigJson)
-                    .retrieve()
-                    .body(Void.class);
+            updateAlgorithmConfiguration(algorithmConfig);
 
         } catch (JsonProcessingException e) {
             log.error("Error parsing JSON while updating algorithm configuration", e);
@@ -78,29 +61,91 @@ public class DataElementsService {
         }
     }
 
-    private void updateKwargs(JsonNode kwargs, Map<String, DataElementsDTO.DataElementConfig> dataElements) {
+    // Step 1: Fetch current algorithm configuration
+    public JsonNode fetchAlgorithmConfiguration() throws DataElementConfigurationException, JsonProcessingException {
+        try {
+            String algorithmConfigJson = recordLinkageClient.get()
+                    .uri("/algorithm/dibbs-enhanced")
+                    .retrieve()
+                    .body(String.class);
+
+            if (algorithmConfigJson == null) {
+                throw new DataElementConfigurationException("Failed to retrieve current algorithm configuration.");
+            }
+
+            return objectMapper.readTree(algorithmConfigJson);
+        } catch (RuntimeException e) {
+            throw new DataElementConfigurationException("Failed to retrieve current algorithm configuration.", e);
+        }
+    }
+
+    // Step 4: Send updated configuration to the PUT API
+    public void updateAlgorithmConfiguration(JsonNode algorithmConfig) throws DataElementConfigurationException, JsonProcessingException {
+        String updatedConfigJson = objectMapper.writeValueAsString(algorithmConfig);
+
+        recordLinkageClient.put()
+                .uri("/algorithm/dibbs-enhanced")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(updatedConfigJson)
+                .retrieve()
+                .body(Void.class);
+    }
+
+    public void updateKwargs(JsonNode kwargs, Map<String, DataElementsDTO.DataElementConfig> dataElements) {
+        // Ensure kwargs is an ObjectNode
+        if (!(kwargs instanceof ObjectNode)) {
+            throw new IllegalArgumentException("kwargs must be an ObjectNode");
+        }
+        ObjectNode kwargsObject = (ObjectNode) kwargs;
+
+        // Get or create the thresholds and log_odds nodes
+        ObjectNode thresholdsNode = (ObjectNode) kwargsObject.get("thresholds");
+        if (thresholdsNode == null) {
+            thresholdsNode = kwargsObject.putObject("thresholds"); // Ensure it's created
+        }
+
+        ObjectNode logOddsNode = (ObjectNode) kwargsObject.get("log_odds");
+        if (logOddsNode == null) {
+            logOddsNode = kwargsObject.putObject("log_odds"); // Ensure it's created
+        }
+
         // Map DataElementsDTO fields to API field names
-        Map<String, String> fieldMapping = Map.of(
-                "firstName", "FIRST_NAME",
-                "lastName", "LAST_NAME",
-                "dateOfBirth", "BIRTHDATE",
-                "email", "EMAIL"
+        Map<String, String> fieldMapping = Map.ofEntries(
+                Map.entry("firstName", "FIRST_NAME"),
+                Map.entry("lastName", "LAST_NAME"),
+                Map.entry("dateOfBirth", "BIRTHDATE"),
+                Map.entry("currentSex", "SEX"),
+                Map.entry("race", "RACE"),
+                Map.entry("suffix", "SUFFIX"),
+                Map.entry("streetAddress", "ADDRESS"),
+                Map.entry("city", "CITY"),
+                Map.entry("state", "STATE"),
+                Map.entry("zip", "ZIPCODE"),
+                Map.entry("county", "COUNTY"),
+                Map.entry("telephone", "PHONE"),
+                Map.entry("email", "EMAIL"),
+                Map.entry("accountNumber", "AN"),
+                Map.entry("driversLicenseNumber", "DL"),
+                Map.entry("medicaidNumber", "MA"),
+                Map.entry("medicareNumber", "MC"),
+                Map.entry("nationalUniqueIdentifier", "NI"),
+                Map.entry("patientExternalIdentifier", "PI"),
+                Map.entry("patientInternalIdentifier", "PT"),
+                Map.entry("personNumber", "PN"),
+                Map.entry("socialSecurity", "SS"),
+                Map.entry("visaPassport", "VS"),
+                Map.entry("wicIdentifier", "WC")
         );
 
-        ObjectNode thresholdsNode = (ObjectNode) kwargs.path("thresholds");
-        ObjectNode logOddsNode = (ObjectNode) kwargs.path("log_odds");
-
-        // Remove fields that are not active
-        thresholdsNode.retain();
-        logOddsNode.retain();
-
+        ObjectNode finalThresholdsNode = thresholdsNode;
+        ObjectNode finalLogOddsNode = logOddsNode;
         dataElements.forEach((key, value) -> {
             if (fieldMapping.containsKey(key)) {
                 String apiField = fieldMapping.get(key);
                 if (value.active()) {
-                    // Update only active fields
-                    thresholdsNode.put(apiField, value.threshold());
-                    logOddsNode.put(apiField, value.logOdds());
+                    finalThresholdsNode.put(apiField, value.threshold());
+                    finalLogOddsNode.put(apiField, value.logOdds());
                 }
             }
         });

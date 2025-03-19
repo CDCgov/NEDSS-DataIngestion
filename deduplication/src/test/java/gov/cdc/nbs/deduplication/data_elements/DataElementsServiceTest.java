@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gov.cdc.nbs.deduplication.data_elements.dto.DataElementsDTO;
 import gov.cdc.nbs.deduplication.data_elements.exception.DataElementConfigurationException;
+import gov.cdc.nbs.deduplication.data_elements.repository.DataElementConfigurationRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
@@ -28,10 +28,10 @@ class DataElementsServiceTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private DataElementsService service;
+    private DataElementsService dataElementsService;
 
     @Mock
-    private RestClient.RequestHeadersUriSpec mockRequestHeadersUriSpec;
+    private DataElementConfigurationRepository repository;
 
     @BeforeEach
     void setUp() {
@@ -39,80 +39,127 @@ class DataElementsServiceTest {
     }
 
     @Test
-    void testSaveDataElementConfiguration_Success() throws Exception {
-        // Mocking the JsonNode response
-        JsonNode mockJsonResponse = mock(JsonNode.class);
-        JsonNode passesNode = mock(JsonNode.class);
-        JsonNode passNode = mock(JsonNode.class);
-        JsonNode kwargsNode = mock(JsonNode.class);
-        ObjectNode thresholdsNode = mock(ObjectNode.class);
-        ObjectNode logOddsNode = mock(ObjectNode.class);
+    void testFetchAlgorithmConfiguration_success() throws Exception {
+        // Arrange
+        String algorithmConfigJson = "{ \"passes\": [] }";
+        JsonNode expectedNode = mock(JsonNode.class);
 
-        // Mock the "passes" field to return a list with one pass
-        when(mockJsonResponse.get("passes")).thenReturn(passesNode);
-        when(passesNode.isArray()).thenReturn(true);
-        when(passesNode.size()).thenReturn(1);  // Ensure that it returns a valid array
-        when(passesNode.get(0)).thenReturn(passNode);  // Mock first "pass" node
+        // Mock RestClient GET chain
+        RestClient.RequestHeadersUriSpec mockUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
 
-        // Mock the "kwargs" and its children (thresholds and log_odds)
-        when(passNode.get("kwargs")).thenReturn(kwargsNode);
-        when(kwargsNode.path("thresholds")).thenReturn(thresholdsNode);
-        when(kwargsNode.path("log_odds")).thenReturn(logOddsNode);
+        when(recordLinkageClient.get()).thenReturn(mockUriSpec);
+        when(mockUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockUriSpec);
+        when(mockUriSpec.retrieve()).thenReturn(mockResponseSpec); // Retrieve method
 
-        // Mock the ObjectMapper to return the mock response
-        when(objectMapper.readTree(anyString())).thenReturn(mockJsonResponse);
+        when(mockResponseSpec.body(String.class)).thenReturn(algorithmConfigJson);
 
-        // Mock the WebClient (RestClient) and the HTTP call
-        when(recordLinkageClient.get()).thenReturn(mockRequestHeadersUriSpec);  // Mock GET request
-        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersUriSpec);  // Mock URI
-        when(mockRequestHeadersUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));  // Mock retrieve()
-        when(mockRequestHeadersUriSpec.retrieve().body(String.class)).thenReturn("{ \"passes\": [{\"kwargs\": {\"thresholds\": {}, \"log_odds\": {}}}] }");  // Mock response body
+        when(objectMapper.readTree(algorithmConfigJson)).thenReturn(expectedNode);
 
-        // Create a sample DataElementsDTO object
-        DataElementsDTO dataElementsDTO = new DataElementsDTO(Map.of("firstName", new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8)));
+        // Act
+        JsonNode result = dataElementsService.fetchAlgorithmConfiguration();
 
-        // Execute the method
-        service.saveDataElementConfiguration(dataElementsDTO);
-
-        // Verify that the WebClient methods were called correctly
-        verify(recordLinkageClient, times(1)).get();
-        verify(mockRequestHeadersUriSpec, times(1)).uri(anyString());
-        verify(mockRequestHeadersUriSpec, times(1)).retrieve();
-        verify(mockRequestHeadersUriSpec.retrieve(), times(1)).body(String.class);
-
-        // Verify that the thresholds and log_odds were updated for the mock data element
-        verify(thresholdsNode, times(1)).put("FIRST_NAME", 0.8); // threshold value
-        verify(logOddsNode, times(1)).put("FIRST_NAME", 1.5); // logOdds value
+        // Assert
+        assertNotNull(result);
+        assertEquals(expectedNode, result);
     }
 
+    @Test
+    void testFetchAlgorithmConfiguration_failure() throws DataElementConfigurationException {
+        // Arrange
+        RestClient.RequestHeadersUriSpec mockUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
+        when(recordLinkageClient.get()).thenReturn(mockUriSpec);
+        when(mockUriSpec.uri("/algorithm/dibbs-enhanced")).thenThrow(new RuntimeException("API error"));
+
+        // Act & Assert
+        DataElementConfigurationException exception = assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.fetchAlgorithmConfiguration();
+        });
+        assertEquals("Failed to retrieve current algorithm configuration.", exception.getMessage());
+    }
+
+
+    @Test
+    void testUpdateAlgorithmConfiguration_success() throws Exception {
+        // Arrange
+        JsonNode mockAlgorithmConfig = mock(JsonNode.class);
+        String updatedConfigJson = "{ \"passes\": [] }";
+
+        when(objectMapper.writeValueAsString(mockAlgorithmConfig)).thenReturn(updatedConfigJson);
+
+        // Mock RestClient PUT chain
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(updatedConfigJson)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));
+
+        // Act
+        dataElementsService.updateAlgorithmConfiguration(mockAlgorithmConfig);
+
+        // Assert
+        verify(recordLinkageClient, times(1)).put();
+    }
+
+    @Test
+    void testUpdateKwargs() {
+        // Arrange
+        ObjectNode kwargs = objectMapper.createObjectNode(); // Create a real ObjectNode
+
+        kwargs.putObject("thresholds");
+        kwargs.putObject("log_odds");
+
+        Map<String, DataElementsDTO.DataElementConfig> dataElements = new HashMap<>();
+
+        // Mock active data element
+        DataElementsDTO.DataElementConfig activeConfig = new DataElementsDTO.DataElementConfig(true, 0.5, 1.0, 0.3);
+        DataElementsDTO.DataElementConfig inactiveConfig = new DataElementsDTO.DataElementConfig(false, 0.7, 1.2, 0.3);
+
+        // Map data elements to API field names
+        dataElements.put("firstName", activeConfig);  // Should be updated
+        dataElements.put("lastName", inactiveConfig); // Should NOT be updated
+
+        // Act
+        dataElementsService.updateKwargs(kwargs, dataElements);
+
+        // Extract threshold and log_odds nodes
+        JsonNode thresholdsNode = kwargs.path("thresholds");
+        JsonNode logOddsNode = kwargs.path("log_odds");
+
+        // Assert: Check values for active elements
+        assertEquals(0.3, thresholdsNode.get("FIRST_NAME").asDouble(), 0.001);
+        assertEquals(1.0, logOddsNode.get("FIRST_NAME").asDouble(), 0.001);
+
+        // Assert: Ensure inactive elements are NOT updated
+        assertFalse(thresholdsNode.has("LAST_NAME"));
+        assertFalse(logOddsNode.has("LAST_NAME"));
+    }
 
 
     @Test
     void testSaveDataElementConfiguration_JsonProcessingException() throws JsonProcessingException {
-        // Given
-        DataElementsDTO dataElementsDTO = new DataElementsDTO(Map.of("firstName", new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8)));
+        // Arrange
+        DataElementsDTO dataElementsDTO = mock(DataElementsDTO.class);
 
         when(objectMapper.readTree(anyString())).thenThrow(new JsonProcessingException("Invalid JSON") {});
 
-        // When & Then
-        DataElementConfigurationException exception = assertThrows(DataElementConfigurationException.class, () ->
-                service.saveDataElementConfiguration(dataElementsDTO)
-        );
-
-        assertEquals("Failed to update algorithm configuration", exception.getMessage());
-        verify(recordLinkageClient, never()).put();
+        // Act & Assert
+        assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.saveDataElementConfiguration(dataElementsDTO);
+        });
     }
 
     @Test
     void testSaveDataElementConfiguration_ApiFailure() {
-        // Mock the GET request to throw an exception
         when(recordLinkageClient.get()).thenThrow(new RuntimeException("API Failure"));
 
-        DataElementsDTO dataElementsDTO = new DataElementsDTO(Map.of("firstName", new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8)));
+        DataElementsDTO dataElementsDTO = mock(DataElementsDTO.class);
 
         // Verify the exception
         assertThrows(RuntimeException.class, () -> {
-            service.saveDataElementConfiguration(dataElementsDTO);
+            dataElementsService.saveDataElementConfiguration(dataElementsDTO);
         });
     }
 }
