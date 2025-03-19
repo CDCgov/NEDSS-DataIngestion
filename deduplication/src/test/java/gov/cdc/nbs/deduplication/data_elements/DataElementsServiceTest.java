@@ -215,6 +215,44 @@ class DataElementsServiceTest {
     }
 
     @Test
+    void testUpdateAlgorithmConfiguration_JsonProcessingException() throws JsonProcessingException {
+        // Arrange
+        JsonNode mockAlgorithmConfig = mock(JsonNode.class);
+
+        // Simulate a JSON processing exception when converting the object to a string
+        when(objectMapper.writeValueAsString(mockAlgorithmConfig)).thenThrow(new JsonProcessingException("Invalid JSON") {});
+
+        // Act & Assert
+        assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.updateAlgorithmConfiguration(mockAlgorithmConfig);
+        });
+    }
+
+    @Test
+    void testUpdateAlgorithmConfiguration_failure() throws Exception {
+        // Arrange
+        JsonNode mockAlgorithmConfig = mock(JsonNode.class);
+        String updatedConfigJson = "{ \"passes\": [] }";
+
+        when(objectMapper.writeValueAsString(mockAlgorithmConfig)).thenReturn(updatedConfigJson);
+
+        // Mock RestClient PUT chain to throw an exception
+        RestClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(recordLinkageClient.put()).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.body(updatedConfigJson)).thenReturn(mockRequestBodyUriSpec);
+        when(mockRequestBodyUriSpec.retrieve()).thenThrow(new RuntimeException("API failure"));
+
+        // Act & Assert
+        assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.updateAlgorithmConfiguration(mockAlgorithmConfig);
+        });
+    }
+
+
+    @Test
     void testSaveDataElementConfiguration_JsonProcessingException() throws JsonProcessingException {
         // Arrange
         DataElementsDTO dataElementsDTO = mock(DataElementsDTO.class);

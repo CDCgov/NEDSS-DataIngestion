@@ -80,17 +80,24 @@ public class DataElementsService {
     }
 
     // Step 4: Send updated configuration to the PUT API
-    public void updateAlgorithmConfiguration(JsonNode algorithmConfig) throws DataElementConfigurationException, JsonProcessingException {
-        String updatedConfigJson = objectMapper.writeValueAsString(algorithmConfig);
+    public void updateAlgorithmConfiguration(JsonNode algorithmConfig) throws DataElementConfigurationException {
+        try {
+            String updatedConfigJson = objectMapper.writeValueAsString(algorithmConfig);
 
-        recordLinkageClient.put()
-                .uri("/algorithm/dibbs-enhanced")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(updatedConfigJson)
-                .retrieve()
-                .body(Void.class);
+            recordLinkageClient.put()
+                    .uri("/algorithm/dibbs-enhanced")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(updatedConfigJson)
+                    .retrieve()
+                    .body(Void.class);
+        } catch (JsonProcessingException e) {
+            throw new DataElementConfigurationException("Error serializing algorithm configuration to JSON", e);
+        } catch (Exception e) {
+            throw new DataElementConfigurationException("Failed to update algorithm configuration", e);
+        }
     }
+
 
     public void updateKwargs(JsonNode kwargs, Map<String, DataElementsDTO.DataElementConfig> dataElements) {
         if (!(kwargs instanceof ObjectNode)) {
