@@ -26,7 +26,7 @@ class DataElementConfigurationExceptionTest {
         String message = "Test exception message";
 
         // When
-        DataElementConfigurationException exception = new DataElementConfigurationException(message, null);
+        DataElementConfigurationException exception = new DataElementConfigurationException(message);
 
         // Then
         assertEquals(message, exception.getMessage());

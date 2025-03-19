@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.data_elements;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import gov.cdc.nbs.deduplication.data_elements.dto.DataElementsDTO;
 import gov.cdc.nbs.deduplication.data_elements.exception.DataElementConfigurationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,33 +38,54 @@ class DataElementsServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Disabled("Ignoring test due to issue with mocking WebClient")
     @Test
     void testSaveDataElementConfiguration_Success() throws Exception {
+        // Mocking the JsonNode response
         JsonNode mockJsonResponse = mock(JsonNode.class);
         JsonNode passesNode = mock(JsonNode.class);
+        JsonNode passNode = mock(JsonNode.class);
+        JsonNode kwargsNode = mock(JsonNode.class);
+        ObjectNode thresholdsNode = mock(ObjectNode.class);
+        ObjectNode logOddsNode = mock(ObjectNode.class);
 
+        // Mock the "passes" field to return a list with one pass
         when(mockJsonResponse.get("passes")).thenReturn(passesNode);
         when(passesNode.isArray()).thenReturn(true);
-        when(passesNode.size()).thenReturn(0);
+        when(passesNode.size()).thenReturn(1);  // Ensure that it returns a valid array
+        when(passesNode.get(0)).thenReturn(passNode);  // Mock first "pass" node
 
+        // Mock the "kwargs" and its children (thresholds and log_odds)
+        when(passNode.get("kwargs")).thenReturn(kwargsNode);
+        when(kwargsNode.path("thresholds")).thenReturn(thresholdsNode);
+        when(kwargsNode.path("log_odds")).thenReturn(logOddsNode);
+
+        // Mock the ObjectMapper to return the mock response
         when(objectMapper.readTree(anyString())).thenReturn(mockJsonResponse);
 
-        when(recordLinkageClient.get()).thenReturn(mockRequestHeadersUriSpec);  // Mock get()
-        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersUriSpec);  // Mock uri()
+        // Mock the WebClient (RestClient) and the HTTP call
+        when(recordLinkageClient.get()).thenReturn(mockRequestHeadersUriSpec);  // Mock GET request
+        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersUriSpec);  // Mock URI
         when(mockRequestHeadersUriSpec.retrieve()).thenReturn(mock(RestClient.ResponseSpec.class));  // Mock retrieve()
-        when(mockRequestHeadersUriSpec.retrieve().body(String.class)).thenReturn("{ \"passes\": [] }");  // Mock body()
+        when(mockRequestHeadersUriSpec.retrieve().body(String.class)).thenReturn("{ \"passes\": [{\"kwargs\": {\"thresholds\": {}, \"log_odds\": {}}}] }");  // Mock response body
 
+        // Create a sample DataElementsDTO object
         DataElementsDTO dataElementsDTO = new DataElementsDTO(Map.of("firstName", new DataElementsDTO.DataElementConfig(true, 1.5, 0.5, 0.8)));
 
+        // Execute the method
         service.saveDataElementConfiguration(dataElementsDTO);
 
+        // Verify that the WebClient methods were called correctly
         verify(recordLinkageClient, times(1)).get();
         verify(mockRequestHeadersUriSpec, times(1)).uri(anyString());
         verify(mockRequestHeadersUriSpec, times(1)).retrieve();
         verify(mockRequestHeadersUriSpec.retrieve(), times(1)).body(String.class);
 
+        // Verify that the thresholds and log_odds were updated for the mock data element
+        verify(thresholdsNode, times(1)).put("FIRST_NAME", 0.8); // threshold value
+        verify(logOddsNode, times(1)).put("FIRST_NAME", 1.5); // logOdds value
     }
+
+
 
     @Test
     void testSaveDataElementConfiguration_JsonProcessingException() throws JsonProcessingException {
