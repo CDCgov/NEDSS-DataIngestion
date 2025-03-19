@@ -106,7 +106,8 @@ class DataElementsServiceTest {
     @Test
     void testUpdateKwargs() {
         // Arrange
-        ObjectNode kwargs = objectMapper.createObjectNode(); // Create a real ObjectNode
+        ObjectMapper objectMapperTest = new ObjectMapper();
+        ObjectNode kwargs = objectMapperTest.createObjectNode();
 
         kwargs.putObject("thresholds");
         kwargs.putObject("log_odds");
@@ -170,6 +171,47 @@ class DataElementsServiceTest {
 
         assertEquals(0, kwargs.get("thresholds").size());
         assertEquals(0, kwargs.get("log_odds").size());
+    }
+
+    @Test
+    void testUpdateKwargs_withFieldMapping() {
+        // Arrange
+        ObjectMapper objectMapperTest = new ObjectMapper();
+        ObjectNode kwargs = objectMapperTest.createObjectNode(); // Ensure it's a valid ObjectNode
+
+        kwargs.set("thresholds", objectMapperTest.createObjectNode());
+        kwargs.set("log_odds", objectMapperTest.createObjectNode());
+
+        Map<String, DataElementsDTO.DataElementConfig> dataElements = new HashMap<>();
+
+        // Mock data elements
+        DataElementsDTO.DataElementConfig activeConfig = new DataElementsDTO.DataElementConfig(true, 0.5, 1.0, 0.3);
+        DataElementsDTO.DataElementConfig inactiveConfig = new DataElementsDTO.DataElementConfig(false, 0.7, 1.2, 0.3);
+        DataElementsDTO.DataElementConfig notMappedConfig = new DataElementsDTO.DataElementConfig(true, 0.5, 1.0, 0.3); // Key not in mapping
+
+        // Map data elements to API field names
+        dataElements.put("firstName", activeConfig);  // Should be updated (active and mapped)
+        dataElements.put("lastName", inactiveConfig); // Should NOT be updated (inactive)
+        dataElements.put("notMapped", notMappedConfig); // Should NOT be updated (not in field mapping)
+
+        // Act
+        dataElementsService.updateKwargs(kwargs, dataElements);
+
+        // Extract threshold and log_odds nodes
+        JsonNode thresholdsNode = kwargs.path("thresholds");
+        JsonNode logOddsNode = kwargs.path("log_odds");
+
+        // Assert: Check values for active elements (firstName should be updated)
+        assertEquals(0.3, thresholdsNode.get("FIRST_NAME").asDouble(), 0.001);
+        assertEquals(1.0, logOddsNode.get("FIRST_NAME").asDouble(), 0.001);
+
+        // Assert: Ensure inactive elements (lastName) are NOT updated
+        assertFalse(thresholdsNode.has("LAST_NAME"));
+        assertFalse(logOddsNode.has("LAST_NAME"));
+
+        // Assert: Ensure non-mapped elements (notMapped) are NOT updated
+        assertFalse(thresholdsNode.has("NOT_MAPPED"));
+        assertFalse(logOddsNode.has("NOT_MAPPED"));
     }
 
     @Test
