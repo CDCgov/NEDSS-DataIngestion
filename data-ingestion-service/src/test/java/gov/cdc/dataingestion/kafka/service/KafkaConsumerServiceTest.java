@@ -587,6 +587,7 @@ class KafkaConsumerServiceTest {
 
                 validatedELRModel.setRawMessage(testHL7Message);
                 nbsInterfaceModel.setPayload(testHL7Message);
+                when(iValidatedELRRepository.findById(anyString())).thenReturn(Optional.of(validatedELRModel));
 
                 doAnswer(invocation -> {
                     Runnable runnable = invocation.getArgument(0);
