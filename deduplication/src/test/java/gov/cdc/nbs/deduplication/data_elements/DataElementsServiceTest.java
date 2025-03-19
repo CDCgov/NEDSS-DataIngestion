@@ -80,6 +80,27 @@ class DataElementsServiceTest {
     }
 
     @Test
+    void testFetchAlgorithmConfiguration_nullResponse() {
+        // Arrange
+        // Simulate RestClient behavior when API returns null for the response
+        RestClient.RequestHeadersUriSpec mockUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
+        RestClient.ResponseSpec mockResponseSpec = mock(RestClient.ResponseSpec.class);
+        when(recordLinkageClient.get()).thenReturn(mockUriSpec);
+        when(mockUriSpec.uri("/algorithm/dibbs-enhanced")).thenReturn(mockUriSpec);
+        when(mockUriSpec.retrieve()).thenReturn(mockResponseSpec);
+        when(mockResponseSpec.body(String.class)).thenReturn(null); // Simulate null response
+
+        // Act & Assert
+        DataElementConfigurationException exception = assertThrows(DataElementConfigurationException.class, () -> {
+            dataElementsService.fetchAlgorithmConfiguration();
+        });
+
+        // Verify the exception message
+        assertEquals("Failed to retrieve current algorithm configuration.", exception.getMessage());
+    }
+
+
+    @Test
     void testUpdateAlgorithmConfiguration_success() throws Exception {
         // Arrange
         JsonNode mockAlgorithmConfig = mock(JsonNode.class);
