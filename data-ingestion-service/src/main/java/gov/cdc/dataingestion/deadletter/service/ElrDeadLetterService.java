@@ -6,13 +6,11 @@ import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
-import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
-import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
-import gov.cdc.dataingestion.rawmessage.service.RawElrService;
-import gov.cdc.dataingestion.report.repository.IRawElrRepository;
-import gov.cdc.dataingestion.report.repository.model.RawElrModel;
+import gov.cdc.dataingestion.report.repository.IRawELRRepository;
+import gov.cdc.dataingestion.report.repository.model.RawERLModel;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
@@ -35,10 +34,9 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class ElrDeadLetterService {
     private final IElrDeadLetterRepository dltRepository;
-    private final IRawElrRepository rawELRRepository;
+    private final IRawELRRepository rawELRRepository;
     private final IValidatedELRRepository validatedELRRepository;
     private final KafkaProducerService kafkaProducerService;
-    private final RawElrService rawELRService;
 
     @Value("${service.timezone}")
     private String tz = "UTC";
@@ -61,17 +59,17 @@ public class ElrDeadLetterService {
     private String rawTopic = "elr_raw";
 
     private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record does not exist in elr_dlt. Please try with a different ID";
-
+    private static final String START_END_DATE_RANGE_MSG = "The Start date must be earlier than or equal to the End date.";
+    private static final String DATE_FORMAT_MSG = "Date must be in MM-DD-YYYY format";
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
-            IRawElrRepository rawELRRepository,
+            IRawELRRepository rawELRRepository,
             IValidatedELRRepository validatedELRRepository,
-            KafkaProducerService kafkaProducerService, RawElrService rawELRService) {
+            KafkaProducerService kafkaProducerService) {
         this.dltRepository = dltRepository;
         this.rawELRRepository = rawELRRepository;
         this.validatedELRRepository = validatedELRRepository;
         this.kafkaProducerService = kafkaProducerService;
-        this.rawELRService = rawELRService;
     }
 
     public List<ElrDeadLetterDto> getAllErrorDltRecord() {
@@ -84,7 +82,40 @@ public class ElrDeadLetterService {
 
         return results;
     }
+    public List<ElrDeadLetterDto> getDltErrorsByDate(String startDate, String endDate) throws DateValidationException {
+        List<ElrDeadLetterDto> results = null;
+        try{
+            dateValidation(startDate, endDate);
+            String startDateWithTime=startDate+" 00:00:00";
+            String endDateWithTime=endDate+" 23:59:59";
 
+            Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordsByDate(startDateWithTime, endDateWithTime);
+            if (deadLetterELRModels.isPresent()) {
+                results = convertModelToDtoList(deadLetterELRModels.get());
+            }
+        } catch (Exception e) {
+            String errmsg = e.getMessage();
+            if(!errmsg.contains(START_END_DATE_RANGE_MSG)){
+                errmsg= errmsg+" "+DATE_FORMAT_MSG;
+            }
+            throw new DateValidationException(errmsg);
+        }
+        return results;
+    }
+    private void dateValidation(String startDateStr, String endDateStr) throws DateValidationException {
+        try{
+            String pattern="M-d-yyyy";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            sdf.setLenient(false);
+            Date startDate = sdf.parse(startDateStr);
+            Date endDate = sdf.parse(endDateStr);
+            if (startDate.after(endDate)) {
+                throw new DateValidationException(START_END_DATE_RANGE_MSG);
+            }
+        }catch(Exception e){
+            throw new DateValidationException(e.getMessage());
+        }
+    }
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         if (!isValidUUID(id)) {
             if (id.isEmpty()) {
@@ -103,7 +134,7 @@ public class ElrDeadLetterService {
 
 
 
-    public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException, KafkaProducerException {
+    public ElrDeadLetterDto updateAndReprocessingMessage(String id, String body) throws DeadLetterTopicException {
         var existingRecord = getDltRecordById(id);
         if(!existingRecord.getDltStatus().equalsIgnoreCase(EnumElrDltStatus.ERROR.name())) {
             throw new DeadLetterTopicException("Selected record is in REINJECTED state. Please either wait for the ERROR state to occur or select a different record.");
@@ -116,7 +147,7 @@ public class ElrDeadLetterService {
             if (!rawRecord.isPresent()) {
                 throw new DeadLetterTopicException(DEAD_LETTER_NULL_EXCEPTION);
             }
-            RawElrModel rawModel = rawRecord.get();
+            RawERLModel rawModel = rawRecord.get();
             rawModel.setPayload(body);
             rawModel.setUpdatedOn(getCurrentTimeStamp(tz));
 
@@ -208,34 +239,5 @@ public class ElrDeadLetterService {
         } catch (IllegalArgumentException e) {
             return false;
         }
-    }
-
-    public void processFailedMessagesFromKafka() throws KafkaProducerException {
-        List<ElrDeadLetterModel> dltMessagesList = dltRepository.getAllErrorDltRecordForKafkaError();
-        if(!dltMessagesList.isEmpty()) {
-            Iterator<ElrDeadLetterModel> iterator = dltMessagesList.iterator();
-            while (iterator.hasNext()) {
-                ElrDeadLetterModel message = iterator.next();
-                RawElrDto rawElrDto = new RawElrDto();
-                rawElrDto.setId(message.getErrorMessageId());
-                rawElrDto.setType(getElrMessageType(message.getDltStatus()));
-                rawElrDto.setPayload(message.getMessage());
-                rawElrDto.setValidationActive(true);
-                dltRepository.updateErrorStatusForRawId(message.getErrorMessageId(), "PROCESSED");
-                rawELRService.updateRawMessageAfterRetry(rawElrDto, 2);
-                iterator.remove();
-            }
-        }
-    }
-
-    String getElrMessageType(String dltStatus) {
-        String delimiter = "KAFKA_ERROR";
-        int delimiterIndex = dltStatus.indexOf(delimiter);
-
-        String msgType = "";
-        if (delimiterIndex != -1) {
-            msgType = dltStatus.substring(delimiterIndex + 1 + delimiter.length());
-        }
-        return msgType;
     }
 }

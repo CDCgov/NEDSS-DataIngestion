@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.deadletter.controller;
 
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.service.ElrDeadLetterService;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,5 +91,35 @@ public class ElrDeadLetterController {
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs/{dlt-id}")
     public ResponseEntity<ElrDeadLetterDto> messageReInject(@PathVariable("dlt-id") String dltId, @RequestBody final String payload) throws DeadLetterTopicException, KafkaProducerException {
         return ResponseEntity.ok(elrDeadLetterService.updateAndReprocessingMessage(dltId, payload));
+    }
+    @Operation(
+            summary = "Get ELR Ingestion error messages by Date range. The Start date must be earlier than or equal to the End date.",
+            description = "Get dead letter error messages by date",
+            parameters = {
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "clientid",
+                        description = "The Client Id",
+                        required = true,
+                        schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "clientsecret",
+                        description = "The Client Secret",
+                        required = true,
+                        schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "startDate",
+                        description = "The start date must be in MM-DD-YYYY format.",
+                        required = true,
+                        schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                        name = "endDate",
+                        description = "The end date must be in MM-DD-YYYY format",
+                        required = true,
+                        schema = @Schema(type = "string"))}
+    )
+    @GetMapping(path = "/api/elrs/errors")
+    public ResponseEntity<List<ElrDeadLetterDto>> getErrorMessagesByDate(@RequestHeader("startDate") String startDate,
+                                                                         @RequestHeader(name = "endDate") String endDate) throws DateValidationException {
+        return ResponseEntity.ok(elrDeadLetterService.getDltErrorsByDate(startDate, endDate));
     }
 }
