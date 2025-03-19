@@ -38,7 +38,7 @@ public class HL7v2Validator implements IHL7v2Validator {
         if(customMapper !=null && !customMapper.isEmpty()) {
             replaceSpecialCharacters =this.hl7Helper.processHl7CustomMapping(replaceSpecialCharacters,customMapper);
         }
-
+        replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
         ValidatedELRModel model = new ValidatedELRModel();
         try {
             var parsedMessage = this.hl7Helper.hl7StringParser(replaceSpecialCharacters);//check
