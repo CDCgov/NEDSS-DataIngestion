@@ -45,7 +45,7 @@ public class RawElrService {
                         rawElrDto.getType(),
                         dltOccurrence,
                         rawElrDto.getValidationActive(),
-                        rawElrDto.getVersion());
+                        rawElrDto.getVersion(),rawElrDto.getCustomMapper());
             }
             if(rawElrDto.getType().equalsIgnoreCase(XML_ELR)) {
                 kafkaProducerService.sendElrXmlMessageFromController(
@@ -73,7 +73,8 @@ public class RawElrService {
                         rawElrDto.getType(),
                         dltOccurrence + 1,
                         rawElrDto.getValidationActive(),
-                        rawElrDto.getVersion());
+                        rawElrDto.getVersion(),
+                        rawElrDto.getCustomMapper());
             }
             if(rawElrDto.getType().equalsIgnoreCase(XML_ELR)) {
                 kafkaProducerService.sendElrXmlMessageFromController(

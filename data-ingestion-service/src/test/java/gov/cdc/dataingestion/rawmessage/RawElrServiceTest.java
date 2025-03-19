@@ -56,7 +56,7 @@ class RawElrServiceTest {
         model.setCreatedBy("test");
         model.setUpdatedBy("test");
         when(rawELRRepository.save(any())).thenReturn(model);
-        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
         var result = target.submission(modelDto);
 
         Assertions.assertNotNull(result);
@@ -76,7 +76,7 @@ class RawElrServiceTest {
         model.setCreatedBy("test");
         model.setUpdatedBy("test");
         when(rawELRRepository.save(any())).thenReturn(model);
-        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
         var result = target.submission(modelDto);
 
         Assertions.assertNotNull(result);
@@ -111,9 +111,9 @@ class RawElrServiceTest {
         modelDto.setType("HL7");
         modelDto.setValidationActive(true);
         modelDto.setVersion("1");
-        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
         target.updateRawMessageAfterRetry(modelDto, 1);
-        Mockito.verify(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(2), Mockito.any(), Mockito.any());
+        Mockito.verify(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(2), Mockito.any(), Mockito.any(),Mockito.any());
     }
 
     @Test
@@ -133,7 +133,7 @@ class RawElrServiceTest {
         RawElrDto modelDto = new RawElrDto();
         modelDto.setId("retry-fail");
         modelDto.setType("HL7");
-        Mockito.doThrow(new KafkaProducerException("Retry failed")).when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doThrow(new KafkaProducerException("Retry failed")).when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
         Assertions.assertThrows(KafkaProducerException.class, () -> target.updateRawMessageAfterRetry(modelDto, 1));
         Mockito.verify(iElrDeadLetterRepository).updateDltOccurrenceForRawId(Mockito.any(), Mockito.eq(2), Mockito.eq("ERROR"));
     }
