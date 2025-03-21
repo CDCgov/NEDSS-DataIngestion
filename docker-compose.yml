@@ -146,6 +146,19 @@ services:
     networks:
       - dataingestion
 
+  di-record-linker:
+    build: ./containers/record-linker
+    container_name: di-record-linker
+    depends_on:
+      di-mssql:
+        condition: service_healthy
+    ports:
+      - "8062:8080"
+    env_file:
+      - dataingestion.env
+    networks:
+      - dataingestion
+
 networks:
   dataingestion:
     name: dataingestion
