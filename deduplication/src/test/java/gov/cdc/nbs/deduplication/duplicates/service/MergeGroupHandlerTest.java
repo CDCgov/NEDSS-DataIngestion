@@ -118,6 +118,7 @@ class MergeGroupHandlerTest {
         });
   }
 
+  @SuppressWarnings("unchecked")
   private void mockQueryForPersonIdsByMpiIds(ResultSet rs) {
     when(deduplicationTemplate.query(
         eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
