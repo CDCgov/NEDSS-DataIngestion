@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.exception.DataElementModificationException;
 import gov.cdc.nbs.deduplication.algorithm.exception.AlgorithmExceptionHandler.ExceptionMessage;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.AlgorithmException;
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 
 class AlgorithmExceptionHandlerTest {
@@ -27,6 +28,14 @@ class AlgorithmExceptionHandlerTest {
         ResponseEntity<ExceptionMessage> response = handler
                 .handleBadRequestExceptions(new PassModificationException("Pass exception"));
         assertThat(response.getBody().message()).isEqualTo("Pass exception");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(400));
+    }
+
+    @Test
+    void should_set_message_algorithm() {
+        ResponseEntity<ExceptionMessage> response = handler
+                .handleBadRequestExceptions(new AlgorithmException("Algorithm exception"));
+        assertThat(response.getBody().message()).isEqualTo("Algorithm exception");
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(400));
     }
 }

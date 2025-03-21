@@ -33,7 +33,7 @@ public class PassController {
     }
 
     @PutMapping("/pass/{id}")
-    public Algorithm update(@RequestBody Pass pass, @PathVariable("id") Long id) {
+    public Algorithm update(@PathVariable("id") Long id, @RequestBody Pass pass) {
         return passService.update(id, pass);
     }
 

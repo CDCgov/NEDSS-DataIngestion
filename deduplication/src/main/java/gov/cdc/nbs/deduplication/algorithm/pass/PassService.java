@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.DataElementsService;
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.AlgorithmException;
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
@@ -39,13 +40,13 @@ public class PassService {
         this.mapper = mapper;
     }
 
-    private static final String SELECT_CURRENT_CONFIG = """
+    static final String SELECT_CURRENT_CONFIG = """
             SELECT TOP 1 configuration
             FROM match_configuration
             ORDER BY add_time DESC
             """;
 
-    private static final String INSERT_CONFIG = """
+    static final String INSERT_CONFIG = """
             INSERT INTO match_configuration (configuration)
             VALUES (:configuration)
             """;
@@ -60,7 +61,7 @@ public class PassService {
             try {
                 return mapper.readValue(results.get(0), Algorithm.class);
             } catch (JsonProcessingException e) {
-                return new Algorithm(new ArrayList<>());
+                throw new AlgorithmException("Failed to parse algorithm");
             }
         }
     }
@@ -145,7 +146,7 @@ public class PassService {
     private void saveDibbsAlgorithm(Algorithm algorithm) {
         DataElements dataElements = dataElementsService.getCurrentDataElements();
         if (dataElements == null) {
-            throw new PassModificationException("Data elements must first be configured.");
+            throw new PassModificationException("Data elements must first be configured");
         }
 
         DibbsAlgorithm dibbsAlgorithm = algorithmMapper.map(algorithm, dataElements);
