@@ -9,7 +9,7 @@ public record DataElements(
         DataElement race,
         DataElement suffix,
         // Address Details
-        DataElement streetAddress1,
+        DataElement address,
         DataElement city,
         DataElement state,
         DataElement zip,

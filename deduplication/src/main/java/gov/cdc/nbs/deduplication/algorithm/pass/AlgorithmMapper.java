@@ -72,7 +72,7 @@ public class AlgorithmMapper {
     DataElement findDataElement(MatchingAttribute matchingAttribute, DataElements dataElements) {
         return switch (matchingAttribute) {
             case ACCOUNT_NUMBER -> dataElements.accountNumber();
-            case ADDRESS -> dataElements.streetAddress1();
+            case ADDRESS -> dataElements.address();
             case BIRTHDATE -> dataElements.dateOfBirth();
             case CITY -> dataElements.city();
             case COUNTY -> dataElements.county();
