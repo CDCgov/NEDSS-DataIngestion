@@ -71,8 +71,7 @@ class PassServiceTest {
 
     private final Algorithm algorithm = new Algorithm(Stream.of(pass).collect(Collectors.toCollection(ArrayList::new)));
 
-    @Test
-    void should_get_current_algorithm() throws JsonProcessingException {
+    private void mockCurrentConfig(Algorithm returnedAlgorithm) throws JsonProcessingException {
         JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
         when(template.getJdbcTemplate()).thenReturn(mockTemplate);
 
@@ -81,7 +80,12 @@ class PassServiceTest {
                 String.class))
                 .thenReturn(List.of("response"));
 
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(algorithm);
+        when(mapper.readValue("response", Algorithm.class)).thenReturn(returnedAlgorithm);
+    }
+
+    @Test
+    void should_get_current_algorithm() throws JsonProcessingException {
+        mockCurrentConfig(algorithm);
 
         Algorithm actual = service.getCurrentAlgorithm();
 
@@ -122,15 +126,8 @@ class PassServiceTest {
 
     @Test
     void should_save_pass() throws JsonProcessingException {
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
+        mockCurrentConfig(algorithm);
 
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(algorithm);
         ArgumentCaptor<Algorithm> algorithmCaptor = ArgumentCaptor.forClass(Algorithm.class);
         when(mapper.writeValueAsString(algorithmCaptor.capture())).thenReturn("string value");
         when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
@@ -159,15 +156,8 @@ class PassServiceTest {
     @Test
     void should_save_pass_when_empty() throws JsonProcessingException {
         Algorithm emptyAlgorithm = new Algorithm(new ArrayList<>());
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
+        mockCurrentConfig(emptyAlgorithm);
 
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(emptyAlgorithm);
         ArgumentCaptor<Algorithm> algorithmCaptor = ArgumentCaptor.forClass(Algorithm.class);
         when(mapper.writeValueAsString(algorithmCaptor.capture())).thenReturn("string value");
         when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
@@ -181,16 +171,8 @@ class PassServiceTest {
     @Test
     void should_throw_exception_when_mapper_fails() throws JsonProcessingException {
         Algorithm emptyAlgorithm = new Algorithm(new ArrayList<>());
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
+        mockCurrentConfig(emptyAlgorithm);
         when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
-
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(emptyAlgorithm);
         when(mapper.writeValueAsString(Mockito.any(Algorithm.class))).thenThrow(JsonProcessingException.class);
 
         PassModificationException ex = assertThrows(PassModificationException.class, () -> service.save(pass));
@@ -201,16 +183,8 @@ class PassServiceTest {
     @Test
     void should_throw_exception_when_missing_data_elements() throws JsonProcessingException {
         Algorithm emptyAlgorithm = new Algorithm(new ArrayList<>());
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
+        mockCurrentConfig(emptyAlgorithm);
         when(dataElementsService.getCurrentDataElements()).thenReturn(null);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
-
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(emptyAlgorithm);
 
         PassModificationException ex = assertThrows(PassModificationException.class, () -> service.save(pass));
 
@@ -219,15 +193,8 @@ class PassServiceTest {
 
     @Test
     void should_update_pass() throws JsonProcessingException {
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
+        mockCurrentConfig(algorithm);
 
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(algorithm);
         ArgumentCaptor<Algorithm> algorithmCaptor = ArgumentCaptor.forClass(Algorithm.class);
         when(mapper.writeValueAsString(algorithmCaptor.capture())).thenReturn("string value");
         when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
@@ -255,15 +222,7 @@ class PassServiceTest {
 
     @Test
     void update_pass_should_throw_exception_no_pass_found() throws JsonProcessingException {
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
-
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(algorithm);
+        mockCurrentConfig(algorithm);
 
         PassModificationException ex = assertThrows(
                 PassModificationException.class,
@@ -272,16 +231,9 @@ class PassServiceTest {
     }
 
     @Test
-    void delete_pass() throws JsonProcessingException {
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
+    void delete_pass_single_pass() throws JsonProcessingException {
+        mockCurrentConfig(algorithm);
 
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(algorithm);
         ArgumentCaptor<Algorithm> algorithmCaptor = ArgumentCaptor.forClass(Algorithm.class);
         when(mapper.writeValueAsString(algorithmCaptor.capture())).thenReturn("string value");
         when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
@@ -296,16 +248,52 @@ class PassServiceTest {
     }
 
     @Test
+    void delete_pass_two_passes() throws JsonProcessingException {
+        List<Pass> passes = new ArrayList<>();
+        passes.add(
+                new Pass(
+                        1l,
+                        "pass 1",
+                        "description 1",
+                        true,
+                        List.of(BlockingAttribute.ADDRESS),
+                        List.of(
+                                new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT),
+                                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER)),
+                        0.52,
+                        0.92));
+        passes.add(
+                new Pass(
+                        2l,
+                        "pass 2",
+                        "description 2",
+                        true,
+                        List.of(BlockingAttribute.BIRTHDATE),
+                        List.of(
+                                new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT)),
+                        0.52,
+                        0.92));
+        Algorithm algorithmWithTwoPasses = new Algorithm(passes);
+        mockCurrentConfig(algorithmWithTwoPasses);
+
+        ArgumentCaptor<Algorithm> algorithmCaptor = ArgumentCaptor.forClass(Algorithm.class);
+        when(mapper.writeValueAsString(algorithmCaptor.capture())).thenReturn("string value");
+        when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
+        ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
+        when(template.update(eq(PassService.INSERT_CONFIG), captor.capture())).thenReturn(1);
+
+        Algorithm actual = service.delete(1l);
+
+        verify(dibbsService, times(1)).save(algorithmMapper.map(actual, TestData.DATA_ELEMENTS));
+        assertThat(captor.getValue().getValue("configuration")).isEqualTo("string value");
+
+        assertThat(algorithmCaptor.getValue().passes()).hasSize(1);
+        assertThat(algorithmCaptor.getValue().passes().get(0).name()).isEqualTo("pass 2");
+    }
+
+    @Test
     void delete_pass_should_throw_exception_no_pass_found() throws JsonProcessingException {
-        JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
-        when(template.getJdbcTemplate()).thenReturn(mockTemplate);
-
-        when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
-
-        when(mapper.readValue("response", Algorithm.class)).thenReturn(algorithm);
+        mockCurrentConfig(algorithm);
 
         PassModificationException ex = assertThrows(
                 PassModificationException.class,

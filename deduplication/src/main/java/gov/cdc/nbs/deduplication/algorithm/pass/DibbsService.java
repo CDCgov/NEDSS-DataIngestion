@@ -32,7 +32,7 @@ public class DibbsService {
         mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
     }
 
-    private static final String QUERY_LABEL_COUNT = """
+    static final String QUERY_LABEL_COUNT = """
             SELECT
                 count(id)
             FROM
@@ -41,7 +41,7 @@ public class DibbsService {
                 label = :label
                 """;
 
-    private static final String SET_DEFAULT = """
+    static final String SET_DEFAULT = """
             UPDATE algorithm
             SET
             is_default = CASE
@@ -85,7 +85,7 @@ public class DibbsService {
                     .retrieve()
                     .toBodilessEntity();
         } catch (JsonProcessingException | RestClientException e) {
-            throw new PassModificationException("Failed to update DibbsAlgorithm");
+            throw new PassModificationException("Failed to update Dibbs algorithm");
         }
     }
 
@@ -100,7 +100,7 @@ public class DibbsService {
                     .retrieve()
                     .toBodilessEntity();
         } catch (JsonProcessingException | RestClientException e) {
-            throw new PassModificationException("Failed to save DibbsAlgorithm");
+            throw new PassModificationException("Failed to save Dibbs algorithm");
         }
     }
 
