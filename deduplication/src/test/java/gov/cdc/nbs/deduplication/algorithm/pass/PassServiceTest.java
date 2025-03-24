@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -299,6 +300,37 @@ class PassServiceTest {
                 PassModificationException.class,
                 () -> service.delete(2l));
         assertThat(ex.getMessage()).isEqualTo("Failed to find pass with Id: 2");
+    }
+
+    @Test
+    void should_save_dibbs() throws JsonProcessingException {
+        mockCurrentConfig(algorithm);
+        when(dataElementsService.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
+
+        service.saveDibbsAlgorithm();
+
+        verify(
+                dibbsService,
+                times(1))
+                .save(algorithmMapper.map(algorithm, TestData.DATA_ELEMENTS));
+    }
+
+    @Test
+    void should_not_save_dibbs_null() throws JsonProcessingException {
+        mockCurrentConfig(null);
+
+        service.saveDibbsAlgorithm();
+
+        verifyNoInteractions(dibbsService);
+    }
+
+    @Test
+    void should_not_save_dibbs_empty() throws JsonProcessingException {
+        mockCurrentConfig(new Algorithm(List.of()));
+
+        service.saveDibbsAlgorithm();
+
+        verifyNoInteractions(dibbsService);
     }
 
 }

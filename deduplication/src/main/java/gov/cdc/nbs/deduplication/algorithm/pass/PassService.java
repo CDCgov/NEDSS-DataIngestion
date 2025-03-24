@@ -127,6 +127,13 @@ public class PassService {
         return getCurrentAlgorithm();
     }
 
+    public void saveDibbsAlgorithm() {
+        Algorithm algorithm = getCurrentAlgorithm();
+        if (algorithm != null && !algorithm.passes().isEmpty()) {
+            saveDibbsAlgorithm(algorithm);
+        }
+    }
+
     // persists algorithm to deduplication database
     private void saveAlgorithm(Algorithm algorithm) {
         saveDibbsAlgorithm(algorithm);

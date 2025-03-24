@@ -7,15 +7,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
+import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
 
 @RestController
 @RequestMapping("/api/deduplication/configuration/data-elements")
 public class DataElementsController {
 
     private final DataElementsService service;
+    private final PassService passService;
 
-    public DataElementsController(final DataElementsService service) {
+    public DataElementsController(
+            final DataElementsService service,
+            final PassService passService) {
         this.service = service;
+        this.passService = passService;
     }
 
     @GetMapping
@@ -25,6 +30,9 @@ public class DataElementsController {
 
     @PostMapping
     public DataElements save(@RequestBody DataElements dataElements) {
-        return service.save(dataElements);
+        DataElements updated = service.save(dataElements);
+        passService.saveDibbsAlgorithm();
+        return updated;
+
     }
 }
