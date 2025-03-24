@@ -85,7 +85,7 @@ class DibbsServiceTest {
                 eq(DibbsService.QUERY_LABEL_COUNT),
                 Mockito.any(MapSqlParameterSource.class),
                 eq(Integer.class)))
-                .thenReturn(0);
+                .thenReturn(null);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);

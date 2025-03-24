@@ -70,6 +70,9 @@ public class AlgorithmMapper {
     }
 
     DataElement findDataElement(MatchingAttribute matchingAttribute, DataElements dataElements) {
+        if (matchingAttribute == null) {
+            throw new PassModificationException("Invalid MatchingAttribute");
+        }
         return switch (matchingAttribute) {
             case ACCOUNT_NUMBER -> dataElements.accountNumber();
             case ADDRESS -> dataElements.address();

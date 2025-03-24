@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.algorithm.pass;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.TestData;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.BlockingAttribute;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchingAttribute;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm;
@@ -86,6 +88,11 @@ class AlgorithmMapperTest {
                 e1 -> assertThat(e1).isEqualTo(new Evaluator(MatchingAttribute.FIRST_NAME, Func.EXACT)),
                 e2 -> assertThat(e2).isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY)));
 
+        assertThat(pass.evaluators().get(0).func())
+                .hasToString("func:recordlinker.linking.matchers.compare_probabilistic_exact_match");
+        assertThat(pass.evaluators().get(1).func())
+                .hasToString("func:recordlinker.linking.matchers.compare_probabilistic_fuzzy_match");
+
         assertThat(pass.rule()).isEqualTo(Rule.PROBABILISTIC);
 
         assertThat(pass.kwargs().similarityMeasure()).isEqualTo(SimilarityMeasure.JAROWINKLER);
@@ -153,5 +160,13 @@ class AlgorithmMapperTest {
                 .isEqualTo(TestData.DATA_ELEMENTS.visaPassport());
         assertThat(mapper.findDataElement(MatchingAttribute.WIC_IDENTIFIER, TestData.DATA_ELEMENTS))
                 .isEqualTo(TestData.DATA_ELEMENTS.wicIdentifier());
+    }
+
+    @Test
+    void should_fail_to_map() {
+        PassModificationException ex = assertThrows(
+                PassModificationException.class,
+                () -> mapper.findDataElement(null, TestData.DATA_ELEMENTS));
+        assertThat(ex.getMessage()).isEqualTo("Invalid MatchingAttribute");
     }
 }
