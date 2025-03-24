@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 
-@SuppressWarnings("null")
 class DeduplicationEntryMapperTest {
 
   DeduplicationEntryMapper mapper = new DeduplicationEntryMapper();
