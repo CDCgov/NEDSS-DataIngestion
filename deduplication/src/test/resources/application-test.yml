@@ -9,8 +9,3 @@ spring:
     jdbc:
       initialize-schema: always
 
-deduplication:
-  recordLinkage:
-    enabled: true
-    url: http://localhost:8062
-

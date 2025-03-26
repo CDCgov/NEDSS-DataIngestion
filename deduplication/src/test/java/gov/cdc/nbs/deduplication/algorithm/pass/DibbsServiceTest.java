@@ -12,12 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -31,17 +27,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm;
 
-@ExtendWith(MockitoExtension.class)
 class DibbsServiceTest {
 
-    @Mock
-    private RestClient client;
+    private RestClient client = Mockito.mock(RestClient.class);
 
-    @Mock
-    private NamedParameterJdbcTemplate template;
+    private NamedParameterJdbcTemplate template = Mockito.mock(NamedParameterJdbcTemplate.class);
 
-    @InjectMocks
-    private DibbsService service;
+    private DibbsService service = new DibbsService(client, template, true);
 
     private final DibbsAlgorithm algorithm = new DibbsAlgorithm(
             "testLabel",
