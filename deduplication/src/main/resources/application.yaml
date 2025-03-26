@@ -36,13 +36,15 @@ spring:
   main:
     allow-circular-references: true
 
+recordLinkage:
+  enabled: false
+  
 deduplication:
   recordLinkage:
     enabled: false
     url: http://localhost:8062
   sync:
     enabled: false
-
 
 batch:
   chunk:
