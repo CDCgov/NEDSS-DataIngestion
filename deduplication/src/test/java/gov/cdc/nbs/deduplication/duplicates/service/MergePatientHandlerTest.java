@@ -1,11 +1,11 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -17,6 +17,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class MergePatientHandlerTest {
 
   @Mock
@@ -28,10 +29,7 @@ class MergePatientHandlerTest {
   @InjectMocks
   private MergePatientHandler mergePatientHandler;
 
-  @BeforeEach
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
+
 
   @Test
   void testPerformMerge() {
