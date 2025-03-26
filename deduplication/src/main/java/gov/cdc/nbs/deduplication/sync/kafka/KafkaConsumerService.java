@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.cdc.nbs.deduplication.sync.service.PersonInsertSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@ConditionalOnProperty(value = "deduplication.sync.enabled", havingValue = "true")
 public class KafkaConsumerService {
 
 

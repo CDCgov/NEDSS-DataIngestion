@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 public class RecordLinkageClientConfig {
 
   @Bean("recordLinkageRestClient")
-  public RestClient recordLinkageRestClient(@Value("${recordLinkage.url}") final String url) {
+  public RestClient recordLinkageRestClient(@Value("${deduplication.recordLinkage.url}") final String url) {
     return RestClient.builder().baseUrl(url).build();
   }
 

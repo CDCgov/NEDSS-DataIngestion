@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -22,12 +23,15 @@ public class DibbsService {
     private final RestClient client;
     private final NamedParameterJdbcTemplate template;
     private final ObjectMapper mapper;
+    private final boolean enabled;
 
     public DibbsService(
             @Qualifier("recordLinkageRestClient") RestClient client,
-            @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate template) {
+            @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate template,
+            @Value("${deduplication.recordLinkage.enabled}") boolean enabled) {
         this.client = client;
         this.template = template;
+        this.enabled = enabled;
         mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
     }
@@ -52,6 +56,9 @@ public class DibbsService {
 
     // Saves the algorithm and ensures it is set as active
     public void save(DibbsAlgorithm algorithm) {
+        if (!enabled) {
+            return;
+        }
         if (algorithmExists(algorithm.label())) {
             update(algorithm);
         } else {
