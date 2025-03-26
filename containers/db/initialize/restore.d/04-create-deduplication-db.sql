@@ -36,6 +36,6 @@ CREATE TABLE match_candidates (
   person_uid bigint,
   mpi_person_id uniqueidentifier,
   date_identified DATETIME DEFAULT GETDATE(),
-  is_merge BIT NULL;
+  is_merge BIT NULL
 );
 GO
