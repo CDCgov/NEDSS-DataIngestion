@@ -41,7 +41,7 @@ public class DataElementsService {
     public DataElements getCurrentDataElements() {
         List<String> results = template.getJdbcTemplate().queryForList(SELECT_CURRENT_DATA_ELEMENTS, String.class);
         if (results.isEmpty()) {
-            return null;
+            return new DataElements();
         } else {
             try {
                 return mapper.readValue(results.get(0), DataElements.class);

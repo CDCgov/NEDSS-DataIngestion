@@ -33,10 +33,48 @@ public record DataElements(
 
 ) {
 
+    public DataElements() {
+        this(
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement(),
+                new DataElement());
+    }
+
     public record DataElement(
             boolean active,
             Double oddsRatio,
             Double logOdds,
             Double threshold) {
+
+        public DataElement() {
+            this(
+                    false,
+                    null,
+                    null,
+                    null);
+        }
     }
 }

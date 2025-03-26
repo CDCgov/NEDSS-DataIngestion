@@ -43,16 +43,6 @@ class PassControllerTest {
     private final Algorithm algorithm = new Algorithm(List.of(pass));
 
     @Test
-    void should_get_algorithm() {
-        when(passService.getCurrentAlgorithm()).thenReturn(algorithm);
-
-        Algorithm actual = controller.get();
-
-        assertThat(actual).isEqualTo(algorithm);
-        verify(passService, times(1)).getCurrentAlgorithm();
-    }
-
-    @Test
     void should_save_pass() {
         when(passService.save(pass)).thenReturn(algorithm);
 

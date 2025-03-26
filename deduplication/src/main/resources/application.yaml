@@ -1,8 +1,11 @@
 server:
   port: 8083
+  servlet:
+    context-path: /nbs/deduplication
 
 spring:
   application.name: deduplication
+  jackson.serialization.indent-output: true
   batch:
     job:
       enabled: false
@@ -33,8 +36,15 @@ spring:
   main:
     allow-circular-references: true
 
-recordLinkage:
-  url: http://localhost:8062
+deduplication:
+  # url for Record Linker API
+  recordLinker:
+    url: ${RECORD_LINKER_URL:http://localhost:8062}
+  algorithm:
+    # should data elements and algorithm updates be pushed to Record Linker API
+    updateRecordLinker: ${ALGORITHM_UPDATE_RL:false}
+  sync:
+    enabled: ${SYNC_ENABLED:false}
 
 batch:
   chunk:
@@ -44,7 +54,7 @@ batch:
       deduplicationStep: 100
   job:
     schedule:
-      cron: "0 0 1 * * ?"  # run daily at 1 AM
+      cron: "0 0 1 * * ?" # run daily at 1 AM
 
 kafka:
   topics:
