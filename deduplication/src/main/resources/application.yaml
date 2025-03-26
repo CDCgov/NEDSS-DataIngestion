@@ -5,6 +5,7 @@ server:
 
 spring:
   application.name: deduplication
+  jackson.serialization.indent-output: true
   batch:
     job:
       enabled: false
