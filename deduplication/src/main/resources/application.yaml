@@ -1,5 +1,7 @@
 server:
   port: 8083
+  servlet:
+    context-path: /nbs/deduplication
 
 spring:
   application.name: deduplication

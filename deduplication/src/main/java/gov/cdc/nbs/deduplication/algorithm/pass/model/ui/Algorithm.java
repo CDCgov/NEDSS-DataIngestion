@@ -31,7 +31,7 @@ public record Algorithm(List<Pass> passes) {
     }
 
     public record MatchingAttributeEntry(
-            MatchingAttribute matchingAttribute,
+            MatchingAttribute attribute,
             MatchingMethod method) {
     }
 

@@ -135,7 +135,7 @@ public class PassService {
     }
 
     // persists algorithm to deduplication database
-    private void saveAlgorithm(Algorithm algorithm) {
+    public void saveAlgorithm(Algorithm algorithm) {
         saveDibbsAlgorithm(algorithm);
 
         try {
