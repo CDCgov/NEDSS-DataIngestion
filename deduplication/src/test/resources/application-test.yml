@@ -8,3 +8,9 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+
+deduplication:
+  recordLinkage:
+    enabled: true
+    url: http://localhost:8062
+
