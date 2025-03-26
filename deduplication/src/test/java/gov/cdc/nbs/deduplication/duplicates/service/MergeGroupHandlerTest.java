@@ -1,13 +1,11 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
 
-
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
-import gov.cdc.nbs.deduplication.duplicates.model.MergeStatusRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.PossibleMatchGroup;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.junit.jupiter.api.Test;
@@ -43,7 +41,7 @@ class MergeGroupHandlerTest {
   @Test
   void testGetMergeGroups() throws SQLException {
     // Arrange
-    List<String> personUids = Arrays.asList("personUid1", "personUid2");
+    List<String> personUids = Arrays.asList("personUid1", "personUid2", "personOfTheGroup");
     List<MpiPerson> patientRecords = getPatientRecords();
 
     //Mocking
@@ -62,9 +60,8 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUpdateMergeStatus() {
-    MergeStatusRequest request = new MergeStatusRequest(100L, false);
 
-    mergeGroupHandler.updateMergeStatus(request);
+    mergeGroupHandler.updateMergeStatusForGroup(100L);
 
     verify(deduplicationTemplate, times(1)).update(
         eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP),
@@ -91,7 +88,7 @@ class MergeGroupHandlerTest {
 
   private ResultSet mockResultSetForPossibleMatchGroup() throws SQLException {
     ResultSet rs = mock(ResultSet.class);
-    when(rs.getString("person_uid")).thenReturn("personUid");
+    when(rs.getString("person_uid")).thenReturn("personOfTheGroup");
     when(rs.getString("mpi_person_ids")).thenReturn("mpiId1, mpiId2");
     when(rs.getString("date_identified")).thenReturn("2023-10-01");
     return rs;
@@ -118,11 +115,12 @@ class MergeGroupHandlerTest {
         });
   }
 
+  @SuppressWarnings("unchecked")
   private void mockQueryForPersonIdsByMpiIds(ResultSet rs) {
     when(deduplicationTemplate.query(
         eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
         argThat((MapSqlParameterSource parameters) -> {
-          List<String> ids = (List<String>) parameters.getValue("mpiIds");
+          List<String> ids = (List<String>) parameters.getValue("mpiPersonIds");
           return ids != null;
         }),
         ArgumentMatchers.<RowMapper<String>>any()))
@@ -144,5 +142,76 @@ class MergeGroupHandlerTest {
     assertEquals(2, response.patients().size());
   }
 
+  @Test
+  void testUpdateMergeStatusForPatients() {
+    String survivorPersonId = "survivorId";
+    List<String> personIds = List.of("person1", "person2");
+    List<String> mpiPersonIds = List.of("mpi1", "mpi2");
+
+    updateMergeStatusForPatientsMocking(mpiPersonIds);
+    mergeGroupHandler.updateMergeStatusForPatients(survivorPersonId, personIds);
+    updateMergeStatusForPatientsVerifying(survivorPersonId);
+  }
+
+  private void updateMergeStatusForPatientsMocking(List<String> mpiPersonIds) {
+    // Mock the call of getMpiIdsByPersonIds method
+    when(deduplicationTemplate.query(
+        eq(QueryConstants.PATIENT_IDS_BY_PERSON_UIDS),
+        argThat((MapSqlParameterSource params) ->
+            params.getValue("personIds") != null),
+        ArgumentMatchers.<RowMapper<String>>any()))
+        .thenReturn(mpiPersonIds);
+
+    // Mock the update operations
+    when(deduplicationTemplate.update(
+        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS),
+        any(MapSqlParameterSource.class)))
+        .thenReturn(1);
+
+    // Mock the markNonActiveRecordAsNoMerge call
+    when(deduplicationTemplate.update(
+        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS),
+        any(MapSqlParameterSource.class)))
+        .thenReturn(1);
+
+    //Mock the markSingleRemainingRecordAsNoMergeIfExists call
+    when(deduplicationTemplate.update(
+        eq(QueryConstants.UPDATE_SINGLE_RECORD),
+        any(MapSqlParameterSource.class)))
+        .thenReturn(1);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void updateMergeStatusForPatientsVerifying(String survivorPersonId) {
+    // Verify the markMergedRecordAsMerge call
+    verify(deduplicationTemplate).update(
+        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS),
+        argThat((MapSqlParameterSource params) -> {
+          List<String> mpiIds = (List<String>) params.getValue("mpiIds");
+          String personId = (String) params.getValue("personId");
+          return mpiIds != null && mpiIds.size() == 2
+              && personId != null && personId.equals(survivorPersonId);
+        }));
+
+    // Verify the markNonActiveRecordAsNoMerge call
+    verify(deduplicationTemplate).update(
+        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS),
+        argThat((MapSqlParameterSource params) -> {
+          List<String> mpiIds = (List<String>) params.getValue("mpiIds");
+          String personId = (String) params.getValue("personId");
+          List<String> personIdsParam = (List<String>) params.getValue("personIds");
+          return mpiIds != null && mpiIds.size() == 2
+              && personId != null && personId.equals(survivorPersonId)
+              && personIdsParam != null && personIdsParam.size() == 2;
+        }));
+
+    // Verify the markSingleRemainingRecordAsNoMergeIfExists call
+    verify(deduplicationTemplate).update(
+        eq(QueryConstants.UPDATE_SINGLE_RECORD),
+        argThat((MapSqlParameterSource params) -> {
+          String personId = (String) params.getValue("personUid");
+          return personId != null && personId.equals(survivorPersonId);
+        }));
+  }
 
 }

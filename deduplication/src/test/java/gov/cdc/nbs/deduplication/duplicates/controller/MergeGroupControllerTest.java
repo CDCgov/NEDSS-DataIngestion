@@ -6,11 +6,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.Arrays;
 import java.util.List;
+
 import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
-import gov.cdc.nbs.deduplication.duplicates.model.MergeStatusRequest;
+import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
+import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +28,9 @@ class MergeGroupControllerTest {
 
   @Mock
   private MergeGroupHandler mergeGroupHandler;
+
+  @Mock
+  private MergePatientHandler mergePatientHandler;
 
   @InjectMocks
   private MergeGroupController mergeGroupController;
@@ -52,33 +58,31 @@ class MergeGroupControllerTest {
   }
 
   @Test
-  void testUpdateMergeStatus() throws Exception {
-    MergeStatusRequest request = new MergeStatusRequest(100L, false);
+  void testUpdateGroupNoMerge() throws Exception {
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-status")
+    mockMvc.perform(post("/api/deduplication/group-no-merge")
             .contentType("application/json")
-            .content("{\"personUid\": 100, \"status\": \"false\"}"))
+            .content("{\"personOfTheGroup\": 100}"))
         .andExpect(status().isOk())
         .andExpect(content().string("Merge status updated successfully."));
 
-    verify(mergeGroupHandler).updateMergeStatus(request);
+    verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
   }
 
   @Test
-  void testUpdateMergeStatus_Error() throws Exception {
-    MergeStatusRequest request = new MergeStatusRequest(100L, false);
+  void testUpdateGroupNoMerge_Error() throws Exception {
 
-    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatus(request);
+    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatusForGroup(100L);
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-status")
+    mockMvc.perform(post("/api/deduplication/group-no-merge")
             .contentType("application/json")
-            .content("{\"personUid\": 100, \"status\": \"false\"}"))
+            .content("{\"personOfTheGroup\": 100}"))
         .andExpect(status().isInternalServerError())
         .andExpect(content().string("Error updating merge status: Some error"));
 
-    verify(mergeGroupHandler).updateMergeStatus(request);
+    verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
   }
 
   private List<MergeGroupResponse> expectedMergeGroupResponse() {
@@ -92,6 +96,58 @@ class MergeGroupControllerTest {
     return "[{'personOfTheGroup':'100','dateIdentified': 1990-01-01, 'mostRecentPersonName': 'john smith'}, " +
         "{'personOfTheGroup':'200','dateIdentified': 1990-02-02, 'mostRecentPersonName': 'Andrew James'}]";
   }
+
+
+  @Test
+  void testMergeRecords_Success() throws Exception {
+    MergePatientRequest mergeRequest = new MergePatientRequest();
+    mergeRequest.setSurvivorPersonId("survivor123");
+    mergeRequest.setSupersededPersonIds(Arrays.asList("superseded1", "superseded2"));
+
+    // Act & Assert
+    mockMvc.perform(post("/api/deduplication/merge-patient")
+            .contentType("application/json")
+            .content(
+                "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
+        .andExpect(status().isOk());
+
+    verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
+  }
+
+  @Test
+  void testMergeRecords_BadRequest() throws Exception {
+    MergePatientRequest mergeRequest = new MergePatientRequest();
+    mergeRequest.setSurvivorPersonId(null); // Invalid data
+    mergeRequest.setSupersededPersonIds(null); // Invalid data
+
+    // Act & Assert
+    mockMvc.perform(post("/api/deduplication/merge-patient")
+            .contentType("application/json")
+            .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
+        .andExpect(status().isBadRequest());
+
+    verify(mergePatientHandler, never()).performMerge(any(), any());
+  }
+
+  @Test
+  void testMergeRecords_InternalServerError() throws Exception {
+    MergePatientRequest mergeRequest = new MergePatientRequest();
+    mergeRequest.setSurvivorPersonId("survivor123");
+    mergeRequest.setSupersededPersonIds(Arrays.asList("superseded1", "superseded2"));
+
+    doThrow(new RuntimeException("Merge failed")).when(mergePatientHandler)
+        .performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
+
+    // Act & Assert
+    mockMvc.perform(post("/api/deduplication/merge-patient")
+            .contentType("application/json")
+            .content(
+                "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
+        .andExpect(status().isInternalServerError());
+
+    verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
+  }
+
 
 
 }
