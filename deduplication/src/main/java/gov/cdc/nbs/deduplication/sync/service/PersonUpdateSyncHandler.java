@@ -27,7 +27,7 @@ public class PersonUpdateSyncHandler {
 
   public PersonUpdateSyncHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate,
       ObjectMapper objectMapper,
-      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient,
+      @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient,
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
       final PatientRecordService patientRecordService
   ) {

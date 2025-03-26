@@ -43,7 +43,7 @@ public class MatchService {
   private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
 
   public MatchService(
-          @Qualifier("recordLinkageRestClient") final RestClient recordLinkageClient,
+          @Qualifier("recordLinkerRestClient") final RestClient recordLinkageClient,
           @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
     this.recordLinkageClient = recordLinkageClient;
     this.template = template;

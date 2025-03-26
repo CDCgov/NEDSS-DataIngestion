@@ -26,9 +26,9 @@ public class DibbsService {
     private final boolean enabled;
 
     public DibbsService(
-            @Qualifier("recordLinkageRestClient") RestClient client,
+            @Qualifier("recordLinkerRestClient") RestClient client,
             @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate template,
-            @Value("${deduplication.recordLinkage.enabled}") boolean enabled) {
+            @Value("${deduplication.algorithm.updateRecordLinker}") boolean enabled) {
         this.client = client;
         this.template = template;
         this.enabled = enabled;
