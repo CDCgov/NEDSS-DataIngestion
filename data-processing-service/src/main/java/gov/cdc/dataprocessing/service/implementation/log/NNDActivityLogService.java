@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
@@ -49,7 +48,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
         this.odseIdGeneratorService = odseIdGeneratorService1;
     }
 
-    @Transactional
+
     public void saveNddActivityLog(NNDActivityLogDto nndActivityLogDto) throws DataProcessingException {
         var timeStamp = getCurrentTimeStamp(tz);
         nndActivityLogDto.setNndActivityLogSeq(1);// default to 1

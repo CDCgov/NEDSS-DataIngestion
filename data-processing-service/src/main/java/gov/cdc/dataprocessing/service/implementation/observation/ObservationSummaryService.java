@@ -79,13 +79,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public Map<Object,Object> getLabParticipations(Long observationUID) throws DataProcessingException {
         Map<Object,Object> vals;
-        try {
-
-            vals = customRepository.getLabParticipations(observationUID);
-
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        vals = customRepository.getLabParticipations(observationUID);
         return vals;
     }
 
@@ -139,66 +133,39 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
     public String getReportingFacilityName(Long organizationUid) throws DataProcessingException
     {
-
         String orgName;
-
-        try {
-           orgName = customRepository.getReportingFacilityName(organizationUid);
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        orgName = customRepository.getReportingFacilityName(organizationUid);
         return orgName;
     }
 
     public String getSpecimanSource(Long materialUid) throws DataProcessingException {
         String specSource;
-        try {
-            specSource = customRepository.getSpecimanSource(materialUid);
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        specSource = customRepository.getSpecimanSource(materialUid);
         return specSource;
     }
 
 
     public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
-        try {
-            providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
-        }  catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 
     public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
-        try {
-            providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
-        }catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 
     public ProviderDataForPrintContainer getOrderingPersonAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws  DataProcessingException
     {
-        try {
-            providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 
     public ProviderDataForPrintContainer getOrderingPersonPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
     {
-        try {
-            providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
-        }  catch (Exception ex) {
-
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 

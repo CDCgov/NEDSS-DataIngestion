@@ -87,7 +87,7 @@ class ProviderMatchingBaseServiceTest {
         doThrow(new RuntimeException("Error")).when(spyService).persistingProvider(any(PersonContainer.class), anyString(), anyString());
 
         // Call the method under test and verify exception is thrown
-        assertThrows(DataProcessingException.class, () -> spyService.processingProvider(personContainer, "PROVIDER", "BUSINESS_TRIGGER"));
+        assertThrows(RuntimeException.class, () -> spyService.processingProvider(personContainer, "PROVIDER", "BUSINESS_TRIGGER"));
     }
 
     @Test
@@ -143,7 +143,7 @@ class ProviderMatchingBaseServiceTest {
         doThrow(new RuntimeException("Error")).when(spyService).setProvidertoEntityMatch(any(PersonContainer.class));
 
         // Call the method under test and verify exception is thrown
-        assertThrows(DataProcessingException.class, () -> spyService.processingProvider(personContainer, "PROVIDER", "BUSINESS_TRIGGER"));
+        assertThrows(RuntimeException.class, () -> spyService.processingProvider(personContainer, "PROVIDER", "BUSINESS_TRIGGER"));
 
         // Verify interactions
         verify(personDto).setEdxInd("Y");
@@ -221,7 +221,7 @@ class ProviderMatchingBaseServiceTest {
         doThrow(new RuntimeException("Error")).when(edxPatientMatchRepositoryUtil).saveEdxEntityMatch(any(EdxEntityMatchDto.class));
 
         // Call the method under test and verify exception is thrown
-        assertThrows(DataProcessingException.class, () -> spyService.setProvidertoEntityMatch(personContainer));
+        assertThrows(RuntimeException.class, () -> spyService.setProvidertoEntityMatch(personContainer));
 
         // Verify interactions
         verify(edxPatientMatchRepositoryUtil, times(1)).saveEdxEntityMatch(any(EdxEntityMatchDto.class));
@@ -248,7 +248,7 @@ class ProviderMatchingBaseServiceTest {
         doNothing().doThrow(new RuntimeException("Error")).when(edxPatientMatchRepositoryUtil).saveEdxEntityMatch(any(EdxEntityMatchDto.class));
 
         // Call the method under test and verify exception is thrown
-        assertThrows(DataProcessingException.class, () -> spyService.setProvidertoEntityMatch(personContainer));
+        assertThrows(RuntimeException.class, () -> spyService.setProvidertoEntityMatch(personContainer));
 
         // Verify interactions
         verify(edxPatientMatchRepositoryUtil, times(2)).saveEdxEntityMatch(any(EdxEntityMatchDto.class));

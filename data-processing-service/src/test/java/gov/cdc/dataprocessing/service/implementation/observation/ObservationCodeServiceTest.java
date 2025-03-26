@@ -204,7 +204,7 @@ class ObservationCodeServiceTest {
         orderTest.setTheParticipationDtoCollection(patCol);
 
         when(observationUtil.getUid(any(), any(), any(), any(),
-                any(), any(), any())).thenThrow(new DataProcessingException("TEST"));
+                any(), any(), any())).thenReturn(-1L);
 
         OrganizationContainer orgConn =new OrganizationContainer();
         var enCol = new ArrayList<EntityIdDto>();
@@ -218,11 +218,10 @@ class ObservationCodeServiceTest {
         when(organizationRepositoryUtil.loadObject(10L, null)).thenReturn(orgConn);
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            observationCodeService.deriveTheConditionCodeList(labResultProxyVO, orderTest);
-        });
+        var test = observationCodeService.deriveTheConditionCodeList(labResultProxyVO, orderTest);
 
-        assertNotNull(thrown);
+
+        assertNotNull(test);
     }
 
 

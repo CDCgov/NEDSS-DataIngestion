@@ -28,7 +28,6 @@ import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -179,8 +178,6 @@ public class MaterialService implements IMaterialService {
         return materialContainer;
     }
 
-
-    @Transactional
     public Long saveMaterial(MaterialContainer materialContainer) throws DataProcessingException {
         MaterialDto materialDto = materialContainer.getTheMaterialDto();
         Long lpk = materialDto.getMaterialUid();
@@ -294,31 +291,27 @@ public class MaterialService implements IMaterialService {
         }
 
     }
-    private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) throws DataProcessingException {
-        try {
-            Iterator<EntityIdDto> anIterator;
-            ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
-            anIterator = entityList.iterator();
-            int maxSeq = 0;
-            while (anIterator.hasNext()) {
-                EntityIdDto entityID = anIterator.next();
-                if(maxSeq == 0) {
-                    if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {
-                        entityID.setEntityUid(uid);
-                    }
-                    var result = entityIdRepository.findMaxEntityId(entityID.getEntityUid());
-
-                    if (result.isPresent()) {
-                        maxSeq = result.get();
-                    }
+    private void persistingEntityId(Long uid, Collection<EntityIdDto> entityIdCollection ) {
+        Iterator<EntityIdDto> anIterator;
+        ArrayList<EntityIdDto>  entityList = (ArrayList<EntityIdDto> )entityIdCollection;
+        anIterator = entityList.iterator();
+        int maxSeq = 0;
+        while (anIterator.hasNext()) {
+            EntityIdDto entityID = anIterator.next();
+            if(maxSeq == 0) {
+                if(null == entityID.getEntityUid() || entityID.getEntityUid() < 0) {
+                    entityID.setEntityUid(uid);
                 }
+                var result = entityIdRepository.findMaxEntityId(entityID.getEntityUid());
 
-                entityID.setEntityIdSeq(maxSeq++);
-                EntityId data = new EntityId(entityID, tz);
-                entityIdRepository.save(data);
+                if (result.isPresent()) {
+                    maxSeq = result.get();
+                }
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+
+            entityID.setEntityIdSeq(maxSeq++);
+            EntityId data = new EntityId(entityID, tz);
+            entityIdRepository.save(data);
         }
 
     }

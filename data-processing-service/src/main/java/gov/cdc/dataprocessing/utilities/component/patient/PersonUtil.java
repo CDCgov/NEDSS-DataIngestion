@@ -10,7 +10,6 @@ import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingServ
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
 import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -58,7 +57,6 @@ public class PersonUtil {
 
     @SuppressWarnings("java:S3776")
 
-    @Transactional
     public Long processLabPersonContainerCollection(Collection<PersonContainer> personContainerCollection, boolean morbidityApplied,
                                                     BaseContainer dataContainer) throws DataProcessingException {
         if (personContainerCollection == null || personContainerCollection.isEmpty()) {
