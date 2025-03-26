@@ -35,10 +35,7 @@ spring:
 
   main:
     allow-circular-references: true
-
-recordLinkage:
-  enabled: false
-  
+ 
 deduplication:
   recordLinkage:
     enabled: false
