@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: liquibase
+      changes:
+        - sqlFile:
+            path: data-ingestion-service/src/main/resources/db/create-nbs-dataingest-db.sql
+            splitStatements: false
+
+  - changeSet:
+      id: 2
+      author: liquibase
+      changes:
+        - sqlFile:
+            path: data-ingestion-service/src/main/resources/db/di-service-001.sql
+            splitStatements: false
+
+  - changeSet:
+      id: 3
+      author: liquibase
+      changes:
+        - sqlFile:
+            path: data-ingestion-service/src/main/resources/db/di-service-002.sql
+            splitStatements: false
