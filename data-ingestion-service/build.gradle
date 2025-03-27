@@ -9,8 +9,6 @@ buildscript {
 	dependencies {
 		classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
 		classpath 'org.owasp:dependency-check-gradle:9.0.3'
-		classpath "org.liquibase:liquibase-gradle-plugin:2.2.0"
-
 	}
 }
 
@@ -21,7 +19,6 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
 	id "org.sonarqube" version "4.2.1.3168"
-	id 'org.liquibase.gradle' version '2.2.2'
 }
 
 apply plugin: 'org.owasp.dependencycheck'
@@ -243,10 +240,8 @@ dependencies {
   compileOnly 'org.projectlombok:lombok:1.18.34'
   annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-  // Liquibase
-  liquibaseRuntime 'org.liquibase:liquibase-core:4.29.2'
-  liquibaseRuntime 'info.picocli:picocli:4.7.6'
-  liquibaseRuntime 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+  implementation 'org.liquibase:liquibase-core:4.31.1'
+
 
   // Misc
   implementation 'org.yaml:snakeyaml:2.3'
@@ -314,20 +309,6 @@ jar {
     dependsOn(':cdaschema:copyJar')
   }
 }
-
-apply plugin: "org.liquibase.gradle"
-
-liquibase {
-	activities {
-		main {
-			changelogFile './data-ingestion-service/src/main/resources/db/changelog.xml'
-			url "jdbc:sqlserver://${System.env.NBS_DBSERVER};databaseName=master;encrypt=true;trustServerCertificate=true"
-			username "${System.env.NBS_DBUSER}"
-			password "${System.env.NBS_DBPASSWORD}"
-		}
-	}
-}
-
 
 
 sonarqube {
