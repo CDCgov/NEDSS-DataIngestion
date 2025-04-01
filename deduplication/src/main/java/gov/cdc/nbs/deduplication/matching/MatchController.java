@@ -7,7 +7,7 @@ import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
 
 @RestController
-@RequestMapping("/api/deduplication")
+@RequestMapping("/deduplication")
 public class MatchController {
 
   private final MatchService matchService;
