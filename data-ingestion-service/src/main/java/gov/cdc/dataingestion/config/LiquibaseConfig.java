@@ -23,7 +23,7 @@ public class LiquibaseConfig {
     @Value("${spring.liquibase.driver-class-name}")
     private String driverClassName;
 
-    @Value("${spring.liquibase.url}")
+    @Value("${spring.liquibase.url.dataingest}")
     private String dbUrl;
 
     @Bean

@@ -49,12 +49,26 @@ spring:
     activate:
       on-profile: default
   liquibase:
-    change-log: classpath:db/changelog.yaml
-    enabled: true
-    url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
-    user: ${NBS_DBUSER}
-    password: ${NBS_DBPASSWORD}
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    dataingest:
+      change-log: classpath:db/dataingest-changelog.yaml
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
+      user: ${NBS_DBUSER}
+      password: ${NBS_DBPASSWORD}
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    msgoute:
+      change-log: classpath:db/msgoute-changelog.yaml
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
+      user: ${NBS_DBUSER}
+      password: ${NBS_DBPASSWORD}
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+#    change-log: classpath:db/changelog.yaml
+#    enabled: true
+#    url:
+#      dataingest: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
+#      msgoute: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
+#    user: ${NBS_DBUSER}
+#    password: ${NBS_DBPASSWORD}
+#    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   datasource:
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
