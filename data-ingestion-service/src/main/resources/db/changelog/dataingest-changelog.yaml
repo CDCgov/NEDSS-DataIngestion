@@ -4,7 +4,7 @@ databaseChangeLog:
       author: liquibase
       changes:
         - sqlFile:
-            path: data-ingestion-service/src/main/resources/db/create-nbs-dataingest-db.sql
+            path: db/dataingest/create-nbs-dataingest-db.sql
             splitStatements: false
 
   - changeSet:
@@ -12,7 +12,7 @@ databaseChangeLog:
       author: liquibase
       changes:
         - sqlFile:
-            path: data-ingestion-service/src/main/resources/db/di-service-001.sql
+            path: db/dataingest/tables/di-service-001.sql
             splitStatements: false
 
   - changeSet:
@@ -20,5 +20,5 @@ databaseChangeLog:
       author: liquibase
       changes:
         - sqlFile:
-            path: data-ingestion-service/src/main/resources/db/di-service-002.sql
+            path: db/dataingest/tables/di-service-002.sql
             splitStatements: false

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: liquibase
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/alter_nbs_interface-001.sql
+            splitStatements: false
