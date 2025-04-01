@@ -26,6 +26,11 @@ apply plugin: 'org.owasp.dependencycheck'
 group = 'gov.cdc.dataprocessing'
 version = '0.0.1-SNAPSHOT'
 
+springBoot {
+    buildInfo()
+}
+
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
