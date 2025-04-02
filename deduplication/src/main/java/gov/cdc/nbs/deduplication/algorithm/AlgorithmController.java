@@ -24,7 +24,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.exception.AlgorithmException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 
 @RestController
-@RequestMapping("/api/configuration")
+@RequestMapping("/configuration")
 public class AlgorithmController {
 
     private final PassService passService;

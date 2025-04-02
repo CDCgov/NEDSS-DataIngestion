@@ -44,7 +44,7 @@ class MergeGroupControllerTest {
 
 
     // Act & Assert
-    mockMvc.perform(get("/api/deduplication/merge-groups")
+    mockMvc.perform(get("/deduplication/merge-groups")
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size)))
         .andExpect(status().isOk())
@@ -56,7 +56,7 @@ class MergeGroupControllerTest {
     MergeStatusRequest request = new MergeStatusRequest(100L, false);
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-status")
+    mockMvc.perform(post("/deduplication/merge-status")
             .contentType("application/json")
             .content("{\"personUid\": 100, \"status\": \"false\"}"))
         .andExpect(status().isOk())
@@ -72,7 +72,7 @@ class MergeGroupControllerTest {
     doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatus(request);
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-status")
+    mockMvc.perform(post("/deduplication/merge-status")
             .contentType("application/json")
             .content("{\"personUid\": 100, \"status\": \"false\"}"))
         .andExpect(status().isInternalServerError())

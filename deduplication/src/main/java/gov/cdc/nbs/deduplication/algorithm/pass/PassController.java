@@ -12,7 +12,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
 
 @RestController
-@RequestMapping("/api/configuration/pass")
+@RequestMapping("/configuration/pass")
 public class PassController {
 
     private final PassService passService;
