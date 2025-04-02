@@ -35,7 +35,9 @@ public class SecurityConfig {
             "/webjars/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/api/auth/token"
+            "/api/auth/token",
+            "/actuator/health",
+            "/actuator/info"
     };
     @Autowired
     private CustomAuthenticationManagerResolver customauthenticationmanagerresolver;

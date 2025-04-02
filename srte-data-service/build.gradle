@@ -26,6 +26,10 @@ apply plugin: 'org.owasp.dependencycheck'
 group = 'gov.cdc.rti'
 version = '0.0.1-SNAPSHOT'
 
+springBoot {
+    buildInfo()
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
