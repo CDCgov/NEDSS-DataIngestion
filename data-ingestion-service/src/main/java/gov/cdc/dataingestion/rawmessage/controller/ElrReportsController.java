@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.DataIngestionStatusService;
 import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
@@ -42,14 +40,21 @@ public class ElrReportsController {
     private final RawElrService rawELRService;
     private final CustomMetricsBuilder customMetricsBuilder;
     private IHL7Service hl7Service;
+    private final DataIngestionStatusService dataIngestionStatusService;
 
     @Autowired
     public ElrReportsController(RawElrService rawELRService,
                                 CustomMetricsBuilder customMetricsBuilder,
-                                IHL7Service hl7Service) {
+                                IHL7Service hl7Service, DataIngestionStatusService dataIngestionStatusService) {
         this.rawELRService = rawELRService;
         this.customMetricsBuilder = customMetricsBuilder;
         this.hl7Service = hl7Service;
+        this.dataIngestionStatusService = dataIngestionStatusService;
+    }
+
+    @GetMapping("/api/status")
+    public ResponseEntity<String> getDataPipelineStatusHealth() {
+        return this.dataIngestionStatusService.getHealthStatus();
     }
 
 

@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.rawmessage.controller;
 
 import gov.cdc.dataingestion.custommetrics.CustomMetricsBuilder;
 import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
+import gov.cdc.dataingestion.rawmessage.service.DataIngestionStatusService;
 import gov.cdc.dataingestion.rawmessage.service.RawElrService;
 import gov.cdc.dataingestion.validation.services.interfaces.IHL7Service;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,6 +38,10 @@ class ElrReportsControllerTest {
     private CustomMetricsBuilder customMetricsBuilder;
     @MockBean
     private IHL7Service hl7Service;
+
+    @MockBean
+    private DataIngestionStatusService dataIngestionStatusService;
+
     @Test
     void testSaveHL7Message() throws Exception {
         String hl7Payload = "testmessage";
@@ -138,6 +144,18 @@ class ElrReportsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(hl7Service).hl7Validator(hl7Payload);
+    }
+
+    @Test
+    void testGetDataPipelineStatusHealth() throws Exception {
+        when(dataIngestionStatusService.getHealthStatus()).thenReturn(ResponseEntity.ok("Data Ingestion Service Status OK"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/status")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Data Ingestion Service Status OK"));
+
+        verify(dataIngestionStatusService).getHealthStatus();
     }
 
 }
