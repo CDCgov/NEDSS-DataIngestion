@@ -19,7 +19,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
         .withNetworkAliases("postgres");
 
     final GenericContainer<?> recordLinkageContainer = new GenericContainer<>(
-        "ghcr.io/cdcgov/recordlinker:latest")
+        "ghcr.io/cdcgov/recordlinker:v25.3.0")
         .withExposedPorts(8080)
         .withNetwork(network)
         .withNetworkAliases("recordLinkage");
