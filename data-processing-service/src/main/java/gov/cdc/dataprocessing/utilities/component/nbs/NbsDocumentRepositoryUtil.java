@@ -64,64 +64,58 @@ public class NbsDocumentRepositoryUtil {
     }
 
     public NbsDocumentContainer getNBSDocumentWithoutActRelationship(Long nbsDocUid) throws  DataProcessingException {
-        try {
-            NbsDocumentContainer nbsDocumentVO;
-            PersonContainer personVO ;
-            ParticipationDto participationDt ;
+        NbsDocumentContainer nbsDocumentVO;
+        PersonContainer personVO ;
+        ParticipationDto participationDt ;
 
-            nbsDocumentVO = customRepository.getNbsDocument(nbsDocUid);
-            Long personUid = nbsDocumentVO.getPatientVO().getThePersonDto().getPersonUid();
-            personVO = patientRepositoryUtil.loadPerson(personUid);
-            nbsDocumentVO.setPatientVO(personVO);
-            participationDt = participationRepositoryUtil.getParticipation(personUid, nbsDocUid);
+        nbsDocumentVO = customRepository.getNbsDocument(nbsDocUid);
+        Long personUid = nbsDocumentVO.getPatientVO().getThePersonDto().getPersonUid();
+        personVO = patientRepositoryUtil.loadPerson(personUid);
+        nbsDocumentVO.setPatientVO(personVO);
+        participationDt = participationRepositoryUtil.getParticipation(personUid, nbsDocUid);
 
-            nbsDocumentVO.setParticipationDT(participationDt);
-            return nbsDocumentVO;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+        nbsDocumentVO.setParticipationDT(participationDt);
+        return nbsDocumentVO;
+
     }
 
 
     public Long updateDocumentWithOutthePatient(NbsDocumentContainer nbsDocVO) throws DataProcessingException {
         Long nbsDocUid = null;
 
-        try {
-            NbsDocumentContainer nbSOldDocumentVO = customRepository.getNbsDocument(nbsDocVO.getNbsDocumentDT().getNbsDocumentUid());
+        NbsDocumentContainer nbSOldDocumentVO = customRepository.getNbsDocument(nbsDocVO.getNbsDocumentDT().getNbsDocumentUid());
 
-            if (nbSOldDocumentVO != null) {
-                NBSDocumentDto nbsDocumentDT = nbsDocVO.getNbsDocumentDT();
-                nbsDocumentDT.setSuperclass("ACT");
-                RootDtoInterface rootDTInterface = nbsDocVO.getNbsDocumentDT();
-                String businessObjLookupName = NBSBOLookup.DOCUMENT;
-                String businessTriggerCd ;
-                businessTriggerCd = "DOC_PROCESS";
+        if (nbSOldDocumentVO != null) {
+            NBSDocumentDto nbsDocumentDT = nbsDocVO.getNbsDocumentDT();
+            nbsDocumentDT.setSuperclass("ACT");
+            RootDtoInterface rootDTInterface = nbsDocVO.getNbsDocumentDT();
+            String businessObjLookupName = NBSBOLookup.DOCUMENT;
+            String businessTriggerCd ;
+            businessTriggerCd = "DOC_PROCESS";
 
-                if (nbsDocumentDT.getRecordStatusCd() != null
-                        && nbsDocumentDT.getRecordStatusCd().equals(
-                        NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE))
-                {
-                    businessTriggerCd = "DOC_DEL";
-                }
-                if (nbsDocVO.isFromSecurityQueue())
-                {
-                    businessTriggerCd = "DOC_IN_PROCESS";
-                }
-                String tableName = "NBS_DOCUMENT";
-                String moduleCd = "BASE";
-                nbsDocumentDT =  (NBSDocumentDto) prepareAssocModelHelper.prepareVO(
-                        rootDTInterface, businessObjLookupName,
-                        businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
-
-                // update the record
-                nbsDocUid = updateNbsDocument(nbsDocumentDT);
-
-                // insert the old record in the history
-                insertNBSDocumentHist(nbSOldDocumentVO.getNbsDocumentDT());
+            if (nbsDocumentDT.getRecordStatusCd() != null
+                    && nbsDocumentDT.getRecordStatusCd().equals(
+                    NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE))
+            {
+                businessTriggerCd = "DOC_DEL";
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            if (nbsDocVO.isFromSecurityQueue())
+            {
+                businessTriggerCd = "DOC_IN_PROCESS";
+            }
+            String tableName = "NBS_DOCUMENT";
+            String moduleCd = "BASE";
+            nbsDocumentDT =  (NBSDocumentDto) prepareAssocModelHelper.prepareVO(
+                    rootDTInterface, businessObjLookupName,
+                    businessTriggerCd, tableName, moduleCd, rootDTInterface.getVersionCtrlNbr());
+
+            // update the record
+            nbsDocUid = updateNbsDocument(nbsDocumentDT);
+
+            // insert the old record in the history
+            insertNBSDocumentHist(nbSOldDocumentVO.getNbsDocumentDT());
         }
+
 
         return nbsDocUid;
 

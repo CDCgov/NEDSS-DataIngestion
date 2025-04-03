@@ -13,7 +13,7 @@ public class DuplicateCheckService {
 
   private final RestClient recordLinkageClient;
 
-  public DuplicateCheckService(@Qualifier("recordLinkageRestClient") RestClient recordLinkageClient) {
+  public DuplicateCheckService(@Qualifier("recordLinkerRestClient") RestClient recordLinkageClient) {
     this.recordLinkageClient = recordLinkageClient;
   }
 

@@ -55,7 +55,7 @@ class EntityHelperTest {
 
         when(prepareAssocModel.prepareAssocDTForEntityLocatorParticipation(any(EntityLocatorParticipationDto.class)))
                 .thenThrow(new RuntimeException("TEST"));
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             entityHelper.iterateELPDTForEntityLocatorParticipation(dtCol);
         });
 
@@ -86,7 +86,7 @@ class EntityHelperTest {
 
         when(prepareAssocModel.prepareAssocDTForRole(any(RoleDto.class))).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             entityHelper.iterateRDT(dtCol);
         });
 

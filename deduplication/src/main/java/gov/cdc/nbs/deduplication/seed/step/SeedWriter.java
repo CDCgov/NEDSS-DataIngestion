@@ -41,7 +41,7 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
   public SeedWriter(
       @Qualifier("nbsTemplate") JdbcTemplate template,
       ObjectMapper objectMapper,
-      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient) {
+      @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient) {
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(template);
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;

@@ -261,7 +261,7 @@ class PatientMatchingBaseServiceTest {
 
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             patientMatchingBaseService.updateExistingPerson(perCon, businessTrigger, 10L);
         });
 
@@ -545,7 +545,7 @@ class PatientMatchingBaseServiceTest {
         doThrow(new RuntimeException("Outer exception")).when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             patientMatchingBaseService.setPersonHashCdPatient(personContainer);
         });
 
@@ -657,7 +657,7 @@ class PatientMatchingBaseServiceTest {
         doThrow(new RuntimeException("Database error")).when(edxPatientMatchRepositoryUtil).setEdxPatientMatchDT(any());
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             patientMatchingBaseService.setPersonToMatchEntityPatient(personContainer);
         });
 
@@ -723,7 +723,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_ValidInputs() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_ValidInputs()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -756,7 +756,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_EmptyCdDescTxt() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_EmptyCdDescTxt()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -772,7 +772,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonToMatchEntityNok_EmptyNameAddressStreetOneStrList() throws DataProcessingException {
+    void testSetPersonToMatchEntityNok_EmptyNameAddressStreetOneStrList()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -816,7 +816,7 @@ class PatientMatchingBaseServiceTest {
         doThrow(new RuntimeException("Database error")).when(edxPatientMatchRepositoryUtil).setEdxPatientMatchDT(any());
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             patientMatchingBaseService.setPersonToMatchEntityNok(personContainer);
         });
 

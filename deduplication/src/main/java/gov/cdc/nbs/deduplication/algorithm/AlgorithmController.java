@@ -1,84 +1,84 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.core.io.InputStreamResource;
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gov.cdc.nbs.deduplication.algorithm.dataelements.DataElementsService;
+import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmExport;
+import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.AlgorithmException;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 
 @RestController
-@RequestMapping("/api/deduplication")
+@RequestMapping("/configuration")
 public class AlgorithmController {
 
-    private final AlgorithmService algorithmService;
+    private final PassService passService;
+    private final DataElementsService dataElementsService;
+    private final ObjectMapper mapper;
 
-    private final ObjectMapper objectMapper;
-
-    private static final Logger log = LoggerFactory.getLogger(AlgorithmController.class);
-
-    public AlgorithmController(AlgorithmService algorithmService, ObjectMapper objectMapper) {
-        this.algorithmService = algorithmService;
-        this.objectMapper = objectMapper;
+    public AlgorithmController(
+            final PassService passService,
+            final DataElementsService dataElementsService,
+            final ObjectMapper mapper) {
+        this.passService = passService;
+        this.dataElementsService = dataElementsService;
+        this.mapper = mapper;
     }
 
-    @PostMapping("/configure-matching")
-    public void configureMatching(@RequestBody MatchingConfigRequest request) {
+    @GetMapping()
+    public Algorithm get() {
+        return passService.getCurrentAlgorithm();
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> export() {
+        AlgorithmExport export = new AlgorithmExport(
+                dataElementsService.getCurrentDataElements(),
+                passService.getCurrentAlgorithm());
+
+        byte[] body;
+
         try {
-            log.info("Received configure matching request: {}", request);
-            algorithmService.configureMatching(request);
-        } catch (Exception e) {
-            log.error("Error while processing the configure matching request: ", e);
+            body = mapper.writeValueAsString(export).getBytes();
+        } catch (JsonProcessingException e) {
+            throw new AlgorithmException("Failed to export algorithm");
         }
-    }
-
-    @GetMapping("/matching-configuration")
-    public Map<String, List<Pass>> getMatchingConfiguration() {
-        List<Pass> passes = algorithmService.getMatchingConfiguration();
-        return Map.of("passes", passes);
-    }
-
-    @PostMapping("/update-algorithm")
-    public void updateAlgorithm(@RequestBody MatchingConfigRequest request) {
-        algorithmService.updateDibbsConfigurations(request);
-    }
-
-    @GetMapping("/export-configuration")
-    public ResponseEntity<InputStreamResource> exportConfiguration() throws IOException {
-        // Fetch the configuration from the service
-        List<Pass> passes = algorithmService.getMatchingConfiguration();
-
-        // Convert to JSON string
-        String jsonConfig = objectMapper.writeValueAsString(passes);
-
-        // Convert to bytes and create an InputStream
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jsonConfig.getBytes(StandardCharsets.UTF_8));
-
-        // Generate a timestamped filename
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String fileName = "record_linker_config_" + timestamp + ".json";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-                .body(new InputStreamResource(byteArrayInputStream));
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename("deduplication_config_" + LocalDateTime.now().toString() + ".json")
+                                .build()
+                                .toString())
+                .body(body);
     }
 
-    @PostMapping("/import-configuration")
-    public ResponseEntity<String> importConfiguration(@RequestBody MatchingConfigRequest configRequest) {
-        algorithmService.saveMatchingConfiguration(configRequest);
-        return ResponseEntity.ok("Configuration imported successfully.");
+    @PostMapping(path = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Algorithm importAlgorithm(@RequestPart(value = "file") MultipartFile file) {
+        try {
+            AlgorithmExport algorithmExport = mapper.readValue(file.getBytes(), AlgorithmExport.class);
+            dataElementsService.save(algorithmExport.dataElements());
+            passService.saveAlgorithm(algorithmExport.algorithm());
+            return algorithmExport.algorithm();
+        } catch (IOException e) {
+            throw new AlgorithmException("Failed to import algorithm");
+        }
+
     }
 }

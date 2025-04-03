@@ -7,8 +7,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationService;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -38,13 +38,15 @@ import java.util.Collections;
 public class ParticipationService implements IParticipationService {
     private final ParticipationRepository participationRepository;
     private final ParticipationHistRepository participationHistRepository;
+    private final DataModifierReposJdbc dataModifierReposJdbc;
 
 
     public ParticipationService(ParticipationRepository participationRepository,
-                                ParticipationHistRepository participationHistRepository
+                                ParticipationHistRepository participationHistRepository, DataModifierReposJdbc dataModifierReposJdbc
     ) {
         this.participationRepository = participationRepository;
         this.participationHistRepository = participationHistRepository;
+        this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
 
     public Long findPatientMprUidByObservationUid(String classCode, String typeCode, Long actUid) {
@@ -52,27 +54,20 @@ public class ParticipationService implements IParticipationService {
         return result.map(longs -> longs.get(0)).orElse(null);
     }
 
-    @Transactional
     public void saveParticipationHist(ParticipationDto participationDto) throws DataProcessingException {
-        try {
-
-            var res = participationHistRepository.findVerNumberByKey(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getTypeCd());
-            Integer ver = 1;
-            if (res.isPresent() && !res.get().isEmpty()) {
-                ver = Collections.max(res.get());
-            }
-
-            var patHist = new ParticipationHist(participationDto);
-            patHist.setVersionCtrlNbr(ver);
-            participationHistRepository.save(patHist);
-            participationDto.setItNew(false);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        var res = participationHistRepository.findVerNumberByKey(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getTypeCd());
+        Integer ver = 1;
+        if (res.isPresent() && !res.get().isEmpty()) {
+            ver = Collections.max(res.get());
         }
+
+        var patHist = new ParticipationHist(participationDto);
+        patHist.setVersionCtrlNbr(ver);
+        participationHistRepository.save(patHist);
+        participationDto.setItNew(false);
 
     }
 
-    @Transactional
     public void saveParticipation(ParticipationDto participationDto) throws DataProcessingException {
         if (participationDto.isItNew() || participationDto.isItDirty()) {
             persistingParticipation(participationDto);
@@ -80,26 +75,15 @@ public class ParticipationService implements IParticipationService {
             deleteParticipationByPk(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getActClassCd());
         }
     }
-    private void persistingParticipation(ParticipationDto participationDto) throws DataProcessingException {
+    private void persistingParticipation(ParticipationDto participationDto)  {
         if (participationDto.getSubjectEntityUid() != null && participationDto.getActUid() != null) {
-            try {
-                var data = new Participation(participationDto);
-
-                participationRepository.save(data);
-
-            } catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
-
+            var data = new Participation(participationDto);
+            participationRepository.save(data);
         }
     }
 
-    private void deleteParticipationByPk(Long subjectId, Long actId, String classCode) throws DataProcessingException {
-        try {
-            participationRepository.deleteParticipationByPk(subjectId, actId, classCode);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
+    private void deleteParticipationByPk(Long subjectId, Long actId, String classCode)  {
+        dataModifierReposJdbc.deleteParticipationByPk(subjectId, actId, classCode);
     }
 
 }

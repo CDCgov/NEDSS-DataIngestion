@@ -29,7 +29,6 @@ import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRep
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -126,7 +125,6 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
 
-    @Transactional
     public PublicHealthCaseContainer update(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         if (phcVO == null) {
             return null;
@@ -172,7 +170,6 @@ public class PublicHealthCaseRepositoryUtil {
         return phcVO;
     }
 
-    @Transactional
     public PublicHealthCaseContainer create(PublicHealthCaseContainer phcVO) throws DataProcessingException {
         long phcUid;
         phcVO.getThePublicHealthCaseDto().setVersionCtrlNbr(1);

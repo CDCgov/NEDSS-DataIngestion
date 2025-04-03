@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/deduplication")
+@RequestMapping("/deduplication")
 public class MergeGroupController {
 
   private final MergeGroupHandler mergeGroupHandler;

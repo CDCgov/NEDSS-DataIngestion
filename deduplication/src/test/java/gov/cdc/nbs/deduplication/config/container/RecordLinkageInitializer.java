@@ -37,7 +37,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
 
     recordLinkageContainer.addEnv("DB_URI", dbUri);
     recordLinkageContainer.start();
-    System.setProperty("recordLinkage.url",
+    System.setProperty("deduplication.recordLinker.url",
         "http://localhost:" + recordLinkageContainer.getMappedPort(8080));
 
   }

@@ -76,12 +76,9 @@ public class DsmLabMatchHelper {
      * @param algorithmDocument
      */
     public DsmLabMatchHelper(Algorithm algorithmDocument) throws DataProcessingException {
-        try {
-            this.algorithm =algorithmDocument;
-            this.algorithmDocument=algorithmDocument;
-        } catch (Exception e) {
-            throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process Container Document",e);
-        }
+        this.algorithm =algorithmDocument;
+        this.algorithmDocument=algorithmDocument;
+
         if (algorithm.getAlgorithmName() != null) {
             algorithmNm = algorithm.getAlgorithmName();
         }
@@ -99,107 +96,99 @@ public class DsmLabMatchHelper {
         this.systemOidMap = new HashMap<String,String>(); //OID-name
         //populate receiving systems map if present
         if(algorithm.getApplyToSendingSystems()!=null ){
-            try {
-                SendingSystemType sendingSystemType  =algorithm.getApplyToSendingSystems();
-                for(int i=0; i<sendingSystemType.getSendingSystem().size(); i++){
-                    CodedType sendingSystemCodedType= sendingSystemType.getSendingSystem().get(i);
-                    String receivingSystemOid = sendingSystemCodedType.getCodeSystemVersionID();
-                    String receivingSystemDescTxt = sendingSystemCodedType.getCode();
+            SendingSystemType sendingSystemType  =algorithm.getApplyToSendingSystems();
+            for(int i=0; i<sendingSystemType.getSendingSystem().size(); i++){
+                CodedType sendingSystemCodedType= sendingSystemType.getSendingSystem().get(i);
+                String receivingSystemOid = sendingSystemCodedType.getCodeSystemVersionID();
+                String receivingSystemDescTxt = sendingSystemCodedType.getCode();
 
-                    if(receivingSystemOid!=null){
-                        //criteriaBufferKey.append(spacer);
-                        if (receivingSystemDescTxt != null)
-                            systemOidMap.put(receivingSystemOid, receivingSystemDescTxt);
-                        else
-                            systemOidMap.put(receivingSystemOid, NULL_STRING);
-                    }
-                    if(receivingSystemDescTxt!=null){
-                        if (receivingSystemOid != null)
-                            systemNameMap.put(receivingSystemDescTxt,receivingSystemOid);
-                        else
-                            systemNameMap.put(receivingSystemDescTxt, NULL_STRING);
-                    }
-                } //for
-            } catch (Exception e) {
-                throw new DataProcessingException("ELR to Algorithm Matching Failed: DSMLabMatchHelper.Constructor Unable to process specified sending systems",e);
-            }
+                if(receivingSystemOid!=null){
+                    //criteriaBufferKey.append(spacer);
+                    if (receivingSystemDescTxt != null)
+                        systemOidMap.put(receivingSystemOid, receivingSystemDescTxt);
+                    else
+                        systemOidMap.put(receivingSystemOid, NULL_STRING);
+                }
+                if(receivingSystemDescTxt!=null){
+                    if (receivingSystemOid != null)
+                        systemNameMap.put(receivingSystemDescTxt,receivingSystemOid);
+                    else
+                        systemNameMap.put(receivingSystemDescTxt, NULL_STRING);
+                }
+            } //for
         }
 
         //next populate resultedTestCodeMap
         if(algorithm.getElrAdvancedCriteria()!=null && algorithm.getElrAdvancedCriteria().getElrCriteria()!=null) {
             List<ElrCriteriaType> elrCriteriaArray = algorithm.getElrAdvancedCriteria().getElrCriteria();  //getElrCriteriaArray().
-            try {
-                for(ElrCriteriaType elrCriteria : elrCriteriaArray){
-                    CodedType elrResultTestCriteriaType= elrCriteria.getResultedTest();
-                    if(elrResultTestCriteriaType!=null && elrResultTestCriteriaType.getCode()!=null && elrResultTestCriteriaType.getCode().length()>0){
-                        String code = elrResultTestCriteriaType.getCode();
-                        String codeDesc = elrResultTestCriteriaType.getCodeDescTxt();
-                        resultedTestCodeMap.put(code,  codeDesc);
-                        if (elrCriteria.getElrCodedResultValue() != null) {
-                            TestCodedValue thisCodedValue = new TestCodedValue();
-                            thisCodedValue.setTestCode(code);
-                            thisCodedValue.setTestCodeDesc(codeDesc);
-                            thisCodedValue.setResultCode(elrCriteria.getElrCodedResultValue().getCode());
-                            thisCodedValue.setResultCodeDesc(elrCriteria.getElrCodedResultValue().getCodeDescTxt());
-                            resultedTestCodedValueList.add(thisCodedValue);
-                        } else if (elrCriteria.getElrTextResultValue() != null) {
-                            TestTextValue thisTextValue = new TestTextValue();
-                            thisTextValue.setTestCode(code);
-                            thisTextValue.setTestCodeDesc(codeDesc);
-                            if (elrCriteria.getElrTextResultValue().getTextValue() != null)
-                                thisTextValue.setTextValue(elrCriteria.getElrTextResultValue().getTextValue());
-                            if (elrCriteria.getElrTextResultValue().getComparatorCode() != null) {
-                                if (elrCriteria.getElrTextResultValue().getComparatorCode().getCode() != null)
-                                    thisTextValue.setComparatorCode(elrCriteria.getElrTextResultValue().getComparatorCode().getCode());
-                                if (elrCriteria.getElrTextResultValue().getComparatorCode().getCodeDescTxt() != null)
-                                    thisTextValue.setComparatorCodeDesc(elrCriteria.getElrTextResultValue().getComparatorCode().getCodeDescTxt());
-                            }
-                            resultedTestTextValueList.add(thisTextValue);
-                        } else if (elrCriteria.getElrNumericResultValue() != null) {
-                            TestNumericValue thisNumericValue = new TestNumericValue();
-                            thisNumericValue.setTestCode(code);
-                            thisNumericValue.setTestCodeDesc(codeDesc);
-                            //comparator
-                            if (elrCriteria.getElrNumericResultValue().getComparatorCode() != null) {
-                                if (elrCriteria.getElrNumericResultValue().getComparatorCode().getCode() != null)
-                                    thisNumericValue.setComparatorCode(elrCriteria.getElrNumericResultValue().getComparatorCode().getCode());
-                                if (elrCriteria.getElrNumericResultValue().getComparatorCode().getCodeDescTxt() != null)
-                                    thisNumericValue.setComparatorCodeDesc(elrCriteria.getElrNumericResultValue().getComparatorCode().getCodeDescTxt());
-                            }
-                            //value1
-                            if (elrCriteria.getElrNumericResultValue().getValue1() != null) {
-                                try {
-                                    BigDecimal algorithmNumericValue1 = new BigDecimal(elrCriteria.getElrNumericResultValue().getValue1());
-                                    thisNumericValue.setValue1(algorithmNumericValue1);
-                                } catch (Exception e) {
-                                    logger.info(e.getMessage());
-                                }
-                            }
-                            //separator
-                            if (elrCriteria.getElrNumericResultValue().getSeperatorCode() != null)
-                                thisNumericValue.setSeparatorCode(elrCriteria.getElrNumericResultValue().getSeperatorCode());
-                            //value2
-                            if (elrCriteria.getElrNumericResultValue().getValue2() != null)
-                                try {
-                                    BigDecimal algorithmNumericValue2 = new BigDecimal(elrCriteria.getElrNumericResultValue().getValue2());
-                                    thisNumericValue.setValue2(algorithmNumericValue2);
-                                } catch (Exception e) {
-                                    logger.info(e.getMessage());
-                                }
-                            //units
-                            if (elrCriteria.getElrNumericResultValue().getUnit() != null) {
-                                if (elrCriteria.getElrNumericResultValue().getUnit().getCode() != null)
-                                    thisNumericValue.setUnitCode(elrCriteria.getElrNumericResultValue().getUnit().getCode());
-                                if (elrCriteria.getElrNumericResultValue().getUnit().getCodeDescTxt() != null)
-                                    thisNumericValue.setUnitCodeDesc(elrCriteria.getElrNumericResultValue().getUnit().getCodeDescTxt());
-                            }
-                            resultedTestNumericValueList.add(thisNumericValue);
+            for(ElrCriteriaType elrCriteria : elrCriteriaArray){
+                CodedType elrResultTestCriteriaType= elrCriteria.getResultedTest();
+                if(elrResultTestCriteriaType!=null && elrResultTestCriteriaType.getCode()!=null && elrResultTestCriteriaType.getCode().length()>0){
+                    String code = elrResultTestCriteriaType.getCode();
+                    String codeDesc = elrResultTestCriteriaType.getCodeDescTxt();
+                    resultedTestCodeMap.put(code,  codeDesc);
+                    if (elrCriteria.getElrCodedResultValue() != null) {
+                        TestCodedValue thisCodedValue = new TestCodedValue();
+                        thisCodedValue.setTestCode(code);
+                        thisCodedValue.setTestCodeDesc(codeDesc);
+                        thisCodedValue.setResultCode(elrCriteria.getElrCodedResultValue().getCode());
+                        thisCodedValue.setResultCodeDesc(elrCriteria.getElrCodedResultValue().getCodeDescTxt());
+                        resultedTestCodedValueList.add(thisCodedValue);
+                    } else if (elrCriteria.getElrTextResultValue() != null) {
+                        TestTextValue thisTextValue = new TestTextValue();
+                        thisTextValue.setTestCode(code);
+                        thisTextValue.setTestCodeDesc(codeDesc);
+                        if (elrCriteria.getElrTextResultValue().getTextValue() != null)
+                            thisTextValue.setTextValue(elrCriteria.getElrTextResultValue().getTextValue());
+                        if (elrCriteria.getElrTextResultValue().getComparatorCode() != null) {
+                            if (elrCriteria.getElrTextResultValue().getComparatorCode().getCode() != null)
+                                thisTextValue.setComparatorCode(elrCriteria.getElrTextResultValue().getComparatorCode().getCode());
+                            if (elrCriteria.getElrTextResultValue().getComparatorCode().getCodeDescTxt() != null)
+                                thisTextValue.setComparatorCodeDesc(elrCriteria.getElrTextResultValue().getComparatorCode().getCodeDescTxt());
                         }
-                    } //elrResultTestCriteriaType not null
-                } //for
-            } catch (Exception e) {
-                throw new DataProcessingException("DSMMatchHelper.get criteria Exception thrown",e);
-            }
+                        resultedTestTextValueList.add(thisTextValue);
+                    } else if (elrCriteria.getElrNumericResultValue() != null) {
+                        TestNumericValue thisNumericValue = new TestNumericValue();
+                        thisNumericValue.setTestCode(code);
+                        thisNumericValue.setTestCodeDesc(codeDesc);
+                        //comparator
+                        if (elrCriteria.getElrNumericResultValue().getComparatorCode() != null) {
+                            if (elrCriteria.getElrNumericResultValue().getComparatorCode().getCode() != null)
+                                thisNumericValue.setComparatorCode(elrCriteria.getElrNumericResultValue().getComparatorCode().getCode());
+                            if (elrCriteria.getElrNumericResultValue().getComparatorCode().getCodeDescTxt() != null)
+                                thisNumericValue.setComparatorCodeDesc(elrCriteria.getElrNumericResultValue().getComparatorCode().getCodeDescTxt());
+                        }
+                        //value1
+                        if (elrCriteria.getElrNumericResultValue().getValue1() != null) {
+                            try {
+                                BigDecimal algorithmNumericValue1 = new BigDecimal(elrCriteria.getElrNumericResultValue().getValue1());
+                                thisNumericValue.setValue1(algorithmNumericValue1);
+                            } catch (Exception e) {
+                                logger.error(e.getMessage());
+                            }
+                        }
+                        //separator
+                        if (elrCriteria.getElrNumericResultValue().getSeperatorCode() != null)
+                            thisNumericValue.setSeparatorCode(elrCriteria.getElrNumericResultValue().getSeperatorCode());
+                        //value2
+                        if (elrCriteria.getElrNumericResultValue().getValue2() != null)
+                            try {
+                                BigDecimal algorithmNumericValue2 = new BigDecimal(elrCriteria.getElrNumericResultValue().getValue2());
+                                thisNumericValue.setValue2(algorithmNumericValue2);
+                            } catch (Exception e) {
+                                logger.error(e.getMessage());
+                            }
+                        //units
+                        if (elrCriteria.getElrNumericResultValue().getUnit() != null) {
+                            if (elrCriteria.getElrNumericResultValue().getUnit().getCode() != null)
+                                thisNumericValue.setUnitCode(elrCriteria.getElrNumericResultValue().getUnit().getCode());
+                            if (elrCriteria.getElrNumericResultValue().getUnit().getCodeDescTxt() != null)
+                                thisNumericValue.setUnitCodeDesc(elrCriteria.getElrNumericResultValue().getUnit().getCodeDescTxt());
+                        }
+                        resultedTestNumericValueList.add(thisNumericValue);
+                    }
+                } //elrResultTestCriteriaType not null
+            } //for
         }
     } //end Constructor
 
@@ -263,7 +252,7 @@ public class DsmLabMatchHelper {
             wdsReport = testIfAlgorthmMatchesLab(resultedTestColl, resultedTestCodedValueList, resultedTestTextValueList, resultedTestNumericValueList);
         }
         catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         }
         return wdsReport;
     }
@@ -283,38 +272,33 @@ public class DsmLabMatchHelper {
             List<TestTextValue> testTextValueList,
             List<TestNumericValue> testNumericValueList) throws DataProcessingException {
         WdsReport wdsReport = new WdsReport();
-        try {
-            // CODED VALUE
-            var obsValueMatched = checkingObsValueMatched(resultedTestColl, testCodedValueList, wdsReport);
-            if (obsValueMatched) {
-                return wdsReport;
-            }
-
-            // TEXT VALUE
-            var obsTextMatched = checkingObsTextMatched(
-                    resultedTestColl,
-                    testTextValueList,
-                    wdsReport
-            );
-
-            if (obsTextMatched) {
-                return wdsReport;
-            }
-
-            // NUMERIC
-            var obsNumericMatched = checkingObsNumericMatched(
-                    resultedTestColl,
-                    testNumericValueList,
-                    wdsReport
-            );
-            if (obsNumericMatched) {
-                return wdsReport;
-            }
-
-
-        } catch (Exception e) {
-            throw new DataProcessingException("DSMMatchHelper.isThisLabAMatch Exception thrown",e);
+        // CODED VALUE
+        var obsValueMatched = checkingObsValueMatched(resultedTestColl, testCodedValueList, wdsReport);
+        if (obsValueMatched) {
+            return wdsReport;
         }
+
+        // TEXT VALUE
+        var obsTextMatched = checkingObsTextMatched(
+                resultedTestColl,
+                testTextValueList,
+                wdsReport
+        );
+
+        if (obsTextMatched) {
+            return wdsReport;
+        }
+
+        // NUMERIC
+        var obsNumericMatched = checkingObsNumericMatched(
+                resultedTestColl,
+                testNumericValueList,
+                wdsReport
+        );
+        if (obsNumericMatched) {
+            return wdsReport;
+        }
+
         ////All test complete!
         if (algorithmIsOrLogic)
         {

@@ -1,221 +1,142 @@
 package gov.cdc.nbs.deduplication.algorithm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.cdc.nbs.deduplication.algorithm.dto.Kwargs;
-import gov.cdc.nbs.deduplication.algorithm.dto.Pass;
-import gov.cdc.nbs.deduplication.algorithm.model.MatchingConfigRequest;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import gov.cdc.nbs.deduplication.algorithm.dataelements.DataElementsService;
+import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
+import gov.cdc.nbs.deduplication.algorithm.model.AlgorithmExport;
+import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.AlgorithmException;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.BlockingAttribute;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchingAttribute;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingAttributeEntry;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingMethod;
+import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
 
 @ExtendWith(MockitoExtension.class)
 class AlgorithmControllerTest {
 
     @Mock
-    private AlgorithmService algorithmService;
+    private PassService passService;
+
+    @Mock
+    private DataElementsService dataElementsService;
+
+    @Spy
+    private ObjectMapper mapper = new ObjectMapper();
 
     @InjectMocks
-    private AlgorithmController algorithmController;
+    private AlgorithmController controller;
 
-    private MockMvc mockMvc;
-    private ObjectMapper objectMapper;
+    private final Pass pass = new Pass(
+            null,
+            "pass 1",
+            "description 1",
+            true,
+            List.of(BlockingAttribute.ADDRESS),
+            List.of(
+                    new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT),
+                    new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER)),
+            0.52,
+            0.92);
 
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-        mockMvc = MockMvcBuilders.standaloneSetup(algorithmController).build();
+    private final Algorithm algorithm = new Algorithm(List.of(pass));
+
+    @Test
+    void should_get_algorithm() {
+        when(passService.getCurrentAlgorithm()).thenReturn(algorithm);
+
+        Algorithm actual = controller.get();
+
+        assertThat(actual).isEqualTo(algorithm);
+        verify(passService, times(1)).getCurrentAlgorithm();
     }
 
     @Test
-    void testConfigureMatching() {
-        Map<String, Boolean> blockingCriteria = Map.of(
-                "FIRST_NAME", true,
-                "LAST_NAME", false
-        );
+    void should_export() throws IOException {
+        when(passService.getCurrentAlgorithm()).thenReturn(algorithm);
+        DataElements dataElements = new DataElements();
+        when(dataElementsService.getCurrentDataElements()).thenReturn(dataElements);
 
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+        ResponseEntity<byte[]> actual = controller.export();
 
-        List<Pass> passes = List.of(new Pass(
-                "TestPass",
-                "Description",
-                "0.1",
-                "0.9",
-                blockingCriteria,
-                List.of(),
-                kwargs
-        ));
-
-        MatchingConfigRequest request = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                passes
-        );
-
-        doNothing().when(algorithmService).configureMatching(request);
-
-        algorithmController.configureMatching(request);
-
-        verify(algorithmService, times(1)).configureMatching(request);
+        AlgorithmExport exportedAlgorithm = mapper.readValue(actual.getBody(), AlgorithmExport.class);
+        assertThat(exportedAlgorithm.algorithm()).isEqualTo(algorithm);
+        assertThat(exportedAlgorithm.dataElements()).isEqualTo(dataElements);
     }
 
     @Test
-    void testGetMatchingConfiguration() {
-        Map<String, Boolean> blockingCriteria = Map.of(
-                "FIRST_NAME", true,
-                "LAST_NAME", false
-        );
+    void should_throw_exception_export() throws IOException {
+        when(passService.getCurrentAlgorithm()).thenReturn(algorithm);
+        DataElements dataElements = new DataElements();
+        when(dataElementsService.getCurrentDataElements()).thenReturn(dataElements);
 
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+        when(mapper.writeValueAsString(any(AlgorithmExport.class))).thenThrow(JsonProcessingException.class);
 
-        List<Pass> passes = List.of(new Pass(
-                "TestPass",
-                "Description",
-                "0.1",
-                "0.9",
-                blockingCriteria,
-                List.of(),
-                kwargs
-        ));
-
-        when(algorithmService.getMatchingConfiguration()).thenReturn(passes);
-
-        Map<String, List<Pass>> actualResponse = algorithmController.getMatchingConfiguration();
-
-        assertNotNull(actualResponse);
-        assertTrue(actualResponse.containsKey("passes"));
-        assertEquals(passes, actualResponse.get("passes"));
+        AlgorithmException ex = assertThrows(AlgorithmException.class, () -> controller.export());
+        assertThat(ex.getMessage()).isEqualTo("Failed to export algorithm");
     }
 
     @Test
-    void testUpdateAlgorithm() {
-        Map<String, Boolean> blockingCriteria = Map.of(
-                "FIRST_NAME", true,
-                "LAST_NAME", false
-        );
+    void should_import() throws IOException {
+        DataElements dataElements = new DataElements();
+        AlgorithmExport exportedAlgorithm = new AlgorithmExport(dataElements, algorithm);
+        MultipartFile multipartFile = new MockMultipartFile("importedFile",
+                mapper.writeValueAsBytes(exportedAlgorithm));
 
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+        ArgumentCaptor<DataElements> elementsCaptor = ArgumentCaptor.forClass(DataElements.class);
+        when(dataElementsService.save(elementsCaptor.capture())).thenReturn(dataElements);
+        ArgumentCaptor<Algorithm> algorithmCaptor = ArgumentCaptor.forClass(Algorithm.class);
+        doNothing().when(passService).saveAlgorithm(algorithmCaptor.capture());
 
-        List<Pass> passes = List.of(new Pass(
-                "TestPass",
-                "Description",
-                "0.1",
-                "0.9",
-                blockingCriteria,
-                List.of(),
-                kwargs
-        ));
+        Algorithm actual = controller.importAlgorithm(multipartFile);
 
-        MatchingConfigRequest request = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                passes
-        );
-
-        doNothing().when(algorithmService).updateDibbsConfigurations(request);
-
-        algorithmController.updateAlgorithm(request);
-
-        verify(algorithmService, times(1)).updateDibbsConfigurations(request);
+        assertThat(actual).isEqualTo(algorithm);
+        assertThat(elementsCaptor.getValue()).isEqualTo(dataElements);
+        assertThat(algorithmCaptor.getValue()).isEqualTo(algorithm);
     }
 
     @Test
-    void testExportConfiguration() throws IOException, NoSuchFieldException, IllegalAccessException {
-        Kwargs kwargs = new Kwargs("JaroWinkler",
-                Map.of("FIRST_NAME", 0.9, "LAST_NAME", 0.95),
-                12.2,
-                Map.of("FIRST_NAME", 6.85, "LAST_NAME", 6.35));
+    void should_throw_exception_import() throws IOException {
+        DataElements dataElements = new DataElements();
+        AlgorithmExport exportedAlgorithm = new AlgorithmExport(dataElements, algorithm);
+        MultipartFile multipartFile = new MockMultipartFile(
+                "importedFile",
+                mapper.writeValueAsBytes(exportedAlgorithm));
 
-        List<Pass> mockPasses = List.of(new Pass(
-                "pass1",
-                "description",
-                "0.1",
-                "0.9",
-                Map.of("FIRST_NAME", true, "LAST_NAME", false),
-                List.of(),
-                kwargs
-        ));
+        when(mapper.readValue(
+                multipartFile.getBytes(),
+                AlgorithmExport.class))
+                .thenThrow(JsonProcessingException.class);
 
-        when(algorithmService.getMatchingConfiguration()).thenReturn(mockPasses);
+        AlgorithmException ex = assertThrows(
+                AlgorithmException.class,
+                () -> controller.importAlgorithm(multipartFile));
+        assertThat(ex.getMessage()).isEqualTo("Failed to import algorithm");
 
-        String expectedJson = objectMapper.writeValueAsString(mockPasses);
-        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
-        doReturn(expectedJson).when(mockObjectMapper).writeValueAsString(mockPasses);
-
-        injectMockObjectMapper(mockObjectMapper);
-
-        ResponseEntity<InputStreamResource> response = algorithmController.exportConfiguration();
-
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("attachment; filename="));
-
-        ByteArrayInputStream inputStream = (ByteArrayInputStream) response.getBody().getInputStream();
-        String actualJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        assertEquals(expectedJson, actualJson);
-
-        verify(mockObjectMapper).writeValueAsString(mockPasses);
-    }
-
-    @Test
-    void testImportConfiguration() throws Exception {
-        MatchingConfigRequest mockConfigRequest = new MatchingConfigRequest(
-                "Test Label",
-                "Test Description",
-                true,
-                true,
-                List.of()
-        );
-
-        doNothing().when(algorithmService).saveMatchingConfiguration(mockConfigRequest);
-
-        String jsonRequest = objectMapper.writeValueAsString(mockConfigRequest);
-
-        assertNotNull(jsonRequest, "Request JSON is null");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/deduplication/import-configuration")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Configuration imported successfully."));
-
-        verify(algorithmService).saveMatchingConfiguration(mockConfigRequest);
-    }
-
-    private void injectMockObjectMapper(ObjectMapper mockObjectMapper) throws NoSuchFieldException, IllegalAccessException {
-        java.lang.reflect.Field field = AlgorithmController.class.getDeclaredField("objectMapper");
-        field.setAccessible(true);
-        field.set(algorithmController, mockObjectMapper);
     }
 }

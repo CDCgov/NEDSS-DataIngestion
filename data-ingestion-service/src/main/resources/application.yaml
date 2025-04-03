@@ -6,14 +6,29 @@ server:
     max-http-form-post-size:  ${API_PAYLOAD_MAX_SIZE:100MB}
     max-swallow-size: ${API_PAYLOAD_MAX_SIZE:100MB}
 
+info:
+  app:
+    name: DI
+    version: 1.0.0
+    description: Data Ingestion
+
 management:
+  info:
+    build:
+      enabled: true
+    java:
+      enabled: true
   endpoint:
     prometheus:
       enabled: true
+    health:
+      show-details: always
+      roles: ADMIN
   endpoints:
     web:
+      base-path: /actuator
       exposure:
-        include: "*"
+        include: "health,info"
   prometheus:
     metrics:
       export:
@@ -103,6 +118,8 @@ kafka:
     topic: xml_prep
   elr-duplicate:
     topic: elr_duplicate
+  rti:
+    topic: dp_elr_unprocessed
   topics: elr_raw,elr_validated
   retry:
     suffix: _retry

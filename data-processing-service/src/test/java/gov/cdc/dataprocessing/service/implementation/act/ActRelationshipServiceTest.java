@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.*;
 class ActRelationshipServiceTest {
     @Mock
     private ActRelationshipRepository actRelationshipRepository;
+    @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
     @InjectMocks
     private ActRelationshipService actRelationshipService;
     @Mock
@@ -46,7 +49,7 @@ class ActRelationshipServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(actRelationshipRepository, authUtil);
+        Mockito.reset(dataModifierReposJdbc, actRelationshipRepository, authUtil);
     }
 
     @Test
@@ -199,7 +202,7 @@ class ActRelationshipServiceTest {
 
         actRelationshipService.saveActRelationship(dto);
 
-        verify(actRelationshipRepository, times(1)).deleteActRelationshipByPk(any(), any(), any());
+        verify(dataModifierReposJdbc, times(1)).deleteActRelationshipByPk(any(), any(), any());
 
     }
 

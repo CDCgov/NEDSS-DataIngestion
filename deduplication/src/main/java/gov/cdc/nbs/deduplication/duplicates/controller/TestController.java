@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/batch-job/test")
+@RequestMapping("/batch-job/test")
 public class TestController {
 
   private final JobLauncher jobLauncher;

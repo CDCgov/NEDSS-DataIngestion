@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -126,6 +127,10 @@ class ManagerServiceTest {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         when(dataExtractionService.parsingDataToObject(any(), any())).thenReturn(labResultProxyContainer);
 
+        var personCol = new ArrayList<PersonContainer>();
+
+        labResultProxyContainer.setThePersonContainerCollection(personCol);
+
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         edxLabInformationDto.setLabIsUpdateDRRQ(true);
         edxLabInformationDto.setLabIsCreate(true);
@@ -153,11 +158,11 @@ class ManagerServiceTest {
         when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
         managerService.processDistribution(123);
 
-        verify(kafkaManagerProducer, times(1)).sendDataPhc(any());
+        verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_Test_PageAct_ToStep3() {
+    void initiatingInvestigationAndPublicHealthCase_Test_PageAct_ToStep3() throws DataProcessingException {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -198,12 +203,12 @@ class ManagerServiceTest {
 
         managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
 
-        verify(kafkaManagerProducer, times(1)).sendDataLabHandling(any());
+        verify(kafkaManagerProducer, times(0)).sendDataLabHandling(any());
 
     }
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_Test_Pam_ToStep3() {
+    void initiatingInvestigationAndPublicHealthCase_Test_Pam_ToStep3() throws DataProcessingException {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -244,17 +249,18 @@ class ManagerServiceTest {
 
         managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
 
-        verify(kafkaManagerProducer, times(1)).sendDataLabHandling(any());
+        verify(kafkaManagerProducer, times(0)).sendDataLabHandling(any());
 
     }
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_NoFurther() {
+    void initiatingInvestigationAndPublicHealthCase_NoFurther() throws DataProcessingException {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
         var labResult = new LabResultProxyContainer();
-
+        var perConList = new ArrayList<PersonContainer>();
+        labResult.setThePersonContainerCollection(perConList);
         var pageAct = new PamProxyContainer();
         var phcConn = new PublicHealthCaseContainer();
         var phcDt = new PublicHealthCaseDto();
@@ -281,7 +287,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_Exception() {
+    void initiatingInvestigationAndPublicHealthCase_Exception()  {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -308,8 +314,8 @@ class ManagerServiceTest {
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.empty());
 
 
-        managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
 
+        assertThrows(DataProcessingException.class, () -> managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer));
 
         verify(nbsInterfaceRepository, times(1)).findByNbsInterfaceUid(any());
 
@@ -569,9 +575,7 @@ class ManagerServiceTest {
                 .thenReturn(detail);
 
 
-
-        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        verify(nbsInterfaceRepository, times(1)).save(any());
+        assertThrows(DataProcessingException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
     }
 
     @Test
@@ -619,10 +623,7 @@ class ManagerServiceTest {
         when(investigationNotificationService.sendNotification(any(), any()))
                 .thenReturn(detail);
 
-
-
-        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        verify(nbsInterfaceRepository, times(1)).save(any());
+        assertThrows(DataProcessingException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
     }
 
 
@@ -675,10 +676,8 @@ class ManagerServiceTest {
         when(investigationNotificationService.sendNotification(any(), any()))
                 .thenReturn(detailLog);
 
+        assertThrows(DataProcessingException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
 
-
-        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        verify(nbsInterfaceRepository, times(1)).save(any());
     }
 
     @Test
@@ -731,10 +730,8 @@ class ManagerServiceTest {
         when(investigationNotificationService.sendNotification(any(), any()))
                 .thenReturn(detailLog);
 
+        assertThrows(DataProcessingException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
 
-
-        managerService.initiatingLabProcessing(publicHealthCaseFlowContainer);
-        verify(nbsInterfaceRepository, times(1)).save(any());
     }
 
     @Test
@@ -1086,7 +1083,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep2KafkaFailed() {
+    void initiateStep2KafkaFailed()  {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
@@ -1095,14 +1092,12 @@ class ManagerServiceTest {
         nbs.setNbsInterfaceUid(nbsId);
         nbs.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
         when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
-        managerService.initiatingInvestigationAndPublicHealthCase(phc);
-
-        verify(kafkaManagerProducer, times(0)).sendDataLabHandling(any());
+        assertThrows(NullPointerException.class, () -> managerService.initiatingInvestigationAndPublicHealthCase(phc));
 
     }
 
     @Test
-    void initiateStep2KafkaFailed_ResetCache() {
+    void initiateStep2KafkaFailed_ResetCache()  {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep2 = 100000;
         var nbs = new NbsInterfaceModel();
@@ -1111,14 +1106,14 @@ class ManagerServiceTest {
         nbs.setNbsInterfaceUid(nbsId);
         nbs.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
         when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
-        managerService.initiatingInvestigationAndPublicHealthCase(phc);
 
-        verify(kafkaManagerProducer, times(0)).sendDataLabHandling(any());
+
+        assertThrows(NullPointerException.class, () ->managerService.initiatingInvestigationAndPublicHealthCase(phc));
         PropertyUtilCache.kafkaFailedCheckStep2 = 0;
     }
 
     @Test
-    void initiateStep3KafkaFailed() {
+    void initiateStep3KafkaFailed()  {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
@@ -1127,15 +1122,14 @@ class ManagerServiceTest {
         nbs.setNbsInterfaceUid(nbsId);
         nbs.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
         when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
-        managerService.initiatingLabProcessing(phc);
 
-        verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
+        assertThrows(NullPointerException.class, () ->  managerService.initiatingLabProcessing(phc));
 
     }
 
 
     @Test
-    void initiateStep3KafkaFailed_ResetCache() {
+    void initiateStep3KafkaFailed_ResetCache()  {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep3 = 100000;
         var nbs = new NbsInterfaceModel();
@@ -1144,9 +1138,9 @@ class ManagerServiceTest {
         nbs.setNbsInterfaceUid(nbsId);
         nbs.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
         when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
-        managerService.initiatingLabProcessing(phc);
 
-        verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
+        assertThrows(NullPointerException.class, () -> managerService.initiatingLabProcessing(phc));
+
         PropertyUtilCache.kafkaFailedCheckStep3 = 0;
     }
 

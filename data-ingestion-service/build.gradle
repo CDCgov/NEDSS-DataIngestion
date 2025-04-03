@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.1'
+	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
@@ -25,6 +25,10 @@ apply plugin: 'org.owasp.dependencycheck'
 
 group = 'gov.cdc.dataingestion'
 version = '0.0.1-SNAPSHOT'
+
+springBoot {
+	buildInfo()
+}
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
