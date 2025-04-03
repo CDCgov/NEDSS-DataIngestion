@@ -50,7 +50,7 @@ class MergeGroupControllerTest {
 
 
     // Act & Assert
-    mockMvc.perform(get("/api/deduplication/merge-groups")
+    mockMvc.perform(get("/deduplication/merge-groups")
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size)))
         .andExpect(status().isOk())
@@ -61,7 +61,7 @@ class MergeGroupControllerTest {
   void testUpdateGroupNoMerge() throws Exception {
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/group-no-merge")
+    mockMvc.perform(post("/deduplication/group-no-merge")
             .contentType("application/json")
             .content("{\"personOfTheGroup\": 100}"))
         .andExpect(status().isOk())
@@ -76,7 +76,7 @@ class MergeGroupControllerTest {
     doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatusForGroup(100L);
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/group-no-merge")
+    mockMvc.perform(post("/deduplication/group-no-merge")
             .contentType("application/json")
             .content("{\"personOfTheGroup\": 100}"))
         .andExpect(status().isInternalServerError())
@@ -105,7 +105,7 @@ class MergeGroupControllerTest {
     mergeRequest.setSupersededPersonIds(Arrays.asList("superseded1", "superseded2"));
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-patient")
+    mockMvc.perform(post("/deduplication/merge-patient")
             .contentType("application/json")
             .content(
                 "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
@@ -121,7 +121,7 @@ class MergeGroupControllerTest {
     mergeRequest.setSupersededPersonIds(null); // Invalid data
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-patient")
+    mockMvc.perform(post("/deduplication/merge-patient")
             .contentType("application/json")
             .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
         .andExpect(status().isBadRequest());
@@ -139,7 +139,7 @@ class MergeGroupControllerTest {
         .performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
 
     // Act & Assert
-    mockMvc.perform(post("/api/deduplication/merge-patient")
+    mockMvc.perform(post("/deduplication/merge-patient")
             .contentType("application/json")
             .content(
                 "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
