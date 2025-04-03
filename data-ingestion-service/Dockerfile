@@ -19,7 +19,7 @@ COPY . /usr/src/dataingestion
 WORKDIR /usr/src/dataingestion
 
 #Build report service along with any required libraries
-RUN ./gradlew :data-ingestion-service:buildNeeded -x test --no-daemon
+RUN ./gradlew :data-ingestion-service:buildNeeded -Prelease -x test --no-daemon
 
 FROM amazoncorretto:21
 
