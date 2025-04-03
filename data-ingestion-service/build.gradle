@@ -45,10 +45,6 @@ springBoot {
 	buildInfo()
 }
 
-springBoot {
-	buildInfo()
-}
-
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
 }
