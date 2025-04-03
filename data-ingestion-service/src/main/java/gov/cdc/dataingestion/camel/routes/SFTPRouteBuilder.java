@@ -110,7 +110,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                         .log("Sftp first route when .zip condition...The file ${file:name}")
                         .to(ROUTE_ZIPFILE_DIR)
                     .when(simple("${file:name} endsWith '.txt' && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
-                        .log("Sftp first route. File:${file:name}.Moving to the folder has text files.")
+                        .log("Sftp first route. File:${file:name}.Moving to the folder that has text files.")
                         .to(ROUTE_TEXT_FILE_DIR)
                     .otherwise()
                         .log("Sftp First route, Otherwise condition for non .txt and.zip files.File name: ${file:name}")
