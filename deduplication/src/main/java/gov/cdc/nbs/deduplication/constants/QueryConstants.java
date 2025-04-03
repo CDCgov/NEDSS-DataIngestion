@@ -590,4 +590,9 @@ public class QueryConstants {
       """;
 
 
+  public static final String CHILD_PATIENT_IDS_OF_PERSON_ID = """
+      SELECT person_uid
+      FROM person
+      WHERE person_parent_uid IN (:parentPersonIds)
+      """;
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -27,9 +28,19 @@ public class MergePatientHandler {
   }
 
   public void performMerge(String survivorPersonId, List<String> supersededPersonIds) {
+    List<String> childIdsOfSupersededPersons = getChildIdsOfTheSupersededPerson(supersededPersonIds);
+    List<String> allSupersededIds = new ArrayList<>(supersededPersonIds);
+    allSupersededIds.addAll(childIdsOfSupersededPersons);
     createMergeMetadata(survivorPersonId, supersededPersonIds);
-    markSupersededRecords(survivorPersonId, supersededPersonIds);
+    markSupersededRecords(survivorPersonId, allSupersededIds);
     updateTheMergedPatients(survivorPersonId, supersededPersonIds);
+  }
+
+  private List<String> getChildIdsOfTheSupersededPerson(List<String> supersededPersonIds) {
+    return nbsNamedTemplate.queryForList(
+        QueryConstants.CHILD_PATIENT_IDS_OF_PERSON_ID,
+        new MapSqlParameterSource("parentPersonIds", supersededPersonIds),
+        String.class);
   }
 
   private void markSupersededRecords(String survivorPersonId, List<String> supersededPersonIds) {
