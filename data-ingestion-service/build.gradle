@@ -40,6 +40,8 @@ def getVersionName = {
 
 version = project.hasProperty('release') ? getVersionName() : '0.0.1-SNAPSHOT'
 
+println("Data Ingestion jar version: " + version);
+
 
 springBoot {
 	buildInfo()
