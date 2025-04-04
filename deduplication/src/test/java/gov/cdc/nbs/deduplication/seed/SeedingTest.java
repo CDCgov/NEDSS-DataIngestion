@@ -92,7 +92,7 @@ class SeedingTest {
   private ObjectMapper mapper;
 
   @Test
-  void seedMpiTest(@Autowired Job seedJob) throws Exception {
+  void seedMpiTest(@Autowired @Qualifier("seedJob") Job seedJob) throws Exception {
     // Kick off seeding job
     jobLauncherTestUtils.setJob(seedJob);
     JobExecution jobExecution = jobLauncherTestUtils.launchJob();
