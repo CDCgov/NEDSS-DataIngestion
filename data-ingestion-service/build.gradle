@@ -24,7 +24,24 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 group = 'gov.cdc.dataingestion'
-version = '0.0.1-SNAPSHOT'
+
+def getVersionName = {
+	def stdout = new ByteArrayOutputStream()
+	exec {
+		commandLine 'git', 'describe', '--tags', '--abbrev=0'
+		standardOutput = stdout
+	}
+	def tag = stdout.toString().trim()
+	if (tag.startsWith('v')) {
+		tag = tag.substring(1)
+	}
+	return tag + "-SNAPSHOT"
+}
+
+version = project.hasProperty('release') ? getVersionName() : '0.0.1-SNAPSHOT'
+
+println("Data Ingestion jar version: " + version);
+
 
 springBoot {
 	buildInfo()
