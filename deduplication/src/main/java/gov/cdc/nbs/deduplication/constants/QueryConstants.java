@@ -18,8 +18,8 @@ public class QueryConstants {
       """;
 
   public static final String MATCH_CANDIDATES_QUERY = """
-      INSERT INTO match_candidates (person_uid,mpi_person_id)
-      VALUES (:personUid, :mpiPersonId)
+      INSERT INTO match_candidates (person_uid,mpi_person_id,date_identified)
+      VALUES (:personUid, :mpiPersonId,:identifiedDate)
       """;
 
   public static final String NBS_MPI_QUERY = """ 
@@ -500,7 +500,7 @@ public class QueryConstants {
   public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
       SELECT person_uid
       FROM nbs_mpi_mapping
-      WHERE mpi_person IN (:mpiIds)
+      WHERE mpi_person IN (:mpiPersonIds)
       AND person_uid=person_parent_uid
       """;
 
@@ -510,4 +510,89 @@ public class QueryConstants {
       WHERE person_uid = :personUid
       """;
 
+  public static final String FIND_POSSIBLE_MATCH = """
+       SELECT COUNT(*)
+       FROM match_candidates
+       WHERE person_uid = :personUid
+         AND mpi_person_id = :mpiPersonId
+      """;
+
+  public static final String PATIENT_IDS_BY_PERSON_UIDS = """
+      SELECT mpi_person
+      FROM nbs_mpi_mapping
+      WHERE person_uid IN (:personIds)
+      AND person_uid=person_parent_uid
+      """;
+
+  public static final String PERSON_UID_BY_MPI_PATIENT_ID = """
+      SELECT person_uid
+      FROM nbs_mpi_mapping
+      WHERE mpi_person = :mpiId
+      AND person_uid=person_parent_uid
+      """;
+
+  public static final String UPDATE_MERGE_STATUS_FOR_PATIENTS = """
+      UPDATE match_candidates
+      SET is_merge = 1
+      WHERE person_uid = :personId
+      AND mpi_person_id IN (:mpiIds)
+      """;
+
+  public static final String UPDATE_MERGE_STATUS_FOR_NON_PATIENTS = """
+      UPDATE match_candidates
+      SET is_merge = 0
+      WHERE person_uid IN (:personIds)
+      OR (mpi_person_id IN (:mpiIds) AND person_uid != :personId)
+      """;
+
+  public static final String UPDATE_SINGLE_RECORD = """
+      WITH SingleUnmarkedRecord AS (
+          SELECT person_uid
+          FROM match_candidates
+          WHERE person_uid = :personUid
+            AND is_merge IS NULL
+      )
+      UPDATE match_candidates
+      SET is_merge = 0
+      WHERE (SELECT COUNT(*) FROM SingleUnmarkedRecord) = 1
+      AND person_uid = :personUid
+      AND is_merge IS NULL
+      """;
+
+
+
+  public static final String MARK_SUPERSEDED_RECORDS = """
+      UPDATE person
+      SET record_status_cd = 'SUPERCEDED',
+          person_parent_uid = :personId
+      WHERE person_uid IN (:supersededPersonIds)
+      """;
+
+
+  public static final String CREATE_MERGE_METADATA = """
+       INSERT INTO PERSON_MERGE (
+          SURVIVING_PERSON_UID,
+          superced_person_uid,
+          surviving_parent_uid,
+          superceded_parent_uid,
+          MERGE_TIME,
+          superceded_version_ctrl_nbr,
+          RECORD_STATUS_CD
+      ) VALUES (
+          :survivorPersonId,
+          :supersededPersonId,
+          :survivorPersonId,
+          :supersededPersonId,
+          :mergeTime,
+          1,
+          'PAT_MERGE'
+      )
+      """;
+
+
+  public static final String CHILD_PATIENT_IDS_OF_PERSON_ID = """
+      SELECT person_uid
+      FROM person
+      WHERE person_parent_uid IN (:parentPersonIds)
+      """;
 }
