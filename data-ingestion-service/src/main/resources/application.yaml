@@ -63,6 +63,16 @@ spring:
   config:
     activate:
       on-profile: default
+  liquibase:
+    user: ${NBS_DBUSER}
+    password: ${NBS_DBPASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    dataingest:
+      change-log: classpath:db/changelog/dataingest-changelog.yaml
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
+    msgoute:
+      change-log: classpath:db/changelog/msgoute-changelog.yaml
+      url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_MSGOUTE;encrypt=true;trustServerCertificate=true;
   datasource:
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
