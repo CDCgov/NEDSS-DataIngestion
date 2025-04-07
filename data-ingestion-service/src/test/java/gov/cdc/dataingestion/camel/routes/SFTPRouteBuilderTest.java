@@ -53,7 +53,7 @@ class SFTPRouteBuilderTest extends CamelTestSupport {
                     @Override
                     public void configure() {
                         replaceFromWith("direct:sftpUnzipFileRoute");
-                        weaveByToUri("file:files/sftpTextFileDir").replace().to("mock:sftpUnzipFileResult");
+                        weaveByToUri("file:files/tempTextFileDir").replace().to("mock:sftpUnzipFileResult");
                     }
                 });
         adviceWith(

@@ -140,6 +140,8 @@ sftp:
   host: ${DI_SFTP_HOST:dummyhost}
   username: ${DI_SFTP_USER:dummyuser}
   password: ${DI_SFTP_PWD:dummypwd}
+  valid_file_extns: ${DI_SFTP_FILE_EXTNS:txt,hl7}
+  phcr_importer_version: ${DI_PHCR_IMPORTER_VERSION:1}
 
 diserver:
   host: ${DI_SERVER_HOST:localhost:8081}

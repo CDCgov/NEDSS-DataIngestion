@@ -6,6 +6,7 @@ import org.apache.camel.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,27 +19,30 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 public class HL7FileProcessComponent {
     private static Logger logger = LoggerFactory.getLogger(HL7FileProcessComponent.class);
+
+    //1 - phcrImporter batch job, 2- RTI
+    @Value("${sftp.phcr_importer_version}")
+    private String phcrImporterVersion;
+
     String msgType = "HL7";
-    private RawElrService rawELRService;
+    private final RawElrService rawELRService;
 
     @Autowired
     public HL7FileProcessComponent(RawElrService rawELRService){
         this.rawELRService=rawELRService;
     }
     @Handler
-    public String process(String body) {
+    public String process(String hl7MsgBody) {
         String elrId = "";
-        String version="1";
         try {
             logger.debug("Calling HL7FileProcessComponent");
-            String hl7Str = body;
-            logger.debug("HL7 Message:{}", hl7Str);
-            if (hl7Str != null && !hl7Str.trim().isEmpty()) {
+            logger.debug("HL7 Message:{}", hl7MsgBody);
+            if (hl7MsgBody != null && !hl7MsgBody.trim().isEmpty()) {
                 RawElrDto rawElrDto = new RawElrDto();
                 rawElrDto.setType(msgType);
                 rawElrDto.setValidationActive(true);
-                rawElrDto.setPayload(hl7Str);
-                rawElrDto.setVersion(version);
+                rawElrDto.setPayload(hl7MsgBody);
+                rawElrDto.setVersion(phcrImporterVersion);
                 elrId = rawELRService.submission(rawElrDto);
             }
         } catch (Exception e) {
