@@ -3,6 +3,34 @@ server:
   servlet:
     context-path: /data
 
+info:
+  app:
+    name: SRTE Data Exchange
+    version: 1.0.0
+    description: SRTE Data Exchange Service
+
+management:
+  info:
+    build:
+      enabled: true
+    java:
+      enabled: true
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+      roles: ADMIN
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "health,info"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 spring:
   application:
     name: srte-data-service
