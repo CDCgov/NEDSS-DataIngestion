@@ -1,7 +1,5 @@
 FROM amazoncorretto:21 as builder
 
-RUN yum install -y git
-
 # try patching system (libxml2) for security fixes
 RUN yum update -y libxml2 && yum clean all
 
@@ -21,7 +19,7 @@ COPY . /usr/src/dataingestion
 WORKDIR /usr/src/dataingestion
 
 #Build report service along with any required libraries
-RUN ./gradlew :data-ingestion-service:buildNeeded -Prelease -x test --no-daemon
+RUN ./gradlew :data-ingestion-service:buildNeeded -x test --no-daemon
 
 FROM amazoncorretto:21
 
