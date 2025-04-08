@@ -32,7 +32,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     @Value("${sftp.password}")
     private String sftpPassword;
     @Value("${sftp.valid_file_extns}")
-    private String hl7FileExtns;
+    private String hl7FileExtns="zip";
 
     private String sftpDirectory="/";
     private int sftpPort=22;
@@ -182,34 +182,35 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .bean(ElrProcessStatusComponent.class)
                 .choice()
                     .when(simple("${bodyAs(String)} == 'Success'"))
-                        .log("When success status: ${body}")
+                        .log("When success. status: ${body}")
                         .setBody(simple("${body}"))
                         .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Success-${file:name}"))
                         .to(sftpUriProcessed.toString())
                     .when(simple("${bodyAs(String).startsWith('Status:')} == 'true'"))
-                        .log("When failure status: ${body}")
+                        .log("When failure. status: ${body}")
                         .setBody(simple("${body}"))
                         .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Failure-${file:name}"))
                         .to(sftpUriProcessed.toString())
                     .otherwise()
-                        .log("--calling the same route until find the status. seda:updateStatus----${body}")
+                        .log("--Calling the same route until it finds the status. seda:updateStatus----${body}")
                         .to(ROUTE_PROCESSING_STATUS)
                 .endChoice()
                 .end();
     }
     private String getValidFileExtns(String envFileExtns) {
-        Set<String> validFileExtns = new HashSet<>();
+        String fileExtns="";
+        Set<String> fileExtnsSet = new HashSet<>();
         if (envFileExtns != null) {
             String[] extns =envFileExtns.split(",");
             for (String envFileExtn : extns) {
                 if(envFileExtn.startsWith(".")){
                     envFileExtn=envFileExtn.trim().substring(1);
                 }
-                validFileExtns.add(envFileExtn.trim().toLowerCase());
-                validFileExtns.add(envFileExtn.trim().toUpperCase());
+                fileExtnsSet.add(envFileExtn.trim().toLowerCase());
+                fileExtnsSet.add(envFileExtn.trim().toUpperCase());
             }
-            return String.join(",", validFileExtns);
+            fileExtns= String.join(",", fileExtnsSet);
         }
-        return "";
+        return fileExtns;
     }
 }
