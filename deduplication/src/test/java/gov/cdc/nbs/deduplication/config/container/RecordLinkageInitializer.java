@@ -19,7 +19,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
         .withNetworkAliases("postgres");
 
     final GenericContainer<?> recordLinkageContainer = new GenericContainer<>(
-        "ghcr.io/cdcgov/recordlinker:latest")
+        "ghcr.io/cdcgov/recordlinker:v25.3.0")
         .withExposedPorts(8080)
         .withNetwork(network)
         .withNetworkAliases("recordLinkage");
@@ -37,7 +37,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
 
     recordLinkageContainer.addEnv("DB_URI", dbUri);
     recordLinkageContainer.start();
-    System.setProperty("recordLinkage.url",
+    System.setProperty("deduplication.recordLinker.url",
         "http://localhost:" + recordLinkageContainer.getMappedPort(8080));
 
   }

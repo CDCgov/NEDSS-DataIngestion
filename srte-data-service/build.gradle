@@ -26,6 +26,10 @@ apply plugin: 'org.owasp.dependencycheck'
 group = 'gov.cdc.rti'
 version = '0.0.1-SNAPSHOT'
 
+springBoot {
+    buildInfo()
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -61,6 +65,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Swagger - openapi
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'

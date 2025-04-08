@@ -55,7 +55,7 @@ class DataElementsServiceTest {
     }
 
     @Test
-    void should_return_null_if_no_elements() {
+    void should_return_default_if_no_elements() {
         JdbcTemplate mockTemplate = Mockito.mock(JdbcTemplate.class);
         when(template.getJdbcTemplate()).thenReturn(mockTemplate);
 
@@ -66,7 +66,7 @@ class DataElementsServiceTest {
 
         DataElements actual = service.getCurrentDataElements();
 
-        assertThat(actual).isNull();
+        assertThat(actual).isEqualTo(new DataElements());
     }
 
     @Test

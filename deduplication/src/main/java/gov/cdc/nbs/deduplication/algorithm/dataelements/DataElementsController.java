@@ -10,7 +10,7 @@ import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
 import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
 
 @RestController
-@RequestMapping("/api/deduplication/configuration/data-elements")
+@RequestMapping("/configuration/data-elements")
 public class DataElementsController {
 
     private final DataElementsService service;

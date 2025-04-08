@@ -40,7 +40,7 @@ public class PersonInsertSyncHandler {
 
   public PersonInsertSyncHandler(
       ObjectMapper objectMapper,
-      @Qualifier("recordLinkageRestClient") RestClient recordLinkageClient,
+      @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient,
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
       final DuplicateCheckService duplicateCheckService,
       final PatientRecordService patientRecordService

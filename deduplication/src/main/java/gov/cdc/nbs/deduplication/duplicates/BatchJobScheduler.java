@@ -6,6 +6,7 @@ import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -21,7 +22,9 @@ public class BatchJobScheduler {
   @Value("${batch.job.schedule.cron:0 0 1 * * ?}") // Default to daily at 1 AM
   private String cronSchedule;
 
-  public BatchJobScheduler(JobLauncher jobLauncher, Job deduplicationJob) {
+  public BatchJobScheduler(
+      JobLauncher jobLauncher,
+      @Qualifier("deduplicationJob") Job deduplicationJob) {
     this.jobLauncher = jobLauncher;
     this.deduplicationJob = deduplicationJob;
   }

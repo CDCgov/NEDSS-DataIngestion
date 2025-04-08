@@ -46,15 +46,15 @@ public class AlgorithmMapper {
         Map<String, Double> logOdds = new HashMap<>();
 
         pass.matchingCriteria().forEach(m -> {
-            DataElement dataElement = findDataElement(m.matchingAttribute(), dataElements);
-            thresholds.put(m.matchingAttribute().toString(), dataElement.threshold());
-            logOdds.put(m.matchingAttribute().toString(), dataElement.logOdds());
+            DataElement dataElement = findDataElement(m.attribute(), dataElements);
+            thresholds.put(m.attribute().toString(), dataElement.threshold());
+            logOdds.put(m.attribute().toString(), dataElement.logOdds());
         });
 
         List<Evaluator> evaluators = pass.matchingCriteria()
                 .stream()
                 .map(m -> new Evaluator(
-                        m.matchingAttribute(),
+                        m.attribute(),
                         m.method().equals(MatchingMethod.EXACT) ? Func.EXACT : Func.FUZZY))
                 .toList();
 
