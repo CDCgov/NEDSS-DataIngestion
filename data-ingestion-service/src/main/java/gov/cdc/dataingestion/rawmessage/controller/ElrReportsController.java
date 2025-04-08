@@ -67,11 +67,23 @@ public class ElrReportsController {
                             name = "clientsecret",
                             description = "The Client Secret",
                             required = true,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "version",
+                            description = "To use batch job(1) or RTI(2)",
+                            required = false,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
+                            name = "customMapper",
+                            description = "The optional custom mapper field that find and replaces the text in the ELR message." +
+                                    "Multiple values can be sent with a comma-separated string- \"key1=test,key2=newcontent\"",
+                            required = false,
                             schema = @Schema(type = "string"))}
     )
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs")
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,
-                                       @RequestHeader(name = "version", defaultValue = "1") String version) throws KafkaProducerException {
+                                       @RequestHeader(name = "version", defaultValue = "1") String version,
+                                       @RequestHeader(name="customMapper", defaultValue = "") String customMapper) throws KafkaProducerException {
         if (type.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
         } else {
@@ -86,6 +98,7 @@ public class ElrReportsController {
             rawElrDto.setPayload(payload);
             rawElrDto.setValidationActive(true);
             rawElrDto.setVersion(version);
+            rawElrDto.setCustomMapper(customMapper);
             return ResponseEntity.ok(rawELRService.submission(rawElrDto));
         }
         else if (type.equalsIgnoreCase(XML_ELR)) {
