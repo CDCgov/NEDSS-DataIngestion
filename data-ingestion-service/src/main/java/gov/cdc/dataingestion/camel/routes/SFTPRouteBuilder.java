@@ -44,10 +44,6 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String TRUE = "true";
     private static final String FALSE = "false";
     private static final String SFTP = "sftp";
-//    private static final String ROUTE_MOVE_TO_UNPROCESSED="file:files/tempUnProcessedFiles";
-//    private static String ROUTE_TEXT_FILE_DIR="file:files/tempTextFileDir";
-//    private static String ROUTE_ZIPFILE_DIR="file:files/tempZipFileDir";
-//    private static final String ROUTE_PROCESSING_STATUS="seda:updateStatus";
     private static final String PASSIVE_MODE="passiveMode";
     private static final String INITIAL_DELAY="initialDelay";
     private static final String DELAY="delay";
@@ -58,19 +54,15 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private static final String MAXIMUM_RECONNECT_ATTEMPTS="maximumReconnectAttempts";
     private static final String RECONNECT_DELAY="reconnectDelay";
 
-    //private String sftpFilePaths="/ELRFiles,/ELRFiles/lab-1,/ELRFiles/lab-2";
-
     @Override
     public void configure() throws Exception {
         //shutdown faster in case of in-flight messages stack up
         getContext().getShutdownStrategy().setTimeout(10);
 
-        //URI sftpUriBuilder = new URIBuilder()
         URIBuilder sftpUriBuilder = new URIBuilder()
                 .setScheme(SFTP)
                 .setHost(sftpHost)
                 .setPort(sftpPort)
-                //.setPath(sftpFilePath)
                 .addParameter(USER_NAME, sftpUserName)
                 .addParameter(CREDENTIAL_PARAMETER, sftpPassword)
                 .addParameter(AUTO_CREATE, TRUE)
@@ -80,7 +72,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                 .addParameter(NOOP, FALSE)
                 .addParameter(DELETE, TRUE)
                 .addParameter(LOCAL_WORK_DIRECTORY, "files/download") //check
-                .addParameter(RECURSIVE, FALSE)//FALSE
+                .addParameter(RECURSIVE, FALSE)
                 .addParameter(MAXIMUM_RECONNECT_ATTEMPTS, "5")
                 .addParameter(RECONNECT_DELAY, "5000")
                 .addParameter(USE_USER_KNOWN_HOSTS_FILE, FALSE);
@@ -111,15 +103,16 @@ public class SFTPRouteBuilder extends RouteBuilder {
         int i=0;
         for(String path:ftpPaths){
             i=i+1;
+
             //Main SFTP PATH - Consumer
             sftpUriBuilder.setPath(path);
             URI sftpUri=sftpUriBuilder.build();
             String sftpServer = sftpUri.toString();
             logger.debug("sftp_server URL: {}", sftpServer);
-            System.out.println("sftp_server URL: " + sftpServer);
-            //producer routes for processed folders
-            URI sftpProcessedUri=sftpProcessed.setPath(path + "/diprocessed").build();
-            URI sftpUnProcessedUri=sftpUnProcessed.setPath(path + "/diunprocessed").build();
+
+            //producer routes for processed status folders
+            String sftpProcessedUri=sftpProcessed.setPath(path + "/processed").build().toString();
+            String sftpUnProcessedUri=sftpUnProcessed.setPath(path + "/unprocessed").build().toString();
 
             String ROUTE_TEXT_FILE_DIR="file:files/tempTextFileDir"+i;
             String ROUTE_ZIPFILE_DIR="file:files/tempZipFileDir"+i;
@@ -132,16 +125,16 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .log("The file from sftpRouteId: ${file:name}")
                     .setVariable("validFileExtns").constant(validFileExtns)
                     .choice()
-                    .when(simple("${file:name} endsWith '.zip'"))
-                    .log("Sftp first route when .zip condition...The file ${file:name}")
-                    .to(ROUTE_ZIPFILE_DIR)
-                    .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'"))
-                    .log("Sftp first route. File:${file:name}.Moving to the folder that has text files.")
-                    .to(ROUTE_TEXT_FILE_DIR)
-                    .otherwise()
-                    .log("Sftp First route, Otherwise condition for non .txt and.zip files.File name: ${file:name}")
-                    .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-${file:name}"))
-                    .to(sftpUnProcessedUri.toString())
+                        .when(simple("${file:name} endsWith '.zip'"))
+                            .log("Sftp first route when .zip condition...The file ${file:name}")
+                            .to(ROUTE_ZIPFILE_DIR)
+                        .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'"))
+                            .log("Sftp first route. File:${file:name}.Moving to the folder that has text files.")
+                            .to(ROUTE_TEXT_FILE_DIR)
+                        .otherwise()
+                            .log("Sftp First route, Otherwise condition for non .txt and.zip files.File name: ${file:name}")
+                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-${file:name}"))
+                        .to(sftpUnProcessedUri)
                     .end();
             // Unzip the downloaded file
             from(ROUTE_ZIPFILE_DIR)
@@ -153,8 +146,8 @@ public class SFTPRouteBuilder extends RouteBuilder {
             //Process the files from unzipped folder
             from(ROUTE_TEXT_FILE_DIR)
                     .routeId("sftpReadFromTextFileDirRouteId_"+i)
-                    .log("Read from a folder that has files extracted from a zip file.The file ${file:name}")
-                    .to("seda:processfiles_"+i, "seda:movefiles_"+i)
+                        .log("Read from a folder that has files extracted from a zip file.The file ${file:name}")
+                        .to("seda:processfiles_"+i, "seda:movefiles_"+i)
                     .end();
 
             from("seda:processfiles_"+i)
@@ -162,22 +155,22 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .log("from seda processfiles file: ${file:name}")
                     .setVariable("validFileExtns").constant(validFileExtns)
                     .choice()
-                    .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'"))//NOSONAR
-                    .log("File processed:${file:name}")
-                    .log("Before bean process:${bodyAs(String).trim.length}:")
-                    .bean(HL7FileProcessComponent.class)
-                    .log("ELR raw id: ${body}")
-                    .setBody(simple("${file:name}:${body}"))
-                    .to(ROUTE_PROCESSING_STATUS)
-                    .otherwise()
-                    .log("File not processed:${file:name}")
+                        .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'"))//NOSONAR
+                            .log("File processed:${file:name}")
+                            .log("Before bean process:${bodyAs(String).trim.length}:")
+                            .bean(HL7FileProcessComponent.class)
+                            .log("ELR raw id: ${body}")
+                            .setBody(simple("${file:name}:${body}"))
+                            .to(ROUTE_PROCESSING_STATUS)
+                        .otherwise()
+                        .log("File not processed:${file:name}")
                     .endChoice()
                     .end();
 
             from("seda:movefiles_"+i)
                     .routeId("sedaMoveFilesRouteId_"+i)
-                    .log("from seda movefiles file:${file:name}")
-                    .to(ROUTE_MOVE_TO_UNPROCESSED)
+                        .log("from seda movefiles file:${file:name}")
+                        .to(ROUTE_MOVE_TO_UNPROCESSED)
                     .end();
 
             from(ROUTE_MOVE_TO_UNPROCESSED+"?delete=true").routeId("moveToUnProcessRouteId_"+i)
@@ -186,10 +179,10 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .delay(5000)
                     .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
                     .choice()
-                    .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
-                    .log("processed file:${file:name}")
-                    .otherwise()
-                    .to(sftpUnProcessedUri.toString())
+                        .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
+                            .log("processed file:${file:name}")
+                        .otherwise()
+                            .to(sftpUnProcessedUri)
                     .endChoice()
                     .end();
             //Provide the ELR processing status in the output folder.
@@ -198,23 +191,29 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .log("from seda updateStatus message:${body}")
                     .bean(ElrProcessStatusComponent.class)
                     .choice()
-                    .when(simple("${bodyAs(String)} == 'Success'"))
-                    .log("When success. status: ${body}")
-                    .setBody(simple("${body}"))
-                    .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Success-${file:name}"))
-                    .to(sftpProcessedUri.toString())
-                    .when(simple("${bodyAs(String).startsWith('Status:')} == 'true'"))
-                    .log("When failure. status: ${body}")
-                    .setBody(simple("${body}"))
-                    .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Failure-${file:name}"))
-                    .to(sftpProcessedUri.toString())
-                    .otherwise()
-                    .log("Calling the same route until it finds the status. seda:updateStatus----${body}")
-                    .to(ROUTE_PROCESSING_STATUS)
+                        .when(simple("${bodyAs(String)} == 'Success'"))
+                            .log("When success. status: ${body}")
+                            .setBody(simple("${body}"))
+                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Success-${file:name}"))
+                            .to(sftpProcessedUri)
+                        .when(simple("${bodyAs(String).startsWith('Status:')} == 'true'"))
+                            .log("When failure. status: ${body}")
+                            .setBody(simple("${body}"))
+                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Failure-${file:name}"))
+                            .to(sftpProcessedUri)
+                        .otherwise()
+                            .log("Calling the same route until it finds the status. seda:updateStatus----${body}")
+                            .to(ROUTE_PROCESSING_STATUS)
                     .endChoice()
                     .end();
         }
     }
+
+    /**
+     * Make a list of file extensions with lowercase and uppercase.
+     * @param envFileExtns
+     * @return
+     */
     private String getValidFileExtns(String envFileExtns) {
         String fileExtns="";
         Set<String> fileExtnsSet = new HashSet<>();
