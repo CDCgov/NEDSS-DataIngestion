@@ -33,7 +33,10 @@ class DibbsServiceTest {
 
     private NamedParameterJdbcTemplate template = Mockito.mock(NamedParameterJdbcTemplate.class);
 
-    private DibbsService service = new DibbsService(client, template, true);
+    private ObjectMapper mapper = new ObjectMapper()
+    .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+
+    private DibbsService service = new DibbsService(client, template, true, mapper);
 
     private final DibbsAlgorithm algorithm = new DibbsAlgorithm(
             "testLabel",
@@ -52,8 +55,6 @@ class DibbsServiceTest {
                 eq(Integer.class)))
                 .thenReturn(0);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         String expectedBody = mapper.writeValueAsString(algorithm);
         mockCreateCall(expectedBody, false);
 
@@ -79,8 +80,6 @@ class DibbsServiceTest {
                 eq(Integer.class)))
                 .thenReturn(null);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         String expectedBody = mapper.writeValueAsString(algorithm);
         mockCreateCall(expectedBody, true);
 
@@ -100,8 +99,6 @@ class DibbsServiceTest {
                 eq(Integer.class)))
                 .thenReturn(1);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         String expectedBody = mapper.writeValueAsString(algorithm);
         mockUpdateCall(algorithm.label(), expectedBody, false);
 
@@ -128,8 +125,6 @@ class DibbsServiceTest {
                 eq(Integer.class)))
                 .thenReturn(1);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         String expectedBody = mapper.writeValueAsString(algorithm);
         mockUpdateCall(algorithm.label(), expectedBody, true);
 

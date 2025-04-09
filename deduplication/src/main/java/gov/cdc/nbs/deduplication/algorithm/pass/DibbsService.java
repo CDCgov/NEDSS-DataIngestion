@@ -12,7 +12,6 @@ import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm;
@@ -26,14 +25,14 @@ public class DibbsService {
     private final boolean enabled;
 
     public DibbsService(
-            @Qualifier("recordLinkerRestClient") RestClient client,
-            @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate template,
-            @Value("${deduplication.algorithm.updateRecordLinker}") boolean enabled) {
+            final @Qualifier("recordLinkerRestClient") RestClient client,
+            final @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate template,
+            final @Value("${deduplication.algorithm.updateRecordLinker}") boolean enabled,
+            final ObjectMapper mappper) {
         this.client = client;
         this.template = template;
         this.enabled = enabled;
-        mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        this.mapper = mappper;
     }
 
     static final String QUERY_LABEL_COUNT = """
