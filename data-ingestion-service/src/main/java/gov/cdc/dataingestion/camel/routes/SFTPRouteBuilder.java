@@ -31,9 +31,9 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private String sftpUserName;
     @Value("${sftp.password}")
     private String sftpPassword;
-    @Value("${sftp.valid_file_extns}")
+    @Value("${sftp.elr_file_extns}")
     private String hl7FileExtns;
-    @Value("${sftp.filepath}")
+    @Value("${sftp.filepaths}")
     private String sftpFilePaths;
 
     private static final int SFTP_PORT=22;
@@ -210,9 +210,9 @@ public class SFTPRouteBuilder extends RouteBuilder {
     }
 
     /**
-     * Make a list of file extensions with lowercase and uppercase.
-     * @param envFileExtns
-     * @return
+     * Make a list of file extensions with lowercase and uppercase.And remove the '.' from the file extn.
+     * @param envFileExtns ex: txt,.hl7
+     * @return ex:txt,TXT,hl7,HL7
      */
     private String getValidFileExtns(String envFileExtns) {
         String fileExtns="";
