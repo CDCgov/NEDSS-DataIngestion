@@ -32,9 +32,9 @@ public class SFTPRouteBuilder extends RouteBuilder {
     @Value("${sftp.password}")
     private String sftpPassword;
     @Value("${sftp.valid_file_extns}")
-    private String hl7FileExtns="txt";
+    private String hl7FileExtns;
     @Value("${sftp.filepath}")
-    private String sftpFilePaths="/";
+    private String sftpFilePaths;
 
     private static final int SFTP_PORT=22;
     private static final String USER_NAME = "username";
