@@ -97,7 +97,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
 
         String validFileExtns=getValidFileExtns(hl7FileExtns);
         logger.debug("HL7 Valid File Extns: {}", validFileExtns);
-
+        String fileTypeValidationCondition="${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'";
         //Multiple sftp folders:"/,/ELRFiles,/ELRFiles/lab-1,/ELRFiles/lab-2"
         String[] ftpPaths=sftpFilePaths.split(",");
         int i=0;
@@ -128,7 +128,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                         .when(simple("${file:name} endsWith '.zip'"))
                             .log("Sftp first route when .zip condition...The file ${file:name}")
                             .to(routeZipfileDir)
-                        .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'"))
+                        .when(simple(fileTypeValidationCondition))
                             .log("Sftp first route. File:${file:name}.Moving to the folder that has text files.")
                             .to(routeTextFileDir)
                         .otherwise()
@@ -155,7 +155,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .log("from seda processfiles file: ${file:name}")
                     .setVariable(VAR_VALID_FILE_EXTNS).constant(validFileExtns)
                     .choice()
-                        .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'"))//NOSONAR
+                        .when(simple(fileTypeValidationCondition))//NOSONAR
                             .log("File processed:${file:name}")
                             .log("Before bean process:${bodyAs(String).trim.length}:")
                             .bean(HL7FileProcessComponent.class)
@@ -179,7 +179,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .delay(5000)
                     .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmssSSS}-${file:name}"))
                     .choice()
-                        .when(simple("${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'")) //NOSONAR
+                        .when(simple(fileTypeValidationCondition)) //NOSONAR
                             .log("processed file:${file:name}")
                         .otherwise()
                             .to(sftpUnProcessedUri)
