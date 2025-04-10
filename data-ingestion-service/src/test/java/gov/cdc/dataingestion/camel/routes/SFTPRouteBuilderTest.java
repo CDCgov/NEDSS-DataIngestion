@@ -6,6 +6,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 
@@ -20,13 +21,12 @@ import static org.apache.camel.builder.AdviceWith.adviceWith;
 class SFTPRouteBuilderTest extends CamelTestSupport {
 
     @Override
-    public boolean isUseAdviceWith() {
-        return true;
-    }
-
-    @Override
     protected RouteBuilder createRouteBuilder() {
-        return new SFTPRouteBuilder();
+        SFTPRouteBuilder sftpRouteBuilder =new SFTPRouteBuilder();
+        ReflectionTestUtils.setField(sftpRouteBuilder, "sftpHost", "test");
+        ReflectionTestUtils.setField(sftpRouteBuilder, "hl7FileExtns", "txt");
+        ReflectionTestUtils.setField(sftpRouteBuilder, "sftpFilePaths", "/test");
+        return sftpRouteBuilder;
     }
 
     @Test
