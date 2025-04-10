@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 		gradlePluginPortal()
 		maven {
-			url "https://plugins.gradle.org/m2/"
+			url = "https://plugins.gradle.org/m2/"
 		}
 	}
 	dependencies {
@@ -24,24 +24,7 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 group = 'gov.cdc.dataingestion'
-
-def getVersionName = {
-	def stdout = new ByteArrayOutputStream()
-	exec {
-		commandLine 'git', 'describe', '--tags', '--abbrev=0'
-		standardOutput = stdout
-	}
-	def tag = stdout.toString().trim()
-	if (tag.startsWith('v')) {
-		tag = tag.substring(1)
-	}
-	return tag + "-SNAPSHOT"
-}
-
-version = project.hasProperty('release') ? getVersionName() : '0.0.1-SNAPSHOT'
-
-println("Data Ingestion jar version: " + version);
-
+version = '0.0.1-SNAPSHOT'
 
 springBoot {
 	buildInfo()
@@ -261,6 +244,9 @@ dependencies {
   compileOnly 'org.projectlombok:lombok:1.18.34'
   annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
+  implementation 'org.liquibase:liquibase-core:4.31.1'
+
+
   // Misc
   implementation 'org.yaml:snakeyaml:2.3'
   implementation 'org.apache.commons:commons-lang3:3.17.0'
@@ -327,6 +313,7 @@ jar {
     dependsOn(':cdaschema:copyJar')
   }
 }
+
 
 sonarqube {
 	properties {
