@@ -85,6 +85,7 @@ public class AlgorithmMapper {
             case LAST_NAME -> dataElements.lastName();
             case MEDICAID_NUMBER -> dataElements.medicaidNumber();
             case MEDICAL_RECORD_NUMBER -> dataElements.medicalRecordNumber();
+            case MEDICARE_NUMBER -> dataElements.medicareNumber();
             case NATIONAL_UNIQUE_INDIVIDUAL_IDENTIFIER -> dataElements.nationalUniqueIdentifier();
             case PATIENT_EXTERNAL_IDENTIFIER -> dataElements.patientExternalIdentifier();
             case PATIENT_INTERNAL_IDENTIFIER -> dataElements.patientInternalIdentifier();
