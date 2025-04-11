@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.Mockito.when;
 /**
@@ -28,6 +29,7 @@ class HL7FileProcessComponentTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        ReflectionTestUtils.setField(hL7FileProcessComponent, "phcrImporterVersion", "1");
     }
 
     @Test

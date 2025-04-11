@@ -29,6 +29,12 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
               DI_SFTP_USER=value
     
               DI_SFTP_PWD=value
+              
+              DI_SFTP_ELR_FILE_EXTNS=value
+            
+              DI_PHCR_IMPORTER_VERSION=value
+            
+              DI_SFTP_FILEPATHS=value
 
               KC_BOOTSTRAP_ADMIN_USERNAME=value
               
@@ -123,3 +129,12 @@ Instructions for setting up a local development environment can be found in the 
         -  NbsDataSourceConfig
         -  OpenAPIConfig
         -  SecurityConfig
+
+# SFTP ENV PARAMS
+    DI_SFTP_ENABLED=value  - value should be 'enabled' or 'disabled'
+    DI_SFTP_HOST=value - SFTP server host name
+    DI_SFTP_USER=value
+    DI_SFTP_PWD=value
+    DI_SFTP_ELR_FILE_EXTNS=value - Comma separted list of file extensions (ex: txt,hl7)
+    DI_PHCR_IMPORTER_VERSION=value - 1 for classic phcrImporter batch job, 2 for RTI
+    DI_SFTP_FILEPATHS=value - Comma separted list of file extensions (ex: /ELRFiles,/ELRFiles/lab-1,/ELRFiles/lab-2)

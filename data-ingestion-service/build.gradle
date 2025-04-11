@@ -232,13 +232,13 @@ dependencies {
   implementation 'io.micrometer:micrometer-registry-prometheus:1.15.0-M2'
 
   // Apache camel
-  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.8.0'
-  implementation 'org.apache.camel:camel-ftp:4.8.0'
-  implementation 'org.apache.camel:camel-aws2-s3:4.8.0'
-  implementation 'org.apache.camel:camel-endpointdsl:4.8.0'
-  implementation 'org.apache.camel.springboot:camel-file-starter:4.8.0'
-  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.8.0'
-  implementation 'org.apache.camel:camel-xml-jaxb:4.8.0'
+  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.11.0'
+  implementation 'org.apache.camel:camel-ftp:4.11.0'
+  implementation 'org.apache.camel:camel-aws2-s3:4.11.0'
+  implementation 'org.apache.camel:camel-endpointdsl:4.11.0'
+  implementation 'org.apache.camel.springboot:camel-file-starter:4.11.0'
+  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.11.0'
+  implementation 'org.apache.camel:camel-xml-jaxb:4.11.0'
 
   // Lombok annotations
   compileOnly 'org.projectlombok:lombok:1.18.34'
@@ -273,7 +273,7 @@ dependencies {
   testImplementation 'org.testcontainers:kafka:1.20.1'
   testImplementation 'org.testcontainers:mssqlserver:1.20.1'
   testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
-  testImplementation 'org.apache.camel:camel-test-spring-junit5:4.0.0'
+  testImplementation 'org.apache.camel:camel-test-spring-junit5:4.11.0'
   testImplementation(platform('org.junit:junit-bom:5.9.1'))
 
   // Inter-project dependencies
