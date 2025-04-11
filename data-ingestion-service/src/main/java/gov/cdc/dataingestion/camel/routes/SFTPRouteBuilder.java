@@ -132,7 +132,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                             .log("Sftp first route. File:${file:name}.Moving to the folder that has text files.")
                             .to(routeTextFileDir)
                         .otherwise()
-                            .log("Sftp First route, Otherwise condition for non .txt and.zip files.File name: ${file:name}")
+                            .log("Sftp First route, Otherwise-Unsupported file formats. File name: ${file:name}")
                             .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-${file:name}"))
                         .to(sftpUnProcessedUri)
                     .end();
@@ -144,7 +144,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .end();
 
             //Process the files from unzipped folder
-            from(routeTextFileDir)
+            from(routeTextFileDir+"?delete=true")
                     .routeId("sftpReadFromTextFileDirRouteId_"+i)
                         .log("Read from a folder that has files extracted from a zip file.The file ${file:name}")
                         .to("seda:processfiles_"+i, "seda:movefiles_"+i)
