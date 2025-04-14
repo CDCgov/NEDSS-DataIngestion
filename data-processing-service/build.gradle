@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.1'
+    id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'jacoco'
@@ -172,7 +172,7 @@ dependencies {
     implementation 'org.apache.kafka:kafka-clients:3.9.0'
 
     // Swagger - openapi
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // Database
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
@@ -212,8 +212,8 @@ dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter')
     testImplementation 'org.springframework.kafka:spring-kafka-test:3.1.0'
     testImplementation('org.junit.jupiter:junit-jupiter:5.9.2')
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
-    testImplementation 'org.springframework.security:spring-security-test:6.2.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation(platform('org.junit:junit-bom:5.10.0'))
 }
 
