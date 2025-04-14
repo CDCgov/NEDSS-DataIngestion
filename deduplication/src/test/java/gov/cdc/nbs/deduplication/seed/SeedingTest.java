@@ -115,7 +115,7 @@ class SeedingTest {
     // Personal
     assertThat(mpiData.birth_date()).isEqualTo("1990-01-01");
     assertThat(mpiData.sex()).isEqualTo("M");
-    assertThat(mpiData.race()).isEqualTo("ASIAN");
+    assertThat(mpiData.race().getFirst()).isEqualTo("ASIAN");
 
     // Address
     assertThat(mpiData.address()).hasSize(1);
