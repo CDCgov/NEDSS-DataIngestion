@@ -1,4 +1,6 @@
 FROM amazoncorretto:21 as builder
+# try patching system for security fixes
+RUN yum update -y && yum clean all
 
 #Copy project config
 COPY gradle /usr/src/dataprocessing/gradle
@@ -17,6 +19,8 @@ WORKDIR /usr/src/dataprocessing
 RUN ./gradlew :data-processing-service:buildNeeded -x test --no-daemon
 
 FROM amazoncorretto:21
+# try patching system for security fixes
+RUN yum update -y && yum clean all
 
 COPY --from=builder /usr/src/dataprocessing/data-processing-service/build/libs/data-processing-service*.jar data-processing-service.jar
 

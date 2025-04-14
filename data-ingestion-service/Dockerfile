@@ -1,7 +1,7 @@
 FROM amazoncorretto:21 as builder
 
-# try patching system (libxml2) for security fixes
-RUN yum update -y libxml2 && yum clean all
+# try patching system for security fixes
+RUN yum update -y && yum clean all
 
 #Copy project config
 COPY gradle /usr/src/dataingestion/gradle
@@ -23,8 +23,8 @@ RUN ./gradlew :data-ingestion-service:buildNeeded -x test --no-daemon
 
 FROM amazoncorretto:21
 
-# Patch system again in final image
-RUN yum update -y libxml2 && yum clean all
+# try patching system for security fixes
+RUN yum update -y && yum clean all
 
 COPY --from=builder /usr/src/dataingestion/data-ingestion-service/build/libs/data-ingestion-service*.jar data-ingestion-service.jar
 
