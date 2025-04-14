@@ -1,5 +1,4 @@
 USE NBS_DataIngest;
-
 IF NOT EXISTS (
     SELECT 1
     FROM INFORMATION_SCHEMA.COLUMNS
@@ -18,7 +17,6 @@ IF EXISTS (
     WHERE TABLE_SCHEMA = 'dbo'
       AND TABLE_NAME = 'elr_dlt'
       AND COLUMN_NAME = 'dlt_status'
-      AND (DATA_TYPE != 'nvarchar' OR CHARACTER_MAXIMUM_LENGTH != 30)
 )
 BEGIN
 ALTER TABLE dbo.elr_dlt
