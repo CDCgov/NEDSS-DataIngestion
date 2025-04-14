@@ -11,7 +11,7 @@ public record MpiPerson(
     List<Address> address,
     List<Name> name,
     List<Telecom> telecom,
-    String race,
+    List<String> race,
     List<Identifier> identifiers) {
 
   public record Address(

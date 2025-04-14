@@ -1,10 +1,7 @@
 package gov.cdc.nbs.deduplication.matching.mapper;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.util.Strings;
@@ -36,9 +33,9 @@ public class LinkRequestMapper {
       birthDate = formatter.format(request.personDto().birthTime());
     }
 
-    String race = null;
+    List<String> race = null;
     if (request.races() != null && !request.races().isEmpty()) {
-      race = request.races().get(0).raceCategoryCd();
+      race = Collections.singletonList(request.races().get(0).raceCategoryCd());
     }
 
     String sex = null;
@@ -64,8 +61,8 @@ public class LinkRequestMapper {
         .stream()
         .map(pl -> new Address(
             Stream.of(
-                pl.streetAddr1(),
-                pl.streetAddr2())
+                    pl.streetAddr1(),
+                    pl.streetAddr2())
                 .filter(Strings::isNotBlank)
                 .toList(),
             pl.cityDescTxt(),
@@ -82,13 +79,13 @@ public class LinkRequestMapper {
         .stream()
         .map(n -> new Name(
             Stream.of(
-                n.firstNm(),
-                n.middleNm())
+                    n.firstNm(),
+                    n.middleNm())
                 .filter(Strings::isNotBlank)
                 .toList(),
             n.lastNm(),
             Stream.of(
-                n.nmSuffix())
+                    n.nmSuffix())
                 .filter(Strings::isNotBlank)
                 .toList()))
         .toList();

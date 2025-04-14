@@ -8,6 +8,7 @@ import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,6 +31,7 @@ import gov.cdc.nbs.deduplication.seed.model.SeedRequest.*;
  */
 
 @Component
+@Slf4j
 public class SeedWriter implements ItemWriter<NbsPerson> {
 
 
@@ -60,13 +62,18 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
     SeedRequest request = new SeedRequest(clusters);
     String requestJson = objectMapper.writeValueAsString(request);
 
-    recordLinkageClient.post()
-        .uri("/seed")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(requestJson)
-        .retrieve()
-        .body(MpiResponse.class);
+    try {
+      recordLinkageClient.post()
+          .uri("/seed")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+          .body(requestJson)
+          .retrieve()
+          .body(MpiResponse.class);
+    }catch (Exception e){
+      log.error("Failed to seed clusters to MPI, Request Body: {}",request);
+      throw new RuntimeException("Failed to seed cluster to MPI");//NOSONAR
+    }
   }
 
   private List<Cluster> fetchClusters(List<String> personParentUids) {

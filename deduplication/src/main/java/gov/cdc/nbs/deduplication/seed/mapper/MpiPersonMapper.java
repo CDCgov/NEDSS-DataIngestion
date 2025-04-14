@@ -4,11 +4,7 @@ import static java.util.Map.entry;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
@@ -49,7 +45,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
 
     List<Identifier> identifiers = mapIdentifiers(rs.getString("identifiers"));
 
-    String race = mapRace(rs.getString("race"));
+    List<String> race = mapRace(rs.getString("race"));
 
     return new MpiPerson(
         rs.getString("external_id"),
@@ -160,11 +156,13 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
   }
 
   /** Convert Race_cd to acceptable value for Record Linkage */
-  String mapRace(String raceString) {
+  List<String> mapRace(String raceString) {
     if (raceString == null || raceString.isBlank()) {
-      return null;
+      return Collections.emptyList();
     }
-    return RACE_MAP.get(raceString);
+    return RACE_MAP.get(raceString) != null ?
+        Collections.singletonList(RACE_MAP.get(raceString)) :
+        Collections.emptyList();
   }
 
 }

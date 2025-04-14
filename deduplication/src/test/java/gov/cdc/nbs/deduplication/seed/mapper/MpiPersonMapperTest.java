@@ -70,7 +70,7 @@ class MpiPersonMapperTest {
     assertThat(person.address()).hasSize(2);
     assertThat(person.name()).hasSize(2);
     assertThat(person.telecom()).hasSize(2);
-    assertThat(person.race()).isEqualTo("WHITE");
+    assertThat(person.race().getFirst()).isEqualTo("WHITE");
     assertThat(person.sex()).isEqualTo(SEX);
     assertThat(person.birth_date()).isEqualTo(BIRTH_DATE);
 
@@ -258,9 +258,9 @@ class MpiPersonMapperTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-      "null,null",
-      " ,null",
-      "banana,null",
+      "null,''",
+      " ,''",
+      "banana,''",
       "1002-5,AMERICAN_INDIAN",
       "2028-9,ASIAN",
       "2054-5,BLACK",
@@ -269,7 +269,15 @@ class MpiPersonMapperTest {
       "2131-1,OTHER",
       "U,UNKNOWN" }, nullValues = { "null" })
   void testRace(String input, String expected) {
-    String race = mapper.mapRace(input);
-    assertThat(race).isEqualTo(expected);
+    List<String> race = mapper.mapRace(input);
+
+    if (expected.isEmpty()) {
+      assertThat(race).isEmpty();
+    } else {
+      assertThat(race).containsExactly(expected);
+    }
   }
+
+
+
 }
