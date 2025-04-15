@@ -12,7 +12,6 @@ public enum MatchingAttribute {
     STATE("STATE"),
     ZIP("ZIP"),
     COUNTY("COUNTY"),
-    TELECOM("TELECOM"),
     PHONE("PHONE"),
     EMAIL("EMAIL"),
     IDENTIFIER("IDENTIFIER"),

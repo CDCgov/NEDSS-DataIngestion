@@ -25,7 +25,6 @@ public class TestData {
             new DataElement(true, 15.6, 4.84, 0.61),
             new DataElement(true, 16.7, 5.224, 0.62),
             new DataElement(true, 17.8, 6.94, 0.63),
-            new DataElement(true, 18.9, 7.74, 0.64),
             new DataElement(true, 20.11, 8.584, 0.65),
             new DataElement(true, 21.12, .324, 0.66),
             new DataElement(true, 22.13, 1.14, 0.67),
