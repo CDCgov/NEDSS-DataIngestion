@@ -31,7 +31,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
     private String sftpUserName;
     @Value("${sftp.password}")
     private String sftpPassword;
-    @Value("${sftp.elr_file_extns}")
+    @Value("${sftp.elr-file-extns}")
     private String hl7FileExtns;
     @Value("${sftp.filepaths}")
     private String sftpFilePaths;
