@@ -42,7 +42,7 @@ public class ElrProcessStatusComponent {
     public String process(String body){
         String status = "";
             logger.debug("File name and Elr Id:{}", body);
-            if (body != null && !body.trim().isEmpty()) {
+            if (body != null && !body.trim().isEmpty() && body.split(":").length == 2) {
                 //body = "HL7file-sftpstatus1.txt:7DAC34BD-B011-469A-BF27-25904370E9E3";//NOSONAR
                 String[] fileNameElr = body.split(":");
                 String elrId = fileNameElr[1].trim();
