@@ -96,7 +96,6 @@ public class AlgorithmMapper {
             case SOCIAL_SECURITY -> dataElements.socialSecurity();
             case STATE -> dataElements.state();
             case SUFFIX -> dataElements.suffix();
-            case TELECOM -> dataElements.telecom();
             case VISA_PASSPORT -> dataElements.visaPassport();
             case WIC_IDENTIFIER -> dataElements.wicIdentifier();
             case ZIP -> dataElements.zip();

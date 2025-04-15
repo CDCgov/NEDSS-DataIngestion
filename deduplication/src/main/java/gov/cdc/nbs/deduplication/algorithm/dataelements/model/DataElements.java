@@ -14,7 +14,6 @@ public record DataElements(
         DataElement state,
         DataElement zip,
         DataElement county,
-        DataElement telecom,
         DataElement telephone,
         DataElement email,
         // Identification Details
@@ -35,7 +34,6 @@ public record DataElements(
 
     public DataElements() {
         this(
-                new DataElement(),
                 new DataElement(),
                 new DataElement(),
                 new DataElement(),

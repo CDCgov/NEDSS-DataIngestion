@@ -131,8 +131,6 @@ class AlgorithmMapperTest {
         .isEqualTo(TestData.DATA_ELEMENTS.zip());
     assertThat(mapper.findDataElement(MatchingAttribute.COUNTY, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.county());
-    assertThat(mapper.findDataElement(MatchingAttribute.TELECOM, TestData.DATA_ELEMENTS))
-        .isEqualTo(TestData.DATA_ELEMENTS.telecom());
     assertThat(mapper.findDataElement(MatchingAttribute.PHONE, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.telephone());
     assertThat(mapper.findDataElement(MatchingAttribute.EMAIL, TestData.DATA_ELEMENTS))
