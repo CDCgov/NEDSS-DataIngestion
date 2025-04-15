@@ -21,7 +21,7 @@ public class HL7FileProcessComponent {
     private static Logger logger = LoggerFactory.getLogger(HL7FileProcessComponent.class);
 
     //1 - phcrImporter batch job, 2- RTI
-    @Value("${sftp.phcr_importer_version}")
+    @Value("${sftp.phcr-importer-version}")
     private String phcrImporterVersion;
 
     String msgType = "HL7";
