@@ -50,7 +50,7 @@ public class JobConfig {
       PlatformTransactionManager transactionManager
   ) {
     return new StepBuilder("readNbsWriteToMpi", jobRepository)
-        .<NbsPerson, NbsPerson>chunk(1, transactionManager)
+        .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager)
         .reader(personReader)
         .writer(seedWriter)
         .faultTolerant()

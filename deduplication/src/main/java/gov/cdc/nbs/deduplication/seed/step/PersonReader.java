@@ -46,7 +46,7 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
       this.setQueryProvider(queryProvider);
     }
     this.setRowMapper(mapper);
-    this.setPageSize(1);
+    this.setPageSize(1000);
   }
 
   @BeforeStep
@@ -68,7 +68,7 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
     // Reset the reader's state
     this.afterPropertiesSet();
     this.setRowMapper(mapper);
-    this.setPageSize(1);
+    this.setPageSize(1000);
   }
 
   private String buildWhereClause(Long lastProcessedId) {

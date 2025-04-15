@@ -71,7 +71,6 @@ public class SeedWriter implements ItemWriter<NbsPerson> {
           .retrieve()
           .body(MpiResponse.class);
     }catch (Exception e){
-      log.error("Failed to seed clusters to MPI, Request Body: {}",request);
       throw new RuntimeException("Failed to seed cluster to MPI");//NOSONAR
     }
   }

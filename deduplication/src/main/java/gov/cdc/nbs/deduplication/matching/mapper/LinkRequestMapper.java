@@ -35,7 +35,7 @@ public class LinkRequestMapper {
 
     List<String> race = null;
     if (request.races() != null && !request.races().isEmpty()) {
-      race = Collections.singletonList(request.races().get(0).raceCategoryCd());
+      race = request.races().stream().map(PersonMatchRequest.PersonRaceDto::raceCategoryCd).toList();
     }
 
     String sex = null;
