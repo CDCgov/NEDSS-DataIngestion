@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.constant.enums.EnumMessageType;
 import gov.cdc.dataingestion.deadletter.model.ElrDeadLetterDto;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
+import gov.cdc.dataingestion.exception.DateValidationException;
 import gov.cdc.dataingestion.exception.DeadLetterTopicException;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
@@ -61,7 +63,8 @@ public class ElrDeadLetterService {
     private String rawTopic = "elr_raw";
 
     private static final String DEAD_LETTER_NULL_EXCEPTION = "The Record does not exist in elr_dlt. Please try with a different ID";
-
+    private static final String START_END_DATE_RANGE_MSG = "The Start date must be earlier than or equal to the End date.";
+    private static final String DATE_FORMAT_MSG = "Date must be in MM-DD-YYYY format";
     public ElrDeadLetterService(
             IElrDeadLetterRepository dltRepository,
             IRawElrRepository rawELRRepository,
@@ -84,7 +87,40 @@ public class ElrDeadLetterService {
 
         return results;
     }
+    public List<ElrDeadLetterDto> getDltErrorsByDate(String startDate, String endDate) throws DateValidationException {
+        List<ElrDeadLetterDto> results = null;
+        try{
+            dateValidation(startDate, endDate);
+            String startDateWithTime=startDate+" 00:00:00";
+            String endDateWithTime=endDate+" 23:59:59";
 
+            Optional<List<ElrDeadLetterModel>> deadLetterELRModels = dltRepository.findAllDltRecordsByDate(startDateWithTime, endDateWithTime);
+            if (deadLetterELRModels.isPresent()) {
+                results = convertModelToDtoList(deadLetterELRModels.get());
+            }
+        } catch (Exception e) {
+            String errmsg = e.getMessage();
+            if(!errmsg.contains(START_END_DATE_RANGE_MSG)){
+                errmsg= errmsg+" "+DATE_FORMAT_MSG;
+            }
+            throw new DateValidationException(errmsg);
+        }
+        return results;
+    }
+    private void dateValidation(String startDateStr, String endDateStr) throws DateValidationException {
+        try{
+            String pattern="M-d-yyyy";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            sdf.setLenient(false);
+            Date startDate = sdf.parse(startDateStr);
+            Date endDate = sdf.parse(endDateStr);
+            if (startDate.after(endDate)) {
+                throw new DateValidationException(START_END_DATE_RANGE_MSG);
+            }
+        }catch(Exception e){
+            throw new DateValidationException(e.getMessage());
+        }
+    }
     public ElrDeadLetterDto getDltRecordById(String id) throws DeadLetterTopicException {
         if (!isValidUUID(id)) {
             if (id.isEmpty()) {

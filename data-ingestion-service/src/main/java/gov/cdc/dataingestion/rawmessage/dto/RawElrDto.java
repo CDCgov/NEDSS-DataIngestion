@@ -17,5 +17,5 @@ public class RawElrDto {
     private String payload;
     private String version;
     private Boolean validationActive = false;
-
+    private String customMapper;
 }

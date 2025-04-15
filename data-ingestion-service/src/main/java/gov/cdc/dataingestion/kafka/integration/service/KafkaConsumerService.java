@@ -173,9 +173,10 @@ public class KafkaConsumerService {
             containerFactory = "kafkaListenerContainerFactoryRaw"
     )
     public void handleMessageForRawElr(String message,
-                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                               @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
-                                @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
+                 @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                 @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
+                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable,
+                 @Header(KafkaHeaderValue.CUSTOM_MESSAGE_MAPPER) String customMapper) {
         timeMetricsBuilder.recordElrRawEventTime(() -> {
             log.debug(topicDebugLog, message, topic);
             boolean hl7ValidationActivated = false;
@@ -184,7 +185,7 @@ public class KafkaConsumerService {
                 hl7ValidationActivated = true;
             }
             try {
-                validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
+                validationHandler(message, hl7ValidationActivated, dataProcessingEnable,customMapper);
             } catch (DuplicateHL7FileFoundException | DiHL7Exception | KafkaProducerException e) {
                 throw new RuntimeException(e); //NOSONAR
             }
@@ -502,8 +503,9 @@ public class KafkaConsumerService {
             } else {
                 Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
                 if (response.isPresent()) {
-                    var validMessage = iHl7v2Validator.messageStringValidation(response.get().getMessage());
+                    var validMessage = iHl7v2Validator.messageStringFormat(response.get().getMessage());
                     validMessage = iHl7v2Validator.processFhsMessage(validMessage);
+                    validMessage = iHl7v2Validator.hl7MessageValidation(validMessage);
                     hl7Msg = validMessage;
                 } else {
                     throw new XmlConversionException(errorDltMessage);
@@ -567,7 +569,7 @@ public class KafkaConsumerService {
         log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
         xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
     }
-    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception, KafkaProducerException {
+    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable,String customMapper) throws DuplicateHL7FileFoundException, DiHL7Exception, KafkaProducerException {
         Optional<RawElrModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawElrModel elrModel;
         if (!rawElrResponse.isEmpty()) {
@@ -581,7 +583,7 @@ public class KafkaConsumerService {
                 customMetricsBuilder.incrementMessagesValidated();
                 ValidatedELRModel hl7ValidatedModel;
                 try {
-                    hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
+                    hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated, customMapper);
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();

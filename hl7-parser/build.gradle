@@ -24,9 +24,11 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
     api 'org.apache.commons:commons-math3:3.6.1'
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+
 }
 
 tasks.named('test') {

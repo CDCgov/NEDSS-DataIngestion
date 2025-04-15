@@ -17,8 +17,8 @@ public class HL7Helper {
     /**
      * HL7 string validator, replacing "\n" by "\r"
      * */
-    public String hl7StringValidator(String message) throws DiHL7Exception {
-        return parser.hl7MessageStringValidation(message);
+    public String hl7StringFormat(String message) throws DiHL7Exception {
+        return parser.hl7MessageStringFormat(message);
     }
 
     /**
@@ -51,5 +51,8 @@ public class HL7Helper {
         return parser.processFhsMessage(message);
     }
 
+    public String processHl7CustomMapping(String message, String customMapper) throws DiHL7Exception {
+        return parser.hl7MessageCustomMapping(message,customMapper);
+    }
 
 }

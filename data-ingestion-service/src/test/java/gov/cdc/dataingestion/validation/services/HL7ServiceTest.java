@@ -45,7 +45,7 @@ class HL7ServiceTest {
                 "OBX|1|CE|22327-1^Hepatitis C Antibody (Anti HCV)^LN^408^Hepatitis C Antibody (Anti HCV)^L|1|11214006^Reactive^SCT||||||F|||20150101|29D1070766^CHH Medical Center^CLIA\r" +
                 "NTE|1||Performing Lab AddresAAs: 6900 NoorthAA Durango Drive, Las Vegas, NV  89149";
 
-        when(hl7v2Validator.messageStringValidation(hl7Msg))
+        when(hl7v2Validator.messageStringFormat(hl7Msg))
                 .thenReturn(hl7MsgAfterStringSet);
 
         when(hl7v2Validator.hl7MessageValidation(hl7MsgAfterStringSet))
