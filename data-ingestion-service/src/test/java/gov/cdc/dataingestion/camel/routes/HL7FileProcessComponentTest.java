@@ -42,6 +42,7 @@ class HL7FileProcessComponentTest {
         rawElrDto.setPayload(hl7Payload);
         rawElrDto.setValidationActive(true);
         rawElrDto.setVersion("1");
+        rawElrDto.setCustomMapper("");
 
         when(rawELRService.submission(rawElrDto)).thenReturn("OK");
         String status = hL7FileProcessComponent.process(hl7Payload);
