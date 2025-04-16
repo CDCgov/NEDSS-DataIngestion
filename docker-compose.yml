@@ -153,9 +153,11 @@ services:
       di-mssql:
         condition: service_healthy
     ports:
-      - "8062:8080"
+      - "8070:8070"
     env_file:
       - dataingestion.env
+    environment:
+      PORT: 8070
     networks:
       - dataingestion
 
