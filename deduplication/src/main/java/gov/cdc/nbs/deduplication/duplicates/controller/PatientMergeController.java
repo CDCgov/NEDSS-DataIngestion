@@ -13,24 +13,24 @@ import java.util.List;
 @RequestMapping("/deduplication")
 public class PatientMergeController {
 
-  private final PatientMergeHandler mergeGroupHandler;
+  private final PatientMergeHandler patientMergeHandler;
 
-  public PatientMergeController(PatientMergeHandler possibleMatchHandler) {
-    this.mergeGroupHandler = possibleMatchHandler;
+  public PatientMergeController(PatientMergeHandler patientMergeHandler) {
+    this.patientMergeHandler = patientMergeHandler;
   }
 
   @GetMapping("/matches/requiring-review")
   public ResponseEntity<List<MatchesRequireReviewResponse>> getPotentialMatches(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "5") int size) {
-    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getPotentialMatches(page, size);
+    List<MatchesRequireReviewResponse> matches = patientMergeHandler.getPotentialMatches(page, size);
     return ResponseEntity.ok(matches);
   }
 
   @PostMapping("/merge-status")
   public ResponseEntity<String> updateMergeStatus(@RequestBody MergeStatusRequest request) {
     try {
-      mergeGroupHandler.updateMergeStatus(request);
+      patientMergeHandler.updateMergeStatus(request);
       return ResponseEntity.ok("Merge status updated successfully.");
     } catch (Exception e) {
       return ResponseEntity.status(500).body("Error updating merge status: " + e.getMessage());

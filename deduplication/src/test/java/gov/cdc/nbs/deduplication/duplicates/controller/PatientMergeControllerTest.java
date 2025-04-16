@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 class PatientMergeControllerTest {
 
   @Mock
-  private PatientMergeHandler mergeGroupHandler;
+  private PatientMergeHandler patientMergeHandler;
 
   @InjectMocks
   private PatientMergeController patientMergeController;
@@ -39,10 +39,10 @@ class PatientMergeControllerTest {
   }
 
   @Test
-  void testGetPossibleMatchGroups() throws Exception {
+  void testGetPotentialMatches() throws Exception {
     int page = 0;
     int size = 5;
-    when(mergeGroupHandler.getPotentialMatches(page, size)).thenReturn(expectedMergeGroupResponse());
+    when(patientMergeHandler.getPotentialMatches(page, size)).thenReturn(expectedPotentialMatches());
 
 
     // Act & Assert
@@ -50,17 +50,17 @@ class PatientMergeControllerTest {
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size)))
         .andExpect(status().isOk())
-        .andExpect(content().json(expectedMergeGroupResponseJson()));
+        .andExpect(content().json(expectedPotentialMatchesJson()));
   }
 
-  private List<MatchesRequireReviewResponse> expectedMergeGroupResponse() {
+  private List<MatchesRequireReviewResponse> expectedPotentialMatches() {
     return Arrays.asList(
         new MatchesRequireReviewResponse("111122", "john smith", "1990-01-01", "2000-01-01", 2),
         new MatchesRequireReviewResponse("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)
     );
   }
 
-  private String expectedMergeGroupResponseJson() {
+  private String expectedPotentialMatchesJson() {
     return """
         [
           {
@@ -92,14 +92,14 @@ class PatientMergeControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("Merge status updated successfully."));
 
-    verify(mergeGroupHandler).updateMergeStatus(request);
+    verify(patientMergeHandler).updateMergeStatus(request);
   }
 
   @Test
   void testUpdateMergeStatus_Error() throws Exception {
     MergeStatusRequest request = new MergeStatusRequest(100L, false);
 
-    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatus(request);
+    doThrow(new RuntimeException("Some error")).when(patientMergeHandler).updateMergeStatus(request);
 
     // Act & Assert
     mockMvc.perform(post("/deduplication/merge-status")
@@ -107,7 +107,7 @@ class PatientMergeControllerTest {
             .content("{\"personUid\": 100, \"status\": \"false\"}"))
         .andExpect(status().isInternalServerError())
         .andExpect(content().string("Error updating merge status: Some error"));
-    verify(mergeGroupHandler).updateMergeStatus(request);
+    verify(patientMergeHandler).updateMergeStatus(request);
   }
 
 
