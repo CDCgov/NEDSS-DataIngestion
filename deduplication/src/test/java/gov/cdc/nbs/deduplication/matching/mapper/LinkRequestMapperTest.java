@@ -59,7 +59,7 @@ class LinkRequestMapperTest {
 
     LinkRequest linkRequest = mapper.map(request);
 
-    assertThat(linkRequest.record().race()).isEqualTo("raceCategoryCd");
+    assertThat(linkRequest.record().race().getFirst()).isEqualTo("raceCategoryCd");
   }
 
   @Test

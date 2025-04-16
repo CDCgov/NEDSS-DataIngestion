@@ -239,7 +239,7 @@ class PersonUpdateSyncHandlerTest {
         Collections.emptyList(), // address
         Collections.emptyList(), // name
         Collections.emptyList(), // telecom
-        "race",
+        Collections.singletonList("race"),
         Collections.emptyList() // identifiers
     );
   }

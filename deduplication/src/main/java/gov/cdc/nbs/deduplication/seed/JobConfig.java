@@ -45,11 +45,16 @@ public class JobConfig {
   }
 
   @Bean("readNbsWriteToMpi")
-  public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-    return new StepBuilder("Read and transform NBS data", jobRepository)
-        .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager) // Process 10 items per chunk
-        .reader(personReader) // page ids to be processed from NBS
-        .writer(seedWriter) // fetch details and send cluster to MPI for seeding
+  public Step step1(
+      JobRepository jobRepository,
+      PlatformTransactionManager transactionManager
+  ) {
+    return new StepBuilder("readNbsWriteToMpi", jobRepository)
+        .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager)
+        .reader(personReader)
+        .writer(seedWriter)
+        .faultTolerant()
+        .noSkip(RuntimeException.class)
         .build();
   }
 

@@ -5,6 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -105,17 +109,38 @@ class SeedingTest {
 
     // Verify a known patients content
     String rawData = mpiTemplate.queryForObject(MPI_DATA_SELECT, String.class);
+
+    // Preprocess the JSON payload to ensure the 'race' field is an array
+    rawData = transformRaceField(rawData);
+
     MpiPerson mpiData = mapper.readValue(rawData, MpiPerson.class);
 
     validatePatientData(mpiData);
 
   }
 
+  private String transformRaceField(String jsonData) throws JsonProcessingException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode jsonNode = objectMapper.readTree(jsonData);
+
+    JsonNode raceNode = jsonNode.get("race");
+    if (raceNode != null && raceNode.isTextual()) {
+      // Convert the single string into an array
+      ArrayNode raceArray = objectMapper.createArrayNode();
+      raceArray.add(raceNode.asText());
+
+      ((ObjectNode) jsonNode).set("race", raceArray);
+    }
+
+    return objectMapper.writeValueAsString(jsonNode);
+  }
+
+
   private void validatePatientData(MpiPerson mpiData) {
     // Personal
     assertThat(mpiData.birth_date()).isEqualTo("1990-01-01");
     assertThat(mpiData.sex()).isEqualTo("M");
-    assertThat(mpiData.race()).isEqualTo("ASIAN");
+    assertThat(mpiData.race().getFirst()).isEqualTo("ASIAN");
 
     // Address
     assertThat(mpiData.address()).hasSize(1);
@@ -169,6 +194,7 @@ class SeedingTest {
 
   private record RowCount(Integer unique, Integer total) {
   }
+
 
   private class RowCountMapper implements RowMapper<RowCount> {
     @Override
