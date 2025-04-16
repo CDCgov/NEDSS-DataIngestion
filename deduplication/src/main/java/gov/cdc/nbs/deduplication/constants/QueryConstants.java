@@ -481,10 +481,10 @@ public class QueryConstants {
       """;
 
 
-  public static final String POSSIBLE_MATCH_GROUP = """
+  public static final String POSSIBLE_MATCH_PATIENTS = """
       SELECT
           person_uid,
-          STRING_AGG(CAST(mpi_person_id AS NVARCHAR(MAX)), ', ') AS mpi_person_ids,
+          count(mpi_person_id) AS num_of_matching,
           date_identified
       FROM
           match_candidates
@@ -497,17 +497,25 @@ public class QueryConstants {
           FETCH NEXT :limit ROWS ONLY;
       """;
 
-  public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
-      SELECT person_uid
-      FROM nbs_mpi_mapping
-      WHERE mpi_person IN (:mpiIds)
-      AND person_uid=person_parent_uid
-      """;
-
   public static final String UPDATE_MERGE_STATUS_FOR_GROUP = """
       UPDATE match_candidates
       SET is_merge = :isMerge
       WHERE person_uid = :personUid
+      """;
+
+  public static final String FETCH_PATIENT_NAME_AND_ADD_TIME_QUERY = """
+      SELECT TOP 1
+          p.add_time,
+          COALESCE(pn.first_nm, '') + ' ' + COALESCE(pn.last_nm, '') AS full_name
+      FROM
+          person p WITH (NOLOCK)
+      INNER JOIN
+          person_name pn WITH (NOLOCK)
+          ON pn.person_uid = p.person_uid
+      WHERE
+          p.person_uid = :personUid
+      ORDER BY
+          pn.status_time DESC;
       """;
 
 }

@@ -1,8 +1,8 @@
 package gov.cdc.nbs.deduplication.duplicates.controller;
 
-import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergeStatusRequest;
-import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
+import gov.cdc.nbs.deduplication.duplicates.service.PatientMergeHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,19 +11,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/deduplication")
-public class MergeGroupController {
+public class PatientMergeController {
 
-  private final MergeGroupHandler mergeGroupHandler;
+  private final PatientMergeHandler mergeGroupHandler;
 
-  public MergeGroupController(MergeGroupHandler possibleMatchHandler) {
+  public PatientMergeController(PatientMergeHandler possibleMatchHandler) {
     this.mergeGroupHandler = possibleMatchHandler;
   }
 
-  @GetMapping("/merge-groups")
-  public List<MergeGroupResponse> getPossibleMatchGroups(
+  @GetMapping("/matches/requiring-review")
+  public ResponseEntity<List<MatchesRequireReviewResponse>> getPotentialMatches(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "5") int size) {
-    return mergeGroupHandler.getMergeGroups(page, size);
+    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getPotentialMatches(page, size);
+    return ResponseEntity.ok(matches);
   }
 
   @PostMapping("/merge-status")
