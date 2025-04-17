@@ -1,7 +1,7 @@
 package gov.cdc.nbs.deduplication.duplicates.controller;
 
 import gov.cdc.nbs.deduplication.duplicates.model.GroupNoMergeRequest;
-import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
@@ -14,22 +14,23 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/deduplication")
-public class MergeGroupController {
+public class PatientMergeController {
 
   private final MergeGroupHandler mergeGroupHandler;
 
   private final MergePatientHandler mergePatientsHandler;
 
-  public MergeGroupController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler) {
+  public PatientMergeController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergePatientsHandler = mergePatientsHandler;
   }
 
-  @GetMapping("/merge-groups")
-  public List<MergeGroupResponse> getPossibleMatchGroups(
+  @GetMapping("/matches/requiring-review")
+  public ResponseEntity<List<MatchesRequireReviewResponse>> getPotentialMatches(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "5") int size) {
-    return mergeGroupHandler.getMergeGroups(page, size);
+    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getPotentialMatches(page, size);
+    return ResponseEntity.ok(matches);
   }
 
   @PostMapping("/group-no-merge")

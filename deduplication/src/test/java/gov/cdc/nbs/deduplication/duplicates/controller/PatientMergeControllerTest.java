@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 
-import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ExtendWith(MockitoExtension.class)
-class MergeGroupControllerTest {
+class PatientMergeControllerTest {
 
   @Mock
   private MergeGroupHandler mergeGroupHandler;
@@ -33,24 +33,25 @@ class MergeGroupControllerTest {
   private MergePatientHandler mergePatientHandler;
 
   @InjectMocks
-  private MergeGroupController mergeGroupController;
+  private PatientMergeController patientMergeController;
+
 
   private MockMvc mockMvc;
 
   @BeforeEach
   void setUp() {
-    mockMvc = MockMvcBuilders.standaloneSetup(mergeGroupController).build();
+    mockMvc = MockMvcBuilders.standaloneSetup(patientMergeController).build();
   }
 
   @Test
   void testGetPossibleMatchGroups() throws Exception {
     int page = 0;
     int size = 5;
-    when(mergeGroupHandler.getMergeGroups(page, size)).thenReturn(expectedMergeGroupResponse());
+    when(mergeGroupHandler.getPotentialMatches(page, size)).thenReturn(expectedMergeGroupResponse());
 
 
     // Act & Assert
-    mockMvc.perform(get("/deduplication/merge-groups")
+    mockMvc.perform(get("/deduplication/matches/requiring-review")
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size)))
         .andExpect(status().isOk())
@@ -85,17 +86,7 @@ class MergeGroupControllerTest {
     verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
   }
 
-  private List<MergeGroupResponse> expectedMergeGroupResponse() {
-    return Arrays.asList(
-        new MergeGroupResponse("100", "1990-01-01", "john smith", null),
-        new MergeGroupResponse("200", "1990-02-02", "Andrew James", null)
-    );
-  }
 
-  private String expectedMergeGroupResponseJson() {
-    return "[{'personOfTheGroup':'100','dateIdentified': 1990-01-01, 'mostRecentPersonName': 'john smith'}, " +
-        "{'personOfTheGroup':'200','dateIdentified': 1990-02-02, 'mostRecentPersonName': 'Andrew James'}]";
-  }
 
 
   @Test
@@ -148,6 +139,32 @@ class MergeGroupControllerTest {
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
   }
 
+  private List<MatchesRequireReviewResponse> expectedMergeGroupResponse() {
+    return Arrays.asList(
+        new MatchesRequireReviewResponse("111122", "john smith", "1990-01-01", "2000-01-01", 2),
+        new MatchesRequireReviewResponse("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)
+    );
+  }
 
+  private String expectedMergeGroupResponseJson() {
+    return """
+        [
+          {
+            "patientId": "111122",
+            "patientName": "john smith",
+            "createdDate": "1990-01-01",
+            "identifiedDate": "2000-01-01",
+            "numOfMatchingRecords": 2
+          },
+          {
+            "patientId": "111133",
+            "patientName": "Andrew James",
+            "createdDate": "1990-02-02",
+            "identifiedDate": "2000-02-02",
+            "numOfMatchingRecords": 4
+          }
+        ]
+        """;
+  }
 
 }

@@ -1,9 +1,9 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.model.PossibleMatchGroup;
-import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -28,54 +28,36 @@ public class MergeGroupHandler {
     this.patientRecordService = patientRecordService;
   }
 
-  public List<MergeGroupResponse> getMergeGroups(int page, int size) {
+  public List<MatchesRequireReviewResponse> getPotentialMatches(int page, int size) {
     int offset = page * size;
-    return getPossibleMatchGroups(offset, size).stream()
-        .map(possibleMatchGroup -> {
-          List<String> personUids = getPersonIdsByMpiIds(possibleMatchGroup.mpiIds());
-          personUids.add(possibleMatchGroup.personUid());
-          List<MpiPerson> patientRecords = patientRecordService.fetchPersonRecords(personUids);
-          String mostRecentName = getMostRecentNameOfTheGroup(patientRecords);
-          return new MergeGroupResponse(possibleMatchGroup.personUid(), possibleMatchGroup.dateIdentified(),
-              mostRecentName, patientRecords);
+    List<MatchCandidateData> matchCandidates = getMatchCandidateData(offset, size);
+    if (matchCandidates.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return matchCandidates.stream()
+        .map(matchCandidateData -> {
+          PatientNameAndTimeDTO patientNameAndTimeDTO =
+              patientRecordService.fetchPatientNameAndAddTime(matchCandidateData.personUid());
+          return new MatchesRequireReviewResponse(matchCandidateData, patientNameAndTimeDTO);
         })
         .toList();
   }
 
-  private List<PossibleMatchGroup> getPossibleMatchGroups(int offset, int limit) {
+  private List<MatchCandidateData> getMatchCandidateData(int offset, int limit) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
         .addValue("limit", limit)
         .addValue("offset", offset);
     return deduplicationTemplate.query(
-        QueryConstants.POSSIBLE_MATCH_GROUP,
+        QueryConstants.POSSIBLE_MATCH_PATIENTS,
         parameters,
-        this::mapRowToPossibleMatchGroup);
+        this::mapRowToMatchCandidateData);
   }
 
-  private PossibleMatchGroup mapRowToPossibleMatchGroup(ResultSet rs, int rowNum) throws SQLException {
+  private MatchCandidateData mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
     String personUid = rs.getString("person_uid");
-    String mpiPersonIds = rs.getString("mpi_person_ids");
+    long numOfMatches = rs.getInt("num_of_matching");
     String dateIdentified = rs.getString("date_identified");
-    return new PossibleMatchGroup(personUid, Arrays.asList(mpiPersonIds.split(", ")), dateIdentified);
-  }
-
-  private String getMostRecentNameOfTheGroup(List<MpiPerson> mpiPersonList) {
-    MpiPerson oldestPersonInTheGroup = (mpiPersonList.isEmpty()) ? null : mpiPersonList.getFirst();
-    if (oldestPersonInTheGroup != null) {
-      MpiPerson.Name mostRecentName = oldestPersonInTheGroup.name().getFirst();
-      String givenName = mostRecentName.given().isEmpty() ? "" : mostRecentName.given().getFirst();
-      String familyName = mostRecentName.family() == null ? "" : mostRecentName.family();
-      return givenName.concat(" ").concat(familyName);
-    }
-    return "";
-  }
-
-  private List<String> getPersonIdsByMpiIds(List<String> mpiIds) {
-    return deduplicationTemplate.query(
-        QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
-        new MapSqlParameterSource("mpiPersonIds", mpiIds),
-        (rs, rowNum) -> rs.getString("person_uid")
-    );
+    return new MatchCandidateData(personUid, numOfMatches, dateIdentified);
   }
 
   private List<String> getMpiIdsByPersonIds(List<String> personIds) {

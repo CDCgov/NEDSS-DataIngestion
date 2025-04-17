@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -48,5 +50,21 @@ public class PatientRecordService {
         params,
         mpiPersonMapper);
   }
+
+
+  public PatientNameAndTimeDTO fetchPatientNameAndAddTime(String personUid) {
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("personUid", personUid);
+    return namedParameterJdbcTemplate.queryForObject(
+        QueryConstants.FETCH_PATIENT_NAME_AND_ADD_TIME_QUERY,
+        params,
+        (rs, rowNum) -> {
+          LocalDateTime addTime = rs.getTimestamp("add_time").toLocalDateTime();
+          String nestedName = rs.getString("full_name");
+          return new PatientNameAndTimeDTO(addTime, nestedName);
+        }
+    );
+  }
+
 
 }
