@@ -1,11 +1,9 @@
 package gov.cdc.nbs.deduplication.duplicates.model;
 
 
-import java.util.List;
-
-public record PossibleMatchGroup(
+public record MatchCandidateData(
     String personUid,
-    List<String> mpiIds,
+    long numOfMatches,
     String dateIdentified
 ) {
 }

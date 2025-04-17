@@ -5,9 +5,9 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.model.MergeGroupResponse;
-import gov.cdc.nbs.deduplication.duplicates.model.PossibleMatchGroup;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
+import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -20,8 +20,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,24 +40,92 @@ class MergeGroupHandlerTest {
 
 
   @Test
-  void testGetMergeGroups() throws SQLException {
-    // Arrange
-    List<String> personUids = Arrays.asList("personUid1", "personUid2", "personOfTheGroup");
-    List<MpiPerson> patientRecords = getPatientRecords();
+  void testGetPotentialMatches() throws SQLException {
+    PatientNameAndTimeDTO patientNameAndTimeDTO1 = mockPatientNameAndTimeDTO("John Doe");
+    PatientNameAndTimeDTO patientNameAndTimeDTO2 = mockPatientNameAndTimeDTO("Andrew James");
 
-    //Mocking
-    ResultSet rsPossibleMatchGroup = mockResultSetForPossibleMatchGroup();
-    ResultSet rsPersonUids = mockResultSetForPersonUids();
-    mockQueryForPossibleMatchGroups(rsPossibleMatchGroup);
-    mockQueryForPersonIdsByMpiIds(rsPersonUids);
-    when(patientRecordService.fetchPersonRecords(personUids)).thenReturn(patientRecords);
+    // Mocking
+    ResultSet rsMatchCandidates = mockResultSetForMatchCandidates();
+    mockQueryForMatchCandidates(rsMatchCandidates);
+    when(patientRecordService.fetchPatientNameAndAddTime("personUid1"))
+        .thenReturn(patientNameAndTimeDTO1);
+    when(patientRecordService.fetchPatientNameAndAddTime("personUid2"))
+        .thenReturn(patientNameAndTimeDTO2);
 
     // Act
-    List<MergeGroupResponse> result = mergeGroupHandler.getMergeGroups(0, 10);
+    List<MatchesRequireReviewResponse> result = mergeGroupHandler.getPotentialMatches(0, 10);
 
-    // Verify
-    verifyMergeGroupResponse(result);
+    verifyPotentialMatchesResponse(result);
   }
+
+  @Test
+  void testGetPotentialMatches_ReturnsEmptyListWhenNoMatchCandidates()  {
+    // Mocking
+    when(deduplicationTemplate.query(
+        eq(QueryConstants.POSSIBLE_MATCH_PATIENTS),
+        any(MapSqlParameterSource.class),
+        ArgumentMatchers.<RowMapper<MatchCandidateData>>any()
+    )).thenReturn(Collections.emptyList());
+
+    // Act
+    List<MatchesRequireReviewResponse> result = mergeGroupHandler.getPotentialMatches(0, 10);
+
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
+  private PatientNameAndTimeDTO mockPatientNameAndTimeDTO(String patientName) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm");
+    LocalDateTime dateTime = LocalDateTime.parse("2020-10-01-12-30", formatter);
+    return new PatientNameAndTimeDTO(dateTime, patientName);
+  }
+
+
+  private ResultSet mockResultSetForMatchCandidates() throws SQLException {
+    ResultSet rs = mock(ResultSet.class);
+    when(rs.getString("person_uid")).thenReturn("personUid1", "personUid2");
+    when(rs.getInt("num_of_matching")).thenReturn(2, 4);
+    when(rs.getString("date_identified")).thenReturn("2020-10-01", "2020-10-02");
+    return rs;
+  }
+
+  private void mockQueryForMatchCandidates(ResultSet rs) {
+    when(deduplicationTemplate.query(
+        eq(QueryConstants.POSSIBLE_MATCH_PATIENTS),
+        argThat((MapSqlParameterSource parameters) -> {
+          Integer limit = (Integer) parameters.getValue("limit");
+          Integer offset = (Integer) parameters.getValue("offset");
+          return limit != null && offset != null;
+        }),
+        ArgumentMatchers.<RowMapper<MatchCandidateData>>any()))
+        .thenAnswer(invocation -> {
+          RowMapper<MatchCandidateData> rowMapper = invocation.getArgument(2);
+          List<MatchCandidateData> result = new ArrayList<>();
+          result.add(rowMapper.mapRow(rs, 1));
+          result.add(rowMapper.mapRow(rs, 2));
+          return result;
+        });
+  }
+
+  private void verifyPotentialMatchesResponse(List<MatchesRequireReviewResponse> result) {
+    assertNotNull(result);
+    assertEquals(2, result.size());
+
+    MatchesRequireReviewResponse response1 = result.getFirst();
+    assertEquals("personUid1", response1.patientId());
+    assertEquals("John Doe", response1.patientName());
+    assertEquals("2020-10-01T12:30", response1.createdDate());
+    assertEquals("2020-10-01", response1.identifiedDate());
+    assertEquals(3, response1.numOfMatchingRecords());
+
+    MatchesRequireReviewResponse response2 = result.get(1);
+    assertEquals("personUid2", response2.patientId());
+    assertEquals("Andrew James", response2.patientName());
+    assertEquals("2020-10-01T12:30", response2.createdDate());
+    assertEquals("2020-10-02", response2.identifiedDate());
+    assertEquals(5, response2.numOfMatchingRecords());
+  }
+
 
   @Test
   void testUpdateMergeStatus() {
@@ -67,79 +136,6 @@ class MergeGroupHandlerTest {
         eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP),
         any(MapSqlParameterSource.class)
     );
-  }
-
-  private List<MpiPerson> getPatientRecords() {
-    return Arrays.asList(
-        new MpiPerson("personUid1", null, null, null, null,
-            getMockedName(), null, null, null),
-        new MpiPerson("personUid1", null, null, null, null,
-            getMockedName(), null, null, null)
-    );
-  }
-
-  private List<MpiPerson.Name> getMockedName() {
-    return List.of(new MpiPerson.Name(
-        List.of("John", "Jane"),    // Given names
-        "Doe",                      // Family name
-        null
-    ));
-  }
-
-  private ResultSet mockResultSetForPossibleMatchGroup() throws SQLException {
-    ResultSet rs = mock(ResultSet.class);
-    when(rs.getString("person_uid")).thenReturn("personOfTheGroup");
-    when(rs.getString("mpi_person_ids")).thenReturn("mpiId1, mpiId2");
-    when(rs.getString("date_identified")).thenReturn("2023-10-01");
-    return rs;
-  }
-
-  private ResultSet mockResultSetForPersonUids() throws SQLException {
-    ResultSet rs = mock(ResultSet.class);
-    when(rs.getString("person_uid")).thenReturn("personUid1", "personUid2");
-    return rs;
-  }
-
-  private void mockQueryForPossibleMatchGroups(ResultSet rs) {
-    when(deduplicationTemplate.query(
-        eq(QueryConstants.POSSIBLE_MATCH_GROUP),
-        argThat((MapSqlParameterSource parameters) -> {
-          Integer limit = (Integer) parameters.getValue("limit");
-          Integer offset = (Integer) parameters.getValue("offset");
-          return limit != null && offset != null;
-        }),
-        ArgumentMatchers.<RowMapper<PossibleMatchGroup>>any()))
-        .thenAnswer(invocation -> {
-          RowMapper<PossibleMatchGroup> rowMapper = invocation.getArgument(2);
-          return Collections.singletonList(rowMapper.mapRow(rs, 1));
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  private void mockQueryForPersonIdsByMpiIds(ResultSet rs) {
-    when(deduplicationTemplate.query(
-        eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
-        argThat((MapSqlParameterSource parameters) -> {
-          List<String> ids = (List<String>) parameters.getValue("mpiPersonIds");
-          return ids != null;
-        }),
-        ArgumentMatchers.<RowMapper<String>>any()))
-        .thenAnswer(invocation -> {
-          RowMapper<String> rowMapper = invocation.getArgument(2);
-          List<String> result = new ArrayList<>();
-          result.add(rowMapper.mapRow(rs, 1));
-          result.add(rowMapper.mapRow(rs, 2));
-          return result;
-        });
-  }
-
-  private void verifyMergeGroupResponse(List<MergeGroupResponse> result) {
-    assertNotNull(result);
-    assertEquals(1, result.size());
-    MergeGroupResponse response = result.getFirst();
-    assertEquals("2023-10-01", response.dateIdentified());
-    assertEquals("John Doe", response.mostRecentPersonName());
-    assertEquals(2, response.patients().size());
   }
 
   @Test
