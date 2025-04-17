@@ -113,24 +113,7 @@ public class HL7Parser implements IHL7Parser {
         message = message.replaceAll("\\\\+", "\\\\"); //NOSONAR
         return message;
     }
-    public String hl7MessageCustomMapping(String message, String customMapper) throws DiHL7Exception {
-        if(customMapper==null || customMapper.isEmpty()) {
-            return message;
-        }
-        try{
-            String[] formatStrArr = customMapper.split(",");
-            for (String formatStr : formatStrArr) {
-                String[] keyValuePair = formatStr.split("=");
-                String oldValue = keyValuePair[0];
-                String newValue = keyValuePair[1];
-                message = message.replaceAll(oldValue, newValue);
-            }
-        }catch (Exception e) {
-            throw new DiHL7Exception("Custom mapping find and replace:"+e.getMessage());
-        }
 
-        return message;
-    }
     public HL7ParsedMessage convert231To251(String message, HL7ParsedMessage preParsedMessage) throws DiHL7Exception {
         try {
             HL7ParsedMessage<OruR1> parsedMessage;

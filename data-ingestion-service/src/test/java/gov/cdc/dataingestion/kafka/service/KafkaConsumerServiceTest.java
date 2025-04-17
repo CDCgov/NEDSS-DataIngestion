@@ -197,7 +197,7 @@ class KafkaConsumerServiceTest {
 
         when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
-        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false,"")).thenReturn(
+        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false)).thenReturn(
                 validatedModel
         );
 
@@ -207,7 +207,7 @@ class KafkaConsumerServiceTest {
             return null;
         }).when(timeMetricsBuilder).recordElrRawEventTime(any());
 
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","");
+        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
 
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
@@ -236,7 +236,7 @@ class KafkaConsumerServiceTest {
 
         when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
-        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false, "abc=abc123")).thenReturn(
+        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false)).thenReturn(
                 validatedModel
         );
 
@@ -246,7 +246,7 @@ class KafkaConsumerServiceTest {
             return null;
         }).when(timeMetricsBuilder).recordElrRawEventTime(any());
 
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","abc=abc123");
+        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
 
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
@@ -281,7 +281,7 @@ class KafkaConsumerServiceTest {
 
         RuntimeException exception = Assertions.assertThrows(
                 RuntimeException.class, () -> {
-                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","");
+                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
                 }
         );
 

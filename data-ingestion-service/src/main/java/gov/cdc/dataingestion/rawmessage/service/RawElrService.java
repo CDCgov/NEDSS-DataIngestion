@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.rawmessage.service;
 
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
+import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
@@ -35,6 +36,9 @@ public class RawElrService {
     private final IElrDeadLetterRepository iElrDeadLetterRepository;
 
     public String submission(RawElrDto rawElrDto) throws KafkaProducerException {
+        if(rawElrDto.getCustomMapper()!=null && !rawElrDto.getCustomMapper().trim().isEmpty()) {
+            rawElrDto.setPayload(hl7MessageCustomMapping(rawElrDto.getPayload(), rawElrDto.getCustomMapper()));
+        }
         RawElrModel created = rawElrRepository.save(convert(rawElrDto));
         int dltOccurrence = 0;
         try {
@@ -45,7 +49,7 @@ public class RawElrService {
                         rawElrDto.getType(),
                         dltOccurrence,
                         rawElrDto.getValidationActive(),
-                        rawElrDto.getVersion(),rawElrDto.getCustomMapper());
+                        rawElrDto.getVersion());
             }
             if(rawElrDto.getType().equalsIgnoreCase(XML_ELR)) {
                 kafkaProducerService.sendElrXmlMessageFromController(
@@ -73,8 +77,7 @@ public class RawElrService {
                         rawElrDto.getType(),
                         dltOccurrence + 1,
                         rawElrDto.getValidationActive(),
-                        rawElrDto.getVersion(),
-                        rawElrDto.getCustomMapper());
+                        rawElrDto.getVersion());
             }
             if(rawElrDto.getType().equalsIgnoreCase(XML_ELR)) {
                 kafkaProducerService.sendElrXmlMessageFromController(
@@ -114,5 +117,24 @@ public class RawElrService {
         rawElrDto.setType(rawElrModel.getType());
         rawElrDto.setPayload(rawElrModel.getPayload());
         return rawElrDto;
+    }
+    private String hl7MessageCustomMapping(String message, String customMapper) throws KafkaProducerException {
+        if(customMapper==null || customMapper.isEmpty()) {
+            return message;
+        }
+        try{
+            String[] formatStrArr = customMapper.split(",");
+            for (String formatStr : formatStrArr) {
+                String[] keyValuePair = formatStr.split("=");
+                if(keyValuePair.length==2) {
+                    String oldValue = keyValuePair[0];
+                    String newValue = keyValuePair[1];
+                    message = message.replaceAll(oldValue, newValue);
+                }
+            }
+        }catch (Exception e) {
+            throw new KafkaProducerException("Custom mapping find and replace:Error at parsing/replacing the mapper value:"+e.getMessage());
+        }
+        return message;
     }
 }
