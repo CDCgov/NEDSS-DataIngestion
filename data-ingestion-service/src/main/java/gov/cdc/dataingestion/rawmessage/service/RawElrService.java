@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.rawmessage.service;
 
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
-import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.rawmessage.dto.RawElrDto;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;

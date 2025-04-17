@@ -137,4 +137,24 @@ class RawElrServiceTest {
         Assertions.assertThrows(KafkaProducerException.class, () -> target.updateRawMessageAfterRetry(modelDto, 1));
         Mockito.verify(iElrDeadLetterRepository).updateDltOccurrenceForRawId(Mockito.any(), Mockito.eq(2), Mockito.eq("ERROR"));
     }
+    @Test
+    void testSaveHL7_with_customMapping_Success() throws KafkaProducerException {
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7");
+        modelDto.setCustomMapper("test=test123");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.save(any())).thenReturn(model);
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        var result = target.submission(modelDto);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("test",result);
+    }
 }
