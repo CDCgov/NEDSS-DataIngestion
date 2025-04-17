@@ -197,7 +197,7 @@ class KafkaConsumerServiceTest {
 
         when(iRawELRRepository.findById(guidForTesting))
                 .thenReturn(Optional.of(rawModel));
-        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false,"")).thenReturn(
+        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false)).thenReturn(
                 validatedModel
         );
 
@@ -207,46 +207,7 @@ class KafkaConsumerServiceTest {
             return null;
         }).when(timeMetricsBuilder).recordElrRawEventTime(any());
 
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","");
-
-        verify(iRawELRRepository, times(1)).findById(guidForTesting);
-
-    }
-    @Test
-    void rawConsumerWithCustomMappingTest() throws DiHL7Exception {
-        // Produce a test message to the topic
-        initialDataInsertionAndSelection(rawTopic);
-        String message =  guidForTesting;
-        produceMessage(rawTopic, message, EnumKafkaOperation.INJECTION);
-
-        // Consume the message
-        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-
-        // Perform assertions
-        assertEquals(1, records.count());
-
-        ConsumerRecord<String, String> firstRecord = records.iterator().next();
-        String value = firstRecord.value();
-
-        RawElrModel rawModel = new RawElrModel();
-        rawModel.setId(guidForTesting);
-        rawModel.setType("HL7");
-
-        ValidatedELRModel validatedModel = new ValidatedELRModel();
-
-        when(iRawELRRepository.findById(guidForTesting))
-                .thenReturn(Optional.of(rawModel));
-        when(iHl7v2Validator.messageValidation(value, rawModel, validateTopic, false, "abc=abc123")).thenReturn(
-                validatedModel
-        );
-
-        doAnswer(invocation -> {
-            Runnable runnable = invocation.getArgument(0);
-            runnable.run();
-            return null;
-        }).when(timeMetricsBuilder).recordElrRawEventTime(any());
-
-        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","abc=abc123");
+        kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
 
         verify(iRawELRRepository, times(1)).findById(guidForTesting);
 
@@ -281,7 +242,7 @@ class KafkaConsumerServiceTest {
 
         RuntimeException exception = Assertions.assertThrows(
                 RuntimeException.class, () -> {
-                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false","");
+                    kafkaConsumerService.handleMessageForRawElr(value, rawTopic, "false", "false");
                 }
         );
 

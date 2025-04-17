@@ -32,12 +32,9 @@ public class HL7v2Validator implements IHL7v2Validator {
         return this.hl7Helper.processFhsMessage(message);
     }
 
-    public ValidatedELRModel messageValidation(String id, RawElrModel rawElrModel, String topicName, boolean validationActive,String customMapper) throws DiHL7Exception {
+    public ValidatedELRModel messageValidation(String id, RawElrModel rawElrModel, String topicName, boolean validationActive) throws DiHL7Exception {
         String replaceSpecialCharacters = messageStringFormat(rawElrModel.getPayload());
         replaceSpecialCharacters = this.hl7Helper.processFhsMessage(replaceSpecialCharacters);
-        if(customMapper !=null && !customMapper.isEmpty()) {
-            replaceSpecialCharacters =this.hl7Helper.processHl7CustomMapping(replaceSpecialCharacters,customMapper);
-        }
         replaceSpecialCharacters = this.hl7Helper.hl7Validation(replaceSpecialCharacters);
         ValidatedELRModel model = new ValidatedELRModel();
         try {

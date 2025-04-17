@@ -43,7 +43,6 @@ public class HL7FileProcessComponent {
                 rawElrDto.setValidationActive(true);
                 rawElrDto.setPayload(hl7MsgBody);
                 rawElrDto.setVersion(phcrImporterVersion);
-                rawElrDto.setCustomMapper("");
                 elrId = rawELRService.submission(rawElrDto);
             }
         } catch (Exception e) {
