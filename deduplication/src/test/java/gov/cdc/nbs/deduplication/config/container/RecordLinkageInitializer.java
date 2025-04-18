@@ -20,7 +20,8 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
 
     final GenericContainer<?> recordLinkageContainer = new GenericContainer<>(
         "ghcr.io/cdcgov/recordlinker:v25.3.0")
-        .withExposedPorts(8080)
+        .withExposedPorts(8070)
+        .withEnv("PORT", "8070")
         .withNetwork(network)
         .withNetworkAliases("recordLinkage");
 
@@ -38,7 +39,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
     recordLinkageContainer.addEnv("DB_URI", dbUri);
     recordLinkageContainer.start();
     System.setProperty("deduplication.recordLinker.url",
-        "http://localhost:" + recordLinkageContainer.getMappedPort(8080));
+        "http://localhost:" + recordLinkageContainer.getMappedPort(8070));
 
   }
 }
