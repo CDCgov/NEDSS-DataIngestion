@@ -36,6 +36,11 @@ on:
         default: true
         type: boolean
 
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
 jobs:
   call-build-microservice-container-workflow:
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Release-gradle-microservice-container.yaml@main
