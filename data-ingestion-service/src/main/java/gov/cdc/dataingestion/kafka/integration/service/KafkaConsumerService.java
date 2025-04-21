@@ -15,6 +15,9 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Observation;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -29,6 +32,7 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.kafka.common.errors.SerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +48,14 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
@@ -511,43 +521,44 @@ public class KafkaConsumerService {
                 }
             }
             HL7ParsedMessage<OruR1> parsedMessage = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
-            String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, parsedMessage);
+            splitELR(parsedMessage);
+            //String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, parsedMessage);
 
             // Modified from debug ==> info to capture xml for analysis.
             // Please leave below at "info" level for the time being, before going live,
             // this will be changed to debug
-            log.debug("rhapsodyXml: {}", rhapsodyXml);
+            //log.debug("rhapsodyXml: {}", rhapsodyXml);
 
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
-            NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
+            //NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
 
             customMetricsBuilder.incrementXmlConversionRequested();
             // Once the XML is saved to the NBS_Interface table, we get the ID to save it
             // in the Data Ingestion elr_record_status_id table, so that we can get the status
             // of the record straight-forward from the NBS_Interface table.
 
-            if(nbsInterfaceModel == null) {
-                customMetricsBuilder.incrementXmlConversionRequestedFailure();
-            }
-            else {
-                customMetricsBuilder.incrementXmlConversionRequestedSuccess();
-                ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-                reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
-                reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-                reportStatusIdData.setCreatedBy(convertedToXmlTopic);
-                reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
+//            if(nbsInterfaceModel == null) {
+//                customMetricsBuilder.incrementXmlConversionRequestedFailure();
+//            }
+//            else {
+//                customMetricsBuilder.incrementXmlConversionRequestedSuccess();
+//                ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+//                reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
+//                reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+//                reportStatusIdData.setCreatedBy(convertedToXmlTopic);
+//                reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
+//
+//                var timestamp = getCurrentTimeStamp(tz);
+//                reportStatusIdData.setCreatedOn(timestamp);
+//                reportStatusIdData.setUpdatedOn(timestamp);
+//                iReportStatusRepository.save(reportStatusIdData);
+//            }
 
-                var timestamp = getCurrentTimeStamp(tz);
-                reportStatusIdData.setCreatedOn(timestamp);
-                reportStatusIdData.setUpdatedOn(timestamp);
-                iReportStatusRepository.save(reportStatusIdData);
-            }
-
-            if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), rtiTopic, 0); //NOSONAR
-            } else {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
-            }
+//            if (dataProcessingApplied) {
+//                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), rtiTopic, 0); //NOSONAR
+//            } else {
+//                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+//            }
 
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
@@ -564,6 +575,66 @@ public class KafkaConsumerService {
             );
         }
     }
+    private void splitELR(HL7ParsedMessage<OruR1> parsedMessageOrig) throws JAXBException, XmlConversionException, IOException {
+        OruR1 oruR1= parsedMessageOrig.getParsedMessage();
+        List<PatientResult> patientResultList=oruR1.getPatientResult();
+
+        //Take OBR list from the original ELR
+        List<OrderObservation> obrList=patientResultList.get(0).getOrderObservation();
+
+        List<OruR1> newElrList=new ArrayList<>();
+
+        for(OrderObservation orderObservation: obrList){
+            //copy oruR1
+            Gson gson = new Gson();
+            OruR1 oruR1_copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
+            oruR1_copy.getPatientResult().get(0).setOrderObservation(Arrays.asList(orderObservation));
+            newElrList.add(oruR1_copy);
+        }
+        System.out.println(newElrList.size());
+        List<String> phdcXmlList=new ArrayList<>();
+        int i=0;
+        for(OruR1 newOruR1:newElrList){
+            System.out.println("-----NEW XML CREATION....");
+            i++;
+            HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
+            //var genericParsedMessage = hl7StringParseHelperWithTerser(message);
+            //parsedMessage.setMessage(message);
+            parsedMessage.setParsedMessage(newOruR1);
+            parsedMessage.setType(parsedMessageOrig.getType());
+            parsedMessage.setEventTrigger(parsedMessageOrig.getEventTrigger());
+            parsedMessage.setOriginalVersion(parsedMessageOrig.getOriginalVersion());
+            String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert("", parsedMessage);
+            System.out.println(rhapsodyXml);
+            System.out.println("//////////////");
+
+//            try{
+////                File file=new File("/elrs/test_"+i+".xml");
+////                file.createNewFile();
+////                FileWriter writer = new FileWriter(file);
+////                writer.write(rhapsodyXml);
+////                writer.close();
+//
+//// bufferedWriter.write("");         // for empty file
+//
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+        }
+
+//        for(PatientResult patientResult:patientResultList){
+//            List<OrderObservation> obrList=patientResult.getOrderObservation();
+//            System.out.println("OBR list:"+obrList.size());
+//            for(OrderObservation obr:obrList){
+//                List<Observation> obxList= obr.getObservation();
+//                for(Observation obx:obxList){
+//                    System.out.println("obx:"+obx.toString()+" obx result:"+obx.getObservationResult().getSetIdObx());
+//                }
+//            }
+//        }
+    }
+
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {
         log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
         xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
