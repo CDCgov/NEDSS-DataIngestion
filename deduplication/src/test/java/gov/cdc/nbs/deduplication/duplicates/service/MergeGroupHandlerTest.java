@@ -1,6 +1,8 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,12 +10,15 @@ import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse.MatchRequiringReview;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -33,11 +38,13 @@ class MergeGroupHandlerTest {
   private NamedParameterJdbcTemplate deduplicationTemplate;
 
   @Mock
+  private JdbcTemplate template;
+
+  @Mock
   private PatientRecordService patientRecordService;
 
   @InjectMocks
   private MergeGroupHandler mergeGroupHandler;
-
 
   @Test
   void testGetPotentialMatches() throws SQLException {
@@ -51,27 +58,30 @@ class MergeGroupHandlerTest {
         .thenReturn(patientNameAndTimeDTO1);
     when(patientRecordService.fetchPatientNameAndAddTime("personUid2"))
         .thenReturn(patientNameAndTimeDTO2);
+    when(deduplicationTemplate.getJdbcTemplate()).thenReturn(template);
+    when(template.queryForObject(QueryConstants.COUNT_POSSIBLE_MATCH_PATIENTS, Integer.class)).thenReturn(2);
 
     // Act
-    List<MatchesRequireReviewResponse> result = mergeGroupHandler.getPotentialMatches(0, 10);
+    MatchesRequireReviewResponse result = mergeGroupHandler.getPotentialMatches(0, 10);
 
     verifyPotentialMatchesResponse(result);
   }
 
   @Test
-  void testGetPotentialMatches_ReturnsEmptyListWhenNoMatchCandidates()  {
+  void testGetPotentialMatches_ReturnsEmptyListWhenNoMatchCandidates() {
     // Mocking
     when(deduplicationTemplate.query(
         eq(QueryConstants.POSSIBLE_MATCH_PATIENTS),
         any(MapSqlParameterSource.class),
-        ArgumentMatchers.<RowMapper<MatchCandidateData>>any()
-    )).thenReturn(Collections.emptyList());
+        ArgumentMatchers.<RowMapper<MatchCandidateData>>any())).thenReturn(Collections.emptyList());
+    when(deduplicationTemplate.getJdbcTemplate()).thenReturn(template);
+    when(template.queryForObject(QueryConstants.COUNT_POSSIBLE_MATCH_PATIENTS, Integer.class)).thenReturn(0);
 
     // Act
-    List<MatchesRequireReviewResponse> result = mergeGroupHandler.getPotentialMatches(0, 10);
+    MatchesRequireReviewResponse result = mergeGroupHandler.getPotentialMatches(0, 10);
 
     assertNotNull(result);
-    assertTrue(result.isEmpty());
+    assertTrue(result.matches().isEmpty());
   }
 
   private PatientNameAndTimeDTO mockPatientNameAndTimeDTO(String patientName) {
@@ -79,7 +89,6 @@ class MergeGroupHandlerTest {
     LocalDateTime dateTime = LocalDateTime.parse("2020-10-01-12-30", formatter);
     return new PatientNameAndTimeDTO(dateTime, patientName);
   }
-
 
   private ResultSet mockResultSetForMatchCandidates() throws SQLException {
     ResultSet rs = mock(ResultSet.class);
@@ -107,25 +116,24 @@ class MergeGroupHandlerTest {
         });
   }
 
-  private void verifyPotentialMatchesResponse(List<MatchesRequireReviewResponse> result) {
+  private void verifyPotentialMatchesResponse(MatchesRequireReviewResponse result) {
     assertNotNull(result);
-    assertEquals(2, result.size());
+    assertEquals(2, result.matches().size());
 
-    MatchesRequireReviewResponse response1 = result.getFirst();
+    MatchRequiringReview response1 = result.matches().get(0);
     assertEquals("personUid1", response1.patientId());
     assertEquals("John Doe", response1.patientName());
     assertEquals("2020-10-01T12:30", response1.createdDate());
     assertEquals("2020-10-01", response1.identifiedDate());
     assertEquals(3, response1.numOfMatchingRecords());
 
-    MatchesRequireReviewResponse response2 = result.get(1);
+    MatchRequiringReview response2 = result.matches().get(1);
     assertEquals("personUid2", response2.patientId());
     assertEquals("Andrew James", response2.patientName());
     assertEquals("2020-10-01T12:30", response2.createdDate());
     assertEquals("2020-10-02", response2.identifiedDate());
     assertEquals(5, response2.numOfMatchingRecords());
   }
-
 
   @Test
   void testUpdateMergeStatus() {
@@ -134,8 +142,7 @@ class MergeGroupHandlerTest {
 
     verify(deduplicationTemplate, times(1)).update(
         eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP),
-        any(MapSqlParameterSource.class)
-    );
+        any(MapSqlParameterSource.class));
   }
 
   @Test
@@ -153,8 +160,7 @@ class MergeGroupHandlerTest {
     // Mock the call of getMpiIdsByPersonIds method
     when(deduplicationTemplate.query(
         eq(QueryConstants.PATIENT_IDS_BY_PERSON_UIDS),
-        argThat((MapSqlParameterSource params) ->
-            params.getValue("personIds") != null),
+        argThat((MapSqlParameterSource params) -> params.getValue("personIds") != null),
         ArgumentMatchers.<RowMapper<String>>any()))
         .thenReturn(mpiPersonIds);
 
@@ -170,7 +176,7 @@ class MergeGroupHandlerTest {
         any(MapSqlParameterSource.class)))
         .thenReturn(1);
 
-    //Mock the markSingleRemainingRecordAsNoMergeIfExists call
+    // Mock the markSingleRemainingRecordAsNoMergeIfExists call
     when(deduplicationTemplate.update(
         eq(QueryConstants.UPDATE_SINGLE_RECORD),
         any(MapSqlParameterSource.class)))

@@ -30,10 +30,10 @@ public class PatientMergeController {
     this.mergePatientsHandler = mergePatientsHandler;
   }
 
-  @GetMapping()
+  @GetMapping
   public MatchesRequireReviewResponse getPotentialMatches(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "5") int size) {
+      @RequestParam(defaultValue = "0", name = "page") int page,
+      @RequestParam(defaultValue = "5", name = "size") int size) {
     return mergeGroupHandler.getPotentialMatches(page, size);
   }
 
