@@ -585,6 +585,8 @@ public class KafkaConsumerService {
         List<OruR1> newElrList=new ArrayList<>();
 
         for(OrderObservation orderObservation: obrList){
+            //System.out.println("obr number before set :"+orderObservation.getObservationRequest().getSetIdObr());
+            orderObservation.getObservationRequest().setSetIdObr("1");
             //copy oruR1
             Gson gson = new Gson();
             OruR1 oruR1_copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
@@ -608,19 +610,6 @@ public class KafkaConsumerService {
             System.out.println(rhapsodyXml);
             System.out.println("//////////////");
 
-//            try{
-////                File file=new File("/elrs/test_"+i+".xml");
-////                file.createNewFile();
-////                FileWriter writer = new FileWriter(file);
-////                writer.write(rhapsodyXml);
-////                writer.close();
-//
-//// bufferedWriter.write("");         // for empty file
-//
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
         }
 
 //        for(PatientResult patientResult:patientResultList){
