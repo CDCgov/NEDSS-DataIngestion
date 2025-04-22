@@ -484,7 +484,7 @@ public class QueryConstants {
   public static final String UPDATE_MERGE_STATUS_FOR_GROUP = """
       UPDATE match_candidates
       SET is_merge = :isMerge
-      WHERE person_uid = :personUid
+      WHERE person_uid = :person_id
       """;
 
   public static final String FIND_POSSIBLE_MATCH = """
@@ -603,5 +603,165 @@ public class QueryConstants {
       ORDER BY person_uid
           OFFSET :offset ROWS
           FETCH NEXT :limit ROWS ONLY;
+      """;
+
+  public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
+      SELECT
+          mpi_person_id
+      FROM
+          match_candidates
+      WHERE person_uid =:personUid;
+      """;
+
+  public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
+      SELECT person_uid
+      FROM nbs_mpi_mapping
+      WHERE mpi_person IN (:mpiPersonIds)
+      AND person_uid=person_parent_uid
+      """;
+
+
+
+  public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
+      SELECT
+          p.as_of_date_admin AS comment_date,
+          p.description As admin_comments,
+          nested.address,
+          nested.phone,
+          nested.name,
+          nested.identifiers,
+          nested.race
+      FROM
+          person p WITH (NOLOCK)
+          OUTER APPLY (
+              SELECT
+                  *
+              FROM
+                  -- address
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  pl.postal_locator_uid AS Id,
+                                  elp.as_of_date AS as_of_date_address,
+                                  elp.use_cd,
+                                  STRING_ESCAPE(pl.street_addr1, 'json') AS address1,
+                                  STRING_ESCAPE(pl.street_addr2, 'json') AS address2,
+                                  STRING_ESCAPE(pl.city_desc_txt, 'json') AS city,
+                                  sc.code_desc_txt AS state,
+                                  pl.zip_cd AS zip,
+                                  scc.code_desc_txt AS county,
+                                  pl.census_tract AS census,
+                                  pl.cntry_cd AS country,
+                                  cvg.code_short_desc_txt,
+                                  elp.locator_desc_txt address_comments
+                              FROM
+                                  Entity_locator_participation elp WITH (NOLOCK)
+                                  JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+                                  LEFT JOIN nbs_srte..code_value_general cvg ON elp.cd = cvg.code
+                              WHERE
+                                  elp.entity_uid = p.person_uid
+                                  AND elp.class_cd = 'PST'
+                                  AND elp.status_cd = 'A'
+                                  AND cvg.code_set_nm = 'EL_TYPE_PST_PAT'
+                                  AND pl.street_addr1 IS NOT NULL FOR JSON PATH, INCLUDE_NULL_VALUES
+                          ) AS address
+                  ) AS address,
+                  -- identifiers
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  eid.entity_id_seq AS Id,
+                                  eid.as_of_date AS as_of_date_identifier,
+                                  STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt,'-',''),' ',''), 'json') AS value,
+                                  STRING_ESCAPE(eid.assigning_authority_desc_txt, 'json') AS assigning_authority,
+                                  cvg.code_short_desc_txt Type
+                              FROM
+                                  Entity_id eid WITH (NOLOCK)
+                                  LEFT JOIN nbs_srte..code_value_general cvg ON eid.type_cd = cvg.code
+                                  AND cvg.code_set_nm = 'EI_TYPE_PAT'
+                              WHERE
+                                  eid.entity_uid = p.person_uid
+                                  AND eid.record_status_cd = 'ACTIVE'
+                              FOR JSON PATH, INCLUDE_NULL_VALUES
+                          ) AS identifiers
+                  ) AS identifiers,
+                  -- person races
+                   (
+                      SELECT
+                          (
+                              SELECT
+                                 pr.person_uid AS personUid,
+                                  pr.race_cd AS Id,
+                                  pr.as_of_date AS as_of_date_race,
+                                  pr.race_category_cd
+                              FROM
+                                  Person_race pr WITH (NOLOCK)
+                              WHERE
+                                  pr.person_uid = p.person_uid
+                                  AND pr.record_status_cd = 'ACTIVE'
+                              FOR JSON PATH, INCLUDE_NULL_VALUES
+                          ) AS race
+                  ) AS race,
+                  -- person phone
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  tl.tele_locator_uid AS Id,
+                                  elp.as_of_date AS as_of_date_telecom,
+                                  elp.use_cd ,
+                                  tl.cntry_cd AS country_code,
+                                  REPLACE(REPLACE(tl.phone_nbr_txt,'-',''),' ','') AS phone_number,
+                                  tl.extension_txt AS extension,
+                                  STRING_ESCAPE(tl.email_address, 'json') AS email,
+                                  STRING_ESCAPE(tl.url_address, 'json') AS url,
+                                  elp.locator_desc_txt telecom_comments,
+                                  cvg.code_short_desc_txt type
+                              FROM
+                                  Entity_locator_participation elp WITH (NOLOCK)
+                                  JOIN Tele_locator tl WITH (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
+                                  LEFT JOIN nbs_srte..code_value_general cvg ON elp.cd = cvg.code
+                              WHERE
+                                  elp.entity_uid = p.person_uid
+                                  AND elp.class_cd = 'TELE'
+                                  AND elp.status_cd = 'A'
+                                  AND (tl.phone_nbr_txt IS NOT NULL OR tl.email_address IS NOT NULL OR tl.url_address IS NOT NULL)
+                              FOR JSON PATH, INCLUDE_NULL_VALUES
+                          ) AS phone
+                  ) AS phone,
+                  -- person_names
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  pn.person_uid AS personUid,
+                                  pn.person_name_seq AS Id,
+                                  pn.as_of_date AS as_of_date_name,
+                                  STRING_ESCAPE(pn.first_nm, 'json') AS first,
+                                  STRING_ESCAPE(pn.middle_nm, 'json') AS middle,
+                                  STRING_ESCAPE(pn.last_nm, 'json') AS last,
+                                  STRING_ESCAPE(pn.last_nm2, 'json') AS second_last,
+                                  STRING_ESCAPE(pn.nm_prefix, 'json') AS prefix,
+                                  STRING_ESCAPE(pn.nm_suffix, 'json') AS suffix,
+                                  STRING_ESCAPE(pn.nm_degree, 'json') AS degree,
+                                  cvg.code_short_desc_txt As type
+                              FROM
+                                  person_name pn WITH (NOLOCK)
+                                  LEFT JOIN nbs_srte..code_value_general cvg ON pn.nm_use_cd = cvg.code
+                                  AND cvg.code_set_nm = 'P_NM_USE'
+                              WHERE
+                                  pn.person_uid = p.person_uid
+                                  AND pn.record_status_cd = 'ACTIVE'
+                              FOR JSON PATH ,INCLUDE_NULL_VALUES
+                          ) AS name
+                  ) AS name
+          ) AS nested
+      WHERE
+          p.person_uid IN (:ids)
+          AND p.record_status_cd = 'ACTIVE';
       """;
 }

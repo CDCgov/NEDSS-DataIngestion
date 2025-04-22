@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.duplicates.controller;
 import gov.cdc.nbs.deduplication.duplicates.model.GroupNoMergeRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,12 @@ public class PatientMergeController {
       @RequestParam(defaultValue = "5") int size) {
     List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getPotentialMatches(page, size);
     return ResponseEntity.ok(matches);
+  }
+
+  @GetMapping("/matches/details/{patientId}")
+  public ResponseEntity<List<PersonMergeData>> getPotentialMatchesDetails(
+      @PathVariable("patientId") Long patientId) {
+    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(patientId));
   }
 
   @PostMapping("/group-no-merge")

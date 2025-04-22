@@ -1,7 +1,9 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.duplicates.mapper.PersonMergeDataMapper;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +19,8 @@ public class PatientRecordService {
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final MpiPersonMapper mpiPersonMapper = new MpiPersonMapper();
+  private final PersonMergeDataMapper personMergeDataMapper = new PersonMergeDataMapper();
+
 
   public PatientRecordService(
       @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate namedParameterJdbcTemplate
@@ -66,5 +70,13 @@ public class PatientRecordService {
     );
   }
 
+  public List<PersonMergeData> fetchPersonsMergeData(List<String> personUids) {
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("ids", personUids);
+    return namedParameterJdbcTemplate.query(
+        QueryConstants.PERSONS_MERGE_DATA_BY_PERSON_IDS,
+        params,
+        personMergeDataMapper);
+  }
 
 }

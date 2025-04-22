@@ -8,10 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -139,6 +141,21 @@ class PatientMergeControllerTest {
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
   }
 
+  @Test
+  void testGetPotentialMatchesDetails() throws Exception {
+    long patientId = 123L;
+    List<PersonMergeData> mockResponse = expectedPersonMergeData();
+
+    when(mergeGroupHandler.getPotentialMatchesDetails(patientId)).thenReturn(mockResponse);
+
+    // Act & Assert
+    mockMvc.perform(get("/deduplication/matches/details/{patientId}", patientId))
+        .andExpect(status().isOk())
+        .andExpect(content().json(expectedPersonMergeDataJson()));
+
+    verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
+  }
+
   private List<MatchesRequireReviewResponse> expectedMergeGroupResponse() {
     return Arrays.asList(
         new MatchesRequireReviewResponse("111122", "john smith", "1990-01-01", "2000-01-01", 2),
@@ -166,5 +183,36 @@ class PatientMergeControllerTest {
         ]
         """;
   }
+
+  private List<PersonMergeData> expectedPersonMergeData() {
+    return Arrays.asList(
+        new PersonMergeData(
+            "2023-01-01",
+            "Sample comments",
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList()
+        )
+    );
+  }
+
+  private String expectedPersonMergeDataJson() {
+    return """
+        [
+          {
+            "asOfDate": "2023-01-01",
+            "comments": "Sample comments",
+            "address": [],
+            "telecom": [],
+            "name": [],
+            "identifiers": [],
+            "race": []
+          }
+        ]
+        """;
+  }
+
 
 }

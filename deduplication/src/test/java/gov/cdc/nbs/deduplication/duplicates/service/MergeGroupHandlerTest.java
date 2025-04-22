@@ -8,6 +8,7 @@ import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -22,9 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
 class MergeGroupHandlerTest {
@@ -59,7 +58,7 @@ class MergeGroupHandlerTest {
   }
 
   @Test
-  void testGetPotentialMatches_ReturnsEmptyListWhenNoMatchCandidates()  {
+  void testGetPotentialMatches_ReturnsEmptyListWhenNoMatchCandidates() {
     // Mocking
     when(deduplicationTemplate.query(
         eq(QueryConstants.POSSIBLE_MATCH_PATIENTS),
@@ -209,5 +208,69 @@ class MergeGroupHandlerTest {
           return personId != null && personId.equals(survivorPersonId);
         }));
   }
+
+
+  @Test
+  void testGetPotentialMatchesDetails() {
+    long personId = 123L;
+    List<String> possibleMatchesMpiIds = Arrays.asList("mpi1", "mpi2");
+    List<String> npsPersonIds = Arrays.asList("person1", "person2");
+    List<PersonMergeData> mockPersonMergeData = createMockPersonMergeData();
+
+    mockPossibleMatchesOfPatient(personId, possibleMatchesMpiIds);
+    mockPersonIdsByMpiIds(possibleMatchesMpiIds, npsPersonIds);
+    mockFetchPersonsMergeData(npsPersonIds, mockPersonMergeData);
+
+    // Act
+    List<PersonMergeData> result = mergeGroupHandler.getPotentialMatchesDetails(personId);
+
+    // Assert
+    verifyAndAssertResults(result);
+  }
+
+  private List<PersonMergeData> createMockPersonMergeData() {
+    return Arrays.asList(
+        new PersonMergeData(
+            "2023-01-01",
+            "test comment",
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList()
+        )
+    );
+  }
+
+  private void mockPossibleMatchesOfPatient(long personId, List<String> possibleMatchesMpiIds) {
+    when(deduplicationTemplate.query(
+        eq(QueryConstants.POSSIBLE_MATCH_IDS_BY_PATIENT_ID),
+        argThat((MapSqlParameterSource params) ->
+            Objects.equals(params.getValue("personUid"), personId)),
+        ArgumentMatchers.<RowMapper<String>>any()))
+        .thenReturn(possibleMatchesMpiIds);
+  }
+
+  private void mockPersonIdsByMpiIds(List<String> possibleMatchesMpiIds, List<String> npsPersonIds) {
+    when(deduplicationTemplate.query(
+        eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
+        argThat((MapSqlParameterSource params) ->
+            Objects.equals(params.getValue("mpiPersonIds"), possibleMatchesMpiIds)),
+        ArgumentMatchers.<RowMapper<String>>any()))
+        .thenReturn(npsPersonIds);
+  }
+
+  private void mockFetchPersonsMergeData(List<String> npsPersonIds, List<PersonMergeData> mockPersonMergeData) {
+    when(patientRecordService.fetchPersonsMergeData(npsPersonIds)).thenReturn(mockPersonMergeData);
+  }
+
+  private void verifyAndAssertResults(List<PersonMergeData> result) {
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    PersonMergeData firstResult = result.getFirst();
+    assertEquals("2023-01-01", firstResult.asOfDate());
+    assertEquals("test comment", firstResult.comments());
+  }
+
 
 }
