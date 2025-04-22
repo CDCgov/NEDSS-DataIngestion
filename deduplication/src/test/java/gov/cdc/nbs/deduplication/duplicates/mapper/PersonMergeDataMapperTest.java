@@ -16,43 +16,43 @@ import static org.mockito.Mockito.when;
 class PersonMergeDataMapperTest {
 
   private final PersonMergeDataMapper mapper = new PersonMergeDataMapper();
-  final static String COMMENT_DATE = "2023-10-01";
-  final static String COMMENTS = "Admin comments here";
-  final static String ADDRESS_STRING = """
-            [
-                {"address1": "123 Main st", "city": "Atlanta", "state": "Georgia", "zip": "12345"},
-                {"address1": "456 Elm st", "city": "Nashville", "state": "Tennessee", "zip": "67890"}
-            ]
-            """;
-  final static String PHONE_STRING = """
-            [
-                {"phone_number": "1234567890"},
-                {"phone_number": "9876543210"}
-            ]
-            """;
-  final static String NAME_STRING = """
-            [
-                {"first": "John", "last": "Doe"},
-                {"first": "Jane", "last": "Smith"}
-            ]
-            """;
-  final static String IDENTIFIER_STRING = """
-        [
-             {
-                 "type": "DL",
-                 "id": "1",
-                 "as_of_date_identifier": "2023-01-01",
-                 "value": "1234567",
-                 "assigning_authority": "TN"
-             }
-         ]
-        """;
-  final static String RACE_STRING = """
-            [
-                {"race_category_cd": "2106-3"},
-                {"race_category_cd": "2054-5"}
-            ]
-            """;
+  private static final String COMMENT_DATE = "2023-10-01";
+  private static final String COMMENTS = "Admin comments here";
+  private static final String ADDRESS_STRING = """
+      [
+          {"address1": "123 Main st", "city": "Atlanta", "state": "Georgia", "zip": "12345"},
+          {"address1": "456 Elm st", "city": "Nashville", "state": "Tennessee", "zip": "67890"}
+      ]
+      """;
+  private static final String PHONE_STRING = """
+      [
+          {"phone_number": "1234567890"},
+          {"phone_number": "9876543210"}
+      ]
+      """;
+  private static final String NAME_STRING = """
+      [
+          {"first": "John", "last": "Doe"},
+          {"first": "Jane", "last": "Smith"}
+      ]
+      """;
+  private static final String IDENTIFIER_STRING = """
+      [
+           {
+               "type": "DL",
+               "id": "1",
+               "as_of_date_identifier": "2023-01-01",
+               "value": "1234567",
+               "assigning_authority": "TN"
+           }
+       ]
+      """;
+  private static final String RACE_STRING = """
+      [
+          {"race_category_cd": "2106-3"},
+          {"race_category_cd": "2054-5"}
+      ]
+      """;
 
   @Test
   void testMapRow() throws SQLException {
@@ -216,10 +216,10 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapIdentifiersUnsupportedAuthority() {
     final String identifierString = """
-            [
-                {"value": "1234567", "authority": "BAD", "type": "DL"}
-            ]
-            """;
+        [
+            {"value": "1234567", "authority": "BAD", "type": "DL"}
+        ]
+        """;
     List<Identifier> identifiers = mapper.mapIdentifiers(identifierString);
     assertThat(identifiers).isEmpty();
   }
@@ -248,10 +248,10 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapRacesUnknownCategory() {
     final String raceString = """
-            [
-                {"race_category_cd": "UNKNOWN_CATEGORY"}
-            ]
-            """;
+        [
+            {"race_category_cd": "UNKNOWN_CATEGORY"}
+        ]
+        """;
     List<Race> races = mapper.mapRaces(raceString);
     assertThat(races).isEmpty();
   }
