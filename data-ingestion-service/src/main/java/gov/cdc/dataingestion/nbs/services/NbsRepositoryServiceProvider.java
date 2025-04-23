@@ -25,6 +25,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Optional;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
@@ -290,40 +291,24 @@ public class NbsRepositoryServiceProvider {
 
 		try {
 			if (specimenColDateStr != null) {
-				boolean noTimeStamp = false;
-				String pattern = "yyyyMMddHHmm";
-				//20240305155850.821+0217
-				//20240305155850.8212+0217
-				if (specimenColDateStr.contains(".") && (specimenColDateStr.contains("-") || specimenColDateStr.contains("+")) ) {
-					int plusIndex=specimenColDateStr.indexOf("+");
-					int minusIndex=specimenColDateStr.indexOf("-");
-
-					if((plusIndex !=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,plusIndex).trim().length()==3)
-							|| (minusIndex!=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,minusIndex).trim().length()==3)){
-						pattern = "yyyyMMddHHmmss.SSSX";
-					}else if((plusIndex !=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,plusIndex).trim().length()==4)
-							|| (minusIndex!=-1 && specimenColDateStr.substring(specimenColDateStr.indexOf(".")+1,minusIndex).trim().length()==4)){
-						pattern = "yyyyMMddHHmmss.SSSSX";
-					}
-				} else if (specimenColDateStr.contains("-") || specimenColDateStr.contains("+") ) {
-					pattern = "yyyyMMddHHmmssX";
-				}else if (specimenColDateStr.length() == 8) {// date without time
-					pattern = "yyyyMMdd";
-					noTimeStamp = true;
-				}else if (specimenColDateStr.length() == 10) {
-					pattern = "yyyyMMddHH";
-				}else if (specimenColDateStr.length() == 12) {
-					pattern = "yyyyMMddHHmm";
-				}else if (specimenColDateStr.length() == 14) {
-					pattern = "yyyyMMddHHmmss";
+				//Text '202408212230-0600'
+				if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("-")){
+					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("-"));
+				}else if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("+")){
+					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("+"));
 				}
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+				DateTimeFormatterBuilder dateTimeFormatterBuilder = new DateTimeFormatterBuilder()
+						.append(DateTimeFormatter.ofPattern("[yyyyMMddHHmm]" + "[yyyyMMddHHmmss.SSSX]"
+								+ "[yyyyMMddHHmmss.SSSSX]"+ "[yyyyMMddHHmmssX]"+ "[yyyyMMdd]"+ "[yyyyMMddHH]"
+								+ "[yyyyMMddHHmm]"+ "[yyyyMMddHHmmss]"));
+
+				DateTimeFormatter dateTimeFormatter = dateTimeFormatterBuilder.toFormatter();
 				LocalDateTime localDateTime;
-				if (noTimeStamp) {
-					LocalDate localDate = LocalDate.parse(specimenColDateStr, formatter);
-					localDateTime = localDate.atStartOfDay();
-				} else {
-					localDateTime = LocalDateTime.parse(specimenColDateStr, formatter);
+				if(specimenColDateStr.length()<=8){
+					LocalDate dateObj= LocalDate.parse(specimenColDateStr, dateTimeFormatter);
+					localDateTime=dateObj.atStartOfDay();
+				}else{
+					localDateTime = LocalDateTime.parse(specimenColDateStr, dateTimeFormatter);
 				}
 				nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 			} else {
@@ -332,7 +317,6 @@ public class NbsRepositoryServiceProvider {
 		} catch (Exception e) {
 			throw new XmlConversionException(e.getMessage());
 		}
-
 	}
 
 	public NbsInterfaceModel saveIncomingEcrMessageWithoutRR(String payload, String systemNm, String origDocTypeEicr) {
