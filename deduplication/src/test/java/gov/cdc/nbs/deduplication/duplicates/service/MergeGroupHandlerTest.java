@@ -229,7 +229,7 @@ class MergeGroupHandlerTest {
   }
 
   private List<PersonMergeData> createMockPersonMergeData() {
-    return Arrays.asList(
+    return List.of(
         new PersonMergeData(
             "2023-01-01",
             "test comment",

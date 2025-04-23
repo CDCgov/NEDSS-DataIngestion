@@ -175,8 +175,7 @@ public class KafkaConsumerService {
     public void handleMessageForRawElr(String message,
                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                  @Header(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE) String messageValidationActive,
-                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable,
-                 @Header(KafkaHeaderValue.CUSTOM_MESSAGE_MAPPER) String customMapper) {
+                 @Header(KafkaHeaderValue.DATA_PROCESSING_ENABLE) String dataProcessingEnable) {
         timeMetricsBuilder.recordElrRawEventTime(() -> {
             log.debug(topicDebugLog, message, topic);
             boolean hl7ValidationActivated = false;
@@ -185,7 +184,7 @@ public class KafkaConsumerService {
                 hl7ValidationActivated = true;
             }
             try {
-                validationHandler(message, hl7ValidationActivated, dataProcessingEnable,customMapper);
+                validationHandler(message, hl7ValidationActivated, dataProcessingEnable);
             } catch (DuplicateHL7FileFoundException | DiHL7Exception | KafkaProducerException e) {
                 throw new RuntimeException(e); //NOSONAR
             }
@@ -569,7 +568,7 @@ public class KafkaConsumerService {
         log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
         xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);
     }
-    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable,String customMapper) throws DuplicateHL7FileFoundException, DiHL7Exception, KafkaProducerException {
+    private void validationHandler(String message, boolean hl7ValidationActivated, String dataProcessingEnable) throws DuplicateHL7FileFoundException, DiHL7Exception, KafkaProducerException {
         Optional<RawElrModel> rawElrResponse = this.iRawELRRepository.findById(message);
         RawElrModel elrModel;
         if (!rawElrResponse.isEmpty()) {
@@ -583,7 +582,7 @@ public class KafkaConsumerService {
                 customMetricsBuilder.incrementMessagesValidated();
                 ValidatedELRModel hl7ValidatedModel;
                 try {
-                    hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated, customMapper);
+                    hl7ValidatedModel = iHl7v2Validator.messageValidation(message, elrModel, validatedTopic, hl7ValidationActivated);
                     customMetricsBuilder.incrementMessagesValidatedSuccess();
                 } catch (DiHL7Exception e) {
                     customMetricsBuilder.incrementMessagesValidatedFailure();
