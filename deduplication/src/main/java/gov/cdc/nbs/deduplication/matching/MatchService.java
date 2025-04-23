@@ -43,8 +43,8 @@ public class MatchService {
   private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
 
   public MatchService(
-          @Qualifier("recordLinkerRestClient") final RestClient recordLinkageClient,
-          @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+      @Qualifier("recordLinkerRestClient") final RestClient recordLinkageClient,
+      @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
     this.recordLinkageClient = recordLinkageClient;
     this.template = template;
   }
@@ -61,9 +61,9 @@ public class MatchService {
     }
 
     // Handle response from RL and send response back to caller
-    if ("match".equals(linkResponse.prediction())) {
+    if ("certain".equals(linkResponse.match_grade())) {
       return handleExactMatch(linkResponse);
-    } else if ("possible_match".equals(linkResponse.prediction())) {
+    } else if ("possible".equals(linkResponse.match_grade())) {
       return handlePossibleMatch(linkResponse);
     } else {
       return new MatchResponse(null, MatchType.NONE, linkResponse);
@@ -84,40 +84,40 @@ public class MatchService {
 
     if (response == null) {
       throw new MatchException(
-              "Record Linkage failed to create new entry for patient: " + linkResponse.patient_reference_id());
+          "Record Linkage failed to create new entry for patient: " + linkResponse.patient_reference_id());
     }
 
     // Add newly created person identifier to response
     LinkResponse newLinkReponse = new LinkResponse(
-            response.patient_reference_id(),
-            response.person_reference_id(),
-            linkResponse.prediction(),
-            linkResponse.results());
+        response.patient_reference_id(),
+        response.person_reference_id(),
+        linkResponse.match_grade(),
+        linkResponse.results());
     return new MatchResponse(null, MatchType.POSSIBLE, newLinkReponse);
   }
 
   private LinkResponse sendLinkRequest(LinkRequest linkRequest) {
     return recordLinkageClient.post()
-            .uri("/link")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .body(linkRequest)
-            .retrieve()
-            .body(LinkResponse.class);
+        .uri("/link")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .body(linkRequest)
+        .retrieve()
+        .body(LinkResponse.class);
   }
 
   private CreatePersonResponse sendCreatePersonRequest(String mpiPatientId) {
     return recordLinkageClient.post()
-            .uri(String.format("/patient/%s/person", mpiPatientId))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .body(CreatePersonResponse.class);
+        .uri(String.format("/patient/%s/person", mpiPatientId))
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .retrieve()
+        .body(CreatePersonResponse.class);
   }
 
   private Long findNbsPersonParentId(String mpiPerson) {
     SqlParameterSource parameters = new MapSqlParameterSource()
-            .addValue("mpi_person", mpiPerson);
+        .addValue("mpi_person", mpiPerson);
     return template.queryForObject(FIND_NBS_PERSON_QUERY, parameters, Long.class);
   }
 
@@ -129,23 +129,23 @@ public class MatchService {
     String status = isPossibleMatch ? "R" : "P"; // Review, Processed
 
     SqlParameterSource parameters = new MapSqlParameterSource()
-            .addValue("person_uid", request.nbsPerson())
-            .addValue("person_parent_uid", request.nbsPersonParent())
-            .addValue("mpi_patient", request.linkResponse().patient_reference_id())
-            .addValue("mpi_person", request.linkResponse().person_reference_id())
-            .addValue("status", status);
+        .addValue("person_uid", request.nbsPerson())
+        .addValue("person_parent_uid", request.nbsPersonParent())
+        .addValue("mpi_patient", request.linkResponse().patient_reference_id())
+        .addValue("mpi_person", request.linkResponse().person_reference_id())
+        .addValue("status", status);
     template.update(LINK_NBS_MPI_QUERY, parameters);
 
     // If possible match, persist match options
     if (isPossibleMatch) {
       if (request.linkResponse().results() == null
-              || request.linkResponse().results().isEmpty()) {
+          || request.linkResponse().results().isEmpty()) {
         throw new MatchException("Results specify possible match but no possible matches are returned");
       }
       request.linkResponse().results().forEach(r -> {
         SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
-                .addValue("person_uid", request.nbsPerson())
-                .addValue("mpi_person_id", r.person_reference_id());
+            .addValue("person_uid", request.nbsPerson())
+            .addValue("mpi_person_id", r.person_reference_id());
         template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
       });
     }
