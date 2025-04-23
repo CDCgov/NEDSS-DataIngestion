@@ -1,36 +1,40 @@
 package gov.cdc.nbs.deduplication.duplicates.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import gov.cdc.nbs.deduplication.duplicates.model.GroupNoMergeRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 
 @RestController
-@RequestMapping("/deduplication")
+@RequestMapping("/merge")
 public class PatientMergeController {
 
   private final MergeGroupHandler mergeGroupHandler;
 
   private final MergePatientHandler mergePatientsHandler;
 
-  public PatientMergeController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler) {
+  public PatientMergeController(
+      MergeGroupHandler possibleMatchHandler,
+      MergePatientHandler mergePatientsHandler) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergePatientsHandler = mergePatientsHandler;
   }
 
-  @GetMapping("/matches/requiring-review")
-  public ResponseEntity<List<MatchesRequireReviewResponse>> getPotentialMatches(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "5") int size) {
-    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getPotentialMatches(page, size);
-    return ResponseEntity.ok(matches);
+  @GetMapping
+  public MatchesRequireReviewResponse getPotentialMatches(
+      @RequestParam(defaultValue = "0", name = "page") int page,
+      @RequestParam(defaultValue = "5", name = "size") int size) {
+    return mergeGroupHandler.getPotentialMatches(page, size);
   }
 
   @PostMapping("/group-no-merge")
@@ -45,8 +49,9 @@ public class PatientMergeController {
 
   @PostMapping("/merge-patient")
   public ResponseEntity<Void> mergeRecords(@RequestBody MergePatientRequest mergeRequest) {
-    if (mergeRequest.getSurvivorPersonId() == null || mergeRequest.getSupersededPersonIds() == null || mergeRequest.getSupersededPersonIds()
-        .isEmpty()) {
+    if (mergeRequest.getSurvivorPersonId() == null || mergeRequest.getSupersededPersonIds() == null
+        || mergeRequest.getSupersededPersonIds()
+            .isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
     try {
