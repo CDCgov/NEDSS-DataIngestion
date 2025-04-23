@@ -43,7 +43,7 @@ class PersonMergeDataMapperTest {
                "id": "1",
                "as_of_date_identifier": "2023-01-01",
                "value": "1234567",
-               "assigning_authority": "TN"
+               "assigning_authority": "Test"
            }
        ]
       """;
@@ -214,10 +214,10 @@ class PersonMergeDataMapperTest {
   }
 
   @Test
-  void testMapIdentifiersUnsupportedAuthority() {
+  void testMapIdentifiersUnsupportedType() {
     final String identifierString = """
         [
-            {"value": "1234567", "authority": "BAD", "type": "DL"}
+            {"value": "1234567", "authority": "Test", "type": "BAD"}
         ]
         """;
     List<Identifier> identifiers = mapper.mapIdentifiers(identifierString);

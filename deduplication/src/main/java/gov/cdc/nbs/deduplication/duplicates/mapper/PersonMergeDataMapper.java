@@ -68,8 +68,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
   // Map Addresses
   List<Address> mapAddresses(String addressString) {
-    return tryParse(addressString, new TypeReference<List<Map<String, Object>>>() {
-    })
+    return tryParse(addressString, new TypeReference<List<Map<String, Object>>>() {})
         .orElseGet(Collections::emptyList)
         .stream()
         .map(this::asAddress)
@@ -118,8 +117,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
   // Map Phones
   List<Telecom> mapPhones(String phoneString) {
-    return tryParse(phoneString, new TypeReference<List<Map<String, Object>>>() {
-    })
+    return tryParse(phoneString, new TypeReference<List<Map<String, Object>>>() {})
         .orElseGet(Collections::emptyList)
         .stream()
         .map(this::asTelecom)
@@ -156,8 +154,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
   // Map Names
   List<Name> mapNames(String nameString) {
-    return tryParse(nameString, new TypeReference<List<Map<String, Object>>>() {
-    })
+    return tryParse(nameString, new TypeReference<List<Map<String, Object>>>() {})
         .orElseGet(Collections::emptyList)
         .stream()
         .map(this::asName)
@@ -202,13 +199,12 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
   // Map Identifiers
   List<Identifier> mapIdentifiers(String identifierString) {
-    return tryParse(identifierString, new TypeReference<List<Map<String, Object>>>() {
-    })
+    return tryParse(identifierString, new TypeReference<List<Map<String, Object>>>() {})
         .orElseGet(Collections::emptyList)
         .stream()
         .map(this::asIdentifier)
         .filter(Objects::nonNull)
-        .filter(i -> Identifier.SUPPORTED_IDENTIFIERS.contains(i.authority()))
+        .filter(i -> Identifier.SUPPORTED_IDENTIFIERS.contains(i.type()))
         .toList();
   }
 
@@ -231,8 +227,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
   // Map Races
   List<Race> mapRaces(String raceString) {
-    return tryParse(raceString, new TypeReference<List<Map<String, Object>>>() {
-    })
+    return tryParse(raceString, new TypeReference<List<Map<String, Object>>>() {})
         .orElseGet(Collections::emptyList)
         .stream()
         .map(this::asRace)
