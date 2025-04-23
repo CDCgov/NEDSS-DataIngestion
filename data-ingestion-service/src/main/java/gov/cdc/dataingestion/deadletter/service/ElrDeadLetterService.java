@@ -21,7 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
@@ -90,6 +91,12 @@ public class ElrDeadLetterService {
     public List<ElrDeadLetterDto> getDltErrorsByDate(String startDate, String endDate) throws DateValidationException {
         List<ElrDeadLetterDto> results = null;
         try{
+            if(startDate!=null){
+                startDate=startDate.trim();
+            }
+            if(endDate!=null){
+                endDate=endDate.trim();
+            }
             dateValidation(startDate, endDate);
             String startDateWithTime=startDate+" 00:00:00";
             String endDateWithTime=endDate+" 23:59:59";
@@ -99,22 +106,22 @@ public class ElrDeadLetterService {
                 results = convertModelToDtoList(deadLetterELRModels.get());
             }
         } catch (Exception e) {
-            String errmsg = e.getMessage();
-            if(!errmsg.contains(START_END_DATE_RANGE_MSG)){
-                errmsg= errmsg+" "+DATE_FORMAT_MSG;
+            String errMsg = e.getMessage();
+            if(!errMsg.contains(START_END_DATE_RANGE_MSG)){
+                String dateStr =errMsg.substring(4,errMsg.indexOf("could"));
+                errMsg= "Unparseable date:"+dateStr+" "+DATE_FORMAT_MSG;
             }
-            throw new DateValidationException(errmsg);
+            throw new DateValidationException(errMsg);
         }
         return results;
     }
     private void dateValidation(String startDateStr, String endDateStr) throws DateValidationException {
         try{
             String pattern="M-d-yyyy";
-            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-            sdf.setLenient(false);
-            Date startDate = sdf.parse(startDateStr);
-            Date endDate = sdf.parse(endDateStr);
-            if (startDate.after(endDate)) {
+            DateTimeFormatter dateFormatter=DateTimeFormatter.ofPattern(pattern);
+            LocalDate startDate= LocalDate.parse(startDateStr, dateFormatter);
+            LocalDate endDate= LocalDate.parse(endDateStr, dateFormatter);
+            if (startDate.isAfter(endDate)) {
                 throw new DateValidationException(START_END_DATE_RANGE_MSG);
             }
         }catch(Exception e){

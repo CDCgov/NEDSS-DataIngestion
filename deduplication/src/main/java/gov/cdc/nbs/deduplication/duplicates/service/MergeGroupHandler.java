@@ -58,7 +58,6 @@ public class MergeGroupHandler {
         parameters, (ResultSet rs, int rowNum) -> rs.getString(1));
   }
 
-
   private List<String> getPersonIdsByMpiIds(List<String> personIds) {
     return deduplicationTemplate.query(
         QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
