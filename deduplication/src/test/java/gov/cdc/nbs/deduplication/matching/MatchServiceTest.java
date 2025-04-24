@@ -22,6 +22,7 @@ import org.springframework.web.client.RestClient.RequestBodyUriSpec;
 import org.springframework.web.client.RestClient.ResponseSpec;
 
 import gov.cdc.nbs.deduplication.matching.exception.MatchException;
+import gov.cdc.nbs.deduplication.matching.model.CreatePersonRequest;
 import gov.cdc.nbs.deduplication.matching.model.CreatePersonResponse;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
 import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
@@ -131,14 +132,14 @@ class MatchServiceTest {
 
     mockClientPatientUpdateCall("patientReferenceId",
         new CreatePersonResponse(
-            "newPatientReference",
-            "newPersonReference"));
+            "newPersonReference",
+            "externalPersonId"));
 
     MatchResponse response = matchService.match(matchRequest);
 
     assertThat(response.matchType()).isEqualTo(MatchType.POSSIBLE);
     assertThat(response.match()).isNull();
-    assertThat(response.linkResponse().patient_reference_id()).isEqualTo("newPatientReference");
+    assertThat(response.linkResponse().patient_reference_id()).isEqualTo("patientReferenceId");
     assertThat(response.linkResponse().person_reference_id()).isEqualTo("newPersonReference");
     assertThat(response.linkResponse().match_grade()).isEqualTo("possible");
     assertThat(response.linkResponse().results()).isNull();
@@ -196,9 +197,10 @@ class MatchServiceTest {
 
   private void mockClientPatientUpdateCall(String patientId, CreatePersonResponse response) {
     when(restClient.post()).thenReturn(uriSpec);
-    when(uriSpec.uri(String.format("/patient/%s/person", patientId))).thenReturn(bodySpec);
+    when(uriSpec.uri("/person")).thenReturn(bodySpec);
     when(bodySpec.accept(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
     when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
+    when(bodySpec.body(new CreatePersonRequest(List.of(patientId)))).thenReturn(bodySpec);
     when(bodySpec.retrieve()).thenReturn(responseSpec);
     when(responseSpec.body(CreatePersonResponse.class)).thenReturn(response);
   }

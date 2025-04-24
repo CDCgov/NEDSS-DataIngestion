@@ -19,7 +19,11 @@ Following this guide will set up a fully functioning local development environme
       ```bash
       ./gradlew data-processing-service:bootRun
       ```
-5. Optional: Start deduplication service with gradle. Allows remote debugging using port `19042` (requires running [Record Linkage service](https://github.com/CDCgov/RecordLinker))
+5. Optional: Start [Record Linkage service](https://github.com/CDCgov/RecordLinker)
+      ```bash
+      docker compose up di-record-linker -d
+      ```
+6. Optional: Start deduplication service with gradle. Allows remote debugging using port `19042` (Note: Sync and Record Linker communcation are feature flagged off by default)
       ```bash
       ./gradlew deduplication:bootRun
       ```
@@ -46,6 +50,11 @@ NBS_DBUSER=sa
 NBS_DBPASSWORD=fake.fake.fake.1234
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
 KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
+RC_URL=srte-data-service
+RC_CLIENT_ID=di-keycloak-client
+RC_CLIENT_SECRET=OhBq1ar96aep8cnirHwkCNfgsO9yybZI
+
+DB_URI=mssql+pyodbc://sa:fake.fake.fake.1234@di-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
 ```
 
 #### data-ingestion-service/src/main/resources/application-local.yaml
