@@ -177,7 +177,7 @@ services:
     env_file:
       - dataingestion.env
     environment:
-      - PORT: 8070
+      PORT: 8070
     networks:
       - dataingestion
 
