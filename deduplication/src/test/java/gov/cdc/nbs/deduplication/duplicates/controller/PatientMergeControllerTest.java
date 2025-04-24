@@ -4,8 +4,7 @@ package gov.cdc.nbs.deduplication.duplicates.controller;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -155,6 +154,27 @@ class PatientMergeControllerTest {
 
     verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
   }
+
+  @Test
+  void testExportMatchesAsCSV() throws Exception {
+    List<MatchesRequireReviewResponse> mockMatches = Arrays.asList(
+            new MatchesRequireReviewResponse("111122", "john smith", "1990-01-01", "2000-01-01", 2),
+            new MatchesRequireReviewResponse("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)
+    );
+
+    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+
+    mockMvc.perform(get("/deduplication/export-csv"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("text/csv"))
+            .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
+            .andExpect(content().string("""
+          Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records
+          "111122","john smith","1990-01-01","2000-01-01",2
+          "111133","Andrew James","1990-02-02","2000-02-02",4
+          """.replace("\n", System.lineSeparator())));  // Ensures platform-independent line endings
+  }
+
 
   private List<MatchesRequireReviewResponse> expectedMergeGroupResponse() {
     return Arrays.asList(
