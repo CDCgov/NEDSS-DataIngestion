@@ -6,10 +6,13 @@ import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 
@@ -63,4 +66,27 @@ public class PatientMergeController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  @GetMapping(value = "/export-csv", produces = "text/csv")
+  public void exportMatchesAsCSV(HttpServletResponse response) throws IOException {
+    response.setContentType("text/csv");
+    response.setHeader("Content-Disposition", "attachment; filename=matches_requiring_review.csv");
+
+    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getAllMatchesRequiringReview();
+
+    try (PrintWriter writer = response.getWriter()) {
+      writer.println("Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records");
+      for (MatchesRequireReviewResponse match : matches) {
+        writer.printf(
+                "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
+                match.patientId(),
+                match.patientName(),
+                match.createdDate(),
+                match.identifiedDate(),
+                match.numOfMatchingRecords()
+        );
+      }
+    }
+  }
+
 }

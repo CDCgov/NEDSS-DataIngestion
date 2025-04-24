@@ -2,10 +2,12 @@ package gov.cdc.nbs.deduplication.duplicates.service;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.mapper.PersonMergeDataMapper;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,14 +20,17 @@ import java.util.List;
 public class PatientRecordService {
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final NamedParameterJdbcTemplate deduplicationTemplate;
   private final MpiPersonMapper mpiPersonMapper = new MpiPersonMapper();
   private final PersonMergeDataMapper personMergeDataMapper = new PersonMergeDataMapper();
 
 
   public PatientRecordService(
-      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate namedParameterJdbcTemplate
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+      @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate
   ) {
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    this.deduplicationTemplate = deduplicationTemplate;
   }
 
   public MpiPerson fetchMostRecentPatient(String personParentUid) {
@@ -79,4 +84,16 @@ public class PatientRecordService {
         personMergeDataMapper);
   }
 
+  @Transactional
+  public List<MatchCandidateData> fetchAllMatchesRequiringReview() {
+    return deduplicationTemplate.query(
+            QueryConstants.FETCH_ALL_MATCH_CANDIDATES_REQUIRING_REVIEW,
+            new MapSqlParameterSource(), // no params needed
+            (rs, rowNum) -> new MatchCandidateData(
+                    rs.getString("person_uid"),
+                    rs.getLong("num_of_matching"),
+                    rs.getString("date_identified")
+            )
+    );
+  }
 }

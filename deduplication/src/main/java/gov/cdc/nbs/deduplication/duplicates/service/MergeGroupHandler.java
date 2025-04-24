@@ -125,6 +125,14 @@ public class MergeGroupHandler {
         new MapSqlParameterSource("personUid", survivorPersonId));
   }
 
+  public List<MatchesRequireReviewResponse> getAllMatchesRequiringReview() {
+    List<MatchCandidateData> candidates = patientRecordService.fetchAllMatchesRequiringReview();
 
-
+    return candidates.stream()
+            .map(candidate -> {
+              PatientNameAndTimeDTO nameAndTime = patientRecordService.fetchPatientNameAndAddTime(candidate.personUid());
+              return new MatchesRequireReviewResponse(candidate, nameAndTime);
+            })
+            .toList();
+  }
 }
