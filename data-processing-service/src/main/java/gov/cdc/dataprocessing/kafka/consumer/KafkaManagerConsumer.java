@@ -68,19 +68,22 @@ public class KafkaManagerConsumer {
             topics = "${kafka.topic.elr_micro}",
             containerFactory = "kafkaListenerContainerFactoryStep1"
     )
-    public void handleMessage(String messages, Acknowledgment acknowledgment)
-            throws DataProcessingException {
-        var profile = authUserService.getAuthUserInfo(nbsUser);
-        AuthUtil.setGlobalAuthUser(profile);
+    public void handleMessage(String message, Acknowledgment acknowledgment) throws DataProcessingException {
+        Thread.startVirtualThread(() -> {
+            try {
+                var profile = authUserService.getAuthUserInfo(nbsUser);
+                AuthUtil.setGlobalAuthUser(profile);
 
-        try {
-            var nbs = GSON.fromJson(messages, Integer.class);
-            managerService.processDistribution(nbs);
-            acknowledgment.acknowledge();
-        } catch (Exception e) {
-            log.error("KafkaManagerConsumer.handleMessage: {}", e.getMessage());
-        }
+                var nbs = GSON.fromJson(message, Integer.class);
+                managerService.processDistribution(nbs);
 
+                acknowledgment.acknowledge(); // Acknowledge only if successful
+            } catch (Exception e) {
+                log.error("KafkaManagerConsumer.handleMessage failed: {}", e.getMessage(), e);
+                // Optional: decide whether to manually nack, dead-letter, or retry
+            }
+        });
     }
+
 
 }
