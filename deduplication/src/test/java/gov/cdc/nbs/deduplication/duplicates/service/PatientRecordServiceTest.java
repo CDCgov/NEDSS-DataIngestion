@@ -146,41 +146,6 @@ class PatientRecordServiceTest {
     assertThat(actualPersons).isEqualTo(expectedPersons);
   }
 
-  @Test
-  @SuppressWarnings("unchecked")
-  void fetchAllMatchesRequiringReview_ReturnsListOfMatchCandidateData() throws SQLException {
-    // Given
-    String personUid = "person-123";
-    long numOfMatching = 3L;
-    String dateIdentified = "2023-09-15";
-
-    ResultSet mockResultSet = mock(ResultSet.class);
-    when(mockResultSet.getString("person_uid")).thenReturn(personUid);
-    when(mockResultSet.getLong("num_of_matching")).thenReturn(numOfMatching);
-    when(mockResultSet.getString("date_identified")).thenReturn(dateIdentified);
-
-    when(namedParameterJdbcTemplate.query(
-            eq(QueryConstants.FETCH_ALL_MATCH_CANDIDATES_REQUIRING_REVIEW),
-            any(MapSqlParameterSource.class),
-            any(RowMapper.class)
-    )).thenAnswer(invocation -> {
-      RowMapper<MatchCandidateData> rowMapper = invocation.getArgument(2);
-      MatchCandidateData data = rowMapper.mapRow(mockResultSet, 0);
-      return Collections.singletonList(data);
-    });
-
-    // When
-    List<MatchCandidateData> result = patientRecordService.fetchAllMatchesRequiringReview();
-
-    // Then
-    assertThat(result).hasSize(1);
-    MatchCandidateData data = result.get(0);
-    assertThat(data.personUid()).isEqualTo(personUid);
-    assertThat(data.numOfMatches()).isEqualTo(numOfMatching);
-    assertThat(data.dateIdentified()).isEqualTo(dateIdentified);
-  }
-
-
 
   private ResultSet mockResultSetForPatientNameAndAddTime(LocalDateTime addTime, String fullName) throws SQLException {
     ResultSet resultSet = mock(ResultSet.class);

@@ -84,16 +84,5 @@ public class PatientRecordService {
         personMergeDataMapper);
   }
 
-  @Transactional
-  public List<MatchCandidateData> fetchAllMatchesRequiringReview() {
-    return deduplicationTemplate.query(
-            QueryConstants.FETCH_ALL_MATCH_CANDIDATES_REQUIRING_REVIEW,
-            new MapSqlParameterSource(), // no params needed
-            (rs, rowNum) -> new MatchCandidateData(
-                    rs.getString("person_uid"),
-                    rs.getLong("num_of_matching"),
-                    rs.getString("date_identified")
-            )
-    );
-  }
+
 }

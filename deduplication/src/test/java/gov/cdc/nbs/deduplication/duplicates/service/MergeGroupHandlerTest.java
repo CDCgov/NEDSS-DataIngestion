@@ -34,6 +34,9 @@ class MergeGroupHandlerTest {
   @Mock
   private PatientRecordService patientRecordService;
 
+  @Mock
+  private MergeGroupService mergeGroupService;
+
   @InjectMocks
   private MergeGroupHandler mergeGroupHandler;
 
@@ -241,7 +244,7 @@ class MergeGroupHandlerTest {
     PatientNameAndTimeDTO dto2 = new PatientNameAndTimeDTO(
             LocalDateTime.of(2020, 10, 1, 12, 30), "Andrew James");
 
-    when(patientRecordService.fetchAllMatchesRequiringReview()).thenReturn(candidates);
+    when(mergeGroupService.fetchAllMatchesRequiringReview()).thenReturn(candidates);
     when(patientRecordService.fetchPatientNameAndAddTime("personUid1")).thenReturn(dto1);
     when(patientRecordService.fetchPatientNameAndAddTime("personUid2")).thenReturn(dto2);
 
