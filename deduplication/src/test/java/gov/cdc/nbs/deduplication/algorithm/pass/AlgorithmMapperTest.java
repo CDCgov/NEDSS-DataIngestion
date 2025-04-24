@@ -88,9 +88,9 @@ class AlgorithmMapperTest {
         e2 -> assertThat(e2).isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY)));
 
     assertThat(pass.evaluators().get(0).func())
-        .hasToString("func:recordlinker.linking.matchers.compare_probabilistic_exact_match");
+        .hasToString("COMPARE_PROBABILISTIC_EXACT_MATCH");
     assertThat(pass.evaluators().get(1).func())
-        .hasToString("func:recordlinker.linking.matchers.compare_probabilistic_fuzzy_match");
+        .hasToString("COMPARE_PROBABILISTIC_FUZZY_MATCH");
 
     assertThat(pass.rule()).isEqualTo(Rule.PROBABILISTIC);
     assertThat(pass.matchWindow()).containsExactly(0.25, 0.90);

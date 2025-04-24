@@ -1,6 +1,9 @@
 package gov.cdc.nbs.deduplication.matching;
 
 import gov.cdc.nbs.deduplication.matching.model.*;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -78,8 +81,9 @@ public class MatchService {
   }
 
   private MatchResponse handlePossibleMatch(LinkResponse linkResponse) {
-    // Tell MPI to create a new entry for the possible match so other incoming
-    // records can be linked to it
+    // In the case of a possible match, a new `patient` record is created within the
+    // MPI but not linked to any `person`. We tell the MPI to create a new person to
+    // match what we will do in NBS
     CreatePersonResponse response = sendCreatePersonRequest(linkResponse.patient_reference_id());
 
     if (response == null) {
@@ -89,7 +93,7 @@ public class MatchService {
 
     // Add newly created person identifier to response
     LinkResponse newLinkReponse = new LinkResponse(
-        response.patient_reference_id(),
+        linkResponse.patient_reference_id(),
         response.person_reference_id(),
         linkResponse.match_grade(),
         linkResponse.results());
@@ -108,9 +112,10 @@ public class MatchService {
 
   private CreatePersonResponse sendCreatePersonRequest(String mpiPatientId) {
     return recordLinkageClient.post()
-        .uri(String.format("/patient/%s/person", mpiPatientId))
+        .uri("/person")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
+        .body(new CreatePersonRequest(List.of(mpiPatientId)))
         .retrieve()
         .body(CreatePersonResponse.class);
   }

@@ -38,7 +38,7 @@ If the optional NBS 6 WildFly container was built, NBS 6 can be accessed [here](
 The docker compose file supports pulling information from a `.dataingestion.env` file and each service supports creating an `application-local.yml`. Below are sample configuration files.
 #### dataingestion.env - place at the project root, alongside the docker-compose.yml
 ```bash
-DI_AUTH_URI=http://di-keycloak:8080/realms/NBS;
+DI_AUTH_URI=http://di-keycloak:8080/realms/NBS
 RTI_CACHE_AUTH_URI=http://di-keycloak:8080/realms/NBS
 
 NBS_DBSERVER=di-mssql:1433
