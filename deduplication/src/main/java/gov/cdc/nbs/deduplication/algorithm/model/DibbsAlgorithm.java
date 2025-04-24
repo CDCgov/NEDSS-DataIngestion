@@ -66,8 +66,8 @@ public record DibbsAlgorithm(
   }
 
   public enum Func {
-    EXACT("func:recordlinker.linking.matchers.compare_probabilistic_exact_match"),
-    FUZZY("func:recordlinker.linking.matchers.compare_probabilistic_fuzzy_match");
+    EXACT("COMPARE_PROBABILISTIC_EXACT_MATCH"),
+    FUZZY("COMPARE_PROBABILISTIC_FUZZY_MATCH");
 
     private final String value;
 

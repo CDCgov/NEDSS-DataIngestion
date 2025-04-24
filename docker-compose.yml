@@ -99,7 +99,7 @@ services:
       - broker
       - zookeeper
     ports:
-      - "8083:8083"
+      - "8085:8083"
     environment:
       BOOTSTRAP_SERVERS: broker:29092
       GROUP_ID: connect-cluster
@@ -173,7 +173,7 @@ services:
       di-mssql:
         condition: service_healthy
     ports:
-      - "8062:8080"
+      - "8070:8080"
     env_file:
       - dataingestion.env
     networks:
