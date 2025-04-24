@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.mapper.PersonMergeDataMapper;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
