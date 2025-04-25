@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/deduplication")
+@RequestMapping("/merge")
 public class PatientMergeController {
 
   private final MergeGroupHandler mergeGroupHandler;
@@ -66,7 +66,7 @@ public class PatientMergeController {
     }
   }
 
-  @GetMapping(value = "matches/requiring-review/export-csv", produces = "text/csv")
+  @GetMapping(value = "matches/requiring-review/export/csv", produces = "text/csv")
   public void exportMatchesAsCSV(HttpServletResponse response) throws IOException {
     response.setContentType("text/csv");
     response.setHeader("Content-Disposition", "attachment; filename=matches_requiring_review.csv");
