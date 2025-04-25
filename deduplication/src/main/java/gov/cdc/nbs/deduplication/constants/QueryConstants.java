@@ -779,4 +779,13 @@ public class QueryConstants {
     ORDER BY person_uid;
     """;
 
+  public static final String COUNT_POSSIBLE_MATCH_PATIENTS = """
+      SELECT
+        count(DISTINCT person_uid)
+      FROM
+        match_candidates
+      WHERE
+        is_merge IS NULL
+      """;
+
 }
