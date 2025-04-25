@@ -164,7 +164,7 @@ class PatientMergeControllerTest {
 
     when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
 
-    mockMvc.perform(get("/deduplication/export-csv"))
+    mockMvc.perform(get("/deduplication/matches/requiring-review/export-csv"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("text/csv"))
             .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
