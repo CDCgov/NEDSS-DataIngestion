@@ -2,16 +2,78 @@ package gov.cdc.nbs.deduplication.duplicates.model;
 
 import java.util.Arrays;
 import java.util.List;
-
 public record PersonMergeData(
-    String asOfDate,
-    String comments,
+    String commentDate,
+    String adminComments,
+    Ethnicity ethnicity,
+    SexAndBirth sexAndBirth,
+    Mortality mortality,
+    GeneralPatientInformation generalPatientInformation,
+    List<Investigation> investigations,
     List<Address> address,
     List<Telecom> telecom,
     List<Name> name,
     List<Identifier> identifiers,
-    List<Race> race) {
+    List<Race> race
+) {
 
+  // ETHNICITY Object
+  public record Ethnicity(
+      String asOfDate,
+      String ethnicGroupDescription,
+      String spanishOrigin,
+      String ethnicUnknownReason
+  ) {}
+
+  // SEX & BIRTH Object
+  public record SexAndBirth(
+      String asOfDate,
+      String birthTime,
+      String currentSexCode,
+      String sexUnknownReason,
+      String additionalGenderCode,
+      String birthGenderCode,
+      Boolean multipleBirthIndicator,
+      Integer birthOrderNumber,
+      String birthCityCode,
+      String birthStateCode,
+      String birthCountryCode,
+      String preferredGender
+  ) {}
+
+  // MORTALITY Object
+  public record Mortality(
+      String asOfDate,
+      String deceasedIndicatorCode,
+      String deceasedTime,
+      String deathCity,
+      String deathState,
+      String deathCounty,
+      String deathCountry
+  ) {}
+
+  // GENERAL PATIENT INFORMATION Object
+  public record GeneralPatientInformation(
+      String asOfDate,
+      String maritalStatusDescription,
+      String mothersMaidenName,
+      Integer adultsInHouseholdNumber,
+      Integer childrenInHouseholdNumber,
+      String occupationCode,
+      String educationLevelDescription,
+      String primaryLanguageDescription,
+      String speaksEnglishCode,
+      String stateHivCaseId
+  ) {}
+
+  // INVESTIGATION Object
+  public record Investigation(
+      String investigationId,
+      String startedOn,
+      String condition
+  ) {}
+
+  // ADDRESS Object
   public record Address(
       String id,
       String asOfDate,
@@ -25,10 +87,9 @@ public record PersonMergeData(
       String country,
       String type,
       String comments
-  ) {
-  }
+  ) {}
 
-
+  // TELECOM Object
   public record Telecom(
       String id,
       String asOfDate,
@@ -40,10 +101,9 @@ public record PersonMergeData(
       String url,
       String type,
       String comments
-  ) {
-  }
+  ) {}
 
-
+  // NAME Object
   public record Name(
       String personUid,
       String id,
@@ -55,10 +115,9 @@ public record PersonMergeData(
       String suffix,
       String degree,
       String type
-  ) {
-  }
+  ) {}
 
-
+  // IDENTIFIER
   public record Identifier(
       String id,
       String asOfDate,
@@ -80,12 +139,11 @@ public record PersonMergeData(
     );
   }
 
-
+  // RACE Object
   public record Race(
       String personUid,
       String id,
       String asOfDate,
       String category
-  ) {
-  }
+  ) {}
 }

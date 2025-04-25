@@ -204,10 +204,55 @@ class PatientMergeControllerTest {
   }
 
   private List<PersonMergeData> expectedPersonMergeData() {
-    return Arrays.asList(
+    return List.of(
         new PersonMergeData(
-            "2023-01-01",
-            "Sample comments",
+            "2023-01-01", // commentDate
+            "test comment", // adminComments
+            new PersonMergeData.Ethnicity( // Ethnicity
+                "2023-01-01",
+                "Hispanic or Latino",
+                "Yes",
+                "Unknown"
+            ),
+            new PersonMergeData.SexAndBirth( // Sex & Birth
+                "2023-02-01",
+                "1990-01-01T00:00:00Z",
+                "M",
+                "Not applicable",
+                "",
+                "Male",
+                true,
+                1,
+                "12345",
+                "GA",
+                "US",
+                "Male"
+            ),
+            new PersonMergeData.Mortality( // Mortality
+                "2023-03-01",
+                "Y",
+                "2023-04-01T00:00:00Z",
+                "Atlanta",
+                "Georgia",
+                "Fulton",
+                "US"
+            ),
+            new PersonMergeData.GeneralPatientInformation(
+                "2023-05-01",
+                "Married",
+                "Jane Doe",
+                2,
+                1,
+                "Engineer",
+                "Bachelor's Degree",
+                "English",
+                "Y",
+                "123456789"
+            ),
+            List.of( // Investigations
+                new PersonMergeData.Investigation("1", "2023-06-01T00:00:00Z", "Condition A"),
+                new PersonMergeData.Investigation("2", "2023-07-01T00:00:00Z", "Condition B")
+            ),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList(),
@@ -219,8 +264,61 @@ class PatientMergeControllerTest {
     return """
         [
           {
-            "asOfDate": "2023-01-01",
-            "comments": "Sample comments",
+            "commentDate": "2023-01-01",
+            "adminComments": "test comment",
+            "ethnicity": {
+              "asOfDate": "2023-01-01",
+              "ethnicGroupDescription": "Hispanic or Latino",
+              "spanishOrigin": "Yes",
+              "ethnicUnknownReason": "Unknown"
+            },
+            "sexAndBirth": {
+              "asOfDate": "2023-02-01",
+              "birthTime": "1990-01-01T00:00:00Z",
+              "currentSexCode": "M",
+              "sexUnknownReason": "Not applicable",
+              "additionalGenderCode": "",
+              "birthGenderCode": "Male",
+              "multipleBirthIndicator": true,
+              "birthOrderNumber": 1,
+              "birthCityCode": "12345",
+              "birthStateCode": "GA",
+              "birthCountryCode": "US",
+              "preferredGender": "Male"
+            },
+            "mortality": {
+              "asOfDate": "2023-03-01",
+              "deceasedIndicatorCode": "Y",
+              "deceasedTime": "2023-04-01T00:00:00Z",
+              "deathCity": "Atlanta",
+              "deathState": "Georgia",
+              "deathCounty": "Fulton",
+              "deathCountry": "US"
+            },
+            "generalPatientInformation": {
+              "asOfDate": "2023-05-01",
+              "maritalStatusDescription": "Married",
+              "mothersMaidenName": "Jane Doe",
+              "adultsInHouseholdNumber": 2,
+              "childrenInHouseholdNumber": 1,
+              "occupationCode": "Engineer",
+              "educationLevelDescription": "Bachelor's Degree",
+              "primaryLanguageDescription": "English",
+              "speaksEnglishCode": "Y",
+              "stateHivCaseId": "123456789"
+            },
+            "investigations": [
+              {
+                "investigationId": "1",
+                "startedOn": "2023-06-01T00:00:00Z",
+                "condition": "Condition A"
+              },
+              {
+                "investigationId": "2",
+                "startedOn": "2023-07-01T00:00:00Z",
+                "condition": "Condition B"
+              }
+            ],
             "address": [],
             "telecom": [],
             "name": [],
