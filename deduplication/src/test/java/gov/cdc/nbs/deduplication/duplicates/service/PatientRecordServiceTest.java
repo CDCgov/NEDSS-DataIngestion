@@ -130,8 +130,8 @@ class PatientRecordServiceTest {
   @Test
   void fetchPersonsMergeData_ReturnsListOfPersonMergeData() {
     List<String> personUids = Arrays.asList("123", "456");
-    PersonMergeData person1 = new PersonMergeData(null, null, null, null, null, null, null);
-    PersonMergeData person2 = new PersonMergeData(null, null, null, null, null, null, null);
+    PersonMergeData person1 = getPersonMergeData();
+    PersonMergeData person2 = getPersonMergeData();
     List<PersonMergeData> expectedPersons = Arrays.asList(person1, person2);
 
     when(namedParameterJdbcTemplate.query(
@@ -151,6 +151,23 @@ class PatientRecordServiceTest {
     when(resultSet.getTimestamp("add_time")).thenReturn(Timestamp.valueOf(addTime));
     when(resultSet.getString("full_name")).thenReturn(fullName);
     return resultSet;
+  }
+
+  private PersonMergeData getPersonMergeData() {
+    return new PersonMergeData(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
   }
 
 

@@ -9,6 +9,7 @@ import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -274,8 +275,53 @@ class MergeGroupHandlerTest {
   private List<PersonMergeData> createMockPersonMergeData() {
     return List.of(
         new PersonMergeData(
-            "2023-01-01",
-            "test comment",
+            "2023-01-01", // commentDate
+            "test comment", // adminComments
+            new Ethnicity( // Ethnicity
+                "2023-01-01",
+                "Hispanic or Latino",
+                "Yes",
+                "Unknown"
+            ),
+            new SexAndBirth( // Sex & Birth
+                "2023-02-01",
+                "1990-01-01T00:00:00Z",
+                "M",
+                "",
+                "",
+                "Male",
+                true,
+                1,
+                "12345",
+                "GA",
+                "US",
+                "Male"
+            ),
+            new Mortality( // Mortality
+                "2023-03-01",
+                "Y",
+                "2023-04-01T00:00:00Z",
+                "Atlanta",
+                "Georgia",
+                "Fulton",
+                "US"
+            ),
+            new GeneralPatientInformation(
+                "2023-05-01",
+                "Married",
+                "Jane Doe",
+                2,
+                1,
+                "Engineer",
+                "Bachelor's Degree",
+                "English",
+                "Y",
+                "123456789"
+            ),
+            List.of( // Investigations
+                new PersonMergeData.Investigation("1", "2023-06-01T00:00:00Z", "Condition A"),
+                new PersonMergeData.Investigation("2", "2023-07-01T00:00:00Z", "Condition B")
+            ),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList(),
@@ -311,8 +357,8 @@ class MergeGroupHandlerTest {
     assertNotNull(result);
     assertEquals(1, result.size());
     PersonMergeData firstResult = result.getFirst();
-    assertEquals("2023-01-01", firstResult.asOfDate());
-    assertEquals("test comment", firstResult.comments());
+    assertEquals("2023-01-01", firstResult.commentDate());
+    assertEquals("test comment", firstResult.adminComments());
   }
 
 
