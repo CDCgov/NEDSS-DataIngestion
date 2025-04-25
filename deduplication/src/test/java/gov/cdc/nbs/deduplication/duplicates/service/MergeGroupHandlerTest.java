@@ -34,6 +34,9 @@ class MergeGroupHandlerTest {
   @Mock
   private PatientRecordService patientRecordService;
 
+  @Mock
+  private MergeGroupService mergeGroupService;
+
   @InjectMocks
   private MergeGroupHandler mergeGroupHandler;
 
@@ -227,6 +230,46 @@ class MergeGroupHandlerTest {
     // Assert
     verifyAndAssertResults(result);
   }
+
+  @Test
+  void testGetAllMatchesRequiringReview() {
+    // Given
+    MatchCandidateData candidate1 = new MatchCandidateData("personUid1", 2, "2020-10-01");
+    MatchCandidateData candidate2 = new MatchCandidateData("personUid2", 4, "2020-10-02");
+
+    List<MatchCandidateData> candidates = List.of(candidate1, candidate2);
+
+    PatientNameAndTimeDTO dto1 = new PatientNameAndTimeDTO(
+            LocalDateTime.of(2020, 10, 1, 12, 30), "John Doe");
+    PatientNameAndTimeDTO dto2 = new PatientNameAndTimeDTO(
+            LocalDateTime.of(2020, 10, 1, 12, 30), "Andrew James");
+
+    when(mergeGroupService.fetchAllMatchesRequiringReview()).thenReturn(candidates);
+    when(patientRecordService.fetchPatientNameAndAddTime("personUid1")).thenReturn(dto1);
+    when(patientRecordService.fetchPatientNameAndAddTime("personUid2")).thenReturn(dto2);
+
+    // When
+    List<MatchesRequireReviewResponse> result = mergeGroupHandler.getAllMatchesRequiringReview();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+
+    MatchesRequireReviewResponse response1 = result.get(0);
+    assertEquals("personUid1", response1.patientId());
+    assertEquals("John Doe", response1.patientName());
+    assertEquals("2020-10-01T12:30", response1.createdDate());
+    assertEquals("2020-10-01", response1.identifiedDate());
+    assertEquals(3, response1.numOfMatchingRecords());
+
+    MatchesRequireReviewResponse response2 = result.get(1);
+    assertEquals("personUid2", response2.patientId());
+    assertEquals("Andrew James", response2.patientName());
+    assertEquals("2020-10-01T12:30", response2.createdDate());
+    assertEquals("2020-10-02", response2.identifiedDate());
+    assertEquals(5, response2.numOfMatchingRecords());
+  }
+
 
   private List<PersonMergeData> createMockPersonMergeData() {
     return List.of(

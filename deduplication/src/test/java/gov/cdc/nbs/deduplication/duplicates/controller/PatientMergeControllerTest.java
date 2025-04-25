@@ -4,8 +4,7 @@ package gov.cdc.nbs.deduplication.duplicates.controller;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,7 +52,7 @@ class PatientMergeControllerTest {
 
 
     // Act & Assert
-    mockMvc.perform(get("/deduplication/matches/requiring-review")
+    mockMvc.perform(get("/merge/matches/requiring-review")
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size)))
         .andExpect(status().isOk())
@@ -64,7 +63,7 @@ class PatientMergeControllerTest {
   void testUpdateGroupNoMerge() throws Exception {
 
     // Act & Assert
-    mockMvc.perform(post("/deduplication/group-no-merge")
+    mockMvc.perform(post("/merge/group-no-merge")
             .contentType("application/json")
             .content("{\"personOfTheGroup\": 100}"))
         .andExpect(status().isOk())
@@ -79,7 +78,7 @@ class PatientMergeControllerTest {
     doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatusForGroup(100L);
 
     // Act & Assert
-    mockMvc.perform(post("/deduplication/group-no-merge")
+    mockMvc.perform(post("/merge/group-no-merge")
             .contentType("application/json")
             .content("{\"personOfTheGroup\": 100}"))
         .andExpect(status().isInternalServerError())
@@ -98,7 +97,7 @@ class PatientMergeControllerTest {
     mergeRequest.setSupersededPersonIds(Arrays.asList("superseded1", "superseded2"));
 
     // Act & Assert
-    mockMvc.perform(post("/deduplication/merge-patient")
+    mockMvc.perform(post("/merge/merge-patient")
             .contentType("application/json")
             .content(
                 "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
@@ -114,7 +113,7 @@ class PatientMergeControllerTest {
     mergeRequest.setSupersededPersonIds(null); // Invalid data
 
     // Act & Assert
-    mockMvc.perform(post("/deduplication/merge-patient")
+    mockMvc.perform(post("/merge/merge-patient")
             .contentType("application/json")
             .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
         .andExpect(status().isBadRequest());
@@ -132,7 +131,7 @@ class PatientMergeControllerTest {
         .performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
 
     // Act & Assert
-    mockMvc.perform(post("/deduplication/merge-patient")
+    mockMvc.perform(post("/merge/merge-patient")
             .contentType("application/json")
             .content(
                 "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
@@ -149,12 +148,33 @@ class PatientMergeControllerTest {
     when(mergeGroupHandler.getPotentialMatchesDetails(patientId)).thenReturn(mockResponse);
 
     // Act & Assert
-    mockMvc.perform(get("/deduplication/matches/details/{patientId}", patientId))
+    mockMvc.perform(get("/merge/matches/details/{patientId}", patientId))
         .andExpect(status().isOk())
         .andExpect(content().json(expectedPersonMergeDataJson()));
 
     verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
   }
+
+  @Test
+  void testExportMatchesAsCSV() throws Exception {
+    List<MatchesRequireReviewResponse> mockMatches = Arrays.asList(
+            new MatchesRequireReviewResponse("111122", "john smith", "1990-01-01", "2000-01-01", 2),
+            new MatchesRequireReviewResponse("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)
+    );
+
+    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+
+    mockMvc.perform(get("/merge/matches/requiring-review/export/csv"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("text/csv"))
+            .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
+            .andExpect(content().string("""
+          Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records
+          "111122","john smith","1990-01-01","2000-01-01",2
+          "111133","Andrew James","1990-02-02","2000-02-02",4
+          """.replace("\n", System.lineSeparator())));  // Ensures platform-independent line endings
+  }
+
 
   private List<MatchesRequireReviewResponse> expectedMergeGroupResponse() {
     return Arrays.asList(

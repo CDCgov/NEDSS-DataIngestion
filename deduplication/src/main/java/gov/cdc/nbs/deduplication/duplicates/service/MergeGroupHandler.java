@@ -20,13 +20,16 @@ public class MergeGroupHandler {
 
   private final NamedParameterJdbcTemplate deduplicationTemplate;
   private final PatientRecordService patientRecordService;
+  private final MergeGroupService mergeGroupService;
 
   public MergeGroupHandler(
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
-      PatientRecordService patientRecordService
+      PatientRecordService patientRecordService,
+      MergeGroupService mergeGroupService
   ) {
     this.deduplicationTemplate = deduplicationTemplate;
     this.patientRecordService = patientRecordService;
+    this.mergeGroupService = mergeGroupService;
   }
 
   public List<MatchesRequireReviewResponse> getPotentialMatches(int page, int size) {
@@ -125,6 +128,14 @@ public class MergeGroupHandler {
         new MapSqlParameterSource("personUid", survivorPersonId));
   }
 
+  public List<MatchesRequireReviewResponse> getAllMatchesRequiringReview() {
+    List<MatchCandidateData> candidates = mergeGroupService.fetchAllMatchesRequiringReview();
 
-
+    return candidates.stream()
+            .map(candidate -> {
+              PatientNameAndTimeDTO nameAndTime = patientRecordService.fetchPatientNameAndAddTime(candidate.personUid());
+              return new MatchesRequireReviewResponse(candidate, nameAndTime);
+            })
+            .toList();
+  }
 }
