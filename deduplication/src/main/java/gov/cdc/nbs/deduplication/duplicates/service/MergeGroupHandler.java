@@ -1,56 +1,72 @@
 package gov.cdc.nbs.deduplication.duplicates.service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
-import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse.MatchRequiringReview;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class MergeGroupHandler {
 
   private final NamedParameterJdbcTemplate deduplicationTemplate;
   private final PatientRecordService patientRecordService;
+  private final MergeGroupService mergeGroupService;
 
   public MergeGroupHandler(
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
-      PatientRecordService patientRecordService) {
+      PatientRecordService patientRecordService,
+      MergeGroupService mergeGroupService
+  ) {
     this.deduplicationTemplate = deduplicationTemplate;
     this.patientRecordService = patientRecordService;
+    this.mergeGroupService = mergeGroupService;
   }
 
-  public MatchesRequireReviewResponse getPotentialMatches(int page, int size) {
+  public List<MatchesRequireReviewResponse> getPotentialMatches(int page, int size) {
     int offset = page * size;
-    Integer total = getMatchCandidateCount();
     List<MatchCandidateData> matchCandidates = getMatchCandidateData(offset, size);
-
     if (matchCandidates.isEmpty()) {
-      return new MatchesRequireReviewResponse(page, total);
+      return Collections.emptyList();
     }
-
-    MatchesRequireReviewResponse response = new MatchesRequireReviewResponse(page, total);
-    response.matches().addAll(matchCandidates.stream()
+    return matchCandidates.stream()
         .map(matchCandidateData -> {
-          PatientNameAndTimeDTO patientNameAndTimeDTO = patientRecordService
-              .fetchPatientNameAndAddTime(matchCandidateData.personUid());
-          return new MatchRequiringReview(matchCandidateData, patientNameAndTimeDTO);
-        })
-        .toList());
-    return response;
+          PatientNameAndTimeDTO patientNameAndTimeDTO =
+              patientRecordService.fetchPatientNameAndAddTime(matchCandidateData.personUid());
+          return new MatchesRequireReviewResponse(matchCandidateData, patientNameAndTimeDTO);
+        }).toList();
   }
 
-  private Integer getMatchCandidateCount() {
-    return deduplicationTemplate.getJdbcTemplate()
-        .queryForObject(QueryConstants.COUNT_POSSIBLE_MATCH_PATIENTS, Integer.class);
+
+  public List<PersonMergeData> getPotentialMatchesDetails(long personId) {
+    List<String> possibleMatchesMpiIds = getPossibleMatchesOfPatient(personId);
+    List<String> npsPersonIds = getPersonIdsByMpiIds(possibleMatchesMpiIds);
+    return patientRecordService.fetchPersonsMergeData(npsPersonIds);
+  }
+
+  private List<String> getPossibleMatchesOfPatient(long personId) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource()
+        .addValue("personUid", personId);
+    return deduplicationTemplate.query(
+        QueryConstants.POSSIBLE_MATCH_IDS_BY_PATIENT_ID,
+        parameters, (ResultSet rs, int rowNum) -> rs.getString(1));
+  }
+
+  private List<String> getPersonIdsByMpiIds(List<String> personIds) {
+    return deduplicationTemplate.query(
+        QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
+        new MapSqlParameterSource("mpiPersonIds", personIds),
+        (rs, rowNum) -> rs.getString("person_uid")
+    );
   }
 
   private List<MatchCandidateData> getMatchCandidateData(int offset, int limit) {
@@ -59,8 +75,7 @@ public class MergeGroupHandler {
         .addValue("offset", offset);
     return deduplicationTemplate.query(
         QueryConstants.POSSIBLE_MATCH_PATIENTS,
-        parameters,
-        this::mapRowToMatchCandidateData);
+        parameters, this::mapRowToMatchCandidateData);
   }
 
   private MatchCandidateData mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
@@ -74,12 +89,13 @@ public class MergeGroupHandler {
     return deduplicationTemplate.query(
         QueryConstants.PATIENT_IDS_BY_PERSON_UIDS,
         new MapSqlParameterSource("personIds", personIds),
-        (rs, rowNum) -> rs.getString("mpi_person"));
+        (rs, rowNum) -> rs.getString("mpi_person")
+    );
   }
 
   public void updateMergeStatusForGroup(Long personOfTheGroup) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("personUid", personOfTheGroup);
+    parameters.addValue("person_id", personOfTheGroup);
     parameters.addValue("isMerge", false);
     deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP, parameters);
   }
@@ -112,4 +128,14 @@ public class MergeGroupHandler {
         new MapSqlParameterSource("personUid", survivorPersonId));
   }
 
+  public List<MatchesRequireReviewResponse> getAllMatchesRequiringReview() {
+    List<MatchCandidateData> candidates = mergeGroupService.fetchAllMatchesRequiringReview();
+
+    return candidates.stream()
+            .map(candidate -> {
+              PatientNameAndTimeDTO nameAndTime = patientRecordService.fetchPatientNameAndAddTime(candidate.personUid());
+              return new MatchesRequireReviewResponse(candidate, nameAndTime);
+            })
+            .toList();
+  }
 }

@@ -1,19 +1,19 @@
 package gov.cdc.nbs.deduplication.duplicates.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import gov.cdc.nbs.deduplication.duplicates.model.GroupNoMergeRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 @RestController
 @RequestMapping("/merge")
@@ -23,18 +23,23 @@ public class PatientMergeController {
 
   private final MergePatientHandler mergePatientsHandler;
 
-  public PatientMergeController(
-      MergeGroupHandler possibleMatchHandler,
-      MergePatientHandler mergePatientsHandler) {
+  public PatientMergeController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergePatientsHandler = mergePatientsHandler;
   }
 
-  @GetMapping
-  public MatchesRequireReviewResponse getPotentialMatches(
-      @RequestParam(defaultValue = "0", name = "page") int page,
-      @RequestParam(defaultValue = "5", name = "size") int size) {
-    return mergeGroupHandler.getPotentialMatches(page, size);
+  @GetMapping("/matches/requiring-review")
+  public ResponseEntity<List<MatchesRequireReviewResponse>> getPotentialMatches(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "5") int size) {
+    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getPotentialMatches(page, size);
+    return ResponseEntity.ok(matches);
+  }
+
+  @GetMapping("/matches/details/{patientId}")
+  public ResponseEntity<List<PersonMergeData>> getPotentialMatchesDetails(
+      @PathVariable("patientId") Long patientId) {
+    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(patientId));
   }
 
   @PostMapping("/group-no-merge")
@@ -49,9 +54,8 @@ public class PatientMergeController {
 
   @PostMapping("/merge-patient")
   public ResponseEntity<Void> mergeRecords(@RequestBody MergePatientRequest mergeRequest) {
-    if (mergeRequest.getSurvivorPersonId() == null || mergeRequest.getSupersededPersonIds() == null
-        || mergeRequest.getSupersededPersonIds()
-            .isEmpty()) {
+    if (mergeRequest.getSurvivorPersonId() == null || mergeRequest.getSupersededPersonIds() == null || mergeRequest.getSupersededPersonIds()
+        .isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
     try {
@@ -59,6 +63,28 @@ public class PatientMergeController {
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  @GetMapping(value = "matches/requiring-review/export/csv", produces = "text/csv")
+  public void exportMatchesAsCSV(HttpServletResponse response) throws IOException {
+    response.setContentType("text/csv");
+    response.setHeader("Content-Disposition", "attachment; filename=matches_requiring_review.csv");
+
+    List<MatchesRequireReviewResponse> matches = mergeGroupHandler.getAllMatchesRequiringReview();
+
+    try (PrintWriter writer = response.getWriter()) {
+      writer.println("Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records");
+      for (MatchesRequireReviewResponse match : matches) {
+        writer.printf(
+                "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
+                match.patientId(),
+                match.patientName(),
+                match.createdDate(),
+                match.identifiedDate(),
+                match.numOfMatchingRecords()
+        );
+      }
     }
   }
 }
