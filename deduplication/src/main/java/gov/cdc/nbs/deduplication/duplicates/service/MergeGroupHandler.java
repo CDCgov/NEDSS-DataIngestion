@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.duplicates.service;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidateData;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
+import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse.MatchRequiringReview;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -25,27 +25,36 @@ public class MergeGroupHandler {
   public MergeGroupHandler(
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
       PatientRecordService patientRecordService,
-      MergeGroupService mergeGroupService
-  ) {
+      MergeGroupService mergeGroupService) {
     this.deduplicationTemplate = deduplicationTemplate;
     this.patientRecordService = patientRecordService;
     this.mergeGroupService = mergeGroupService;
   }
 
-  public List<MatchesRequireReviewResponse> getPotentialMatches(int page, int size) {
+  public MatchesRequireReviewResponse getPotentialMatches(int page, int size) {
     int offset = page * size;
+    Integer total = getMatchCandidateCount();
     List<MatchCandidateData> matchCandidates = getMatchCandidateData(offset, size);
+
     if (matchCandidates.isEmpty()) {
-      return Collections.emptyList();
+      return new MatchesRequireReviewResponse(page, total);
     }
-    return matchCandidates.stream()
+
+    MatchesRequireReviewResponse response = new MatchesRequireReviewResponse(page, total);
+    response.matches().addAll(matchCandidates.stream()
         .map(matchCandidateData -> {
-          PatientNameAndTimeDTO patientNameAndTimeDTO =
-              patientRecordService.fetchPatientNameAndAddTime(matchCandidateData.personUid());
-          return new MatchesRequireReviewResponse(matchCandidateData, patientNameAndTimeDTO);
-        }).toList();
+          PatientNameAndTimeDTO patientNameAndTimeDTO = patientRecordService
+              .fetchPatientNameAndAddTime(matchCandidateData.personUid());
+          return new MatchRequiringReview(matchCandidateData, patientNameAndTimeDTO);
+        })
+        .toList());
+    return response;
   }
 
+  private Integer getMatchCandidateCount() {
+    return deduplicationTemplate.getJdbcTemplate()
+        .queryForObject(QueryConstants.COUNT_POSSIBLE_MATCH_PATIENTS, Integer.class);
+  }
 
   public List<PersonMergeData> getPotentialMatchesDetails(long personId) {
     List<String> possibleMatchesMpiIds = getPossibleMatchesOfPatient(personId);
@@ -65,8 +74,7 @@ public class MergeGroupHandler {
     return deduplicationTemplate.query(
         QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
         new MapSqlParameterSource("mpiPersonIds", personIds),
-        (rs, rowNum) -> rs.getString("person_uid")
-    );
+        (rs, rowNum) -> rs.getString("person_uid"));
   }
 
   private List<MatchCandidateData> getMatchCandidateData(int offset, int limit) {
@@ -89,8 +97,7 @@ public class MergeGroupHandler {
     return deduplicationTemplate.query(
         QueryConstants.PATIENT_IDS_BY_PERSON_UIDS,
         new MapSqlParameterSource("personIds", personIds),
-        (rs, rowNum) -> rs.getString("mpi_person")
-    );
+        (rs, rowNum) -> rs.getString("mpi_person"));
   }
 
   public void updateMergeStatusForGroup(Long personOfTheGroup) {
@@ -128,14 +135,14 @@ public class MergeGroupHandler {
         new MapSqlParameterSource("personUid", survivorPersonId));
   }
 
-  public List<MatchesRequireReviewResponse> getAllMatchesRequiringReview() {
+  public List<MatchRequiringReview> getAllMatchesRequiringReview() {
     List<MatchCandidateData> candidates = mergeGroupService.fetchAllMatchesRequiringReview();
 
     return candidates.stream()
-            .map(candidate -> {
-              PatientNameAndTimeDTO nameAndTime = patientRecordService.fetchPatientNameAndAddTime(candidate.personUid());
-              return new MatchesRequireReviewResponse(candidate, nameAndTime);
-            })
-            .toList();
+        .map(candidate -> {
+          PatientNameAndTimeDTO nameAndTime = patientRecordService.fetchPatientNameAndAddTime(candidate.personUid());
+          return new MatchRequiringReview(candidate, nameAndTime);
+        })
+        .toList();
   }
 }

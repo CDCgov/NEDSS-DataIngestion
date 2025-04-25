@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/deduplication/seed")
+@RequestMapping("/seed")
 public class SeedController {
 
   private final JobLauncher launcher;

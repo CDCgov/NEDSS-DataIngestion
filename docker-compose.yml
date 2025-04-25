@@ -19,6 +19,26 @@ services:
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
     networks:
       - dataingestion
+  data-processing-service:
+    build:
+      context: ./
+      dockerfile: ./data-processing-service/Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      broker:
+        condition: service_started
+      di-keycloak:
+        condition: service_started
+      di-mssql:
+        condition: service_healthy
+    container_name: data-processing-service
+    env_file:
+      - dataingestion.env
+    environment:
+      SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+    networks:
+      - dataingestion
 
   srte-data-service:
     build:
@@ -79,7 +99,7 @@ services:
       - broker
       - zookeeper
     ports:
-      - "8083:8083"
+      - "8085:8083"
     environment:
       BOOTSTRAP_SERVERS: broker:29092
       GROUP_ID: connect-cluster
@@ -147,15 +167,17 @@ services:
       - dataingestion
 
   di-record-linker:
-    build: ./containers/record-linker
+    image: ghcr.io/cdcgov/recordlinker:v25.5.0
     container_name: di-record-linker
     depends_on:
       di-mssql:
         condition: service_healthy
     ports:
-      - "8062:8080"
+      - "8070:8070"
     env_file:
       - dataingestion.env
+    environment:
+      PORT: 8070
     networks:
       - dataingestion
 

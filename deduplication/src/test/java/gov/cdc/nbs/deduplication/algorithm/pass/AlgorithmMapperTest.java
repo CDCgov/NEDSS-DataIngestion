@@ -10,15 +10,15 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.TestData;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.DibbsPass;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Evaluator;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Func;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Rule;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.SimilarityMeasure;
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.BlockingAttribute;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchingAttribute;
-import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm;
-import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm.DibbsPass;
-import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm.Evaluator;
-import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm.Func;
-import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm.Rule;
-import gov.cdc.nbs.deduplication.algorithm.pass.model.dibbs.DibbsAlgorithm.SimilarityMeasure;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingAttributeEntry;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingMethod;
@@ -53,11 +53,10 @@ class AlgorithmMapperTest {
   }
 
   @Test
-  void should_set_belongingess_ratio() {
+  void should_set_missing_thresholds() {
     DibbsAlgorithm actual = mapper.map(new Algorithm(new ArrayList<>()), TestData.DATA_ELEMENTS);
-    // hard coded until next RL release
-    assertThat(actual.belongingnessRatio().get(0)).isEqualTo(0.5);
-    assertThat(actual.belongingnessRatio().get(1)).isEqualTo(0.85);
+    assertThat(actual.missingAllowedProportion()).isEqualTo(0.0);
+    assertThat(actual.missingPointsProportion()).isEqualTo(0.0);
   }
 
   @Test
@@ -89,11 +88,12 @@ class AlgorithmMapperTest {
         e2 -> assertThat(e2).isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY)));
 
     assertThat(pass.evaluators().get(0).func())
-        .hasToString("func:recordlinker.linking.matchers.compare_probabilistic_exact_match");
+        .hasToString("COMPARE_PROBABILISTIC_EXACT_MATCH");
     assertThat(pass.evaluators().get(1).func())
-        .hasToString("func:recordlinker.linking.matchers.compare_probabilistic_fuzzy_match");
+        .hasToString("COMPARE_PROBABILISTIC_FUZZY_MATCH");
 
     assertThat(pass.rule()).isEqualTo(Rule.PROBABILISTIC);
+    assertThat(pass.matchWindow()).containsExactly(0.25, 0.90);
 
     assertThat(pass.kwargs().similarityMeasure()).isEqualTo(SimilarityMeasure.JAROWINKLER);
     assertThat(pass.kwargs().thresholds()).containsOnly(
@@ -103,7 +103,6 @@ class AlgorithmMapperTest {
     assertThat(pass.kwargs().logOdds()).containsOnly(
         entry(MatchingAttribute.FIRST_NAME.toString(), TestData.DATA_ELEMENTS.firstName().logOdds()),
         entry(MatchingAttribute.LAST_NAME.toString(), TestData.DATA_ELEMENTS.lastName().logOdds()));
-    assertThat(pass.kwargs().trueMatchThreshold()).isEqualTo(1.0);
 
   }
 
