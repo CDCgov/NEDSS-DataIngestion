@@ -625,14 +625,106 @@ public class QueryConstants {
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
       SELECT
           p.as_of_date_admin AS comment_date,
-          p.description As admin_comments,
+          p.description AS admin_comments,
+          -- ETHNICITY
+          p.as_of_date_ethnicity,
+          p.ethnic_group_desc_txt,
+          cvg_ethnic_group.code_short_desc_txt AS spanish_origin,
+          ethnic_unknown.code_short_desc_txt AS ethnic_unknown_reason,
+          -- SEX & BIRTH
+          p.as_of_date_sex,
+          p.birth_time,
+          p.curr_sex_cd,
+          sex_unknown.code_short_desc_txt sex_unknown_reason,
+          p.additional_gender_cd,
+          p.birth_gender_cd,
+          p.multiple_birth_ind,
+          p.birth_order_nbr,
+          p.birth_city_cd,
+          p.birth_state_cd,
+          p.birth_cntry_cd,
+          cvg_preferred.code_short_desc_txt AS preferred_gender,
+          -- MORTALITY
+          p.as_of_date_morbidity,
+          p.deceased_ind_cd,
+          p.deceased_time,
+          death_details.city AS death_city,
+          death_details.state AS death_state,
+          death_details.county AS death_county,
+          death_details.country AS death_country,
+          -- GENERAL PATIENT INFORMATION
+          p.as_of_date_general,
+          p.marital_status_desc_txt,
+          p.mothers_maiden_nm,
+          p.adults_in_house_nbr,
+          p.children_in_house_nbr,
+          p.occupation_cd,
+          p.education_level_desc_txt,
+          p.prim_lang_desc_txt,
+          p.speaks_english_cd,
+          p.ehars_id AS State_HIV_Case_ID,
           nested.address,
           nested.phone,
           nested.name,
           nested.identifiers,
-          nested.race
+          nested.race,
+          --INVESTIGATIONS
+          (
+              SELECT
+                  inv.public_health_case_uid AS investigationId,
+                  inv.activity_from_time AS started_on,
+                  cvg.code_short_desc_txt AS condition
+              FROM
+                  Participation part
+                  JOIN Public_health_case inv
+                      ON inv.public_health_case_uid = part.act_uid
+                      AND inv.record_status_cd != 'LOG_DEL'
+                      AND inv.investigation_status_cd IN ('O', 'C')
+                  LEFT JOIN nbs_srte..code_value_general cvg
+                      ON cvg.code = inv.cd
+                      AND cvg.code_set_nm = ''
+              WHERE
+                  part.subject_entity_uid = p.person_uid
+                  AND part.type_cd = 'SubjOfPHC'
+                  AND part.record_status_cd = 'ACTIVE'
+                  AND part.subject_class_cd = 'PSN'
+                  AND part.act_class_cd = 'CASE'
+              FOR JSON PATH, INCLUDE_NULL_VALUES
+          ) AS investigations
       FROM
           person p WITH (NOLOCK)
+          -- For ethnicity-related fields
+          LEFT JOIN nbs_srte..code_value_general cvg_ethnic_group
+              ON p.ethnic_group_ind = cvg_ethnic_group.code
+              AND cvg_ethnic_group.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
+          LEFT JOIN nbs_srte..code_value_general ethnic_unknown
+              ON p.ethnic_unk_reason_cd = ethnic_unknown.code
+              AND ethnic_unknown.code_set_nm = 'P_ETHN_UNK_REASON'
+          -- For preferred gender field
+          LEFT JOIN nbs_srte..code_value_general cvg_preferred
+              ON p.preferred_gender_cd = cvg_preferred.code
+              AND cvg_preferred.code_set_nm = 'NBS_STD_GENDER_PARPT'
+          LEFT JOIN nbs_srte..code_value_general sex_unknown
+              ON p.sex_unk_reason_cd = sex_unknown.code
+              AND sex_unknown.code_set_nm = 'SEX_UNK_REASON'
+          -- Death Details
+          OUTER APPLY (
+              SELECT
+                  STRING_ESCAPE(pl.city_desc_txt, 'json') AS city,
+                  sc.code_desc_txt AS state,
+                  scc.code_desc_txt AS county,
+                  pl.cntry_cd AS country
+              FROM
+                  Entity_locator_participation elp WITH (NOLOCK)
+                  JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+              WHERE
+                  elp.entity_uid = p.person_uid
+                  AND elp.class_cd = 'PST'
+                  AND elp.status_cd = 'A'
+                  AND elp.use_cd = 'DTH'
+          ) AS death_details
           OUTER APPLY (
               SELECT
                   *
@@ -690,11 +782,11 @@ public class QueryConstants {
                           ) AS identifiers
                   ) AS identifiers,
                   -- person races
-                   (
+                  (
                       SELECT
                           (
                               SELECT
-                                 pr.person_uid AS personUid,
+                                  pr.person_uid AS personUid,
                                   pr.race_cd AS Id,
                                   pr.as_of_date AS as_of_date_race,
                                   pr.race_category_cd
