@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 
 import gov.cdc.nbs.deduplication.duplicates.step.UnprocessedPersonReader;
 
@@ -21,7 +21,7 @@ import gov.cdc.nbs.deduplication.duplicates.step.UnprocessedPersonReader;
 class BatchJobSchedulerTest {
 
   @Mock
-  private JobLauncher jobLauncher;
+  private TaskExecutorJobLauncher jobLauncher;
 
   @Mock
   private Job deduplicationJob;
