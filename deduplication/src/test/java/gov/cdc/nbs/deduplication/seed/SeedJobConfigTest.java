@@ -17,7 +17,7 @@ import gov.cdc.nbs.deduplication.seed.step.PersonReader;
 import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
 
 @ExtendWith(MockitoExtension.class)
-class JobConfigTest {
+class SeedJobConfigTest {
   @Mock
   private PersonReader personReader;
   @Mock
@@ -33,7 +33,7 @@ class JobConfigTest {
 
   @Test
   void buildsValidConfig() {
-    JobConfig config = new JobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
+    SeedJobConfig config = new SeedJobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
     assertThat(config).isNotNull();
 
     Job seedJob = config.seedJob(jobRepository, null, null);
@@ -43,7 +43,7 @@ class JobConfigTest {
 
   @Test
   void step1() {
-    JobConfig config = new JobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
+    SeedJobConfig config = new SeedJobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
 
     Step step1 = config.step1(jobRepository, transactionManager);
     assertThat(step1).isNotNull();
@@ -51,7 +51,7 @@ class JobConfigTest {
 
   @Test
   void step2() {
-    JobConfig config = new JobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
+    SeedJobConfig config = new SeedJobConfig(personReader, seedWriter, mpiReader, deduplicationWriter);
     Step step2 = config.step2(jobRepository, transactionManager);
     assertThat(step2).isNotNull();
   }

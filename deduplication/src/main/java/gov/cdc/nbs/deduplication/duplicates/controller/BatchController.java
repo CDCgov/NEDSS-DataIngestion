@@ -13,27 +13,35 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import gov.cdc.nbs.deduplication.duplicates.step.UnprocessedPersonReader;
+
 @RestController
-@RequestMapping("/batch-job/test")
-public class TestController {
+@RequestMapping("/batch-job/start")
+public class BatchController {
 
   private final JobLauncher jobLauncher;
+  private final UnprocessedPersonReader personReader;
   private final Job deduplicationJob;
 
-  public TestController(
+  public BatchController(
       final JobLauncher jobLauncher,
+      final UnprocessedPersonReader personReader,
       @Qualifier("deduplicationJob") final Job deduplicationJob) {
     this.jobLauncher = jobLauncher;
+    this.personReader = personReader;
     this.deduplicationJob = deduplicationJob;
   }
 
   @GetMapping
-  public void testBatchJob()
-      throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException,
+  public void start()
+      throws JobInstanceAlreadyCompleteException,
+      JobExecutionAlreadyRunningException,
+      JobParametersInvalidException,
       JobRestartException {
     JobParameters params = new JobParametersBuilder()
         .addLong("time", System.currentTimeMillis())
         .toJobParameters();
+    personReader.resetPagesRead();
     jobLauncher.run(deduplicationJob, params);
   }
 

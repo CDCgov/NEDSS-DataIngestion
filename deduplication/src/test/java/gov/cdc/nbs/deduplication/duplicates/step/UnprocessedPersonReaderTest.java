@@ -30,7 +30,7 @@ class UnprocessedPersonReaderTest {
     when(connection.getMetaData()).thenReturn(metadata);
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
 
-    final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource);
+    final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 10, 100);
     assertThat(reader).isNotNull();
   }
 }
