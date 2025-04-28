@@ -58,4 +58,8 @@ public class UnprocessedPersonReader extends JdbcPagingItemReader<String> {
   public void resetPagesRead() {
     this.pagesRead = 0;
   }
+
+  int getPagesRead() {
+    return this.pagesRead;
+  }
 }
