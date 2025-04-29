@@ -31,8 +31,10 @@ public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate
     MpiPerson patientRecord = patientRecordService.fetchMostRecentPatient(personUid);
     MatchResponse response = recordLinkerService.findDuplicateRecords(patientRecord);
 
-    // Process only "possible" responses for manual review
-    if (MatchResponse.Prediction.POSSIBLE_MATCH == response.prediction()) {
+    // Both "possible" and "EXACT" matches should be flagged for review.
+    // We do not auto merge exact matches as part of the batch prcoessing of
+    // existing records
+    if (MatchResponse.Prediction.NO_MATCH != response.prediction()) {
       List<String> possibleMatchList = response.results().stream()
           .map(LinkResult::personReferenceId)
           .map(UUID::toString)

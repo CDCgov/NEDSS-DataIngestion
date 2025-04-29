@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.duplicates;
 
 import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,16 +13,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
+
+import gov.cdc.nbs.deduplication.duplicates.step.UnprocessedPersonReader;
 
 @ExtendWith(MockitoExtension.class)
 class BatchJobSchedulerTest {
 
   @Mock
-  private JobLauncher jobLauncher;
+  private TaskExecutorJobLauncher jobLauncher;
 
   @Mock
   private Job deduplicationJob;
+
+  @Mock
+  private UnprocessedPersonReader personReader;
 
   @InjectMocks
   private BatchJobScheduler batchJobScheduler;
@@ -35,5 +41,7 @@ class BatchJobSchedulerTest {
 
     JobParameters capturedParams = captor.getValue();
     assertThat(capturedParams.getLong("time")).isNotNull();
+
+    verify(personReader, times(1)).resetPagesRead();
   }
 }

@@ -54,8 +54,6 @@ class DuplicatesProcessorTest {
     assertThat(result.possibleMatchList()).hasSize(1);
   }
 
-
-
   @Test
   void processReturnsMatchCandidateWithNullForNoMatch() {
     String personUid = "1234";
@@ -74,25 +72,27 @@ class DuplicatesProcessorTest {
     assertThat(result.possibleMatchList()).isNull();
   }
 
-
   @Test
   void processReturnsMatchCandidateWithNullForMatch() {
     String personUid = "1234";
     MpiPerson patientRecord = new MpiPerson(null, null, null, null,
         null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
+    LinkResult linkResult = mock(LinkResult.class);
+    List<LinkResult> linkResults = Collections.singletonList(linkResult);
 
     when(patientRecordService.fetchMostRecentPatient(personUid)).thenReturn(patientRecord);
     when(recordLinkerService.findDuplicateRecords(any(MpiPerson.class))).thenReturn(response);
     when(response.prediction()).thenReturn(MatchResponse.Prediction.MATCH);
+    when(response.results()).thenReturn(linkResults);
+    when(linkResult.personReferenceId()).thenReturn(UUID.randomUUID());
 
     MatchCandidate result = duplicatesProcessor.process(personUid);
 
     assertThat(result).isNotNull();
     assertThat(result.personUid()).isEqualTo(personUid);
-    assertThat(result.possibleMatchList()).isNull();
+    assertThat(result.personUid()).isNotNull();
+    assertThat(result.possibleMatchList()).hasSize(1);
   }
-
-
 
 }

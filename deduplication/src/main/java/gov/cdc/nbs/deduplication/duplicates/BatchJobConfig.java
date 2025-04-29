@@ -18,18 +18,18 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 public class BatchJobConfig {
 
-  private final UnprocessedPersonReader duplicatesReader;
+  private final UnprocessedPersonReader personReader;
   private final DuplicatesProcessor deduplicationProcessor;
   private final MatchCandidateWriter writer;
 
-  @Value("${batch.chunk.size.deduplicationStep:100}")
+  @Value("${deduplication.batch.processing.chunk:100}")
   private int chunkSize;
 
   public BatchJobConfig(
-      final UnprocessedPersonReader duplicatesReader,
+      final UnprocessedPersonReader personReader,
       final DuplicatesProcessor deduplicationProcessor,
       final MatchCandidateWriter writer) {
-    this.duplicatesReader = duplicatesReader;
+    this.personReader = personReader;
     this.deduplicationProcessor = deduplicationProcessor;
     this.writer = writer;
   }
@@ -38,7 +38,7 @@ public class BatchJobConfig {
   public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
     return new StepBuilder("step1", jobRepository)
         .<String, MatchCandidate>chunk(chunkSize, transactionManager) // Use externalized chunk size
-        .reader(duplicatesReader) // Read unprocessed MPI records
+        .reader(personReader) // Read unprocessed MPI records
         .processor(deduplicationProcessor) // Process records to find possible duplicates
         .writer(writer) // Write match candidates and update status
         .build();

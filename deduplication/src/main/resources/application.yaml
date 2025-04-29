@@ -45,16 +45,16 @@ deduplication:
     updateRecordLinker: ${ALGORITHM_UPDATE_RL:false}
   sync:
     enabled: ${SYNC_ENABLED:false}
-
-batch:
-  chunk:
-    size:
-      readNbsWriteToMpi: 100
-      readMpiWriteDeduplication: 1000
-      deduplicationStep: 100
-  job:
+  batch:
     schedule:
+      enabled: ${BATCH_ENABLED:false}
       cron: "0 0 1 * * ?" # run daily at 1 AM
+    processing:
+      total: 10000 # how many records to process per job execution
+      chunk: 100 # how many are processed at a time
+  seed:
+    mpiInsertSize: 100 # how many records to insert into MPI at a time (max 100)
+    deduplicationInsertSize: 1000 # how many records to insert into deduplication db at a time
 
 kafka:
   topics:
