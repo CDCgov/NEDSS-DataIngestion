@@ -15,7 +15,9 @@ import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse.M
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
+import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupService;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +38,9 @@ class PatientMergeControllerTest {
 
   @InjectMocks
   private PatientMergeController patientMergeController;
+
+  @Mock
+  private MergeGroupService mergeGroupService;
 
   private MockMvc mockMvc;
 
@@ -168,6 +173,28 @@ class PatientMergeControllerTest {
             "111122","john smith","1990-01-01","2000-01-01",2
             "111133","Andrew James","1990-02-02","2000-02-02",4
             """.replace("\n", System.lineSeparator()))); // Ensures platform-independent line endings
+  }
+
+  @Test
+  void testExportMatchesAsPDF() throws Exception {
+    List<MatchRequiringReview> mockMatches = List.of(
+            new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
+            new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)
+    );
+
+    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+
+    // verify the interaction and status
+    mockMvc.perform(get("/merge/export/pdf"))
+            .andExpect(status().isOk());
+
+    verify(mergeGroupHandler).getAllMatchesRequiringReview();
+    verify(mergeGroupService).writeMatchesRequiringReviewPDF(
+            any(HttpServletResponse.class),
+            eq(mockMatches),
+            anyString(), // timestampForFilename
+            anyString()  // timestampForFooter
+    );
   }
 
   private MatchesRequireReviewResponse expectedMergeGroupResponse() {
