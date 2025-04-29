@@ -66,6 +66,32 @@ class AlgorithmMapperTest {
   }
 
   @Test
+  void should_map_bounds() {
+    Pass pass = new Pass(
+        1l,
+        "pass name",
+        "pass description",
+        true,
+        List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX),
+        List.of(
+            new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 1.0),
+            new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.6)),
+        6.5,
+        12.0);
+
+    List<Double> bounds = mapper.calculateBounds(pass, TestData.DATA_ELEMENTS);
+    // First name log odds = 9.0
+    // Last name logs odds = 4.0
+    // max log odds = 13.0
+    final double totalLogOdds = TestData.DATA_ELEMENTS.firstName().logOdds()
+        + TestData.DATA_ELEMENTS.lastName().logOdds();
+
+    // Record Linker expects 0.0 -> 1.0 instead of log odds score
+    assertThat(bounds.get(0)).isEqualTo(pass.lowerBound() / totalLogOdds);
+    assertThat(bounds.get(1)).isEqualTo(pass.upperBound() / totalLogOdds);
+  }
+
+  @Test
   void should_map_pass() {
     DibbsPass pass = mapper.mapPass(
         new Pass(
@@ -75,10 +101,10 @@ class AlgorithmMapperTest {
             true,
             List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX),
             List.of(
-                new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT),
-                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER)),
-            0.25,
-            0.90),
+                new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 1.0),
+                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.6)),
+            6.5,
+            12.0),
         TestData.DATA_ELEMENTS);
 
     assertThat(pass.blockingKeys()).isEqualTo(List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX));
@@ -93,12 +119,12 @@ class AlgorithmMapperTest {
         .hasToString("COMPARE_PROBABILISTIC_FUZZY_MATCH");
 
     assertThat(pass.rule()).isEqualTo(Rule.PROBABILISTIC);
-    assertThat(pass.matchWindow()).containsExactly(0.25, 0.90);
+    assertThat(pass.matchWindow()).containsExactly(0.5, .9230769230769231);
 
     assertThat(pass.kwargs().similarityMeasure()).isEqualTo(SimilarityMeasure.JAROWINKLER);
     assertThat(pass.kwargs().thresholds()).containsOnly(
-        entry(MatchingAttribute.FIRST_NAME.toString(), TestData.DATA_ELEMENTS.firstName().threshold()),
-        entry(MatchingAttribute.LAST_NAME.toString(), TestData.DATA_ELEMENTS.lastName().threshold()));
+        entry(MatchingAttribute.FIRST_NAME.toString(), 1.0),
+        entry(MatchingAttribute.LAST_NAME.toString(), 0.6));
 
     assertThat(pass.kwargs().logOdds()).containsOnly(
         entry(MatchingAttribute.FIRST_NAME.toString(), TestData.DATA_ELEMENTS.firstName().logOdds()),
