@@ -6,6 +6,7 @@ import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse.MatchRequiringReview;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
+import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupService;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/merge")
@@ -24,9 +28,12 @@ public class PatientMergeController {
 
   private final MergePatientHandler mergePatientsHandler;
 
-  public PatientMergeController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler) {
+  private final MergeGroupService mergeGroupService;
+
+  public PatientMergeController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler, MergeGroupService mergeGroupService) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergePatientsHandler = mergePatientsHandler;
+    this.mergeGroupService = mergeGroupService;
   }
 
   @GetMapping
@@ -86,5 +93,14 @@ public class PatientMergeController {
             match.numOfMatchingRecords());
       }
     }
+  }
+
+  @GetMapping(value = "/export/pdf", produces = "application/pdf")
+  public void exportMatchesAsPDF(HttpServletResponse response) throws IOException {
+    String timestampForFilename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
+    String timestampForFooter = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a"));
+
+    List<MatchRequiringReview> matches = mergeGroupHandler.getAllMatchesRequiringReview();
+    mergeGroupService.writeMatchesRequiringReviewPDF(response, matches, timestampForFilename, timestampForFooter);
   }
 }
