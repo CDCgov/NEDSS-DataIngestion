@@ -48,7 +48,7 @@ public class AlgorithmMapper {
 
     pass.matchingCriteria().forEach(m -> {
       DataElement dataElement = findDataElement(m.attribute(), dataElements);
-      thresholds.put(m.attribute().toString(), dataElement.threshold());
+      thresholds.put(m.attribute().toString(), m.threshold());
       logOdds.put(m.attribute().toString(), dataElement.logOdds());
     });
 
@@ -59,15 +59,33 @@ public class AlgorithmMapper {
             m.method().equals(MatchingMethod.EXACT) ? Func.EXACT : Func.FUZZY))
         .toList();
 
+    List<Double> bounds = calculateBounds(pass, dataElements);
+
     return new DibbsPass(
         pass.blockingCriteria(),
         evaluators,
         Rule.PROBABILISTIC,
-        List.of(pass.lowerBound(), pass.upperBound()),
+        bounds,
         new Kwargs(
             SimilarityMeasure.JAROWINKLER,
             thresholds,
             logOdds));
+  }
+
+  // Convert the the lower and upper bound from UI format (0 -> total log odds) to
+  // the format expected by RL (0.00 -> 1.00)
+  List<Double> calculateBounds(
+      Pass pass,
+      DataElements dataElements) {
+    final double totalLogOdds = pass.matchingCriteria()
+        .stream()
+        .mapToDouble(a -> findDataElement(a.attribute(), dataElements).logOdds())
+        .sum();
+
+    final double lowerBound = pass.lowerBound() / totalLogOdds;
+    final double upperBound = pass.upperBound() / totalLogOdds;
+
+    return List.of(lowerBound, upperBound);
   }
 
   DataElement findDataElement(MatchingAttribute matchingAttribute, DataElements dataElements) {
