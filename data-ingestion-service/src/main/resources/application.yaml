@@ -106,7 +106,7 @@ spring:
     group-id-ecr-cda: data-ingestion-group-ecr-cda
     group-id-dlt-manual: data-ingestion-group-dlt-manual
     consumer:
-      maxPollIntervalMs: 30000
+      maxPollIntervalMs: 300000
 
 kafka:
   consumer:

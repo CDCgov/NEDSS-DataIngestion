@@ -32,6 +32,9 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         return GsonUtil.GSON.fromJson(res, LocalUidModel.class);
     }
 
+    /**
+     * Transaction here for guarantee no race condition
+     * */
     @Transactional
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         return createNewLocalUid(localIdClass, gaApplied);

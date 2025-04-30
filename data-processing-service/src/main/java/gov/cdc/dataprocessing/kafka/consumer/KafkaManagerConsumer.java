@@ -1,17 +1,29 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import io.micrometer.core.instrument.util.NamedThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
@@ -42,48 +54,86 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
 
-
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
-
-    @Value("${kafka.topic.elr_health_case}")
-    private String healthCaseTopic = "elr_processing_public_health_case";
-
     @Value("${nbs.user}")
     private String nbsUser = "";
-
 
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
 
+    private final ExecutorService executorService;
+    private final TransactionTemplate transactionTemplate;
+
+
     public KafkaManagerConsumer(
             ManagerService managerService,
-            IAuthUserService authUserService) {
+            IAuthUserService authUserService,
+            ExecutorService executorService,
+            PlatformTransactionManager transactionManager
+            ) {
         this.managerService = managerService;
         this.authUserService = authUserService;
+        this.executorService = executorService;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+
 
     }
 
     @KafkaListener(
             topics = "${kafka.topic.elr_micro}",
-            containerFactory = "kafkaListenerContainerFactoryStep1"
+            containerFactory = "kafkaListenerContainerFactoryStep1",
+            batch = "true"
     )
-    public void handleMessage(String message, Acknowledgment acknowledgment) throws DataProcessingException {
-        Thread.startVirtualThread(() -> {
-            try {
-                var profile = authUserService.getAuthUserInfo(nbsUser);
+
+    public void handleMessage(List<String> messages, Acknowledgment acknowledgment) {
+        try {
+            AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+
+            for (String message : messages) {
+                Integer nbs = GSON.fromJson(message, Integer.class);
                 AuthUtil.setGlobalAuthUser(profile);
+                executorService.submit(() -> {
+                    try {
+                        managerService.processDistribution(nbs);
+                    } catch (DataProcessingConsumerException e) {
+                        log.error("Failed to process Kafka message: {}", e.getMessage());
+                    }
+                });
 
-                var nbs = GSON.fromJson(message, Integer.class);
-                managerService.processDistribution(nbs);
-
-                acknowledgment.acknowledge(); // Acknowledge only if successful
-            } catch (Exception e) {
-                log.error("KafkaManagerConsumer.handleMessage failed: {}", e.getMessage(), e);
-                // Optional: decide whether to manually nack, dead-letter, or retry
             }
-        });
+
+            acknowledgment.acknowledge();
+
+        } catch (Exception e) {
+            log.error("Failed to process Kafka message: {}", e.getMessage());
+            // Kafka will retry (no acknowledge)
+        }
+
+//        executorService.submit(() -> {
+//            try {
+//                AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+//
+//                for (String message : messages) {
+//                    transactionTemplate.executeWithoutResult(status -> {
+//                        Integer nbs = GSON.fromJson(message, Integer.class);
+//                        AuthUtil.setGlobalAuthUser(profile);
+//                        try {
+//                            managerService.processDistribution(nbs);
+//                        } catch (DataProcessingConsumerException e) {
+//                            log.error("Failed to process Kafka message: {}", e.getMessage());
+//                        }
+//                    });
+//                }
+//
+//                acknowledgment.acknowledge();
+//
+//            } catch (Exception e) {
+//                log.error("Failed to process Kafka message: {}", e.getMessage());
+//                // Kafka will retry (no acknowledge)
+//            }
+//        });
     }
 
-
 }
+
+
+

@@ -54,7 +54,7 @@ public class CustomNbsQuestionRepositoryImpl implements CustomNbsQuestionReposit
         // For Unit Test
     }
 
-    @Transactional
+    // @Transactional
     public  Collection<QuestionRequiredNnd> retrieveQuestionRequiredNnd(String formCd) {
         Query query = entityManager.createNativeQuery(NND_UI_META_DATA_BY_FORM_CODE);
         query.setParameter("investigationFormCode", formCd);

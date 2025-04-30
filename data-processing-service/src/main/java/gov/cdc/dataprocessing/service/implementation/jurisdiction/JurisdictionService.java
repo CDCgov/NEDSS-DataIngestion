@@ -53,7 +53,7 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 public class JurisdictionService implements IJurisdictionService {
     private static final Logger logger = LoggerFactory.getLogger(JurisdictionService.class); // NOSONAR
 
-    private StringBuilder detailError= null;
+    private StringBuilder detailError= new StringBuilder();
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final OrganizationRepositoryUtil organizationRepositoryUtil;
     private final JurisdictionParticipationRepository jurisdictionParticipationRepository;
@@ -309,7 +309,7 @@ public class JurisdictionService implements IJurisdictionService {
             }
         }
 
-        detailError= null;
+//        detailError= new StringBuilder();
         return map;
 
     }

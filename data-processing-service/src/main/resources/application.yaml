@@ -1,7 +1,8 @@
 server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#  Designated PORT Is 8082
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 info:
   app:
@@ -48,8 +49,8 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
-#  main:
-#    web-application-type: none
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
   cache:
@@ -100,7 +101,7 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    thread: ${KAFKA_THREAD:1}
+    thread: ${KAFKA_THREAD:2}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
