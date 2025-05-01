@@ -7,6 +7,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -159,6 +160,24 @@ class UnprocessedPersonReaderTest {
     assertThatThrownBy(spyReader::doReadPage)
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("Simulated failure");
+  }
+
+  @Test
+  void skipsReadingAndClearsResultsWhenExtraPageLimitIsReached() throws Exception {
+    setupReader(1, 1);
+    UnprocessedPersonReader spyReader = Mockito.spy(reader);
+
+    Field currentPhaseField = UnprocessedPersonReader.class.getDeclaredField("currentPhase");
+    currentPhaseField.setAccessible(true);
+    currentPhaseField.set(spyReader, UnprocessedPersonReader.ProcessingPhase.OLDER_THAN_PREVIOUS_DAY);
+
+    Field extraPagesReadField = UnprocessedPersonReader.class.getDeclaredField("extraPagesRead");
+    extraPagesReadField.setAccessible(true);
+    extraPagesReadField.setInt(spyReader, 1);
+
+    spyReader.doReadPage();
+
+    assertThat(spyReader.getPagesRead()).isEqualTo(1);
   }
 
 }

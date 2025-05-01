@@ -18,7 +18,7 @@ import org.springframework.util.CollectionUtils;
 public class UnprocessedPersonReader extends JdbcPagingItemReader<String> {
 
 
-  private enum ProcessingPhase {
+  enum ProcessingPhase {
     PREVIOUS_DAY,
     OLDER_THAN_PREVIOUS_DAY
   }
