@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -7,7 +8,10 @@ import java.util.concurrent.*;
 
 @Configuration
 public class KafkaThreadPoolConfig {
-
+    @Value("${feature.thread-pool-size}")
+    private Integer poolSize = 1;
+    @Value("${feature.thread-queue-size}")
+    private Integer queueSize = 1;
 //    @Bean
 //    public ExecutorService processingExecutor() {
 //        int cores = Runtime.getRuntime().availableProcessors();
@@ -27,12 +31,11 @@ public class KafkaThreadPoolConfig {
 
     @Bean
     public ExecutorService processingExecutor() {
-        int poolSize = 5; // Adjust based on CPU/throughput
-        int queueSize = 100;
 
+//        int availableCores = Runtime.getRuntime().availableProcessors();
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 poolSize,
-                poolSize,
+                poolSize * 2,
                 60L, TimeUnit.SECONDS, // allow idle cleanup
                 new LinkedBlockingQueue<>(queueSize),
                 Executors.defaultThreadFactory(),

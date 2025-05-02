@@ -102,6 +102,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
     thread: ${KAFKA_THREAD:10}
+    max-poll-record: ${KAFKA_MAX_POLL_RECORD:100}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
@@ -116,3 +117,5 @@ service:
 
 feature:
   jdbc-flag: ${JDBC_FLAG:true}
+  thread-pool-size: ${THREAD_POOL_SIZE:5}
+  thread-queue-size: ${THREAD_QUEUE_SIZE:100}
