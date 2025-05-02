@@ -116,6 +116,7 @@ service:
 #logging.level.org.apache.kafka.clients.consumer: DEBUG
 
 feature:
+  thread-enabled: ${THREAD_FLAG:false}
   jdbc-flag: ${JDBC_FLAG:true}
   thread-pool-size: ${THREAD_POOL_SIZE:5}
   thread-queue-size: ${THREAD_QUEUE_SIZE:100}

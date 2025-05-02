@@ -57,6 +57,10 @@ public class KafkaManagerConsumer {
     @Value("${nbs.user}")
     private String nbsUser = "";
 
+    @Value("${feature.thread-enabled}")
+    private boolean threadEnabled = false;
+
+
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
 
@@ -90,34 +94,32 @@ public class KafkaManagerConsumer {
             AuthUtil.setGlobalAuthUser(profile);
             for (String message : messages) {
 
+                if (threadEnabled) {
+                    while (true) {
+                        try {
+                            executorService.submit(() -> {
+                                try {
+                                    Integer nbs = GSON.fromJson(message, Integer.class);
+                                    managerService.processDistribution(nbs);
+                                } catch (DataProcessingConsumerException e) {
+                                    log.error("Failed to process Kafka message: {}", e.getMessage());
+                                }
+                            });
+                            System.gc();
 
-//                executorService.submit(() -> {
-//                    try {
-//                        Integer nbs = GSON.fromJson(message, Integer.class);
-//                        managerService.processDistribution(nbs);
-//                    } catch (DataProcessingConsumerException e) {
-//                        log.error("Failed to process Kafka message: {}", e.getMessage());
-//                    }
-//                });
-
-                while (true) {
-                    try {
-                        executorService.submit(() -> {
-                            try {
-                                Integer nbs = GSON.fromJson(message, Integer.class);
-                                managerService.processDistribution(nbs);
-                            } catch (DataProcessingConsumerException e) {
-                                log.error("Failed to process Kafka message: {}", e.getMessage());
-                            }
-                        });
-                        System.gc();
-
-                        break; // success, move to next message
-                    } catch (RejectedExecutionException e) {
-                        // Wait a short period to retry
-                        Thread.sleep(100); // small pause to let queue drain
+                            break; // success, move to next message
+                        } catch (RejectedExecutionException e) {
+                            // Wait a short period to retry
+                            Thread.sleep(100); // small pause to let queue drain
+                        }
                     }
                 }
+                else {
+                    Integer nbs = GSON.fromJson(message, Integer.class);
+                    managerService.processDistribution(nbs);
+                    System.gc();
+                }
+
 
             }
 
