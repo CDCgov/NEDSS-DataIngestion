@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -22,6 +23,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,6 +55,7 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
+    private static final Queue<Integer> pendingMessages = new ConcurrentLinkedQueue<>();
 
     @Value("${nbs.user}")
     private String nbsUser = "";
@@ -87,74 +90,110 @@ public class KafkaManagerConsumer {
             containerFactory = "kafkaListenerContainerFactoryStep1",
             batch = "true"
     )
-
     public void handleMessage(List<String> messages, Acknowledgment acknowledgment) {
         try {
             AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
+
             for (String message : messages) {
+                Integer nbs = GSON.fromJson(message, Integer.class);
+                pendingMessages.add(nbs);
+            }
+
+            acknowledgment.acknowledge();
+        } catch (Exception e) {
+            log.error("Failed to process Kafka message: {}", e.getMessage());
+            // Do not ack, Kafka will retry
+        }
+    }
+
+
+//    public void handleMessage(List<String> messages, Acknowledgment acknowledgment) {
+//        try {
+//            AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+//            AuthUtil.setGlobalAuthUser(profile);
+//            for (String message : messages) {
+//
+//                if (threadEnabled) {
+//                    while (true) {
+//                        try {
+//                            executorService.submit(() -> {
+//                                try {
+//                                    Integer nbs = GSON.fromJson(message, Integer.class);
+//                                    managerService.processDistribution(nbs);
+//                                } catch (DataProcessingConsumerException e) {
+//                                    log.error("Failed to process Kafka message: {}", e.getMessage());
+//                                }
+//                            });
+//                            System.gc();
+//
+//                            break; // success, move to next message
+//                        } catch (RejectedExecutionException e) {
+//                            // Wait a short period to retry
+//                            Thread.sleep(100); // small pause to let queue drain
+//                        }
+//                    }
+//                }
+//                else {
+//                    Integer nbs = GSON.fromJson(message, Integer.class);
+//                    managerService.processDistribution(nbs);
+//                    System.gc();
+//                }
+//
+//
+//            }
+//
+//            acknowledgment.acknowledge();
+//
+//        } catch (Exception e) {
+//            log.error("Failed to process Kafka message: {}", e.getMessage());
+//            // Kafka will retry (no acknowledge)
+//        }
+//    }
+
+
+    @Scheduled(fixedDelay = 30000) // every 1 min
+    public void processPendingMessages() {
+        if (pendingMessages.isEmpty()) return;
+
+        try {
+            AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+            AuthUtil.setGlobalAuthUser(profile);
+
+            while (!pendingMessages.isEmpty()) {
+                Integer nbs = pendingMessages.poll();
+                if (nbs == null) continue;
+
+                Runnable task = () -> {
+                    try {
+                        managerService.processDistribution(nbs);
+                    } catch (DataProcessingConsumerException e) {
+                        log.error("Failed to process: {}", e.getMessage());
+                        // Optionally re-add to queue or log to DLQ
+                    }
+                };
 
                 if (threadEnabled) {
                     while (true) {
                         try {
-                            executorService.submit(() -> {
-                                try {
-                                    Integer nbs = GSON.fromJson(message, Integer.class);
-                                    managerService.processDistribution(nbs);
-                                } catch (DataProcessingConsumerException e) {
-                                    log.error("Failed to process Kafka message: {}", e.getMessage());
-                                }
-                            });
-                            System.gc();
-
-                            break; // success, move to next message
+                            executorService.submit(task);
+                            break;
                         } catch (RejectedExecutionException e) {
-                            // Wait a short period to retry
-                            Thread.sleep(100); // small pause to let queue drain
+                            Thread.sleep(100); // backoff if thread pool is saturated
                         }
                     }
+                } else {
+                    task.run();
+                    System.gc(); // If necessary, else remove
                 }
-                else {
-                    Integer nbs = GSON.fromJson(message, Integer.class);
-                    managerService.processDistribution(nbs);
-                    System.gc();
-                }
-
-
             }
 
-            acknowledgment.acknowledge();
-
         } catch (Exception e) {
-            log.error("Failed to process Kafka message: {}", e.getMessage());
-            // Kafka will retry (no acknowledge)
+            log.error("Scheduled processing failed: {}", e.getMessage());
+        } finally {
+            System.gc(); // If necessary, else remove
         }
-
-//        executorService.submit(() -> {
-//            try {
-//                AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
-//
-//                for (String message : messages) {
-//                    transactionTemplate.executeWithoutResult(status -> {
-//                        Integer nbs = GSON.fromJson(message, Integer.class);
-//                        AuthUtil.setGlobalAuthUser(profile);
-//                        try {
-//                            managerService.processDistribution(nbs);
-//                        } catch (DataProcessingConsumerException e) {
-//                            log.error("Failed to process Kafka message: {}", e.getMessage());
-//                        }
-//                    });
-//                }
-//
-//                acknowledgment.acknowledge();
-//
-//            } catch (Exception e) {
-//                log.error("Failed to process Kafka message: {}", e.getMessage());
-//                // Kafka will retry (no acknowledge)
-//            }
-//        });
     }
-
 }
 
 
