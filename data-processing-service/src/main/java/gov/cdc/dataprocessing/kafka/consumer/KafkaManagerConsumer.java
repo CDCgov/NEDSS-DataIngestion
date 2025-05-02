@@ -87,17 +87,37 @@ public class KafkaManagerConsumer {
     public void handleMessage(List<String> messages, Acknowledgment acknowledgment) {
         try {
             AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
-
+            AuthUtil.setGlobalAuthUser(profile);
             for (String message : messages) {
-                Integer nbs = GSON.fromJson(message, Integer.class);
-                AuthUtil.setGlobalAuthUser(profile);
-                executorService.submit(() -> {
+
+
+//                executorService.submit(() -> {
+//                    try {
+//                        Integer nbs = GSON.fromJson(message, Integer.class);
+//                        managerService.processDistribution(nbs);
+//                    } catch (DataProcessingConsumerException e) {
+//                        log.error("Failed to process Kafka message: {}", e.getMessage());
+//                    }
+//                });
+
+                while (true) {
                     try {
-                        managerService.processDistribution(nbs);
-                    } catch (DataProcessingConsumerException e) {
-                        log.error("Failed to process Kafka message: {}", e.getMessage());
+                        executorService.submit(() -> {
+                            try {
+                                Integer nbs = GSON.fromJson(message, Integer.class);
+                                managerService.processDistribution(nbs);
+                            } catch (DataProcessingConsumerException e) {
+                                log.error("Failed to process Kafka message: {}", e.getMessage());
+                            }
+                        });
+                        System.gc();
+
+                        break; // success, move to next message
+                    } catch (RejectedExecutionException e) {
+                        // Wait a short period to retry
+                        Thread.sleep(100); // small pause to let queue drain
                     }
-                });
+                }
 
             }
 

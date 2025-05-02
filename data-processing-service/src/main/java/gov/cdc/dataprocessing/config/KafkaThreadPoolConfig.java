@@ -8,20 +8,38 @@ import java.util.concurrent.*;
 @Configuration
 public class KafkaThreadPoolConfig {
 
+//    @Bean
+//    public ExecutorService processingExecutor() {
+//        int cores = Runtime.getRuntime().availableProcessors();
+//        int poolSize = 100;//cores * 2; // or higher if needed
+//        int queueSize = 100;
+//
+//        return new ThreadPoolExecutor(
+//                poolSize,
+//                poolSize,
+//                60L, TimeUnit.SECONDS, // threads will be cleaned up after 60s idle
+//                new LinkedBlockingQueue<>(queueSize),
+//                Executors.defaultThreadFactory(),
+//                new ThreadPoolExecutor.CallerRunsPolicy()
+//        );
+//    }
+
+
     @Bean
     public ExecutorService processingExecutor() {
-        int cores = Runtime.getRuntime().availableProcessors();
-        int poolSize = 5;//cores * 2; // or higher if needed
-        int queueSize = 5;
+        int poolSize = 5; // Adjust based on CPU/throughput
+        int queueSize = 100;
 
-        return new ThreadPoolExecutor(
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 poolSize,
                 poolSize,
-                0L, TimeUnit.MILLISECONDS,
+                60L, TimeUnit.SECONDS, // allow idle cleanup
                 new LinkedBlockingQueue<>(queueSize),
                 Executors.defaultThreadFactory(),
-                new ThreadPoolExecutor.CallerRunsPolicy()
+                new ThreadPoolExecutor.CallerRunsPolicy() // back-pressure
         );
+        executor.allowCoreThreadTimeOut(true);
+        return executor;
     }
 }
 

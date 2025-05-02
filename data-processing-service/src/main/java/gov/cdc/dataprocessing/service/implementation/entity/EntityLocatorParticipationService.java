@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityLocatorJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
@@ -52,6 +53,9 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     @Value("${service.timezone}")
     private String tz = "UTC";
 
+    @Value("${feature.jdbc-flag}")
+    private boolean jdbcFlag = true;
+
     private final PersonRepository personRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final TeleLocatorRepository teleLocatorRepository;
@@ -59,12 +63,15 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     private final PhysicalLocatorRepository physicalLocatorRepository;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final DataModifierReposJdbc dataModifierReposJdbc;
+    private final EntityLocatorJdbcRepository entityLocatorJdbcRepository;
     public EntityLocatorParticipationService(PersonRepository personRepository,
                                              EntityLocatorParticipationRepository entityLocatorParticipationRepository,
                                              TeleLocatorRepository teleLocatorRepository,
                                              PostalLocatorRepository postalLocatorRepository,
                                              PhysicalLocatorRepository physicalLocatorRepository,
-                                             IOdseIdGeneratorWCacheService odseIdGeneratorService, DataModifierReposJdbc dataModifierReposJdbc) {
+                                             IOdseIdGeneratorWCacheService odseIdGeneratorService,
+                                             DataModifierReposJdbc dataModifierReposJdbc,
+                                             EntityLocatorJdbcRepository entityLocatorJdbcRepository) {
         this.personRepository = personRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
         this.teleLocatorRepository = teleLocatorRepository;
@@ -72,6 +79,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.physicalLocatorRepository = physicalLocatorRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.dataModifierReposJdbc = dataModifierReposJdbc;
+        this.entityLocatorJdbcRepository = entityLocatorJdbcRepository;
     }
 
     @SuppressWarnings({"java:S3776", "java:S125"})
@@ -390,20 +398,35 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
             if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
                 entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
+                if (jdbcFlag) {
+                    entityLocatorJdbcRepository.createPhysicalLocator(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
+                }
+                else {
+                    physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
+                }
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                     && entityLocatorParticipationDto.getThePostalLocatorDto() != null
 //                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null
             ) {
                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+                if (jdbcFlag) {
+                    entityLocatorJdbcRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));;
+                }
+                else {
+                    postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+                }
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
                     && entityLocatorParticipationDto.getTheTeleLocatorDto() != null
             && entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt() != null) {
                 entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
+                if (jdbcFlag) {
+                    entityLocatorJdbcRepository.createTeleLocator(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
+                }
+                else {
+                    teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
+                }
                 inserted = true;
             }
 
@@ -414,7 +437,13 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
                     entityLocatorParticipationDto.setVersionCtrlNbr(1);
                 }
-                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
+
+                if (jdbcFlag) {
+                    entityLocatorJdbcRepository.createEntityLocatorParticipation(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
+                }
+                else {
+                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
+                }
             }
 
         }

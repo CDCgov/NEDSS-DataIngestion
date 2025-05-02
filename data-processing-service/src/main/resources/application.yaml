@@ -79,13 +79,13 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
-      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
-      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
-      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
-      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+      maximum-pool-size: ${HIKARI_POOL_SIZE:80}               # Increase for higher parallelism (adjust per CPU & DB limits)
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:0}                  # Let unused connections be removed
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:30000}              # Close idle connections quickly (30s)
+      connection-timeout: ${HIKARI_CON_TIMEOUT:30000}         # Fail fast if no connection within 30s
+      max-lifetime: ${HIKARI_MAX_LIFETIME:300000}             # Retire connections after 5 minutes (avoid stale connections)
       pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
-      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:20000}  # Log warnings if connection not returned in 20s (debug leaks)
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -101,7 +101,7 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    thread: ${KAFKA_THREAD:2}
+    thread: ${KAFKA_THREAD:10}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
@@ -113,3 +113,6 @@ spring:
 service:
   timezone: ${SERVICE_TZ:UTC}
 #logging.level.org.apache.kafka.clients.consumer: DEBUG
+
+feature:
+  jdbc-flag: ${JDBC_FLAG:true}
