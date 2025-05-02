@@ -15,6 +15,9 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Eip;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Prl;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Observation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
@@ -501,10 +504,14 @@ public class KafkaConsumerService {
             if (validatedELRModel.isEmpty()) {
                 throw new XmlConversionException("Message Not Found in Validated");
             }
-            var statusCheck = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
-            if (statusCheck.isPresent() && statusCheck.get().getNbsInterfaceUid() != null) {
-                logger.info("Kafka Rebalancing Error Hit");
-                return;
+            List<ReportStatusIdData> statusList = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
+            if (statusList!=null && !statusList.isEmpty()) {
+                for(ReportStatusIdData reportStatusIdData:statusList){
+                    if(reportStatusIdData.getNbsInterfaceUid() != null){
+                        logger.info("Kafka Rebalancing Error Hit");
+                        return;
+                    }
+                }
             }
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
                 Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(rawElrId);
@@ -522,11 +529,12 @@ public class KafkaConsumerService {
             }
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
 
-            HL7ParsedMessage<OruR1> parsedMessage = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
-            List<String> phdcXmlList= createPhdcXmlsFromSplitELR(parsedMessage,rawElrId);
-            for(String phdcXml:phdcXmlList) {
+            HL7ParsedMessage<OruR1> parsedMessageOrig = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
+            List<HL7ParsedMessage<OruR1>> parsedMessageList= createPhdcXmlsFromSplitELR(parsedMessageOrig);
+            for(HL7ParsedMessage<OruR1> parsedMessageNew:parsedMessageList) {
+                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageNew);
                 log.debug("phdcXml: {}", phdcXml);
-                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessage, dataProcessingApplied);
+                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessageNew, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
@@ -561,7 +569,6 @@ public class KafkaConsumerService {
             e.printStackTrace(pw);
             String stackTrace = sw.toString();
 
-
             var msg =  e.getMessage();
             // Handle any exceptions here
             kafkaProducerService.sendMessageDlt(
@@ -570,8 +577,8 @@ public class KafkaConsumerService {
             );
         }
     }
-    private List<String> createPhdcXmlsFromSplitELR(HL7ParsedMessage<OruR1> parsedMessageOrig,String rawElrId) throws JAXBException, XmlConversionException, IOException {
-        List<String> phdcXmlList=new ArrayList<>();
+    private List<HL7ParsedMessage<OruR1>> createPhdcXmlsFromSplitELR(HL7ParsedMessage<OruR1> parsedMessageOrig) throws JAXBException, XmlConversionException, IOException {
+        List<HL7ParsedMessage<OruR1>> parsedMessageList=new ArrayList<>();
 
         OruR1 oruR1= parsedMessageOrig.getParsedMessage();
         List<PatientResult> patientResultList=oruR1.getPatientResult();
@@ -579,39 +586,40 @@ public class KafkaConsumerService {
         List<OrderObservation> obrList=patientResultList.get(0).getOrderObservation();
 
         if(obrList !=null && obrList.size()>1){
-            List<OruR1> newElrList=new ArrayList<>();
-
+            log.debug("Multiple OBRs exist.");
+            CommonOrder commonOrderFromFirstOBR=null;
             for(OrderObservation orderObservation: obrList){
-                //System.out.println("obr number before set :"+orderObservation.getObservationRequest().getSetIdObr());
                 orderObservation.getObservationRequest().setSetIdObr("1");
-                //copy oruR1
-                Gson gson = new Gson();
-                OruR1 oruR1_copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
-                oruR1_copy.getPatientResult().get(0).setOrderObservation(Arrays.asList(orderObservation));
-                newElrList.add(oruR1_copy);
-            }
-            System.out.println(newElrList.size());
+                //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
+                if(commonOrderFromFirstOBR==null && orderObservation.getCommonOrder().getOrderControl()!=null){
+                    commonOrderFromFirstOBR= orderObservation.getCommonOrder();
+                }
+                if(orderObservation.getCommonOrder().getOrderControl()==null){
+                    orderObservation.setCommonOrder(commonOrderFromFirstOBR);
+                }
+                //remove ParentResult,Parent from ObservationRequest
+                orderObservation.getObservationRequest().setParent(new Eip());
+                orderObservation.getObservationRequest().setParentResult(new Prl());
 
-            for(OruR1 newOruR1:newElrList){
-                System.out.println("-----NEW XML CREATION....");
+                Gson gson = new Gson();
+                //copy and create new oruR1 obj from original message
+                OruR1 oruR1_copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
+                oruR1_copy.getPatientResult().get(0).setOrderObservation(List.of(orderObservation));
+
+                //create HL7ParsedMessage for xml creation
                 HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
-                //var genericParsedMessage = hl7StringParseHelperWithTerser(message);
-                //parsedMessage.setMessage(message);
-                parsedMessage.setParsedMessage(newOruR1);
+                parsedMessage.setParsedMessage(oruR1_copy);
                 parsedMessage.setType(parsedMessageOrig.getType());
                 parsedMessage.setEventTrigger(parsedMessageOrig.getEventTrigger());
                 parsedMessage.setOriginalVersion(parsedMessageOrig.getOriginalVersion());
-                String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessage);
-                phdcXmlList.add(rhapsodyXml);
-                System.out.println(rhapsodyXml);
-                System.out.println("//////////////");
+                parsedMessageList.add(parsedMessage);
             }
         }else{
-            System.out.println("--- inside ONE XML ----");
-            String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageOrig);
-            phdcXmlList.add(rhapsodyXml);
+            log.debug("Single OBR exist.");
+            parsedMessageList.add(parsedMessageOrig);
         }
-        return phdcXmlList;
+        log.debug("phdc xml list: {}", parsedMessageList.size());
+        return parsedMessageList;
     }
 
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {

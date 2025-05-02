@@ -50,10 +50,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -485,10 +482,13 @@ class KafkaConsumerServiceTest {
 
         when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
 
-        var rpt = new ReportStatusIdData();
+        ReportStatusIdData rpt = new ReportStatusIdData();
         rpt.setNbsInterfaceUid(1);
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(rpt);
+
         when(iReportStatusRepository.
-                findByRawMessageId(any())).thenReturn(Optional.of(rpt));
+                findByRawMessageId(any())).thenReturn(rptStatusIdDataList);
 
 
 

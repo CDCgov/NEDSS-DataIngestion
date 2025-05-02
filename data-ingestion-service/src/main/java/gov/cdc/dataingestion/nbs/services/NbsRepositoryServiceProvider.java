@@ -291,7 +291,8 @@ public class NbsRepositoryServiceProvider {
 
 		try {
 			if (specimenColDateStr != null) {
-				//Text '202408212230-0600'
+				//Need to find the correct format for the date string like '202408212230-0600'.Maybe the datetime is not in the correct format.
+				//Until then truncate the content after +/-.
 				if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("-")){
 					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("-"));
 				}else if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("+")){
