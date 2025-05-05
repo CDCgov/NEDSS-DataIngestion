@@ -97,7 +97,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
 
         String validFileExtns=getValidFileExtns(hl7FileExtns);
         logger.debug("HL7 Valid File Extns: {}", validFileExtns);
-        String fileTypeValidationCondition="${file:ext} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'";
+        String fileTypeValidationCondition="${file:name.ext.single} in ${variable.validFileExtns} && ${bodyAs(String).trim.length} != '0'";
         //Multiple sftp folders:"/,/ELRFiles,/ELRFiles/lab-1,/ELRFiles/lab-2"
         String[] ftpPaths=sftpFilePaths.split(",");
         int i=0;
@@ -122,7 +122,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
             //Download the file from sftp server.If the file is zip, it will be moved into files/tempZipFileDir directory.
             //If it's a text file, it will be moved to the folder files/tempTextFileDir, where all the files are temporarily stored.
             from(sftpServer).routeId("sftpRouteId_"+i)
-                    .log("The file from sftpRouteId: ${file:name}")
+                    .log("The file from sftpRouteId: ${file:name} and file extn: ${file:name.ext.single}")
                     .setVariable(VAR_VALID_FILE_EXTNS).constant(validFileExtns)
                     .choice()
                         .when(simple("${file:name} endsWith '.zip'"))
