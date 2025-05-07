@@ -110,7 +110,7 @@ public class MatchService {
             .body(LinkResponse.class);
   }
 
-  private LinkResponse sendLinkRequest(LinkRequest linkRequest) {
+  public LinkResponse sendLinkRequest(LinkRequest linkRequest) {
     return recordLinkageClient.post()
         .uri("/link")
         .contentType(MediaType.APPLICATION_JSON)
