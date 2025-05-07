@@ -57,10 +57,10 @@ public class MatchService {
     LinkRequest linkRequest = linkRequestMapper.map(request);
 
     // Send to RL
-    LinkResponse linkResponse = sendLinkRequest(linkRequest);
+    LinkResponse linkResponse = sendMatchRequest(linkRequest);
 
     if (linkResponse == null) {
-      throw new MatchException("Link response from Record Linkage is null");
+      throw new MatchException("Match response from Record Linkage is null");
     }
 
     // Handle response from RL and send response back to caller
@@ -100,6 +100,16 @@ public class MatchService {
     return new MatchResponse(null, MatchType.POSSIBLE, newLinkReponse);
   }
 
+  private LinkResponse sendMatchRequest(LinkRequest linkRequest) {
+    return recordLinkageClient.post()
+            .uri("/match")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(linkRequest)
+            .retrieve()
+            .body(LinkResponse.class);
+  }
+
   private LinkResponse sendLinkRequest(LinkRequest linkRequest) {
     return recordLinkageClient.post()
         .uri("/link")
@@ -129,30 +139,37 @@ public class MatchService {
   // Adds an entry to the deduplication database to relate the NBS person Ids to
   // the MPI person Ids
   public void relateNbsIdToMpiId(RelateRequest request) {
+    // Step 1: Build LinkRequest from mpiPerson (original match input)
+    LinkRequest linkRequest = new LinkRequest(request.mpiPerson());
+
+    // Step 2: Call /link to insert into MPI
+    LinkResponse linkResponse = sendLinkRequest(linkRequest);
+
+    if (linkResponse == null) {
+      throw new MatchException("Linking failed when inserting patient into MPI");
+    }
+
+    // Step 3: Insert into nbs_mpi_mapping
     boolean isPossibleMatch = request.matchType() == MatchType.POSSIBLE;
-    // If match type was possible, flag the record for review
-    String status = isPossibleMatch ? "R" : "P"; // Review, Processed
+    String status = isPossibleMatch ? "R" : "P";
 
     SqlParameterSource parameters = new MapSqlParameterSource()
-        .addValue("person_uid", request.nbsPerson())
-        .addValue("person_parent_uid", request.nbsPersonParent())
-        .addValue("mpi_patient", request.linkResponse().patient_reference_id())
-        .addValue("mpi_person", request.linkResponse().person_reference_id())
-        .addValue("status", status);
+            .addValue("person_uid", request.nbsPerson())
+            .addValue("person_parent_uid", request.nbsPersonParent())
+            .addValue("mpi_patient", linkResponse.patient_reference_id())
+            .addValue("mpi_person", linkResponse.person_reference_id())
+            .addValue("status", status);
     template.update(LINK_NBS_MPI_QUERY, parameters);
 
-    // If possible match, persist match options
-    if (isPossibleMatch) {
-      if (request.linkResponse().results() == null
-          || request.linkResponse().results().isEmpty()) {
-        throw new MatchException("Results specify possible match but no possible matches are returned");
-      }
-      request.linkResponse().results().forEach(r -> {
-        SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
-            .addValue("person_uid", request.nbsPerson())
-            .addValue("mpi_person_id", r.person_reference_id());
-        template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
+    // Step 4: Store possible matches
+    if (isPossibleMatch && linkResponse.results() != null) {
+      linkResponse.results().forEach(result -> {
+        SqlParameterSource matchParams = new MapSqlParameterSource()
+                .addValue("person_uid", request.nbsPerson())
+                .addValue("mpi_person_id", result.person_reference_id());
+        template.update(INSERT_POSSIBLE_MATCH, matchParams);
       });
     }
   }
+
 }

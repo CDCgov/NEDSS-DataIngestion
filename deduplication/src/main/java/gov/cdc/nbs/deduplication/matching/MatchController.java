@@ -22,7 +22,7 @@ public class MatchController {
 
   @PostMapping("/relate")
   public void relateNbsPatient(@RequestBody RelateRequest request) {
-    // NBS created a new person, associate it to the record in the MPI
+    // NBS created a new person, associate it to the record in the MPI, update link in MPI
     matchService.relateNbsIdToMpiId(request);
   }
 

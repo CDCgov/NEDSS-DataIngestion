@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -185,9 +186,96 @@ class MatchServiceTest {
 
   }
 
+  @Test
+  void testMatchEndpointIsCalled() {
+    PersonMatchRequest.PersonDto person = new PersonMatchRequest.PersonDto(
+            Timestamp.valueOf("1980-01-01 00:00:00"), // birthTime
+            "F", // sex
+            null // additional gender
+    );
+
+    List<PersonMatchRequest.PersonNameDto> names = List.of(
+            new PersonMatchRequest.PersonNameDto(
+                    "JOHN",    // fist name
+                    "MIDDLE",   // middle name
+                    "DOE",
+                    null
+            )
+    );
+
+    List<PersonMatchRequest.PersonRaceDto> races = List.of(
+            new PersonMatchRequest.PersonRaceDto(
+                    "1002-5" // raceCode
+            )
+    );
+
+    List<PersonMatchRequest.PostalLocatorDto> postalLocators = List.of(
+            new PersonMatchRequest.PostalLocatorDto(
+                    "123 Main St", // streetAddress
+                    "Suit 11",     // street address 2
+                    "Onionville",          // city
+                    "Onion",       // state
+                    "00000",           // zip
+                    null          // cty code
+            )
+    );
+
+    List<PersonMatchRequest.TeleLocatorDto> teleLocators = List.of(
+            new PersonMatchRequest.TeleLocatorDto(
+                    "5551234567"// phoneNumber
+            )
+    );
+
+    List<PersonMatchRequest.EntityIdDto> identifications = List.of(
+            new PersonMatchRequest.EntityIdDto(
+                    "123-45-6789", // idNumber
+                    "SSN",         // idType
+                    null           // assigningAuthority
+            )
+    );
+
+    PersonMatchRequest matchRequest = new PersonMatchRequest(
+            person,
+            names,
+            races,
+            postalLocators,
+            teleLocators,
+            identifications
+    );
+
+    LinkResponse linkResponse = new LinkResponse(
+            "pat-001",
+            "per-001",
+            "certain",
+            null);
+
+    // Set up the /match call
+    when(restClient.post()).thenReturn(uriSpec);
+    when(uriSpec.uri("/match")).thenReturn(bodySpec);
+    when(bodySpec.accept(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
+    when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
+    when(bodySpec.body(Mockito.any(LinkRequest.class))).thenReturn(bodySpec);
+    when(bodySpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.body(LinkResponse.class)).thenReturn(linkResponse);
+
+    // Mock the database response
+    when(template.queryForObject(
+            Mockito.anyString(),
+            Mockito.any(SqlParameterSource.class),
+            Mockito.eq(Long.class)))
+            .thenReturn(123L);
+
+    MatchResponse response = matchService.match(matchRequest);
+
+    assertThat(response.matchType()).isEqualTo(MatchType.EXACT);
+    assertThat(response.match()).isEqualTo(123L);
+    assertThat(response.linkResponse().person_reference_id()).isEqualTo("per-001");
+  }
+
+
   private void mockClientLinkCall(LinkResponse response) {
     when(restClient.post()).thenReturn(uriSpec);
-    when(uriSpec.uri("/link")).thenReturn(bodySpec);
+    when(uriSpec.uri("/match")).thenReturn(bodySpec);
     when(bodySpec.accept(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
     when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
     when(bodySpec.body(Mockito.any(LinkRequest.class))).thenReturn(bodySpec);
@@ -218,7 +306,8 @@ class MatchServiceTest {
             "patientRef",
             "personRef",
             "match",
-            null)));
+            null),
+            null));
 
     assertThat(captor.getAllValues()).hasSize(1);
     assertThat(captor.getValue().getValue("person_uid")).isEqualTo(1l);
@@ -248,7 +337,8 @@ class MatchServiceTest {
                 0.5,
                 0.3,
                 0.7,
-                "certain")))));
+                "certain"))),
+            null));
 
     List<SqlParameterSource> sqlParams = captor.getAllValues();
     assertThat(sqlParams).hasSize(2);
@@ -276,7 +366,8 @@ class MatchServiceTest {
         1l,
         1l,
         MatchType.POSSIBLE,
-        linkResponse);
+        linkResponse,
+    null);
     assertThrows(MatchException.class, () -> matchService.relateNbsIdToMpiId(request));
   }
 
@@ -292,7 +383,7 @@ class MatchServiceTest {
         1l,
         1l,
         MatchType.POSSIBLE,
-        linkResponse);
+        linkResponse, null);
     assertThrows(MatchException.class, () -> matchService.relateNbsIdToMpiId(request));
   }
 
