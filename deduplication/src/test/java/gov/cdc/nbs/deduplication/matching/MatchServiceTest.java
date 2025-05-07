@@ -1,13 +1,14 @@
 package gov.cdc.nbs.deduplication.matching;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ class MatchServiceTest {
 
   @Mock
   private RestClient restClient;
+
+  @Mock
+  private RestClient.RequestBodyUriSpec requestBodyUriSpec;
 
   @Mock
   private RequestBodyUriSpec uriSpec;
@@ -286,16 +290,6 @@ class MatchServiceTest {
     when(responseSpec.body(LinkResponse.class)).thenReturn(response);
   }
 
-  private void mockClientLinkCall(LinkResponse response) {
-    when(restClient.post()).thenReturn(uriSpec);
-    when(uriSpec.uri("/link")).thenReturn(bodySpec);
-    when(bodySpec.accept(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
-    when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
-    when(bodySpec.body(any(LinkRequest.class))).thenReturn(bodySpec);
-    when(bodySpec.retrieve()).thenReturn(responseSpec);
-    when(responseSpec.body(LinkResponse.class)).thenReturn(response);
-  }
-
   private void mockClientPatientUpdateCall(String patientId, CreatePersonResponse response) {
     when(restClient.post()).thenReturn(uriSpec);
     when(uriSpec.uri("/person")).thenReturn(bodySpec);
@@ -440,5 +434,32 @@ class MatchServiceTest {
         linkResponse, null);
     assertThrows(NullPointerException.class, () -> matchService.relateNbsIdToMpiId(request));
   }
+
+  @Test
+  void testRelateNbsIdToMpiId_shouldThrowMatchException_whenLinkResponseIsNull() {
+    // Given
+    // Mock the behavior of RestClient's post method
+    when(restClient.post()).thenReturn(requestBodyUriSpec);
+
+    // Create a RelateRequest where linkResponse is null
+    RelateRequest relateRequest = new RelateRequest(
+            1L, // NBS Person ID
+            1L, // NBS Parent ID
+            MatchType.EXACT, // Match Type
+            null, // Null Link Response for this test case
+            null // MpiPerson
+    );
+
+    // When & Then
+    // Assert that the correct exception is thrown
+    MatchException exception = assertThrows(MatchException.class, () -> {
+      matchService.relateNbsIdToMpiId(relateRequest);
+    });
+
+    // Verify the exception message
+    assertEquals("Linking failed when inserting patient into MPI", exception.getMessage());
+  }
+
+
 
 }
