@@ -18,7 +18,6 @@ import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Eip;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Prl;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Observation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
@@ -35,7 +34,6 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.kafka.common.errors.SerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +49,10 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -588,7 +583,9 @@ public class KafkaConsumerService {
         if(obrList !=null && obrList.size()>1){
             log.debug("Multiple OBRs exist.");
             CommonOrder commonOrderFromFirstOBR=null;
+            int i=0;
             for(OrderObservation orderObservation: obrList){
+                i++;
                 orderObservation.getObservationRequest().setSetIdObr("1");
                 //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
                 if(commonOrderFromFirstOBR==null && orderObservation.getCommonOrder().getOrderControl()!=null){
@@ -603,12 +600,16 @@ public class KafkaConsumerService {
 
                 Gson gson = new Gson();
                 //copy and create new oruR1 obj from original message
-                OruR1 oruR1_copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
-                oruR1_copy.getPatientResult().get(0).setOrderObservation(List.of(orderObservation));
-
+                OruR1 oruR1Copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
+                oruR1Copy.getPatientResult().get(0).setOrderObservation(List.of(orderObservation));
+                //make MessageControlIDs unique for every message created when OBRs are split out.
+                // ORUR01.MSH.MessageControlID
+                String msgControlId=oruR1Copy.getMessageHeader().getMessageControlId();
+                String newMsgControlId=msgControlId.substring(0,(msgControlId.length()/2)-3)+i+(i+1)+(i+2)+msgControlId.substring(msgControlId.length()/2,msgControlId.length());
+                oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
                 //create HL7ParsedMessage for xml creation
                 HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
-                parsedMessage.setParsedMessage(oruR1_copy);
+                parsedMessage.setParsedMessage(oruR1Copy);
                 parsedMessage.setType(parsedMessageOrig.getType());
                 parsedMessage.setEventTrigger(parsedMessageOrig.getEventTrigger());
                 parsedMessage.setOriginalVersion(parsedMessageOrig.getOriginalVersion());
