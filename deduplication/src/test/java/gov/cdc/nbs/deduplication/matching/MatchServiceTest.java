@@ -415,7 +415,7 @@ class MatchServiceTest {
         MatchType.POSSIBLE,
         linkResponse,
     null);
-    assertThrows(NullPointerException.class, () -> matchService.relateNbsIdToMpiId(request));
+    assertThrows(MatchException.class, () -> matchService.relateNbsIdToMpiId(request));
   }
 
   @Test
@@ -431,7 +431,7 @@ class MatchServiceTest {
         1l,
         MatchType.POSSIBLE,
         linkResponse, null);
-    assertThrows(NullPointerException.class, () -> matchService.relateNbsIdToMpiId(request));
+    assertThrows(MatchException.class, () -> matchService.relateNbsIdToMpiId(request));
   }
 
   @Test
