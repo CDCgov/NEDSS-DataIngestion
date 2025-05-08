@@ -23,52 +23,52 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
 @ExtendWith(MockitoExtension.class)
 class PassControllerTest {
 
-    @Mock
-    private PassService passService;
+  @Mock
+  private PassService passService;
 
-    @InjectMocks
-    private PassController controller;
-    private final Pass pass = new Pass(
-            null,
-            "pass 1",
-            "description 1",
-            true,
-            List.of(BlockingAttribute.ADDRESS),
-            List.of(
-                    new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT),
-                    new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER)),
-            0.52,
-            0.92);
+  @InjectMocks
+  private PassController controller;
+  private final Pass pass = new Pass(
+      null,
+      "pass 1",
+      "description 1",
+      true,
+      List.of(BlockingAttribute.ADDRESS),
+      List.of(
+          new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.7),
+          new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.8)),
+      0.52,
+      0.92);
 
-    private final Algorithm algorithm = new Algorithm(List.of(pass));
+  private final Algorithm algorithm = new Algorithm(List.of(pass));
 
-    @Test
-    void should_save_pass() {
-        when(passService.save(pass)).thenReturn(algorithm);
+  @Test
+  void should_save_pass() {
+    when(passService.save(pass)).thenReturn(algorithm);
 
-        Algorithm actual = controller.save(pass);
+    Algorithm actual = controller.save(pass);
 
-        assertThat(actual).isEqualTo(algorithm);
-        verify(passService, times(1)).save(pass);
-    }
+    assertThat(actual).isEqualTo(algorithm);
+    verify(passService, times(1)).save(pass);
+  }
 
-    @Test
-    void should_update_pass() {
-        when(passService.update(2l, pass)).thenReturn(algorithm);
+  @Test
+  void should_update_pass() {
+    when(passService.update(2l, pass)).thenReturn(algorithm);
 
-        Algorithm actual = controller.update(2l, pass);
+    Algorithm actual = controller.update(2l, pass);
 
-        assertThat(actual).isEqualTo(algorithm);
-        verify(passService, times(1)).update(2l, pass);
-    }
+    assertThat(actual).isEqualTo(algorithm);
+    verify(passService, times(1)).update(2l, pass);
+  }
 
-    @Test
-    void should_delete_pass() {
-        when(passService.delete(3l)).thenReturn(algorithm);
+  @Test
+  void should_delete_pass() {
+    when(passService.delete(3l)).thenReturn(algorithm);
 
-        Algorithm actual = controller.delete(3l);
+    Algorithm actual = controller.delete(3l);
 
-        assertThat(actual).isEqualTo(algorithm);
-        verify(passService, times(1)).delete(3);
-    }
+    assertThat(actual).isEqualTo(algorithm);
+    verify(passService, times(1)).delete(3);
+  }
 }

@@ -19,7 +19,7 @@ import gov.cdc.nbs.deduplication.seed.step.MpiReader;
 import gov.cdc.nbs.deduplication.seed.step.PersonReader;
 
 @Configuration
-public class JobConfig {
+public class SeedJobConfig {
 
   final PersonReader personReader;
   final SeedWriter seedWriter;
@@ -27,13 +27,13 @@ public class JobConfig {
   final MpiReader mpiReader;
   final DeduplicationWriter deduplicationWriter;
 
-  @Value("${batch.chunk.size.readNbsWriteToMpi:100}")
+  @Value("${deduplication.seed.mpiInsertSize:100}")
   private int step1ChunkSize;
 
-  @Value("${batch.chunk.size.readMpiWriteDeduplication:1000}")
+  @Value("${deduplication.seed.deduplicationInsertSize:1000}")
   private int step2ChunkSize;
 
-  public JobConfig(
+  public SeedJobConfig(
       final PersonReader personReader,
       final SeedWriter seedWriter,
       final MpiReader mpiReader,
@@ -47,8 +47,7 @@ public class JobConfig {
   @Bean("readNbsWriteToMpi")
   public Step step1(
       JobRepository jobRepository,
-      PlatformTransactionManager transactionManager
-  ) {
+      PlatformTransactionManager transactionManager) {
     return new StepBuilder("readNbsWriteToMpi", jobRepository)
         .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager)
         .reader(personReader)

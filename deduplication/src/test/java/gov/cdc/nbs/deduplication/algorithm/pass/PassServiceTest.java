@@ -65,8 +65,8 @@ class PassServiceTest {
             true,
             List.of(BlockingAttribute.ADDRESS),
             List.of(
-                    new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT),
-                    new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER)),
+                    new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.7),
+                    new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.8)),
             0.52,
             0.92);
 
@@ -142,8 +142,8 @@ class PassServiceTest {
                 true,
                 List.of(BlockingAttribute.SEX),
                 List.of(
-                        new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT),
-                        new MatchingAttributeEntry(MatchingAttribute.BIRTHDATE, MatchingMethod.EXACT)),
+                        new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.77),
+                        new MatchingAttributeEntry(MatchingAttribute.BIRTHDATE, MatchingMethod.EXACT, 0.9)),
                 0.52,
                 0.92));
 
@@ -209,8 +209,8 @@ class PassServiceTest {
                 false,
                 List.of(BlockingAttribute.BIRTHDATE),
                 List.of(
-                        new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT),
-                        new MatchingAttributeEntry(MatchingAttribute.PHONE, MatchingMethod.EXACT)),
+                        new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.8),
+                        new MatchingAttributeEntry(MatchingAttribute.PHONE, MatchingMethod.EXACT, 1.0)),
                 0.52,
                 0.92);
         Algorithm actual = service.update(1l, updatedPass);
@@ -259,8 +259,9 @@ class PassServiceTest {
                         true,
                         List.of(BlockingAttribute.ADDRESS),
                         List.of(
-                                new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT),
-                                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER)),
+                                new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.45),
+                                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER,
+                                        0.32)),
                         0.52,
                         0.92));
         passes.add(
@@ -271,7 +272,7 @@ class PassServiceTest {
                         true,
                         List.of(BlockingAttribute.BIRTHDATE),
                         List.of(
-                                new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT)),
+                                new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.88)),
                         0.52,
                         0.92));
         Algorithm algorithmWithTwoPasses = new Algorithm(passes);

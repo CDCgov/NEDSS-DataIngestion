@@ -19,8 +19,6 @@ import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,7 +29,6 @@ import java.util.List;
 
 @Service
 public class PatientMatchingService extends PatientMatchingBaseService implements IPatientMatchingService {
-  private static final Logger logger = LoggerFactory.getLogger(PatientMatchingService.class); // NOSONAR
 
   private final boolean modernizedMatchingEnabled;
   private final DeduplicationService deduplicationService;

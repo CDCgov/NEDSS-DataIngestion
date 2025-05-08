@@ -4,16 +4,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.duplicates.model.MatchesRequireReviewResponse.MatchRequiringReview;
 import gov.cdc.nbs.deduplication.duplicates.model.MergePatientRequest;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupHandler;
+import gov.cdc.nbs.deduplication.duplicates.service.MergeGroupService;
 import gov.cdc.nbs.deduplication.duplicates.service.MergePatientHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +38,9 @@ class PatientMergeControllerTest {
 
   @InjectMocks
   private PatientMergeController patientMergeController;
+
+  @Mock
+  private MergeGroupService mergeGroupService;
 
   private MockMvc mockMvc;
 
@@ -134,6 +141,62 @@ class PatientMergeControllerTest {
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
   }
 
+  @Test
+  void testGetPotentialMatchesDetails() throws Exception {
+    long patientId = 123L;
+    List<PersonMergeData> mockResponse = expectedPersonMergeData();
+
+    when(mergeGroupHandler.getPotentialMatchesDetails(patientId)).thenReturn(mockResponse);
+
+    // Act & Assert
+    mockMvc.perform(get("/merge/{patientId}", patientId))
+        .andExpect(status().isOk())
+        .andExpect(content().json(expectedPersonMergeDataJson()));
+
+    verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
+  }
+
+  @Test
+  void testExportMatchesAsCSV() throws Exception {
+    List<MatchRequiringReview> mockMatches = Arrays.asList(
+        new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
+        new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4));
+
+    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+
+    mockMvc.perform(get("/merge/export/csv"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("text/csv"))
+        .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
+        .andExpect(content().string("""
+            Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records
+            "111122","john smith","1990-01-01","2000-01-01",2
+            "111133","Andrew James","1990-02-02","2000-02-02",4
+            """.replace("\n", System.lineSeparator()))); // Ensures platform-independent line endings
+  }
+
+  @Test
+  void testExportMatchesAsPDF() throws Exception {
+    List<MatchRequiringReview> mockMatches = List.of(
+            new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
+            new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)
+    );
+
+    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+
+    // verify the interaction and status
+    mockMvc.perform(get("/merge/export/pdf"))
+            .andExpect(status().isOk());
+
+    verify(mergeGroupHandler).getAllMatchesRequiringReview();
+    verify(mergeGroupService).writeMatchesRequiringReviewPDF(
+            any(HttpServletResponse.class),
+            eq(mockMatches),
+            anyString(), // timestampForFilename
+            anyString()  // timestampForFooter
+    );
+  }
+
   private MatchesRequireReviewResponse expectedMergeGroupResponse() {
     return new MatchesRequireReviewResponse(
         Arrays.asList(
@@ -145,26 +208,152 @@ class PatientMergeControllerTest {
   private String expectedMergeGroupResponseJson() {
     return """
         {
-          "matches": [
-            {
-              "patientId": "111122",
-              "patientName": "john smith",
-              "createdDate": "1990-01-01",
-              "identifiedDate": "2000-01-01",
-              "numOfMatchingRecords": 2
+           "matches": [
+             {
+               "patientId": "111122",
+               "patientName": "john smith",
+               "createdDate": "1990-01-01",
+               "identifiedDate": "2000-01-01",
+               "numOfMatchingRecords": 2
+             },
+             {
+               "patientId": "111133",
+               "patientName": "Andrew James",
+               "createdDate": "1990-02-02",
+               "identifiedDate": "2000-02-02",
+               "numOfMatchingRecords": 4
+             }
+           ],
+           "page": 0,
+           "total": 2
+         }
+         """;
+  }
+
+  private List<PersonMergeData> expectedPersonMergeData() {
+    return List.of(
+        new PersonMergeData(
+            "2023-01-01", // commentDate
+            "test comment", // adminComments
+            new PersonMergeData.Ethnicity( // Ethnicity
+                "2023-01-01",
+                "Hispanic or Latino",
+                "Yes",
+                "Unknown"
+            ),
+            new PersonMergeData.SexAndBirth( // Sex & Birth
+                "2023-02-01",
+                "1990-01-01T00:00:00Z",
+                "M",
+                "Not applicable",
+                "",
+                "Male",
+                true,
+                1,
+                "12345",
+                "GA",
+                "US",
+                "Male"
+            ),
+            new PersonMergeData.Mortality( // Mortality
+                "2023-03-01",
+                "Y",
+                "2023-04-01T00:00:00Z",
+                "Atlanta",
+                "Georgia",
+                "Fulton",
+                "US"
+            ),
+            new PersonMergeData.GeneralPatientInformation(
+                "2023-05-01",
+                "Married",
+                "Jane Doe",
+                2,
+                1,
+                "Engineer",
+                "Bachelor's Degree",
+                "English",
+                "Y",
+                "123456789"
+            ),
+            List.of( // Investigations
+                new PersonMergeData.Investigation("1", "2023-06-01T00:00:00Z", "Condition A"),
+                new PersonMergeData.Investigation("2", "2023-07-01T00:00:00Z", "Condition B")
+            ),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList()));
+  }
+
+  private String expectedPersonMergeDataJson() {
+    return """
+        [
+          {
+            "commentDate": "2023-01-01",
+            "adminComments": "test comment",
+            "ethnicity": {
+              "asOfDate": "2023-01-01",
+              "ethnicGroupDescription": "Hispanic or Latino",
+              "spanishOrigin": "Yes",
+              "ethnicUnknownReason": "Unknown"
             },
-            {
-              "patientId": "111133",
-              "patientName": "Andrew James",
-              "createdDate": "1990-02-02",
-              "identifiedDate": "2000-02-02",
-              "numOfMatchingRecords": 4
-            }
-          ],
-          "page": 0,
-          "total": 2
-        }
-                """;
+            "sexAndBirth": {
+              "asOfDate": "2023-02-01",
+              "birthTime": "1990-01-01T00:00:00Z",
+              "currentSexCode": "M",
+              "sexUnknownReason": "Not applicable",
+              "additionalGenderCode": "",
+              "birthGenderCode": "Male",
+              "multipleBirthIndicator": true,
+              "birthOrderNumber": 1,
+              "birthCityCode": "12345",
+              "birthStateCode": "GA",
+              "birthCountryCode": "US",
+              "preferredGender": "Male"
+            },
+            "mortality": {
+              "asOfDate": "2023-03-01",
+              "deceasedIndicatorCode": "Y",
+              "deceasedTime": "2023-04-01T00:00:00Z",
+              "deathCity": "Atlanta",
+              "deathState": "Georgia",
+              "deathCounty": "Fulton",
+              "deathCountry": "US"
+            },
+            "generalPatientInformation": {
+              "asOfDate": "2023-05-01",
+              "maritalStatusDescription": "Married",
+              "mothersMaidenName": "Jane Doe",
+              "adultsInHouseholdNumber": 2,
+              "childrenInHouseholdNumber": 1,
+              "occupationCode": "Engineer",
+              "educationLevelDescription": "Bachelor's Degree",
+              "primaryLanguageDescription": "English",
+              "speaksEnglishCode": "Y",
+              "stateHivCaseId": "123456789"
+            },
+            "investigations": [
+              {
+                "investigationId": "1",
+                "startedOn": "2023-06-01T00:00:00Z",
+                "condition": "Condition A"
+              },
+              {
+                "investigationId": "2",
+                "startedOn": "2023-07-01T00:00:00Z",
+                "condition": "Condition B"
+              }
+            ],
+            "address": [],
+            "telecom": [],
+            "name": [],
+            "identifiers": [],
+            "race": []
+          }
+        ]
+        """;
   }
 
 }

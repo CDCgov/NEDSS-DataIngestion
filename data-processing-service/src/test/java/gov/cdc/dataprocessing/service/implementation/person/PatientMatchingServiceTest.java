@@ -104,8 +104,15 @@ class PatientMatchingServiceTest {
                 new LinkResponse(
                         "pat_ref_id",
                         "person_ref_id",
-                        "match",
-                        List.of(new Results("pers_ref", 1.0)))));
+                        "certain",
+                        List.of(
+                          new Results("pers_ref",
+                          0.5,
+                          "pass label",
+                          0.5,
+                          0.3,
+                          0.7,
+                          "certain")))));
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");

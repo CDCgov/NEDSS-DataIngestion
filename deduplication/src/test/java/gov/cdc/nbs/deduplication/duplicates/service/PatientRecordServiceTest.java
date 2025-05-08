@@ -5,7 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.duplicates.mapper.PersonMergeDataMapper;
 import gov.cdc.nbs.deduplication.duplicates.model.PatientNameAndTimeDTO;
+import gov.cdc.nbs.deduplication.duplicates.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.junit.jupiter.api.Test;
@@ -125,12 +127,47 @@ class PatientRecordServiceTest {
     assertThat(expectedFullName).isEqualTo(result.fullName());
   }
 
+  @Test
+  void fetchPersonsMergeData_ReturnsListOfPersonMergeData() {
+    List<String> personUids = Arrays.asList("123", "456");
+    PersonMergeData person1 = getPersonMergeData();
+    PersonMergeData person2 = getPersonMergeData();
+    List<PersonMergeData> expectedPersons = Arrays.asList(person1, person2);
+
+    when(namedParameterJdbcTemplate.query(
+        eq(QueryConstants.PERSONS_MERGE_DATA_BY_PERSON_IDS),
+        any(MapSqlParameterSource.class),
+        any(PersonMergeDataMapper.class)
+    )).thenReturn(expectedPersons);
+
+    List<PersonMergeData> actualPersons = patientRecordService.fetchPersonsMergeData(personUids);
+
+    assertThat(actualPersons).isEqualTo(expectedPersons);
+  }
+
 
   private ResultSet mockResultSetForPatientNameAndAddTime(LocalDateTime addTime, String fullName) throws SQLException {
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getTimestamp("add_time")).thenReturn(Timestamp.valueOf(addTime));
     when(resultSet.getString("full_name")).thenReturn(fullName);
     return resultSet;
+  }
+
+  private PersonMergeData getPersonMergeData() {
+    return new PersonMergeData(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
   }
 
 

@@ -9,24 +9,29 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 
+import gov.cdc.nbs.deduplication.duplicates.step.UnprocessedPersonReader;
 
 @ExtendWith(MockitoExtension.class)
 class TestControllerTest {
 
   @Mock
-  private JobLauncher jobLauncher;
+  private TaskExecutorJobLauncher jobLauncher;
+
+  @Mock
+  private UnprocessedPersonReader personReader;
 
   @Mock
   private Job deduplicationJob;
 
   @InjectMocks
-  private TestController testController;
+  private BatchController testController;
 
   @Test
   void testBatchJob() throws Exception {
-    testController.testBatchJob();
+    testController.start();
+    verify(personReader, times(1)).resetPagesRead();
     verify(jobLauncher, times(1)).run(eq(deduplicationJob), any(JobParameters.class));
   }
 

@@ -10,12 +10,11 @@ import java.util.UUID;
 public record MatchResponse(
     @JsonProperty("prediction") Prediction prediction,
     @JsonProperty("person_reference_id") UUID personReferenceId,
-    @JsonProperty("results") List<LinkResult> results
-) {
+    @JsonProperty("results") List<LinkResult> results) {
   public enum Prediction {
-    MATCH("match"),
-    POSSIBLE_MATCH("possible_match"),
-    NO_MATCH("no_match");
+    MATCH("certain"),
+    POSSIBLE_MATCH("possible"),
+    NO_MATCH("certainly-not");
 
     private final String value;
 
