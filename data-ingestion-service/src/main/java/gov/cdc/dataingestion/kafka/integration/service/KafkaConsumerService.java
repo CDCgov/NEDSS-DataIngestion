@@ -28,6 +28,7 @@ import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.share.helper.ElrSplitter;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -525,10 +526,11 @@ public class KafkaConsumerService {
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
 
             HL7ParsedMessage<OruR1> parsedMessageOrig = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
-            List<HL7ParsedMessage<OruR1>> parsedMessageList= createPhdcXmlsFromSplitELR(parsedMessageOrig);
+            List<HL7ParsedMessage<OruR1>> parsedMessageList= splitElrByOBR(parsedMessageOrig);
             for(HL7ParsedMessage<OruR1> parsedMessageNew:parsedMessageList) {
                 String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageNew);
                 log.debug("phdcXml: {}", phdcXml);
+                System.out.println("phdcXml: " + phdcXml);
                 NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessageNew, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
@@ -572,54 +574,9 @@ public class KafkaConsumerService {
             );
         }
     }
-    private List<HL7ParsedMessage<OruR1>> createPhdcXmlsFromSplitELR(HL7ParsedMessage<OruR1> parsedMessageOrig) throws JAXBException, XmlConversionException, IOException {
-        List<HL7ParsedMessage<OruR1>> parsedMessageList=new ArrayList<>();
-
-        OruR1 oruR1= parsedMessageOrig.getParsedMessage();
-        List<PatientResult> patientResultList=oruR1.getPatientResult();
-        //Take OBR list from the original ELR
-        List<OrderObservation> obrList=patientResultList.get(0).getOrderObservation();
-
-        if(obrList !=null && obrList.size()>1){
-            log.debug("Multiple OBRs exist.");
-            CommonOrder commonOrderFromFirstOBR=null;
-            int i=0;
-            for(OrderObservation orderObservation: obrList){
-                i++;
-                orderObservation.getObservationRequest().setSetIdObr("1");
-                //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
-                if(commonOrderFromFirstOBR==null && orderObservation.getCommonOrder().getOrderControl()!=null){
-                    commonOrderFromFirstOBR= orderObservation.getCommonOrder();
-                }
-                if(orderObservation.getCommonOrder().getOrderControl()==null){
-                    orderObservation.setCommonOrder(commonOrderFromFirstOBR);
-                }
-                //remove ParentResult,Parent from ObservationRequest
-                orderObservation.getObservationRequest().setParent(new Eip());
-                orderObservation.getObservationRequest().setParentResult(new Prl());
-
-                Gson gson = new Gson();
-                //copy and create new oruR1 obj from original message
-                OruR1 oruR1Copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
-                oruR1Copy.getPatientResult().get(0).setOrderObservation(List.of(orderObservation));
-                //make MessageControlIDs unique for every message created when OBRs are split out.
-                // ORUR01.MSH.MessageControlID
-                String msgControlId=oruR1Copy.getMessageHeader().getMessageControlId();
-                String newMsgControlId=msgControlId.substring(0,(msgControlId.length()/2)-3)+i+(i+1)+(i+2)+msgControlId.substring(msgControlId.length()/2,msgControlId.length());
-                oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
-                //create HL7ParsedMessage for xml creation
-                HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
-                parsedMessage.setParsedMessage(oruR1Copy);
-                parsedMessage.setType(parsedMessageOrig.getType());
-                parsedMessage.setEventTrigger(parsedMessageOrig.getEventTrigger());
-                parsedMessage.setOriginalVersion(parsedMessageOrig.getOriginalVersion());
-                parsedMessageList.add(parsedMessage);
-            }
-        }else{
-            log.debug("Single OBR exist.");
-            parsedMessageList.add(parsedMessageOrig);
-        }
-        log.debug("phdc xml list: {}", parsedMessageList.size());
+    private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
+        ElrSplitter elrSplitter = new ElrSplitter();
+        List<HL7ParsedMessage<OruR1>> parsedMessageList=elrSplitter.splitElrByOBR(parsedMessageOrig);
         return parsedMessageList;
     }
 
