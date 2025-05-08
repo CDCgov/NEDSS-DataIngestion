@@ -860,7 +860,7 @@ public class QueryConstants {
   public static final String FETCH_ALL_MATCH_CANDIDATES_REQUIRING_REVIEW = """
     SELECT
         person_uid,
-        COUNT(mpi_person_id) AS num_of_matching,
+        COUNT(mpi_person_id) + 1 AS num_of_matching,
         date_identified
     FROM
         match_candidates
@@ -868,7 +868,7 @@ public class QueryConstants {
     GROUP BY
         person_uid,
         date_identified
-    ORDER BY person_uid;
+    ORDER BY :sortColumn :sortDirection;
     """;
 
   public static final String COUNT_POSSIBLE_MATCH_PATIENTS = """

@@ -7,11 +7,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
+import gov.cdc.nbs.deduplication.batch.model.LinkResult;
+import gov.cdc.nbs.deduplication.batch.model.MatchResponse;
+import gov.cdc.nbs.deduplication.batch.service.DuplicateCheckService;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.model.LinkResult;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchResponse;
-import gov.cdc.nbs.deduplication.duplicates.service.DuplicateCheckService;
-import gov.cdc.nbs.deduplication.duplicates.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.sync.model.MpiPatientResponse;
@@ -155,7 +156,6 @@ class PersonInsertSyncHandlerTest {
     verifyLinkNbsToMpi();
   }
 
-
   // Mocking Methods
 
   private void mockPatientRecordServiceFetchPersonRecord(String personUid, MpiPerson mpiPerson) {
@@ -189,8 +189,7 @@ class PersonInsertSyncHandlerTest {
           String actualPersonId = (String) parameterSource.getValue("personId");
           return personId.equals(actualPersonId);
         }),
-        eq(String.class))
-    ).thenReturn(personReferenceId);
+        eq(String.class))).thenReturn(personReferenceId);
   }
 
   private void mockLinkNbsToMpi() {
@@ -205,8 +204,7 @@ class PersonInsertSyncHandlerTest {
   private void mockInsertMatchCandidates() {
     when(deduplicationTemplate.batchUpdate(
         eq(QueryConstants.MATCH_CANDIDATES_QUERY),
-        any(MapSqlParameterSource[].class))
-    ).thenReturn(new int[] {1, 1});
+        any(MapSqlParameterSource[].class))).thenReturn(new int[] { 1, 1 });
   }
 
   private void mockUpdateStatus() {
@@ -238,28 +236,24 @@ class PersonInsertSyncHandlerTest {
     ArgumentCaptor<SqlParameterSource> parameterSourceCaptor = ArgumentCaptor.forClass(SqlParameterSource.class);
     verify(deduplicationTemplate).update(
         eq(QueryConstants.NBS_MPI_QUERY),
-        parameterSourceCaptor.capture()
-    );
+        parameterSourceCaptor.capture());
   }
 
   private void verifyInsertMatchCandidates() {
     verify(deduplicationTemplate).batchUpdate(
         eq(QueryConstants.MATCH_CANDIDATES_QUERY),
-        any(MapSqlParameterSource[].class)
-    );
+        any(MapSqlParameterSource[].class));
   }
 
   private void verifyUpdateStatus() {
     verify(deduplicationTemplate).update(
         eq(QueryConstants.UPDATE_PROCESSED_PERSON),
-        any(SqlParameterSource.class)
-    );
+        any(SqlParameterSource.class));
   }
 
   private void verifyDuplicateCheckServiceCall(MpiPerson mpiPerson) {
     verify(duplicateCheckService).findDuplicateRecords(mpiPerson);
   }
-
 
   // Helper Methods
 
@@ -294,25 +288,21 @@ class PersonInsertSyncHandlerTest {
       return new MatchResponse(
           prediction,
           null,
-          null
-      );
+          null);
     } else {
       return new MatchResponse(
           prediction,
           UUID.randomUUID(),
-          linkResults
-      );
+          linkResults);
     }
   }
 
   private MpiResponse createMockMpiResponse() {
     List<MpiResponse.Patient> patients = List.of(
-        new MpiResponse.Patient("patient_ref_1", "1234")
-    );
+        new MpiResponse.Patient("patient_ref_1", "1234"));
 
     List<MpiResponse.Person> persons = List.of(
-        new MpiResponse.Person("person_ref_1", "1234", patients)
-    );
+        new MpiResponse.Person("person_ref_1", "1234", patients));
 
     return new MpiResponse(persons);
   }
