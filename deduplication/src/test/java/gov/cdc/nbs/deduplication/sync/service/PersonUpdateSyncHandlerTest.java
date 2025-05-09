@@ -1,7 +1,7 @@
 package gov.cdc.nbs.deduplication.sync.service;
 
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +15,6 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Collections;
 
-
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -27,10 +26,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-
 @ExtendWith(MockitoExtension.class)
 class PersonUpdateSyncHandlerTest {
-
 
   @Mock
   private ObjectMapper objectMapper;
@@ -41,7 +38,6 @@ class PersonUpdateSyncHandlerTest {
   @Mock
   @Qualifier("nbsNamedTemplate")
   private NamedParameterJdbcTemplate nbsTemplate;
-
 
   @Mock
   private PatientRecordService patientRecordService;
@@ -77,7 +73,6 @@ class PersonUpdateSyncHandlerTest {
     verifyPatientRecordServiceCall("1234");
   }
 
-
   @Test
   void testHandleUpdate_entityIdTable() throws JsonProcessingException {
     // Arrange
@@ -97,8 +92,6 @@ class PersonUpdateSyncHandlerTest {
     verifyRestClientPatchCall();
     verifyPatientRecordServiceCall("5678");
   }
-
-
 
   @Test
   void testHandleUpdate_postalLocatorTable() throws JsonProcessingException {
@@ -120,7 +113,6 @@ class PersonUpdateSyncHandlerTest {
     verifyRestClientPatchCall();
     verifyPatientRecordServiceCall("1234");
   }
-
 
   @Test
   void testHandleUpdate_teleLocatorTable() throws JsonProcessingException {
@@ -150,11 +142,8 @@ class PersonUpdateSyncHandlerTest {
     String topic = "test.NBS_ODSE.dbo.OutOfScopeTable";
 
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () ->
-        personUpdateSyncHandler.handleUpdate(payloadNode, topic)
-    );
+    assertThrows(IllegalArgumentException.class, () -> personUpdateSyncHandler.handleUpdate(payloadNode, topic));
   }
-
 
   // Mocking Methods
 
@@ -183,10 +172,8 @@ class PersonUpdateSyncHandlerTest {
           String actualId = (String) parameterSource.getValue("id");
           return id.equals(actualId);
         }),
-        eq(String.class)
-    );
+        eq(String.class));
   }
-
 
   private void verifyRestClientPatchCall() {
     verify(recordLinkageClient).patch();

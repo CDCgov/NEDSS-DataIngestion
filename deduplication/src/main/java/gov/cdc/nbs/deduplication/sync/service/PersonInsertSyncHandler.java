@@ -3,12 +3,13 @@ package gov.cdc.nbs.deduplication.sync.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gov.cdc.nbs.deduplication.batch.model.LinkResult;
+import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
+import gov.cdc.nbs.deduplication.batch.model.MatchResponse;
+import gov.cdc.nbs.deduplication.batch.service.DuplicateCheckService;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.model.LinkResult;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidate;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchResponse;
-import gov.cdc.nbs.deduplication.duplicates.service.DuplicateCheckService;
-import gov.cdc.nbs.deduplication.duplicates.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
@@ -30,21 +31,18 @@ import java.util.UUID;
 @Component
 public class PersonInsertSyncHandler {
 
-
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate deduplicationTemplate;
   private final DuplicateCheckService duplicateCheckService;
   private final PatientRecordService patientRecordService;
 
-
   public PersonInsertSyncHandler(
       ObjectMapper objectMapper,
       @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient,
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
       final DuplicateCheckService duplicateCheckService,
-      final PatientRecordService patientRecordService
-  ) {
+      final PatientRecordService patientRecordService) {
 
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
@@ -139,7 +137,8 @@ public class PersonInsertSyncHandler {
   }
 
   private void updateStatus(String personId) {
-    deduplicationTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSON, new MapSqlParameterSource("personId", personId));
+    deduplicationTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSON,
+        new MapSqlParameterSource("personId", personId));
   }
 
   private String findPersonReferenceId(String personId) {
