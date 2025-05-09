@@ -58,7 +58,7 @@ public class MatchService {
       INSERT INTO match_candidates
         (person_uid, person_name, person_add_time, potential_match_person_uid)
       VALUES
-        (:person_uid, person_name, person_add_time, :potential_match_person_uid)
+        (:person_uid, :person_name, :person_add_time, :potential_match_person_uid)
       """;
 
   private final RestClient recordLinkageClient;
@@ -171,12 +171,17 @@ public class MatchService {
         throw new MatchException("Results specify possible match but no possible matches are returned");
       }
       request.linkResponse().results().forEach(r -> {
+        // Lookup NBS patient name and add time
         PatientNameAndTime patientInfo = findNbsInfo(request.nbsPersonParent());
+        // Lookup NBS patient Id by MPI reference id returned
+        Long potentialMatchId = findNbsPersonParentId(r.person_reference_id());
+
         SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
             .addValue("person_uid", request.nbsPerson())
             .addValue("person_name", patientInfo.name())
             .addValue("person_add_time", patientInfo.addTime())
-            .addValue("mpi_person_id", r.person_reference_id());
+            .addValue("potential_match_person_uid", potentialMatchId);
+
         template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
       });
     }
@@ -192,4 +197,5 @@ public class MatchService {
             rs.getTimestamp("add_time").toLocalDateTime()))
         .getFirst();
   }
+
 }

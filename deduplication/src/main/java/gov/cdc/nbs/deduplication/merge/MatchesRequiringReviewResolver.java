@@ -25,20 +25,24 @@ public class MatchesRequiringReviewResolver {
 
   static final String SELECT_QUERY = """
       SELECT
-          person_uid,
-          person_name,
-          person_add_time,
-          COUNT(mpi_person_id) + 1 AS match_count,
-          date_identified
+        person_uid,
+        person_name,
+        person_add_time,
+        COUNT(potential_match_person_uid) + 1 AS match_count,
+        date_identified
       FROM
-          match_candidates
-      WHERE is_merge IS NULL
+        match_candidates
+      WHERE
+        is_merge IS NULL
       GROUP BY
-          person_uid,
-          date_identified
+        person_uid,
+        date_identified,
+        person_name,
+        date_identified,
+        person_add_time
+      ORDER BY :sort
       OFFSET :offset ROWS
-      FETCH NEXT :limit ROWS ONLY
-      ORDER BY :sortColumn :sortDirection;
+          FETCH NEXT :limit ROWS ONLY;
       """;
 
   static final String COUNT_QUERY = """
@@ -70,13 +74,13 @@ public class MatchesRequiringReviewResolver {
   }
 
   private List<MatchRequiringReview> fetch(int offset, int limit, Sort.Order order) {
+    String sortValue = order.getProperty() + " " + order.getDirection().toString();
     MapSqlParameterSource parameters = new MapSqlParameterSource()
         .addValue("limit", limit)
-        .addValue("offset", offset)
-        .addValue("sortColumn", order.getProperty())
-        .addValue("sortDirection", order.getDirection()); // Might not work due to enum to string
+        .addValue("offset", offset);
+
     return deduplicationTemplate.query(
-        SELECT_QUERY,
+        SELECT_QUERY.replace(":sort", sortValue),
         parameters,
         this::mapRowToMatchCandidateData);
   }
@@ -84,9 +88,9 @@ public class MatchesRequiringReviewResolver {
   private MatchRequiringReview mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
     return new MatchRequiringReview(
         rs.getString("person_uid"),
-        rs.getString("patient_name"),
-        rs.getTimestamp("add_time").toLocalDateTime().toString(),
-        rs.getTimestamp("identified_time").toLocalDateTime().toString(),
+        rs.getString("person_name"),
+        rs.getTimestamp("person_add_time").toLocalDateTime().toString(),
+        rs.getTimestamp("date_identified").toLocalDateTime().toString(),
         rs.getInt("match_count"));
   }
 
@@ -95,7 +99,7 @@ public class MatchesRequiringReviewResolver {
     String column = switch (sortParams[0]) {
       case "patient-id" -> "person_uid";
       case "name" -> "person_name";
-      case "created" -> "add_time";
+      case "created" -> "person_add_time";
       case "identified" -> "date_identified";
       case "count" -> "match_count";
       default -> throw new MergeListException(
