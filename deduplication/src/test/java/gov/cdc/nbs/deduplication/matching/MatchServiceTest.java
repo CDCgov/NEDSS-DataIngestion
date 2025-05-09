@@ -243,10 +243,17 @@ class MatchServiceTest {
 
   @Test
   void testRelateNbsToMpiPossible() {
+    // Mock
     LocalDateTime now = LocalDateTime.now();
     // Link mpi values
     ArgumentCaptor<SqlParameterSource> linkCaptor = ArgumentCaptor.forClass(SqlParameterSource.class);
     when(template.update(eq(MatchService.LINK_NBS_MPI_QUERY), linkCaptor.capture())).thenReturn(1);
+
+    // fetch patient id
+    when(template.queryForObject(
+        eq(MatchService.FIND_NBS_PERSON_QUERY),
+        Mockito.any(MapSqlParameterSource.class),
+        eq(Long.class))).thenReturn(100421L);
 
     // fetch patient name and add time
     when(nbsTemplate.query(
@@ -291,7 +298,7 @@ class MatchServiceTest {
     assertThat(matchCandidateParams.get(0).getValue("person_uid")).isEqualTo(1l);
     assertThat(matchCandidateParams.get(0).getValue("person_name")).isEqualTo("patient name");
     assertThat(matchCandidateParams.get(0).getValue("person_add_time")).isEqualTo(now);
-    assertThat(matchCandidateParams.get(0).getValue("mpi_person_id")).isEqualTo("abcd");
+    assertThat(matchCandidateParams.get(0).getValue("potential_match_person_uid")).isEqualTo(100421L);
   }
 
   @Test
