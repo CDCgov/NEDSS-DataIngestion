@@ -588,23 +588,6 @@ public class QueryConstants {
           pn.status_time DESC;
       """;
 
-
-  public static final String POSSIBLE_MATCH_PATIENTS = """
-      SELECT
-          person_uid,
-          count(mpi_person_id) AS num_of_matching,
-          date_identified
-      FROM
-          match_candidates
-      WHERE is_merge  is NULL
-      GROUP BY
-          person_uid,
-          date_identified
-      ORDER BY person_uid
-          OFFSET :offset ROWS
-          FETCH NEXT :limit ROWS ONLY;
-      """;
-
   public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
       SELECT
           mpi_person_id
@@ -855,29 +838,6 @@ public class QueryConstants {
       WHERE
           p.person_uid IN (:ids)
           AND p.record_status_cd = 'ACTIVE';
-      """;
-
-  public static final String FETCH_ALL_MATCH_CANDIDATES_REQUIRING_REVIEW = """
-    SELECT
-        person_uid,
-        COUNT(mpi_person_id) + 1 AS num_of_matching,
-        date_identified
-    FROM
-        match_candidates
-    WHERE is_merge IS NULL
-    GROUP BY
-        person_uid,
-        date_identified
-    ORDER BY :sortColumn :sortDirection;
-    """;
-
-  public static final String COUNT_POSSIBLE_MATCH_PATIENTS = """
-      SELECT
-        count(DISTINCT person_uid)
-      FROM
-        match_candidates
-      WHERE
-        is_merge IS NULL
       """;
 
 }

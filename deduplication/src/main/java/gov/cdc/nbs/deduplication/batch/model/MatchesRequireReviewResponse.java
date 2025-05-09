@@ -15,15 +15,5 @@ public record MatchesRequireReviewResponse(List<MatchRequiringReview> matches, i
       String identifiedDate,
       long numOfMatchingRecords) {
 
-    public MatchRequiringReview(MatchCandidateData matchCandidateData,
-        PatientNameAndTimeDTO patientNameAndTimeDTO) {
-      this(
-          matchCandidateData.personUid(),
-          patientNameAndTimeDTO.fullName(),
-          patientNameAndTimeDTO.addTime().toString(),
-          matchCandidateData.dateIdentified(),
-          matchCandidateData.numOfMatches() + 1 // count of the matched patients + 1 for the patient itself
-      );
-    }
   }
 }

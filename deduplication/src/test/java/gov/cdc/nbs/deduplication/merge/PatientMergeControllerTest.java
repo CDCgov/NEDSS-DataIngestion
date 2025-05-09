@@ -1,6 +1,8 @@
 package gov.cdc.nbs.deduplication.merge;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -10,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.batch.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
@@ -31,33 +32,22 @@ class PatientMergeControllerTest {
   private MergeGroupHandler mergeGroupHandler;
 
   @Mock
+  private MatchesRequiringReviewResolver matchesRequiringReviewResolver;
+
+  @Mock
   private MergePatientHandler mergePatientHandler;
+
+  @Mock
+  private PdfBuilder pdfBuilder;
 
   @InjectMocks
   private PatientMergeController patientMergeController;
-
-  @Mock
-  private MergeGroupService mergeGroupService;
 
   private MockMvc mockMvc;
 
   @BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.standaloneSetup(patientMergeController).build();
-  }
-
-  @Test
-  void testGetPossibleMatchGroups() throws Exception {
-    int page = 0;
-    int size = 5;
-    when(mergeGroupHandler.getPotentialMatches(page, size)).thenReturn(expectedMergeGroupResponse());
-
-    // Act & Assert
-    mockMvc.perform(get("/merge")
-        .param("page", String.valueOf(page))
-        .param("size", String.valueOf(size)))
-        .andExpect(status().isOk())
-        .andExpect(content().json(expectedMergeGroupResponseJson()));
   }
 
   @Test
@@ -159,7 +149,7 @@ class PatientMergeControllerTest {
         new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
         new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4));
 
-    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+    when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
 
     mockMvc.perform(get("/merge/export/csv"))
         .andExpect(status().isOk())
@@ -178,52 +168,19 @@ class PatientMergeControllerTest {
         new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
         new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4));
 
-    when(mergeGroupHandler.getAllMatchesRequiringReview()).thenReturn(mockMatches);
+    when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
 
     // verify the interaction and status
     mockMvc.perform(get("/merge/export/pdf"))
         .andExpect(status().isOk());
 
-    verify(mergeGroupHandler).getAllMatchesRequiringReview();
-    verify(mergeGroupService).writeMatchesRequiringReviewPDF(
+    verify(matchesRequiringReviewResolver).resolveAll(PatientMergeController.DEFAULT_SORT);
+    verify(pdfBuilder).build(
         any(HttpServletResponse.class),
         eq(mockMatches),
         anyString(), // timestampForFilename
         anyString() // timestampForFooter
     );
-  }
-
-  private MatchesRequireReviewResponse expectedMergeGroupResponse() {
-    return new MatchesRequireReviewResponse(
-        Arrays.asList(
-            new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
-            new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4)),
-        0, 2);
-  }
-
-  private String expectedMergeGroupResponseJson() {
-    return """
-        {
-           "matches": [
-             {
-               "patientId": "111122",
-               "patientName": "john smith",
-               "createdDate": "1990-01-01",
-               "identifiedDate": "2000-01-01",
-               "numOfMatchingRecords": 2
-             },
-             {
-               "patientId": "111133",
-               "patientName": "Andrew James",
-               "createdDate": "1990-02-02",
-               "identifiedDate": "2000-02-02",
-               "numOfMatchingRecords": 4
-             }
-           ],
-           "page": 0,
-           "total": 2
-         }
-         """;
   }
 
   private List<PersonMergeData> expectedPersonMergeData() {

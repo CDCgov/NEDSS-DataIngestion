@@ -21,25 +21,30 @@ import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping("/merge")
 public class PatientMergeController {
+  static final String DEFAULT_SORT = "patient-id,desc";
 
   private final MergeGroupHandler mergeGroupHandler;
-
   private final MergePatientHandler mergePatientsHandler;
+  private final PdfBuilder pdfBuilder;
+  private final MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
-  private final MergeGroupService mergeGroupService;
-
-  public PatientMergeController(MergeGroupHandler possibleMatchHandler, MergePatientHandler mergePatientsHandler,
-      MergeGroupService mergeGroupService) {
+  public PatientMergeController(
+      final MergeGroupHandler possibleMatchHandler,
+      final MergePatientHandler mergePatientsHandler,
+      final PdfBuilder pdfBuilder,
+      final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergePatientsHandler = mergePatientsHandler;
-    this.mergeGroupService = mergeGroupService;
+    this.pdfBuilder = pdfBuilder;
+    this.matchesRequiringReviewResolver = matchesRequiringReviewResolver;
   }
 
   @GetMapping
   public MatchesRequireReviewResponse getPotentialMatches(
       @RequestParam(defaultValue = "0", name = "page") int page,
-      @RequestParam(defaultValue = "5", name = "size") int size) {
-    return mergeGroupHandler.getPotentialMatches(page, size);
+      @RequestParam(defaultValue = "5", name = "size") int size,
+      @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sort) {
+    return matchesRequiringReviewResolver.resolve(page, size, sort);
   }
 
   @GetMapping("/{patientId}")
@@ -78,7 +83,7 @@ public class PatientMergeController {
     response.setContentType("text/csv");
     response.setHeader("Content-Disposition", "attachment; filename=matches_requiring_review.csv");
 
-    List<MatchRequiringReview> matches = mergeGroupHandler.getAllMatchesRequiringReview();
+    List<MatchRequiringReview> matches = matchesRequiringReviewResolver.resolveAll(DEFAULT_SORT);
 
     try (PrintWriter writer = response.getWriter()) {
       writer.println("Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records");
@@ -99,7 +104,7 @@ public class PatientMergeController {
     String timestampForFilename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
     String timestampForFooter = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a"));
 
-    List<MatchRequiringReview> matches = mergeGroupHandler.getAllMatchesRequiringReview();
-    mergeGroupService.writeMatchesRequiringReviewPDF(response, matches, timestampForFilename, timestampForFooter);
+    List<MatchRequiringReview> matches = matchesRequiringReviewResolver.resolveAll(DEFAULT_SORT);
+    pdfBuilder.build(response, matches, timestampForFilename, timestampForFooter);
   }
 }

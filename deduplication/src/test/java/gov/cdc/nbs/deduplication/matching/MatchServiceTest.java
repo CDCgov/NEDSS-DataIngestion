@@ -2,18 +2,23 @@ package gov.cdc.nbs.deduplication.matching;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
@@ -28,9 +33,10 @@ import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
 import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
 import gov.cdc.nbs.deduplication.matching.model.LinkResponse.Results;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
+import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
-import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
@@ -50,8 +56,15 @@ class MatchServiceTest {
   @Mock
   private NamedParameterJdbcTemplate template;
 
-  @InjectMocks
+  @Mock
+  private NamedParameterJdbcTemplate nbsTemplate;
+
   private MatchService matchService;
+
+  @BeforeEach
+  void setup() {
+    matchService = new MatchService(restClient, template, nbsTemplate);
+  }
 
   @Test
   void testNoMatchFound() {
@@ -230,9 +243,22 @@ class MatchServiceTest {
 
   @Test
   void testRelateNbsToMpiPossible() {
-    ArgumentCaptor<SqlParameterSource> captor = ArgumentCaptor.forClass(SqlParameterSource.class);
+    LocalDateTime now = LocalDateTime.now();
+    // Link mpi values
+    ArgumentCaptor<SqlParameterSource> linkCaptor = ArgumentCaptor.forClass(SqlParameterSource.class);
+    when(template.update(eq(MatchService.LINK_NBS_MPI_QUERY), linkCaptor.capture())).thenReturn(1);
 
-    when(template.update(Mockito.anyString(), captor.capture())).thenReturn(1);
+    // fetch patient name and add time
+    when(nbsTemplate.query(
+        eq(MatchService.FIND_NBS_ADD_TIME_AND_NAME_QUERY),
+        Mockito.any(MapSqlParameterSource.class),
+        ArgumentMatchers.<RowMapper<PatientNameAndTime>>any()))
+        .thenReturn(List.of(new PatientNameAndTime("patient name", now)));
+
+    // insert into match_candidate table
+    ArgumentCaptor<SqlParameterSource> captor = ArgumentCaptor.forClass(SqlParameterSource.class);
+    when(template.update(eq(MatchService.INSERT_POSSIBLE_MATCH), captor.capture())).thenReturn(1);
+
     matchService.relateNbsIdToMpiId(new RelateRequest(
         1l,
         1l,
@@ -250,18 +276,22 @@ class MatchServiceTest {
                 0.7,
                 "certain")))));
 
-    List<SqlParameterSource> sqlParams = captor.getAllValues();
-    assertThat(sqlParams).hasSize(2);
+    List<SqlParameterSource> linkParams = linkCaptor.getAllValues();
+    assertThat(linkParams).hasSize(1);
     // Link MPI query
-    assertThat(sqlParams.get(0).getValue("person_uid")).isEqualTo(1l);
-    assertThat(sqlParams.get(0).getValue("person_parent_uid")).isEqualTo(1l);
-    assertThat(sqlParams.get(0).getValue("mpi_patient")).isEqualTo("patientRef");
-    assertThat(sqlParams.get(0).getValue("mpi_person")).isEqualTo("personRef");
-    assertThat(sqlParams.get(0).getValue("status")).isEqualTo("R");
+    assertThat(linkParams.get(0).getValue("person_uid")).isEqualTo(1l);
+    assertThat(linkParams.get(0).getValue("person_parent_uid")).isEqualTo(1l);
+    assertThat(linkParams.get(0).getValue("mpi_patient")).isEqualTo("patientRef");
+    assertThat(linkParams.get(0).getValue("mpi_person")).isEqualTo("personRef");
+    assertThat(linkParams.get(0).getValue("status")).isEqualTo("R");
 
     // Persist possible matches
-    assertThat(sqlParams.get(1).getValue("person_uid")).isEqualTo(1l);
-    assertThat(sqlParams.get(1).getValue("mpi_person_id")).isEqualTo("abcd");
+    List<SqlParameterSource> matchCandidateParams = captor.getAllValues();
+    assertThat(matchCandidateParams).hasSize(1);
+    assertThat(matchCandidateParams.get(0).getValue("person_uid")).isEqualTo(1l);
+    assertThat(matchCandidateParams.get(0).getValue("person_name")).isEqualTo("patient name");
+    assertThat(matchCandidateParams.get(0).getValue("person_add_time")).isEqualTo(now);
+    assertThat(matchCandidateParams.get(0).getValue("mpi_person_id")).isEqualTo("abcd");
   }
 
   @Test

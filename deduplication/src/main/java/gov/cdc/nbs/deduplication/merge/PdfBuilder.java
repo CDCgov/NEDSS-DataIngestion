@@ -1,56 +1,35 @@
 package gov.cdc.nbs.deduplication.merge;
 
-import com.lowagie.text.Element;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Font;
-import com.lowagie.text.pdf.ColumnText;
-import com.lowagie.text.pdf.PdfPageEventHelper;
-import com.lowagie.text.pdf.PdfWriter;
-
-import gov.cdc.nbs.deduplication.batch.model.MatchCandidateData;
-import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Service;
-
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.lowagie.text.*;
-import com.lowagie.text.pdf.*;
+import org.springframework.stereotype.Component;
 
-import java.time.format.DateTimeFormatter;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.ColumnText;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfPageEventHelper;
+import com.lowagie.text.pdf.PdfWriter;
 
-@Service
-public class MergeGroupService {
+import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
-  private final NamedParameterJdbcTemplate deduplicationTemplate;
+@Component
+public class PdfBuilder {
 
-  public MergeGroupService(
-      @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate) {
-    this.deduplicationTemplate = deduplicationTemplate;
-  }
-
-  @Transactional
-  public List<MatchCandidateData> fetchAllMatchesRequiringReview() {
-    return deduplicationTemplate.query(
-        QueryConstants.FETCH_ALL_MATCH_CANDIDATES_REQUIRING_REVIEW,
-        new MapSqlParameterSource(), // no params needed
-        (rs, rowNum) -> new MatchCandidateData(
-            rs.getString("person_uid"),
-            rs.getLong("num_of_matching"),
-            rs.getString("date_identified")));
-  }
-
-  public void writeMatchesRequiringReviewPDF(HttpServletResponse response,
+  public void build(HttpServletResponse response,
       List<MatchesRequireReviewResponse.MatchRequiringReview> matches, String timestampForFilename,
       String timestampForFooter) throws IOException {
     response.setContentType("application/pdf");
