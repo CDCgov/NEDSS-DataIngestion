@@ -26,9 +26,8 @@ public class MergeGroupHandler {
   }
 
   public List<PersonMergeData> getPotentialMatchesDetails(long personId) {
-    List<String> possibleMatchesMpiIds = getPossibleMatchesOfPatient(personId);
-    List<String> npsPersonIds = getPersonIdsByMpiIds(possibleMatchesMpiIds);
-    return patientRecordService.fetchPersonsMergeData(npsPersonIds);
+    List<String> nbsPersonIds = getPossibleMatchesOfPatient(personId);
+    return patientRecordService.fetchPersonsMergeData(nbsPersonIds);
   }
 
   private List<String> getPossibleMatchesOfPatient(long personId) {
@@ -37,13 +36,6 @@ public class MergeGroupHandler {
     return deduplicationTemplate.query(
         QueryConstants.POSSIBLE_MATCH_IDS_BY_PATIENT_ID,
         parameters, (ResultSet rs, int rowNum) -> rs.getString(1));
-  }
-
-  private List<String> getPersonIdsByMpiIds(List<String> personIds) {
-    return deduplicationTemplate.query(
-        QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
-        new MapSqlParameterSource("mpiPersonIds", personIds),
-        (rs, rowNum) -> rs.getString("person_uid"));
   }
 
   private List<String> getMpiIdsByPersonIds(List<String> personIds) {

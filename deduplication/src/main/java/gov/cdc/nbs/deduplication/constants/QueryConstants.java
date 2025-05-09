@@ -590,19 +590,11 @@ public class QueryConstants {
 
   public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
       SELECT
-          mpi_person_id
+          potential_match_person_uid
       FROM
           match_candidates
       WHERE person_uid =:personUid;
       """;
-
-  public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
-      SELECT person_uid
-      FROM nbs_mpi_mapping
-      WHERE mpi_person IN (:mpiPersonIds)
-      AND person_uid=person_parent_uid
-      """;
-
 
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """

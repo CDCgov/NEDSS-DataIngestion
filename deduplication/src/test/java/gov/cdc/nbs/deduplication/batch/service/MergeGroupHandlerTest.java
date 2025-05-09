@@ -136,13 +136,11 @@ class MergeGroupHandlerTest {
   @Test
   void testGetPotentialMatchesDetails() {
     long personId = 123L;
-    List<String> possibleMatchesMpiIds = Arrays.asList("mpi1", "mpi2");
-    List<String> npsPersonIds = Arrays.asList("person1", "person2");
+    List<String> nbsPersonIds = Arrays.asList("person1", "person2");
     List<PersonMergeData> mockPersonMergeData = createMockPersonMergeData();
 
-    mockPossibleMatchesOfPatient(personId, possibleMatchesMpiIds);
-    mockPersonIdsByMpiIds(possibleMatchesMpiIds, npsPersonIds);
-    mockFetchPersonsMergeData(npsPersonIds, mockPersonMergeData);
+    mockPossibleMatchesOfPatient(personId, nbsPersonIds);
+    mockFetchPersonsMergeData(nbsPersonIds, mockPersonMergeData);
 
     // Act
     List<PersonMergeData> result = mergeGroupHandler.getPotentialMatchesDetails(personId);
@@ -209,15 +207,6 @@ class MergeGroupHandlerTest {
         argThat((MapSqlParameterSource params) -> Objects.equals(params.getValue("personUid"), personId)),
         ArgumentMatchers.<RowMapper<String>>any()))
         .thenReturn(possibleMatchesMpiIds);
-  }
-
-  private void mockPersonIdsByMpiIds(List<String> possibleMatchesMpiIds, List<String> npsPersonIds) {
-    when(deduplicationTemplate.query(
-        eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
-        argThat(
-            (MapSqlParameterSource params) -> Objects.equals(params.getValue("mpiPersonIds"), possibleMatchesMpiIds)),
-        ArgumentMatchers.<RowMapper<String>>any()))
-        .thenReturn(npsPersonIds);
   }
 
   private void mockFetchPersonsMergeData(List<String> npsPersonIds, List<PersonMergeData> mockPersonMergeData) {
