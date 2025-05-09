@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.matching;
 import gov.cdc.nbs.deduplication.matching.model.*;
 
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,9 +57,9 @@ public class MatchService {
 
   static final String INSERT_POSSIBLE_MATCH = """
       INSERT INTO match_candidates
-        (person_uid, person_name, person_add_time, potential_match_person_uid)
+        (person_uid, person_name, person_add_time, date_identified, potential_match_person_uid)
       VALUES
-        (:person_uid, :person_name, :person_add_time, :potential_match_person_uid)
+        (:person_uid, :person_name, :person_add_time, :date_identified, :potential_match_person_uid)
       """;
 
   private final RestClient recordLinkageClient;
@@ -170,6 +171,7 @@ public class MatchService {
           || request.linkResponse().results().isEmpty()) {
         throw new MatchException("Results specify possible match but no possible matches are returned");
       }
+      LocalDateTime identifedTime = LocalDateTime.now();
       request.linkResponse().results().forEach(r -> {
         // Lookup NBS patient name and add time
         PatientNameAndTime patientInfo = findNbsInfo(request.nbsPersonParent());
@@ -180,6 +182,7 @@ public class MatchService {
             .addValue("person_uid", request.nbsPerson())
             .addValue("person_name", patientInfo.name())
             .addValue("person_add_time", patientInfo.addTime())
+            .addValue("date_identified", identifedTime)
             .addValue("potential_match_person_uid", potentialMatchId);
 
         template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
