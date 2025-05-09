@@ -68,7 +68,7 @@ public class MatchesRequiringReviewResolver {
     return fetch(0, 10_000, toOrder(sort));
   }
 
-  private Integer getMatchCandidateCount() {
+  Integer getMatchCandidateCount() {
     return deduplicationTemplate.getJdbcTemplate()
         .queryForObject(COUNT_QUERY, Integer.class);
   }
@@ -85,7 +85,7 @@ public class MatchesRequiringReviewResolver {
         this::mapRowToMatchCandidateData);
   }
 
-  private MatchRequiringReview mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
+  MatchRequiringReview mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
     return new MatchRequiringReview(
         rs.getString("person_uid"),
         rs.getString("person_name"),
@@ -94,7 +94,7 @@ public class MatchesRequiringReviewResolver {
         rs.getInt("match_count"));
   }
 
-  private Sort.Order toOrder(String sort) {
+  Sort.Order toOrder(String sort) {
     String[] sortParams = sort.split(",");
     String column = switch (sortParams[0]) {
       case "patient-id" -> "person_uid";
