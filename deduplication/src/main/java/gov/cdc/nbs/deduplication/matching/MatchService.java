@@ -137,14 +137,14 @@ public class MatchService {
   }
 
   // Adds an entry to the deduplication database to relate the NBS person Ids to
-  // the MPI person Ids
-  public void relateNbsIdToMpiId(RelateRequest request) {
+  // the MPI person Ids and update the MPI db
+  public void relateNbsIdToMpiId(RelateRequest request, PersonMatchRequest matchRequest) {
     try {
-      // Step 1: Build LinkRequest from mpiPerson (original match input)
-      LinkRequest linkRequest = new LinkRequest(request.mpiPerson());
+      // Step 1: Build LinkRequest again to update the MPI
+      LinkRequest mpiMatchRequest = linkRequestMapper.map(matchRequest);
 
       // Step 2: Call /link to insert into MPI
-      LinkResponse linkResponse = sendLinkRequest(linkRequest);
+      LinkResponse linkResponse = sendLinkRequest(mpiMatchRequest);
 
       if (linkResponse == null) {
         throw new MatchException("Linking failed when inserting patient into MPI");
