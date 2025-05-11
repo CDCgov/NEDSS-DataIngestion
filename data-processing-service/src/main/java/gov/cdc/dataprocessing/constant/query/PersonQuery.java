@@ -1,0 +1,440 @@
+package gov.cdc.dataprocessing.constant.query;
+
+public class PersonQuery {
+    public static final String INSERT_SQL_PERSON = """
+    INSERT INTO Person (
+        person_uid, version_ctrl_nbr, add_reason_cd, add_time, add_user_id,
+        administrative_gender_cd, age_calc, age_calc_time, age_calc_unit_cd, age_category_cd,
+        age_reported, age_reported_time, age_reported_unit_cd, birth_gender_cd, birth_order_nbr,
+        birth_time, birth_time_calc, cd, cd_desc_txt, curr_sex_cd, deceased_ind_cd, deceased_time,
+        description, education_level_cd, education_level_desc_txt, ethnic_group_ind,
+        last_chg_reason_cd, last_chg_time, last_chg_user_id, local_id, marital_status_cd,
+        marital_status_desc_txt, mothers_maiden_nm, multiple_birth_ind, occupation_cd,
+        preferred_gender_cd, prim_lang_cd, prim_lang_desc_txt, record_status_cd,
+        record_status_time, status_cd, status_time, survived_ind_cd, user_affiliation_txt,
+        first_nm, last_nm, middle_nm, nm_prefix, nm_suffix, preferred_nm, hm_street_addr1,
+        hm_street_addr2, hm_city_cd, hm_city_desc_txt, hm_state_cd, hm_zip_cd, hm_cnty_cd,
+        hm_cntry_cd, hm_phone_nbr, hm_phone_cntry_cd, hm_email_addr, cell_phone_nbr,
+        wk_street_addr1, wk_street_addr2, wk_city_cd, wk_city_desc_txt, wk_state_cd, wk_zip_cd,
+        wk_cnty_cd, wk_cntry_cd, wk_phone_nbr, wk_phone_cntry_cd, wk_email_addr, SSN,
+        medicaid_num, dl_num, dl_state_cd, race_cd, race_seq_nbr, race_category_cd,
+        ethnicity_group_cd, ethnic_group_seq_nbr, adults_in_house_nbr, children_in_house_nbr,
+        birth_city_cd, birth_city_desc_txt, birth_cntry_cd, birth_state_cd, race_desc_txt,
+        ethnic_group_desc_txt, as_of_date_admin, as_of_date_ethnicity, as_of_date_general,
+        as_of_date_morbidity, as_of_date_sex, electronic_ind, person_parent_uid, dedup_match_ind,
+        group_nbr, group_time, edx_ind, speaks_english_cd, additional_gender_cd, ehars_id,
+        ethnic_unk_reason_cd, sex_unk_reason_cd
+    ) VALUES (
+        :person_uid, :version_ctrl_nbr, :add_reason_cd, :add_time, :add_user_id,
+        :administrative_gender_cd, :age_calc, :age_calc_time, :age_calc_unit_cd, :age_category_cd,
+        :age_reported, :age_reported_time, :age_reported_unit_cd, :birth_gender_cd, :birth_order_nbr,
+        :birth_time, :birth_time_calc, :cd, :cd_desc_txt, :curr_sex_cd, :deceased_ind_cd, :deceased_time,
+        :description, :education_level_cd, :education_level_desc_txt, :ethnic_group_ind,
+        :last_chg_reason_cd, :last_chg_time, :last_chg_user_id, :local_id, :marital_status_cd,
+        :marital_status_desc_txt, :mothers_maiden_nm, :multiple_birth_ind, :occupation_cd,
+        :preferred_gender_cd, :prim_lang_cd, :prim_lang_desc_txt, :record_status_cd,
+        :record_status_time, :status_cd, :status_time, :survived_ind_cd, :user_affiliation_txt,
+        :first_nm, :last_nm, :middle_nm, :nm_prefix, :nm_suffix, :preferred_nm, :hm_street_addr1,
+        :hm_street_addr2, :hm_city_cd, :hm_city_desc_txt, :hm_state_cd, :hm_zip_cd, :hm_cnty_cd,
+        :hm_cntry_cd, :hm_phone_nbr, :hm_phone_cntry_cd, :hm_email_addr, :cell_phone_nbr,
+        :wk_street_addr1, :wk_street_addr2, :wk_city_cd, :wk_city_desc_txt, :wk_state_cd, :wk_zip_cd,
+        :wk_cnty_cd, :wk_cntry_cd, :wk_phone_nbr, :wk_phone_cntry_cd, :wk_email_addr, :SSN,
+        :medicaid_num, :dl_num, :dl_state_cd, :race_cd, :race_seq_nbr, :race_category_cd,
+        :ethnicity_group_cd, :ethnic_group_seq_nbr, :adults_in_house_nbr, :children_in_house_nbr,
+        :birth_city_cd, :birth_city_desc_txt, :birth_cntry_cd, :birth_state_cd, :race_desc_txt,
+        :ethnic_group_desc_txt, :as_of_date_admin, :as_of_date_ethnicity, :as_of_date_general,
+        :as_of_date_morbidity, :as_of_date_sex, :electronic_ind, :person_parent_uid, :dedup_match_ind,
+        :group_nbr, :group_time, :edx_ind, :speaks_english_cd, :additional_gender_cd, :ehars_id,
+        :ethnic_unk_reason_cd, :sex_unk_reason_cd
+    )
+""";
+
+    public static final String INSERT_SQL_PERSON_NAME = """
+INSERT INTO Person_name (
+    person_uid, person_name_seq, add_reason_cd, add_time, add_user_id, default_nm_ind,
+    duration_amt, duration_unit_cd, first_nm, first_nm_sndx, from_time, last_chg_reason_cd,
+    last_chg_time, last_chg_user_id, last_nm, last_nm_sndx, last_nm2, last_nm2_sndx, middle_nm,
+    middle_nm2, nm_degree, nm_prefix, nm_suffix, nm_use_cd, record_status_cd,
+    record_status_time, status_cd, status_time, to_time, user_affiliation_txt, as_of_date
+) VALUES (
+    :person_uid, :person_name_seq, :add_reason_cd, :add_time, :add_user_id, :default_nm_ind,
+    :duration_amt, :duration_unit_cd, :first_nm, :first_nm_sndx, :from_time, :last_chg_reason_cd,
+    :last_chg_time, :last_chg_user_id, :last_nm, :last_nm_sndx, :last_nm2, :last_nm2_sndx, :middle_nm,
+    :middle_nm2, :nm_degree, :nm_prefix, :nm_suffix, :nm_use_cd, :record_status_cd,
+    :record_status_time, :status_cd, :status_time, :to_time, :user_affiliation_txt, :as_of_date
+)
+""";
+
+    public static final String INSERT_SQL_PERSON_RACE = """
+INSERT INTO Person_race (
+    person_uid, race_cd, add_reason_cd, add_time, add_user_id,
+    last_chg_reason_cd, last_chg_time, last_chg_user_id, race_category_cd,
+    race_desc_txt, record_status_cd, record_status_time,
+    user_affiliation_txt, as_of_date
+) VALUES (
+    :person_uid, :race_cd, :add_reason_cd, :add_time, :add_user_id,
+    :last_chg_reason_cd, :last_chg_time, :last_chg_user_id, :race_category_cd,
+    :race_desc_txt, :record_status_cd, :record_status_time,
+    :user_affiliation_txt, :as_of_date
+)
+""";
+
+    public static final String INSERT_SQL_PERSON_ETHNIC = """
+INSERT INTO Person_ethnic_group (
+    person_uid, ethnic_group_cd, add_reason_cd, add_time, add_user_id,
+    ethnic_group_desc_txt, last_chg_reason_cd, last_chg_time, last_chg_user_id,
+    record_status_cd, record_status_time, user_affiliation_txt
+) VALUES (
+    :person_uid, :ethnic_group_cd, :add_reason_cd, :add_time, :add_user_id,
+    :ethnic_group_desc_txt, :last_chg_reason_cd, :last_chg_time, :last_chg_user_id,
+    :record_status_cd, :record_status_time, :user_affiliation_txt
+)
+""";
+
+
+    public static final String INSERT_SQL_ROLE = """
+INSERT INTO Role (
+    subject_entity_uid, cd, role_seq, add_reason_cd, add_time, add_user_id,
+    cd_desc_txt, effective_duration_amt, effective_duration_unit_cd, effective_from_time,
+    effective_to_time, last_chg_reason_cd, last_chg_time, last_chg_user_id,
+    record_status_cd, record_status_time, scoping_class_cd, scoping_entity_uid,
+    scoping_role_cd, scoping_role_seq, status_cd, status_time, subject_class_cd, user_affiliation_txt
+) VALUES (
+    :subject_entity_uid, :cd, :role_seq, :add_reason_cd, :add_time, :add_user_id,
+    :cd_desc_txt, :effective_duration_amt, :effective_duration_unit_cd, :effective_from_time,
+    :effective_to_time, :last_chg_reason_cd, :last_chg_time, :last_chg_user_id,
+    :record_status_cd, :record_status_time, :scoping_class_cd, :scoping_entity_uid,
+    :scoping_role_cd, :scoping_role_seq, :status_cd, :status_time, :subject_class_cd, :user_affiliation_txt
+)
+""";
+
+    public static final String SELECT_ROLE_BY_SUBJECT_ENTITY_UID = """
+            SELECT
+                subject_entity_uid AS subjectEntityUid,
+                cd AS code,
+                role_seq AS roleSeq,
+                add_reason_cd AS addReasonCode,
+                add_time AS addTime,
+                add_user_id AS addUserId,
+                cd_desc_txt AS codeDescription,
+                effective_duration_amt AS effectiveDurationAmount,
+                effective_duration_unit_cd AS effectiveDurationUnitCode,
+                effective_from_time AS effectiveFromTime,
+                effective_to_time AS effectiveToTime,
+                last_chg_reason_cd AS lastChangeReasonCode,
+                last_chg_time AS lastChangeTime,
+                last_chg_user_id AS lastChangeUserId,
+                record_status_cd AS recordStatusCode,
+                record_status_time AS recordStatusTime,
+                scoping_class_cd AS scopingClassCode,
+                scoping_entity_uid AS scopingEntityUid,
+                scoping_role_cd AS scopingRoleCode,
+                scoping_role_seq AS scopingRoleSeq,
+                status_cd AS statusCode,
+                status_time AS statusTime,
+                subject_class_cd AS subjectClassCode,
+                user_affiliation_txt AS userAffiliationText
+            FROM Role
+            WHERE subject_entity_uid = :subject_entity_uid
+            
+            """;
+
+    public static final String SELECT_PERSON_BY_PARENT_UID =  """
+        SELECT
+            person_uid AS personUid,
+            version_ctrl_nbr AS versionCtrlNbr,
+            add_reason_cd AS addReasonCd,
+            add_time AS addTime,
+            add_user_id AS addUserId,
+            administrative_gender_cd AS administrativeGenderCd,
+            age_calc AS ageCalc,
+            age_calc_time AS ageCalcTime,
+            age_calc_unit_cd AS ageCalcUnitCd,
+            age_category_cd AS ageCategoryCd,
+            age_reported AS ageReported,
+            age_reported_time AS ageReportedTime,
+            age_reported_unit_cd AS ageReportedUnitCd,
+            birth_gender_cd AS birthGenderCd,
+            birth_order_nbr AS birthOrderNbr,
+            birth_time AS birthTime,
+            birth_time_calc AS birthTimeCalc,
+            cd AS cd,
+            cd_desc_txt AS cdDescTxt,
+            curr_sex_cd AS currSexCd,
+            deceased_ind_cd AS deceasedIndCd,
+            deceased_time AS deceasedTime,
+            description AS description,
+            education_level_cd AS educationLevelCd,
+            education_level_desc_txt AS educationLevelDescTxt,
+            ethnic_group_ind AS ethnicGroupInd,
+            last_chg_reason_cd AS lastChgReasonCd,
+            last_chg_time AS lastChgTime,
+            last_chg_user_id AS lastChgUserId,
+            local_id AS localId,
+            marital_status_cd AS maritalStatusCd,
+            marital_status_desc_txt AS maritalStatusDescTxt,
+            mothers_maiden_nm AS mothersMaidenNm,
+            multiple_birth_ind AS multipleBirthInd,
+            occupation_cd AS occupationCd,
+            preferred_gender_cd AS preferredGenderCd,
+            prim_lang_cd AS primLangCd,
+            prim_lang_desc_txt AS primLangDescTxt,
+            record_status_cd AS recordStatusCd,
+            record_status_time AS recordStatusTime,
+            status_cd AS statusCd,
+            status_time AS statusTime,
+            survived_ind_cd AS survivedIndCd,
+            user_affiliation_txt AS userAffiliationTxt,
+            first_nm AS firstNm,
+            last_nm AS lastNm,
+            middle_nm AS middleNm,
+            nm_prefix AS nmPrefix,
+            nm_suffix AS nmSuffix,
+            preferred_nm AS preferredNm,
+            hm_street_addr1 AS hmStreetAddr1,
+            hm_street_addr2 AS hmStreetAddr2,
+            hm_city_cd AS hmCityCd,
+            hm_city_desc_txt AS hmCityDescTxt,
+            hm_state_cd AS hmStateCd,
+            hm_zip_cd AS hmZipCd,
+            hm_cnty_cd AS hmCntyCd,
+            hm_cntry_cd AS hmCntryCd,
+            hm_phone_nbr AS hmPhoneNbr,
+            hm_phone_cntry_cd AS hmPhoneCntryCd,
+            hm_email_addr AS hmEmailAddr,
+            cell_phone_nbr AS cellPhoneNbr,
+            wk_street_addr1 AS wkStreetAddr1,
+            wk_street_addr2 AS wkStreetAddr2,
+            wk_city_cd AS wkCityCd,
+            wk_city_desc_txt AS wkCityDescTxt,
+            wk_state_cd AS wkStateCd,
+            wk_zip_cd AS wkZipCd,
+            wk_cnty_cd AS wkCntyCd,
+            wk_cntry_cd AS wkCntryCd,
+            wk_phone_nbr AS wkPhoneNbr,
+            wk_phone_cntry_cd AS wkPhoneCntryCd,
+            wk_email_addr AS wkEmailAddr,
+            SSN AS ssn,
+            medicaid_num AS medicaidNum,
+            dl_num AS dlNum,
+            dl_state_cd AS dlStateCd,
+            race_cd AS raceCd,
+            race_seq_nbr AS raceSeqNbr,
+            race_category_cd AS raceCategoryCd,
+            ethnicity_group_cd AS ethnicityGroupCd,
+            ethnic_group_seq_nbr AS ethnicGroupSeqNbr,
+            adults_in_house_nbr AS adultsInHouseNbr,
+            children_in_house_nbr AS childrenInHouseNbr,
+            birth_city_cd AS birthCityCd,
+            birth_city_desc_txt AS birthCityDescTxt,
+            birth_cntry_cd AS birthCntryCd,
+            birth_state_cd AS birthStateCd,
+            race_desc_txt AS raceDescTxt,
+            ethnic_group_desc_txt AS ethnicGroupDescTxt,
+            as_of_date_admin AS asOfDateAdmin,
+            as_of_date_ethnicity AS asOfDateEthnicity,
+            as_of_date_general AS asOfDateGeneral,
+            as_of_date_morbidity AS asOfDateMorbidity,
+            as_of_date_sex AS asOfDateSex,
+            electronic_ind AS electronicInd,
+            person_parent_uid AS personParentUid,
+            dedup_match_ind AS dedupMatchInd,
+            group_nbr AS groupNbr,
+            group_time AS groupTime,
+            edx_ind AS edxInd,
+            speaks_english_cd AS speaksEnglishCd,
+            additional_gender_cd AS additionalGenderCd,
+            ehars_id AS eharsId,
+            ethnic_unk_reason_cd AS ethnicUnkReasonCd,
+            sex_unk_reason_cd AS sexUnkReasonCd
+        FROM Person
+        WHERE person_parent_uid = :person_parent_uid
+    """;
+
+    public static final String SELECT_PERSON_BY_PERSON_UID = """
+        SELECT
+            person_uid AS personUid,
+            version_ctrl_nbr AS versionCtrlNbr,
+            add_reason_cd AS addReasonCd,
+            add_time AS addTime,
+            add_user_id AS addUserId,
+            administrative_gender_cd AS administrativeGenderCd,
+            age_calc AS ageCalc,
+            age_calc_time AS ageCalcTime,
+            age_calc_unit_cd AS ageCalcUnitCd,
+            age_category_cd AS ageCategoryCd,
+            age_reported AS ageReported,
+            age_reported_time AS ageReportedTime,
+            age_reported_unit_cd AS ageReportedUnitCd,
+            birth_gender_cd AS birthGenderCd,
+            birth_order_nbr AS birthOrderNbr,
+            birth_time AS birthTime,
+            birth_time_calc AS birthTimeCalc,
+            cd AS cd,
+            cd_desc_txt AS cdDescTxt,
+            curr_sex_cd AS currSexCd,
+            deceased_ind_cd AS deceasedIndCd,
+            deceased_time AS deceasedTime,
+            description AS description,
+            education_level_cd AS educationLevelCd,
+            education_level_desc_txt AS educationLevelDescTxt,
+            ethnic_group_ind AS ethnicGroupInd,
+            last_chg_reason_cd AS lastChgReasonCd,
+            last_chg_time AS lastChgTime,
+            last_chg_user_id AS lastChgUserId,
+            local_id AS localId,
+            marital_status_cd AS maritalStatusCd,
+            marital_status_desc_txt AS maritalStatusDescTxt,
+            mothers_maiden_nm AS mothersMaidenNm,
+            multiple_birth_ind AS multipleBirthInd,
+            occupation_cd AS occupationCd,
+            preferred_gender_cd AS preferredGenderCd,
+            prim_lang_cd AS primLangCd,
+            prim_lang_desc_txt AS primLangDescTxt,
+            record_status_cd AS recordStatusCd,
+            record_status_time AS recordStatusTime,
+            status_cd AS statusCd,
+            status_time AS statusTime,
+            survived_ind_cd AS survivedIndCd,
+            user_affiliation_txt AS userAffiliationTxt,
+            first_nm AS firstNm,
+            last_nm AS lastNm,
+            middle_nm AS middleNm,
+            nm_prefix AS nmPrefix,
+            nm_suffix AS nmSuffix,
+            preferred_nm AS preferredNm,
+            hm_street_addr1 AS hmStreetAddr1,
+            hm_street_addr2 AS hmStreetAddr2,
+            hm_city_cd AS hmCityCd,
+            hm_city_desc_txt AS hmCityDescTxt,
+            hm_state_cd AS hmStateCd,
+            hm_zip_cd AS hmZipCd,
+            hm_cnty_cd AS hmCntyCd,
+            hm_cntry_cd AS hmCntryCd,
+            hm_phone_nbr AS hmPhoneNbr,
+            hm_phone_cntry_cd AS hmPhoneCntryCd,
+            hm_email_addr AS hmEmailAddr,
+            cell_phone_nbr AS cellPhoneNbr,
+            wk_street_addr1 AS wkStreetAddr1,
+            wk_street_addr2 AS wkStreetAddr2,
+            wk_city_cd AS wkCityCd,
+            wk_city_desc_txt AS wkCityDescTxt,
+            wk_state_cd AS wkStateCd,
+            wk_zip_cd AS wkZipCd,
+            wk_cnty_cd AS wkCntyCd,
+            wk_cntry_cd AS wkCntryCd,
+            wk_phone_nbr AS wkPhoneNbr,
+            wk_phone_cntry_cd AS wkPhoneCntryCd,
+            wk_email_addr AS wkEmailAddr,
+            SSN AS ssn,
+            medicaid_num AS medicaidNum,
+            dl_num AS dlNum,
+            dl_state_cd AS dlStateCd,
+            race_cd AS raceCd,
+            race_seq_nbr AS raceSeqNbr,
+            race_category_cd AS raceCategoryCd,
+            ethnicity_group_cd AS ethnicityGroupCd,
+            ethnic_group_seq_nbr AS ethnicGroupSeqNbr,
+            adults_in_house_nbr AS adultsInHouseNbr,
+            children_in_house_nbr AS childrenInHouseNbr,
+            birth_city_cd AS birthCityCd,
+            birth_city_desc_txt AS birthCityDescTxt,
+            birth_cntry_cd AS birthCntryCd,
+            birth_state_cd AS birthStateCd,
+            race_desc_txt AS raceDescTxt,
+            ethnic_group_desc_txt AS ethnicGroupDescTxt,
+            as_of_date_admin AS asOfDateAdmin,
+            as_of_date_ethnicity AS asOfDateEthnicity,
+            as_of_date_general AS asOfDateGeneral,
+            as_of_date_morbidity AS asOfDateMorbidity,
+            as_of_date_sex AS asOfDateSex,
+            electronic_ind AS electronicInd,
+            person_parent_uid AS personParentUid,
+            dedup_match_ind AS dedupMatchInd,
+            group_nbr AS groupNbr,
+            group_time AS groupTime,
+            edx_ind AS edxInd,
+            speaks_english_cd AS speaksEnglishCd,
+            additional_gender_cd AS additionalGenderCd,
+            ehars_id AS eharsId,
+            ethnic_unk_reason_cd AS ethnicUnkReasonCd,
+            sex_unk_reason_cd AS sexUnkReasonCd
+        FROM Person
+        WHERE person_uid = :person_uid
+    """;
+
+    public static final String SELECT_PERSON_NAME_BY_PERSON_UID = """
+        SELECT
+            person_uid AS personUid,
+            person_name_seq AS personNameSeq,
+            add_reason_cd AS addReasonCd,
+            add_time AS addTime,
+            add_user_id AS addUserId,
+            default_nm_ind AS defaultNmInd,
+            duration_amt AS durationAmt,
+            duration_unit_cd AS durationUnitCd,
+            first_nm AS firstNm,
+            first_nm_sndx AS firstNmSndx,
+            from_time AS fromTime,
+            last_chg_reason_cd AS lastChgReasonCd,
+            last_chg_time AS lastChgTime,
+            last_chg_user_id AS lastChgUserId,
+            last_nm AS lastNm,
+            last_nm_sndx AS lastNmSndx,
+            last_nm2 AS lastNm2,
+            last_nm2_sndx AS lastNm2Sndx,
+            middle_nm AS middleNm,
+            middle_nm2 AS middleNm2,
+            nm_degree AS nmDegree,
+            nm_prefix AS nmPrefix,
+            nm_suffix AS nmSuffix,
+            nm_use_cd AS nmUseCd,
+            record_status_cd AS recordStatusCd,
+            record_status_time AS recordStatusTime,
+            status_cd AS statusCd,
+            status_time AS statusTime,
+            to_time AS toTime,
+            user_affiliation_txt AS userAffiliationTxt,
+            as_of_date AS asOfDate
+        FROM Person_name
+        WHERE person_uid = :person_uid
+    """;
+
+    public static final String SELECT_PERSON_RACE_BY_PERSON_UID = """
+        SELECT
+            person_uid AS personUid,
+            race_cd AS raceCd,
+            add_reason_cd AS addReasonCd,
+            add_time AS addTime,
+            add_user_id AS addUserId,
+            last_chg_reason_cd AS lastChgReasonCd,
+            last_chg_time AS lastChgTime,
+            last_chg_user_id AS lastChgUserId,
+            race_category_cd AS raceCategoryCd,
+            race_desc_txt AS raceDescTxt,
+            record_status_cd AS recordStatusCd,
+            record_status_time AS recordStatusTime,
+            user_affiliation_txt AS userAffiliationTxt,
+            as_of_date AS asOfDate
+        FROM Person_race
+        WHERE person_uid = :person_uid
+    """;
+
+    public static final String SELECT_PERSON_ETHNIC_BY_PERSON_UID = """
+        SELECT
+            person_uid AS personUid,
+            ethnic_group_cd AS ethnicGroupCd,
+            add_reason_cd AS addReasonCd,
+            add_time AS addTime,
+            add_user_id AS addUserId,
+            ethnic_group_desc_txt AS ethnicGroupDescTxt,
+            last_chg_reason_cd AS lastChgReasonCd,
+            last_chg_time AS lastChgTime,
+            last_chg_user_id AS lastChgUserId,
+            record_status_cd AS recordStatusCd,
+            record_status_time AS recordStatusTime,
+            user_affiliation_txt AS userAffiliationTxt
+        FROM Person_ethnic_group
+        WHERE person_uid = :person_uid
+    """;
+}

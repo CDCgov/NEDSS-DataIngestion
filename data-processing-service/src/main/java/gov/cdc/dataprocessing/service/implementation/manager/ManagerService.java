@@ -20,6 +20,7 @@ import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsInterfaceJdbcRepository;
 import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
@@ -39,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.PrintWriter;
@@ -46,6 +48,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Service
 @Slf4j
@@ -74,7 +77,8 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 public class ManagerService implements IManagerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
-
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     private final ICacheApiService cacheApiService;
     private final IObservationService observationService;
 
@@ -96,6 +100,8 @@ public class ManagerService implements IManagerService {
     private final IPamService pamService;
     private final IInvestigationNotificationService investigationNotificationService;
 
+    private final NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository;
+
     private static final String LOG_EXCEPTION_MESSAGE = "Exception while formatting exception message for Activity Log: ";
     @Autowired
     public ManagerService(ICacheApiService cacheApiService, IObservationService observationService,
@@ -109,7 +115,7 @@ public class ManagerService implements IManagerService {
                           ILabReportProcessing labReportProcessing,
                           IPageService pageService,
                           IPamService pamService,
-                          IInvestigationNotificationService investigationNotificationService) {
+                          IInvestigationNotificationService investigationNotificationService, NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository) {
         this.cacheApiService = cacheApiService;
         this.observationService = observationService;
         this.edxLogService = edxLogService;
@@ -123,6 +129,7 @@ public class ManagerService implements IManagerService {
         this.pageService = pageService;
         this.pamService = pamService;
         this.investigationNotificationService = investigationNotificationService;
+        this.nbsInterfaceJdbcRepository = nbsInterfaceJdbcRepository;
     }
 
     public void processDistribution(Integer data) throws DataProcessingConsumerException {
@@ -136,18 +143,11 @@ public class ManagerService implements IManagerService {
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
     public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
-        NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = null;
         edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
         ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
         LabResultProxyContainer labResultProxyContainer = publicHealthCaseFlowContainer.getLabResultProxyContainer();
-        var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-        if (res.isEmpty()) {
-            throw new DataProcessingException("NBS Interface Data Not Exist");
-        }
-        else {
-            nbsInterfaceModel = res.get();
-        }
+        NbsInterfaceModel nbsInterfaceModel = publicHealthCaseFlowContainer.getNbsInterfaceModel();
 
 
         if (edxLabInformationDto.isLabIsUpdateDRRQ()) {
@@ -181,15 +181,15 @@ public class ManagerService implements IManagerService {
         trackerView.setPatientFirstName(patFirstName);
         trackerView.setPatientLastName(patLastName);
 
-        nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-        nbsInterfaceRepository.save(nbsInterfaceModel);
 
-        PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
-        phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-        phcContainer.setLabResultProxyContainer(labResultProxyContainer);
-        phcContainer.setEdxLabInformationDto(edxLabInformationDto);
-        phcContainer.setObservationDto(observationDto);
-        phcContainer.setWdsTrackerView(trackerView);
+
+        publicHealthCaseFlowContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
+        publicHealthCaseFlowContainer.setLabResultProxyContainer(labResultProxyContainer);
+        publicHealthCaseFlowContainer.setEdxLabInformationDto(edxLabInformationDto);
+        publicHealthCaseFlowContainer.setObservationDto(observationDto);
+        publicHealthCaseFlowContainer.setWdsTrackerView(trackerView);
+        publicHealthCaseFlowContainer.setNbsInterfaceModel(nbsInterfaceModel);
+
 
         if (edxLabInformationDto.getPageActContainer() != null
         || edxLabInformationDto.getPamContainer() != null) {
@@ -205,24 +205,15 @@ public class ManagerService implements IManagerService {
         }
 
 
-        this.initiatingLabProcessing(phcContainer);
+        this.initiatingLabProcessing(publicHealthCaseFlowContainer);
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
-        NbsInterfaceModel nbsInterfaceModel = null;
+        NbsInterfaceModel nbsInterfaceModel = publicHealthCaseFlowContainer.getNbsInterfaceModel();
         EdxLabInformationDto edxLabInformationDto=null;
         edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
         ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
-        var res = nbsInterfaceRepository.findByNbsInterfaceUid(publicHealthCaseFlowContainer.getNbsInterfaceId());
-
-        if (res.isPresent()) {
-                nbsInterfaceModel = res.get();
-        }
-        else
-        {
-            throw new DataProcessingException("NBS Interface Data Not Exist");
-        }
 
         PageActProxyContainer pageActProxyContainer = null;
         PamProxyContainer pamProxyVO = null;
@@ -310,6 +301,7 @@ public class ManagerService implements IManagerService {
             }
         }
         nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
+        nbsInterfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
         nbsInterfaceRepository.save(nbsInterfaceModel);
         logger.info("Completed");
     }
@@ -323,14 +315,16 @@ public class ManagerService implements IManagerService {
         boolean kafkaFailedCheck = false;
         try {
 
-            var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
-            if (obj.isPresent()) {
-                nbsInterfaceModel = obj.get();
+            // 65 ms with JPA
+//            var obj = nbsInterfaceRepository.findByNbsInterfaceUid(data);
+            var obj = nbsInterfaceJdbcRepository.getNbsInterfaceByUid(data);
+            if (obj != null) {
+                nbsInterfaceModel = obj;
             } else {
                 throw new DataProcessingException("NBS Interface Not Exist");
             }
             synchronized (PropertyUtilCache.class) {
-                if (obj.get().getRecordStatusCd().toUpperCase().contains("SUCCESS")) {
+                if (obj.getRecordStatusCd().toUpperCase().contains("SUCCESS")) {
                     if (PropertyUtilCache.kafkaFailedCheckStep1 == 100000) {
                         PropertyUtilCache.kafkaFailedCheckStep1 = 0;
                     }
@@ -401,8 +395,9 @@ public class ManagerService implements IManagerService {
 
 
             nbsInterfaceModel.setObservationUid(observationDto.getObservationUid().intValue());
-            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_1);
-            nbsInterfaceRepository.save(nbsInterfaceModel);
+//            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_1);
+//            nbsInterfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
+//            nbsInterfaceRepository.save(nbsInterfaceModel);
 
 
             PublicHealthCaseFlowContainer phcContainer = new PublicHealthCaseFlowContainer();
@@ -410,13 +405,8 @@ public class ManagerService implements IManagerService {
             phcContainer.setEdxLabInformationDto(edxLabInformationDto);
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
-//            String jsonString = GSON.toJson(phcContainer);
-//            kafkaManagerProducer.sendDataPhc(jsonString);
-
+            phcContainer.setNbsInterfaceModel(nbsInterfaceModel);
             this.initiatingInvestigationAndPublicHealthCase(phcContainer);
-//            logger.info("Completed 1st Step");
-
-            //return result;
         }
         catch (Exception e)
         {
@@ -424,6 +414,7 @@ public class ManagerService implements IManagerService {
             logger.error("DP ERROR: {}", e.getMessage());
             if (nbsInterfaceModel != null) {
                 nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
+                nbsInterfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
                 nbsInterfaceRepository.save(nbsInterfaceModel);
             }
             String accessionNumberToAppend = "Accession Number:" + edxLabInformationDto.getFillerNumber();

@@ -72,7 +72,7 @@ public class CustomAuthUserRepositoryImpl implements CustomAuthUserRepository {
         // For Unit Test
     }
 
-    @Transactional
+    // @Transactional
     public Collection<AuthUserRealizedRole> getAuthUserRealizedRole(String userId) {
         Query query = entityManager.createNativeQuery(SELECT_REALIZED_ROLES_FOR_USER_ID);
         Collection<AuthUserRealizedRole> authUserRealizedRoles = new ArrayList<>();

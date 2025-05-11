@@ -90,7 +90,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 this.updateWithRevision(personVO, personType);
             }
 
-            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().length() == 0)
+            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().isEmpty())
             {
                 mprPersonUid = personVO.getThePersonDto().getPersonParentUid();
                 mprPersonVO = getPatientRepositoryUtil().loadPerson(mprPersonUid);
@@ -180,11 +180,9 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             if (personVO.isItNew()) {
                 var res =   getPatientRepositoryUtil().createPerson(personVO);
                 personUID = res.getPersonUid();
-                logger.debug(" EntityControllerEJB.setProvider() Person Created");
             } else {
                 if (!personVO.isNewPersonCreated()) {
                     getPatientRepositoryUtil().updateExistingPerson(personVO);
-                    logger.debug(" EntityControllerEJB.setProvider() Person Updated");
                 }
                 personUID = personVO.getThePersonDto()
                         .getPersonUid();
@@ -231,8 +229,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
 
         //Retrieve a mpr with the mprUID
         PersonContainer mpr = getPatientRepositoryUtil().loadPerson(mprUID);
-
-        logger.debug("mpr is: {}", mpr);
 
         if(mpr != null) //With the MPR, update...
         {
