@@ -101,8 +101,8 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    thread: ${KAFKA_THREAD:10}
-    max-poll-record: ${KAFKA_MAX_POLL_RECORD:100}
+    thread: ${KAFKA_THREAD:1}
+    max-poll-record: ${KAFKA_MAX_POLL_RECORD:10}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
@@ -113,10 +113,28 @@ spring:
 
 service:
   timezone: ${SERVICE_TZ:UTC}
-#logging.level.org.apache.kafka.clients.consumer: DEBUG
+
+logging:
+  level:
+    root: WARN
+    # Retain INFO logs for your own class
+    gov.cdc.dataprocessing: INFO
+    # Kafka internals
+    org.apache.kafka: WARN
+    # JPA / Hibernate
+    org.hibernate: WARN
+    org.springframework.orm.jpa: WARN
+    org.springframework.transaction: WARN
+    # HikariCP
+    com.zaxxer.hikari: WARN
+    # Spring Data JPA repositories
+    org.springframework.data.jpa.repository: WARN
+    # JDBC (optional)
+    org.springframework.jdbc.core: WARN
+
 
 feature:
   thread-enabled: ${THREAD_FLAG:false}
   jdbc-flag: ${JDBC_FLAG:true}
-  thread-pool-size: ${THREAD_POOL_SIZE:5}
-  thread-queue-size: ${THREAD_QUEUE_SIZE:100}
+  thread-pool-size: ${THREAD_POOL_SIZE:10}
+  thread-queue-size: ${THREAD_QUEUE_SIZE:1000}

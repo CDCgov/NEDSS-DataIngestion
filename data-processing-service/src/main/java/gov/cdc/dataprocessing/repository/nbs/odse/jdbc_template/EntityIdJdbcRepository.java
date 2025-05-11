@@ -1,13 +1,21 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+
 import static gov.cdc.dataprocessing.constant.query.EntityQuery.INSERT_SQL_ENTITY_ID;
+import static gov.cdc.dataprocessing.constant.query.EntityQuery.SELECT_ENTITY_ID_BY_ENTITY_ID;
 
 @Component
 public class EntityIdJdbcRepository {
@@ -47,4 +55,48 @@ public class EntityIdJdbcRepository {
                 .addValue("assigning_authority_id_type", entityId.getAssigningAuthorityIdType())
         );
     }
+
+    public void batchCreateEntityIds(List<EntityId> entityIds) {
+        List<MapSqlParameterSource> parameters = entityIds.stream()
+                .map(e -> new MapSqlParameterSource()
+                        .addValue("entity_uid", e.getEntityUid())
+                        .addValue("entity_id_seq", e.getEntityIdSeq())
+                        .addValue("add_reason_cd", e.getAddReasonCode())
+                        .addValue("add_time", e.getAddTime())
+                        .addValue("add_user_id", e.getAddUserId())
+                        .addValue("assigning_authority_cd", e.getAssigningAuthorityCode())
+                        .addValue("assigning_authority_desc_txt", e.getAssigningAuthorityDescription())
+                        .addValue("duration_amt", e.getDurationAmount())
+                        .addValue("duration_unit_cd", e.getDurationUnitCode())
+                        .addValue("effective_from_time", e.getEffectiveFromTime())
+                        .addValue("effective_to_time", e.getEffectiveToTime())
+                        .addValue("last_chg_reason_cd", e.getLastChangeReasonCode())
+                        .addValue("last_chg_time", e.getLastChangeTime())
+                        .addValue("last_chg_user_id", e.getLastChangeUserId())
+                        .addValue("record_status_cd", e.getRecordStatusCode())
+                        .addValue("record_status_time", e.getRecordStatusTime())
+                        .addValue("root_extension_txt", e.getRootExtensionText())
+                        .addValue("status_cd", e.getStatusCode())
+                        .addValue("status_time", e.getStatusTime())
+                        .addValue("type_cd", e.getTypeCode())
+                        .addValue("type_desc_txt", e.getTypeDescriptionText())
+                        .addValue("user_affiliation_txt", e.getUserAffiliationText())
+                        .addValue("valid_from_time", e.getValidFromTime())
+                        .addValue("valid_to_time", e.getValidToTime())
+                        .addValue("as_of_date", e.getAsOfDate())
+                        .addValue("assigning_authority_id_type", e.getAssigningAuthorityIdType()))
+                .toList();
+
+        jdbcTemplateOdse.batchUpdate(INSERT_SQL_ENTITY_ID,
+                parameters.toArray(new MapSqlParameterSource[0]));
+    }
+
+
+
+    public List<EntityId> findEntityIds(Long entityUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("entity_uid", entityUid);
+
+        return jdbcTemplateOdse.query(SELECT_ENTITY_ID_BY_ENTITY_ID, params, new BeanPropertyRowMapper<>(EntityId.class));
+    }
+
 }

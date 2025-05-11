@@ -63,6 +63,36 @@ INSERT INTO Entity_locator_participation (
 )
 """;
 
+    public static final String SELECT_ENTITY_LOCATOR_PARTICIPATIONS_BY_ENTITY_UID = """
+            SELECT
+                entity_uid AS entityUid,
+                locator_uid AS locatorUid,
+                version_ctrl_nbr AS versionCtrlNbr,
+                add_reason_cd AS addReasonCd,
+                add_time AS addTime,
+                add_user_id AS addUserId,
+                cd AS cd,
+                cd_desc_txt AS cdDescTxt,
+                class_cd AS classCd,
+                duration_amt AS durationAmt,
+                duration_unit_cd AS durationUnitCd,
+                from_time AS fromTime,
+                last_chg_reason_cd AS lastChgReasonCd,
+                last_chg_time AS lastChgTime,
+                last_chg_user_id AS lastChgUserId,
+                locator_desc_txt AS locatorDescTxt,
+                record_status_cd AS recordStatusCd,
+                record_status_time AS recordStatusTime,
+                status_cd AS statusCd,
+                status_time AS statusTime,
+                to_time AS toTime,
+                use_cd AS useCd,
+                user_affiliation_txt AS userAffiliationTxt,
+                valid_time_txt AS validTimeTxt,
+                as_of_date AS asOfDate
+            FROM Entity_locator_participation
+            WHERE entity_uid = :entity_uid
+            """;
 
 
 }

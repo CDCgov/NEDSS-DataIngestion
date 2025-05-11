@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidCacheModel;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.OdseIdGeneratorJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
@@ -21,10 +22,14 @@ import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.GA;
 public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheService {
     private final ICacheApiService cacheApiService;
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
+    private final OdseIdGeneratorJdbcRepository odseIdGeneratorJdbcRepository;
 
-    public OdseIdGeneratorWCacheService(ICacheApiService cacheApiService, LocalUidGeneratorRepository localUidGeneratorRepository) {
+    public OdseIdGeneratorWCacheService(ICacheApiService cacheApiService,
+                                        LocalUidGeneratorRepository localUidGeneratorRepository,
+                                        OdseIdGeneratorJdbcRepository odseIdGeneratorJdbcRepository) {
         this.cacheApiService = cacheApiService;
         this.localUidGeneratorRepository = localUidGeneratorRepository;
+        this.odseIdGeneratorJdbcRepository = odseIdGeneratorJdbcRepository;
     }
 
     public LocalUidModel getValidLocalUidByApi(LocalIdClass localIdClass, boolean gaApplied) {
@@ -43,8 +48,6 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
     private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         LocalUidGeneratorDto localId = fetchLocalId(localIdClass);
-
-
         LocalUidGeneratorDto gaLocalId = gaApplied ? fetchLocalId(GA) : null;
 
         var localUidModel = new LocalUidModel();

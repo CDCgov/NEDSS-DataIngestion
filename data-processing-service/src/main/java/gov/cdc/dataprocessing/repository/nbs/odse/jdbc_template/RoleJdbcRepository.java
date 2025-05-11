@@ -1,13 +1,18 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static gov.cdc.dataprocessing.constant.query.PersonQuery.INSERT_SQL_ROLE;
+import static gov.cdc.dataprocessing.constant.query.PersonQuery.SELECT_ROLE_BY_SUBJECT_ENTITY_UID;
 
 @Component
 public class RoleJdbcRepository {
@@ -43,5 +48,12 @@ public class RoleJdbcRepository {
                 .addValue("subject_class_cd", role.getSubjectClassCode())
                 .addValue("user_affiliation_txt", role.getUserAffiliationText())
         );
+    }
+
+
+    public List<Role> findRolesByParentUid(Long subjectEntityUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("subject_entity_uid", subjectEntityUid);
+
+        return jdbcTemplateOdse.query(SELECT_ROLE_BY_SUBJECT_ENTITY_UID, params, new BeanPropertyRowMapper<>(Role.class));
     }
 }

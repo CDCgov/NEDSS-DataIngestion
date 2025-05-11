@@ -82,26 +82,34 @@ public class HL7PatientHandler {
             HL7PATIENTRESULTType hl7PatientResult,
             LabResultProxyContainer labResultProxyContainer,
             EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-            if (hl7PatientResult != null && hl7PatientResult.getPATIENT() != null) {
-                // Processing Patient Identification
-                if (hl7PatientResult.getPATIENT().getPatientIdentification() != null) {
-                    HL7PIDType patientInfo = hl7PatientResult.getPATIENT().getPatientIdentification();
-                    getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
-                }
-                // Processing Next of kin
-                if (hl7PatientResult.getPATIENT().getNextofKinAssociatedParties() != null) {
-                    List<HL7NK1Type> hl7NK1TypeList = hl7PatientResult.getPATIENT().getNextofKinAssociatedParties();
-                    // Only need the first index
-                    if (!hl7NK1TypeList.isEmpty()) {
-                        HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(0);
-                        if (hl7NK1Type.getName() != null && !hl7NK1Type.getName().isEmpty()) {
-                            getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
-                        }
-                    }
-                }
+
+        if (hl7PatientResult == null) {
+            return labResultProxyContainer;
+        }
+
+        var patient = hl7PatientResult.getPATIENT();
+        if (patient == null) {
+            return labResultProxyContainer;
+        }
+
+        var patientInfo = patient.getPatientIdentification();
+        if (patientInfo != null) {
+            getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
+        }
+
+        var nokList = patient.getNextofKinAssociatedParties();
+        if (nokList != null && !nokList.isEmpty()) {
+            var nok = nokList.getFirst();
+            var nokName = nok.getName();
+            if (nokName != null && !nokName.isEmpty()) {
+                getNextOfKinVO(nok, labResultProxyContainer, edxLabInformationDto);
             }
+        }
+
         return labResultProxyContainer;
     }
+
+
     @SuppressWarnings("java:S3776")
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,

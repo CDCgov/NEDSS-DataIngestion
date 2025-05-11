@@ -182,14 +182,6 @@ public class ComplexQueries {
 
     public static final String RETRIEVE_OBSERVATION_QUESTION_SQL =
             " select obs.*," +
-//                    "obs.observation_uid observationUid, obs.cd cd, " +
-//                    " obs.ctrl_cd_display_form ctrlCdDisplayForm , " +
-//                    " obs.version_ctrl_nbr versionCtrlNbr, obs.shared_ind sharedInd, " +
-//                    " obs.local_id localId, " +
-//                    " obs.cd_desc_txt \"cdDescTxt\" , " +
-//                    " obs.cd_system_desc_txt \"cdSystemDescTxt\"  , " +
-//                    " obs.cd_system_cd \"cdSystemCd\" ," +
-//                    " obs.cd_version \"cdVersion\" , " +
                     " obscode.observation_uid obsCodeUid ," +
                     "obscode.code code, obscode.original_txt originalTxt, obscode.code_system_desc_txt codeSystemDescTxt," +
                     " obsdate.observation_uid obsDateUid , " +

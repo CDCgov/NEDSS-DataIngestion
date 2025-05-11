@@ -1,14 +1,18 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.query.EntityLocatorQuery.*;
 
@@ -118,6 +122,11 @@ public class EntityLocatorJdbcRepository {
                 .addValue("valid_time_txt", entityLocatorParticipation.getValidTimeTxt())
                 .addValue("as_of_date", entityLocatorParticipation.getAsOfDate())
         );
+    }
+
+    public List<EntityLocatorParticipation> findEntityLocatorParticipations(Long entityUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("entity_uid", entityUid);
+        return jdbcTemplateOdse.query(SELECT_ENTITY_LOCATOR_PARTICIPATIONS_BY_ENTITY_UID, params, new BeanPropertyRowMapper<>(EntityLocatorParticipation.class));
     }
 
 }

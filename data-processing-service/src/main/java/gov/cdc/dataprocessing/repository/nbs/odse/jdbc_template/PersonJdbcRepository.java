@@ -5,10 +5,13 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.query.PersonQuery.*;
 
@@ -131,6 +134,27 @@ public class PersonJdbcRepository {
         );
     }
 
+    public Long findMprUid(Long parentUid) {
+        String sql = "SELECT person_parent_uid FROM Person WHERE person_uid = :person_uid AND record_status_cd='ACTIVE'";
+        MapSqlParameterSource params = new MapSqlParameterSource("person_uid", parentUid);
+        return jdbcTemplateOdse.queryForObject(sql, params, Long.class);
+    }
+
+    public List<Person> findPersonsByParentUid(Long parentUid) {
+//        String sql = "SELECT * FROM Person WHERE person_parent_uid = :person_parent_uid";
+        MapSqlParameterSource params = new MapSqlParameterSource("person_parent_uid", parentUid);
+
+        return jdbcTemplateOdse.query(SELECT_PERSON_BY_PARENT_UID, params, new BeanPropertyRowMapper<>(Person.class));
+    }
+
+
+    public Person findByPersonUid(Long personUid) {
+//        String sql = "SELECT * FROM Person WHERE person_uid = :person_uid";
+        MapSqlParameterSource params = new MapSqlParameterSource("person_uid", personUid);
+
+        return jdbcTemplateOdse.queryForObject(SELECT_PERSON_BY_PERSON_UID, params, new BeanPropertyRowMapper<>(Person.class));
+    }
+
     public void createPersonName(PersonName personName) {
         jdbcTemplateOdse.update(INSERT_SQL_PERSON_NAME, new MapSqlParameterSource()
                 .addValue("person_uid", personName.getPersonUid())
@@ -167,6 +191,13 @@ public class PersonJdbcRepository {
         );
     }
 
+    public List<PersonName> findPersonNameByPersonUid(Long personUid) {
+//        String sql = "SELECT * FROM Person_name WHERE person_uid = :person_uid";
+        MapSqlParameterSource params = new MapSqlParameterSource("person_uid", personUid);
+
+        return jdbcTemplateOdse.query(SELECT_PERSON_NAME_BY_PERSON_UID, params, new BeanPropertyRowMapper<>(PersonName.class));
+    }
+
     public void createPersonRace(PersonRace personRace) {
         jdbcTemplateOdse.update(INSERT_SQL_PERSON_RACE, new MapSqlParameterSource()
                 .addValue("person_uid", personRace.getPersonUid())
@@ -186,6 +217,15 @@ public class PersonJdbcRepository {
         );
     }
 
+
+    public List<PersonRace> findPersonRaceByPersonUid(Long personUid) {
+//        String sql = "SELECT * FROM Person_race WHERE person_uid = :person_uid";
+        MapSqlParameterSource params = new MapSqlParameterSource("person_uid", personUid);
+
+        return jdbcTemplateOdse.query(SELECT_PERSON_RACE_BY_PERSON_UID, params, new BeanPropertyRowMapper<>(PersonRace.class));
+    }
+
+
     public void createPersonEthnicGroup(PersonEthnicGroup personEthnicGroup) {
         jdbcTemplateOdse.update(INSERT_SQL_PERSON_ETHNIC, new MapSqlParameterSource()
                 .addValue("person_uid", personEthnicGroup.getPersonUid())
@@ -202,4 +242,14 @@ public class PersonJdbcRepository {
                 .addValue("user_affiliation_txt", personEthnicGroup.getUserAffiliationTxt())
         );
     }
+
+    public List<PersonEthnicGroup> findPersonEthnicByPersonUid(Long personUid) {
+//        String sql = "SELECT * FROM Person_ethnic_group WHERE person_uid = :person_uid";
+        MapSqlParameterSource params = new MapSqlParameterSource("person_uid", personUid);
+
+        return jdbcTemplateOdse.query(SELECT_PERSON_ETHNIC_BY_PERSON_UID, params, new BeanPropertyRowMapper<>(PersonEthnicGroup.class));
+    }
+
+
+
 }

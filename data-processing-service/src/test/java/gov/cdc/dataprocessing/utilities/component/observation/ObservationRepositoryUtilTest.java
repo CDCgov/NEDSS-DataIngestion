@@ -431,7 +431,7 @@ class ObservationRepositoryUtilTest {
         ActivityLocatorParticipationDto activityLocatorParticipationDto = new ActivityLocatorParticipationDto();
         activityLocatorParticipationDtoCollection.add(activityLocatorParticipationDto);
 
-        observationRepositoryUtil.addActivityLocatorParticipations(obsUid, activityLocatorParticipationDtoCollection);
+        observationRepositoryUtil.addActivityLocatorParticipations(obsUid, activityLocatorParticipationDtoCollection, "CREATE");
         verify(actLocatorParticipationRepository, times(1)).save(any());
 
     }

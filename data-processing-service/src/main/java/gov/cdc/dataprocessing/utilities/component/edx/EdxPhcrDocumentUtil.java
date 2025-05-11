@@ -86,7 +86,9 @@ public class EdxPhcrDocumentUtil {
                 }
                 else if(!OdseCache.dmbMap.containsKey(invFormCd))
                 {
-                    Map<Object, Object> questions = (Map<Object, Object> )lookupService.getDMBQuestionMapAfterPublish().get(invFormCd);
+//                    Map<Object, Object> questions = (Map<Object, Object> )lookupService.getDMBQuestionMapAfterPublish().get(invFormCd);
+                    Map<Object, Object> questions = (Map<Object, Object> ) OdseCache.DMB_QUESTION_MAP.get(invFormCd);
+
                     if(questions != null)
                     {
                         tempMap.putAll(questions);

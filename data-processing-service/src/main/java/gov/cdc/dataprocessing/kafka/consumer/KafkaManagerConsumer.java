@@ -1,13 +1,17 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
 import io.micrometer.core.instrument.util.NamedThreadFactory;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +60,8 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
     private static final Queue<Integer> pendingMessages = new ConcurrentLinkedQueue<>();
-
+    @Value("${feature.thread-pool-size}")
+    private Integer poolSize = 1;
     @Value("${nbs.user}")
     private String nbsUser = "";
 
@@ -66,6 +71,8 @@ public class KafkaManagerConsumer {
 
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
+    private final QueryHelper queryHelper;
+    private final ILookupService lookupService;
 
     private final ExecutorService executorService;
     private final TransactionTemplate transactionTemplate;
@@ -73,12 +80,14 @@ public class KafkaManagerConsumer {
 
     public KafkaManagerConsumer(
             ManagerService managerService,
-            IAuthUserService authUserService,
+            IAuthUserService authUserService, QueryHelper queryHelper, ILookupService lookupService,
             ExecutorService executorService,
             PlatformTransactionManager transactionManager
             ) {
         this.managerService = managerService;
         this.authUserService = authUserService;
+        this.queryHelper = queryHelper;
+        this.lookupService = lookupService;
         this.executorService = executorService;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -108,58 +117,11 @@ public class KafkaManagerConsumer {
     }
 
 
-//    public void handleMessage(List<String> messages, Acknowledgment acknowledgment) {
-//        try {
-//            AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
-//            AuthUtil.setGlobalAuthUser(profile);
-//            for (String message : messages) {
-//
-//                if (threadEnabled) {
-//                    while (true) {
-//                        try {
-//                            executorService.submit(() -> {
-//                                try {
-//                                    Integer nbs = GSON.fromJson(message, Integer.class);
-//                                    managerService.processDistribution(nbs);
-//                                } catch (DataProcessingConsumerException e) {
-//                                    log.error("Failed to process Kafka message: {}", e.getMessage());
-//                                }
-//                            });
-//                            System.gc();
-//
-//                            break; // success, move to next message
-//                        } catch (RejectedExecutionException e) {
-//                            // Wait a short period to retry
-//                            Thread.sleep(100); // small pause to let queue drain
-//                        }
-//                    }
-//                }
-//                else {
-//                    Integer nbs = GSON.fromJson(message, Integer.class);
-//                    managerService.processDistribution(nbs);
-//                    System.gc();
-//                }
-//
-//
-//            }
-//
-//            acknowledgment.acknowledge();
-//
-//        } catch (Exception e) {
-//            log.error("Failed to process Kafka message: {}", e.getMessage());
-//            // Kafka will retry (no acknowledge)
-//        }
-//    }
-
-
-    @Scheduled(fixedDelay = 30000) // every 1 min
+    @Scheduled(fixedDelay = 10000) // every 10 seconds
     public void processPendingMessages() {
         if (pendingMessages.isEmpty()) return;
-
         try {
-            AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
-            AuthUtil.setGlobalAuthUser(profile);
-
+            Semaphore concurrencyLimiter = new Semaphore(poolSize); // limit to 10 virtual threads
             while (!pendingMessages.isEmpty()) {
                 Integer nbs = pendingMessages.poll();
                 if (nbs == null) continue;
@@ -170,30 +132,78 @@ public class KafkaManagerConsumer {
                     } catch (DataProcessingConsumerException e) {
                         log.error("Failed to process: {}", e.getMessage());
                         // Optionally re-add to queue or log to DLQ
+                    } finally {
+                        if (threadEnabled) {
+                            concurrencyLimiter.release();
+                            System.gc();
+                        }
                     }
                 };
 
                 if (threadEnabled) {
-                    while (true) {
-                        try {
-                            executorService.submit(task);
-                            break;
-                        } catch (RejectedExecutionException e) {
-                            Thread.sleep(100); // backoff if thread pool is saturated
-                        }
-                    }
+                    concurrencyLimiter.acquire(); // block if 10 tasks are already running
+                    Thread.startVirtualThread(task);
                 } else {
                     task.run();
-                    System.gc(); // If necessary, else remove
+                    System.gc(); // optional; consider removing
                 }
+            }
+
+            if (threadEnabled) {
+                concurrencyLimiter.acquire(poolSize); // Wait for all virtual threads to finish
+                concurrencyLimiter.release(poolSize); // Reset for next scheduled run
             }
 
         } catch (Exception e) {
             log.error("Scheduled processing failed: {}", e.getMessage());
         } finally {
-            System.gc(); // If necessary, else remove
+            if (!threadEnabled) {
+                System.gc(); // optional; consider removing
+            }
         }
     }
+
+    @PostConstruct
+    public void init() throws DataProcessingException {
+        // Ensure this runs first at startup
+        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+
+        OdseCache.OWNER_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(false);
+        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
+
+        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
+
+        logger.info("Completed Initializing");
+
+    }
+
+
+    @Scheduled(fixedDelay = 1800000) // every 30 min
+    public void populateAuthUser() throws DataProcessingException {
+        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+        logger.info("Completed populateAuthUser");
+    }
+
+
+
+    @Scheduled(fixedDelay = 3600000) // every 1 hr
+    public void populateHashPAJList() throws DataProcessingException {
+        logger.info("Started populateHashPAJList");
+        OdseCache.OWNER_LIST_HASHED_PA_J =  queryHelper.getHashedPAJList(false);
+        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
+        logger.info("Completed populateHashPAJList");
+    }
+
+    @Scheduled(fixedDelay = 3600000) // every 1 hr
+    public void populateDMBQuestionMap() {
+        logger.info("Started populateDMBQuestionMap");
+        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
+        logger.info("Completed populateDMBQuestionMap");
+    }
+
+
 }
 
 

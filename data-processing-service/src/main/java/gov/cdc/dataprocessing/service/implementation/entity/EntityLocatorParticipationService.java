@@ -451,7 +451,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
 
     public List<EntityLocatorParticipation> findEntityLocatorById(Long uid) {
-       var result = entityLocatorParticipationRepository.findByParentUid(uid);
-        return result.orElseGet(ArrayList::new);
+       var result = entityLocatorJdbcRepository.findEntityLocatorParticipations(uid);
+        return Objects.requireNonNullElse(result, Collections.emptyList());
     }
 }

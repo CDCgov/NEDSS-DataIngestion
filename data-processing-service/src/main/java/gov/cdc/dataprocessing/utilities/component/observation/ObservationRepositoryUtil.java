@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.observation.*;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
@@ -58,51 +59,48 @@ public class ObservationRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRepositoryUtil.class); // NOSONAR
 
     private final ObservationRepository observationRepository;
-    private final ObservationReasonRepository observationReasonRepository;
-    private final ActIdRepository actIdRepository;
-    private final ObservationInterpRepository observationInterpRepository;
-    private final ObsValueCodedRepository obsValueCodedRepository;
-    private final ObsValueTxtRepository obsValueTxtRepository;
-    private final ObsValueDateRepository obsValueDateRepository;
-    private final ObsValueNumericRepository obsValueNumericRepository;
-    private final ActLocatorParticipationRepository actLocatorParticipationRepository;
-    private final ActRelationshipRepository actRelationshipRepository;
-    private final ParticipationRepository participationRepository;
+//    private final ObservationReasonRepository observationReasonRepository;
+//    private final ActIdRepository actIdRepository;
+//    private final ObservationInterpRepository observationInterpRepository;
+//    private final ObsValueCodedRepository obsValueCodedRepository;
+//    private final ObsValueTxtRepository obsValueTxtRepository;
+//    private final ObsValueDateRepository obsValueDateRepository;
+//    private final ObsValueNumericRepository obsValueNumericRepository;
+//    private final ActLocatorParticipationRepository actLocatorParticipationRepository;
+//    private final ActRelationshipRepository actRelationshipRepository;
+//    private final ActRepository actRepository;
+//    private final ParticipationRepository participationRepository;
     private final EntityHelper entityHelper;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
-    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
-    private final ActRepository actRepository;
+
+    private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
+    private final ObservationJdbcRepository observationJdbcRepository;
+    private final ActJdbcRepository actJdbcRepository;
+    private final ActRelationshipJdbcRepository actRelationshipJdbcRepository;
+    private final ActIdJdbcRepository actIdJdbcRepository;
+    private final ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository;
+    private final ParticipationJdbcRepository participationJdbcRepository;
 
     public ObservationRepositoryUtil(ObservationRepository observationRepository,
-                                     ObservationReasonRepository observationReasonRepository,
-                                     ActIdRepository actIdRepository,
-                                     ObservationInterpRepository observationInterpRepository,
-                                     ObsValueCodedRepository obsValueCodedRepository,
-                                     ObsValueTxtRepository obsValueTxtRepository,
-                                     ObsValueDateRepository obsValueDateRepository,
-                                     ObsValueNumericRepository obsValueNumericRepository,
-                                     ActLocatorParticipationRepository actLocatorParticipationRepository,
-                                     ActRelationshipRepository actRelationshipRepository,
-                                     ParticipationRepository participationRepository,
                                      EntityHelper entityHelper,
-                                     IOdseIdGeneratorWCacheService odseIdGeneratorService, ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
-                                     ActRepository actRepository) {
+                                     IOdseIdGeneratorWCacheService odseIdGeneratorService,
+                                     ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
+                                     ObservationJdbcRepository observationJdbcRepository,
+                                     ActJdbcRepository actJdbcRepository,
+                                     ActRelationshipJdbcRepository actRelationshipJdbcRepository,
+                                     ActIdJdbcRepository actIdJdbcRepository,
+                                     ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository, ParticipationJdbcRepository participationJdbcRepository) {
         this.observationRepository = observationRepository;
-        this.observationReasonRepository = observationReasonRepository;
-        this.actIdRepository = actIdRepository;
-        this.observationInterpRepository = observationInterpRepository;
-        this.obsValueCodedRepository = obsValueCodedRepository;
-        this.obsValueTxtRepository = obsValueTxtRepository;
-        this.obsValueDateRepository = obsValueDateRepository;
-        this.obsValueNumericRepository = obsValueNumericRepository;
-        this.actLocatorParticipationRepository = actLocatorParticipationRepository;
-        this.actRelationshipRepository = actRelationshipRepository;
-        this.participationRepository = participationRepository;
         this.entityHelper = entityHelper;
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
-        this.actRepository = actRepository;
+        this.observationJdbcRepository = observationJdbcRepository;
+        this.actJdbcRepository = actJdbcRepository;
+        this.actRelationshipJdbcRepository = actRelationshipJdbcRepository;
+        this.actIdJdbcRepository = actIdJdbcRepository;
+        this.actLocatorParticipationJdbcRepository = actLocatorParticipationJdbcRepository;
+        this.participationJdbcRepository = participationJdbcRepository;
     }
 
 
@@ -256,7 +254,7 @@ public class ObservationRepositoryUtil {
             addObsValueTxts(obsId, observationContainer.getTheObsValueTxtDtoCollection());
             addObsValueDates(obsId, observationContainer.getTheObsValueDateDtoCollection());
             addObsValueNumeric(obsId, observationContainer.getTheObsValueNumericDtoCollection());
-            addActivityLocatorParticipations(obsId, observationContainer.getTheActivityLocatorParticipationDtoCollection());
+            addActivityLocatorParticipations(obsId, observationContainer.getTheActivityLocatorParticipationDtoCollection(), "CREATE");
             return obsId;
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -305,7 +303,7 @@ public class ObservationRepositoryUtil {
         }
 
         if (observationContainer.getTheActivityLocatorParticipationDtoCollection() != null) {
-            addActivityLocatorParticipations(uid, observationContainer.getTheActivityLocatorParticipationDtoCollection());
+            addActivityLocatorParticipations(uid, observationContainer.getTheActivityLocatorParticipationDtoCollection(), "UPDATE");
         }
 
         return uid;
@@ -317,22 +315,19 @@ public class ObservationRepositoryUtil {
 
         if (actRelationshipDto.isItNew())
         {
-            actRelationshipRepository.save(actRelationship);
+            actRelationshipJdbcRepository.insertActRelationship(actRelationship);
         }
         else if (actRelationshipDto.isItDelete())
         {
-            actRelationshipRepository.delete(actRelationship);
+            actRelationshipJdbcRepository.deleteActRelationship(actRelationship);
         }
         else if (actRelationshipDto.isItDirty() &&
                 (actRelationshipDto.getTargetActUid() != null &&
                         actRelationshipDto.getSourceActUid() != null && actRelationshipDto.getTypeCd() != null)
         )
         {
-            actRelationshipRepository.save(actRelationship);
+            actRelationshipJdbcRepository.updateActRelationship(actRelationship);
         }
-
-
-        actRelationshipRepository.save(actRelationship);
     }
 
 
@@ -360,8 +355,8 @@ public class ObservationRepositoryUtil {
     public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
 
         ArrayList<ObservationContainer> theObservationQuestionColl = new ArrayList<> ();
-        var observationQuestion = observationRepository.retrieveObservationQuestion(targetActUid);
-        if (observationQuestion.isPresent()) {
+        var observationQuestion = observationJdbcRepository.retrieveObservationQuestion(targetActUid);
+        if (observationQuestion != null && !observationQuestion.isEmpty()) {
             Long previousTargetActUid = null;
             Long previousObservationUid = null;
             ObservationContainer obsVO = null;
@@ -369,7 +364,7 @@ public class ObservationRepositoryUtil {
             ArrayList<ObsValueDateDto> obsDates = null;
             ArrayList<ObsValueNumericDto> obsNumerics = null;
             ArrayList<ObsValueTxtDto> obsValueTxts = null;
-            for (Observation_Question observation_question : observationQuestion.get()) {
+            for (Observation_Question observation_question : observationQuestion) {
 
                 if (previousTargetActUid == null ||
                         !previousTargetActUid.equals(observation_question.getTargetActUid()))
@@ -500,9 +495,9 @@ public class ObservationRepositoryUtil {
     private ObservationDto selectObservation(long obUID) throws  DataProcessingException {
         try {
             // QUERY OBS
-            var result = observationRepository.findById(obUID);
-            if (result.isPresent()) {
-                ObservationDto item = new ObservationDto(result.get());
+            var result = observationJdbcRepository.findObservationByUid(obUID);
+            if (result != null) {
+                ObservationDto item = new ObservationDto(result);
                 item.setItNew(false);
                 item.setItDirty(false);
                 return  item;
@@ -520,7 +515,7 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ObservationReason> observationReasons = observationReasonRepository.findRecordsById(aUID);
+            Collection<ObservationReason> observationReasons = observationJdbcRepository.findByObservationReasons(aUID);
             Collection<ObservationReasonDto> dtCollection = new ArrayList<>();
             for (var observationReason : observationReasons) {
                 ObservationReasonDto dt = new ObservationReasonDto(observationReason);
@@ -540,10 +535,10 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            var result  = actIdRepository.findRecordsById(aUID);
+            var result  = actIdJdbcRepository.findRecordsByActUid(aUID);
             Collection<ActIdDto> dtCollection = new ArrayList<>();
-            if (result.isPresent()) {
-                Collection<ActId> col = result.get();
+            if (result != null && !result.isEmpty()) {
+                Collection<ActId> col = result;
                 for (var item : col) {
                     ActIdDto dt = new ActIdDto(item);
                     dt.setItNew(false);
@@ -565,14 +560,17 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ObservationInterp> col = observationInterpRepository.findRecordsById(aUID);
+            Collection<ObservationInterp> col = observationJdbcRepository.findByObservationInterp(aUID);
             Collection<ObservationInterpDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ObservationInterpDto dt = new ObservationInterpDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
+                    ObservationInterpDto dt = new ObservationInterpDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
+
             return dtCollection;
         }
         catch(Exception ndapex)
@@ -585,13 +583,15 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ObsValueCoded> col = obsValueCodedRepository.findRecordsById(aUID);
+            Collection<ObsValueCoded> col = observationJdbcRepository.findByObservationCodedUid(aUID);
             Collection<ObsValueCodedDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ObsValueCodedDto dt = new ObsValueCodedDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
+                    ObsValueCodedDto dt = new ObsValueCodedDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
             return dtCollection;
         }
@@ -605,13 +605,15 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ObsValueTxt> col = obsValueTxtRepository.findRecordsById(aUID);
+            Collection<ObsValueTxt> col = observationJdbcRepository.findByObservationTxtUid(aUID);
             Collection<ObsValueTxtDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ObsValueTxtDto dt = new ObsValueTxtDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
+                    ObsValueTxtDto dt = new ObsValueTxtDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
             return dtCollection;
         }
@@ -625,14 +627,17 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ObsValueDate> col = obsValueDateRepository.findRecordsById(aUID);
+            Collection<ObsValueDate> col = observationJdbcRepository.findByObservationDateUid(aUID);
             Collection<ObsValueDateDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ObsValueDateDto dt = new ObsValueDateDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
+                    ObsValueDateDto dt = new ObsValueDateDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
+
             return dtCollection;
         }
         catch(Exception ndapex)
@@ -645,13 +650,15 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ObsValueNumeric> col = obsValueNumericRepository.findRecordsById(aUID);
+            Collection<ObsValueNumeric> col = observationJdbcRepository.findByObservationNumericUid(aUID);
             Collection<ObsValueNumericDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ObsValueNumericDto dt = new ObsValueNumericDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
+                    ObsValueNumericDto dt = new ObsValueNumericDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
             return dtCollection;
         }
@@ -665,13 +672,15 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            Collection<ActLocatorParticipation> col = actLocatorParticipationRepository.findRecordsById(aUID);
+            Collection<ActLocatorParticipation> col = actLocatorParticipationJdbcRepository.findByActUid(aUID);
             Collection<ActivityLocatorParticipationDto> dtCollection = new ArrayList<>();
-            for (var item : col) {
-                ActivityLocatorParticipationDto dt = new ActivityLocatorParticipationDto(item);
-                dt.setItNew(false);
-                dt.setItDirty(false);
-                dtCollection.add(dt);
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
+                    ActivityLocatorParticipationDto dt = new ActivityLocatorParticipationDto(item);
+                    dt.setItNew(false);
+                    dt.setItDirty(false);
+                    dtCollection.add(dt);
+                }
             }
             return dtCollection;
         }
@@ -686,10 +695,10 @@ public class ObservationRepositoryUtil {
     {
         try
         {
-            var col = participationRepository.findByActUid(aUID);
+            var col = participationJdbcRepository.findByActUid(aUID);
             Collection<ParticipationDto> dtCollection = new ArrayList<>();
-            if (col.isPresent()) {
-                for (var item : col.get()) {
+            if (col != null && !col.isEmpty()) {
+                for (var item : col) {
                     ParticipationDto dt = new ParticipationDto(item);
                     dt.setItNew(false);
                     dt.setItDirty(false);
@@ -714,7 +723,7 @@ public class ObservationRepositoryUtil {
             act.setClassCode(NEDSSConstant.OBSERVATION_CLASS_CODE);
             act.setMoodCode(NEDSSConstant.EVENT_MOOD_CODE);
 
-            actRepository.save(act);
+            actJdbcRepository.insertAct(act);
 
             observationDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             observationDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
@@ -726,7 +735,7 @@ public class ObservationRepositoryUtil {
             observation.setLocalId(uid.getClassTypeUid().getUidPrefixCd() + uid.getClassTypeUid().getSeedValueNbr() + uid.getClassTypeUid().getUidSuffixCd());
             observation.setObservationUid(uid.getGaTypeUid().getSeedValueNbr());
 
-            observationRepository.save(observation);
+            observationJdbcRepository.insertObservation(observation);
             return uid.getGaTypeUid().getSeedValueNbr();
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -736,7 +745,7 @@ public class ObservationRepositoryUtil {
 
     private Long saveObservation(ObservationDto observationDto) {
         Observation observation = new Observation(observationDto);
-        observationRepository.save(observation);
+        observationJdbcRepository.updateObservation(observation);
         return observation.getObservationUid();
     }
 
@@ -750,7 +759,7 @@ public class ObservationRepositoryUtil {
                     item.setItNew(false);
                     item.setItDirty(false);
                     item.setItDelete(false);
-                    saveObservationReason(item);
+                    saveObservationReason(item, "CREATE");
                 }
             }
         } catch (Exception e) {
@@ -759,9 +768,14 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObservationReason(ObservationReasonDto item) {
+    private void saveObservationReason(ObservationReasonDto item, String operation) {
         var data = new ObservationReason(item);
-        observationReasonRepository.save(data);
+        if (operation.equalsIgnoreCase("CREATE")) {
+            observationJdbcRepository.insertObservationReason(data);
+        }
+        else if (operation.equalsIgnoreCase("UPDATE")) {
+            observationJdbcRepository.updateObservationReason(data);
+        }
     }
 
     private void updateObservationReason(Long obsUid, Collection<ObservationReasonDto> observationReasonDtoCollection) throws DataProcessingException {
@@ -770,9 +784,9 @@ public class ObservationRepositoryUtil {
             for(var item: arr) {
                 if (!item.isItDelete()) {
                     item.setObservationUid(obsUid);
-                    saveObservationReason(item);
+                    saveObservationReason(item, "UPDATE");
                 } else {
-                    observationReasonRepository.delete(new ObservationReason(item));
+                    observationJdbcRepository.deleteObservationReason(new ObservationReason(item));
                 }
             }
         } catch (Exception e) {
@@ -784,9 +798,9 @@ public class ObservationRepositoryUtil {
         if (actIdDtoCollection != null) {
             int maxSegId = 0;
             if (!updateApplied) {
-                var res = actIdRepository.findRecordsById(obsUid);
-                if (res.isPresent()) {
-                    var existingAct = new ArrayList<>(res.get());
+                var res = actIdJdbcRepository.findRecordsByActUid(obsUid);
+                if (res != null && !res.isEmpty()) {
+                    var existingAct = new ArrayList<>(res);
                     if (!existingAct.isEmpty()) {
                         maxSegId = existingAct.stream().mapToInt(ActId::getActIdSeq).max().orElseThrow(() -> new DataProcessingException("List is empty"));
                     }
@@ -803,7 +817,7 @@ public class ObservationRepositoryUtil {
                     item.setActIdSeq(++maxSegId);
                 }
                 var reason = new ActId(item);
-                actIdRepository.save(reason);
+                actIdJdbcRepository.mergeActId(reason);
             }
         }
 
@@ -819,7 +833,7 @@ public class ObservationRepositoryUtil {
                     item.setItDirty(false);
                     item.setItDelete(false);
                     item.setObservationUid(obsUid);
-                    saveObservationInterp(item);
+                    saveObservationInterp(item, "CREATE");
                 }
             }
         } catch (Exception e) {
@@ -828,9 +842,14 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObservationInterp(ObservationInterpDto item) {
+    private void saveObservationInterp(ObservationInterpDto item, String operation) {
         var reason = new ObservationInterp(item);
-        observationInterpRepository.save(reason);
+        if (operation.equalsIgnoreCase("CREATE")) {
+            observationJdbcRepository.insertObservationInterp(reason);
+        }
+        else if (operation.equalsIgnoreCase("UPDATE")) {
+            observationJdbcRepository.updateObservationInterp(reason);
+        }
     }
 
     private void updateObservationInterps(Long obsUid, Collection<ObservationInterpDto> collection) throws DataProcessingException {
@@ -839,9 +858,9 @@ public class ObservationRepositoryUtil {
             for(var item: arr) {
                 if (!item.isItDelete()) {
                     item.setObservationUid(obsUid);
-                    saveObservationInterp(item);
+                    saveObservationInterp(item, "UPDATE");
                 } else {
-                    observationInterpRepository.delete(new ObservationInterp(item));
+                    observationJdbcRepository.deleteObservationInterp(new ObservationInterp(item));
                 }
             }
         } catch (Exception e) {
@@ -858,7 +877,7 @@ public class ObservationRepositoryUtil {
                     item.setItDirty(false);
                     item.setItDelete(false);
                     item.setObservationUid(obsUid);
-                    saveObsValueCoded(item);
+                    saveObsValueCoded(item, "CREATE");
                 }
             }
         } catch (Exception e) {
@@ -867,9 +886,14 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObsValueCoded(ObsValueCodedDto item) {
+    private void saveObsValueCoded(ObsValueCodedDto item, String operation) {
         var reason = new ObsValueCoded(item);
-        obsValueCodedRepository.save(reason);
+        if (operation.equalsIgnoreCase("CREATE")) {
+            observationJdbcRepository.insertObsValueCoded(reason);
+        }
+        else if (operation.equalsIgnoreCase("UPDATE")) {
+            observationJdbcRepository.updateObsValueCoded(reason);
+        }
     }
 
     private void updateObsValueCoded(Long obsUid, Collection<ObsValueCodedDto> collection) throws DataProcessingException {
@@ -878,10 +902,10 @@ public class ObservationRepositoryUtil {
             for(var item: arr) {
                 if (!item.isItDelete()) {
                     item.setObservationUid(obsUid);
-                    saveObsValueCoded(item);
+                    saveObsValueCoded(item, "UPDATE");
 
                 } else {
-                    obsValueCodedRepository.delete(new ObsValueCoded(item));
+                    observationJdbcRepository.deleteObsValueCoded(new ObsValueCoded(item));
                 }
             }
         } catch (Exception e) {
@@ -898,7 +922,7 @@ public class ObservationRepositoryUtil {
                     item.setItDirty(false);
                     item.setItDelete(false);
                     item.setObservationUid(obsUid);
-                    saveObsValueTxt(item);
+                    saveObsValueTxt(item, "CREATE");
                 }
             }
         } catch (Exception e) {
@@ -908,9 +932,14 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObsValueTxt(ObsValueTxtDto item) {
+    private void saveObsValueTxt(ObsValueTxtDto item, String operation) {
         var reason = new ObsValueTxt(item);
-        obsValueTxtRepository.save(reason);
+        if (operation.equalsIgnoreCase("CREATE")) {
+            observationJdbcRepository.insertObsValueTxt(reason);
+        }
+        else if (operation.equalsIgnoreCase("UPDATE")) {
+            observationJdbcRepository.updateObsValueTxt(reason);
+        }
     }
 
     private void updateObsValueTxts(Long obsUid, Collection<ObsValueTxtDto> collection) throws DataProcessingException {
@@ -919,10 +948,10 @@ public class ObservationRepositoryUtil {
             for(var item: arr) {
                 if (!item.isItDelete()) {
                     item.setObservationUid(obsUid);
-                    saveObsValueTxt(item);
+                    saveObsValueTxt(item, "UPDATE");
 
                 } else {
-                    obsValueTxtRepository.delete(new ObsValueTxt(item));
+                    observationJdbcRepository.deleteObsValueTxt(new ObsValueTxt(item));
                 }
             }
         } catch (Exception e) {
@@ -940,7 +969,7 @@ public class ObservationRepositoryUtil {
                     item.setItDirty(false);
                     item.setItDelete(false);
                     item.setObservationUid(obsUid);
-                    saveObsValueDate(item);
+                    saveObsValueDate(item, "CREATE");
                 }
             }
         } catch (Exception e) {
@@ -950,9 +979,14 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObsValueDate(ObsValueDateDto item) {
+    private void saveObsValueDate(ObsValueDateDto item, String operation) {
         var reason = new ObsValueDate(item);
-        obsValueDateRepository.save(reason);
+        if (operation.equalsIgnoreCase("CREATE")) {
+            observationJdbcRepository.insertObsValueDate(reason);
+        }
+        else if (operation.equalsIgnoreCase("UPDATE")) {
+            observationJdbcRepository.updateObsValueDate(reason);
+        }
     }
 
     private void updateObsValueDates(Long obsUid, Collection<ObsValueDateDto> collection) throws DataProcessingException {
@@ -961,10 +995,10 @@ public class ObservationRepositoryUtil {
             for(var item: arr) {
                 if (!item.isItDelete()) {
                     item.setObservationUid(obsUid);
-                    saveObsValueDate(item);
+                    saveObsValueDate(item, "UPDATE");
 
                 } else {
-                    obsValueDateRepository.delete(new ObsValueDate(item));
+                    observationJdbcRepository.deleteObsValueDate(new ObsValueDate(item));
                 }
             }
         } catch (Exception e) {
@@ -982,7 +1016,7 @@ public class ObservationRepositoryUtil {
                     item.setItDirty(false);
                     item.setItDelete(false);
                     item.setObservationUid(obsUid);
-                    saveObsValueNumeric(item);
+                    saveObsValueNumeric(item, "CREATE");
                 }
             }
         } catch (Exception e) {
@@ -992,9 +1026,14 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObsValueNumeric(ObsValueNumericDto item)  {
+    private void saveObsValueNumeric(ObsValueNumericDto item, String operation)  {
         var reason = new ObsValueNumeric(item);
-        obsValueNumericRepository.save(reason);
+        if (operation.equalsIgnoreCase("CREATE")) {
+            observationJdbcRepository.insertObsValueNumeric(reason);
+        }
+        else if (operation.equalsIgnoreCase("UPDATE")) {
+            observationJdbcRepository.updateObsValueNumeric(reason);
+        }
     }
 
     private void updateObsValueNumerics(Long obsUid, Collection<ObsValueNumericDto> collection) throws DataProcessingException {
@@ -1003,10 +1042,10 @@ public class ObservationRepositoryUtil {
             for(var item: arr) {
                 if (!item.isItDelete()) {
                     item.setObservationUid(obsUid);
-                    saveObsValueNumeric(item);
+                    saveObsValueNumeric(item, "UPDATE");
 
                 } else {
-                    obsValueNumericRepository.delete(new ObsValueNumeric(item));
+                    observationJdbcRepository.deleteObsValueNumeric(new ObsValueNumeric(item));
                 }
             }
         } catch (Exception e) {
@@ -1015,7 +1054,8 @@ public class ObservationRepositoryUtil {
 
     }
 
-    protected void addActivityLocatorParticipations(Long obsUid, Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection) throws DataProcessingException {
+    protected void addActivityLocatorParticipations(Long obsUid, Collection<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection,
+                                                    String operation) throws DataProcessingException {
         try {
             if (activityLocatorParticipationDtoCollection != null) {
                 ArrayList<ActivityLocatorParticipationDto> arr = new ArrayList<>(activityLocatorParticipationDtoCollection);
@@ -1025,7 +1065,12 @@ public class ObservationRepositoryUtil {
                     item.setItDelete(false);
                     item.setActUid(obsUid);
                     var reason = new ActLocatorParticipation(item);
-                    actLocatorParticipationRepository.save(reason);
+                    if (operation.equalsIgnoreCase("CREATE")) {
+                        actLocatorParticipationJdbcRepository.insertActLocatorParticipation(reason);
+                    }
+                    else if (operation.equalsIgnoreCase("UPDATE")) {
+                        actLocatorParticipationJdbcRepository.updateActLocatorParticipation(reason);
+                    }
                 }
             }
         } catch (Exception e) {

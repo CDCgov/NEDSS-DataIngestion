@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ParticipationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
@@ -90,11 +91,12 @@ public class OrganizationRepositoryUtil {
     private final PhysicalLocatorRepository physicalLocatorRepository;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityHelper entityHelper;
-    private final ParticipationRepository participationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
     @Value("${service.timezone}")
     private String tz = "UTC";
+
+    private final ParticipationJdbcRepository participationJdbcRepository;
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -106,9 +108,9 @@ public class OrganizationRepositoryUtil {
                                       PostalLocatorRepository postalLocatorRepository,
                                       PhysicalLocatorRepository physicalLocatorRepository,
                                       IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityHelper entityHelper,
-                                      ParticipationRepository participationRepository,
+//                                      ParticipationRepository participationRepository,
                                       PrepareAssocModelHelper prepareAssocModelHelper,
-                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository) {
+                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository, ParticipationJdbcRepository participationJdbcRepository) {
         this.organizationRepository = organizationRepository;
         this.organizationNameRepository = organizationNameRepository;
         this.entityRepository = entityRepository;
@@ -120,9 +122,10 @@ public class OrganizationRepositoryUtil {
         this.physicalLocatorRepository = physicalLocatorRepository;
         this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityHelper = entityHelper;
-        this.participationRepository = participationRepository;
+//        this.participationRepository = participationRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
+        this.participationJdbcRepository = participationJdbcRepository;
     }
 
     public Organization findOrganizationByUid(Long orgUid) {
@@ -686,14 +689,14 @@ public class OrganizationRepositoryUtil {
             List<Participation> participationList = new ArrayList<>();
 
             if (act_uid != null) {
-                var result = participationRepository.findBySubjectEntityUidAndActUid(uid, act_uid);
-                if (result.isPresent() && !result.get().isEmpty()) {
-                    participationList = result.get();
+                var result = participationJdbcRepository.selectParticipationBySubjectAndActUid(uid, act_uid);
+                if (result != null && !result.isEmpty()) {
+                    participationList = result;
                 }
             } else {
-                var result = participationRepository.findBySubjectEntityUid(uid);
-                if (result.isPresent() && !result.get().isEmpty()) {
-                    participationList = result.get();
+                var result = participationJdbcRepository.selectParticipationBySubjectEntityUid(uid);
+                if (result  != null && !result.isEmpty()) {
+                    participationList = result;
                 }
             }
 

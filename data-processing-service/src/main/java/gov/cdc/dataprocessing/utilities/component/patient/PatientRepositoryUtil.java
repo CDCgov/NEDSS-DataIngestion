@@ -75,6 +75,10 @@ public class PatientRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(PatientRepositoryUtil.class);
     @Value("${service.timezone}")
     private String tz = "UTC";
+
+    @Value("${feature.thread-enabled}")
+    private boolean threadEnabled = false;
+
     private final PersonRepository personRepository;
     private final EntityRepositoryUtil entityRepositoryUtil;
     private final PersonNameRepository personNameRepository;
@@ -136,140 +140,196 @@ public class PatientRepositoryUtil {
         return result.orElse(null);
     }
 
+//    public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
+//        Long personUid;
+//        String localUid;
+//        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+//        personUid = localIdModel.getGaTypeUid().getSeedValueNbr();
+//        localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
+//
+//
+//        ArrayList<Object>  arrayList = new ArrayList<>();
+//
+//        if(personContainer.getThePersonDto().getLocalId() == null || personContainer.getThePersonDto().getLocalId().trim().isEmpty()) {
+//            personContainer.getThePersonDto().setLocalId(localUid);
+//        }
+//
+//        if(personContainer.getThePersonDto().getPersonParentUid() == null) {
+//            personContainer.getThePersonDto().setPersonParentUid(personUid);
+//        }
+//
+//        // set new person uid in entity table
+//        personContainer.getThePersonDto().setPersonUid(personUid);
+//
+//        arrayList.add(personUid);
+//        arrayList.add(NEDSSConstant.PERSON);
+//
+//        entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+//
+//
+//        //NOTE: Create Person
+//        Person person = new Person(personContainer.getThePersonDto(), tz);
+//        person.setBirthCntryCd(null);
+//        if (jdbcFlag) {
+//            personJdbcRepository.createPerson(person);
+//        }
+//        else {
+//            personRepository.save(person);
+//        }
+//        createPersonName(personContainer);
+//        createPersonRace(personContainer);
+//        createPersonEthnic(personContainer);
+//        createEntityId(personContainer);
+//        entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
+//        createRole(personContainer, "CREATE");
+//
+//        return person;
+//    }
+
+
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
+
         var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
         personUid = localIdModel.getGaTypeUid().getSeedValueNbr();
-        localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
+        localUid = localIdModel.getClassTypeUid().getUidPrefixCd()
+                + localIdModel.getClassTypeUid().getSeedValueNbr()
+                + localIdModel.getClassTypeUid().getUidSuffixCd();
 
-
-        ArrayList<Object>  arrayList = new ArrayList<>();
-
-        if(personContainer.getThePersonDto().getLocalId() == null || personContainer.getThePersonDto().getLocalId().trim().isEmpty()) {
+        if (personContainer.getThePersonDto().getLocalId() == null || personContainer.getThePersonDto().getLocalId().trim().isEmpty()) {
             personContainer.getThePersonDto().setLocalId(localUid);
         }
 
-        if(personContainer.getThePersonDto().getPersonParentUid() == null) {
+        if (personContainer.getThePersonDto().getPersonParentUid() == null) {
             personContainer.getThePersonDto().setPersonParentUid(personUid);
         }
 
-        // set new person uid in entity table
         personContainer.getThePersonDto().setPersonUid(personUid);
-
-        arrayList.add(personUid);
-        arrayList.add(NEDSSConstant.PERSON);
-
         entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
 
-
-        //NOTE: Create Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setBirthCntryCd(null);
+
         if (jdbcFlag) {
             personJdbcRepository.createPerson(person);
-        }
-        else {
+        } else {
             personRepository.save(person);
         }
 
-        CompletableFuture<Void> personNameTask = null;
-        CompletableFuture<Void> personRaceTask = null;
-        CompletableFuture<Void> personEthnicTask = null;
-        CompletableFuture<Void> personEntityIdTask = null;
-        CompletableFuture<Void> entityLocatorTask = null;
-        CompletableFuture<Void> roleTask = null;
+        if (threadEnabled) {
+            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+                List<CompletableFuture<Void>> tasks = new ArrayList<>();
 
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            //NOTE: Create Person Name
-            if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
-                personNameTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        createPersonName(personContainer);
+                if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
+                    tasks.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            createPersonName(personContainer);
+                        } catch (DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor));
+                }
 
-                    } catch (DataProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-            }
-            //NOTE: Create Person Race
-            if  (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
-                personRaceTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        createPersonRace(personContainer);
-                    } catch (DataProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-            }
-            //NOTE: Create Person Ethnic
-            if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-                personEthnicTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        createPersonEthnic(personContainer);
-                    } catch (DataProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-            }
-            //NOTE: Create EntityID
-            if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                personEntityIdTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        createEntityId(personContainer);
-                    } catch (DataProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-            }
-            //NOTE: Create Entity Locator Participation
-            if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                entityLocatorTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
-                    } catch (DataProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-            }
-            //NOTE: Create Role
-            if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-                roleTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        createRole(personContainer, "CREATE");
-                    } catch (DataProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
+                if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
+                    tasks.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            createPersonRace(personContainer);
+                        } catch (DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor));
+                }
+
+                if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
+                    tasks.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            createPersonEthnic(personContainer);
+                        } catch (DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor));
+                }
+
+                if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+                    tasks.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            createEntityId(personContainer);
+                        } catch (DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor));
+                }
+
+                if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+                    tasks.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            entityLocatorParticipationService.createEntityLocatorParticipation(
+                                    personContainer.getTheEntityLocatorParticipationDtoCollection(),
+                                    personContainer.getThePersonDto().getPersonUid());
+                        } catch (DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor));
+                }
+
+                if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+                    tasks.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            createRole(personContainer, "CREATE");
+                        } catch (DataProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor));
+                }
+
+                for (CompletableFuture<Void> task : tasks) {
+                    task.join();
+                }
+
+            } catch (CompletionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DataProcessingException dpe) {
+                    throw dpe;
+                } else {
+                    throw new DataProcessingException("Unexpected error during person creation", cause);
+                }
             }
 
-            if (personNameTask != null) personNameTask.join();
-            if (personRaceTask != null) personRaceTask.join();
-            if (personEthnicTask != null) personEthnicTask.join();
-            if (personEntityIdTask != null) personEntityIdTask.join();
-            if (entityLocatorTask != null) entityLocatorTask.join();
-            if (roleTask != null) roleTask.join();
+        } else {
+            if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
+                createPersonName(personContainer);
+            }
 
+            if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
+                createPersonRace(personContainer);
+            }
+
+            if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
+                createPersonEthnic(personContainer);
+            }
+
+            if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+                createEntityId(personContainer);
+            }
+
+            if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+                entityLocatorParticipationService.createEntityLocatorParticipation(
+                        personContainer.getTheEntityLocatorParticipationDtoCollection(),
+                        personContainer.getThePersonDto().getPersonUid());
+            }
+
+            if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+                createRole(personContainer, "CREATE");
+            }
         }
-        catch (CompletionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof DataProcessingException dpe) {
-                throw dpe;
-            } else {
-                throw new DataProcessingException("Unexpected error during patient aggregation", cause);
-            }
-        }
-
 
         return person;
     }
 
+
     @SuppressWarnings("java:S3776")
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<Object>  arrayList = new ArrayList<>();
-
-        arrayList.add(NEDSSConstant.PERSON);
-
         //NOTE: Update Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
         var ver = person.getVersionCtrlNbr();
@@ -331,24 +391,21 @@ public class PatientRepositoryUtil {
         PersonContainer personContainer = new PersonContainer();
 
         PersonDto personDto = null;
-        var personResult = personRepository.findById(personUid);
-        if (personResult.isPresent()) {
-            personDto = new PersonDto(personResult.get());
+        var personResult = personJdbcRepository.findByPersonUid(personUid);
+        if (personResult != null) {
+            personDto = new PersonDto(personResult);
             personDto.setItDirty(false);
             personDto.setItNew(false);
         }
         personContainer.setThePersonDto(personDto);
 
         Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
-        Optional<List<PersonName>> personNameResult = Optional.empty();
+        List<PersonName> personNameResult = null;
 
-        try {
-            personNameResult = personNameRepository.findByParentUid(personUid);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (personResult.isPresent() && personNameResult.isPresent()) {
-            for(var item : personNameResult.get()) {
+        personNameResult = personJdbcRepository.findPersonNameByPersonUid(personUid);
+
+        if (personNameResult != null && !personNameResult.isEmpty()) {
+            for(var item : personNameResult) {
                 var elem = new PersonNameDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -358,9 +415,9 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonNameDtoCollection(personNameDtoCollection);
 
         Collection<PersonRaceDto> personRaceDtoCollection = new ArrayList<>();
-        var personRaceResult = personRaceRepository.findByParentUid(personUid);
-        if (personRaceResult.isPresent()) {
-            for(var item : personRaceResult.get()) {
+        var personRaceResult = personJdbcRepository.findPersonRaceByPersonUid(personUid);
+        if (personRaceResult != null && !personRaceResult.isEmpty()) {
+            for(var item : personRaceResult) {
                 var elem = new PersonRaceDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -370,9 +427,9 @@ public class PatientRepositoryUtil {
         personContainer.setThePersonRaceDtoCollection(personRaceDtoCollection);
 
         Collection<PersonEthnicGroupDto> personEthnicGroupDtoCollection = new ArrayList<>();
-        var personEthnic = personEthnicRepository.findByParentUid(personUid);
-        if (personEthnic.isPresent()) {
-            for(var item : personEthnic.get()) {
+        var personEthnic = personJdbcRepository.findPersonEthnicByPersonUid(personUid);
+        if (personEthnic!= null && !personEthnic.isEmpty()) {
+            for(var item : personEthnic) {
                 var elem = new PersonEthnicGroupDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -381,10 +438,11 @@ public class PatientRepositoryUtil {
         }
         personContainer.setThePersonEthnicGroupDtoCollection(personEthnicGroupDtoCollection);
 
+
         Collection<EntityIdDto> entityIdDtoCollection = new ArrayList<>();
-        var entityIdResult = entityIdRepository.findByParentUid(personUid);
-        if (entityIdResult.isPresent()) {
-            for(var item : entityIdResult.get()) {
+        var entityIdResult = entityIdJdbcRepository.findEntityIds(personUid);
+        if (entityIdResult != null && !entityIdResult.isEmpty()) {
+            for(var item : entityIdResult) {
                 var elem = new EntityIdDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -406,9 +464,9 @@ public class PatientRepositoryUtil {
 
 
         Collection<RoleDto> roleDtoCollection = new ArrayList<>();
-        var roleResult = roleRepository.findByParentUid(personUid);
-        if (roleResult.isPresent()) {
-            for(var item : roleResult.get()) {
+        var roleResult = roleJdbcRepository.findRolesByParentUid(personUid);
+        if (roleResult != null && !roleResult.isEmpty()) {
+            for(var item : roleResult) {
                 var elem = new RoleDto(item);
                 elem.setItDirty(false);
                 elem.setItNew(false);
@@ -424,9 +482,9 @@ public class PatientRepositoryUtil {
     }
 
     public Long findPatientParentUidByUid(Long personUid) {
-        var result = personRepository.findPatientParentUidByUid(personUid);
-        return result.map(longs -> longs.get(0)).orElse(null);
+        return personJdbcRepository.findMprUid(personUid);
     }
+
     @SuppressWarnings({"java:S3776","java:S1141"})
     private void updatePersonName(PersonContainer personContainer) throws DataProcessingException {
         ArrayList<PersonNameDto>  personList = (ArrayList<PersonNameDto> ) personContainer.getThePersonNameDtoCollection();
@@ -700,28 +758,25 @@ public class PatientRepositoryUtil {
     }
 
     private void createEntityId(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<EntityIdDto>  personList = (ArrayList<EntityIdDto> ) personContainer.getTheEntityIdDtoCollection();
-        try {
-            for (EntityIdDto entityIdDto : personList) {
-                var pUid = personContainer.getThePersonDto().getPersonUid();
-                entityIdDto.setEntityUid(pUid);
-                entityIdDto.setAddReasonCd("Add");
-                if (entityIdDto.getAddUserId() == null) {
-                    entityIdDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
-                }
-                if (entityIdDto.getLastChgUserId() == null) {
-                    entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
-                }
+        Collection<EntityIdDto> entityIds = personContainer.getTheEntityIdDtoCollection();
+        if (entityIds == null || entityIds.isEmpty()) return;
+        List<EntityId> entityIdEntities = entityIds.stream().map(dto -> {
+            dto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+            dto.setAddReasonCd("Add");
 
-                if (jdbcFlag) {
-                    entityIdJdbcRepository.createEntityId(new EntityId(entityIdDto, tz));
-                }
-                else {
-                    entityIdRepository.save(new EntityId(entityIdDto, tz));
-                }
+            if (dto.getAddUserId() == null) dto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
+            if (dto.getLastChgUserId() == null) dto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+
+            return new EntityId(dto, tz);
+        }).toList();
+        try {
+            if (jdbcFlag) {
+                entityIdJdbcRepository.batchCreateEntityIds(entityIdEntities);
+            } else {
+                entityIdRepository.saveAll(entityIdEntities);
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new DataProcessingException("Error during batch entity ID creation", e);
         }
     }
 
@@ -744,8 +799,8 @@ public class PatientRepositoryUtil {
     }
 
     public List<Person> findPersonByParentUid(Long parentUid) {
-        var res = personRepository.findByParentUid(parentUid);
-        return res.orElseGet(ArrayList::new);
+        var res = personJdbcRepository.findPersonsByParentUid(parentUid);
+        return Objects.requireNonNullElse(res, Collections.emptyList());
     }
 
 
