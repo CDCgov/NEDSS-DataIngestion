@@ -3,7 +3,11 @@ package gov.cdc.dataingestion.hl7.helper.integration;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.model.v251.group.ORU_R01_OBSERVATION;
+import ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION;
+import ca.uhn.hl7v2.model.v251.group.ORU_R01_PATIENT_RESULT;
 import ca.uhn.hl7v2.model.v251.message.ORU_R01;
+import ca.uhn.hl7v2.model.v251.segment.*;
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
 import ca.uhn.hl7v2.parser.PipeParser;
@@ -60,6 +64,66 @@ public class HL7Parser implements IHL7Parser {
 
         return message;
     }
+
+    public boolean nndOruR01Validator(String hl7Message) throws DiHL7Exception, HL7Exception {
+        PipeParser parser = new PipeParser();
+        Message message = parser.parse(hl7Message);
+
+        if (!(message instanceof ORU_R01 oruR01)) {
+            throw new HL7Exception("Message is not ORU_R01");
+        }
+
+        // 1. Validate MSH
+        MSH msh = oruR01.getMSH();
+        if (msh == null) {
+            throw new HL7Exception("Missing MSH segment");
+        }
+
+        // 2. Validate PATIENT_RESULT
+        ORU_R01_PATIENT_RESULT patientResult = oruR01.getPATIENT_RESULT();
+        if (patientResult == null) {
+            throw new HL7Exception("Missing PATIENT_RESULT group");
+        }
+
+        // 3. Validate PATIENT group inside PATIENT_RESULT
+        PID pid = patientResult.getPATIENT().getPID();
+        if (pid == null) {
+            throw new HL7Exception("Missing PID segment in PATIENT group");
+        }
+
+        // 4. Validate ORDER_OBSERVATION group inside PATIENT_RESULT
+        ORU_R01_ORDER_OBSERVATION orderObservation = patientResult.getORDER_OBSERVATION();
+        if (orderObservation == null) {
+            throw new HL7Exception("Missing ORDER_OBSERVATION group");
+        }
+
+        OBR obr = orderObservation.getOBR();
+        if (obr == null) {
+            throw new HL7Exception("Missing OBR segment in ORDER_OBSERVATION group");
+        }
+
+        // 5. Validate OBSERVATION group inside ORDER_OBSERVATION
+        var observations = orderObservation.getOBSERVATIONAll();
+        for (ORU_R01_OBSERVATION observation : observations) {
+            OBX obx = observation.getOBX();
+            if (obx == null) {
+                throw new HL7Exception("Missing OBX segment in OBSERVATION group");
+            }
+        }
+
+        // 6. Validate SPECIMEN group inside ORDER_OBSERVATION
+        if (orderObservation.getSPECIMENReps() > 0) {
+            var specimen = orderObservation.getSPECIMEN();
+            SPM spm = specimen.getSPM();
+            if (spm == null) {
+                throw new HL7Exception("Missing SPM segment in SPECIMEN group");
+            }
+        }
+
+        return true; // If no exception thrown, structure is valid
+
+    }
+
 
 
     private void oruR01Validator(String message) throws DiHL7Exception {
