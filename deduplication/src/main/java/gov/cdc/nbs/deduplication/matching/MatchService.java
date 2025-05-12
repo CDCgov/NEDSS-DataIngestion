@@ -2,6 +2,8 @@ package gov.cdc.nbs.deduplication.matching;
 
 import gov.cdc.nbs.deduplication.matching.model.*;
 
+import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,10 +17,29 @@ import org.springframework.web.client.RestClient;
 import gov.cdc.nbs.deduplication.matching.exception.MatchException;
 import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @Service
 public class MatchService {
-  private static final String FIND_NBS_PERSON_QUERY = """
+  // Selects the most recent legal name
+  static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
+      SELECT
+        TOP 1 CONCAT(pn.first_nm, ' ', pn.last_nm) AS name,
+        p.add_time
+      FROM
+        person p
+        LEFT JOIN person_name pn ON pn.person_uid = p.person_uid
+      WHERE
+        p.person_uid = :id
+      ORDER BY
+        CASE
+          WHEN pn.nm_use_cd = 'L' THEN 1
+          ELSE 2
+        END,
+        pn.as_of_date DESC
+            """;
+
+  static final String FIND_NBS_PERSON_QUERY = """
       SELECT TOP 1
         person_parent_uid
       FROM
@@ -27,29 +48,32 @@ public class MatchService {
         mpi_person = :mpi_person;
       """;
 
-  private static final String LINK_NBS_MPI_QUERY = """
+  static final String LINK_NBS_MPI_QUERY = """
       INSERT INTO nbs_mpi_mapping
             (person_uid, person_parent_uid, mpi_patient, mpi_person, status)
           VALUES
             (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
           """;
 
-  private static final String INSERT_POSSIBLE_MATCH = """
+  static final String INSERT_POSSIBLE_MATCH = """
       INSERT INTO match_candidates
-        (person_uid, mpi_person_id)
+        (person_uid, person_name, person_add_time, date_identified, potential_match_person_uid)
       VALUES
-        (:person_uid, :mpi_person_id)
+        (:person_uid, :person_name, :person_add_time, :date_identified, :potential_match_person_uid)
       """;
 
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate template;
+  private final NamedParameterJdbcTemplate nbsTemplate;
   private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
 
   public MatchService(
       @Qualifier("recordLinkerRestClient") final RestClient recordLinkageClient,
-      @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+      @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
+      @Qualifier("nbsNamedTemplate") final NamedParameterJdbcTemplate nbsTemplate) {
     this.recordLinkageClient = recordLinkageClient;
     this.template = template;
+    this.nbsTemplate = nbsTemplate;
   }
 
   public MatchResponse match(PersonMatchRequest request) {
@@ -147,12 +171,34 @@ public class MatchService {
           || request.linkResponse().results().isEmpty()) {
         throw new MatchException("Results specify possible match but no possible matches are returned");
       }
+      LocalDateTime identifedTime = LocalDateTime.now();
       request.linkResponse().results().forEach(r -> {
+        // Lookup NBS patient name and add time
+        PatientNameAndTime patientInfo = findNbsInfo(request.nbsPersonParent());
+        // Lookup NBS patient Id by MPI reference id returned
+        Long potentialMatchId = findNbsPersonParentId(r.person_reference_id());
+
         SqlParameterSource possibleMatchParams = new MapSqlParameterSource()
             .addValue("person_uid", request.nbsPerson())
-            .addValue("mpi_person_id", r.person_reference_id());
+            .addValue("person_name", patientInfo.name())
+            .addValue("person_add_time", patientInfo.addTime())
+            .addValue("date_identified", identifedTime)
+            .addValue("potential_match_person_uid", potentialMatchId);
+
         template.update(INSERT_POSSIBLE_MATCH, possibleMatchParams);
       });
     }
   }
+
+  PatientNameAndTime findNbsInfo(Long id) {
+    return nbsTemplate.query(
+        FIND_NBS_ADD_TIME_AND_NAME_QUERY,
+        new MapSqlParameterSource()
+            .addValue("id", id),
+        (ResultSet rs, int rowNum) -> new PatientNameAndTime(
+            rs.getString("name"),
+            rs.getTimestamp("add_time").toLocalDateTime()))
+        .getFirst();
+  }
+
 }

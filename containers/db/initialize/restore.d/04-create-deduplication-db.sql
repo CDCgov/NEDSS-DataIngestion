@@ -34,8 +34,10 @@ GO
 
 CREATE TABLE match_candidates (
   id bigint IDENTITY(1,1),
-  person_uid bigint,
-  mpi_person_id uniqueidentifier,
+  person_uid bigint NOT NULL,
+  potential_match_person_uid bigint NOT NULL,
+  person_name NVARCHAR(300),
+  person_add_time DATETIME NOT NULL,
   date_identified DATETIME DEFAULT GETDATE(),
   is_merge BIT NULL
 );
