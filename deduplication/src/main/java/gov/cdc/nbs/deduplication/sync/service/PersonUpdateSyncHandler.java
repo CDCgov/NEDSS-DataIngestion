@@ -3,8 +3,9 @@ package gov.cdc.nbs.deduplication.sync.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.sync.model.PatientUpdateRequest;
@@ -29,8 +30,7 @@ public class PersonUpdateSyncHandler {
       ObjectMapper objectMapper,
       @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient,
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
-      final PatientRecordService patientRecordService
-  ) {
+      final PatientRecordService patientRecordService) {
     this.nbsTemplate = nbsTemplate;
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
