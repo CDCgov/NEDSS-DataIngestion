@@ -79,6 +79,74 @@ public class HL7Parser implements IHL7Parser {
             throw new HL7Exception("Missing MSH segment");
         }
 
+        validateField("MSH-1", msh.getFieldSeparator().getValue(), true, 1, 1);
+        validateField("MSH-2", msh.getEncodingCharacters().getValue(), true, 4, 4);
+
+        validateField("MSH-3.NamespaceID", msh.getSendingApplication().getNamespaceID().getValue(), false, 0, 20);
+        validateField("MSH-3.UniversalID", msh.getSendingApplication().getUniversalID().getValue(), true, 0, 199);
+        validateField("MSH-3.UniversalIDType", msh.getSendingApplication().getUniversalIDType().getValue(), true, 0, 6);
+
+        validateField("MSH-4.NamespaceID", msh.getSendingFacility().getNamespaceID().getValue(), false, 0, 20);
+        validateField("MSH-4.UniversalID", msh.getSendingFacility().getUniversalID().getValue(), true, 0, 199);
+        validateField("MSH-4.UniversalIDType", msh.getSendingFacility().getUniversalIDType().getValue(), true, 0, 6);
+
+        validateField("MSH-5.NamespaceID", msh.getReceivingApplication().getNamespaceID().getValue(), false, 0, 20);
+        validateField("MSH-5.UniversalID", msh.getReceivingApplication().getUniversalID().getValue(), true, 0, 199);
+        validateField("MSH-5.UniversalIDType", msh.getReceivingApplication().getUniversalIDType().getValue(), true, 0, 6);
+
+        validateField("MSH-6.NamespaceID", msh.getReceivingFacility().getNamespaceID().getValue(), false, 0, 20);
+        validateField("MSH-6.UniversalID", msh.getReceivingFacility().getUniversalID().getValue(), true, 0, 199);
+        validateField("MSH-6.UniversalIDType", msh.getReceivingFacility().getUniversalIDType().getValue(), true, 0, 6);
+
+
+        String dateTime = msh.getDateTimeOfMessage().getTime().getValue();
+        validateField("MSH-7", dateTime, false, 8, 26);
+        if (dateTime != null && !dateTime.isEmpty()) {
+            if (dateTime.length() < 4 || !dateTime.substring(0, 4).matches("\\d{4}")) {
+                throw new HL7Exception("MSH-7.Year must be 4 digits");
+            }
+            if (dateTime.length() >= 6 && !dateTime.substring(4, 6).matches("0[1-9]|1[0-2]")) {
+                throw new HL7Exception("MSH-7.Month must be 01-12");
+            }
+            if (dateTime.length() >= 8 && !dateTime.substring(6, 8).matches("0[1-9]|[12][0-9]|3[01]")) {
+                throw new HL7Exception("MSH-7.Day must be 01-31");
+            }
+            if (dateTime.length() >= 10 && !dateTime.substring(8, 10).matches("[01][0-9]|2[0-3]")) {
+                throw new HL7Exception("MSH-7.Hour must be 00-23");
+            }
+            if (dateTime.length() >= 12 && !dateTime.substring(10, 12).matches("[0-5][0-9]")) {
+                throw new HL7Exception("MSH-7.Minute must be 00-59");
+            }
+            if (dateTime.length() >= 14 && !dateTime.substring(12, 14).matches("[0-5][0-9]")) {
+                throw new HL7Exception("MSH-7.Second must be 00-59");
+            }
+        }
+
+        validateField("MSH-8", msh.getSecurity().getValue(), false, 0, 40);
+        validateField("MSH-9", msh.getMessageType().encode(), true, 1, 15);
+        validateField("MSH-10", msh.getMessageControlID().getValue(), true, 1, 199);
+        validateField("MSH-11", msh.getProcessingID().encode(), true, 1, 3);
+        validateField("MSH-12", msh.getVersionID().encode(), true, 1, 60);
+        validateField("MSH-13", msh.getSequenceNumber().getValue(), false, 0, 15);
+        validateField("MSH-14", msh.getContinuationPointer().getValue(), false, 0, 180);
+        validateField("MSH-15", msh.getAcceptAcknowledgmentType().getValue(), false, 0, 2);
+        validateField("MSH-16", msh.getApplicationAcknowledgmentType().getValue(), false, 0, 2);
+        validateField("MSH-17", msh.getCountryCode().getValue(), false, 0, 3);
+        validateField("MSH-18", msh.getCharacterSet(0).getValue(), false, 0, 16);
+        validateField("MSH-19", msh.getPrincipalLanguageOfMessage().encode(), false, 0, 250);
+        validateField("MSH-20", msh.getAlternateCharacterSetHandlingScheme().getValue(), false, 0, 20);
+
+
+        int msh21Reps = msh.getMessageProfileIdentifierReps();
+        if (msh21Reps < 2 || msh21Reps > 3) {
+            throw new HL7Exception("MSH-21 must have between 2 and 3 repetitions");
+        }
+        for (int i = 0; i < msh21Reps; i++) {
+            String value = msh.getMessageProfileIdentifier(i).encode();
+            validateField("MSH-21[" + (i + 1) + "]", value, true, 1, 427);
+        }
+
+
         // 2. Validate PATIENT_RESULT
         ORU_R01_PATIENT_RESULT patientResult = oruR01.getPATIENT_RESULT();
         if (patientResult == null) {
@@ -122,6 +190,18 @@ public class HL7Parser implements IHL7Parser {
 
         return true; // If no exception thrown, structure is valid
 
+    }
+
+    private void validateField(String fieldName, String value, boolean required, int minLen, int maxLen) throws HL7Exception {
+        if (required && (value == null || value.trim().isEmpty())) {
+            throw new HL7Exception(fieldName + " is required but missing");
+        }
+        if (value != null) {
+            int len = value.length();
+            if (len < minLen || len > maxLen) {
+                throw new HL7Exception(fieldName + " length must be between " + minLen + " and " + maxLen + " but was " + len);
+            }
+        }
     }
 
 
