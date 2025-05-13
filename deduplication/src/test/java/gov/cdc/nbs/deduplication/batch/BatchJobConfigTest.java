@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.batch;
 
+import gov.cdc.nbs.deduplication.batch.step.UnprocessedPreviousDayPersonReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,11 +16,15 @@ import gov.cdc.nbs.deduplication.batch.step.UnprocessedPersonReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 @ExtendWith(MockitoExtension.class)
 class BatchJobConfigTest {
 
   @Mock
-  private UnprocessedPersonReader duplicatesReader;
+  private UnprocessedPreviousDayPersonReader previousDayReader;
+
+  @Mock
+  private UnprocessedPersonReader unprocessedPersonReader;
 
   @Mock
   private DuplicatesProcessor deduplicationProcessor;
@@ -35,18 +40,54 @@ class BatchJobConfigTest {
 
   @Test
   void buildsValidConfig() {
-    BatchJobConfig config = new BatchJobConfig(duplicatesReader, deduplicationProcessor, writer);
+    BatchJobConfig config = new BatchJobConfig(
+        previousDayReader,
+        unprocessedPersonReader,
+        deduplicationProcessor,
+        writer);
+
     assertThat(config).isNotNull();
 
-    Job deduplicationJob = config.deduplicationJob(jobRepository, null);
-    assertThat(deduplicationJob).isNotNull();
+    Job job = config.deduplicationJob(jobRepository, null, null);
+    assertThat(job).isNotNull();
   }
 
   @Test
-  void deduplicationStep() {
-    BatchJobConfig config = new BatchJobConfig(duplicatesReader, deduplicationProcessor, writer);
+  void previousDayStep_isConfiguredCorrectly() {
+    BatchJobConfig config = new BatchJobConfig(
+        previousDayReader,
+        unprocessedPersonReader,
+        deduplicationProcessor,
+        writer);
 
-    Step step1 = config.step1(jobRepository, transactionManager);
-    assertThat(step1).isNotNull();
+    Step step = config.previousDayStep(jobRepository, transactionManager);
+    assertThat(step).isNotNull();
+  }
+
+  @Test
+  void olderThanPreviousDayStep_isConfiguredCorrectly() {
+    BatchJobConfig config = new BatchJobConfig(
+        previousDayReader,
+        unprocessedPersonReader,
+        deduplicationProcessor,
+        writer);
+
+    Step step = config.olderThanPreviousDayStep(jobRepository, transactionManager);
+    assertThat(step).isNotNull();
+  }
+
+  @Test
+  void deduplicationJob_hasTwoSteps() {
+    BatchJobConfig config = new BatchJobConfig(
+        previousDayReader,
+        unprocessedPersonReader,
+        deduplicationProcessor,
+        writer);
+
+    Step previousDayStep = config.previousDayStep(jobRepository, transactionManager);
+    Step olderDayStep = config.olderThanPreviousDayStep(jobRepository, transactionManager);
+
+    Job job = config.deduplicationJob(jobRepository, previousDayStep, olderDayStep);
+    assertThat(job).isNotNull();
   }
 }

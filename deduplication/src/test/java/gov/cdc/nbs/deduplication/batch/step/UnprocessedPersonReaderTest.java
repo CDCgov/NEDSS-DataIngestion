@@ -1,28 +1,23 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
-import java.sql.*;
-import java.time.LocalDate;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-
-
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class UnprocessedPersonReaderTest {
-
 
   @Mock
   private DataSource dataSource;
@@ -33,152 +28,77 @@ class UnprocessedPersonReaderTest {
   @Mock
   private DatabaseMetaData metadata;
 
-  @Mock
-  private Statement statement;
-
-  @Mock
-  private ResultSet resultSet;
-
-  private UnprocessedPersonReader reader;
-
-  private final LocalDate fixedPreviousDay = LocalDate.of(2024, 1, 1);
-
-  @BeforeEach
-  void setUp() throws Exception {
-    when(dataSource.getConnection()).thenReturn(connection);
-    when(connection.getMetaData()).thenReturn(metadata);
-    when(metadata.getDatabaseProductName()).thenReturn("sql server");
-  }
-
-  private void setupReader(int chunkSize, int totalToProcess) throws Exception {
-    reader = new UnprocessedPersonReader(dataSource, chunkSize, totalToProcess);
-    reader.setPreviousDay(fixedPreviousDay);
-    reader.afterPropertiesSet();
-  }
 
   @Test
   void initializesReader() throws Exception {
-    setupReader(100, 10000);
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
+
+    final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 10, 100);
     assertThat(reader).isNotNull();
   }
 
   @Test
-  void readsFromPreviousDayFirst() throws Exception {
-    when(connection.createStatement()).thenReturn(statement);
-    when(resultSet.next()).thenReturn(true, false);
-    when(statement.executeQuery(anyString())).thenReturn(resultSet);
+  void shouldRead() throws Exception {
+    Statement stmt = Mockito.mock(Statement.class);
+    ResultSet resultSet = Mockito.mock(ResultSet.class);
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
+    when(connection.createStatement()).thenReturn(stmt);
+    when(stmt.executeQuery(
+        "SELECT TOP 1 person_uid FROM nbs_mpi_mapping WHERE status = 'U' AND person_uid=person_parent_uid ORDER BY person_uid ASC"))
+        .thenReturn(resultSet);
 
-    setupReader(1, 2);
+    final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 1, 2);
+    reader.afterPropertiesSet();
+
+    // chunk size 1, total to process of 2 means 2 pages should be read
     reader.doReadPage();
-
-    assertThat(reader).isNotNull();
-  }
-
-  @Test
-  void switchesToOlderWhenNoPreviousDayData() throws Exception {
-    when(connection.createStatement()).thenReturn(statement);
-    AtomicInteger executeQueryCount = new AtomicInteger(0);
-    when(statement.executeQuery(anyString())).thenAnswer(invocation -> {
-      int callNum = executeQueryCount.getAndIncrement();
-      if (callNum == 0) {
-        // First query: previous day - no results
-        when(resultSet.next()).thenReturn(false);
-        return resultSet;
-      } else {
-        // Second query: older than previous day - one result
-        when(resultSet.next()).thenReturn(true, false);
-        return resultSet;
-      }
-    });
-
-    setupReader(1, 2);
-    reader.doReadPage();
-    reader.doReadPage();
-
     assertThat(reader.getPagesRead()).isEqualTo(1);
-  }
-
-  @Test
-  void respectsExtraPageLimitForOlderRecords() throws Exception {
-    when(connection.createStatement()).thenReturn(statement);
-    AtomicInteger executeQueryCount = new AtomicInteger(0);
-
-    // Simulate 2 pages, 1 result each
-    when(statement.executeQuery(anyString())).thenAnswer(invocation -> {
-      int callNum = executeQueryCount.getAndIncrement();
-      if (callNum == 0) {
-        // Phase 1: Previous day query - no results
-        when(resultSet.next()).thenReturn(false);
-        return resultSet;
-      } else {
-        // Phase 2: Older than previous day - simulate 3 pages
-        when(resultSet.next())
-            .thenReturn(true, false)
-            .thenReturn(true, false)
-            .thenReturn(true, false);
-        return resultSet;
-      }
-    });
-
-    setupReader(1, 2);
 
     reader.doReadPage();
-    reader.doReadPage();
-    reader.doReadPage();
+    assertThat(reader.getPagesRead()).isEqualTo(2);
 
+    // third page read will skip reading
+    reader.doReadPage();
     assertThat(reader.getPagesRead()).isEqualTo(2);
   }
 
   @Test
-  void resetPagesRead_clearsCounter() throws Exception {
-    when(connection.createStatement()).thenReturn(statement);
-    when(resultSet.next()).thenReturn(true, false);
-    when(statement.executeQuery(anyString())).thenReturn(resultSet);
+  void shouldResetPagesRead() throws Exception {
+    Statement stmt = Mockito.mock(Statement.class);
+    ResultSet resultSet = Mockito.mock(ResultSet.class);
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
+    when(connection.createStatement()).thenReturn(stmt);
+    when(stmt.executeQuery(
+        "SELECT TOP 1 person_uid FROM nbs_mpi_mapping WHERE status = 'U' AND person_uid=person_parent_uid ORDER BY person_uid ASC"))
+        .thenReturn(resultSet);
 
-    setupReader(1, 10);
+    final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 1, 2);
+    reader.afterPropertiesSet();
+
+    assertThat(reader.getPagesRead()).isZero();
     reader.doReadPage();
+    assertThat(reader.getPagesRead()).isEqualTo(1);
+
     reader.resetPagesRead();
-
-    assertThat(reader).isNotNull();
+    assertThat(reader.getPagesRead()).isZero();
   }
 
   @Test
-  void throwsExceptionWhenSetupFailsInPhaseSwitch() throws Exception {
-    when(connection.createStatement()).thenReturn(statement);
-    when(statement.executeQuery(anyString())).thenReturn(resultSet);
+  void shouldNotRead() throws Exception {
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getMetaData()).thenReturn(metadata);
+    when(metadata.getDatabaseProductName()).thenReturn("sql server");
 
-    // First query - no data-
-    when(resultSet.next()).thenReturn(false);
+    final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 1, 0);
+    reader.afterPropertiesSet();
 
-    setupReader(1, 2);
-
-    UnprocessedPersonReader spyReader = Mockito.spy(reader);
-
-    doThrow(new RuntimeException("Simulated failure"))
-        .when(spyReader)
-        .setupForOlderThanPreviousDay();
-
-    assertThatThrownBy(spyReader::doReadPage)
-        .isInstanceOf(RuntimeException.class)
-        .hasMessageContaining("Simulated failure");
+    reader.doReadPage();
+    assertThat(reader.getPagesRead()).isZero();
   }
-
-  @Test
-  void skipsReadingAndClearsResultsWhenExtraPageLimitIsReached() throws Exception {
-    setupReader(1, 1);
-    UnprocessedPersonReader spyReader = Mockito.spy(reader);
-
-    Field currentPhaseField = UnprocessedPersonReader.class.getDeclaredField("currentPhase");
-    currentPhaseField.setAccessible(true);
-    currentPhaseField.set(spyReader, UnprocessedPersonReader.ProcessingPhase.OLDER_THAN_PREVIOUS_DAY);
-
-    Field extraPagesReadField = UnprocessedPersonReader.class.getDeclaredField("extraPagesRead");
-    extraPagesReadField.setAccessible(true);
-    extraPagesReadField.setInt(spyReader, 1);
-
-    spyReader.doReadPage();
-
-    assertThat(spyReader.getPagesRead()).isEqualTo(1);
-  }
-
 }
