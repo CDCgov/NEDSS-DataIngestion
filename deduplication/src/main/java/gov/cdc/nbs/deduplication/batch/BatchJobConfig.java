@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.batch;
 
+import gov.cdc.nbs.deduplication.batch.step.UnprocessedPreviousDayPersonReader;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -16,10 +17,12 @@ import gov.cdc.nbs.deduplication.batch.step.DuplicatesProcessor;
 import gov.cdc.nbs.deduplication.batch.step.MatchCandidateWriter;
 import gov.cdc.nbs.deduplication.batch.step.UnprocessedPersonReader;
 
+
 @Configuration
 public class BatchJobConfig {
 
-  private final UnprocessedPersonReader personReader;
+  private final UnprocessedPreviousDayPersonReader previousDayReader;
+  private final UnprocessedPersonReader unprocessedPersonReader;
   private final DuplicatesProcessor deduplicationProcessor;
   private final MatchCandidateWriter writer;
 
@@ -27,28 +30,43 @@ public class BatchJobConfig {
   private int chunkSize;
 
   public BatchJobConfig(
-      final UnprocessedPersonReader personReader,
-      final DuplicatesProcessor deduplicationProcessor,
-      final MatchCandidateWriter writer) {
-    this.personReader = personReader;
+      UnprocessedPreviousDayPersonReader previousDayReader,
+      UnprocessedPersonReader unprocessedPersonReader,
+      DuplicatesProcessor deduplicationProcessor,
+      MatchCandidateWriter writer) {
+    this.previousDayReader = previousDayReader;
+    this.unprocessedPersonReader = unprocessedPersonReader;
     this.deduplicationProcessor = deduplicationProcessor;
     this.writer = writer;
   }
 
-  @Bean("deduplicationStep")
-  public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-    return new StepBuilder("step1", jobRepository)
-        .<String, MatchCandidate>chunk(chunkSize, transactionManager) // Use externalized chunk size
-        .reader(personReader) // Read unprocessed MPI records
-        .processor(deduplicationProcessor) // Process records to find possible duplicates
-        .writer(writer) // Write match candidates and update status
+  @Bean("previousDayStep")
+  public Step previousDayStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    return new StepBuilder("previousDayStep", jobRepository)
+        .<String, MatchCandidate>chunk(chunkSize, transactionManager)
+        .reader(previousDayReader)
+        .processor(deduplicationProcessor)
+        .writer(writer)
+        .build();
+  }
+
+  @Bean("olderThanPreviousDayStep")
+  public Step olderThanPreviousDayStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    return new StepBuilder("olderThanPreviousDayStep", jobRepository)
+        .<String, MatchCandidate>chunk(chunkSize, transactionManager)
+        .reader(unprocessedPersonReader)
+        .processor(deduplicationProcessor)
+        .writer(writer)
         .build();
   }
 
   @Bean("deduplicationJob")
-  public Job deduplicationJob(JobRepository jobRepository, @Qualifier("deduplicationStep") Step step1) {
-    return new JobBuilder("deduplication job", jobRepository)
-        .start(step1)
+  public Job deduplicationJob(JobRepository jobRepository,
+      @Qualifier("previousDayStep") Step previousDayStep,
+      @Qualifier("olderThanPreviousDayStep") Step olderDayStep) {
+    return new JobBuilder("deduplicationJob", jobRepository)
+        .start(previousDayStep)
+        .next(olderDayStep)
         .build();
   }
 }

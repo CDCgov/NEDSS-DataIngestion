@@ -21,6 +21,7 @@ public class UnprocessedPersonReader extends JdbcPagingItemReader<String> {
       @Qualifier("deduplication") DataSource dataSource,
       @Value("${deduplication.batch.processing.chunk:100}") int chunkSize,
       @Value("${deduplication.batch.processing.total:10000}") int totalToProcess) throws Exception {
+
     this.pageLimit = totalToProcess / chunkSize;
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
