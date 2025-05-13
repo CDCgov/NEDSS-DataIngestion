@@ -38,7 +38,6 @@ public class MatchesRequiringReviewResolver {
         person_uid,
         date_identified,
         person_name,
-        date_identified,
         person_add_time
       ORDER BY :sort
       OFFSET :offset ROWS
@@ -46,12 +45,20 @@ public class MatchesRequiringReviewResolver {
       """;
 
   static final String COUNT_QUERY = """
-      SELECT
-        count(DISTINCT person_uid)
-      FROM
-        match_candidates
-      WHERE
-        is_merge IS NULL
+  SELECT
+    count(*) as count
+  FROM
+  (
+    SELECT DISTINCT
+      person_uid,
+      date_identified,
+      person_name,
+      person_add_time
+    FROM
+      match_candidates
+    WHERE
+      is_merge IS NULL
+  ) AS COUNT;
       """;
 
   MatchesRequireReviewResponse resolve(int page, int size, String sort) {
