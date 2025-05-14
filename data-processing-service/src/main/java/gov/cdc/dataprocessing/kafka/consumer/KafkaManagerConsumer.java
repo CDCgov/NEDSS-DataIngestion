@@ -26,6 +26,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
@@ -117,49 +118,93 @@ public class KafkaManagerConsumer {
     }
 
 
-    @Scheduled(fixedDelay = 10000) // every 10 seconds
+    @Scheduled(fixedDelay = 30000) // every 10 seconds
+//    public void processPendingMessages() {
+//        if (pendingMessages.isEmpty()) return;
+//        try {
+//            Semaphore concurrencyLimiter = new Semaphore(poolSize); // limit to 10 virtual threads
+//            while (!pendingMessages.isEmpty()) {
+//                Integer nbs = pendingMessages.poll();
+//                if (nbs == null) continue;
+//
+//                Runnable task = () -> {
+//                    try {
+//                        managerService.processDistribution(nbs);
+//                    } catch (DataProcessingConsumerException e) {
+//                        log.error("Failed to process: {}", e.getMessage());
+//                        // Optionally re-add to queue or log to DLQ
+//                    } finally {
+//                        if (threadEnabled) {
+//                            concurrencyLimiter.release();
+//                            System.gc();
+//                        }
+//                    }
+//                };
+//
+//                if (threadEnabled) {
+////                    concurrencyLimiter.acquire(); // block if 10 tasks are already running
+//                    concurrencyLimiter.acquireUninterruptibly(); // cap parallel threads
+//                    Thread.startVirtualThread(task);
+//                } else {
+//                    task.run();
+//                    System.gc(); // optional; consider removing
+//                }
+//            }
+//
+//            if (threadEnabled) {
+//                concurrencyLimiter.acquire(poolSize); // Wait for all virtual threads to finish
+//                concurrencyLimiter.release(poolSize); // Reset for next scheduled run
+//            }
+//
+//        } catch (Exception e) {
+//            log.error("Scheduled processing failed: {}", e.getMessage());
+//        } finally {
+//            if (!threadEnabled) {
+//                System.gc(); // optional; consider removing
+//            }
+//        }
+//    }
     public void processPendingMessages() {
         if (pendingMessages.isEmpty()) return;
-        try {
-            Semaphore concurrencyLimiter = new Semaphore(poolSize); // limit to 10 virtual threads
+
+        if (threadEnabled) {
+            Semaphore concurrencyLimiter = new Semaphore(poolSize); // e.g. 10
+            int batchSize = 100;
+            List<Integer> batch = new ArrayList<>(batchSize);
+
+            while (!pendingMessages.isEmpty()) {
+                batch.clear();
+                for (int i = 0; i < batchSize && !pendingMessages.isEmpty(); i++) {
+                    Integer nbs = pendingMessages.poll();
+                    if (nbs != null) batch.add(nbs);
+                }
+                if (batch.isEmpty()) continue;
+
+                concurrencyLimiter.acquireUninterruptibly();
+
+                Thread.startVirtualThread(() -> {
+                    try {
+                        for (Integer nbs : batch) {
+                            managerService.processDistribution(nbs);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error in batch processing: {}", e.getMessage());
+                    } finally {
+                        concurrencyLimiter.release();
+                    }
+                });
+            }
+        } else {
+            // Single-threaded fallback — sequentially process each record
             while (!pendingMessages.isEmpty()) {
                 Integer nbs = pendingMessages.poll();
                 if (nbs == null) continue;
 
-                Runnable task = () -> {
-                    try {
-                        managerService.processDistribution(nbs);
-                    } catch (DataProcessingConsumerException e) {
-                        log.error("Failed to process: {}", e.getMessage());
-                        // Optionally re-add to queue or log to DLQ
-                    } finally {
-                        if (threadEnabled) {
-                            concurrencyLimiter.release();
-                            System.gc();
-                        }
-                    }
-                };
-
-                if (threadEnabled) {
-//                    concurrencyLimiter.acquire(); // block if 10 tasks are already running
-                    concurrencyLimiter.acquireUninterruptibly(); // cap parallel threads
-                    Thread.startVirtualThread(task);
-                } else {
-                    task.run();
-                    System.gc(); // optional; consider removing
+                try {
+                    managerService.processDistribution(nbs);
+                } catch (DataProcessingConsumerException e) {
+                    log.error("Single-threaded error: {}", e.getMessage());
                 }
-            }
-
-            if (threadEnabled) {
-                concurrencyLimiter.acquire(poolSize); // Wait for all virtual threads to finish
-                concurrencyLimiter.release(poolSize); // Reset for next scheduled run
-            }
-
-        } catch (Exception e) {
-            log.error("Scheduled processing failed: {}", e.getMessage());
-        } finally {
-            if (!threadEnabled) {
-                System.gc(); // optional; consider removing
             }
         }
     }
