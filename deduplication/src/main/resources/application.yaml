@@ -6,6 +6,7 @@ server:
 spring:
   application.name: deduplication
   jackson.serialization.indent-output: true
+  kafka.bootstrap-servers: localhost:9092
   batch:
     job:
       enabled: false
