@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,10 +40,13 @@ class ReportStatusControllerTest {
     @Test
     void testGetMessageDetailStatus() {
         String rawId = "test";
+        List<MessageStatus> messageStatusList = new ArrayList<>();
+
         MessageStatus status = new MessageStatus();
         status.getRawInfo().setRawMessageId(rawId);
+        messageStatusList.add(status);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
+                messageStatusList
         );
 
         ResponseEntity<List<MessageStatus>> jsonResponse = reportStatusController.getMessageStatus(rawId);
@@ -56,17 +60,18 @@ class ReportStatusControllerTest {
         String id = "11111111-2222-3333-4444-555555555555";
         String status = "Success";
 
-        when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
+        List<String> statusList = new ArrayList<>();
+        statusList.add(status);
+        when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(statusList);
 
         ResponseEntity<String> jsonResponse = reportStatusController.getReportStatus(id);
 
         verify(reportStatusServiceMock, times(1)).getStatusForReport(id);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> responeMap = mapper.readValue(jsonResponse.getBody(), Map.class);
-
-        assertEquals(id, responeMap.get("id"));
-        assertEquals(status, responeMap.get("status"));
+        List<String> responeList = mapper.readValue(jsonResponse.getBody(), List.class);
+        assertEquals("id:11111111-2222-3333-4444-555555555555", responeList.get(0));
+        assertEquals(status, responeList.get(1));
     }
 
     @Test
@@ -119,18 +124,18 @@ class ReportStatusControllerTest {
         String id = "11111111-3333-2222-4444-555555555555";
         String status = "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
 
-        when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
+        List<String> statusList=new ArrayList<>();
+        statusList.add(status);
+        when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(statusList);
 
         ResponseEntity<String> jsonResponse = reportStatusController.getReportStatus(id);
 
         verify(reportStatusServiceMock, times(1)).getStatusForReport(id);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> responeMap = mapper.readValue(jsonResponse.getBody(), Map.class);
-
-        System.out.println("responseMap is..." + responeMap);
-        assertEquals(id, responeMap.get("id"));
-        assertEquals(status, responeMap.get("error_message"));
+        List<String> responeList = mapper.readValue(jsonResponse.getBody(), List.class);
+        assertEquals("id:11111111-3333-2222-4444-555555555555", responeList.get(0));
+        assertEquals(status, responeList.get(1));
     }
 
     @Test
@@ -138,16 +143,17 @@ class ReportStatusControllerTest {
         String id = "11111111-4444-3333-2222-555555555555";
         String status = "Couldn't find status for the requested ID.";
 
-        when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(status);
+        List<String> statusList=new ArrayList<>();
+        statusList.add(status);
+        when(reportStatusServiceMock.getStatusForReport(id)).thenReturn(statusList);
 
         ResponseEntity<String> jsonResponse = reportStatusController.getReportStatus(id);
 
         verify(reportStatusServiceMock, times(1)).getStatusForReport(id);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> responeMap = mapper.readValue(jsonResponse.getBody(), Map.class);
-
-        assertEquals(id, responeMap.get("id"));
-        assertEquals(status, responeMap.get("error_message"));
+        List<String> responeList = mapper.readValue(jsonResponse.getBody(), List.class);
+        assertEquals("id:11111111-4444-3333-2222-555555555555", responeList.get(0));
+        assertEquals("Couldn't find status for the requested ID.", responeList.get(1));
     }
 }
