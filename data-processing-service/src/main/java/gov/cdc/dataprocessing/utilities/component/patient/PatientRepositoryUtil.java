@@ -27,6 +27,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameReposit
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -76,7 +77,7 @@ public class PatientRepositoryUtil {
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    @Value("${feature.thread-enabled}")
+//    @Value("${feature.thread-enabled}")
     private boolean threadEnabled = false;
 
     private final PersonRepository personRepository;
@@ -98,6 +99,8 @@ public class PatientRepositoryUtil {
 
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
 
+    private final UidPoolManager uidPoolManager;
+
     private static final String ERROR_DELETE_MSG = "Error Delete Patient Entity: ";
     private static final String ERROR_UPDATE_MSG = "Error Updating Existing Patient Entity: ";
 
@@ -115,7 +118,7 @@ public class PatientRepositoryUtil {
             DataModifierReposJdbc dataModifierReposJdbc,
             RoleRepository roleRepository,
             IOdseIdGeneratorWCacheService odseIdGeneratorService1,
-            IEntityLocatorParticipationService entityLocatorParticipationService) {
+            IEntityLocatorParticipationService entityLocatorParticipationService, UidPoolManager uidPoolManager) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -129,6 +132,7 @@ public class PatientRepositoryUtil {
         this.roleRepository = roleRepository;
         this.odseIdGeneratorService = odseIdGeneratorService1;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
+        this.uidPoolManager = uidPoolManager;
     }
 
     public Long updateExistingPersonEdxIndByUid(Long uid) {
@@ -190,8 +194,10 @@ public class PatientRepositoryUtil {
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
+//        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+        var localIdModel = uidPoolManager.getNextUid(true);
 
-        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+
         personUid = localIdModel.getGaTypeUid().getSeedValueNbr();
         localUid = localIdModel.getClassTypeUid().getUidPrefixCd()
                 + localIdModel.getClassTypeUid().getSeedValueNbr()
@@ -314,6 +320,7 @@ public class PatientRepositoryUtil {
             }
 
             if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+                // 104ms on this one
                 entityLocatorParticipationService.createEntityLocatorParticipation(
                         personContainer.getTheEntityLocatorParticipationDtoCollection(),
                         personContainer.getThePersonDto().getPersonUid());

@@ -65,7 +65,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IRoleService roleService;
     private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
     private static final Logger logger = LoggerFactory.getLogger(ManagerAggregationService.class);
-    @Value("${feature.thread-enabled}")
+//    @Value("${feature.thread-enabled}")
     private boolean threadEnabled = false;
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
@@ -117,7 +117,6 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void serviceAggregation(
             LabResultProxyContainer labResult,
             EdxLabInformationDto edxLabInformationDto

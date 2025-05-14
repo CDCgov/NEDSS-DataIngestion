@@ -187,7 +187,6 @@ public class ObservationService implements IObservationService {
     /**
      * Origin: sendLabResultToProxy
      * */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ObservationDto processingLabResultContainer(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
         if (labResultProxyContainer == null) {
             throw new DataProcessingException("Lab Result Container Is Null");

@@ -39,7 +39,6 @@ public class LabReportProcessing implements ILabReportProcessing {
         this.observationService = observationService;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String markAsReviewedHandler(Long observationUid, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         String markAsReviewedFlag = "";
         try {

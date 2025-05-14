@@ -21,21 +21,33 @@ public class TokenService implements ITokenService {
 
     private final RestTemplate restTemplate;
 
+    private String cachedToken;
+    private long lastFetchedTime = 0; // epoch millis
+    private static final long TOKEN_VALIDITY_MILLIS = 20 * 60 * 1000; // 20 minutes
+
     public TokenService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    public synchronized String getToken() {
+        long now = System.currentTimeMillis();
 
-    public String getToken() {
-        return fetchNewToken();
+        if (cachedToken == null || now - lastFetchedTime >= TOKEN_VALIDITY_MILLIS) {
+            cachedToken = fetchNewToken();
+            lastFetchedTime = now;
+        }
+
+        return cachedToken;
     }
 
     private String fetchNewToken() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("clientid", clientId);
         headers.add("clientsecret", clientSecret);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
 
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.postForEntity(tokenEndpoint, entity, String.class);
-        return response.getBody();    }
+
+        return response.getBody();
+    }
 }

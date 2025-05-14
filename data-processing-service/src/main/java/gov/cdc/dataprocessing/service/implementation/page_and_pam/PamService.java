@@ -96,7 +96,6 @@ public class PamService implements IPamService {
         this.patientMatchingBaseService = patientMatchingBaseService;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long setPamProxyWithAutoAssoc(PamProxyContainer pamProxyVO, Long observationUid, String observationTypeCd) throws DataProcessingException {
         Long investigationUID = setPamProxy(pamProxyVO);
 

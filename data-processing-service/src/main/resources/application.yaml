@@ -79,7 +79,7 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:50}               # Increase for higher parallelism (adjust per CPU & DB limits)
+      maximum-pool-size: ${HIKARI_POOL_SIZE:1000}               # Increase for higher parallelism (adjust per CPU & DB limits)
       minimum-idle: ${HIKARI_MINIMUM_IDLE:10}                  # Let unused connections be removed
       idle-timeout: ${HIKARI_IDLE_TIMEOUT:60000}              # Close idle connections quickly (30s)
       connection-timeout: ${HIKARI_CON_TIMEOUT:10000}         # Fail fast if no connection within 30s
@@ -102,7 +102,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
     thread: ${KAFKA_THREAD:1}
-    max-poll-record: ${KAFKA_MAX_POLL_RECORD:10}
+    max-poll-record: ${KAFKA_MAX_POLL_RECORD:1000}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
@@ -134,7 +134,7 @@ logging:
 
 
 feature:
-  thread-enabled: ${THREAD_FLAG:true}
+  thread-enabled: ${THREAD_FLAG:false}
   jdbc-flag: ${JDBC_FLAG:true}
-  thread-pool-size: ${THREAD_POOL_SIZE:5}
+  thread-pool-size: ${THREAD_POOL_SIZE:20}
   thread-queue-size: ${THREAD_QUEUE_SIZE:1000}

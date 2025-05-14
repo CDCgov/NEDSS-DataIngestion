@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -132,7 +134,7 @@ public class ManagerService implements IManagerService {
         this.nbsInterfaceJdbcRepository = nbsInterfaceJdbcRepository;
     }
 
-    public void processDistribution(Integer data) throws DataProcessingConsumerException {
+    public void processDistribution(Integer data) throws DataProcessingConsumerException, DataProcessingException {
         if (AuthUtil.authUser != null) {
             processingELR(data);
         } else {
@@ -142,7 +144,7 @@ public class ManagerService implements IManagerService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    public void initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
+    public PublicHealthCaseFlowContainer initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
         EdxLabInformationDto edxLabInformationDto = null;
         edxLabInformationDto = publicHealthCaseFlowContainer.getEdxLabInformationDto();
         ObservationDto observationDto = publicHealthCaseFlowContainer.getObservationDto();
@@ -205,10 +207,12 @@ public class ManagerService implements IManagerService {
         }
 
 
-        this.initiatingLabProcessing(publicHealthCaseFlowContainer);
+        return publicHealthCaseFlowContainer;
+       // this.initiatingLabProcessing(publicHealthCaseFlowContainer);
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer publicHealthCaseFlowContainer) throws DataProcessingException {
         NbsInterfaceModel nbsInterfaceModel = publicHealthCaseFlowContainer.getNbsInterfaceModel();
         EdxLabInformationDto edxLabInformationDto=null;
@@ -306,8 +310,14 @@ public class ManagerService implements IManagerService {
         logger.info("Completed");
     }
 
+//    public void processingELRMain(Integer data) throws DataProcessingException {
+//        var res = processingELR(data);
+//        this.initiatingInvestigationAndPublicHealthCase(res);
+//    }
+
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    protected void processingELR(Integer data) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public PublicHealthCaseFlowContainer processingELR(Integer data) {
         logger.info("Interface Id: {}", data);
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -332,7 +342,7 @@ public class ManagerService implements IManagerService {
 
                     kafkaFailedCheck = true;
                     logger.info("Kafka failed check : {}", PropertyUtilCache.kafkaFailedCheckStep1);
-                    return;
+                    return null;
                 }
             }
 
@@ -406,7 +416,8 @@ public class ManagerService implements IManagerService {
             phcContainer.setObservationDto(observationDto);
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
             phcContainer.setNbsInterfaceModel(nbsInterfaceModel);
-            this.initiatingInvestigationAndPublicHealthCase(phcContainer);
+//            this.initiatingInvestigationAndPublicHealthCase(phcContainer);
+            return phcContainer;
         }
         catch (Exception e)
         {
@@ -538,6 +549,8 @@ public class ManagerService implements IManagerService {
                 kafkaManagerProducer.sendDataEdxActivityLog(jsonString);
             }
         }
+
+        return null;
     }
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {

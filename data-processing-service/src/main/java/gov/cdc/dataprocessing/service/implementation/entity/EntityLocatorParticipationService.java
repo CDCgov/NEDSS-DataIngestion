@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorR
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
@@ -55,6 +56,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
     @Value("${feature.jdbc-flag}")
     private boolean jdbcFlag = true;
+    private final UidPoolManager uidPoolManager;
 
     private final PersonRepository personRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
@@ -64,7 +66,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final DataModifierReposJdbc dataModifierReposJdbc;
     private final EntityLocatorJdbcRepository entityLocatorJdbcRepository;
-    public EntityLocatorParticipationService(PersonRepository personRepository,
+    public EntityLocatorParticipationService(UidPoolManager uidPoolManager, PersonRepository personRepository,
                                              EntityLocatorParticipationRepository entityLocatorParticipationRepository,
                                              TeleLocatorRepository teleLocatorRepository,
                                              PostalLocatorRepository postalLocatorRepository,
@@ -72,6 +74,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                                              IOdseIdGeneratorWCacheService odseIdGeneratorService,
                                              DataModifierReposJdbc dataModifierReposJdbc,
                                              EntityLocatorJdbcRepository entityLocatorJdbcRepository) {
+        this.uidPoolManager = uidPoolManager;
         this.personRepository = personRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
         this.teleLocatorRepository = teleLocatorRepository;
@@ -191,8 +194,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             deleteEntityLocatorParticipation(locatorCollection, patientUid);
             StringBuilder comparingString = new StringBuilder();
             for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
-
-                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+                var localUid = uidPoolManager.getNextUid(true);
+//                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
                 boolean newLocator = true;
                 if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null)
                 {
@@ -395,7 +398,8 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         ArrayList<EntityLocatorParticipationDto>  personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
         for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
             boolean inserted = false;
-            var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+            var localUid = uidPoolManager.getNextUid(true);
+//            var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
             if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
                 entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                 if (jdbcFlag) {

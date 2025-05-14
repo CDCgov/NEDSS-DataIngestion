@@ -118,7 +118,7 @@ public class KafkaManagerConsumer {
     }
 
 
-    @Scheduled(fixedDelay = 30000) // every 10 seconds
+    @Scheduled(fixedDelay = 1000) // every 10000 = 10 seconds
 //    public void processPendingMessages() {
 //        if (pendingMessages.isEmpty()) return;
 //        try {
@@ -168,12 +168,11 @@ public class KafkaManagerConsumer {
         if (pendingMessages.isEmpty()) return;
 
         if (threadEnabled) {
-            Semaphore concurrencyLimiter = new Semaphore(poolSize); // e.g. 10
+            Semaphore concurrencyLimiter = new Semaphore(poolSize); // Same as Hikari max pool size
             int batchSize = 100;
-            List<Integer> batch = new ArrayList<>(batchSize);
 
             while (!pendingMessages.isEmpty()) {
-                batch.clear();
+                List<Integer> batch = new ArrayList<>(batchSize);
                 for (int i = 0; i < batchSize && !pendingMessages.isEmpty(); i++) {
                     Integer nbs = pendingMessages.poll();
                     if (nbs != null) batch.add(nbs);
@@ -181,29 +180,34 @@ public class KafkaManagerConsumer {
                 if (batch.isEmpty()) continue;
 
                 concurrencyLimiter.acquireUninterruptibly();
-
                 Thread.startVirtualThread(() -> {
                     try {
                         for (Integer nbs : batch) {
-                            managerService.processDistribution(nbs);
+                            try {
+                                var result = managerService.processingELR(nbs);
+                                var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
+                                managerService.initiatingLabProcessing(phc);
+                            } catch (Exception e) {
+                                log.error("Error processing NBS {}: {}", nbs, e.getMessage(), e);
+                            }
                         }
-                    } catch (Exception e) {
-                        log.error("Error in batch processing: {}", e.getMessage());
                     } finally {
                         concurrencyLimiter.release();
                     }
                 });
             }
         } else {
-            // Single-threaded fallback — sequentially process each record
+            // Single-threaded fallback
             while (!pendingMessages.isEmpty()) {
                 Integer nbs = pendingMessages.poll();
                 if (nbs == null) continue;
 
                 try {
-                    managerService.processDistribution(nbs);
-                } catch (DataProcessingConsumerException e) {
-                    log.error("Single-threaded error: {}", e.getMessage());
+                    var result = managerService.processingELR(nbs);
+                    var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
+                    managerService.initiatingLabProcessing(phc);
+                } catch (Exception e) {
+                    log.error("Single-threaded error: {}", e.getMessage(), e);
                 }
             }
         }
