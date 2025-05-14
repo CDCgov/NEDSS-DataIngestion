@@ -108,6 +108,7 @@ public class KafkaConsumerService {
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
+    private final ElrSplitter elrSplitter;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -125,7 +126,8 @@ public class KafkaConsumerService {
             IElrDeadLetterRepository elrDeadLetterRepository,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
-            TimeMetricsBuilder timeMetricsBuilder) {
+            TimeMetricsBuilder timeMetricsBuilder,
+            ElrSplitter elrSplitter) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -136,6 +138,7 @@ public class KafkaConsumerService {
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
         this.timeMetricsBuilder = timeMetricsBuilder;
+        this.elrSplitter = elrSplitter;
     }
     //endregion
 
@@ -575,8 +578,7 @@ public class KafkaConsumerService {
         }
     }
     private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
-        ElrSplitter elrSplitter = new ElrSplitter();
-        List<HL7ParsedMessage<OruR1>> parsedMessageList=elrSplitter.splitElrByOBR(parsedMessageOrig);
+        List<HL7ParsedMessage<OruR1>> parsedMessageList=elrSplitter.splitElr(parsedMessageOrig);
         return parsedMessageList;
     }
 
