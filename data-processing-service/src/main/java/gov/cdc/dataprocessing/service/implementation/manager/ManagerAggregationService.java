@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -115,6 +117,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void serviceAggregation(
             LabResultProxyContainer labResult,
             EdxLabInformationDto edxLabInformationDto

@@ -6,6 +6,8 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 /**
@@ -37,6 +39,7 @@ public class LabReportProcessing implements ILabReportProcessing {
         this.observationService = observationService;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String markAsReviewedHandler(Long observationUid, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         String markAsReviewedFlag = "";
         try {
