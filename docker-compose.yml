@@ -91,10 +91,10 @@ services:
     networks:
       - dataingestion
 
-  debezium-connect:
+  debezium:
     image: debezium/connect:2.4
-    hostname: kafka-connect
-    container_name: kafka-connect
+    hostname: debezium
+    container_name: debezium
     depends_on:
       - broker
       - zookeeper
