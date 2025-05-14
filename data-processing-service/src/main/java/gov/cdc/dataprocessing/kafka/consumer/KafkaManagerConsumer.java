@@ -141,7 +141,8 @@ public class KafkaManagerConsumer {
                 };
 
                 if (threadEnabled) {
-                    concurrencyLimiter.acquire(); // block if 10 tasks are already running
+//                    concurrencyLimiter.acquire(); // block if 10 tasks are already running
+                    concurrencyLimiter.acquireUninterruptibly(); // cap parallel threads
                     Thread.startVirtualThread(task);
                 } else {
                     task.run();
