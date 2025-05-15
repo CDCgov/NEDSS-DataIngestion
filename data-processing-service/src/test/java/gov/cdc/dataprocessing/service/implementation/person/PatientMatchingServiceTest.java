@@ -11,8 +11,6 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
-import gov.cdc.dataprocessing.service.implementation.person.matching.LinkResponse;
-import gov.cdc.dataprocessing.service.implementation.person.matching.LinkResponse.Results;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
 import gov.cdc.dataprocessing.service.implementation.person.matching.PersonMatchRequest;
@@ -100,19 +98,7 @@ class PatientMatchingServiceTest {
                 serviceProvider);
         when(deduplicationService.match(Mockito.any(PersonMatchRequest.class))).thenReturn(new MatchResponse(
                 1l,
-                MatchType.EXACT,
-                new LinkResponse(
-                        "pat_ref_id",
-                        "person_ref_id",
-                        "certain",
-                        List.of(
-                          new Results("pers_ref",
-                          0.5,
-                          "pass label",
-                          0.5,
-                          0.3,
-                          0.7,
-                          "certain")))));
+                MatchType.EXACT));
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
@@ -125,7 +111,6 @@ class PatientMatchingServiceTest {
         container.setRole("");
         patientMatchingService.getMatchingPatient(container);
         verify(deduplicationService, times(1)).match(Mockito.any());
-        verify(deduplicationService, times(1)).relate(Mockito.any());
     }
 
     @Test
@@ -148,7 +133,6 @@ class PatientMatchingServiceTest {
                 () -> patientMatchingService.getMatchingPatient(container));
         assertThat(exception.getMessage()).isEqualTo("Null response returned from deduplication service");
         verify(deduplicationService, times(1)).match(Mockito.any());
-        verify(deduplicationService, times(0)).relate(Mockito.any());
     }
 
     @Test

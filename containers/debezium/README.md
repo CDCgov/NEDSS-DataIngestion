@@ -17,3 +17,17 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
 ```
 
 Note: If not running the command from the project's base directory, update the `connector.json` file path appropriately.
+
+## Deleting a connector
+
+Use the following command to remove a connector. Replacing `nbs-cdc-test` with the appropriate connector name.
+
+```bash
+curl -i -X DELETE -H "Accept:application/json" -H "Content-Type:application/json" "localhost:8085/connectors/nbs-cdc-test"
+```
+
+Available connectors can be viewed using the following command
+
+```bash
+curl localhost:8085/connectors
+```

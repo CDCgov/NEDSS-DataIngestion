@@ -21,13 +21,4 @@ public class DeduplicationService {
         .body(MatchResponse.class);
   }
 
-  public void relate(RelateRequest relateRequest) {
-    restClient.post()
-        .uri("/relate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON)
-        .body(relateRequest)
-        .retrieve()
-        .body(Void.class);
-  }
 }
