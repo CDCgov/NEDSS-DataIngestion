@@ -47,13 +47,14 @@ public class PdfBuilder {
       heading.setSpacingAfter(20f);
       document.add(heading);
 
-      Font tableFont = new Font(Font.HELVETICA, 10);
+      Font tableFont = new Font(Font.HELVETICA, 9);
       PdfPTable table = new PdfPTable(5);
       table.setWidthPercentage(100);
       table.setSpacingBefore(10f);
+      table.setWidths(new float[]{2f, 3f, 2.5f, 2.5f, 3.5f});
 
-      Stream.of("Patient ID", "Patient Name", "Created Date", "Identified Date", "Matching Records")
-          .forEach(header -> {
+      Stream.of("Patient ID", "Person Name", "Date Created", "Date Identified", "Number of Matching Records")
+              .forEach(header -> {
             PdfPCell cell = new PdfPCell(new Phrase(header, tableFont));
             cell.setBackgroundColor(Color.LIGHT_GRAY);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);

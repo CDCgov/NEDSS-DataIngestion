@@ -156,7 +156,7 @@ class PatientMergeControllerTest {
         .andExpect(content().contentType("text/csv"))
         .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
         .andExpect(content().string("""
-            Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records
+            Patient ID,Person Name,Date Created,Date Identified,Number of Matching Records
             "111122","john smith","1990-01-01","2000-01-01",2
             "111133","Andrew James","1990-02-02","2000-02-02",4
             """.replace("\n", System.lineSeparator()))); // Ensures platform-independent line endings

@@ -86,7 +86,7 @@ public class PatientMergeController {
     List<MatchRequiringReview> matches = matchesRequiringReviewResolver.resolveAll(DEFAULT_SORT);
 
     try (PrintWriter writer = response.getWriter()) {
-      writer.println("Patient ID,Patient Name,Created Date,Identified Date,Number of Matching Records");
+      writer.println("Patient ID,Person Name,Date Created,Date Identified,Number of Matching Records");
       for (MatchRequiringReview match : matches) {
         writer.printf(
             "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
