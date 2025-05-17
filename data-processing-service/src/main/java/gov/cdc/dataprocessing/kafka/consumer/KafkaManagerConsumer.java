@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.kafka.consumer;
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
@@ -23,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -75,22 +77,17 @@ public class KafkaManagerConsumer {
     private final QueryHelper queryHelper;
     private final ILookupService lookupService;
 
-    private final ExecutorService executorService;
-    private final TransactionTemplate transactionTemplate;
-
 
     public KafkaManagerConsumer(
             ManagerService managerService,
-            IAuthUserService authUserService, QueryHelper queryHelper, ILookupService lookupService,
-            ExecutorService executorService,
-            PlatformTransactionManager transactionManager
+            IAuthUserService authUserService,
+            QueryHelper queryHelper,
+            ILookupService lookupService
             ) {
         this.managerService = managerService;
         this.authUserService = authUserService;
         this.queryHelper = queryHelper;
         this.lookupService = lookupService;
-        this.executorService = executorService;
-        this.transactionTemplate = new TransactionTemplate(transactionManager);
 
 
     }
@@ -118,77 +115,33 @@ public class KafkaManagerConsumer {
     }
 
 
-    @Scheduled(fixedDelay = 1000) // every 10000 = 10 seconds
-//    public void processPendingMessages() {
-//        if (pendingMessages.isEmpty()) return;
-//        try {
-//            Semaphore concurrencyLimiter = new Semaphore(poolSize); // limit to 10 virtual threads
-//            while (!pendingMessages.isEmpty()) {
-//                Integer nbs = pendingMessages.poll();
-//                if (nbs == null) continue;
-//
-//                Runnable task = () -> {
-//                    try {
-//                        managerService.processDistribution(nbs);
-//                    } catch (DataProcessingConsumerException e) {
-//                        log.error("Failed to process: {}", e.getMessage());
-//                        // Optionally re-add to queue or log to DLQ
-//                    } finally {
-//                        if (threadEnabled) {
-//                            concurrencyLimiter.release();
-//                            System.gc();
-//                        }
-//                    }
-//                };
-//
-//                if (threadEnabled) {
-////                    concurrencyLimiter.acquire(); // block if 10 tasks are already running
-//                    concurrencyLimiter.acquireUninterruptibly(); // cap parallel threads
-//                    Thread.startVirtualThread(task);
-//                } else {
-//                    task.run();
-//                    System.gc(); // optional; consider removing
-//                }
-//            }
-//
-//            if (threadEnabled) {
-//                concurrencyLimiter.acquire(poolSize); // Wait for all virtual threads to finish
-//                concurrencyLimiter.release(poolSize); // Reset for next scheduled run
-//            }
-//
-//        } catch (Exception e) {
-//            log.error("Scheduled processing failed: {}", e.getMessage());
-//        } finally {
-//            if (!threadEnabled) {
-//                System.gc(); // optional; consider removing
-//            }
-//        }
-//    }
+    @Scheduled(fixedDelay = 30000) // every 10000 = 10 seconds
     public void processPendingMessages() {
+        logger.info("BATCH SIZE: {}", pendingMessages.size());
         if (pendingMessages.isEmpty()) return;
 
         if (threadEnabled) {
             Semaphore concurrencyLimiter = new Semaphore(poolSize); // Same as Hikari max pool size
-            int batchSize = 100;
+            int batchSize = 50;
 
-            while (!pendingMessages.isEmpty()) {
+            while (true) {
                 List<Integer> batch = new ArrayList<>(batchSize);
-                for (int i = 0; i < batchSize && !pendingMessages.isEmpty(); i++) {
-                    Integer nbs = pendingMessages.poll();
-                    if (nbs != null) batch.add(nbs);
+                Integer nbs;
+                while (batch.size() < batchSize && (nbs = pendingMessages.poll()) != null) {
+                    batch.add(nbs);
                 }
-                if (batch.isEmpty()) continue;
+                if (batch.isEmpty()) break;
 
                 concurrencyLimiter.acquireUninterruptibly();
                 Thread.startVirtualThread(() -> {
                     try {
-                        for (Integer nbs : batch) {
+                        for (Integer id : batch) {
                             try {
-                                var result = managerService.processingELR(nbs);
+                                var result = managerService.processingELR(id);
                                 var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
                                 managerService.initiatingLabProcessing(phc);
                             } catch (Exception e) {
-                                log.error("Error processing NBS {}: {}", nbs, e.getMessage(), e);
+                                log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
                             }
                         }
                     } finally {
@@ -214,7 +167,7 @@ public class KafkaManagerConsumer {
     }
 
     @PostConstruct
-    public void init() throws DataProcessingException {
+    public void init() throws DataProcessingException, RtiCacheException {
         // Ensure this runs first at startup
         AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
@@ -239,7 +192,7 @@ public class KafkaManagerConsumer {
 
 
     @Scheduled(fixedDelay = 3600000) // every 1 hr
-    public void populateHashPAJList() throws DataProcessingException {
+    public void populateHashPAJList() throws DataProcessingException, RtiCacheException {
         logger.info("Started populateHashPAJList");
         OdseCache.OWNER_LIST_HASHED_PA_J =  queryHelper.getHashedPAJList(false);
         OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
