@@ -46,10 +46,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
@@ -123,7 +126,6 @@ public class ObservationService implements IObservationService {
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-
     public ObservationService(INNDActivityLogService nndActivityLogService,
                               IMessageLogService messageLogService,
                               ObservationRepositoryUtil observationRepositoryUtil,
@@ -187,6 +189,7 @@ public class ObservationService implements IObservationService {
     /**
      * Origin: sendLabResultToProxy
      * */
+
     public ObservationDto processingLabResultContainer(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
         if (labResultProxyContainer == null) {
             throw new DataProcessingException("Lab Result Container Is Null");
@@ -212,7 +215,7 @@ public class ObservationService implements IObservationService {
         labReportSummaryVO.setTouched(true);
         labReportSummaryVO.setAssociated(true);
         labReportSummaryVO.setObservationUid(labUid);
-        labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
+        labReportSummaryVO.setActivityFromTime(getCurrentTimeStamp(tz));
         Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
         labReportSummaryVOColl.add(labReportSummaryVO);
 
@@ -832,39 +835,30 @@ public class ObservationService implements IObservationService {
 
         return nndActivityLogDto;
     }
+
     @SuppressWarnings({"java:S3776", "java:S1199"})
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
-
-        //Set flag for type of processing
-        boolean ELR_PROCESSING = false; // NOSONAR
-
-        // We need specific auth User for elr processing, but probably wont applicable for data processing
-        if (AuthUtil.authUser != null || (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT)))
-        {
-            ELR_PROCESSING = true;
-        }
-
         //All well to proceed
         Map<Object, Object> returnVal = new HashMap<>();
         Long falseUid;
-        Long realUid ;
+        Long realUid;
 
-            //Process PersonVOCollection  and adds the patient mpr uid to the return
-            Long patientMprUid = personUtil.processLabPersonContainerCollection(
-                    labResultProxyVO.getThePersonContainerCollection(),
-                    false,
-                    labResultProxyVO
-            );
+        //Process PersonVOCollection  and adds the patient mpr uid to the return
+        Long patientMprUid = personUtil.processLabPersonContainerCollection(
+                labResultProxyVO.getThePersonContainerCollection(),
+                false,
+                labResultProxyVO
+        );
 
-            if (patientMprUid != null)
-            {
+        if (patientMprUid != null)
+        {
             {
                 returnVal.put(NEDSSConstant.SETLAB_RETURN_MPR_UID, patientMprUid);
             }
 
             //ObservationVOCollection
             Map<Object, Object> obsResults;
-            obsResults = processObservationContainerCollection(labResultProxyVO, ELR_PROCESSING);
+            obsResults = processObservationContainerCollection(labResultProxyVO, true);
 
             if (!obsResults.isEmpty())
             {
@@ -885,10 +879,10 @@ public class ObservationService implements IObservationService {
                 returnVal.put(NEDSSConstant.SETLAB_RETURN_MPR_UID, patientMprUid);
             }
 
-
             //Retrieve and return local ids for the patient and observation
             Long observationUid = (Long)obsResults.get(NEDSSConstant.SETLAB_RETURN_OBS_UID);
             returnVal.putAll(findLocalUidsFor(patientMprUid, observationUid));
+
 
             //OrganizationCollection
             OrganizationContainer organizationContainer;
@@ -935,8 +929,8 @@ public class ObservationService implements IObservationService {
                 }
             }
 
-            //MaterialCollection
 
+            //MaterialCollection
             MaterialContainer materialContainer;
             if (labResultProxyVO.getTheMaterialContainerCollection() != null)
             {
@@ -954,7 +948,8 @@ public class ObservationService implements IObservationService {
                     }
 
 
-                    if (materialContainer.isItNew()) {
+                    if (materialContainer.isItNew())
+                    {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_CR, "MATERIAL",
@@ -967,7 +962,9 @@ public class ObservationService implements IObservationService {
                         if (falseUid.intValue() < 0) {
                             uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
-                    } else if (materialContainer.isItDirty()) {
+                    }
+                    else if (materialContainer.isItDirty())
+                    {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_EDIT, "MATERIAL",
@@ -983,23 +980,31 @@ public class ObservationService implements IObservationService {
             }
 
             //ParticipationCollection
-
             if (labResultProxyVO.getTheParticipationDtoCollection() != null)
             {
-                logger.debug("Iniside participation Collection<Object>  Loop - Lab");
+                List<ParticipationDto> toSave = new ArrayList<>();
+                List<ParticipationDto> toDelete = new ArrayList<>();
+
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
                     if (dt != null) {
                         if (dt.isItDelete()) {
-                            participationService.saveParticipationHist(dt);
+                            toDelete.add(dt);
+                        } else {
+                            toSave.add(dt);
                         }
-                        participationService.saveParticipation(dt);
                     }
+                }
+
+                if (!toDelete.isEmpty()) {
+                    participationService.saveParticipationHistBatch(toDelete); // Batch delete history
+                }
+
+                if (!toSave.isEmpty()) {
+                    participationService.saveParticipationByBatch(toSave); // Batch save
                 }
             }
 
-
             //ActRelationship Collection
-
             if (labResultProxyVO.getTheActRelationshipDtoCollection() != null)
             {
                 logger.debug("Act relationship size: {}", labResultProxyVO.getTheActRelationshipDtoCollection().size());
@@ -1015,7 +1020,7 @@ public class ObservationService implements IObservationService {
                 }
             }
 
-
+            // RoleCol
             Collection<RoleDto>  roleDTColl = labResultProxyVO.getTheRoleDtoCollection();
             if (roleDTColl != null && !roleDTColl.isEmpty())
             {
@@ -1024,32 +1029,36 @@ public class ObservationService implements IObservationService {
 
 
 
-            //add LDF data
-            /**
-             * @TBD Release 6.0, Commented out as LDF will be planned out as new type of answers
-            LDFHelper ldfHelper = LDFHelper.getInstance();
-            ldfHelper.setLDFCollection(labResultProxyVO.getTheStateDefinedFieldDataDTCollection(), labResultProxyVO.getLdfUids(),
-            NEDSSConstant.LABREPORT_LDF,null,observationUid,securityObj);
-             */
-
             //EDX Document
-
-
             Collection<EDXDocumentDto> edxDocumentCollection = labResultProxyVO.getEDXDocumentCollection();
             ObservationDto rootDT = observationUtil.getRootObservationDto(labResultProxyVO);
             if (edxDocumentCollection != null && !edxDocumentCollection.isEmpty() && rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
-                for (EDXDocumentDto eDXDocumentDto : edxDocumentCollection) {
-                    if (eDXDocumentDto.getPayload() != null) {
-                        String payload = eDXDocumentDto.getPayload();
+                List<EDXDocumentDto> toSave = new ArrayList<>();
+                for (EDXDocumentDto dto : edxDocumentCollection) {
+                    if (dto.getPayload() != null) {
+                        String payload = dto.getPayload();
                         int containerIndex = payload.indexOf("<Container");
-                        eDXDocumentDto.setPayload(payload.substring(containerIndex));
+                        if (containerIndex != -1) {
+                            dto.setPayload(payload.substring(containerIndex));
+                        }
                     }
-                    if (eDXDocumentDto.isItNew()) {
-                        eDXDocumentDto.setActUid(observationUid);
+
+                    if (dto.isItNew()) {
+                        dto.setActUid(observationUid);
                     }
-                    edxDocumentService.saveEdxDocument(eDXDocumentDto);
+
+                    toSave.add(dto);
                 }
+
+                if (!toSave.isEmpty()) {
+                    edxDocumentService.saveEdxDocumentBatch(toSave);
+                }
+
             }
+
+
+
+
             rootDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
             rootDT.setObservationUid(observationUid);
 
@@ -1061,9 +1070,8 @@ public class ObservationService implements IObservationService {
                 answerService.storePageAnswer(pageContainer, rootDT);
             }
             else {
-                    answerService.insertPageVO(pageContainer, rootDT);
+                answerService.insertPageVO(pageContainer, rootDT);
             }
-
 
         }
 
@@ -1106,15 +1114,6 @@ public class ObservationService implements IObservationService {
         {
             return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
         }
-
-        //If coming from morbidity, processing this way
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                return processMorbObsVOCollection( (MorbidityProxyVO) proxyVO,
-//                        securityObj);
-//            }
-
-        //If not above, abort the operation
         else
         {
             throw new DataProcessingException("Expected a valid observation proxy vo, it is: " + proxyVO.getClass().getName());
