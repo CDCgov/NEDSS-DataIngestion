@@ -4,15 +4,10 @@ import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
-import gov.cdc.dataprocessing.repository.nbs.srte.repository.custom.SrteCustomRepository;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.CodeValueGeneralRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
-import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
-import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-import gov.cdc.dataprocessing.utilities.GsonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 

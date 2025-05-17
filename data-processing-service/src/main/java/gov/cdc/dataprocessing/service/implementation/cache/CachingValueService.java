@@ -7,12 +7,10 @@ import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.custom.SrteCustomRepository;
-
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
 import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 

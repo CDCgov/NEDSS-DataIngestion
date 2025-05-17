@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationshipHistory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static gov.cdc.dataprocessing.constant.query.ActQuery.*;
 import static gov.cdc.dataprocessing.constant.query.ActRelationshipQuery.*;
 
 @Component

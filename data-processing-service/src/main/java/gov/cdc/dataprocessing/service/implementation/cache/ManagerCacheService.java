@@ -8,9 +8,6 @@ import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
 
 @Component
 public class ManagerCacheService{

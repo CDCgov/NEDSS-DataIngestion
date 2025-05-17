@@ -35,8 +35,6 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
-
 @Component
 /**
  125 - Comment complaint

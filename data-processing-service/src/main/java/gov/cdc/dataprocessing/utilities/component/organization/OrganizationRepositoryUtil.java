@@ -34,7 +34,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRep
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationNameRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
