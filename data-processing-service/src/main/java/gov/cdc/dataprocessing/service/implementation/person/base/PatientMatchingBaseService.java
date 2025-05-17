@@ -16,7 +16,7 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -63,9 +63,9 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService,
+            CachingValueDpDpService cachingValueDpService,
             PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
 
     @SuppressWarnings("java:S125")
@@ -98,23 +98,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             }
         }
 
-
         personUid = this.setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd, personType);
 
-        /*
-        // NOTE: SHOULD NOT HIT THIS ONE EITHER
-        if (personVO.getThePersonDto() != null && (personVO.getThePersonDto().getElectronicInd() != null
-                && !personVO.getThePersonDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)))
-        {
-            // ldf code
-            // begin
-//                LDFHelper ldfHelper = LDFHelper.getInstance();
-//                ldfHelper.setLDFCollection(personVO.getTheStateDefinedFieldDataDTCollection(), personVO.getLdfUids(),
-//                        NEDSSConstant.PATIENT_LDF, null, personUid, nbsSecurityObj);
-        }
-        */
-
-        // ldf code end
         return personUid;
     }
 
@@ -228,7 +213,15 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
 
         //Retrieve a mpr with the mprUID
-        PersonContainer mpr = getPatientRepositoryUtil().loadPerson(mprUID);
+        PersonContainer mpr;
+        if (newRevision.isNewPersonCreated()) {
+            mpr = newRevision.deepClone();
+            mpr.setRole(null);
+            mpr.setPatientMatchedFound(null);
+        }
+        else {
+            mpr = getPatientRepositoryUtil().loadPerson(mprUID);
+        }
 
         if(mpr != null) //With the MPR, update...
         {
