@@ -24,7 +24,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +71,6 @@ public class MaterialService implements IMaterialService {
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityRepository entityRepository;
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
     private final UidPoolManager uidPoolManager;
@@ -84,7 +82,7 @@ public class MaterialService implements IMaterialService {
                            ParticipationRepository participationRepository,
                            ManufacturedMaterialRepository manufacturedMaterialRepository,
                            EntityHelper entityHelper,
-                           IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityRepository entityRepository,
+                           EntityRepository entityRepository,
                            IEntityLocatorParticipationService entityLocatorParticipationService, @Lazy UidPoolManager uidPoolManager) {
         this.materialRepository = materialRepository;
         this.entityIdRepository = entityIdRepository;
@@ -93,7 +91,6 @@ public class MaterialService implements IMaterialService {
         this.participationRepository = participationRepository;
         this.manufacturedMaterialRepository = manufacturedMaterialRepository;
         this.entityHelper = entityHelper;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityRepository = entityRepository;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
         this.uidPoolManager = uidPoolManager;

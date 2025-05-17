@@ -28,7 +28,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
@@ -40,10 +39,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Component
 /**
@@ -69,14 +64,9 @@ import java.util.concurrent.Executors;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PatientRepositoryUtil {
-    @Value("${feature.jdbc-flag}")
-    private boolean jdbcFlag = true;
     private static final Logger logger = LoggerFactory.getLogger(PatientRepositoryUtil.class);
     @Value("${service.timezone}")
     private String tz = "UTC";
-
-//    @Value("${feature.thread-enabled}")
-    private boolean threadEnabled = false;
 
     private final PersonRepository personRepository;
     private final EntityRepositoryUtil entityRepositoryUtil;
@@ -93,7 +83,6 @@ public class PatientRepositoryUtil {
     private final DataModifierReposJdbc dataModifierReposJdbc;
 
     private final RoleRepository roleRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
 
@@ -115,8 +104,8 @@ public class PatientRepositoryUtil {
             EntityIdJdbcRepository entityIdJdbcRepository,
             DataModifierReposJdbc dataModifierReposJdbc,
             RoleRepository roleRepository,
-            IOdseIdGeneratorWCacheService odseIdGeneratorService1,
-            IEntityLocatorParticipationService entityLocatorParticipationService, UidPoolManager uidPoolManager) {
+            IEntityLocatorParticipationService entityLocatorParticipationService,
+            UidPoolManager uidPoolManager) {
         this.personRepository = personRepository;
         this.entityRepositoryUtil = entityRepositoryUtil;
         this.personNameRepository = personNameRepository;
@@ -128,7 +117,6 @@ public class PatientRepositoryUtil {
         this.entityIdJdbcRepository = entityIdJdbcRepository;
         this.dataModifierReposJdbc = dataModifierReposJdbc;
         this.roleRepository = roleRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService1;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
         this.uidPoolManager = uidPoolManager;
     }
@@ -168,128 +156,37 @@ public class PatientRepositoryUtil {
         Person person = new Person(personDto, tz);
         person.setBirthCntryCd(null);
 
-        if (jdbcFlag) {
-            personJdbcRepository.createPerson(person);
-        } else {
-            personRepository.save(person);
+        personJdbcRepository.createPerson(person);
+
+
+
+        if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
+            createPersonName(personContainer);
         }
 
-        if (threadEnabled) {
-            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-                List<CompletableFuture<Void>> tasks = new ArrayList<>();
-
-                // Name
-                if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
-                    tasks.add(CompletableFuture.runAsync(() -> {
-                        try {
-                            createPersonName(personContainer);
-                        } catch (DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, executor));
-                }
-
-                // Race
-                if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
-                    tasks.add(CompletableFuture.runAsync(() -> {
-                        try {
-                            createPersonRace(personContainer);
-                        } catch (DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, executor));
-                }
-
-                // Ethnic Group
-                if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-                    tasks.add(CompletableFuture.runAsync(() -> {
-                        try {
-                            createPersonEthnic(personContainer);
-                        } catch (DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, executor));
-                }
-
-                // Entity ID
-                if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                    tasks.add(CompletableFuture.runAsync(() -> {
-                        try {
-                            createEntityId(personContainer);
-                        } catch (DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, executor));
-                }
-
-                // Entity Locator Participation
-                if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null
-                        && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                    tasks.add(CompletableFuture.runAsync(() -> {
-                        try {
-                            entityLocatorParticipationService.createEntityLocatorParticipation(
-                                    personContainer.getTheEntityLocatorParticipationDtoCollection(),
-                                    personDto.getPersonUid());
-                        } catch (DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, executor));
-                }
-
-                // Role
-                if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-                    tasks.add(CompletableFuture.runAsync(() -> {
-                        try {
-                            createRole(personContainer, "CREATE");
-                        } catch (DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, executor));
-                }
-
-                // Wait for all tasks
-                for (CompletableFuture<Void> task : tasks) {
-                    task.join();
-                }
-
-            } catch (CompletionException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof DataProcessingException dpe) {
-                    throw dpe;
-                } else {
-                    throw new DataProcessingException("Unexpected error during person creation", cause);
-                }
-            }
-
-        } else {
-            // Sequential fallback
-            if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
-                createPersonName(personContainer);
-            }
-
-            if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
-                createPersonRace(personContainer);
-            }
-
-            if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
-                createPersonEthnic(personContainer);
-            }
-
-            if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                createEntityId(personContainer);
-            }
-
-            if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                // 104ms on this one
-                entityLocatorParticipationService.createEntityLocatorParticipation(
-                        personContainer.getTheEntityLocatorParticipationDtoCollection(),
-                        personDto.getPersonUid());
-            }
-
-            if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-                createRole(personContainer, "CREATE");
-            }
+        if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
+            createPersonRace(personContainer);
         }
+
+        if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
+            createPersonEthnic(personContainer);
+        }
+
+        if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            createEntityId(personContainer);
+        }
+
+        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+            // 104ms on this one
+            entityLocatorParticipationService.createEntityLocatorParticipation(
+                    personContainer.getTheEntityLocatorParticipationDtoCollection(),
+                    personDto.getPersonUid());
+        }
+
+        if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+            createRole(personContainer, "CREATE");
+        }
+
 
         return person;
     }
@@ -563,11 +460,7 @@ public class PatientRepositoryUtil {
                 dto.setAddReasonCd("Add");
 
                 PersonName entity = new PersonName(dto, tz);
-                if (jdbcFlag) {
-                    personJdbcRepository.createPersonName(entity);
-                } else {
-                    personNameRepository.save(entity);
-                }
+                personJdbcRepository.createPersonName(entity);
             }
 
         } catch (Exception e) {
@@ -716,11 +609,7 @@ public class PatientRepositoryUtil {
 
                 PersonRace entity = new PersonRace(dto, tz);
 
-                if (jdbcFlag) {
-                    personJdbcRepository.createPersonRace(entity);
-                } else {
-                    personRaceRepository.save(entity);
-                }
+                personJdbcRepository.createPersonRace(entity);
             }
 
         } catch (Exception e) {
@@ -742,11 +631,7 @@ public class PatientRepositoryUtil {
                 dto.setPersonUid(personUid);
                 PersonEthnicGroup entity = new PersonEthnicGroup(dto);
 
-                if (jdbcFlag) {
-                    personJdbcRepository.createPersonEthnicGroup(entity);
-                } else {
-                    personEthnicRepository.save(entity);
-                }
+                personJdbcRepository.createPersonEthnicGroup(entity);
             }
 
         } catch (Exception e) {
@@ -799,11 +684,7 @@ public class PatientRepositoryUtil {
         }).toList();
 
         try {
-            if (jdbcFlag) {
-                entityIdJdbcRepository.batchCreateEntityIds(entityIdEntities);
-            } else {
-                entityIdRepository.saveAll(entityIdEntities);
-            }
+            entityIdJdbcRepository.batchCreateEntityIds(entityIdEntities);
         } catch (Exception e) {
             throw new DataProcessingException("Error during batch entity ID creation", e);
         }
@@ -821,7 +702,7 @@ public class PatientRepositoryUtil {
         try {
             for (RoleDto dto : roleDtos) {
                 Role role = new Role(dto);
-                if (jdbcFlag && isCreateOp) {
+                if (isCreateOp) {
                     roleJdbcRepository.createRole(role);
                 } else {
                     roleRepository.save(role);

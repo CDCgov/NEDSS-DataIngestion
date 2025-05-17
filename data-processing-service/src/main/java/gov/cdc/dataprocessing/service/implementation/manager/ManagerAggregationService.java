@@ -26,10 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 /**
@@ -63,10 +59,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
-    private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
     private static final Logger logger = LoggerFactory.getLogger(ManagerAggregationService.class);
-//    @Value("${feature.thread-enabled}")
-    private boolean threadEnabled = false;
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
                                      IUidService uidService,
@@ -128,100 +121,15 @@ public class ManagerAggregationService implements IManagerAggregationService {
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
-        if (threadEnabled) {
-            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 
-                CompletableFuture<Void> obsTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
+        // Sequential fallback
+        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
+        personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+        organizationContainer = organizationService.processingOrganization(labResult);
+        roleAggregation(labResult);
+        progAndJurisdictionAggregationHelper(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
 
-                CompletableFuture<PersonAggContainer> personTask = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-
-                CompletableFuture<OrganizationContainer> orgTask = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return organizationService.processingOrganization(labResult);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-
-                CompletableFuture<Void> roleTask = CompletableFuture.runAsync(() -> {
-                    try {
-                        roleAggregation(labResult);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor);
-
-                CompletableFuture<Void> finalTask = CompletableFuture.allOf(obsTask, personTask, orgTask, roleTask)
-                        .thenRun(() -> {
-                            try {
-                                progAndJurisdictionAggregationHelper(
-                                        labResult,
-                                        edxLabInformationDto,
-                                        personTask.join(),
-                                        orgTask.join()
-                                );
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-
-                finalTask.join();
-
-            }
-            catch (CompletionException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof DataProcessingException dpe) throw dpe;
-                if (cause instanceof DataProcessingConsumerException dpce) throw dpce;
-                throw new DataProcessingException("Unexpected error during service aggregation", cause);
-            }
-
-        } else {
-            // Sequential fallback
-            observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-            personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-            organizationContainer = organizationService.processingOrganization(labResult);
-            roleAggregation(labResult);
-            progAndJurisdictionAggregationHelper(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-        }
     }
-
-
-//    public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-//            DataProcessingException, DataProcessingConsumerException {
-//        PersonAggContainer personAggContainer;
-//        OrganizationContainer organizationContainer;
-//        Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
-//        Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
-//
-//        // thread 1
-//        observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
-//
-//        // thread 2
-//        personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-//
-//        // thread 3
-//        organizationContainer = organizationService.processingOrganization(labResult);
-//
-//        // thread 4
-//        roleAggregation(labResult);
-//
-//        // thread 5
-//        progAndJurisdictionAggregationHelper(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
-//
-//        // wait for all threads completed here
-//    }
 
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
                                                                           EdxLabInformationDto edxLabInformationDto,
@@ -439,80 +347,22 @@ public class ManagerAggregationService implements IManagerAggregationService {
             return container;
         }
 
-        if (threadEnabled) {
-            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        boolean orderingProviderIndicator = false;
 
-                CompletableFuture<Void> nextOfKinFuture = null;
-                CompletableFuture<PersonContainer> patientFuture = null;
-                CompletableFuture<PersonContainer> providerFuture = null;
+        for (PersonContainer personContainer : personContainerCollection) {
+            String role = personContainer.getRole();
+            String cd = personContainer.thePersonDto.getCd();
 
-                boolean orderingProviderIndicator = false;
-
-                for (PersonContainer personContainer : personContainerCollection) {
-                    String role = personContainer.getRole();
-                    String cd = personContainer.thePersonDto.getCd();
-
-                    if (EdxELRConstant.ELR_NEXT_OF_KIN.equalsIgnoreCase(role)) {
-                        nextOfKinFuture = CompletableFuture.runAsync(() -> {
-                            try {
-                                patientService.processingNextOfKin(labResultProxyContainer, personContainer);
-                            } catch (DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                            edxLabInformationDto.setNextOfKin(true);
-                        }, executor);
-                    } else if (EdxELRConstant.ELR_PATIENT_CD.equalsIgnoreCase(cd)) {
-                        patientFuture = CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
-                            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }, executor);
-                    } else if (EdxELRConstant.ELR_PROVIDER_CD.equalsIgnoreCase(cd)) {
-                        providerFuture = CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
-                            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }, executor);
-                    }
-                }
-
-                if (nextOfKinFuture != null) nextOfKinFuture.join();
-                if (patientFuture != null) container.setPersonContainer(patientFuture.join());
-                if (providerFuture != null) container.setProviderContainer(providerFuture.join());
-
-            } catch (CompletionException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof DataProcessingException dpe) {
-                    throw dpe;
-                } else if (cause instanceof DataProcessingConsumerException dpce) {
-                    throw dpce;
-                } else {
-                    throw new DataProcessingException("Unexpected error during patient aggregation", cause);
-                }
+            if (EdxELRConstant.ELR_NEXT_OF_KIN.equalsIgnoreCase(role)) {
+                patientService.processingNextOfKin(labResultProxyContainer, personContainer);
+                edxLabInformationDto.setNextOfKin(true);
+            } else if (EdxELRConstant.ELR_PATIENT_CD.equalsIgnoreCase(cd)) {
+                container.setPersonContainer(patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer));
+            } else if (EdxELRConstant.ELR_PROVIDER_CD.equalsIgnoreCase(cd)) {
+                container.setProviderContainer(patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator));
             }
         }
-        else
-        {
-            boolean orderingProviderIndicator = false;
 
-            for (PersonContainer personContainer : personContainerCollection) {
-                String role = personContainer.getRole();
-                String cd = personContainer.thePersonDto.getCd();
-
-                if (EdxELRConstant.ELR_NEXT_OF_KIN.equalsIgnoreCase(role)) {
-                    patientService.processingNextOfKin(labResultProxyContainer, personContainer);
-                    edxLabInformationDto.setNextOfKin(true);
-                } else if (EdxELRConstant.ELR_PATIENT_CD.equalsIgnoreCase(cd)) {
-                    container.setPersonContainer(patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer));
-                } else if (EdxELRConstant.ELR_PROVIDER_CD.equalsIgnoreCase(cd)) {
-                    container.setProviderContainer(patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator));
-                }
-            }
-        }
 
         return container;
     }

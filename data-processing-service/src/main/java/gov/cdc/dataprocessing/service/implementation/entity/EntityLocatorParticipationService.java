@@ -16,7 +16,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final DataModifierReposJdbc dataModifierReposJdbc;
     private final EntityLocatorJdbcRepository entityLocatorJdbcRepository;
     public EntityLocatorParticipationService(UidPoolManager uidPoolManager, PersonRepository personRepository,
@@ -71,7 +69,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                                              TeleLocatorRepository teleLocatorRepository,
                                              PostalLocatorRepository postalLocatorRepository,
                                              PhysicalLocatorRepository physicalLocatorRepository,
-                                             IOdseIdGeneratorWCacheService odseIdGeneratorService,
                                              DataModifierReposJdbc dataModifierReposJdbc,
                                              EntityLocatorJdbcRepository entityLocatorJdbcRepository) {
         this.uidPoolManager = uidPoolManager;
@@ -80,7 +77,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.dataModifierReposJdbc = dataModifierReposJdbc;
         this.entityLocatorJdbcRepository = entityLocatorJdbcRepository;
     }

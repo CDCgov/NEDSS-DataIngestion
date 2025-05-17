@@ -15,9 +15,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -55,22 +53,7 @@ import java.util.Collection;
 public class ObservationRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRepositoryUtil.class); // NOSONAR
 
-    private final ObservationRepository observationRepository;
-//    private final ObservationReasonRepository observationReasonRepository;
-//    private final ActIdRepository actIdRepository;
-//    private final ObservationInterpRepository observationInterpRepository;
-//    private final ObsValueCodedRepository obsValueCodedRepository;
-//    private final ObsValueTxtRepository obsValueTxtRepository;
-//    private final ObsValueDateRepository obsValueDateRepository;
-//    private final ObsValueNumericRepository obsValueNumericRepository;
-//    private final ActLocatorParticipationRepository actLocatorParticipationRepository;
-//    private final ActRelationshipRepository actRelationshipRepository;
-//    private final ActRepository actRepository;
-//    private final ParticipationRepository participationRepository;
     private final EntityHelper entityHelper;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
-
-
     private final ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
     private final ObservationJdbcRepository observationJdbcRepository;
     private final ActJdbcRepository actJdbcRepository;
@@ -79,19 +62,17 @@ public class ObservationRepositoryUtil {
     private final ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository;
     private final ParticipationJdbcRepository participationJdbcRepository;
     private final UidPoolManager uidPoolManager;
-    public ObservationRepositoryUtil(ObservationRepository observationRepository,
+    public ObservationRepositoryUtil(
                                      EntityHelper entityHelper,
-                                     IOdseIdGeneratorWCacheService odseIdGeneratorService,
                                      ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
                                      ObservationJdbcRepository observationJdbcRepository,
                                      ActJdbcRepository actJdbcRepository,
                                      ActRelationshipJdbcRepository actRelationshipJdbcRepository,
                                      ActIdJdbcRepository actIdJdbcRepository,
-                                     ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository, ParticipationJdbcRepository participationJdbcRepository,
+                                     ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository,
+                                     ParticipationJdbcRepository participationJdbcRepository,
                                      @Lazy UidPoolManager uidPoolManager) {
-        this.observationRepository = observationRepository;
         this.entityHelper = entityHelper;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
         this.observationJdbcRepository = observationJdbcRepository;
         this.actJdbcRepository = actJdbcRepository;

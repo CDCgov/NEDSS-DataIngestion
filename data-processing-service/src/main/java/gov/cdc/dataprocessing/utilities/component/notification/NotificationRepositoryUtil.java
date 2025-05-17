@@ -11,7 +11,6 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -56,7 +55,6 @@ public class NotificationRepositoryUtil {
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final EntityHelper entityHelper;
     private  final ActRepositoryUtil actRepositoryUtil;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final UidPoolManager uidPoolManager;
 
     public NotificationRepositoryUtil(NotificationRepository notificationRepository,
@@ -66,7 +64,7 @@ public class NotificationRepositoryUtil {
                                       ParticipationRepositoryUtil participationRepositoryUtil,
                                       EntityHelper entityHelper,
                                       ActRepositoryUtil actRepositoryUtil,
-                                      IOdseIdGeneratorWCacheService odseIdGeneratorService, @Lazy UidPoolManager uidPoolManager) {
+                                      @Lazy UidPoolManager uidPoolManager) {
         this.notificationRepository = notificationRepository;
         this.actIdRepositoryUtil = actIdRepositoryUtil;
         this.actLocatorParticipationRepositoryUtil = actLocatorParticipationRepositoryUtil;
@@ -74,7 +72,6 @@ public class NotificationRepositoryUtil {
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.entityHelper = entityHelper;
         this.actRepositoryUtil = actRepositoryUtil;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.uidPoolManager = uidPoolManager;
     }
 

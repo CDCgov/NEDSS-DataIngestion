@@ -17,8 +17,6 @@ management:
     java:
       enabled: true
   endpoint:
-    prometheus:
-      enabled: true
     health:
       show-details: always
       roles: ADMIN
@@ -27,10 +25,6 @@ management:
       base-path: /actuator
       exposure:
         include: "health,info"
-  prometheus:
-    metrics:
-      export:
-        enabled: true
 
 cache:
   clientId: ${RC_CLIENT_ID}
@@ -53,11 +47,6 @@ spring:
     web-application-type: none
   application:
     name: data-processing-service
-  cache:
-    cache-names: srte
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterAccess=0
 
 kafka:
   topic:

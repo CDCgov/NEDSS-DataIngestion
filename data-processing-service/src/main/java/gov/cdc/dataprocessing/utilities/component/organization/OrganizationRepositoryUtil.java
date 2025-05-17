@@ -37,7 +37,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -90,7 +89,6 @@ public class OrganizationRepositoryUtil {
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityHelper entityHelper;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
@@ -109,8 +107,7 @@ public class OrganizationRepositoryUtil {
                                       TeleLocatorRepository teleLocatorRepository,
                                       PostalLocatorRepository postalLocatorRepository,
                                       PhysicalLocatorRepository physicalLocatorRepository,
-                                      IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityHelper entityHelper,
-//                                      ParticipationRepository participationRepository,
+                                      EntityHelper entityHelper,
                                       PrepareAssocModelHelper prepareAssocModelHelper,
                                       PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
                                       ParticipationJdbcRepository participationJdbcRepository,
@@ -124,9 +121,7 @@ public class OrganizationRepositoryUtil {
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityHelper = entityHelper;
-//        this.participationRepository = participationRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
         this.participationJdbcRepository = participationJdbcRepository;

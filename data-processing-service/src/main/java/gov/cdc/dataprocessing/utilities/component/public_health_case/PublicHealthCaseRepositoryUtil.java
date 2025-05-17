@@ -24,7 +24,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityReposito
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
@@ -66,7 +65,6 @@ public class PublicHealthCaseRepositoryUtil {
     private final ClinicalDocumentRepository clinicalDocumentRepository;
     private final ReferralRepository referralRepository;
     private final PatientEncounterRepository patientEncounterRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final ActRepository actRepository;
     private final ActIdRepository actIdRepository;
     private final ConfirmationMethodRepository confirmationMethodRepository;
@@ -88,7 +86,7 @@ public class PublicHealthCaseRepositoryUtil {
                                           ClinicalDocumentRepository clinicalDocumentRepository,
                                           ReferralRepository referralRepository,
                                           PatientEncounterRepository patientEncounterRepository,
-                                          IOdseIdGeneratorWCacheService odseIdGeneratorService1, ActRepository actRepository,
+                                          ActRepository actRepository,
                                           ActIdRepository actIdRepository,
                                           ConfirmationMethodRepository confirmationMethodRepository,
                                           ActLocatorParticipationRepository actLocatorParticipationRepository,
@@ -109,7 +107,6 @@ public class PublicHealthCaseRepositoryUtil {
         this.clinicalDocumentRepository = clinicalDocumentRepository;
         this.referralRepository = referralRepository;
         this.patientEncounterRepository = patientEncounterRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService1;
         this.actRepository = actRepository;
         this.actIdRepository = actIdRepository;
         this.confirmationMethodRepository = confirmationMethodRepository;
