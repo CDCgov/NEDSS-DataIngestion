@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
@@ -87,7 +88,7 @@ public class DataExtractionService implements IDataExtractionService {
     }
 
     @SuppressWarnings("java:S3776")
-    public LabResultProxyContainer parsingDataToObjectOld(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
+    public LabResultProxyContainer parsingDataToObjectOld(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException, RtiCacheException {
 
         LabResultProxyContainer labResultProxyContainer;
         int rootObsUid = 0;
@@ -214,7 +215,7 @@ public class DataExtractionService implements IDataExtractionService {
 
     }
 
-    public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
+    public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException, RtiCacheException {
         int rootObsUid = 0;
         long userId = AuthUtil.authUser.getAuthUserUid();
         Timestamp time = TimeStampUtil.getCurrentTimeStamp(tz);

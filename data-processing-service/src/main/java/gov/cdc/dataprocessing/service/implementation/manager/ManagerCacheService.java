@@ -3,7 +3,7 @@
 //import gov.cdc.dataprocessing.cache.SrteCache;
 //import gov.cdc.dataprocessing.exception.DataProcessingException;
 //import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
-//import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+//import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 //import gov.cdc.dataprocessing.service.interfaces.manager.IManagerCacheService;
 //import org.springframework.cache.Cache;
 //import org.springframework.cache.CacheManager;
@@ -37,10 +37,10 @@
 //@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
 //        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 //public class ManagerCacheService implements IManagerCacheService {
-//    private final ICatchingValueService cachingValueService;
+//    private final ICatchingValueDpService cachingValueService;
 //    private final CacheManager cacheManager;
 //
-//    public ManagerCacheService(ICatchingValueService cachingValueService, CacheManager cacheManager) {
+//    public ManagerCacheService(ICatchingValueDpService cachingValueService, CacheManager cacheManager) {
 //        this.cachingValueService = cachingValueService;
 //        this.cacheManager = cacheManager;
 //    }

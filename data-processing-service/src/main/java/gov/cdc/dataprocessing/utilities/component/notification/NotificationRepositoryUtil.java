@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
@@ -17,6 +18,7 @@ import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryU
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -55,6 +57,7 @@ public class NotificationRepositoryUtil {
     private final EntityHelper entityHelper;
     private  final ActRepositoryUtil actRepositoryUtil;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
+    private final UidPoolManager uidPoolManager;
 
     public NotificationRepositoryUtil(NotificationRepository notificationRepository,
                                       ActIdRepositoryUtil actIdRepositoryUtil,
@@ -63,7 +66,7 @@ public class NotificationRepositoryUtil {
                                       ParticipationRepositoryUtil participationRepositoryUtil,
                                       EntityHelper entityHelper,
                                       ActRepositoryUtil actRepositoryUtil,
-                                      IOdseIdGeneratorWCacheService odseIdGeneratorService) {
+                                      IOdseIdGeneratorWCacheService odseIdGeneratorService, @Lazy UidPoolManager uidPoolManager) {
         this.notificationRepository = notificationRepository;
         this.actIdRepositoryUtil = actIdRepositoryUtil;
         this.actLocatorParticipationRepositoryUtil = actLocatorParticipationRepositoryUtil;
@@ -72,6 +75,7 @@ public class NotificationRepositoryUtil {
         this.entityHelper = entityHelper;
         this.actRepositoryUtil = actRepositoryUtil;
         this.odseIdGeneratorService = odseIdGeneratorService;
+        this.uidPoolManager = uidPoolManager;
     }
 
     public NotificationContainer getNotificationContainer(Long uid) {
@@ -159,7 +163,7 @@ public class NotificationRepositoryUtil {
     }
 
     private Long createNotification(NotificationContainer notificationContainer) throws DataProcessingException {
-        var uidData = odseIdGeneratorService.getValidLocalUid(LocalIdClass.NOTIFICATION, true);
+        var uidData = uidPoolManager.getNextUid(LocalIdClass.NOTIFICATION, true);
         var uid = uidData.getGaTypeUid().getSeedValueNbr();
         var localId = uidData.getClassTypeUid().getUidPrefixCd() + uidData.getClassTypeUid().getSeedValueNbr() + uidData.getClassTypeUid().getUidSuffixCd();
 

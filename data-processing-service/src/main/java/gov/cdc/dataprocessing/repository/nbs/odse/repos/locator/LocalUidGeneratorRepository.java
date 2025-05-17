@@ -47,7 +47,7 @@ public interface LocalUidGeneratorRepository extends JpaRepository<LocalUidGener
     Optional<LocalUidGenerator> findByIdForUpdate(String id);
 
     @Transactional
-    default long reserveBatchAndGetStartSeed(String classNameCd, int batchSize) throws DataProcessingException {
+    default LocalUidGenerator reserveBatchAndGetStartSeed(String classNameCd, int batchSize) throws DataProcessingException {
         Optional<LocalUidGenerator> opt = findByIdForUpdate(classNameCd);
         if (opt.isEmpty()) {
             throw new DataProcessingException("Local UID not found for class: " + classNameCd);
@@ -58,6 +58,6 @@ public interface LocalUidGeneratorRepository extends JpaRepository<LocalUidGener
         generator.setSeedValueNbr(currentSeed + batchSize);
         save(generator); // single update call
 
-        return currentSeed;
+        return opt.get();
     }
 }

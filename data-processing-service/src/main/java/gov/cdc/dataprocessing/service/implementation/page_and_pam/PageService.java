@@ -49,6 +49,7 @@ public class PageService implements IPageService {
         this.pageRepositoryUtil = pageRepositoryUtil;
     }
 
+    @Transactional()
     public Long setPageProxyWithAutoAssoc(String typeCd, PageActProxyContainer pageProxyVO, Long observationUid,
                                           String observationTypeCd, String processingDecision) throws DataProcessingException {
         Long publicHealthCaseUID=null;

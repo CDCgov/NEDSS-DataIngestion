@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -41,7 +41,7 @@ class RetrieveSummaryServiceTests {
     @Mock
     private CustomRepository customRepository;
     @Mock
-    private ICatchingValueService catchingValueService;
+    private ICatchingValueDpService catchingValueService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock

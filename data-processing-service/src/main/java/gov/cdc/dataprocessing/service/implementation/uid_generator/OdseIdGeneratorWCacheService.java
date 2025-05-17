@@ -20,22 +20,22 @@ import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.GA;
 
 @Service
 public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheService {
-    private final ICacheApiService cacheApiService;
+//    private final ICacheApiService cacheApiService;
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
-    private final OdseIdGeneratorJdbcRepository odseIdGeneratorJdbcRepository;
+//    private final OdseIdGeneratorJdbcRepository odseIdGeneratorJdbcRepository;
 
-    public OdseIdGeneratorWCacheService(ICacheApiService cacheApiService,
-                                        LocalUidGeneratorRepository localUidGeneratorRepository,
-                                        OdseIdGeneratorJdbcRepository odseIdGeneratorJdbcRepository) {
-        this.cacheApiService = cacheApiService;
+    public OdseIdGeneratorWCacheService(
+                                        LocalUidGeneratorRepository localUidGeneratorRepository
+                                       ) {
+//        this.cacheApiService = cacheApiService;
         this.localUidGeneratorRepository = localUidGeneratorRepository;
-        this.odseIdGeneratorJdbcRepository = odseIdGeneratorJdbcRepository;
+//        this.odseIdGeneratorJdbcRepository = odseIdGeneratorJdbcRepository;
     }
 
-    public LocalUidModel getValidLocalUidByApi(LocalIdClass localIdClass, boolean gaApplied) {
-        var res = cacheApiService.getOdseLocalId(localIdClass.name(), gaApplied);
-        return GsonUtil.GSON.fromJson(res, LocalUidModel.class);
-    }
+//    public LocalUidModel getValidLocalUidByApi(LocalIdClass localIdClass, boolean gaApplied) {
+//        var res = cacheApiService.getOdseLocalId(localIdClass.name(), gaApplied);
+//        return GsonUtil.GSON.fromJson(res, LocalUidModel.class);
+//    }
 
     /**
      * Transaction here for guarantee no race condition

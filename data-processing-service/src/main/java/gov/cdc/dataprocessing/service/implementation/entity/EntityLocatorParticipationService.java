@@ -194,8 +194,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             deleteEntityLocatorParticipation(locatorCollection, patientUid);
             StringBuilder comparingString = new StringBuilder();
             for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
-                var localUid = uidPoolManager.getNextUid(true);
-//                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+                var localUid = uidPoolManager.getNextUid(LocalIdClass.PERSON,true);
                 boolean newLocator = true;
                 if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null)
                 {
@@ -398,8 +397,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         ArrayList<EntityLocatorParticipationDto>  personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
         for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
             boolean inserted = false;
-            var localUid = uidPoolManager.getNextUid(true);
-//            var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+            var localUid = uidPoolManager.getNextUid(LocalIdClass.PERSON,true);
             if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
                 entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                 if (jdbcFlag) {

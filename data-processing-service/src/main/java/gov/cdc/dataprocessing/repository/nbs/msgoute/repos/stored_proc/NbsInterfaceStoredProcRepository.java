@@ -38,7 +38,7 @@ public class NbsInterfaceStoredProcRepository {
     @PersistenceContext(unitName = "nbsEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
-    @Transactional
+//    @Transactional
     public void updateSpecimenCollDateSP(Long nbsInterfaceUid, Timestamp specimentCollectionDate) throws DataProcessingException {
         try {
 

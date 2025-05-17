@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.kafka.consumer.KafkaPublicHealthCaseConsumer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
@@ -28,7 +29,9 @@ import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigati
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -72,12 +75,13 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     public InvestigationNotificationService(
             IInvestigationService investigationService,
             INotificationService notificationService,
-            CustomNbsQuestionRepository customNbsQuestionRepository, ICacheApiService cacheApiService) {
+            CustomNbsQuestionRepository customNbsQuestionRepository, @Lazy ICacheApiService cacheApiService) {
         this.investigationService = investigationService;
         this.notificationService = notificationService;
         this.customNbsQuestionRepository = customNbsQuestionRepository;
         this.cacheApiService = cacheApiService;
     }
+
 
     public EDXActivityDetailLogDto sendNotification(Object pageObj, String nndComment) throws DataProcessingException {
         NotificationProxyContainer notProxyVO;
@@ -218,7 +222,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
      */
     @SuppressWarnings({"java:S3776", "java:S6541", "java:S1871"})
     protected Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
-                                                                                  Map<Object, Object>  reqFields, String formCd) throws DataProcessingException {
+                                                                                  Map<Object, Object>  reqFields, String formCd) throws DataProcessingException, RtiCacheException {
 
         Map<Object, Object>  missingFields = new TreeMap<>();
 

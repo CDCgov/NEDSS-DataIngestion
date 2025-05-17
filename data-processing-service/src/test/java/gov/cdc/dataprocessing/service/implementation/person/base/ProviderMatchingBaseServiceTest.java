@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -38,7 +38,7 @@ class ProviderMatchingBaseServiceTest {
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
     @Mock
-    private CachingValueService cachingValueService;
+    private CachingValueDpDpService cachingValueDpService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
 

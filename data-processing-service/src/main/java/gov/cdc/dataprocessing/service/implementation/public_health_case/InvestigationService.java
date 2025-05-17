@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.interfaces.ReportSummaryInterface;
@@ -23,7 +24,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummaryService;
@@ -42,6 +43,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -98,7 +100,7 @@ public class InvestigationService implements IInvestigationService {
     private static final String LAB_EVENT_LIST = "labEventList";
 
     private final ICacheApiService cacheApiService;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     @Value("${service.timezone}")
     private String tz = "UTC";
     public InvestigationService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
@@ -115,7 +117,7 @@ public class InvestigationService implements IInvestigationService {
                                 Observation_SummaryRepository observationSummaryRepository,
                                 IContactSummaryService contactSummaryService,
                                 ILdfService ldfService,
-                                LabTestRepository labTestRepository, ICacheApiService cacheApiService, ICatchingValueService catchingValueService) {
+                                LabTestRepository labTestRepository, @Lazy ICacheApiService cacheApiService, ICatchingValueDpService catchingValueService) {
         this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.patientRepositoryUtil = patientRepositoryUtil;
@@ -292,7 +294,7 @@ public class InvestigationService implements IInvestigationService {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
+    public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException, RtiCacheException {
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 
         PublicHealthCaseContainer thePublicHealthCaseContainer;
@@ -870,11 +872,11 @@ public class InvestigationService implements IInvestigationService {
         return investigationProxyVO;
     }
 
-    private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
+    private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException, RtiCacheException {
         return getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
     }
     @SuppressWarnings("java:S3776")
-    private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
+    private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException, RtiCacheException {
         ArrayList<Object>  labSummList = new ArrayList<> ();
         ArrayList<Object>  labEventList = new ArrayList<> ();
         int count = 0;
@@ -1047,7 +1049,7 @@ public class InvestigationService implements IInvestigationService {
     @SuppressWarnings("java:S3776")
     protected void processingInvestigationSummary(InvestigationContainer investigationProxyVO,
                                                      PublicHealthCaseContainer thePublicHealthCaseContainer,
-                                                     boolean lite) throws DataProcessingException {
+                                                     boolean lite) throws DataProcessingException, RtiCacheException {
         if(!lite) {
             investigationProxyVO.setTheNotificationSummaryVOCollection(retrieveSummaryService.notificationSummaryOnInvestigation(thePublicHealthCaseContainer, investigationProxyVO));
 
@@ -1075,7 +1077,7 @@ public class InvestigationService implements IInvestigationService {
     }
 
     @SuppressWarnings({"java:S3776","java:S6541", "java:S1066"})
-    protected void populateDescTxtFromCachedValues(Collection<Object> reportSummaryVOCollection) throws DataProcessingException {
+    protected void populateDescTxtFromCachedValues(Collection<Object> reportSummaryVOCollection) throws DataProcessingException, RtiCacheException {
         ReportSummaryInterface sumVO ;
         LabReportSummaryContainer labVO;
         ResultedTestSummaryContainer resVO;

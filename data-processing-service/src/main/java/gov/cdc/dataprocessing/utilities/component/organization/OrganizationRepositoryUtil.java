@@ -37,6 +37,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -45,6 +46,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -97,6 +99,7 @@ public class OrganizationRepositoryUtil {
     private String tz = "UTC";
 
     private final ParticipationJdbcRepository participationJdbcRepository;
+    private final UidPoolManager uidPoolManager;
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -110,7 +113,9 @@ public class OrganizationRepositoryUtil {
                                       IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityHelper entityHelper,
 //                                      ParticipationRepository participationRepository,
                                       PrepareAssocModelHelper prepareAssocModelHelper,
-                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository, ParticipationJdbcRepository participationJdbcRepository) {
+                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
+                                      ParticipationJdbcRepository participationJdbcRepository,
+                                      @Lazy UidPoolManager uidPoolManager) {
         this.organizationRepository = organizationRepository;
         this.organizationNameRepository = organizationNameRepository;
         this.entityRepository = entityRepository;
@@ -126,6 +131,7 @@ public class OrganizationRepositoryUtil {
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
         this.participationJdbcRepository = participationJdbcRepository;
+        this.uidPoolManager = uidPoolManager;
     }
 
     public Organization findOrganizationByUid(Long orgUid) {
@@ -140,7 +146,7 @@ public class OrganizationRepositoryUtil {
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
 
         String localUid ;
-        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+        var localIdModel = uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
         organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
         localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
@@ -288,7 +294,7 @@ public class OrganizationRepositoryUtil {
         ArrayList<EntityLocatorParticipationDto> entityLocatorList = (ArrayList<EntityLocatorParticipationDto>) ovo.getTheEntityLocatorParticipationDtoCollection();
         try {
             for (EntityLocatorParticipationDto entityLocatorDT : entityLocatorList) {
-                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+                var localUid =  uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorDT.getThePhysicalLocatorDto() != null) {
                     entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                     physicalLocatorRepository.save(new PhysicalLocator(entityLocatorDT.getThePhysicalLocatorDto()));

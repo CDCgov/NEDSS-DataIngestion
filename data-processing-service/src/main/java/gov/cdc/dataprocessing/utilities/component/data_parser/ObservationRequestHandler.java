@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationReasonDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.HL7SpecimenUtil;
 import org.slf4j.Logger;
@@ -58,13 +58,13 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_OBSERVATION
 public class ObservationRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRequestHandler.class);
 
-    private final ICatchingValueService checkingValueService;
+    private final ICatchingValueDpService checkingValueService;
     private final CommonLabUtil commonLabUtil;
     private final NBSObjectConverter nbsObjectConverter;
     private final HL7SpecimenUtil hl7SpecimenUtil;
     private final HL7PatientHandler hl7PatientHandler;
 
-    public ObservationRequestHandler(ICatchingValueService checkingValueService,
+    public ObservationRequestHandler(ICatchingValueDpService checkingValueService,
                                      CommonLabUtil commonLabUtil,
                                      NBSObjectConverter nbsObjectConverter,
                                      HL7SpecimenUtil hl7SpecimenUtil,

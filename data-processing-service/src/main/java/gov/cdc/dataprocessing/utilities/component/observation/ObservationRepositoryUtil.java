@@ -21,12 +21,14 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepos
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -81,7 +83,7 @@ public class ObservationRepositoryUtil {
     private final ActIdJdbcRepository actIdJdbcRepository;
     private final ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository;
     private final ParticipationJdbcRepository participationJdbcRepository;
-
+    private final UidPoolManager uidPoolManager;
     public ObservationRepositoryUtil(ObservationRepository observationRepository,
                                      EntityHelper entityHelper,
                                      IOdseIdGeneratorWCacheService odseIdGeneratorService,
@@ -90,7 +92,8 @@ public class ObservationRepositoryUtil {
                                      ActJdbcRepository actJdbcRepository,
                                      ActRelationshipJdbcRepository actRelationshipJdbcRepository,
                                      ActIdJdbcRepository actIdJdbcRepository,
-                                     ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository, ParticipationJdbcRepository participationJdbcRepository) {
+                                     ActLocatorParticipationJdbcRepository actLocatorParticipationJdbcRepository, ParticipationJdbcRepository participationJdbcRepository,
+                                     @Lazy UidPoolManager uidPoolManager) {
         this.observationRepository = observationRepository;
         this.entityHelper = entityHelper;
         this.odseIdGeneratorService = odseIdGeneratorService;
@@ -101,6 +104,7 @@ public class ObservationRepositoryUtil {
         this.actIdJdbcRepository = actIdJdbcRepository;
         this.actLocatorParticipationJdbcRepository = actLocatorParticipationJdbcRepository;
         this.participationJdbcRepository = participationJdbcRepository;
+        this.uidPoolManager = uidPoolManager;
     }
 
 
@@ -716,8 +720,7 @@ public class ObservationRepositoryUtil {
 
     private Long saveNewObservation(ObservationDto observationDto) throws DataProcessingException {
         try {
-            var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.OBSERVATION, true);
-
+            var uid = uidPoolManager.getNextUid(LocalIdClass.OBSERVATION, true);
             Act act = new Act();
             act.setActUid(uid.getGaTypeUid().getSeedValueNbr());
             act.setClassCode(NEDSSConstant.OBSERVATION_CLASS_CODE);

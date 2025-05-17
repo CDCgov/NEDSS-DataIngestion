@@ -3,11 +3,12 @@ package gov.cdc.dataprocessing.service.implementation.public_health_case;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
@@ -52,14 +53,14 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
     private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     private final QueryHelper queryHelper;
     private final CustomRepository customRepository;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final NotificationRepositoryUtil notificationRepositoryUtil;
 
     public RetrieveSummaryService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
                                   QueryHelper queryHelper,
                                   CustomRepository customRepository,
-                                  ICatchingValueService catchingValueService,
+                                  ICatchingValueDpService catchingValueService,
                                   PrepareAssocModelHelper prepareAssocModelHelper,
                                   NotificationRepositoryUtil notificationRepositoryUtil) {
         this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
@@ -105,7 +106,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
 
     @SuppressWarnings({"java:S3776","java:S1066"})
 
-    public Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseContainer publicHealthCaseContainer, Object object) throws DataProcessingException {
+    public Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseContainer publicHealthCaseContainer, Object object) throws DataProcessingException, RtiCacheException {
 
         Collection<Object>  theNotificationSummaryVOCollection;
         Long publicHealthCaseUID = null;
@@ -238,7 +239,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
      * @return Collection<Object>  -- Collection<Object>  of NotificationSummaryVO for the passed publicHealthCaseDT
      */
     @SuppressWarnings({"java:S3776","java:S1197"})
-    protected Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException {
+    protected Collection<Object>  retrieveNotificationSummaryListForInvestigation(Long publicHealthUID) throws DataProcessingException, RtiCacheException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
             String statement[] = new String[2];
@@ -290,7 +291,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         return theNotificationSummaryVOCollection;
     }
     @SuppressWarnings({"unchecked","java:S3776","java:S1197"})
-    protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
+    protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException, RtiCacheException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();
         if (publicHealthUID != null) {
             String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(

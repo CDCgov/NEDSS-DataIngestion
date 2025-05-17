@@ -169,6 +169,8 @@ public class EdxLabInformationDto extends EdxRuleAlgorothmManagerDto implements 
 
     private List<WdsReport> wdsReports = new ArrayList<>();
 
+    private boolean matchedObservationFound;
+
     public EdxLabInformationDto() {
         unexpectedResultType = false;
         childSuscWithoutParentResult = false;

@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.sql;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.dto.auth_user.RealizedRoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -135,7 +136,7 @@ public class QueryHelper {
 //        }
 //    }
 
-    public String getHashedPAJList(boolean guest) {
+    public String getHashedPAJList(boolean guest) throws RtiCacheException {
         Set<Long> allPAJList = new HashSet<>();
 
         for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {

@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
@@ -21,7 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LabTest;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
@@ -90,7 +91,7 @@ class InvestigationServiceTests {
     @Mock
     private IContactSummaryService contactSummaryService;
     @Mock
-    private CachingValueService cachingValueService;
+    private CachingValueDpDpService cachingValueDpService;
     @Mock
     private ILdfService ldfService;
     @Mock
@@ -357,7 +358,7 @@ class InvestigationServiceTests {
 
 
     @Test
-    void getPageProxyVO_Success() throws DataProcessingException, ParseException {
+    void getPageProxyVO_Success() throws DataProcessingException, ParseException, RtiCacheException {
         String typeCd= "PRINT_CDC_CASE";
         long publicHealthCaseUid = 10006070L;
         String phcDTStr = "{\"caseStatusDirty\":false,\"isPamCase\":false,\"isPageCase\":false,\"isStdHivProgramAreaCode\":false,\"caseTypeCd\":\"I\",\"publicHealthCaseUid\":10006070,\"activityFromTime\":\"Jun 20, 2024, 12:00:00 AM\",\"addTime\":\"Jun 20, 2024, 12:36:18 PM\",\"addUserId\":36,\"cd\":\"11120\",\"cdDescTxt\":\"Acute flaccid myelitis\",\"groupCaseCnt\":1,\"investigationStatusCd\":\"O\",\"jurisdictionCd\":\"130001\",\"lastChgTime\":\"Jun 20, 2024, 12:36:18 PM\",\"lastChgUserId\":36,\"localId\":\"CAS10006070GA01\",\"mmwrWeek\":\"25\",\"mmwrYear\":\"2024\",\"progAreaCd\":\"GCD\",\"recordStatusCd\":\"OPEN\",\"recordStatusTime\":\"Jun 20, 2024, 12:36:18 PM\",\"rptFormCmpltTime\":\"Jun 20, 2024, 12:36:11 PM\",\"statusCd\":\"A\",\"programJurisdictionOid\":1300100009,\"sharedInd\":\"T\",\"versionCtrlNbr\":1,\"isSummaryCase\":false,\"itNew\":false,\"itOld\":false,\"itDirty\":false,\"itDelete\":false}";
@@ -566,7 +567,7 @@ class InvestigationServiceTests {
 
 
     @Test
-    void testProcessingInvestigationSummary_LiteCase() throws DataProcessingException {
+    void testProcessingInvestigationSummary_LiteCase() throws DataProcessingException, RtiCacheException {
         InvestigationContainer investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseContainer thePublicHealthCaseContainer = new PublicHealthCaseContainer();
         boolean lite = true;
@@ -579,7 +580,7 @@ class InvestigationServiceTests {
     }
 
     @Test
-    void testProcessingInvestigationSummary_NonLiteCase() throws DataProcessingException {
+    void testProcessingInvestigationSummary_NonLiteCase() throws DataProcessingException, RtiCacheException {
         InvestigationContainer investigationProxyVO = new InvestigationContainer();
         investigationProxyVO.setThePublicHealthCaseContainer(new PublicHealthCaseContainer());
         PublicHealthCaseContainer thePublicHealthCaseContainer = new PublicHealthCaseContainer();
@@ -629,7 +630,7 @@ class InvestigationServiceTests {
 
 
     @Test
-    void populateDescTxtFromCachedValues_Test() throws DataProcessingException {
+    void populateDescTxtFromCachedValues_Test() throws DataProcessingException, RtiCacheException {
         var reportCol = new ArrayList<>();
         var report = new LabReportSummaryContainer();
         report.setProgramArea("TEST");
@@ -764,12 +765,12 @@ class InvestigationServiceTests {
 //        SrteCache.loinCodeWithComponentNameMap.put("TEST", "TEST");
 
 
-        when(cachingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
+        when(cachingValueDpService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
         var labLst = new ArrayList<LabTest>();
         var labTs = new LabTest();
         labLst.add(labTs);
         when(labTestRepository.findLabTestByLabIdAndLabTestCode(any(), eq("TEST"))).thenReturn(Optional.of(labLst));
-        when(cachingValueService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
+        when(cachingValueDpService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
 
         when(cacheApiService.getSrteCacheString(anyString(), any())).thenReturn("TEST");
 
@@ -784,6 +785,6 @@ class InvestigationServiceTests {
 //        SrteCache.loinCodeWithComponentNameMap.clear();
 
 
-        verify(cachingValueService, times(2)).getCodeDescTxtForCd(any(), any());
+        verify(cachingValueDpService, times(2)).getCodeDescTxtForCd(any(), any());
     }
 }

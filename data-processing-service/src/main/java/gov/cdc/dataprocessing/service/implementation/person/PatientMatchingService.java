@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
@@ -40,14 +40,14 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
       EntityHelper entityHelper,
       PatientRepositoryUtil patientRepositoryUtil,
-      CachingValueService cachingValueService,
+      CachingValueDpDpService cachingValueDpService,
       PrepareAssocModelHelper prepareAssocModelHelper,
       @Value("${features.modernizedMatching.enabled:false}") boolean modernizedMatchingEnabled,
       ObjectProvider<DeduplicationService> deduplicationService) {
     super(edxPatientMatchRepositoryUtil,
         entityHelper,
         patientRepositoryUtil,
-        cachingValueService,
+            cachingValueDpService,
         prepareAssocModelHelper);
     this.modernizedMatchingEnabled = modernizedMatchingEnabled;
     this.deduplicationService = deduplicationService.getIfAvailable();

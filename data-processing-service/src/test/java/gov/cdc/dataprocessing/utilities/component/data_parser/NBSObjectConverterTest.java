@@ -14,7 +14,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 class NBSObjectConverterTest {
     @Mock
-    private ICatchingValueService checkingValueService;
+    private ICatchingValueDpService checkingValueService;
     @Mock
     private EntityIdUtil entityIdUtil;
     @InjectMocks

@@ -91,6 +91,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
         if(observationDto !=null){
+            edxLabInformationDto.setMatchedObservationFound(true);
             logger.info("OBSERVE: Matched OBS Found");
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
@@ -178,7 +179,8 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
                 finalTask.join();
 
-            } catch (CompletionException e) {
+            }
+            catch (CompletionException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof DataProcessingException dpe) throw dpe;
                 if (cause instanceof DataProcessingConsumerException dpce) throw dpce;

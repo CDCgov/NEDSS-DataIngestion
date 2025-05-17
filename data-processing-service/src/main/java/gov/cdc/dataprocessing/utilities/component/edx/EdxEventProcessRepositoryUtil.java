@@ -6,8 +6,10 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,17 +39,18 @@ public class EdxEventProcessRepositoryUtil {
     private final EdxEventProcessRepository edxEventProcessRepository;
     private final ActRepositoryUtil actRepositoryUtil;
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
-
+    private final UidPoolManager uidPoolManager;
     public EdxEventProcessRepositoryUtil(EdxEventProcessRepository edxEventProcessRepository,
                                          ActRepositoryUtil actRepositoryUtil,
-                                         IOdseIdGeneratorWCacheService odseIdGeneratorService1) {
+                                         IOdseIdGeneratorWCacheService odseIdGeneratorService1, @Lazy UidPoolManager uidPoolManager) {
         this.edxEventProcessRepository = edxEventProcessRepository;
         this.actRepositoryUtil = actRepositoryUtil;
         this.odseIdGeneratorService = odseIdGeneratorService1;
+        this.uidPoolManager = uidPoolManager;
     }
 
     public void insertEventProcess(EDXEventProcessDto edxEventProcessDto) throws DataProcessingException {
-        var uidObj = odseIdGeneratorService.getValidLocalUid(LocalIdClass.NBS_DOCUMENT, false);
+        var uidObj = uidPoolManager.getNextUid(LocalIdClass.NBS_DOCUMENT, false);
         var uid = uidObj.getClassTypeUid().getSeedValueNbr();
 
         actRepositoryUtil.insertActivityId(uid, edxEventProcessDto.getDocEventTypeCd(),  NEDSSConstant.EVENT_MOOD_CODE );

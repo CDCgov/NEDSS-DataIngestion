@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -11,6 +12,7 @@ import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -47,15 +49,14 @@ public class EdxPhcrDocumentUtil {
 
     private final ICacheApiService cacheApiService;
 
-    public EdxPhcrDocumentUtil(ILookupService lookupService, ICacheApiService cacheApiService)
+    public EdxPhcrDocumentUtil(ILookupService lookupService, @Lazy ICacheApiService cacheApiService)
     {
         this.lookupService = lookupService;
         this.cacheApiService = cacheApiService;
     }
 
     @SuppressWarnings("java:S3776")
-    public Map<Object, Object> loadQuestions(String conditionCode)
-    {
+    public Map<Object, Object> loadQuestions(String conditionCode) throws RtiCacheException {
         String invFormCd = "";
         if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode))
         {
