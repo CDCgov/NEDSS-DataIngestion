@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -51,7 +51,7 @@ public class MatchingBaseService  {
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
     private final EntityHelper entityHelper;
     private final PatientRepositoryUtil patientRepositoryUtil;
-    private final CachingValueService cachingValueService;
+    private final CachingValueDpDpService cachingValueDpService;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
 
 
@@ -59,11 +59,11 @@ public class MatchingBaseService  {
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService, PrepareAssocModelHelper prepareAssocModelHelper) {
+            CachingValueDpDpService cachingValueDpService, PrepareAssocModelHelper prepareAssocModelHelper) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
         this.entityHelper = entityHelper;
         this.patientRepositoryUtil = patientRepositoryUtil;
-        this.cachingValueService = cachingValueService;
+        this.cachingValueDpService = cachingValueDpService;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
     }
 
@@ -120,7 +120,7 @@ public class MatchingBaseService  {
                             coded.setCode(idDto.getAssigningAuthorityCd());
                             coded.setCodesetName(NEDSSConstant.EI_AUTH);
                             //TODO: This call out to code value general Repos and Caching the recrod
-                            //var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
+                            //var codedValueGenralList = getCachingValueDpService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
 
                             /*
                             NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();

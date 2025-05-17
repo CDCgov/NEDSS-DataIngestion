@@ -50,6 +50,7 @@ public class LabResultProxyContainer extends PageActProxyContainer {
     private Collection<MessageLogDto> messageLogDCollection =null;
     private String labClia = null;
     private boolean manualLab = false;
+    private boolean matchedObservationFound;
 
     public LabResultProxyContainer() {
         theParticipationDtoCollection = new ArrayList<>();

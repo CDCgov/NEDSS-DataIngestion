@@ -11,7 +11,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.WAQuestionRepository
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.lookup.LookupMappingRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsUiMetaDataRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.lookup_data.MetaAndWaCommonAttribute;
 import org.slf4j.Logger;
@@ -52,14 +52,14 @@ public class LookupService implements ILookupService {
     private final LookupMappingRepository lookupMappingRepository;
     private final NbsUiMetaDataRepository nbsUiMetaDataRepository;
     private final WAQuestionRepository waQuestionRepository;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
 
     private static final String EXCEPTION_APPENDING_MSG = " in form cd :";
 
     public LookupService(LookupMappingRepository lookupMappingRepository,
                          NbsUiMetaDataRepository nbsUiMetaDataRepository,
                          WAQuestionRepository waQuestionRepository,
-                         ICatchingValueService catchingValueService) {
+                         ICatchingValueDpService catchingValueService) {
         this.lookupMappingRepository = lookupMappingRepository;
         this.nbsUiMetaDataRepository = nbsUiMetaDataRepository;
         this.waQuestionRepository = waQuestionRepository;

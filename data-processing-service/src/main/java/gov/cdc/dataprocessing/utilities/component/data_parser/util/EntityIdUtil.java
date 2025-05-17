@@ -3,11 +3,12 @@ package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +43,9 @@ import java.util.Date;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EntityIdUtil {
     private static final Logger logger = LoggerFactory.getLogger(EntityIdUtil.class);
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
 
-    public EntityIdUtil(ICatchingValueService catchingValueService) {
+    public EntityIdUtil(ICatchingValueDpService catchingValueService) {
         this.catchingValueService = catchingValueService;
     }
 
@@ -52,7 +53,7 @@ public class EntityIdUtil {
      * This method process then parse data from Person into EntityId Object
      * */
     @SuppressWarnings("java:S3776")
-    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
+    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException, RtiCacheException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null) {
             entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());

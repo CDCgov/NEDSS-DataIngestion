@@ -23,17 +23,16 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.*;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.EPILINK;
 
 @Component
 /**
@@ -66,7 +65,6 @@ public class PublicHealthCaseRepositoryUtil {
     private final ClinicalDocumentRepository clinicalDocumentRepository;
     private final ReferralRepository referralRepository;
     private final PatientEncounterRepository patientEncounterRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final ActRepository actRepository;
     private final ActIdRepository actIdRepository;
     private final ConfirmationMethodRepository confirmationMethodRepository;
@@ -80,7 +78,7 @@ public class PublicHealthCaseRepositoryUtil {
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final NbsCaseAnswerRepository nbsCaseAnswerRepository;
     private final NbsActEntityRepository actEntityRepository;
-
+    private final UidPoolManager uidPoolManager;
     public PublicHealthCaseRepositoryUtil(PublicHealthCaseRepository publicHealthCaseRepository,
                                           EntityGroupRepository entityGroupRepository,
                                           PlaceRepository placeRepository,
@@ -88,7 +86,7 @@ public class PublicHealthCaseRepositoryUtil {
                                           ClinicalDocumentRepository clinicalDocumentRepository,
                                           ReferralRepository referralRepository,
                                           PatientEncounterRepository patientEncounterRepository,
-                                          IOdseIdGeneratorWCacheService odseIdGeneratorService1, ActRepository actRepository,
+                                          ActRepository actRepository,
                                           ActIdRepository actIdRepository,
                                           ConfirmationMethodRepository confirmationMethodRepository,
                                           ActLocatorParticipationRepository actLocatorParticipationRepository,
@@ -100,7 +98,8 @@ public class PublicHealthCaseRepositoryUtil {
                                           ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
                                           ParticipationRepositoryUtil participationRepositoryUtil,
                                           NbsCaseAnswerRepository nbsCaseAnswerRepository,
-                                          NbsActEntityRepository actEntityRepository) {
+                                          NbsActEntityRepository actEntityRepository,
+                                          @Lazy UidPoolManager uidPoolManager) {
         this.publicHealthCaseRepository = publicHealthCaseRepository;
         this.entityGroupRepository = entityGroupRepository;
         this.placeRepository = placeRepository;
@@ -108,7 +107,6 @@ public class PublicHealthCaseRepositoryUtil {
         this.clinicalDocumentRepository = clinicalDocumentRepository;
         this.referralRepository = referralRepository;
         this.patientEncounterRepository = patientEncounterRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService1;
         this.actRepository = actRepository;
         this.actIdRepository = actIdRepository;
         this.confirmationMethodRepository = confirmationMethodRepository;
@@ -122,6 +120,7 @@ public class PublicHealthCaseRepositoryUtil {
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.nbsCaseAnswerRepository = nbsCaseAnswerRepository;
         this.actEntityRepository = actEntityRepository;
+        this.uidPoolManager = uidPoolManager;
     }
 
 
@@ -292,7 +291,7 @@ public class PublicHealthCaseRepositoryUtil {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
                         .getTime());
-                var epicUid = odseIdGeneratorService.getValidLocalUid(EPILINK, false);
+                var epicUid = uidPoolManager.getNextUid(LocalIdClass.EPILINK, false);
                 String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
 //                TODO: ENV VARIABLE
 //                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
@@ -309,7 +308,7 @@ public class PublicHealthCaseRepositoryUtil {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy"); // Just the year, with 2 digits
                 String twoDigitYear = sdf.format(Calendar.getInstance()
                         .getTime());
-                var epicUid = odseIdGeneratorService.getValidLocalUid(EPILINK, false);
+                var epicUid = uidPoolManager.getNextUid(LocalIdClass.EPILINK, false);
                 String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
                 //                TODO: ENV VARIABLE
 //                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
@@ -327,7 +326,7 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
     private Long insertPublicHealthCase(PublicHealthCaseContainer phcVO) throws DataProcessingException {
-        var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PUBLIC_HEALTH_CASE, true);
+        var uid = uidPoolManager.getNextUid(LocalIdClass.PUBLIC_HEALTH_CASE, true);
         var phcDT = phcVO.getThePublicHealthCaseDto();
         if (phcDT.getCaseTypeCd().equals(NEDSSConstant.I) && (phcDT.getInvestigationStatusCd() == null
                 || phcDT.getInvestigationStatusCd().trim().equals("") || phcDT.getProgAreaCd() == null
@@ -356,7 +355,7 @@ public class PublicHealthCaseRepositoryUtil {
         String coInfectionGroupID;
         if (phcDT.getCoinfectionId() != null
                 && phcDT.getCoinfectionId().equalsIgnoreCase(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE)) {
-            var coInfectUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.COINFECTION_GROUP, false);
+            var coInfectUid = uidPoolManager.getNextUid(LocalIdClass.COINFECTION_GROUP, false);
             coInfectionGroupID = coInfectUid.getClassTypeUid().getSeedValueNbr().toString();
             phcDT.setCoinfectionId(coInfectionGroupID);
             phc.setCoinfectionId(coInfectionGroupID);

@@ -5,6 +5,7 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
@@ -18,12 +19,12 @@ import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
-import gov.cdc.dataprocessing.utilities.GsonUtil;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -58,15 +59,15 @@ import java.util.List;
 public class HL7PatientHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7PatientHandler.class);
 
-    private final ICatchingValueService checkingValueService;
+    private final ICatchingValueDpService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
     private final EntityIdUtil entityIdUtil;
 
     private final ICacheApiService cacheApiService;
 
-    public HL7PatientHandler(ICatchingValueService checkingValueService,
+    public HL7PatientHandler(ICatchingValueDpService checkingValueService,
                              NBSObjectConverter nbsObjectConverter,
-                             EntityIdUtil entityIdUtil, ICacheApiService cacheApiService) {
+                             EntityIdUtil entityIdUtil, @Lazy ICacheApiService cacheApiService) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
         this.entityIdUtil = entityIdUtil;
@@ -81,31 +82,39 @@ public class HL7PatientHandler {
     public LabResultProxyContainer getPatientAndNextOfKin(
             HL7PATIENTRESULTType hl7PatientResult,
             LabResultProxyContainer labResultProxyContainer,
-            EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-            if (hl7PatientResult != null && hl7PatientResult.getPATIENT() != null) {
-                // Processing Patient Identification
-                if (hl7PatientResult.getPATIENT().getPatientIdentification() != null) {
-                    HL7PIDType patientInfo = hl7PatientResult.getPATIENT().getPatientIdentification();
-                    getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
-                }
-                // Processing Next of kin
-                if (hl7PatientResult.getPATIENT().getNextofKinAssociatedParties() != null) {
-                    List<HL7NK1Type> hl7NK1TypeList = hl7PatientResult.getPATIENT().getNextofKinAssociatedParties();
-                    // Only need the first index
-                    if (!hl7NK1TypeList.isEmpty()) {
-                        HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(0);
-                        if (hl7NK1Type.getName() != null && !hl7NK1Type.getName().isEmpty()) {
-                            getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
-                        }
-                    }
-                }
+            EdxLabInformationDto edxLabInformationDto) throws DataProcessingException, RtiCacheException {
+
+        if (hl7PatientResult == null) {
+            return labResultProxyContainer;
+        }
+
+        var patient = hl7PatientResult.getPATIENT();
+        if (patient == null) {
+            return labResultProxyContainer;
+        }
+
+        var patientInfo = patient.getPatientIdentification();
+        if (patientInfo != null) {
+            getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
+        }
+
+        var nokList = patient.getNextofKinAssociatedParties();
+        if (nokList != null && !nokList.isEmpty()) {
+            var nok = nokList.getFirst();
+            var nokName = nok.getName();
+            if (nokName != null && !nokName.isEmpty()) {
+                getNextOfKinVO(nok, labResultProxyContainer, edxLabInformationDto);
             }
+        }
+
         return labResultProxyContainer;
     }
+
+
     @SuppressWarnings("java:S3776")
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,
-                                              EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+                                              EdxLabInformationDto edxLabInformationDto) throws DataProcessingException, RtiCacheException {
 
             edxLabInformationDto.setRole(EdxELRConstant.ELR_PATIENT_CD);
             PersonContainer personContainer = parseToPersonObject(labResultProxyContainer, edxLabInformationDto);
@@ -188,7 +197,7 @@ public class HL7PatientHandler {
             // Setup Person Sex Code
             ElrXref elrXref = new ElrXref();
             String key = "ELR_LCA_SEX_" + personContainer.getThePersonDto().getCurrSexCd() + "_P_SEX";
-            ElrXref result = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
+            ElrXref result = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
             if (result == null) {
                 result = new ElrXref();
             }
@@ -224,7 +233,7 @@ public class HL7PatientHandler {
                 PersonEthnicGroupDto personEthnicGroupDto = nbsObjectConverter.ethnicGroupType(ethnicType, personContainer);
                 ElrXref elrXrefForEthnic = new ElrXref();
                 String keyEthnic = "ELR_LCA_ETHN_GRP_" + personEthnicGroupDto.getEthnicGroupCd() + "_P_ETHN_GRP";
-                ElrXref resultEthnic = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
+                ElrXref resultEthnic = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
                 if ( resultEthnic == null) {
                     resultEthnic = new ElrXref();
                 }
@@ -365,7 +374,7 @@ public class HL7PatientHandler {
                         ElrXref elrXrefForRace = new ElrXref();
 
                         String keyRace = "ELR_LCA_RACE_" + raceDT.getRaceCategoryCd() + "_P_RACE_CAT";
-                        ElrXref resultRace = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
+                        ElrXref resultRace = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
                         if (resultRace == null) {
                             resultRace = new ElrXref();
                         }

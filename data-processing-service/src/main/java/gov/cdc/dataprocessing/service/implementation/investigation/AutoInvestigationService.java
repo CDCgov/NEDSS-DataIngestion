@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
@@ -25,7 +26,7 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.utilities.DynamicBeanBinding;
@@ -37,6 +38,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -71,13 +73,13 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICacheApiService cacheApiService;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     private final ILookupService lookupService;
     @Value("${service.timezone}")
     private String tz = "UTC";
 
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
-                                    ICacheApiService cacheApiService, ICatchingValueService catchingValueService, ILookupService lookupService) {
+                                    @Lazy ICacheApiService cacheApiService, ICatchingValueDpService catchingValueService, ILookupService lookupService) {
         this.conditionCodeRepository = conditionCodeRepository;
         this.cacheApiService = cacheApiService;
         this.catchingValueService = catchingValueService;
@@ -85,7 +87,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     }
 
     public Object autoCreateInvestigation(ObservationContainer observationVO,
-                                          EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+                                          EdxLabInformationDto edxLabInformationDT) throws DataProcessingException, RtiCacheException {
         PageActProxyContainer pageActProxyContainer = null;
         PamProxyContainer pamProxyVO = null;
         PublicHealthCaseContainer phcVO= createPublicHealthCaseVO(observationVO, edxLabInformationDT);
@@ -141,7 +143,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
                                              Collection<Object> entities,
-                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException{
+                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException, RtiCacheException {
         PersonContainer patientVO;
         boolean isOrgAsReporterOfPHCPartDT=false;
         boolean isPhysicianOfPHCDT=false;
@@ -264,7 +266,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
-    private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+    private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException, RtiCacheException {
         PublicHealthCaseContainer phcVO = new PublicHealthCaseContainer();
 
         phcVO.getThePublicHealthCaseDto().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
@@ -518,7 +520,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     }
 
     private void createActEntityObject(ParticipationDto partDT, PageActProxyContainer pageActProxyContainer,
-                                       PamProxyContainer pamActProxyVO, Collection<NbsActEntityDto> nbsActEntityDTColl, Collection<ParticipationDto> partColl ) throws DataProcessingException {
+                                       PamProxyContainer pamActProxyVO, Collection<NbsActEntityDto> nbsActEntityDTColl, Collection<ParticipationDto> partColl ) throws DataProcessingException, RtiCacheException {
 
         partDT.setActClassCd(NEDSSConstant.CLASS_CD_CASE);
         if(pageActProxyContainer !=null)

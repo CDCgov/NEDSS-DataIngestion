@@ -64,7 +64,7 @@
 //    private Cache.ValueWrapper valueWrapperMock;
 //
 //    @InjectMocks
-//    private CachingValueService cachingValueService;
+//    private CachingValueDpDpService cachingValueService;
 //    @Mock
 //    AuthUtil authUtil;
 //

@@ -271,13 +271,11 @@ public class PamService implements IPamService {
                     .getThePublicHealthCaseDto().getPublicHealthCaseUid();
             actualUid = publicHealthCaseService.setPublicHealthCase(
                     publicHealthCaseContainer);
-            logger.debug("actualUid.intValue() = {}", actualUid.intValue());
             if (falsePublicHealthCaseUid.intValue() < 0) {
                 uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
                 publicHealthCaseContainer.getThePublicHealthCaseDto()
                         .setPublicHealthCaseUid(actualUid);
             }
-            logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
         }
         if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && !pamProxyVO.getNbsNoteDTColl().isEmpty()){
             nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());

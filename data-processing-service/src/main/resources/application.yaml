@@ -1,7 +1,8 @@
 server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#  Designated PORT Is 8082
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 info:
   app:
@@ -16,8 +17,6 @@ management:
     java:
       enabled: true
   endpoint:
-    prometheus:
-      enabled: true
     health:
       show-details: always
       roles: ADMIN
@@ -26,10 +25,6 @@ management:
       base-path: /actuator
       exposure:
         include: "health,info"
-  prometheus:
-    metrics:
-      export:
-        enabled: true
 
 cache:
   clientId: ${RC_CLIENT_ID}
@@ -48,15 +43,10 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
-#  main:
-#    web-application-type: none
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
-  cache:
-    cache-names: srte
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterAccess=0
 
 kafka:
   topic:
@@ -78,13 +68,13 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
-      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
-      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
-      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
-      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+      maximum-pool-size: ${HIKARI_POOL_SIZE:1000}               # Increase for higher parallelism (adjust per CPU & DB limits)
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:10}                  # Let unused connections be removed
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:60000}              # Close idle connections quickly (30s)
+      connection-timeout: ${HIKARI_CON_TIMEOUT:10000}         # Fail fast if no connection within 30s
+      max-lifetime: ${HIKARI_MAX_LIFETIME:600000}             # Retire connections after 5 minutes (avoid stale connections)
       pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
-      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:15000}  # Log warnings if connection not returned in 20s (debug leaks)
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -101,6 +91,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
     thread: ${KAFKA_THREAD:1}
+    max-poll-record: ${KAFKA_MAX_POLL_RECORD:1000}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
@@ -111,4 +102,28 @@ spring:
 
 service:
   timezone: ${SERVICE_TZ:UTC}
-#logging.level.org.apache.kafka.clients.consumer: DEBUG
+
+logging:
+  level:
+    root: WARN
+    # Retain INFO logs for your own class
+    gov.cdc.dataprocessing: INFO
+    # Kafka internals
+    org.apache.kafka: WARN
+    # JPA / Hibernate
+    org.hibernate: WARN
+    org.springframework.orm.jpa: WARN
+    org.springframework.transaction: WARN
+    # HikariCP
+    com.zaxxer.hikari: WARN
+    # Spring Data JPA repositories
+    org.springframework.data.jpa.repository: WARN
+    # JDBC (optional)
+    org.springframework.jdbc.core: WARN
+
+
+feature:
+  thread-enabled: ${THREAD_FLAG:true}
+  jdbc-flag: ${JDBC_FLAG:true}
+  thread-pool-size: ${THREAD_POOL_SIZE:20}
+  thread-queue-size: ${THREAD_QUEUE_SIZE:1000}

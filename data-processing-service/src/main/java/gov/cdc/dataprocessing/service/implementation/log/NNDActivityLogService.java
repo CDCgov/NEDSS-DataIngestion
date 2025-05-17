@@ -4,9 +4,11 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
@@ -40,12 +42,14 @@ public class NNDActivityLogService implements INNDActivityLogService {
     private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Value("${service.timezone}")
     private String tz = "UTC";
+    private final UidPoolManager uidPoolManager;
 
 
     public NNDActivityLogService(NNDActivityLogRepository nndActivityLogRepository,
-                                 IOdseIdGeneratorWCacheService odseIdGeneratorService1) {
+                                 IOdseIdGeneratorWCacheService odseIdGeneratorService1, @Lazy UidPoolManager uidPoolManager) {
         this.nndActivityLogRepository = nndActivityLogRepository;
         this.odseIdGeneratorService = odseIdGeneratorService1;
+        this.uidPoolManager = uidPoolManager;
     }
 
 
@@ -59,7 +63,7 @@ public class NNDActivityLogService implements INNDActivityLogService {
         long uid;
 
         if(nndActivityLogDto.getNndActivityLogUid() == null) {
-            var id = odseIdGeneratorService.getValidLocalUid(NND_METADATA, false);
+            var id = uidPoolManager.getNextUid(NND_METADATA, false);
             uid = id.getClassTypeUid().getSeedValueNbr();
         } else {
             uid = nndActivityLogDto.getNndActivityLogUid();
@@ -71,3 +75,6 @@ public class NNDActivityLogService implements INNDActivityLogService {
 
     }
 }
+
+// uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
+//     private final UidPoolManager uidPoolManager;

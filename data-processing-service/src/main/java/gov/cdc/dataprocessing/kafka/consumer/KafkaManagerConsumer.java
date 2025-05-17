@@ -1,17 +1,30 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
+import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
+import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
@@ -41,46 +54,152 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
-
-
-    @Value("${kafka.topic.elr_edx_log}")
-    private String logTopic = "elr_edx_log";
-
-    @Value("${kafka.topic.elr_health_case}")
-    private String healthCaseTopic = "elr_processing_public_health_case";
-
+    private static final Queue<Integer> pendingMessages = new ConcurrentLinkedQueue<>();
+    @Value("${feature.thread-pool-size}")
+    private Integer poolSize = 1;
     @Value("${nbs.user}")
     private String nbsUser = "";
+
+    @Value("${feature.thread-enabled}")
+    private boolean threadEnabled = false;
 
 
     private final IManagerService managerService;
     private final IAuthUserService authUserService;
+    private final QueryHelper queryHelper;
+    private final ILookupService lookupService;
+
 
     public KafkaManagerConsumer(
             ManagerService managerService,
-            IAuthUserService authUserService) {
+            IAuthUserService authUserService,
+            QueryHelper queryHelper,
+            ILookupService lookupService
+            ) {
         this.managerService = managerService;
         this.authUserService = authUserService;
+        this.queryHelper = queryHelper;
+        this.lookupService = lookupService;
+
 
     }
 
     @KafkaListener(
             topics = "${kafka.topic.elr_micro}",
-            containerFactory = "kafkaListenerContainerFactoryStep1"
+            containerFactory = "kafkaListenerContainerFactoryStep1",
+            batch = "true"
     )
-    public void handleMessage(String messages, Acknowledgment acknowledgment)
-            throws DataProcessingException {
-        var profile = authUserService.getAuthUserInfo(nbsUser);
-        AuthUtil.setGlobalAuthUser(profile);
-
+    public void handleMessage(List<String> messages, Acknowledgment acknowledgment) {
         try {
-            var nbs = GSON.fromJson(messages, Integer.class);
-            managerService.processDistribution(nbs);
+            AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+            AuthUtil.setGlobalAuthUser(profile);
+
+            for (String message : messages) {
+                Integer nbs = GSON.fromJson(message, Integer.class);
+                pendingMessages.add(nbs);
+            }
+
             acknowledgment.acknowledge();
         } catch (Exception e) {
-            log.error("KafkaManagerConsumer.handleMessage: {}", e.getMessage());
+            log.error("Failed to process Kafka message: {}", e.getMessage());
+            // Do not ack, Kafka will retry
         }
+    }
+
+
+    @Scheduled(fixedDelay = 30000) // every 10000 = 10 seconds
+    public void processPendingMessages() {
+        logger.info("BATCH SIZE: {}", pendingMessages.size());
+        if (pendingMessages.isEmpty()) return;
+
+        if (threadEnabled) {
+            Semaphore concurrencyLimiter = new Semaphore(poolSize); // Same as Hikari max pool size
+            int batchSize = 50;
+
+            while (true) {
+                List<Integer> batch = new ArrayList<>(batchSize);
+                Integer nbs;
+                while (batch.size() < batchSize && (nbs = pendingMessages.poll()) != null) {
+                    batch.add(nbs);
+                }
+                if (batch.isEmpty()) break;
+
+                concurrencyLimiter.acquireUninterruptibly();
+                Thread.startVirtualThread(() -> {
+                    try {
+                        for (Integer id : batch) {
+                            try {
+                                var result = managerService.processingELR(id);
+                                var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
+                                managerService.initiatingLabProcessing(phc);
+                            } catch (Exception e) {
+                                log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
+                            }
+                        }
+                    } finally {
+                        concurrencyLimiter.release();
+                    }
+                });
+            }
+        } else {
+            // Single-threaded fallback
+            while (!pendingMessages.isEmpty()) {
+                Integer nbs = pendingMessages.poll();
+                if (nbs == null) continue;
+
+                try {
+                    var result = managerService.processingELR(nbs);
+                    var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
+                    managerService.initiatingLabProcessing(phc);
+                } catch (Exception e) {
+                    log.error("Single-threaded error: {}", e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    @PostConstruct
+    public void init() throws DataProcessingException, RtiCacheException {
+        // Ensure this runs first at startup
+        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+
+        OdseCache.OWNER_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(false);
+        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
+
+        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
+
+        logger.info("Completed Initializing");
 
     }
 
+
+    @Scheduled(fixedDelay = 1800000) // every 30 min
+    public void populateAuthUser() throws DataProcessingException {
+        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+        logger.info("Completed populateAuthUser");
+    }
+
+
+
+    @Scheduled(fixedDelay = 3600000) // every 1 hr
+    public void populateHashPAJList() throws DataProcessingException, RtiCacheException {
+        logger.info("Started populateHashPAJList");
+        OdseCache.OWNER_LIST_HASHED_PA_J =  queryHelper.getHashedPAJList(false);
+        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
+        logger.info("Completed populateHashPAJList");
+    }
+
+    @Scheduled(fixedDelay = 3600000) // every 1 hr
+    public void populateDMBQuestionMap() {
+        logger.info("Started populateDMBQuestionMap");
+        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
+        logger.info("Completed populateDMBQuestionMap");
+    }
+
+
 }
+
+
+
