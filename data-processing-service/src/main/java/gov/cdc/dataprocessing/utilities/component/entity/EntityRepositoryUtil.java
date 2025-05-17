@@ -46,34 +46,30 @@ public class EntityRepositoryUtil {
 
     @SuppressWarnings("java:S3923")
     public EntityODSE preparingEntityReposCallForPerson(PersonDto personDto, Long entityId, Object entityValue, String event) {
-        EntityODSE entityODSE = null;
-        if (entityValue.getClass().toString().equals("class java.lang.String")) {
-            entityODSE = new EntityODSE();
-            entityODSE.setEntityUid(entityId);
-            entityODSE.setClassCd((String) entityValue);
-            if (jdbcFlag) {
-                entityJdbcRepository.createEntity(entityODSE);
-            }
-            else {
-                entityRepository.save(entityODSE);
-            }
-        } else {
-            if (entityValue.getClass().toString().equals("class java.sql.Timestamp")) {
-                //TODO: To be implemented
-            }
-            else {
-                //TODO: To be implemented
-            }
+        if (!(entityValue instanceof String stringValue)) {
+            return null; // or handle unsupported types later
         }
 
-        if (event.equals(NEDSSConstant.SELECT)) {
-                //TODO: To be implemented
+        EntityODSE entityODSE = new EntityODSE();
+        entityODSE.setEntityUid(entityId);
+        entityODSE.setClassCd(stringValue);
+
+        if (jdbcFlag) {
+            entityJdbcRepository.createEntity(entityODSE); // Consider batching if called repeatedly
+        } else {
+            entityRepository.save(entityODSE);
         }
-        else if (event.equals(NEDSSConstant.SELECT_COUNT)) {
-                //TODO: To be implemented
-        }
-        else {
-            return entityODSE;
+
+        switch (event) {
+            case NEDSSConstant.SELECT -> {
+                // TODO
+            }
+            case NEDSSConstant.SELECT_COUNT -> {
+                // TODO
+            }
+            default -> {
+                return entityODSE;
+            }
         }
 
         return entityODSE;
