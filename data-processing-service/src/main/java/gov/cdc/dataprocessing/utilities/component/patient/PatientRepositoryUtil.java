@@ -144,77 +144,30 @@ public class PatientRepositoryUtil {
         return result.orElse(null);
     }
 
-//    public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
-//        Long personUid;
-//        String localUid;
-//        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
-//        personUid = localIdModel.getGaTypeUid().getSeedValueNbr();
-//        localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
-//
-//
-//        ArrayList<Object>  arrayList = new ArrayList<>();
-//
-//        if(personContainer.getThePersonDto().getLocalId() == null || personContainer.getThePersonDto().getLocalId().trim().isEmpty()) {
-//            personContainer.getThePersonDto().setLocalId(localUid);
-//        }
-//
-//        if(personContainer.getThePersonDto().getPersonParentUid() == null) {
-//            personContainer.getThePersonDto().setPersonParentUid(personUid);
-//        }
-//
-//        // set new person uid in entity table
-//        personContainer.getThePersonDto().setPersonUid(personUid);
-//
-//        arrayList.add(personUid);
-//        arrayList.add(NEDSSConstant.PERSON);
-//
-//        entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
-//
-//
-//        //NOTE: Create Person
-//        Person person = new Person(personContainer.getThePersonDto(), tz);
-//        person.setBirthCntryCd(null);
-//        if (jdbcFlag) {
-//            personJdbcRepository.createPerson(person);
-//        }
-//        else {
-//            personRepository.save(person);
-//        }
-//        createPersonName(personContainer);
-//        createPersonRace(personContainer);
-//        createPersonEthnic(personContainer);
-//        createEntityId(personContainer);
-//        entityLocatorParticipationService.createEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
-//        createRole(personContainer, "CREATE");
-//
-//        return person;
-//    }
-
-
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {
         Long personUid;
         String localUid;
-//        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
-        var localIdModel = uidPoolManager.getNextUid(true);
 
+        var localIdModel = uidPoolManager.getNextUid(LocalIdClass.PERSON,true);
 
         personUid = localIdModel.getGaTypeUid().getSeedValueNbr();
         localUid = localIdModel.getClassTypeUid().getUidPrefixCd()
                 + localIdModel.getClassTypeUid().getSeedValueNbr()
                 + localIdModel.getClassTypeUid().getUidSuffixCd();
 
-        if (personContainer.getThePersonDto().getLocalId() == null || personContainer.getThePersonDto().getLocalId().trim().isEmpty()) {
-            personContainer.getThePersonDto().setLocalId(localUid);
+        var personDto = personContainer.getThePersonDto();
+        if (personDto.getLocalId() == null || personDto.getLocalId().trim().isEmpty()) {
+            personDto.setLocalId(localUid);
         }
 
-        if (personContainer.getThePersonDto().getPersonParentUid() == null) {
-            personContainer.getThePersonDto().setPersonParentUid(personUid);
+        if (personDto.getPersonParentUid() == null) {
+            personDto.setPersonParentUid(personUid);
         }
 
-        personContainer.getThePersonDto().setPersonUid(personUid);
-        entityRepositoryUtil.preparingEntityReposCallForPerson(personContainer.getThePersonDto(), personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+        personDto.setPersonUid(personUid);
+        entityRepositoryUtil.preparingEntityReposCallForPerson(personDto, personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
 
-        Person person = new Person(personContainer.getThePersonDto(), tz);
+        Person person = new Person(personDto, tz);
         person.setBirthCntryCd(null);
 
         if (jdbcFlag) {
@@ -227,6 +180,7 @@ public class PatientRepositoryUtil {
             try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
                 List<CompletableFuture<Void>> tasks = new ArrayList<>();
 
+                // Name
                 if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
                     tasks.add(CompletableFuture.runAsync(() -> {
                         try {
@@ -237,6 +191,7 @@ public class PatientRepositoryUtil {
                     }, executor));
                 }
 
+                // Race
                 if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
                     tasks.add(CompletableFuture.runAsync(() -> {
                         try {
@@ -247,6 +202,7 @@ public class PatientRepositoryUtil {
                     }, executor));
                 }
 
+                // Ethnic Group
                 if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
                     tasks.add(CompletableFuture.runAsync(() -> {
                         try {
@@ -257,6 +213,7 @@ public class PatientRepositoryUtil {
                     }, executor));
                 }
 
+                // Entity ID
                 if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
                     tasks.add(CompletableFuture.runAsync(() -> {
                         try {
@@ -267,18 +224,21 @@ public class PatientRepositoryUtil {
                     }, executor));
                 }
 
-                if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+                // Entity Locator Participation
+                if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null
+                        && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
                     tasks.add(CompletableFuture.runAsync(() -> {
                         try {
                             entityLocatorParticipationService.createEntityLocatorParticipation(
                                     personContainer.getTheEntityLocatorParticipationDtoCollection(),
-                                    personContainer.getThePersonDto().getPersonUid());
+                                    personDto.getPersonUid());
                         } catch (DataProcessingException e) {
                             throw new RuntimeException(e);
                         }
                     }, executor));
                 }
 
+                // Role
                 if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
                     tasks.add(CompletableFuture.runAsync(() -> {
                         try {
@@ -289,6 +249,7 @@ public class PatientRepositoryUtil {
                     }, executor));
                 }
 
+                // Wait for all tasks
                 for (CompletableFuture<Void> task : tasks) {
                     task.join();
                 }
@@ -303,6 +264,7 @@ public class PatientRepositoryUtil {
             }
 
         } else {
+            // Sequential fallback
             if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
                 createPersonName(personContainer);
             }
@@ -323,7 +285,7 @@ public class PatientRepositoryUtil {
                 // 104ms on this one
                 entityLocatorParticipationService.createEntityLocatorParticipation(
                         personContainer.getTheEntityLocatorParticipationDtoCollection(),
-                        personContainer.getThePersonDto().getPersonUid());
+                        personDto.getPersonUid());
             }
 
             if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
@@ -334,159 +296,164 @@ public class PatientRepositoryUtil {
         return person;
     }
 
-
     @SuppressWarnings("java:S3776")
     public void updateExistingPerson(PersonContainer personContainer) throws DataProcessingException {
         //NOTE: Update Person
         Person person = new Person(personContainer.getThePersonDto(), tz);
-        var ver = person.getVersionCtrlNbr();
-        person.setVersionCtrlNbr(++ver);
+        person.setVersionCtrlNbr(person.getVersionCtrlNbr() + 1);
         person.setBirthCntryCd(null);
         personRepository.save(person);
 
+        // Cache UID for reuse
+        Long personUid = person.getPersonUid();
 
-
-        //NOTE: Create Person Name
-        if  (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
+        // NOTE: Create Person Name
+        var nameCollection = personContainer.getThePersonNameDtoCollection();
+        if (nameCollection != null && !nameCollection.isEmpty()) {
             updatePersonName(personContainer);
         }
-        //NOTE: Create Person Race
-        if  (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
+
+        // NOTE: Create Person Race
+        var raceCollection = personContainer.getThePersonRaceDtoCollection();
+        if (raceCollection != null && !raceCollection.isEmpty()) {
             updatePersonRace(personContainer);
         }
-        //NOTE: Create Person Ethnic
-        if  (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
+
+        // NOTE: Create Person Ethnic
+        var ethnicCollection = personContainer.getThePersonEthnicGroupDtoCollection();
+        if (ethnicCollection != null && !ethnicCollection.isEmpty()) {
             updatePersonEthnic(personContainer);
         }
 
-
-        //NOTE: Upsert EntityID
-        if  (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+        // NOTE: Upsert EntityID
+        var entityIdCollection = personContainer.getTheEntityIdDtoCollection();
+        if (entityIdCollection != null && !entityIdCollection.isEmpty()) {
             updateEntityId(personContainer);
-
         }
 
-
-        //NOTE: Create Entity Locator Participation
-        if  (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-            entityLocatorParticipationService.updateEntityLocatorParticipation(personContainer.getTheEntityLocatorParticipationDtoCollection(), personContainer.getThePersonDto().getPersonUid());
+        // NOTE: Create Entity Locator Participation
+        var elpCollection = personContainer.getTheEntityLocatorParticipationDtoCollection();
+        if (elpCollection != null && !elpCollection.isEmpty()) {
+            entityLocatorParticipationService.updateEntityLocatorParticipation(elpCollection, personUid);
         }
-        //NOTE: Upsert Role
-        if  (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+
+        // NOTE: Upsert Role
+        var roleCollection = personContainer.getTheRoleDtoCollection();
+        if (roleCollection != null && !roleCollection.isEmpty()) {
             createRole(personContainer, "UPDATE");
         }
 
 
-        // Updating MPR
+        // NOTE: Updating MPR
         if (!Objects.equals(person.getPersonUid(), person.getPersonParentUid())) {
-            var mprRes = personRepository.findById(person.getPersonParentUid());
-            if (mprRes.isPresent()) {
-                var version = person.getVersionCtrlNbr();
-                mprRes.get().setVersionCtrlNbr(++version);
+            personRepository.findById(person.getPersonParentUid()).ifPresent(mpr -> {
+                mpr.setVersionCtrlNbr(person.getVersionCtrlNbr() + 1);
                 if (person.getEthnicGroupInd() != null) {
-                    mprRes.get().setEthnicGroupInd(person.getEthnicGroupInd());
+                    mpr.setEthnicGroupInd(person.getEthnicGroupInd());
                 }
-                mprRes.get().setBirthCntryCd(null);
-                personRepository.save(mprRes.get());
-            }
-
+                mpr.setBirthCntryCd(null);
+                personRepository.save(mpr);
+            });
         }
-
     }
+
     @SuppressWarnings("java:S3776")
     public PersonContainer loadPerson(Long personUid) {
         PersonContainer personContainer = new PersonContainer();
 
-        PersonDto personDto = null;
+        // Load Person DTO
         var personResult = personJdbcRepository.findByPersonUid(personUid);
         if (personResult != null) {
-            personDto = new PersonDto(personResult);
+            PersonDto personDto = new PersonDto(personResult);
             personDto.setItDirty(false);
             personDto.setItNew(false);
+            personContainer.setThePersonDto(personDto);
         }
-        personContainer.setThePersonDto(personDto);
 
+        // Load Person Name DTOs
         Collection<PersonNameDto> personNameDtoCollection = new ArrayList<>();
-        List<PersonName> personNameResult = null;
-
-        personNameResult = personJdbcRepository.findPersonNameByPersonUid(personUid);
-
-        if (personNameResult != null && !personNameResult.isEmpty()) {
-            for(var item : personNameResult) {
-                var elem = new PersonNameDto(item);
-                elem.setItDirty(false);
-                elem.setItNew(false);
-                personNameDtoCollection.add(elem);
+        var personNameResult = personJdbcRepository.findPersonNameByPersonUid(personUid);
+        if (!personNameResult.isEmpty()) {
+            for (var item : personNameResult) {
+                var dto = new PersonNameDto(item);
+                dto.setItDirty(false);
+                dto.setItNew(false);
+                personNameDtoCollection.add(dto);
             }
         }
         personContainer.setThePersonNameDtoCollection(personNameDtoCollection);
 
+        // Load Person Race DTOs
         Collection<PersonRaceDto> personRaceDtoCollection = new ArrayList<>();
         var personRaceResult = personJdbcRepository.findPersonRaceByPersonUid(personUid);
-        if (personRaceResult != null && !personRaceResult.isEmpty()) {
-            for(var item : personRaceResult) {
-                var elem = new PersonRaceDto(item);
-                elem.setItDirty(false);
-                elem.setItNew(false);
-                personRaceDtoCollection.add(elem);
+        if (!personRaceResult.isEmpty()) {
+            for (var item : personRaceResult) {
+                var dto = new PersonRaceDto(item);
+                dto.setItDirty(false);
+                dto.setItNew(false);
+                personRaceDtoCollection.add(dto);
             }
         }
         personContainer.setThePersonRaceDtoCollection(personRaceDtoCollection);
 
+        // Load Person Ethnic Group DTOs
         Collection<PersonEthnicGroupDto> personEthnicGroupDtoCollection = new ArrayList<>();
-        var personEthnic = personJdbcRepository.findPersonEthnicByPersonUid(personUid);
-        if (personEthnic!= null && !personEthnic.isEmpty()) {
-            for(var item : personEthnic) {
-                var elem = new PersonEthnicGroupDto(item);
-                elem.setItDirty(false);
-                elem.setItNew(false);
-                personEthnicGroupDtoCollection.add(elem);
+        var personEthnicResult = personJdbcRepository.findPersonEthnicByPersonUid(personUid);
+        if (!personEthnicResult.isEmpty()) {
+            for (var item : personEthnicResult) {
+                var dto = new PersonEthnicGroupDto(item);
+                dto.setItDirty(false);
+                dto.setItNew(false);
+                personEthnicGroupDtoCollection.add(dto);
             }
         }
         personContainer.setThePersonEthnicGroupDtoCollection(personEthnicGroupDtoCollection);
 
-
+        // Load Entity ID DTOs
         Collection<EntityIdDto> entityIdDtoCollection = new ArrayList<>();
         var entityIdResult = entityIdJdbcRepository.findEntityIds(personUid);
-        if (entityIdResult != null && !entityIdResult.isEmpty()) {
-            for(var item : entityIdResult) {
-                var elem = new EntityIdDto(item);
-                elem.setItDirty(false);
-                elem.setItNew(false);
-                entityIdDtoCollection.add(elem);
+        if (!entityIdResult.isEmpty()) {
+            for (var item : entityIdResult) {
+                var dto = new EntityIdDto(item);
+                dto.setItDirty(false);
+                dto.setItNew(false);
+                entityIdDtoCollection.add(dto);
             }
         }
         personContainer.setTheEntityIdDtoCollection(entityIdDtoCollection);
 
+        // Load Entity Locator Participation DTOs
         Collection<EntityLocatorParticipationDto> entityLocatorParticipationDtoCollection = new ArrayList<>();
         var entityLocatorResult = entityLocatorParticipationService.findEntityLocatorById(personUid);
-        for(var item : entityLocatorResult) {
-            var elem = new EntityLocatorParticipationDto(item);
-            elem.setItDirty(false);
-            elem.setItNew(false);
-            entityLocatorParticipationDtoCollection.add(elem);
+        if (!entityLocatorResult.isEmpty()) {
+            for (var item : entityLocatorResult) {
+                var dto = new EntityLocatorParticipationDto(item);
+                dto.setItDirty(false);
+                dto.setItNew(false);
+                entityLocatorParticipationDtoCollection.add(dto);
+            }
         }
-
         personContainer.setTheEntityLocatorParticipationDtoCollection(entityLocatorParticipationDtoCollection);
 
-
+        // Load Role DTOs
         Collection<RoleDto> roleDtoCollection = new ArrayList<>();
         var roleResult = roleJdbcRepository.findRolesByParentUid(personUid);
-        if (roleResult != null && !roleResult.isEmpty()) {
-            for(var item : roleResult) {
-                var elem = new RoleDto(item);
-                elem.setItDirty(false);
-                elem.setItNew(false);
-                roleDtoCollection.add(elem);
+        if (!roleResult.isEmpty()) {
+            for (var item : roleResult) {
+                var dto = new RoleDto(item);
+                dto.setItDirty(false);
+                dto.setItNew(false);
+                roleDtoCollection.add(dto);
             }
         }
         personContainer.setTheRoleDtoCollection(roleDtoCollection);
-
 
         personContainer.setItDirty(false);
         personContainer.setItNew(false);
         return personContainer;
     }
+
+
 
     public Long findPatientParentUidByUid(Long personUid) {
         return personJdbcRepository.findMprUid(personUid);
@@ -494,104 +461,117 @@ public class PatientRepositoryUtil {
 
     @SuppressWarnings({"java:S3776","java:S1141"})
     private void updatePersonName(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<PersonNameDto>  personList = (ArrayList<PersonNameDto> ) personContainer.getThePersonNameDtoCollection();
+        List<PersonNameDto> personList = new ArrayList<>(personContainer.getThePersonNameDtoCollection());
+
         try {
-            var pUid = personContainer.getThePersonDto().getPersonUid();
-            List<PersonName> persons = personNameRepository.findBySeqIdByParentUid(pUid);
+            Long personUid = personContainer.getThePersonDto().getPersonUid();
+            List<PersonName> existingNames = personNameRepository.findBySeqIdByParentUid(personUid);
 
-            Integer seqId = 1;
+            // Build current input name key
+            String inputNameKey = (
+                    defaultStr(personContainer.getThePersonDto().getFirstNm()) +
+                            defaultStr(personContainer.getThePersonDto().getLastNm()) +
+                            defaultStr(personContainer.getThePersonDto().getMiddleNm()) +
+                            defaultStr(personContainer.getThePersonDto().getNmPrefix()) +
+                            defaultStr(personContainer.getThePersonDto().getNmSuffix())
+            ).toUpperCase();
 
-            StringBuilder sbFromInput = new StringBuilder();
-            sbFromInput.append(personContainer.getThePersonDto().getFirstNm());
-            sbFromInput.append(personContainer.getThePersonDto().getLastNm());
-            sbFromInput.append(personContainer.getThePersonDto().getMiddleNm());
-            sbFromInput.append(personContainer.getThePersonDto().getNmPrefix());
-            sbFromInput.append(personContainer.getThePersonDto().getNmSuffix());
-
-
-            List<String> personNameForComparing = new ArrayList<>();
-            for(PersonName item : persons) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(item.getFirstNm());
-                sb.append(item.getLastNm());
-                sb.append(item.getMiddleNm());
-                sb.append(item.getNmPrefix());
-                sb.append(item.getNmSuffix());
-                if(!personNameForComparing.contains(sb.toString().toUpperCase())) {
-                    personNameForComparing.add(sb.toString().toUpperCase());
-                }
+            // Build list of existing name keys
+            Set<String> existingNameKeys = new HashSet<>();
+            for (PersonName name : existingNames) {
+                String existingKey = (
+                        defaultStr(name.getFirstNm()) +
+                                defaultStr(name.getLastNm()) +
+                                defaultStr(name.getMiddleNm()) +
+                                defaultStr(name.getNmPrefix()) +
+                                defaultStr(name.getNmSuffix())
+                ).toUpperCase();
+                existingNameKeys.add(existingKey);
             }
 
+            // Only save if it's a truly new name
+            if (!existingNameKeys.contains(inputNameKey)) {
+                int nextSeqId = existingNames.stream()
+                        .map(PersonName::getPersonNameSeq)
+                        .max(Comparator.naturalOrder())
+                        .orElse(0);
 
-            //Only save new record if new name is actually new
-            if (!personNameForComparing.contains(sbFromInput.toString().toUpperCase())) {
-                persons = persons.stream().sorted(Comparator.comparing(PersonName::getPersonNameSeq).reversed()).collect(Collectors.toList());
-                if (!persons.isEmpty()) {
-                    seqId = persons.get(0).getPersonNameSeq();
-                }
+                PersonNameDto newNameDto = null;
 
-                PersonNameDto personName = null;
-                for (PersonNameDto personNameDto : personList) {
-                    if (!personNameDto.isItDelete()) {
-                        personName = personNameDto;
-                    } else {
+                for (PersonNameDto dto : personList) {
+                    if (!dto.isItDelete()) {
+                        newNameDto = dto;
+                    } else if (newNameDto != null) {
                         try {
-                            if (personName != null) {
-                                // set existing record status to inactive
-                                dataModifierReposJdbc.updatePersonNameStatus(personNameDto.getPersonUid(), seqId);
+                            // Inactivate existing record
+                            dataModifierReposJdbc.updatePersonNameStatus(dto.getPersonUid(), nextSeqId);
 
-                                seqId++;
-                                if (personName.getStatusCd() == null) {
-                                    personName.setStatusCd("A");
-                                }
-                                if (personName.getStatusTime() == null) {
-                                    personName.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
-                                }
-
-                                personName.setPersonNameSeq(seqId);
-                                personName.setRecordStatusCd("ACTIVE");
-                                personName.setAddReasonCd("Add");
-                                personNameRepository.save(new PersonName(personName, tz));
-
-                                var mprRecord =  SerializationUtils.clone(personName);
-                                mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
-                                personNameRepository.save(new PersonName(mprRecord, tz));
+                            nextSeqId++;
+                            if (newNameDto.getStatusCd() == null) {
+                                newNameDto.setStatusCd("A");
                             }
-                        } catch (Exception e) {
-                            logger.error("{} {}", ERROR_UPDATE_MSG, e.getMessage()); //NOSONAR
+                            if (newNameDto.getStatusTime() == null) {
+                                newNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
+                            }
+
+                            newNameDto.setPersonNameSeq(nextSeqId);
+                            newNameDto.setRecordStatusCd("ACTIVE");
+                            newNameDto.setAddReasonCd("Add");
+
+                            // Save to person
+                            personNameRepository.save(new PersonName(newNameDto, tz));
+
+                            // Clone for MPR
+                            var mprCopy = SerializationUtils.clone(newNameDto);
+                            mprCopy.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
+                            personNameRepository.save(new PersonName(mprCopy, tz));
+
+                        } catch (Exception ex) {
+                            logger.error("{} {}", ERROR_UPDATE_MSG, ex.getMessage()); // NOSONAR
                         }
                     }
-
                 }
             }
-
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
+    private String defaultStr(String s) {
+        return s != null ? s : "";
+    }
+
     private void createPersonName(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<PersonNameDto>  personList = (ArrayList<PersonNameDto> ) personContainer.getThePersonNameDtoCollection();
+        var personNameDtos = personContainer.getThePersonNameDtoCollection();
+        if (personNameDtos == null || personNameDtos.isEmpty()) {
+            return;
+        }
+
         try {
-            var pUid = personContainer.getThePersonDto().getPersonUid();
-            for (PersonNameDto personNameDto : personList) {
-                personNameDto.setPersonUid(pUid);
-                if (personNameDto.getStatusCd() == null) {
-                    personNameDto.setStatusCd("A");
+            Long personUid = personContainer.getThePersonDto().getPersonUid();
+
+            for (PersonNameDto dto : personNameDtos) {
+                dto.setPersonUid(personUid);
+
+                if (dto.getStatusCd() == null) {
+                    dto.setStatusCd("A");
                 }
-                if (personNameDto.getStatusTime() == null) {
-                    personNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
+                if (dto.getStatusTime() == null) {
+                    dto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
                 }
-                personNameDto.setRecordStatusCd("ACTIVE");
-                personNameDto.setAddReasonCd("Add");
+
+                dto.setRecordStatusCd("ACTIVE");
+                dto.setAddReasonCd("Add");
+
+                PersonName entity = new PersonName(dto, tz);
                 if (jdbcFlag) {
-                    personJdbcRepository.createPersonName(new PersonName(personNameDto,tz));
-                }
-                else {
-                    personNameRepository.save(new PersonName(personNameDto,tz));
+                    personJdbcRepository.createPersonName(entity);
+                } else {
+                    personNameRepository.save(entity);
                 }
             }
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
@@ -599,183 +579,227 @@ public class PatientRepositoryUtil {
 
     @SuppressWarnings({"java:S3776", "java:S1141"})
     private void updateEntityId(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<EntityIdDto>  personList = (ArrayList<EntityIdDto> ) personContainer.getTheEntityIdDtoCollection();
-        try {
-            for (EntityIdDto entityIdDto : personList) {
+        var entityIdDtos = personContainer.getTheEntityIdDtoCollection();
+        if (entityIdDtos == null || entityIdDtos.isEmpty()) {
+            return;
+        }
 
-                if (entityIdDto.isItDelete()) {
+        try {
+            var personDto = personContainer.getThePersonDto();
+            Long personUid = personDto.getPersonUid();
+            Long parentUid = personDto.getPersonParentUid();
+
+            for (EntityIdDto dto : entityIdDtos) {
+                if (dto.isItDelete()) {
                     try {
-                        dataModifierReposJdbc.deleteEntityIdAndSeq(entityIdDto.getEntityUid(), entityIdDto.getEntityIdSeq());
-                        if (personContainer.getThePersonDto().getPersonParentUid() != null) {
-                            dataModifierReposJdbc.deleteEntityIdAndSeq(personContainer.getThePersonDto().getPersonParentUid(), entityIdDto.getEntityIdSeq());
+                        dataModifierReposJdbc.deleteEntityIdAndSeq(dto.getEntityUid(), dto.getEntityIdSeq());
+                        if (parentUid != null) {
+                            dataModifierReposJdbc.deleteEntityIdAndSeq(parentUid, dto.getEntityIdSeq());
                         }
                     } catch (Exception e) {
-                        logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
+                        logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); // NOSONAR
                     }
+                } else {
+                    Long userId = AuthUtil.authUser.getNedssEntryId();
+                    if (dto.getAddUserId() == null) {
+                        dto.setAddUserId(userId);
+                    }
+                    if (dto.getLastChgUserId() == null) {
+                        dto.setLastChgUserId(userId);
+                    }
+
+                    // Save for parent
+                    var mprCopy = SerializationUtils.clone(dto);
+                    mprCopy.setEntityUid(parentUid);
+                    mprCopy.setAddReasonCd("Add");
+                    entityIdRepository.save(new EntityId(mprCopy, tz));
+
+                    // Save for person
+                    dto.setEntityUid(personUid);
+                    dto.setAddReasonCd("Add");
+                    entityIdRepository.save(new EntityId(dto, tz));
                 }
-                else {
-                    if (entityIdDto.getAddUserId() == null) {
-                        entityIdDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
-                    }
-                    if (entityIdDto.getLastChgUserId() == null) {
-                        entityIdDto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
-                    }
-
-                    var mprRecord =  SerializationUtils.clone(entityIdDto);
-                    mprRecord.setEntityUid(personContainer.getThePersonDto().getPersonParentUid());
-                    mprRecord.setAddReasonCd("Add");
-                    entityIdRepository.save(new EntityId(mprRecord, tz));
-
-
-                    var pUid = personContainer.getThePersonDto().getPersonUid();
-                    entityIdDto.setEntityUid(pUid);
-                    entityIdDto.setAddReasonCd("Add");
-                    entityIdRepository.save(new EntityId(entityIdDto, tz));
-                }
-
-
             }
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
 
     @SuppressWarnings({"java:S1141","java:S3776"})
     private void updatePersonRace(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
-        var parentUid = personContainer.getThePersonDto().getPersonParentUid();
+        var personRaceDtos = personContainer.getThePersonRaceDtoCollection();
+        if (personRaceDtos == null || personRaceDtos.isEmpty()) {
+            return;
+        }
+
+        Long parentUid = personContainer.getThePersonDto().getPersonParentUid();
+        Long personUid = personContainer.getThePersonDto().getPersonUid();
         Long patientUid = -1L;
+
         try {
             List<String> retainingRaceCodeList = new ArrayList<>();
-            for (PersonRaceDto personRaceDto : personList) {
-                var pUid = personContainer.getThePersonDto().getPersonUid();
-                if (personRaceDto.isItDelete()) {
-                    try {
-                        dataModifierReposJdbc.deletePersonRaceByUidAndCode(personRaceDto.getPersonUid(), personRaceDto.getRaceCd());
-                    } catch (Exception e) {
-                        logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
 
+            for (PersonRaceDto dto : personRaceDtos) {
+                if (dto.isItDelete()) {
+                    try {
+                        dataModifierReposJdbc.deletePersonRaceByUidAndCode(dto.getPersonUid(), dto.getRaceCd());
+                    } catch (Exception e) {
+                        logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); // NOSONAR
                     }
-                }
-                else {
-                    // Edge case, happen when there are race exist, and we try to remove the second race from the list
-                    if (personRaceDto.isItDirty() && !Objects.equals(personRaceDto.getPersonUid(), parentUid)) {
-                        retainingRaceCodeList.add(personRaceDto.getRaceCd());
-                        patientUid = personRaceDto.getPersonUid();
+                } else {
+                    // Handle race update edge case
+                    if (dto.isItDirty() && !Objects.equals(dto.getPersonUid(), parentUid)) {
+                        retainingRaceCodeList.add(dto.getRaceCd());
+                        patientUid = dto.getPersonUid();
                     }
-                    var mprRecord = SerializationUtils.clone(personRaceDto);
-                    mprRecord.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
+
+                    // Save to MPR
+                    var mprRecord = SerializationUtils.clone(dto);
+                    mprRecord.setPersonUid(parentUid);
                     mprRecord.setAddReasonCd("Add");
                     personRaceRepository.save(new PersonRace(mprRecord, tz));
 
-                    personRaceDto.setPersonUid(pUid);
-                    personRaceDto.setAddReasonCd("Add");
-                    personRaceRepository.save(new PersonRace(personRaceDto, tz));
-
-
+                    // Save to actual person
+                    dto.setPersonUid(personUid);
+                    dto.setAddReasonCd("Add");
+                    personRaceRepository.save(new PersonRace(dto, tz));
                 }
             }
 
-            // Theses executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
+            // Cleanup inactive races
             deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
-    protected void deleteInactivePersonRace(List<String> retainingRaceCodeList, Long patientUid, Long parentUid) {
-        // Theses executes after the update process, whatever race not it the retain list and not direct assoc with parent uid will be deleted
-        if (!retainingRaceCodeList.isEmpty() && patientUid > 0) {
-            try {
-                dataModifierReposJdbc.deletePersonRaceByUid(patientUid,retainingRaceCodeList);
-            } catch (Exception e) {
-                logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); //NOSONAR
 
+    protected void deleteInactivePersonRace(List<String> retainingRaceCodeList, Long patientUid, Long parentUid) {
+        // Executes after update process: delete races not in retained list and not directly tied to parent UID
+        if (retainingRaceCodeList == null || retainingRaceCodeList.isEmpty()) return;
+
+        try {
+            if (patientUid != null && patientUid > 0) {
+                dataModifierReposJdbc.deletePersonRaceByUid(patientUid, retainingRaceCodeList);
             }
+        } catch (Exception e) {
+            logger.error("{} {}", ERROR_DELETE_MSG, e.getMessage()); // NOSONAR
         }
-        if (!retainingRaceCodeList.isEmpty() && parentUid > 0 && !patientUid.equals(parentUid)) {
-            try {
+
+        try {
+            if (parentUid != null && parentUid > 0 && !patientUid.equals(parentUid)) {
                 var raceParent = personRaceRepository.findByParentUid(parentUid);
                 if (raceParent.isPresent() && raceParent.get().size() > 1) {
-                    dataModifierReposJdbc.deletePersonRaceByUid(parentUid,retainingRaceCodeList);
+                    dataModifierReposJdbc.deletePersonRaceByUid(parentUid, retainingRaceCodeList);
                 }
-            } catch (Exception e) {
-                logger.error("{} {}", ERROR_UPDATE_MSG, e.getMessage()); //NOSONAR
-
             }
+        } catch (Exception e) {
+            logger.error("{} {}", ERROR_UPDATE_MSG, e.getMessage()); // NOSONAR
         }
     }
+
 
 
     private void createPersonRace(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<PersonRaceDto>  personList = (ArrayList<PersonRaceDto> ) personContainer.getThePersonRaceDtoCollection();
+        var personRaceDtos = personContainer.getThePersonRaceDtoCollection();
+        if (personRaceDtos == null || personRaceDtos.isEmpty()) {
+            return;
+        }
+
         try {
-            for (PersonRaceDto personRaceDto : personList) {
-                var pUid = personContainer.getThePersonDto().getPersonUid();
-                personRaceDto.setPersonUid(pUid);
-                personRaceDto.setAddReasonCd("Add");
+            Long personUid = personContainer.getThePersonDto().getPersonUid();
+
+            for (PersonRaceDto dto : personRaceDtos) {
+                dto.setPersonUid(personUid);
+                dto.setAddReasonCd("Add");
+
+                PersonRace entity = new PersonRace(dto, tz);
+
                 if (jdbcFlag) {
-                    personJdbcRepository.createPersonRace(new PersonRace(personRaceDto, tz));
-                }
-                else {
-                    personRaceRepository.save(new PersonRace(personRaceDto, tz));
+                    personJdbcRepository.createPersonRace(entity);
+                } else {
+                    personRaceRepository.save(entity);
                 }
             }
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
 
     private void createPersonEthnic(PersonContainer personContainer) throws DataProcessingException {
-        ArrayList<PersonEthnicGroupDto>  personList = (ArrayList<PersonEthnicGroupDto> ) personContainer.getThePersonEthnicGroupDtoCollection();
+        var ethnicGroupDtos = personContainer.getThePersonEthnicGroupDtoCollection();
+        if (ethnicGroupDtos == null || ethnicGroupDtos.isEmpty()) {
+            return;
+        }
+
         try {
-            for (PersonEthnicGroupDto personEthnicGroupDto : personList) {
-                var pUid = personContainer.getThePersonDto().getPersonUid();
-                personEthnicGroupDto.setPersonUid(pUid);
+            Long personUid = personContainer.getThePersonDto().getPersonUid();
+
+            for (PersonEthnicGroupDto dto : ethnicGroupDtos) {
+                dto.setPersonUid(personUid);
+                PersonEthnicGroup entity = new PersonEthnicGroup(dto);
+
                 if (jdbcFlag) {
-                    personJdbcRepository.createPersonEthnicGroup(new PersonEthnicGroup(personEthnicGroupDto));
-                }
-                else {
-                    personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
+                    personJdbcRepository.createPersonEthnicGroup(entity);
+                } else {
+                    personEthnicRepository.save(entity);
                 }
             }
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
+
     private void updatePersonEthnic(PersonContainer personContainer) throws DataProcessingException {
+        var ethnicDtos = personContainer.getThePersonEthnicGroupDtoCollection();
+        if (ethnicDtos == null || ethnicDtos.isEmpty()) {
+            return;
+        }
+
         try {
-            var parentUid = personContainer.getThePersonDto().getPersonParentUid();
-            for (PersonEthnicGroupDto personEthnicGroupDto : personContainer.getThePersonEthnicGroupDtoCollection()) {
+            Long personUid = personContainer.getThePersonDto().getPersonUid();
+            Long parentUid = personContainer.getThePersonDto().getPersonParentUid();
 
-                var mprRecord =  SerializationUtils.clone(personEthnicGroupDto);
-                mprRecord.setPersonUid(parentUid);
-                personEthnicRepository.save(new PersonEthnicGroup(mprRecord));
+            for (PersonEthnicGroupDto dto : ethnicDtos) {
+                // Save to MPR
+                var mprCopy = SerializationUtils.clone(dto);
+                mprCopy.setPersonUid(parentUid);
+                personEthnicRepository.save(new PersonEthnicGroup(mprCopy));
 
-                var pUid = personContainer.getThePersonDto().getPersonUid();
-                personEthnicGroupDto.setPersonUid(pUid);
-                personEthnicRepository.save(new PersonEthnicGroup(personEthnicGroupDto));
-
-
+                // Save to actual person
+                dto.setPersonUid(personUid);
+                personEthnicRepository.save(new PersonEthnicGroup(dto));
             }
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
     private void createEntityId(PersonContainer personContainer) throws DataProcessingException {
-        Collection<EntityIdDto> entityIds = personContainer.getTheEntityIdDtoCollection();
-        if (entityIds == null || entityIds.isEmpty()) return;
-        List<EntityId> entityIdEntities = entityIds.stream().map(dto -> {
-            dto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
+        var entityIdDtos = personContainer.getTheEntityIdDtoCollection();
+        if (entityIdDtos == null || entityIdDtos.isEmpty()) return;
+
+        Long personUid = personContainer.getThePersonDto().getPersonUid();
+        Long authUserId = AuthUtil.authUser.getNedssEntryId();
+
+        List<EntityId> entityIdEntities = entityIdDtos.stream().map(dto -> {
+            dto.setEntityUid(personUid);
             dto.setAddReasonCd("Add");
 
-            if (dto.getAddUserId() == null) dto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
-            if (dto.getLastChgUserId() == null) dto.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+            if (dto.getAddUserId() == null) dto.setAddUserId(authUserId);
+            if (dto.getLastChgUserId() == null) dto.setLastChgUserId(authUserId);
 
             return new EntityId(dto, tz);
         }).toList();
+
         try {
             if (jdbcFlag) {
                 entityIdJdbcRepository.batchCreateEntityIds(entityIdEntities);
@@ -789,21 +813,27 @@ public class PatientRepositoryUtil {
 
 
 
+
     private void createRole(PersonContainer personContainer, String operation) throws DataProcessingException {
-        ArrayList<RoleDto>  personList = (ArrayList<RoleDto> ) personContainer.getTheRoleDtoCollection();
+        var roleDtos = personContainer.getTheRoleDtoCollection();
+        if (roleDtos == null || roleDtos.isEmpty()) return;
+
+        boolean isCreateOp = "CREATE".equalsIgnoreCase(operation);
+
         try {
-            for (RoleDto obj : personList) {
-                if (jdbcFlag && operation.equalsIgnoreCase("CREATE")) {
-                    roleJdbcRepository.createRole(new Role(obj));
-                }
-                else {
-                    roleRepository.save(new Role(obj));
+            for (RoleDto dto : roleDtos) {
+                Role role = new Role(dto);
+                if (jdbcFlag && isCreateOp) {
+                    roleJdbcRepository.createRole(role);
+                } else {
+                    roleRepository.save(role);
                 }
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new DataProcessingException("Error creating roles", e);
         }
     }
+
 
     public List<Person> findPersonByParentUid(Long parentUid) {
         var res = personJdbcRepository.findPersonsByParentUid(parentUid);
@@ -814,48 +844,41 @@ public class PatientRepositoryUtil {
     @SuppressWarnings({"java:S1871","java:S3776"})
     public PersonContainer preparePersonNameBeforePersistence(PersonContainer personContainer) throws DataProcessingException {
         try {
-            Collection<PersonNameDto> namesCollection = personContainer
-                    .getThePersonNameDtoCollection();
-            if (namesCollection != null && !namesCollection.isEmpty()) {
+            var nameDtos = personContainer.getThePersonNameDtoCollection();
+            if (nameDtos == null || nameDtos.isEmpty()) {
+                return personContainer;
+            }
 
-                Iterator<PersonNameDto> namesIter = namesCollection.iterator();
-                PersonNameDto selectedNameDT = null;
-                while (namesIter.hasNext()) {
-                    PersonNameDto thePersonNameDto =  namesIter.next();
-                    if (thePersonNameDto.getNmUseCd() != null
-                            && !thePersonNameDto.getNmUseCd().trim().equals("L"))
-                    {
-                        continue;
-                    }
-                    if (thePersonNameDto.getAsOfDate() != null) {
-                        if (selectedNameDT == null)
-                        {
-                            selectedNameDT = thePersonNameDto;
-                        }
-                        else if (selectedNameDT.getAsOfDate()!=null
-                                && thePersonNameDto.getAsOfDate()!=null
-                                && thePersonNameDto.getAsOfDate().after(selectedNameDT.getAsOfDate()))
-                        {
-                            selectedNameDT = thePersonNameDto;
-                        }
-                    } else {
-                        if (selectedNameDT == null)
-                        {
-                            selectedNameDT = thePersonNameDto;
-                        }
-                    }
+            PersonNameDto selected = null;
+
+            for (PersonNameDto dto : nameDtos) {
+                // Skip if name use code is not 'L'
+                if (!"L".equalsIgnoreCase(dto.getNmUseCd())) {
+                    continue;
                 }
-                if (selectedNameDT != null) {
-                    personContainer.getThePersonDto().setLastNm(selectedNameDT.getLastNm());
-                    personContainer.getThePersonDto().setFirstNm(selectedNameDT.getFirstNm());
+
+                if (selected == null || isAfter(dto.getAsOfDate(), selected.getAsOfDate())) {
+                    selected = dto;
                 }
             }
+
+            if (selected != null) {
+                var personDto = personContainer.getThePersonDto();
+                personDto.setLastNm(selected.getLastNm());
+                personDto.setFirstNm(selected.getFirstNm());
+            }
+
+            return personContainer;
+
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
-
-        return personContainer;
     }
+
+    private boolean isAfter(Date a, Date b) {
+        return a != null && (b == null || a.after(b));
+    }
+
 
 
 }
