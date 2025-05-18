@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +25,11 @@ public class UidPoolManager {
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
     private final Map<String, Queue<LocalUidModel>> uidPools = new ConcurrentHashMap<>();
     private final Map<String, AtomicBoolean> refillInProgress = new ConcurrentHashMap<>();
-    private static final int POOL_SIZE = 10000;
-    private static final int LOW_WATERMARK = 1000;
+
+    @Value("${uid.pool_size}")
+    private int POOL_SIZE = 5000;
+    @Value("${uid.min_pool_size}")
+    private int LOW_WATERMARK = 1000;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Autowired
