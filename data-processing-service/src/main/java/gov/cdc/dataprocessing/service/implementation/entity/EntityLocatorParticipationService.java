@@ -53,8 +53,6 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    @Value("${feature.jdbc-flag}")
-    private boolean jdbcFlag = true;
     private final UidPoolManager uidPoolManager;
 
     private final PersonRepository personRepository;
@@ -396,35 +394,20 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             var localUid = uidPoolManager.getNextUid(LocalIdClass.PERSON,true);
             if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
                 entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                if (jdbcFlag) {
-                    entityLocatorJdbcRepository.createPhysicalLocator(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
-                }
-                else {
-                    physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
-                }
+                entityLocatorJdbcRepository.createPhysicalLocator(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                     && entityLocatorParticipationDto.getThePostalLocatorDto() != null
 //                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null
             ) {
                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                if (jdbcFlag) {
-                    entityLocatorJdbcRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));;
-                }
-                else {
-                    postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
-                }
+                entityLocatorJdbcRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));;
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
                     && entityLocatorParticipationDto.getTheTeleLocatorDto() != null
             && entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt() != null) {
                 entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                if (jdbcFlag) {
-                    entityLocatorJdbcRepository.createTeleLocator(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
-                }
-                else {
-                    teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
-                }
+                entityLocatorJdbcRepository.createTeleLocator(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
                 inserted = true;
             }
 
@@ -435,13 +418,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
                     entityLocatorParticipationDto.setVersionCtrlNbr(1);
                 }
-
-                if (jdbcFlag) {
-                    entityLocatorJdbcRepository.createEntityLocatorParticipation(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
-                }
-                else {
-                    entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
-                }
+                entityLocatorJdbcRepository.createEntityLocatorParticipation(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
             }
 
         }
