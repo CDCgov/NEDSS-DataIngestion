@@ -59,6 +59,8 @@ public class KafkaManagerConsumer {
     private Integer poolSize = 1;
     @Value("${nbs.user}")
     private String nbsUser = "";
+    @Value("${feature.thread-batch-size}")
+    private Integer batchSize = 50;
 
     @Value("${feature.thread-enabled}")
     private boolean threadEnabled = false;
@@ -107,14 +109,13 @@ public class KafkaManagerConsumer {
     }
 
 
-    @Scheduled(fixedDelay = 30000) // every 10000 = 10 seconds
+    @Scheduled(fixedDelayString = "${processor.delay_ms:30000}")
     public void processPendingMessages() {
         logger.info("BATCH SIZE: {}", pendingMessages.size());
         if (pendingMessages.isEmpty()) return;
 
         if (threadEnabled) {
             Semaphore concurrencyLimiter = new Semaphore(poolSize); // Same as Hikari max pool size
-            int batchSize = 50;
 
             while (true) {
                 List<Integer> batch = new ArrayList<>(batchSize);
@@ -127,6 +128,7 @@ public class KafkaManagerConsumer {
                 concurrencyLimiter.acquireUninterruptibly();
                 Thread.startVirtualThread(() -> {
                     try {
+//                        managerService.processDataByBatch(batch);
                         for (Integer id : batch) {
                             try {
                                 var result = managerService.processingELR(id);
@@ -141,7 +143,9 @@ public class KafkaManagerConsumer {
                     }
                 });
             }
-        } else {
+        }
+        else
+        {
             // Single-threaded fallback
             while (!pendingMessages.isEmpty()) {
                 Integer nbs = pendingMessages.poll();
