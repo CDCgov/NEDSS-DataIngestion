@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
@@ -47,11 +48,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
@@ -145,7 +148,6 @@ public class ManagerService implements IManagerService {
         } else {
             throw new DataProcessingConsumerException("Invalid User");
         }
-
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
@@ -195,11 +197,16 @@ public class ManagerService implements IManagerService {
             tracker.setPublicHealthCase(edxDto.getPamContainer().getPublicHealthCaseContainer().getThePublicHealthCaseDto());
         }
 
+//        Gson gson = new Gson();
+//        String jsonString = gson.toJson(phcContainer);
+//        kafkaManagerProducer.sendDataLabHandling(jsonString);
+
         return phcContainer;
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
 
+//    @Transactional
     public void initiatingLabProcessing(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException {
         NbsInterfaceModel interfaceModel = phcContainer.getNbsInterfaceModel();
         EdxLabInformationDto edxDto = phcContainer.getEdxLabInformationDto();
@@ -262,6 +269,7 @@ public class ManagerService implements IManagerService {
             }
 
             if (DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE.equalsIgnoreCase(action)) {
+//                handleNndNotification(phcContainerModel, edxDto);
                 EDXActivityDetailLogDto detailLog = investigationNotificationService.sendNotification(phcContainerModel, edxDto.getNndComment());
                 detailLog.setRecordType(EdxELRConstant.ELR_RECORD_TP);
                 detailLog.setRecordName(EdxELRConstant.ELR_RECORD_NM);
@@ -292,6 +300,33 @@ public class ManagerService implements IManagerService {
         interfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
         nbsInterfaceRepository.save(interfaceModel);
         logger.info("Completed");
+    }
+
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleNndNotification(PublicHealthCaseContainer phcContainerModel, EdxLabInformationDto edxDto) throws DataProcessingException {
+        EDXActivityDetailLogDto detailLog = investigationNotificationService.sendNotification(phcContainerModel, edxDto.getNndComment());
+        detailLog.setRecordType(EdxELRConstant.ELR_RECORD_TP);
+        detailLog.setRecordName(EdxELRConstant.ELR_RECORD_NM);
+
+        ArrayList<EDXActivityDetailLogDto> details = (ArrayList<EDXActivityDetailLogDto>) edxDto.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails();
+        if (details == null) {
+            details = new ArrayList<>();
+        }
+        details.add(detailLog);
+        edxDto.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(details);
+
+        if (EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure.name().equals(detailLog.getLogType())) {
+            String comment = detailLog.getComment();
+            if (comment != null && comment.contains(EdxELRConstant.MISSING_NOTF_REQ_FIELDS)) {
+                edxDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_8);
+                edxDto.setNotificationMissingFields(true);
+            } else {
+                edxDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_10);
+            }
+            throw new DataProcessingException("MISSING NOTI REQUIRED: " + comment);
+        } else {
+            edxDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_6);
+        }
     }
 
 
