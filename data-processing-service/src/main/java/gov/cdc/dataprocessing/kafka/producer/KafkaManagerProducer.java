@@ -41,7 +41,7 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     private String phcTopic = "elr_processing_public_health_case";
 
     @Value("${kafka.topic.elr_handle_lab}")
-    private String labHandleTopic = "elr_processing_handle_lab" ;
+    private String labHandleTopic = "dp_elr_processing_handle_lab" ;
 
     @Value("${kafka.topic.elr_action_tracker}")
     private String actionTrackerTopic = "elr_action_tracker" ;
