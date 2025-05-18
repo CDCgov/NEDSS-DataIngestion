@@ -78,12 +78,12 @@ spring:
     password: ${NBS_DBPASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
-      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
-      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
-      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
-      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
-      pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
+      maximum-pool-size: ${HIKARI_POOL_SIZE:5}
+      connection-timeout: ${HIKARI_CON_TIMEOUT:5000}
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:1}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:30000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
+      pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP_RTI}
       leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
     dataingest:
       url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=NBS_DATAINGEST;encrypt=true;trustServerCertificate=true;
