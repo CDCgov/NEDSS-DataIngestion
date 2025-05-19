@@ -106,11 +106,10 @@ public class PatientMergeController {
   public void exportMatchesAsPDF(
           @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sortParamRaw,
           HttpServletResponse response) throws IOException {
-    String sort = sortParamRaw.replaceAll("^\"(.*)\"$", "$1");
     String timestampForFilename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
     String timestampForFooter = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a"));
 
-    List<MatchRequiringReview> matches = matchesRequiringReviewResolver.resolveAll(sort);
+    List<MatchRequiringReview> matches = matchesRequiringReviewResolver.resolveAll(sortParamRaw);
     pdfBuilder.build(response, matches, timestampForFilename, timestampForFooter);
   }
 }
