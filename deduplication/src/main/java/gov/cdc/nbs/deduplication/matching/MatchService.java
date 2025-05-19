@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.matching;
 
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.matching.model.*;
 
 import java.sql.ResultSet;
@@ -21,23 +22,6 @@ import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @Service
 public class MatchService {
-  // Selects the most recent legal name
-  static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
-      SELECT
-        TOP 1 CONCAT(pn.first_nm, ' ', pn.last_nm) AS name,
-        p.add_time
-      FROM
-        person p
-        LEFT JOIN person_name pn ON pn.person_uid = p.person_uid
-      WHERE
-        p.person_uid = :id
-      ORDER BY
-        CASE
-          WHEN pn.nm_use_cd = 'L' THEN 1
-          ELSE 2
-        END,
-        pn.as_of_date DESC
-            """;
 
   static final String FIND_NBS_PERSON_QUERY = """
       SELECT TOP 1
@@ -192,12 +176,12 @@ public class MatchService {
 
   PatientNameAndTime findNbsInfo(Long id) {
     return nbsTemplate.query(
-        FIND_NBS_ADD_TIME_AND_NAME_QUERY,
-        new MapSqlParameterSource()
-            .addValue("id", id),
-        (ResultSet rs, int rowNum) -> new PatientNameAndTime(
-            rs.getString("name"),
-            rs.getTimestamp("add_time").toLocalDateTime()))
+            QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY,
+            new MapSqlParameterSource()
+                .addValue("id", id),
+            (ResultSet rs, int rowNum) -> new PatientNameAndTime(
+                rs.getString("name"),
+                rs.getTimestamp("add_time").toLocalDateTime()))
         .getFirst();
   }
 

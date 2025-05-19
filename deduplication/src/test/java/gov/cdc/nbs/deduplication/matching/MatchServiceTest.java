@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -257,7 +258,7 @@ class MatchServiceTest {
 
     // fetch patient name and add time
     when(nbsTemplate.query(
-        eq(MatchService.FIND_NBS_ADD_TIME_AND_NAME_QUERY),
+        eq(QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY),
         Mockito.any(MapSqlParameterSource.class),
         ArgumentMatchers.<RowMapper<PatientNameAndTime>>any()))
         .thenReturn(List.of(new PatientNameAndTime("patient name", now)));

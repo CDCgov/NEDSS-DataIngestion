@@ -61,7 +61,7 @@ public class MergeGroupHandler {
   private void markMergedRecordAsMerge(String survivorPersonId, List<String> personIds) {
     List<String> mpiPersonIds = getMpiIdsByPersonIds(personIds);
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("mpiIds", mpiPersonIds);
+    parameters.addValue("potentialIds", mpiPersonIds);
     parameters.addValue("personId", survivorPersonId);
     deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS, parameters);
   }
@@ -69,7 +69,7 @@ public class MergeGroupHandler {
   private void markNonActiveRecordAsNoMerge(String survivorPersonId, List<String> personIds) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     List<String> mpiPersonIds = getMpiIdsByPersonIds(personIds);
-    parameters.addValue("mpiIds", mpiPersonIds);
+    parameters.addValue("potentialIds", mpiPersonIds);
     parameters.addValue("personId", survivorPersonId);
     parameters.addValue("personIds", personIds);
     deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS, parameters);

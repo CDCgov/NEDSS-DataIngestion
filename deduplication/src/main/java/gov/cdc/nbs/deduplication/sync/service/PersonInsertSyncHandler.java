@@ -10,6 +10,7 @@ import gov.cdc.nbs.deduplication.batch.model.MatchResponse;
 import gov.cdc.nbs.deduplication.batch.service.DuplicateCheckService;
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
@@ -24,9 +25,9 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Component
 public class PersonInsertSyncHandler {
@@ -53,7 +54,7 @@ public class PersonInsertSyncHandler {
 
   public void handleInsert(JsonNode payloadNode) throws JsonProcessingException {
     JsonNode afterNode = payloadNode.path("after");
-    String personUid = afterNode.get("person_uid").asText();
+    String personUid = afterNode.get("person_uid").asText();//NOSONAR
     String personParentUid = afterNode.get("person_parent_uid").asText();
     MpiPerson mpiPerson = patientRecordService.fetchPersonRecord(personUid);
 
@@ -108,7 +109,8 @@ public class PersonInsertSyncHandler {
   }
 
   private void linkNbsToMpi(NbsMpiLinkDto nbsMpiLink) {
-    deduplicationTemplate.update(QueryConstants.NBS_MPI_QUERY, createParameterSource(nbsMpiLink));
+    deduplicationTemplate.update(QueryConstants.NBS_MPI_QUERY,
+        createParameterSource(nbsMpiLink, getPersonNameAndAddTime(nbsMpiLink.externalPersonId()).addTime()));
   }
 
   private MatchCandidate checkForPossibleMatch(MpiPerson mpiPerson) {
@@ -125,10 +127,15 @@ public class PersonInsertSyncHandler {
 
   private void insertMatchCandidates(MatchCandidate candidate) {
     List<MapSqlParameterSource> batchParams = new ArrayList<>();
-    for (String possibleMatchMpiId : candidate.possibleMatchList()) {
+    List<String> potentialNbsIds = getPersonIdsByMpiIds(candidate.possibleMatchList());
+    PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(candidate.personUid());
+    for (String potentialNbsId : potentialNbsIds) {
       batchParams.add(new MapSqlParameterSource()
           .addValue("personUid", candidate.personUid())
-          .addValue("mpiPersonId", possibleMatchMpiId));
+          .addValue("potentialPersonId", potentialNbsId)
+          .addValue("identifiedDate", getCurrentDate())
+          .addValue("personAddTime", patientNameAndTime.addTime())
+          .addValue("personName", patientNameAndTime.name()));
     }
     if (!batchParams.isEmpty()) {
       deduplicationTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY,
@@ -147,13 +154,31 @@ public class PersonInsertSyncHandler {
         String.class);
   }
 
-  private SqlParameterSource createParameterSource(NbsMpiLinkDto nbsMpiLink) {
+  private SqlParameterSource createParameterSource(NbsMpiLinkDto nbsMpiLink, LocalDateTime personAddTime) {
     return new MapSqlParameterSource()
         .addValue("person_uid", nbsMpiLink.externalPatientId())
         .addValue("person_parent_uid", nbsMpiLink.externalPersonId())
         .addValue("mpi_patient", nbsMpiLink.patientReferenceId())
         .addValue("mpi_person", nbsMpiLink.personReferenceId())
-        .addValue("status", "U");
+        .addValue("status", "U")
+        .addValue("person_add_time", personAddTime);
   }
+
+  private List<String> getPersonIdsByMpiIds(List<String> mpiIds) {
+    return deduplicationTemplate.query(
+        QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
+        new MapSqlParameterSource("mpiIds", mpiIds),
+        (rs, rowNum) -> rs.getString("person_uid"));
+  }
+
+  private PatientNameAndTime getPersonNameAndAddTime(String personId) {
+    return patientRecordService.fetchPersonNameAndAddTime(personId);
+  }
+
+  private String getCurrentDate() {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  }
+
+
 
 }

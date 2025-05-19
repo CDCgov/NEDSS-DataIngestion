@@ -18,22 +18,22 @@ public class QueryConstants {
       """;
 
   public static final String MATCH_CANDIDATES_QUERY = """
-      INSERT INTO match_candidates (person_uid,mpi_person_id,date_identified)
-      VALUES (:personUid, :mpiPersonId,:identifiedDate)
+      INSERT INTO match_candidates (person_uid,potential_match_person_uid,date_identified,person_add_time,person_name)
+      VALUES (:personUid, :potentialPersonId,:identifiedDate,:personAddTime,:personName)
       """;
 
   public static final String NBS_MPI_QUERY = """ 
       INSERT INTO nbs_mpi_mapping
-        (person_uid, person_parent_uid, mpi_patient, mpi_person, status)
+        (person_uid, person_parent_uid, mpi_patient, mpi_person, status,person_add_time)
       VALUES
-        (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status);
+        (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status ,:person_add_time);
       """;
 
 
   public static final String MPI_PERSON_ID_QUERY = """
       SELECT mpi_person
       FROM nbs_mpi_mapping
-      WHERE person_uid =  :personId
+      WHERE person_uid = :personId
       """;
 
   public static final String MPI_PATIENT_ID_QUERY = """
@@ -491,7 +491,7 @@ public class QueryConstants {
        SELECT COUNT(*)
        FROM match_candidates
        WHERE person_uid = :personUid
-         AND mpi_person_id = :mpiPersonId
+       AND potential_match_person_uid = :potentialPersonId
       """;
 
   public static final String PATIENT_IDS_BY_PERSON_UIDS = """
@@ -501,10 +501,11 @@ public class QueryConstants {
       AND person_uid=person_parent_uid
       """;
 
-  public static final String PERSON_UID_BY_MPI_PATIENT_ID = """
+
+  public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
       SELECT person_uid
       FROM nbs_mpi_mapping
-      WHERE mpi_person = :mpiId
+      WHERE mpi_person IN (:mpiIds)
       AND person_uid=person_parent_uid
       """;
 
@@ -512,14 +513,14 @@ public class QueryConstants {
       UPDATE match_candidates
       SET is_merge = 1
       WHERE person_uid = :personId
-      AND mpi_person_id IN (:mpiIds)
+      AND potential_match_person_uid IN (:potentialIds)
       """;
 
   public static final String UPDATE_MERGE_STATUS_FOR_NON_PATIENTS = """
       UPDATE match_candidates
       SET is_merge = 0
       WHERE person_uid IN (:personIds)
-      OR (mpi_person_id IN (:mpiIds) AND person_uid != :personId)
+      OR (potential_match_person_uid IN (:potentialIds) AND person_uid != :personId)
       """;
 
   public static final String UPDATE_SINGLE_RECORD = """
@@ -535,7 +536,6 @@ public class QueryConstants {
       AND person_uid = :personUid
       AND is_merge IS NULL
       """;
-
 
 
   public static final String MARK_SUPERSEDED_RECORDS = """
@@ -573,20 +573,7 @@ public class QueryConstants {
       WHERE person_parent_uid IN (:parentPersonIds)
       """;
 
-  public static final String FETCH_PATIENT_NAME_AND_ADD_TIME_QUERY = """
-      SELECT TOP 1
-          p.add_time,
-          COALESCE(pn.first_nm, '') + ' ' + COALESCE(pn.last_nm, '') AS full_name
-      FROM
-          person p WITH (NOLOCK)
-      INNER JOIN
-          person_name pn WITH (NOLOCK)
-          ON pn.person_uid = p.person_uid
-      WHERE
-          p.person_uid = :personUid
-      ORDER BY
-          pn.status_time DESC;
-      """;
+
 
   public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
       SELECT
@@ -831,5 +818,35 @@ public class QueryConstants {
           p.person_uid IN (:ids)
           AND p.record_status_cd = 'ACTIVE';
       """;
+
+  public static final String FETCH_PATIENT_ADD_TIME_QUERY = """
+      SELECT
+          p.person_uid,
+          p.add_time
+      FROM
+          person p
+      WHERE
+          p.person_uid IN (:ids)
+      """;
+
+
+  public static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
+      SELECT
+        TOP 1 CONCAT(COALESCE(pn.last_nm, '--'), ', ', COALESCE(pn.first_nm, '--')) AS name,
+        p.add_time
+      FROM
+        person p
+        LEFT JOIN person_name pn ON pn.person_uid = p.person_uid
+      WHERE
+        p.person_uid = :id
+      ORDER BY
+        CASE
+          WHEN pn.nm_use_cd = 'L' THEN 1
+          ELSE 2
+        END,
+        pn.as_of_date DESC
+      """;
+
+
 
 }
