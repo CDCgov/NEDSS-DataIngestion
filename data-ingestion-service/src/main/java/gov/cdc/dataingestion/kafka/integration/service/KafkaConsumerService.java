@@ -15,11 +15,6 @@ import gov.cdc.dataingestion.deadletter.repository.model.ElrDeadLetterModel;
 import gov.cdc.dataingestion.exception.*;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.HL7ParsedMessage;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.CommonOrder;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Eip;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Prl;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.converters.Hl7ToRhapsodysXmlConverter;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -50,10 +45,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
