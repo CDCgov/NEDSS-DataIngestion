@@ -402,7 +402,8 @@ class KafkaConsumerServiceTest {
 
                 when(iValidatedELRRepository.findById(guidForTesting))
                         .thenReturn(Optional.of(model));
-                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
+                //Not reachable after adding the splitter code.
+                //when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
 
                 doAnswer(invocation -> {
                     Runnable runnable = invocation.getArgument(0);
@@ -443,9 +444,8 @@ class KafkaConsumerServiceTest {
         model.setRawMessage(testHL7Message);
 
         when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
-        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), anyBoolean())).thenReturn(nbsInterfaceModel);
-
-
+        //Not reachable after adding the splitter code.
+        //when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), anyBoolean())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.xmlConversionHandlerProcessing(value, EnumKafkaOperation.INJECTION.name(), "true");
 

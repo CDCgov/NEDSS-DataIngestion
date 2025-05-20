@@ -526,7 +526,6 @@ public class KafkaConsumerService {
             for(HL7ParsedMessage<OruR1> parsedMessageNew:parsedMessageList) {
                 String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageNew);
                 log.debug("phdcXml: {}", phdcXml);
-                System.out.println("phdcXml: " + phdcXml);
                 NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessageNew, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
@@ -571,8 +570,7 @@ public class KafkaConsumerService {
         }
     }
     private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
-        List<HL7ParsedMessage<OruR1>> parsedMessageList=elrSplitter.splitElr(parsedMessageOrig);
-        return parsedMessageList;
+        return elrSplitter.splitElr(parsedMessageOrig);
     }
 
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {
