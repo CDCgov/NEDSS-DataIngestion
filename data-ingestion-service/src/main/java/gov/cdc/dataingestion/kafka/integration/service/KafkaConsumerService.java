@@ -489,6 +489,7 @@ public class KafkaConsumerService {
      * make this public so we can add unit test for now.
      * we need to implementation interface pattern for NBS convert and transformation classes. it better for unit testing
      * */
+    @SuppressWarnings("java:S3776")
     public void xmlConversionHandlerProcessing(String rawElrId, String operation, String dataProcessingEnable) throws KafkaProducerException {
         String hl7Msg = "";
         try {

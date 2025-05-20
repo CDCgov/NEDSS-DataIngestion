@@ -125,8 +125,6 @@ class ReportStatusServiceTest {
         String id = "test";
         when(iRawELRRepository.findById(id)).thenReturn(Optional.empty());
         List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
-        //MessageStatus msgStatus = msgStatusList.get(0);
-        assertNotNull(msgStatusList.size());
         assertEquals(0, msgStatusList.size());
     }
 

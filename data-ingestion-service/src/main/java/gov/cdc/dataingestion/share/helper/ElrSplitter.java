@@ -25,7 +25,7 @@ import java.util.Optional;
 @Slf4j
 public class ElrSplitter {
 
-    private final boolean COPY_SPM = false;
+    private final boolean copySpm = false;
 
     private final IObxIdStdLookupRepository obxIdStdLookupRepository;
 
@@ -155,7 +155,7 @@ public class ElrSplitter {
                 orderObservation.getObservationRequest().setParentResult(new Prl());
                 //copy SPM segment data from the last OBR if SPM is not exist in the current OBR
                 //Some STLT needs Specimen data in all OBRs
-                if (COPY_SPM) {
+                if (copySpm) {
                     if (orderObservation.getSpecimen() != null && orderObservation.getSpecimen().isEmpty()) {
                         orderObservation.setSpecimen(obrList.getLast().getSpecimen());
                     }

@@ -2,7 +2,6 @@ package gov.cdc.dataingestion.reportstatus.service;
 
 import com.google.gson.Gson;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
-import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import gov.cdc.dataingestion.odse.repository.IEdxActivityLogRepository;
@@ -12,7 +11,6 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
-import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;

@@ -32,7 +32,7 @@ public class ElrProcessStatusComponent {
     private static final String STATUS_VALIDATION_ERROR ="Status: Validation Error";
     private static final String CREATED_ON ="Created On";
     private static final String ERROR_MESSAGE ="Error Message";
-
+    private static final String DOUBLR_LINE_BREAK =" \n\n";
     @Autowired
     public ElrProcessStatusComponent(ReportStatusService reportStatusService) {
         this.reportStatusService = reportStatusService;
@@ -54,15 +54,15 @@ public class ElrProcessStatusComponent {
                     if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(SUCCESS)) {
                         StringBuilder activityLogSb = new StringBuilder();
                         activityLogSb.append("Status: Success ");
-                        activityLogSb.append(" \n\n"+ELR_ID+": " + elrId);
-                        activityLogSb.append(" \n\n"+NBS_INTERFACE_ID+": " + messageStatus.getNbsInfo().getNbsInterfaceId());
+                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
+                        activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
                         activityLogSb.append(" \n----------------- \n");
                         status=activityLogSb.toString();
                     } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
                         StringBuilder activityLogSb = new StringBuilder();
                         activityLogSb.append("Status: Failure ");
-                        activityLogSb.append(" \n\n"+ELR_ID+": " + elrId);
-                        activityLogSb.append(" \n\n"+NBS_INTERFACE_ID+": " + messageStatus.getNbsInfo().getNbsInterfaceId());
+                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
+                        activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
                         List<EdxActivityDetailLog> edxActivityLogList= messageStatus.getEdxLogStatus().getEdxActivityDetailLogList();
                         EdxActivityLog edxActivityLogParent = messageStatus.getEdxLogStatus().getEdxActivityLog();
                         for(EdxActivityDetailLog edxActivityLogStatus:edxActivityLogList){
