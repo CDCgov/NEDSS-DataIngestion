@@ -106,7 +106,7 @@ class MergeGroupHandlerTest {
     verify(deduplicationTemplate).update(
         eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS),
         argThat((MapSqlParameterSource params) -> {
-          List<String> mpiIds = (List<String>) params.getValue("mpiIds");
+          List<String> mpiIds = (List<String>) params.getValue("potentialIds");
           String personId = (String) params.getValue("personId");
           return mpiIds != null && mpiIds.size() == 2
               && personId != null && personId.equals(survivorPersonId);
@@ -116,7 +116,7 @@ class MergeGroupHandlerTest {
     verify(deduplicationTemplate).update(
         eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS),
         argThat((MapSqlParameterSource params) -> {
-          List<String> mpiIds = (List<String>) params.getValue("mpiIds");
+          List<String> mpiIds = (List<String>) params.getValue("potentialIds");
           String personId = (String) params.getValue("personId");
           List<String> personIdsParam = (List<String>) params.getValue("personIds");
           return mpiIds != null && mpiIds.size() == 2

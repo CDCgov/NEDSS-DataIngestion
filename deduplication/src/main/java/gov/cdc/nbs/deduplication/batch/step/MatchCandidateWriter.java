@@ -1,8 +1,10 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,13 @@ import java.util.List;
 public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final PatientRecordService patientRecordService;
 
   @Autowired
-  public MatchCandidateWriter(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+  public MatchCandidateWriter(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+      final PatientRecordService patientRecordService) {
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    this.patientRecordService = patientRecordService;
   }
 
   @Override
@@ -42,13 +47,16 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   private void insertMatchCandidates(List<MatchCandidate> candidates) {
     MapSqlParameterSource params;
     for (MatchCandidate candidate : candidates) {
-      String identifiedDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-      for (String possibleMatchMpiId : candidate.possibleMatchList()) {
-        if (isValidPossibleMatch(candidate.personUid(), possibleMatchMpiId)) {
+      PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(candidate.personUid());
+      List<String> potentialNbsIds = getPersonIdsByMpiIds(candidate.possibleMatchList());
+      for (String potentialNbsId : potentialNbsIds) {
+        if (isValidPossibleMatch(candidate.personUid(), potentialNbsId)) {
           params = new MapSqlParameterSource()
               .addValue("personUid", candidate.personUid())
-              .addValue("mpiPersonId", possibleMatchMpiId)
-              .addValue("identifiedDate", identifiedDate);
+              .addValue("potentialPersonId", potentialNbsId)
+              .addValue("identifiedDate", getCurrentDate())
+              .addValue("personAddTime", patientNameAndTime.addTime())
+              .addValue("personName", patientNameAndTime.name());
           namedParameterJdbcTemplate.update(QueryConstants.MATCH_CANDIDATES_QUERY, params);
         }
       }
@@ -63,38 +71,42 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
     }
   }
 
-  private String getPersonMpiIdByPersonId(String personId) {
-    return namedParameterJdbcTemplate.queryForObject(QueryConstants.MPI_PERSON_ID_QUERY,
-        new MapSqlParameterSource("personId", personId),
-        String.class);
-  }
 
-  private String getPersonIdByPersonMpiId(String personMpiId) {
-    return namedParameterJdbcTemplate.queryForObject(QueryConstants.PERSON_UID_BY_MPI_PATIENT_ID,
-        new MapSqlParameterSource("mpiId", personMpiId),
-        String.class);
-  }
-
-  private boolean isValidPossibleMatch(String personUid, String possibleMatchMpiId) {
-    String possibleMatchNpsId = getPersonIdByPersonMpiId(possibleMatchMpiId);
-    String personMpiId = getPersonMpiIdByPersonId(personUid);
+  private boolean isValidPossibleMatch(String personUid, String potentialNbsId) {
     // Prevent self-matches (a person shouldn't match with themselves)
-    if (personUid.equals(possibleMatchNpsId)) {
+    if (personUid.equals(potentialNbsId)) {
       return false;
     }
-    return !findExistingPossibleMatch(possibleMatchNpsId, personMpiId);// ensure there is no overlapping
+    return !findExistingPossibleMatch(potentialNbsId, potentialNbsId);// ensure there is no overlapping
   }
 
   private boolean findExistingPossibleMatch(String personId, String mpiPersonId) {
+    long personUid = Long.parseLong(personId);
+    long potentialPersonUid = Long.parseLong(mpiPersonId);
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("personUid", personId);
-    parameters.addValue("mpiPersonId", mpiPersonId);
+    parameters.addValue("personUid", personUid);
+    parameters.addValue("potentialPersonId", potentialPersonUid);
 
     Integer count = namedParameterJdbcTemplate.queryForObject(
         QueryConstants.FIND_POSSIBLE_MATCH,
         parameters,
         Integer.class);
     return count != null && count > 0;
+  }
+
+  private List<String> getPersonIdsByMpiIds(List<String> mpiIds) {
+    return namedParameterJdbcTemplate.query(
+        QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
+        new MapSqlParameterSource("mpiIds", mpiIds),
+        (rs, rowNum) -> rs.getString("person_uid"));
+  }
+
+  private String getCurrentDate() {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  }
+
+  private PatientNameAndTime getPersonNameAndAddTime(String personId) {
+    return patientRecordService.fetchPersonNameAndAddTime(personId);
   }
 
 }

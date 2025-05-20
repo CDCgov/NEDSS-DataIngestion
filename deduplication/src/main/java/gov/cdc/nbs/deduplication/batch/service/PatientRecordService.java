@@ -3,6 +3,7 @@ package gov.cdc.nbs.deduplication.batch.service;
 import gov.cdc.nbs.deduplication.batch.mapper.PersonMergeDataMapper;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,7 +11,12 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PatientRecordService {
@@ -58,6 +64,33 @@ public class PatientRecordService {
         QueryConstants.PERSONS_MERGE_DATA_BY_PERSON_IDS,
         params,
         personMergeDataMapper);
+  }
+
+  public Map<String, LocalDateTime> fetchPersonAddTimeMap(List<String> personUids) {
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("ids", personUids);
+
+    List<Map<String, Object>> result = namedParameterJdbcTemplate.queryForList(
+        QueryConstants.FETCH_PATIENT_ADD_TIME_QUERY, params);
+
+    Map<String, LocalDateTime> addTimeMap = new HashMap<>();
+    for (Map<String, Object> row : result) {
+      Long personId = (Long) row.get("person_uid");
+      Timestamp addTime = (Timestamp) row.get("add_time");
+      addTimeMap.put(personId.toString(), addTime.toLocalDateTime());
+    }
+    return addTimeMap;
+  }
+
+  public PatientNameAndTime fetchPersonNameAndAddTime(String id) {
+    return namedParameterJdbcTemplate.query(
+            QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY,
+            new MapSqlParameterSource()
+                .addValue("id", id),
+            (ResultSet rs, int rowNum) -> new PatientNameAndTime(
+                rs.getString("name"),
+                rs.getTimestamp("add_time").toLocalDateTime()))
+        .getFirst();
   }
 
 }

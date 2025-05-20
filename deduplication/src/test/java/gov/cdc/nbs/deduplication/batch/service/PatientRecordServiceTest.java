@@ -1,19 +1,24 @@
 package gov.cdc.nbs.deduplication.batch.service;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.*;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -126,5 +131,50 @@ class PatientRecordServiceTest {
         null,
         null);
   }
+
+  @Test
+  void fetchPersonAddTimeMap_returnsCorrectMap() {
+    List<String> personUids = List.of("123", "456");
+
+    List<Map<String, Object>> mockResults = List.of(
+        Map.of("person_uid", 123L, "add_time", Timestamp.valueOf(LocalDateTime.of(2023, 1, 1, 10, 0))),
+        Map.of("person_uid", 456L, "add_time", Timestamp.valueOf(LocalDateTime.of(2024, 1, 1, 11, 0)))
+    );
+
+    when(namedParameterJdbcTemplate.queryForList(any(String.class), any(MapSqlParameterSource.class)))
+        .thenReturn(mockResults);
+
+    Map<String, LocalDateTime> result = patientRecordService.fetchPersonAddTimeMap(personUids);
+
+    assertThat(result).containsOnly(
+        entry("123", LocalDateTime.of(2023, 1, 1, 10, 0)),
+        entry("456", LocalDateTime.of(2024, 1, 1, 11, 0))
+    );
+  }
+
+  @Test
+  void fetchPersonNameAndAddTime_returnsCorrectObject() throws Exception {
+    String personId = "789";
+    String expectedName = "John Doe";
+
+    when(namedParameterJdbcTemplate.query(
+        eq(QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY),
+        any(MapSqlParameterSource.class),
+        any(RowMapper.class)))
+        .thenAnswer(invocation -> {
+          RowMapper<?> rowMapper = invocation.getArgument(2);
+          ResultSet rs = mock(ResultSet.class);
+
+          when(rs.getString("name")).thenReturn(expectedName);
+          when(rs.getTimestamp("add_time")).thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+
+          return List.of(Objects.requireNonNull(rowMapper.mapRow(rs, 1)));
+        });
+
+    PatientNameAndTime result = patientRecordService.fetchPersonNameAndAddTime(personId);
+
+    assertThat(result.name()).isEqualTo(expectedName);
+  }
+
 
 }

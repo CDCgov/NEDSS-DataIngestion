@@ -13,6 +13,7 @@ import gov.cdc.nbs.deduplication.batch.model.MatchResponse;
 import gov.cdc.nbs.deduplication.batch.service.DuplicateCheckService;
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.sync.model.MpiPatientResponse;
@@ -23,11 +24,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -77,6 +80,9 @@ class PersonInsertSyncHandlerTest {
     mockInsertMatchCandidates();
     mockUpdateStatus();
     mockObjectMapperWriteValueAsString(seedRequestJson());
+    mockFetchPersonNameAndAddTime();
+    mockGetPersonIdsByMpiIds();
+
 
     // Act
     personInsertSyncHandler.handleInsert(payloadNode);
@@ -88,6 +94,8 @@ class PersonInsertSyncHandlerTest {
     verifyUpdateStatus();
     verifyDuplicateCheckServiceCall(mpiPerson);
   }
+
+
 
   @Test
   void testHandleInsert_NewPerson_NoMatch() throws JsonProcessingException {
@@ -102,6 +110,7 @@ class PersonInsertSyncHandlerTest {
     mockLinkNbsToMpi();
     mockDuplicateCheckServiceFindDuplicateRecords(mpiPerson, matchResponse);
     mockObjectMapperWriteValueAsString(seedRequestJson());
+    mockFetchPersonNameAndAddTime();
 
     // Act
     personInsertSyncHandler.handleInsert(payloadNode);
@@ -125,6 +134,7 @@ class PersonInsertSyncHandlerTest {
     mockLinkNbsToMpi();
     mockDuplicateCheckServiceFindDuplicateRecords(mpiPerson, matchResponse);
     mockObjectMapperWriteValueAsString(seedRequestJson());
+    mockFetchPersonNameAndAddTime();
 
     // Act
     personInsertSyncHandler.handleInsert(payloadNode);
@@ -147,6 +157,7 @@ class PersonInsertSyncHandlerTest {
     mockFindPersonReferenceId("1234", "person-ref-id");
     mockLinkNbsToMpi();
     mockObjectMapperWriteValueAsString(patientRequestJson());
+    mockFetchPersonNameAndAddTime();
 
     // Act
     personInsertSyncHandler.handleInsert(payloadNode);
@@ -204,7 +215,7 @@ class PersonInsertSyncHandlerTest {
   private void mockInsertMatchCandidates() {
     when(deduplicationTemplate.batchUpdate(
         eq(QueryConstants.MATCH_CANDIDATES_QUERY),
-        any(MapSqlParameterSource[].class))).thenReturn(new int[] { 1, 1 });
+        any(MapSqlParameterSource[].class))).thenReturn(new int[] {1, 1});
   }
 
   private void mockUpdateStatus() {
@@ -215,6 +226,21 @@ class PersonInsertSyncHandlerTest {
   private void mockObjectMapperWriteValueAsString(String json) throws JsonProcessingException {
     when(objectMapper.writeValueAsString(any())).thenReturn(json);
   }
+
+  private void mockFetchPersonNameAndAddTime() {
+    when(patientRecordService.fetchPersonNameAndAddTime(anyString()))
+        .thenReturn(new PatientNameAndTime("John Doe", LocalDateTime.now()));
+  }
+
+  private void mockGetPersonIdsByMpiIds() {
+    when(deduplicationTemplate.query(
+        eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
+        any(MapSqlParameterSource.class),
+        any(RowMapper.class)))
+        .thenReturn(List.of("222"));
+  }
+
+
 
   // Verification Methods
 
