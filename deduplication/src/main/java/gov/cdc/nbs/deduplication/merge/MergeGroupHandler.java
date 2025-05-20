@@ -45,11 +45,10 @@ public class MergeGroupHandler {
         (rs, rowNum) -> rs.getString("mpi_person"));
   }
 
-  public void updateMergeStatusForGroup(Long personOfTheGroup) {
+  public void unMergeAll(Long personUid) {//Keep Separate
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("person_id", personOfTheGroup);
-    parameters.addValue("isMerge", false);
-    deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP, parameters);
+    parameters.addValue("person_id", personUid);
+    deduplicationTemplate.update(QueryConstants.UN_MERGE_ALL_GROUP, parameters);
   }
 
   public void updateMergeStatusForPatients(String survivorPersonId, List<String> personIds) {
@@ -78,6 +77,13 @@ public class MergeGroupHandler {
   private void markSingleRemainingRecordAsNoMergeIfExists(String survivorPersonId) {
     deduplicationTemplate.update(QueryConstants.UPDATE_SINGLE_RECORD,
         new MapSqlParameterSource("personUid", survivorPersonId));
+  }
+
+  public void unMergeSinglePerson(Long personUid,Long potentialMatchPersonUid) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue("person_uid", personUid);
+    parameters.addValue("potentialMatchPersonUid", potentialMatchPersonUid);
+    deduplicationTemplate.update(QueryConstants.UN_MERGE_SINGLE_PERSON, parameters);
   }
 
 }

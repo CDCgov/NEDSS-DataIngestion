@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import gov.cdc.nbs.deduplication.batch.model.GroupNoMergeRequest;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.batch.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
@@ -29,10 +28,10 @@ public class PatientMergeController {
   private final MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
   public PatientMergeController(
-          final MergeGroupHandler possibleMatchHandler,
-          final MergePatientHandler mergePatientsHandler,
-          final PdfBuilder pdfBuilder,
-          final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
+      final MergeGroupHandler possibleMatchHandler,
+      final MergePatientHandler mergePatientsHandler,
+      final PdfBuilder pdfBuilder,
+      final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergePatientsHandler = mergePatientsHandler;
     this.pdfBuilder = pdfBuilder;
@@ -41,22 +40,34 @@ public class PatientMergeController {
 
   @GetMapping
   public MatchesRequireReviewResponse getPotentialMatches(
-          @RequestParam(defaultValue = "0", name = "page") int page,
-          @RequestParam(defaultValue = "5", name = "size") int size,
-          @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sort) {
+      @RequestParam(defaultValue = "0", name = "page") int page,
+      @RequestParam(defaultValue = "5", name = "size") int size,
+      @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sort) {
     return matchesRequiringReviewResolver.resolve(page, size, sort);
   }
 
   @GetMapping("/{patientId}")
   public ResponseEntity<List<PersonMergeData>> getPotentialMatchesDetails(
-          @PathVariable("patientId") Long patientId) {
+      @PathVariable("patientId") Long patientId) {
     return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(patientId));
   }
 
-  @PostMapping("/group-no-merge")
-  public ResponseEntity<String> updateGroupNoMerge(@RequestBody GroupNoMergeRequest request) {
+
+  @PostMapping("/unmerge-all/{personId}") // Keep Separate
+  public ResponseEntity<String> unMergeAll(@PathVariable("personId") Long personId) {
     try {
-      mergeGroupHandler.updateMergeStatusForGroup(request.personOfTheGroup());
+      mergeGroupHandler.unMergeAll(personId);
+      return ResponseEntity.ok("Merge status updated successfully.");
+    } catch (Exception e) {
+      return ResponseEntity.status(500).body("Error updating merge status: " + e.getMessage());
+    }
+  }
+
+  @PostMapping("/unmerge_single_person/{personId}/{potentialPersonId}")
+  public ResponseEntity<String> unMergeSinglePerson(@PathVariable("personId") Long personId,
+      @PathVariable("potentialPersonId") Long potentialMatchPersonId) {
+    try {
+      mergeGroupHandler.unMergeSinglePerson(personId, potentialMatchPersonId);
       return ResponseEntity.ok("Merge status updated successfully.");
     } catch (Exception e) {
       return ResponseEntity.status(500).body("Error updating merge status: " + e.getMessage());
@@ -66,8 +77,8 @@ public class PatientMergeController {
   @PostMapping("/merge-patient")
   public ResponseEntity<Void> mergeRecords(@RequestBody MergePatientRequest mergeRequest) {
     if (mergeRequest.getSurvivorPersonId() == null
-            || mergeRequest.getSupersededPersonIds() == null
-            || mergeRequest.getSupersededPersonIds().isEmpty()) {
+        || mergeRequest.getSupersededPersonIds() == null
+        || mergeRequest.getSupersededPersonIds().isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
     try {
@@ -80,8 +91,8 @@ public class PatientMergeController {
 
   @GetMapping(value = "/export/csv", produces = "text/csv")
   public void exportMatchesAsCSV(
-          @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sort,
-          HttpServletResponse response) throws IOException {
+      @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sort,
+      HttpServletResponse response) throws IOException {
 
     response.setContentType("text/csv");
     response.setHeader("Content-Disposition", "attachment; filename=matches_requiring_review.csv");
@@ -92,20 +103,20 @@ public class PatientMergeController {
       writer.println("Patient ID,Person Name,Date Created,Date Identified,Number of Matching Records");
       for (MatchRequiringReview match : matches) {
         writer.printf(
-                "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
-                match.patientId(),
-                match.patientName(),
-                pdfBuilder.formatDateTime(match.createdDate()),
-                pdfBuilder.formatDateTime(match.identifiedDate()),
-                match.numOfMatchingRecords());
+            "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
+            match.patientId(),
+            match.patientName(),
+            pdfBuilder.formatDateTime(match.createdDate()),
+            pdfBuilder.formatDateTime(match.identifiedDate()),
+            match.numOfMatchingRecords());
       }
     }
   }
 
   @GetMapping(value = "/export/pdf", produces = "application/pdf")
   public void exportMatchesAsPDF(
-          @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sortParamRaw,
-          HttpServletResponse response) throws IOException {
+      @RequestParam(defaultValue = DEFAULT_SORT, name = "sort") String sortParamRaw,
+      HttpServletResponse response) throws IOException {
     String timestampForFilename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
     String timestampForFooter = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a"));
 
