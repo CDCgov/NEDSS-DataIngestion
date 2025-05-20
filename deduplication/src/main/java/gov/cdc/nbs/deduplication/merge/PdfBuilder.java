@@ -30,11 +30,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class PdfBuilder {
 
   public void build(HttpServletResponse response,
-      List<MatchesRequireReviewResponse.MatchRequiringReview> matches, String timestampForFilename,
-      String timestampForFooter) throws IOException {
+                    List<MatchesRequireReviewResponse.MatchRequiringReview> matches, String timestampForFilename,
+                    String timestampForFooter) throws IOException {
     response.setContentType("application/pdf");
     response.setHeader("Content-Disposition",
-        "attachment; filename=matches_requiring_review_" + timestampForFilename + ".pdf");
+            "attachment; filename=matches_requiring_review_" + timestampForFilename + ".pdf");
 
     try (Document document = new Document(PageSize.A4)) {
       PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
@@ -55,12 +55,12 @@ public class PdfBuilder {
 
       Stream.of("Patient ID", "Person Name", "Date Created", "Date Identified", "Number of Matching Records")
               .forEach(header -> {
-            PdfPCell cell = new PdfPCell(new Phrase(header, tableFont));
-            cell.setBackgroundColor(Color.LIGHT_GRAY);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            table.addCell(cell);
-          });
+                PdfPCell cell = new PdfPCell(new Phrase(header, tableFont));
+                cell.setBackgroundColor(Color.LIGHT_GRAY);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                table.addCell(cell);
+              });
 
       for (MatchesRequireReviewResponse.MatchRequiringReview match : matches) {
         table.addCell(createCenteredCell(String.valueOf(match.patientId()), tableFont));
@@ -83,11 +83,11 @@ public class PdfBuilder {
     return cell;
   }
 
-  private String formatDateTime(String rawDateTime) {
+  public String formatDateTime(String rawDateTime) {
     DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a");
     List<DateTimeFormatter> inputFormatters = List.of(
-        DateTimeFormatter.ISO_LOCAL_DATE_TIME,
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
 
     for (DateTimeFormatter formatter : inputFormatters) {
       try {
@@ -113,12 +113,13 @@ public class PdfBuilder {
       Phrase footer = new Phrase("Generated on: " + timestamp + " | Page " + writer.getPageNumber(), footerFont);
 
       ColumnText.showTextAligned(
-          writer.getDirectContent(),
-          Element.ALIGN_LEFT,
-          footer,
-          document.leftMargin(),
-          document.bottomMargin() - 10,
-          0);
+              writer.getDirectContent(),
+              Element.ALIGN_LEFT,
+              footer,
+              document.leftMargin(),
+              document.bottomMargin() - 10,
+              0);
     }
   }
 }
+
