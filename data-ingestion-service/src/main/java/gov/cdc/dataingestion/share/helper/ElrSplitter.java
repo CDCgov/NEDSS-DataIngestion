@@ -25,7 +25,7 @@ import java.util.Optional;
 @Slf4j
 public class ElrSplitter {
 
-    private final boolean copySpm = false;
+    private static final boolean COPY_SPM = false;
 
     private final IObxIdStdLookupRepository obxIdStdLookupRepository;
 
@@ -91,7 +91,7 @@ public class ElrSplitter {
             for (Observation obx : obxList) {
                 i++;
                 changeSctToSnmForCodingSystem(obx);
-                System.out.println("from orig obx code:" + obx.getObservationResult().getObservationIdentifier().getIdentifier() + " obx id:" + obx.getObservationResult().getSetIdObx());
+                log.debug("from orig obx code:" + obx.getObservationResult().getObservationIdentifier().getIdentifier() + " obx id:" + obx.getObservationResult().getSetIdObx());
                 obx.getObservationResult().setSetIdObx("1");
                 //Create new OBR object
                 OrderObservation obrCopy = gson.fromJson(gson.toJson(orderObservation), OrderObservation.class);
@@ -131,6 +131,7 @@ public class ElrSplitter {
         return parsedMessageList;
     }
 
+    @SuppressWarnings("java:S3776")
     private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
         List<HL7ParsedMessage<OruR1>> parsedMessageList = new ArrayList<>();
         Gson gson = new Gson();
@@ -155,10 +156,9 @@ public class ElrSplitter {
                 orderObservation.getObservationRequest().setParentResult(new Prl());
                 //copy SPM segment data from the last OBR if SPM is not exist in the current OBR
                 //Some STLT needs Specimen data in all OBRs
-                if (copySpm) {
-                    if (orderObservation.getSpecimen() != null && orderObservation.getSpecimen().isEmpty()) {
-                        orderObservation.setSpecimen(obrList.getLast().getSpecimen());
-                    }
+
+                if (COPY_SPM && (orderObservation.getSpecimen() != null && orderObservation.getSpecimen().isEmpty())) {
+                    orderObservation.setSpecimen(obrList.getLast().getSpecimen());
                 }
 
                 //copy and create new oruR1 obj from original message

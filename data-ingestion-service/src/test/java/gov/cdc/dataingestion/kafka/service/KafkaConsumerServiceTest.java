@@ -423,7 +423,7 @@ class KafkaConsumerServiceTest {
 
 
     @Test
-    void xmlPreparationConsumerTestNewFlow() throws XmlConversionException, KafkaProducerException {
+    void xmlPreparationConsumerTestNewFlow() throws KafkaProducerException {
 
 
         // Produce a test message to the topic

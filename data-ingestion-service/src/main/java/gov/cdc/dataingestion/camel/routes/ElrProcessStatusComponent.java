@@ -33,6 +33,8 @@ public class ElrProcessStatusComponent {
     private static final String CREATED_ON ="Created On";
     private static final String ERROR_MESSAGE ="Error Message";
     private static final String DOUBLR_LINE_BREAK =" \n\n";
+    private static final String EMPTY_LINE =" \n----------------- \n";
+
     @Autowired
     public ElrProcessStatusComponent(ReportStatusService reportStatusService) {
         this.reportStatusService = reportStatusService;
@@ -56,7 +58,7 @@ public class ElrProcessStatusComponent {
                         activityLogSb.append("Status: Success ");
                         activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
                         activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
-                        activityLogSb.append(" \n----------------- \n");
+                        activityLogSb.append(EMPTY_LINE);
                         status=activityLogSb.toString();
                     } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
                         StringBuilder activityLogSb = new StringBuilder();
@@ -74,7 +76,7 @@ public class ElrProcessStatusComponent {
                                     + edxActivityLogStatus.getLogType() + " \nLog Comment: " + logComment
                                     + " \nRecord Status Time: " + edxActivityLogParent.getRecordStatusTime();
                             activityLogSb.append(activityLog);
-                            activityLogSb.append(" \n----------------- \n");
+                            activityLogSb.append(EMPTY_LINE);
                         }
                         status=activityLogSb.toString();
                     } else if (messageStatus.getNbsInfo().getNbsInterfacePipeLineStatus() != null
@@ -82,13 +84,13 @@ public class ElrProcessStatusComponent {
                         status = STATUS_VALIDATION_ERROR+" \n"+ERROR_MESSAGE+": " + messageStatus.getValidatedInfo().getDltInfo().getDltShortTrace()
                                 + " \n"+CREATED_ON+": " + messageStatus.getValidatedInfo().getDltInfo().getDltCreatedOn()
                                 + " \n"+ELR_ID+": " + elrId
-                                + " \n----------------- \n";
+                                + EMPTY_LINE;
                     } else if (messageStatus.getValidatedInfo().getValidatedPipeLineStatus() != null
                             && messageStatus.getValidatedInfo().getValidatedPipeLineStatus().equals(MSG_STATUS_FAILED)) {
                         status = STATUS_VALIDATION_ERROR+" \n"+ERROR_MESSAGE+": " + messageStatus.getRawInfo().getDltInfo().getDltShortTrace()
                                 + " \n"+CREATED_ON+": " + messageStatus.getRawInfo().getDltInfo().getDltCreatedOn()
                                 + " \n"+ELR_ID+": " + elrId
-                                + " \n----------------- \n";
+                                + EMPTY_LINE;
                     } else {
                         statusSb.append(body);
                         break;
