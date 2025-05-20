@@ -106,13 +106,6 @@ class SeedingTest {
     jobLauncherTestUtils.setJobLauncher(jobLauncher);
     JobExecution jobExecution = jobLauncherTestUtils.launchJob();
 
-    System.out.println("errors-while seedingTest");
-    if (!jobExecution.getAllFailureExceptions().isEmpty()) {
-      jobExecution.getAllFailureExceptions().forEach(ex -> {
-        ex.printStackTrace();
-      });
-    }
-
     // Verify seeding was completed successfully
     assertThat(jobExecution.getExitStatus().getExitCode()).isEqualTo("COMPLETED");
 
