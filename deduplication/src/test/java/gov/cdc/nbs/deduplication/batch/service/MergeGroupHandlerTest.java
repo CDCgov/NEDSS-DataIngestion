@@ -54,12 +54,19 @@ class MergeGroupHandlerTest {
   private MergeGroupHandler mergeGroupHandler;
 
   @Test
-  void testUpdateMergeStatus() {
-
-    mergeGroupHandler.updateMergeStatusForGroup(100L);
+  void testUnMergeAll() {
+    mergeGroupHandler.unMergeAll(100L);
 
     verify(deduplicationTemplate, times(1)).update(
-        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_GROUP),
+        eq(QueryConstants.UN_MERGE_ALL_GROUP),
+        any(MapSqlParameterSource.class));
+  }
+
+  @Test
+  void testUnMergeSinglePerson() {
+    mergeGroupHandler.unMergeSinglePerson(100L,111l);
+    verify(deduplicationTemplate, times(1)).update(
+        eq(QueryConstants.UN_MERGE_SINGLE_PERSON),
         any(MapSqlParameterSource.class));
   }
 

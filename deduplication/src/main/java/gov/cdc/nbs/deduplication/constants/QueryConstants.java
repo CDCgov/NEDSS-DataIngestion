@@ -481,9 +481,9 @@ public class QueryConstants {
       """;
 
 
-  public static final String UPDATE_MERGE_STATUS_FOR_GROUP = """
+  public static final String UN_MERGE_ALL_GROUP = """
       UPDATE match_candidates
-      SET is_merge = :isMerge
+      SET is_merge = 0
       WHERE person_uid = :person_id
       """;
 
@@ -849,5 +849,11 @@ public class QueryConstants {
       """;
 
 
+  public static final String UN_MERGE_SINGLE_PERSON = """
+      UPDATE match_candidates
+      SET is_merge = 0
+      WHERE person_uid = :person_uid
+      AND potential_match_person_uid = :potentialMatchPersonUid
+      """;
 
 }

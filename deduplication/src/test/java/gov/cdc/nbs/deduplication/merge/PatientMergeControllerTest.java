@@ -4,8 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Arrays;
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -52,31 +52,54 @@ class PatientMergeControllerTest {
   }
 
   @Test
-  void testUpdateGroupNoMerge() throws Exception {
+  void testUnMergeAll() throws Exception {
+    Long patientId = 100L;
 
-    // Act & Assert
-    mockMvc.perform(post("/merge/group-no-merge")
-        .contentType("application/json")
-        .content("{\"personOfTheGroup\": 100}"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Merge status updated successfully."));
+    mockMvc.perform(delete("/merge/{patientId}", patientId)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
 
-    verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
+    verify(mergeGroupHandler).unMergeAll(patientId);
   }
 
   @Test
-  void testUpdateGroupNoMerge_Error() throws Exception {
+  void testUnMergeAll_Error() throws Exception {
+    Long patientId = 100L;
 
-    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatusForGroup(100L);
+    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).unMergeAll(patientId);
 
-    // Act & Assert
-    mockMvc.perform(post("/merge/group-no-merge")
-        .contentType("application/json")
-        .content("{\"personOfTheGroup\": 100}"))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().string("Error updating merge status: Some error"));
+    mockMvc.perform(delete("/merge/{patientId}", patientId)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isInternalServerError());
 
-    verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
+    verify(mergeGroupHandler).unMergeAll(patientId);
+  }
+
+  @Test
+  void testUnMergeSinglePerson() throws Exception {
+    Long patientId = 100L;
+    Long removePatientId = 111L;
+
+    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
+  }
+
+  @Test
+  void testUnMergeSinglePerson_Error() throws Exception {
+    Long patientId = 100L;
+    Long removePatientId = 111L;
+
+    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler)
+        .unMergeSinglePerson(patientId, removePatientId);
+
+    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isInternalServerError());
+
+    verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
   }
 
   @Test
