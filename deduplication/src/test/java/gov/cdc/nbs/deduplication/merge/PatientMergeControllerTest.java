@@ -4,8 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -51,31 +51,54 @@ class PatientMergeControllerTest {
   }
 
   @Test
-  void testUpdateGroupNoMerge() throws Exception {
+  void testUnMergeAll() throws Exception {
+    Long patientId = 100L;
 
-    // Act & Assert
-    mockMvc.perform(post("/merge/group-no-merge")
-        .contentType("application/json")
-        .content("{\"personOfTheGroup\": 100}"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Merge status updated successfully."));
+    mockMvc.perform(delete("/merge/{patientId}", patientId)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
 
-    verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
+    verify(mergeGroupHandler).unMergeAll(patientId);
   }
 
   @Test
-  void testUpdateGroupNoMerge_Error() throws Exception {
+  void testUnMergeAll_Error() throws Exception {
+    Long patientId = 100L;
 
-    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).updateMergeStatusForGroup(100L);
+    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).unMergeAll(patientId);
 
-    // Act & Assert
-    mockMvc.perform(post("/merge/group-no-merge")
-        .contentType("application/json")
-        .content("{\"personOfTheGroup\": 100}"))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().string("Error updating merge status: Some error"));
+    mockMvc.perform(delete("/merge/{patientId}", patientId)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isInternalServerError());
 
-    verify(mergeGroupHandler).updateMergeStatusForGroup(100L);
+    verify(mergeGroupHandler).unMergeAll(patientId);
+  }
+
+  @Test
+  void testUnMergeSinglePerson() throws Exception {
+    Long patientId = 100L;
+    Long removePatientId = 111L;
+
+    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
+  }
+
+  @Test
+  void testUnMergeSinglePerson_Error() throws Exception {
+    Long patientId = 100L;
+    Long removePatientId = 111L;
+
+    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler)
+        .unMergeSinglePerson(patientId, removePatientId);
+
+    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isInternalServerError());
+
+    verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
   }
 
   @Test
@@ -86,9 +109,9 @@ class PatientMergeControllerTest {
 
     // Act & Assert
     mockMvc.perform(post("/merge/merge-patient")
-        .contentType("application/json")
-        .content(
-            "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
+            .contentType("application/json")
+            .content(
+                "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
         .andExpect(status().isOk());
 
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
@@ -102,8 +125,8 @@ class PatientMergeControllerTest {
 
     // Act & Assert
     mockMvc.perform(post("/merge/merge-patient")
-        .contentType("application/json")
-        .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
+            .contentType("application/json")
+            .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
         .andExpect(status().isBadRequest());
 
     verify(mergePatientHandler, never()).performMerge(any(), any());
@@ -120,9 +143,9 @@ class PatientMergeControllerTest {
 
     // Act & Assert
     mockMvc.perform(post("/merge/merge-patient")
-        .contentType("application/json")
-        .content(
-            "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
+            .contentType("application/json")
+            .content(
+                "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
         .andExpect(status().isInternalServerError());
 
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
@@ -167,8 +190,8 @@ class PatientMergeControllerTest {
   @Test
   void testExportMatchesAsCSV() throws Exception {
     List<MatchRequiringReview> mockMatches = List.of(
-            new MatchRequiringReview("111122", "John Smith", "2023-01-01T10:00:00Z", "2023-01-05T15:00:00Z", 2),
-            new MatchRequiringReview("111133", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z", 4)
+        new MatchRequiringReview("111122", "John Smith", "2023-01-01T10:00:00Z", "2023-01-05T15:00:00Z", 2),
+        new MatchRequiringReview("111133", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z", 4)
     );
 
     when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
@@ -178,15 +201,15 @@ class PatientMergeControllerTest {
     when(pdfBuilder.formatDateTime("2023-02-06T16:30:00Z")).thenReturn("02/06/2023 04:30 PM");
 
     mockMvc.perform(get("/merge/export/csv"))
-            .andExpect(status().isOk())
-            .andExpect(header().string("Content-Type", "text/csv"))
-            .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
-            .andExpect(content().string(
-                    """
-                    Patient ID,Person Name,Date Created,Date Identified,Number of Matching Records
-                    "111122","John Smith","01/01/2023 10:00 AM","01/05/2023 03:00 PM",2
-                    "111133","Andrew James","02/02/2023 11:00 AM","02/06/2023 04:30 PM",4
-                    """));
+        .andExpect(status().isOk())
+        .andExpect(header().string("Content-Type", "text/csv"))
+        .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
+        .andExpect(content().string(
+            """
+                Patient ID,Person Name,Date Created,Date Identified,Number of Matching Records
+                "111122","John Smith","01/01/2023 10:00 AM","01/05/2023 03:00 PM",2
+                "111133","Andrew James","02/02/2023 11:00 AM","02/06/2023 04:30 PM",4
+                """));
 
     verify(matchesRequiringReviewResolver).resolveAll(PatientMergeController.DEFAULT_SORT);
     verify(pdfBuilder, times(4)).formatDateTime(anyString());
