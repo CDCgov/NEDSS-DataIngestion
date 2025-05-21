@@ -53,24 +53,24 @@ public class PatientMergeController {
   }
 
 
-  @PostMapping("/unmerge-all/{personId}") // Keep Separate
-  public ResponseEntity<String> unMergeAll(@PathVariable("personId") Long personId) {
+  @DeleteMapping("/{patientId}")
+  public ResponseEntity<Void> unMergeAll(@PathVariable("patientId") Long patientId) {
     try {
-      mergeGroupHandler.unMergeAll(personId);
-      return ResponseEntity.ok("Merge status updated successfully.");
+      mergeGroupHandler.unMergeAll(patientId);
+      return ResponseEntity.ok().build();
     } catch (Exception e) {
-      return ResponseEntity.status(500).body("Error updating merge status: " + e.getMessage());
+      return ResponseEntity.internalServerError().build();
     }
   }
 
-  @PostMapping("/unmerge_single_person/{personId}/{potentialPersonId}")
-  public ResponseEntity<String> unMergeSinglePerson(@PathVariable("personId") Long personId,
-      @PathVariable("potentialPersonId") Long potentialMatchPersonId) {
+  @DeleteMapping("/{patientId}/{removePatientId}")
+  public ResponseEntity<Void> unMergeSinglePerson(@PathVariable("patientId") Long patientId,
+      @PathVariable("removePatientId") Long removePatientId) {
     try {
-      mergeGroupHandler.unMergeSinglePerson(personId, potentialMatchPersonId);
-      return ResponseEntity.ok("Merge status updated successfully.");
+      mergeGroupHandler.unMergeSinglePerson(patientId, removePatientId);
+      return ResponseEntity.ok().build();
     } catch (Exception e) {
-      return ResponseEntity.status(500).body("Error updating merge status: " + e.getMessage());
+      return ResponseEntity.internalServerError().build();
     }
   }
 
