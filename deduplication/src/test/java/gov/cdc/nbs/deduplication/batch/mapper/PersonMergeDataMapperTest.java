@@ -7,6 +7,7 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,8 @@ class PersonMergeDataMapperTest {
 
   // Constants for testing
   private static final String PERSON_UID = "1000001";
-  private static final String COMMENT_DATE = "2023-10-01";
+  private static final String COMMENT_DATE = "2023-01-10T00:00";
+  private static final Timestamp COMMENT_DATE_TIMESTAMP = Timestamp.valueOf("2023-01-10 00:00:00");
   private static final String COMMENTS = "Admin comments here";
 
   private static final String ETHNICITY_AS_OF_DATE = "2023-01-01";
@@ -135,7 +137,7 @@ class PersonMergeDataMapperTest {
 
   // Mocking Methods
   private void mockGeneralFields(ResultSet rs) throws SQLException {
-    when(rs.getString("comment_date")).thenReturn(COMMENT_DATE);
+    when(rs.getTimestamp("comment_date")).thenReturn(COMMENT_DATE_TIMESTAMP);
     when(rs.getString("admin_comments")).thenReturn(COMMENTS);
   }
 
