@@ -138,8 +138,7 @@ class PatientRecordServiceTest {
 
     List<Map<String, Object>> mockResults = List.of(
         Map.of("person_uid", 123L, "add_time", Timestamp.valueOf(LocalDateTime.of(2023, 1, 1, 10, 0))),
-        Map.of("person_uid", 456L, "add_time", Timestamp.valueOf(LocalDateTime.of(2024, 1, 1, 11, 0)))
-    );
+        Map.of("person_uid", 456L, "add_time", Timestamp.valueOf(LocalDateTime.of(2024, 1, 1, 11, 0))));
 
     when(namedParameterJdbcTemplate.queryForList(any(String.class), any(MapSqlParameterSource.class)))
         .thenReturn(mockResults);
@@ -148,11 +147,11 @@ class PatientRecordServiceTest {
 
     assertThat(result).containsOnly(
         entry("123", LocalDateTime.of(2023, 1, 1, 10, 0)),
-        entry("456", LocalDateTime.of(2024, 1, 1, 11, 0))
-    );
+        entry("456", LocalDateTime.of(2024, 1, 1, 11, 0)));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void fetchPersonNameAndAddTime_returnsCorrectObject() throws Exception {
     String personId = "789";
     String expectedName = "John Doe";
@@ -175,6 +174,5 @@ class PatientRecordServiceTest {
 
     assertThat(result.name()).isEqualTo(expectedName);
   }
-
 
 }

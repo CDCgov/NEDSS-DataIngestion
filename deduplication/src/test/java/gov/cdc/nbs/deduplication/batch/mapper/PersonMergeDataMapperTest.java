@@ -18,6 +18,7 @@ class PersonMergeDataMapperTest {
   private final PersonMergeDataMapper mapper = new PersonMergeDataMapper();
 
   // Constants for testing
+  private static final String PERSON_UID = "1000001";
   private static final String COMMENT_DATE = "2023-10-01";
   private static final String COMMENTS = "Admin comments here";
 
@@ -109,6 +110,7 @@ class PersonMergeDataMapperTest {
   void testMapRow() throws Exception {
     ResultSet rs = Mockito.mock(ResultSet.class);
     // Mocking
+    when(rs.getString("person_parent_uid")).thenReturn(PERSON_UID);
     mockGeneralFields(rs);
     mockEthnicityFields(rs);
     mockSexAndBirthFields(rs);
@@ -121,7 +123,8 @@ class PersonMergeDataMapperTest {
     PersonMergeData personMergeData = mapper.mapRow(rs, 0);
 
     // Assertions
-    assertGeneralFields(personMergeData);
+    assertThat(personMergeData.personUid()).isEqualTo(PERSON_UID);
+    assertAdminComments(personMergeData);
     assertEthnicity(personMergeData);
     assertSexAndBirth(personMergeData);
     assertMortality(personMergeData);
@@ -194,9 +197,9 @@ class PersonMergeDataMapperTest {
   }
 
   // Assertion Methods
-  private void assertGeneralFields(PersonMergeData personMergeData) {
-    assertThat(personMergeData.commentDate()).isEqualTo(COMMENT_DATE);
-    assertThat(personMergeData.adminComments()).isEqualTo(COMMENTS);
+  private void assertAdminComments(PersonMergeData personMergeData) {
+    assertThat(personMergeData.adminComments().date()).isEqualTo(COMMENT_DATE);
+    assertThat(personMergeData.adminComments().comment()).isEqualTo(COMMENTS);
   }
 
   private void assertEthnicity(PersonMergeData personMergeData) {
