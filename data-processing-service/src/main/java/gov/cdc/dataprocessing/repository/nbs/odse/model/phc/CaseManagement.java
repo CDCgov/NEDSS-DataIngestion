@@ -1,10 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.phc;
 
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,6 +36,7 @@ import java.sql.Timestamp;
 public class CaseManagement {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "case_management_uid")
     private Long caseManagementUid;
 
