@@ -114,118 +114,109 @@ public class PageRepositoryUtil {
 
     @SuppressWarnings({"java:S6541","java:S3776", "java:S1854"})
     public Long setPageActProxyVO(PageActProxyContainer pageProxyVO) throws DataProcessingException {
-        try {
-            PublicHealthCaseDto phcDT = pageProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-            boolean isCoInfectionCondition = pageProxyVO.getPublicHealthCaseContainer().isCoinfectionCondition();
-            Long mprUid;
+        PublicHealthCaseDto phcDT = pageProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+        boolean isCoInfectionCondition = pageProxyVO.getPublicHealthCaseContainer().isCoinfectionCondition();
+        Long mprUid;
 
-            // if both are false throw exception
-            if ((!pageProxyVO.isItNew()) && (!pageProxyVO.isItDirty())) {
-                throw new DataProcessingException("pageProxyVO.isItNew() = " + pageProxyVO.isItNew() + " and pageProxyVO.isItDirty() = " + pageProxyVO.isItDirty() + " for setPageProxy");
-            }
-
-
-            if (pageProxyVO.isItDirty() && !pageProxyVO.isConversionHasModified())
-            {
-                try {
-                    // update auto resend notifications
-                    investigationService.updateAutoResendNotificationsAsync(pageProxyVO);
-                } catch (Exception e) {
-                    //TODO: LOGGING NND LOG
-                }
-            }
-
-            processingParticipationPatTypeForPageAct(pageProxyVO);
-
-            Long actualUid;
-
-            try
-            {
-                Long patientRevisionUid;
-                Long phcUid;
-
-                var pageActPatient = processingPersonContainerForPageAct(pageProxyVO, phcDT);
-                phcDT = pageActPatient.getPhcDT();
-                mprUid = pageActPatient.getMprUid();
-                patientRevisionUid = pageActPatient.getPatientRevisionUid();
-
-
-                var pageActPhc = processingPhcContainerForPageAct(pageProxyVO, isCoInfectionCondition);
-                actualUid = pageActPhc.getActualUid();
-                phcUid = pageActPhc.getPhcUid();
-
-
-                //TODO: LOGGING
-                if (pageProxyVO.getMessageLogDTMap() != null && !pageProxyVO.getMessageLogDTMap().isEmpty())
-                {
-
-                    Set<String> set = pageProxyVO.getMessageLogDTMap().keySet();
-                    for (String key : set) {
-                        if (key.contains(MessageConstants.DISPOSITION_SPECIFIED_KEY))
-                        {
-                            //Investigator of Named by contact will get message for Named by contact and contact's investigation id.
-                            continue;
-                        }
-                        MessageLogDto messageLogDT = pageProxyVO.getMessageLogDTMap().get(key);
-
-                        messageLogDT.setPersonUid(patientRevisionUid);
-                        if (messageLogDT.getEventUid() == null || messageLogDT.getEventUid() <= 0) {
-                            messageLogDT.setEventUid(phcUid);
-                        }
-
-
-                    }
-                }
-
-
-                // this collection should only be populated in edit scenario, xz
-                // defect 11861 (10/01/04)
-                processingNotificationSummaryForPageAct(pageProxyVO, phcDT);
-
-
-                Long docUid;
-                docUid = processingPhcActRelationshipForPageAct(pageProxyVO);
-
-                processingEventProcessForPageAct(pageProxyVO, phcUid);
-
-                /*
-                 * Updating the Document table
-                 */
-                // Getting the DocumentEJB reference
-                processingNbsDocumentForPageAct(pageProxyVO, docUid);
-
-                processingParticipationForPageAct(pageProxyVO);
-
-
-                if( pageProxyVO.isUnsavedNote() && pageProxyVO.getNbsNoteDTColl()!=null
-                        && !pageProxyVO.getNbsNoteDTColl().isEmpty()){
-                    nbsNoteRepositoryUtil.storeNotes(actualUid, pageProxyVO.getNbsNoteDTColl());
-                }
-
-                if (pageProxyVO.getPageVO() != null && pageProxyVO.isItNew()) {
-                    pamService.insertPamVO(pageProxyVO.getPageVO(), pageProxyVO.getPublicHealthCaseContainer());
-
-                } else if (pageProxyVO.getPageVO() != null && pageProxyVO.isItDirty()) {
-                    //pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer()); //NOSONAR
-                    logger.info("test");
-                } else
-                {
-                    logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
-                }
-
-            }
-            catch (Exception e)
-            {
-                throw new DataProcessingException("ActControllerEJB Create : "+e.getMessage(), e);
-            }
-
-            handlingCoInfectionAndContactDisposition(pageProxyVO, mprUid, actualUid);
-
-
-            return actualUid;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        // if both are false throw exception
+        if ((!pageProxyVO.isItNew()) && (!pageProxyVO.isItDirty())) {
+            throw new DataProcessingException("pageProxyVO.isItNew() = " + pageProxyVO.isItNew() + " and pageProxyVO.isItDirty() = " + pageProxyVO.isItDirty() + " for setPageProxy");
         }
+
+
+        if (pageProxyVO.isItDirty() && !pageProxyVO.isConversionHasModified())
+        {
+            try {
+                // update auto resend notifications
+                investigationService.updateAutoResendNotificationsAsync(pageProxyVO);
+            } catch (Exception e) {
+                //TODO: LOGGING NND LOG
+            }
+        }
+
+        processingParticipationPatTypeForPageAct(pageProxyVO);
+
+        Long actualUid;
+
+        Long patientRevisionUid;
+        Long phcUid;
+
+        var pageActPatient = processingPersonContainerForPageAct(pageProxyVO, phcDT);
+        phcDT = pageActPatient.getPhcDT();
+        mprUid = pageActPatient.getMprUid();
+        patientRevisionUid = pageActPatient.getPatientRevisionUid();
+
+
+        var pageActPhc = processingPhcContainerForPageAct(pageProxyVO, isCoInfectionCondition);
+        actualUid = pageActPhc.getActualUid();
+        phcUid = pageActPhc.getPhcUid();
+
+
+        //TODO: LOGGING
+        if (pageProxyVO.getMessageLogDTMap() != null && !pageProxyVO.getMessageLogDTMap().isEmpty())
+        {
+
+            Set<String> set = pageProxyVO.getMessageLogDTMap().keySet();
+            for (String key : set) {
+                if (key.contains(MessageConstants.DISPOSITION_SPECIFIED_KEY))
+                {
+                    //Investigator of Named by contact will get message for Named by contact and contact's investigation id.
+                    continue;
+                }
+                MessageLogDto messageLogDT = pageProxyVO.getMessageLogDTMap().get(key);
+
+                messageLogDT.setPersonUid(patientRevisionUid);
+                if (messageLogDT.getEventUid() == null || messageLogDT.getEventUid() <= 0) {
+                    messageLogDT.setEventUid(phcUid);
+                }
+
+
+            }
+        }
+
+
+        // this collection should only be populated in edit scenario, xz
+        // defect 11861 (10/01/04)
+        processingNotificationSummaryForPageAct(pageProxyVO, phcDT);
+
+
+        Long docUid;
+        docUid = processingPhcActRelationshipForPageAct(pageProxyVO);
+
+        processingEventProcessForPageAct(pageProxyVO, phcUid);
+
+        /*
+         * Updating the Document table
+         */
+        // Getting the DocumentEJB reference
+        processingNbsDocumentForPageAct(pageProxyVO, docUid);
+
+        processingParticipationForPageAct(pageProxyVO);
+
+
+        if( pageProxyVO.isUnsavedNote() && pageProxyVO.getNbsNoteDTColl()!=null
+                && !pageProxyVO.getNbsNoteDTColl().isEmpty()){
+            nbsNoteRepositoryUtil.storeNotes(actualUid, pageProxyVO.getNbsNoteDTColl());
+        }
+
+        if (pageProxyVO.getPageVO() != null && pageProxyVO.isItNew()) {
+            pamService.insertPamVO(pageProxyVO.getPageVO(), pageProxyVO.getPublicHealthCaseContainer());
+
+        } else if (pageProxyVO.getPageVO() != null && pageProxyVO.isItDirty()) {
+            //pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer()); //NOSONAR
+            logger.info("test");
+        } else
+        {
+            logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
+        }
+
+
+
+        handlingCoInfectionAndContactDisposition(pageProxyVO, mprUid, actualUid);
+
+
+        return actualUid;
+
     }
 
 
