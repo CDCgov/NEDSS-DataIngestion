@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.sql.Types;
 import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.query.ObservationQuery.*;
@@ -279,8 +281,12 @@ public class ObservationJdbcRepository {
                 .addValue("data_subtype_cd", obs.getDataSubtypeCd())
                 .addValue("encoding_type_cd", obs.getEncodingTypeCd())
                 .addValue("txt_type_cd", obs.getTxtTypeCd())
-                .addValue("value_image_txt", obs.getValueImageTxt())
+                .addValue("value_image_txt", obs.getValueImageTxt(), Types.BINARY)
                 .addValue("value_txt", obs.getValueTxt());
+    }
+
+    private byte[] convertToBytes(String text) {
+        return text != null ? text.getBytes(StandardCharsets.UTF_8) : null;
     }
 
     public void insertObsValueDate(ObsValueDate obs) {
