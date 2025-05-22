@@ -103,8 +103,9 @@ services:
       - dataingestion
 
   di-mssql:
-    build: 
+    build:
       context: ./containers/db
+#      dockerfile: Dockerfile_windows
       args:
         - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
     container_name: di-mssql
