@@ -85,6 +85,9 @@ spring:
     srte:
       url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_SRTE_DB_NAME:NBS_SRTE};encrypt=true;trustServerCertificate=true;
   jpa:
+    properties:
+      hibernate:
+        format_sql: true
     show-sql: true
     hibernate:
       ddl-auto: none
@@ -108,6 +111,7 @@ logging:
     root: WARN
     # Retain INFO logs for your own class
     gov.cdc.dataprocessing: INFO
+    gov.cdc.dataprocessing.service.implementation.manager.ManagerService: DEBUG
     # Kafka internals
     org.apache.kafka: WARN
     # JPA / Hibernate
@@ -119,7 +123,10 @@ logging:
     # Spring Data JPA repositories
     org.springframework.data.jpa.repository: WARN
     # JDBC (optional)
-    org.springframework.jdbc.core: WARN
+#    org.springframework.jdbc.core: WARN
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql: TRACE
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 
 feature:
