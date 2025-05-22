@@ -64,13 +64,7 @@ public class EdxPatientMatchRepositoryUtil {
         if (typeCd == null || matchString == null) {
             return new EdxEntityMatchDto();
         }
-        try {
-            return edxPatientMatchStoreProcRepository.getEdxEntityMatch(typeCd, matchString);
-
-        } catch (Exception ex) {
-            logger.error("Exception in EdxPatientMatchDAO.getEdxPatientMatchOnMatchString for typeCd={} match string={}: ERROR = {}", typeCd, matchString, ex.getMessage());
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        return edxPatientMatchStoreProcRepository.getEdxEntityMatch(typeCd, matchString);
     }
 
 
