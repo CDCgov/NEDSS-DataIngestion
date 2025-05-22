@@ -172,50 +172,46 @@ public class ObservationRepositoryUtil {
         Long observationUid = -1L;
 
 
-        try {
-            Collection<ActivityLocatorParticipationDto> alpDTCol = observationContainer.getTheActivityLocatorParticipationDtoCollection();
-            Collection<ActRelationshipDto> arDTCol = observationContainer.getTheActRelationshipDtoCollection();
-            Collection<ParticipationDto> pDTCol = observationContainer.getTheParticipationDtoCollection();
-            Collection<ActRelationshipDto> colAct;
-            Collection<ParticipationDto> colParticipation;
-            Collection<ActivityLocatorParticipationDto> colActLocatorParticipation;
+        Collection<ActivityLocatorParticipationDto> alpDTCol = observationContainer.getTheActivityLocatorParticipationDtoCollection();
+        Collection<ActRelationshipDto> arDTCol = observationContainer.getTheActRelationshipDtoCollection();
+        Collection<ParticipationDto> pDTCol = observationContainer.getTheParticipationDtoCollection();
+        Collection<ActRelationshipDto> colAct;
+        Collection<ParticipationDto> colParticipation;
+        Collection<ActivityLocatorParticipationDto> colActLocatorParticipation;
 
 
-            if (alpDTCol != null)
-            {
-                colActLocatorParticipation = entityHelper.iterateActivityParticipation(alpDTCol);
-                observationContainer.setTheActivityLocatorParticipationDtoCollection(colActLocatorParticipation);
-            }
-
-            if (arDTCol != null)
-            {
-                colAct = entityHelper.iterateActRelationship(arDTCol);
-                observationContainer.setTheActRelationshipDtoCollection(colAct);
-            }
-
-            if (pDTCol != null)
-            {
-                colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
-                observationContainer.setTheParticipationDtoCollection(colParticipation);
-            }
-
-            if (observationContainer.isItNew())
-            {
-                //observation = home.create(observationContainer);
-                observationUid = this.createNewObservation(observationContainer);
-            }
-            else
-            {
-                if (observationContainer.getTheObservationDto() != null) // make sure it is not null
-                {
-                    this.updateObservation(observationContainer);
-                    observationUid = observationContainer.getTheObservationDto().getObservationUid();
-                }
-            }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        if (alpDTCol != null)
+        {
+            colActLocatorParticipation = entityHelper.iterateActivityParticipation(alpDTCol);
+            observationContainer.setTheActivityLocatorParticipationDtoCollection(colActLocatorParticipation);
         }
+
+        if (arDTCol != null)
+        {
+            colAct = entityHelper.iterateActRelationship(arDTCol);
+            observationContainer.setTheActRelationshipDtoCollection(colAct);
+        }
+
+        if (pDTCol != null)
+        {
+            colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
+            observationContainer.setTheParticipationDtoCollection(colParticipation);
+        }
+
+        if (observationContainer.isItNew())
+        {
+            //observation = home.create(observationContainer);
+            observationUid = this.createNewObservation(observationContainer);
+        }
+        else
+        {
+            if (observationContainer.getTheObservationDto() != null) // make sure it is not null
+            {
+                this.updateObservation(observationContainer);
+                observationUid = observationContainer.getTheObservationDto().getObservationUid();
+            }
+        }
+
 
         return observationUid;
 

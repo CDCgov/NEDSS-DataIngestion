@@ -1003,13 +1003,8 @@ public class ObservationService implements IObservationService {
             {
                 logger.debug("Act relationship size: {}", labResultProxyVO.getTheActRelationshipDtoCollection().size());
                 for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
-                    try {
-                        if (actRelationshipDto != null) {
-                            actRelationshipService.saveActRelationship(actRelationshipDto);
-                        }
-                    } catch (Exception e) {
-                        logger.info(e.getMessage());
-                        throw new DataProcessingException(e.getMessage(), e);
+                    if (actRelationshipDto != null) {
+                        actRelationshipService.saveActRelationship(actRelationshipDto);
                     }
                 }
             }

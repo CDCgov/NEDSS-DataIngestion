@@ -620,19 +620,15 @@ public class PatientMatchingBaseService extends MatchingBaseService{
     }
 
     protected void setPersonHashCdNok(PersonContainer personContainer) throws DataProcessingException {
+        long personUid = personContainer.getThePersonDto().getPersonParentUid();
+        getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
         try {
-            long personUid = personContainer.getThePersonDto().getPersonParentUid();
-            getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
-            try {
-                if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
-                    personContainer.getThePersonDto().setPersonUid(personUid);
-                    setPersonToMatchEntityNok(personContainer);
-                }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
+            if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
+                personContainer.getThePersonDto().setPersonUid(personUid);
+                setPersonToMatchEntityNok(personContainer);
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            logger.error(e.getMessage());
         }
     }
 

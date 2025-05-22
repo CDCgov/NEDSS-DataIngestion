@@ -179,34 +179,28 @@ public class OrganizationRepositoryUtil {
 
     public void updateOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
-        try {
-            /**
-             * Starts inserting a new organization
-             */
-            if (organizationContainer == null) {
-                throw new DataProcessingException("Organization Container Is Null");
-            }
-            insertOrganization(organizationContainer);
+        /**
+         * Starts inserting a new organization
+         */
+        if (organizationContainer == null) {
+            throw new DataProcessingException("Organization Container Is Null");
+        }
+        insertOrganization(organizationContainer);
 
-            if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
-                insertOrganizationNames(organizationContainer);
-            }
-            //NOTE: Upsert EntityID
-            if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                createEntityId(organizationContainer);
-            }
-            //NOTE: Create Entity Locator Participation
-            if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                createEntityLocatorParticipation(organizationContainer);
-            }
-            //NOTE: Create Role
-            if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
-                createRole(organizationContainer);
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error while creating Organization {}", ex.getMessage());
-            throw new DataProcessingException(ex.getMessage(), ex);
+        if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
+            insertOrganizationNames(organizationContainer);
+        }
+        //NOTE: Upsert EntityID
+        if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            createEntityId(organizationContainer);
+        }
+        //NOTE: Create Entity Locator Participation
+        if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+            createEntityLocatorParticipation(organizationContainer);
+        }
+        //NOTE: Create Role
+        if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
+            createRole(organizationContainer);
         }
     }
 

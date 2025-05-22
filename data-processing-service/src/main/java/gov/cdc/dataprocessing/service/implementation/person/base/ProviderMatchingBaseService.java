@@ -279,7 +279,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                                     + entityIdDto.getAssigningAuthorityDescTxt()
                                     + carrot + entityIdDto.getAssigningAuthorityIdType();
                         } else {
-                            try {
 
 //                                Coded coded = new Coded();
 //                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
@@ -288,36 +287,28 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 //                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
 //                                lookupDAO.retrieveSRTCodeInfo(coded);
 
-                                Coded coded = new Coded();
-                                coded.setCode(entityIdDto.getAssigningAuthorityCd());
-                                coded.setCodesetName(NEDSSConstant.EI_AUTH);
-                                coded.setCodesetTableName("Code_value_general");
+                            Coded coded = new Coded();
+                            coded.setCode(entityIdDto.getAssigningAuthorityCd());
+                            coded.setCodesetName(NEDSSConstant.EI_AUTH);
+                            coded.setCodesetTableName("Code_value_general");
 
-                                //TODO: This call out to code value general Repos and Caching the recrod
+                            //TODO: This call out to code value general Repos and Caching the recrod
 //                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
 //                                lookupDAO.retrieveSRTCodeInfo(coded);
 
 //                                var codedValueGenralList = getCachingValueDpService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
 
 
-                                if (entityIdDto.getRootExtensionTxt() != null
-                                        && entityIdDto.getTypeCd() != null
-                                        && coded.getCode() != null
-                                        && coded.getCodeDescription() != null
-                                        && coded.getCodeSystemCd() != null) {
-                                    identifier = entityIdDto.getRootExtensionTxt()
-                                            + carrot + entityIdDto.getTypeCd() + carrot
-                                            + coded.getCode() + carrot
-                                            + coded.getCodeDescription() + carrot
-                                            + coded.getCodeSystemCd();
-                                }
-
-
-                            } catch (Exception ex) {
-                                String errorMessage = "The assigning authority "
-                                        + entityIdDto.getAssigningAuthorityCd()
-                                        + " does not exists in the system. ";
-                                logger.error("{} {}", ex.getMessage(), errorMessage);
+                            if (entityIdDto.getRootExtensionTxt() != null
+                                    && entityIdDto.getTypeCd() != null
+                                    && coded.getCode() != null
+                                    && coded.getCodeDescription() != null
+                                    && coded.getCodeSystemCd() != null) {
+                                identifier = entityIdDto.getRootExtensionTxt()
+                                        + carrot + entityIdDto.getTypeCd() + carrot
+                                        + coded.getCode() + carrot
+                                        + coded.getCodeDescription() + carrot
+                                        + coded.getCodeSystemCd();
                             }
                         }
                         if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {

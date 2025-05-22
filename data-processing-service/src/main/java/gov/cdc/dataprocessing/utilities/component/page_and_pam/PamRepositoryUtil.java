@@ -54,16 +54,12 @@ public class PamRepositoryUtil {
 
     private Collection<NbsActEntityDto>  getPamCaseEntityDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
         ArrayList<NbsActEntityDto> pamEntityDTCollection  = new ArrayList<> ();
-        try {
-            var res  =  nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getUid());
-            if (res.isPresent()) {
-                for(var item : res.get()) {
-                    var nbsItem = new NbsActEntityDto(item);
-                    pamEntityDTCollection.add(nbsItem);
-                }
+        var res  =  nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getUid());
+        if (res.isPresent()) {
+            for(var item : res.get()) {
+                var nbsItem = new NbsActEntityDto(item);
+                pamEntityDTCollection.add(nbsItem);
             }
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return pamEntityDTCollection;
     }
