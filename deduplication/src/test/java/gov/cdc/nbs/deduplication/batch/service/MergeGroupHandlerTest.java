@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.GeneralPatientInformation;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
@@ -143,7 +144,9 @@ class MergeGroupHandlerTest {
   @Test
   void testGetPotentialMatchesDetails() {
     long personId = 123L;
-    List<String> nbsPersonIds = Arrays.asList("person1", "person2");
+    List<String> nbsPersonIds = new ArrayList<>();
+    nbsPersonIds.add("person1");
+    nbsPersonIds.add("person2");
     List<PersonMergeData> mockPersonMergeData = createMockPersonMergeData();
 
     mockPossibleMatchesOfPatient(personId, nbsPersonIds);
@@ -159,8 +162,10 @@ class MergeGroupHandlerTest {
   private List<PersonMergeData> createMockPersonMergeData() {
     return List.of(
         new PersonMergeData(
-            "2023-01-01", // commentDate
-            "test comment", // adminComments
+            "1",
+            new AdminComments(
+                "2023-01-01T00:00", // commentDate
+                "test comment"), // adminComments
             new Ethnicity( // Ethnicity
                 "2023-01-01",
                 "Hispanic or Latino",
@@ -224,8 +229,8 @@ class MergeGroupHandlerTest {
     assertNotNull(result);
     assertEquals(1, result.size());
     PersonMergeData firstResult = result.getFirst();
-    assertEquals("2023-01-01", firstResult.commentDate());
-    assertEquals("test comment", firstResult.adminComments());
+    assertEquals("2023-01-01T00:00", firstResult.adminComments().date());
+    assertEquals("test comment", firstResult.adminComments().comment());
   }
 
 }

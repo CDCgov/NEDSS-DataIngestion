@@ -7,6 +7,7 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,9 @@ class PersonMergeDataMapperTest {
   private final PersonMergeDataMapper mapper = new PersonMergeDataMapper();
 
   // Constants for testing
-  private static final String COMMENT_DATE = "2023-10-01";
+  private static final String PERSON_UID = "1000001";
+  private static final String COMMENT_DATE = "2023-01-10T00:00";
+  private static final Timestamp COMMENT_DATE_TIMESTAMP = Timestamp.valueOf("2023-01-10 00:00:00");
   private static final String COMMENTS = "Admin comments here";
 
   private static final String ETHNICITY_AS_OF_DATE = "2023-01-01";
@@ -109,6 +112,7 @@ class PersonMergeDataMapperTest {
   void testMapRow() throws Exception {
     ResultSet rs = Mockito.mock(ResultSet.class);
     // Mocking
+    when(rs.getString("person_parent_uid")).thenReturn(PERSON_UID);
     mockGeneralFields(rs);
     mockEthnicityFields(rs);
     mockSexAndBirthFields(rs);
@@ -121,7 +125,8 @@ class PersonMergeDataMapperTest {
     PersonMergeData personMergeData = mapper.mapRow(rs, 0);
 
     // Assertions
-    assertGeneralFields(personMergeData);
+    assertThat(personMergeData.personUid()).isEqualTo(PERSON_UID);
+    assertAdminComments(personMergeData);
     assertEthnicity(personMergeData);
     assertSexAndBirth(personMergeData);
     assertMortality(personMergeData);
@@ -132,7 +137,7 @@ class PersonMergeDataMapperTest {
 
   // Mocking Methods
   private void mockGeneralFields(ResultSet rs) throws SQLException {
-    when(rs.getString("comment_date")).thenReturn(COMMENT_DATE);
+    when(rs.getTimestamp("comment_date")).thenReturn(COMMENT_DATE_TIMESTAMP);
     when(rs.getString("admin_comments")).thenReturn(COMMENTS);
   }
 
@@ -194,9 +199,9 @@ class PersonMergeDataMapperTest {
   }
 
   // Assertion Methods
-  private void assertGeneralFields(PersonMergeData personMergeData) {
-    assertThat(personMergeData.commentDate()).isEqualTo(COMMENT_DATE);
-    assertThat(personMergeData.adminComments()).isEqualTo(COMMENTS);
+  private void assertAdminComments(PersonMergeData personMergeData) {
+    assertThat(personMergeData.adminComments().date()).isEqualTo(COMMENT_DATE);
+    assertThat(personMergeData.adminComments().comment()).isEqualTo(COMMENTS);
   }
 
   private void assertEthnicity(PersonMergeData personMergeData) {

@@ -27,6 +27,7 @@ public class MergeGroupHandler {
 
   public List<PersonMergeData> getPotentialMatchesDetails(long personId) {
     List<String> nbsPersonIds = getPossibleMatchesOfPatient(personId);
+    nbsPersonIds.add(String.valueOf(personId));
     return patientRecordService.fetchPersonsMergeData(nbsPersonIds);
   }
 

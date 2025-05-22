@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.batch.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 import org.springframework.jdbc.core.RowMapper;
@@ -30,9 +31,9 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
   @Override
   @Nullable
   public PersonMergeData mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+    String personUid = rs.getString("person_parent_uid");
     // General Fields
-    String commentDate = String.valueOf(rs.getString("comment_date"));
-    String adminComments = String.valueOf(rs.getString("admin_comments"));
+    AdminComments adminComments = mapAdminComments(rs);
 
     // Ethnicity Mapping
     Ethnicity ethnicity = mapEthnicity(rs);
@@ -57,7 +58,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     List<Race> races = mapRaces(String.valueOf(rs.getString("race")));
 
     return new PersonMergeData(
-        commentDate,
+        personUid,
         adminComments,
         ethnicity,
         sexAndBirth,
@@ -80,6 +81,14 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     } catch (Exception e) {
       return Optional.empty();
     }
+  }
+
+  AdminComments mapAdminComments(ResultSet rs) throws SQLException {
+    Timestamp commentDate = rs.getTimestamp("comment_date");
+
+    return new AdminComments(
+        commentDate != null ? commentDate.toLocalDateTime().toString() : null,
+        rs.getString("admin_comments"));
   }
 
   // ETHNICITY Mapping

@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public record PersonMergeData(
-    String commentDate,
-    String adminComments,
+    String personUid,
+    AdminComments adminComments,
     Ethnicity ethnicity,
     SexAndBirth sexAndBirth,
     Mortality mortality,
@@ -16,6 +16,11 @@ public record PersonMergeData(
     List<Name> name,
     List<Identifier> identifiers,
     List<Race> race) {
+
+  public record AdminComments(
+      String date,
+      String comment) {
+  }
 
   // ETHNICITY Object
   public record Ethnicity(

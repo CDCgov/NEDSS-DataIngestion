@@ -13,6 +13,7 @@ import java.util.List;
 
 import gov.cdc.nbs.deduplication.batch.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +56,7 @@ class PatientMergeControllerTest {
     Long patientId = 100L;
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).unMergeAll(patientId);
@@ -68,7 +69,7 @@ class PatientMergeControllerTest {
     doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).unMergeAll(patientId);
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).unMergeAll(patientId);
@@ -80,7 +81,7 @@ class PatientMergeControllerTest {
     Long removePatientId = 111L;
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
@@ -95,7 +96,7 @@ class PatientMergeControllerTest {
         .unMergeSinglePerson(patientId, removePatientId);
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
@@ -109,9 +110,9 @@ class PatientMergeControllerTest {
 
     // Act & Assert
     mockMvc.perform(post("/merge/merge-patient")
-            .contentType("application/json")
-            .content(
-                "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
+        .contentType("application/json")
+        .content(
+            "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
         .andExpect(status().isOk());
 
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
@@ -125,8 +126,8 @@ class PatientMergeControllerTest {
 
     // Act & Assert
     mockMvc.perform(post("/merge/merge-patient")
-            .contentType("application/json")
-            .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
+        .contentType("application/json")
+        .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
         .andExpect(status().isBadRequest());
 
     verify(mergePatientHandler, never()).performMerge(any(), any());
@@ -143,9 +144,9 @@ class PatientMergeControllerTest {
 
     // Act & Assert
     mockMvc.perform(post("/merge/merge-patient")
-            .contentType("application/json")
-            .content(
-                "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
+        .contentType("application/json")
+        .content(
+            "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
         .andExpect(status().isInternalServerError());
 
     verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
@@ -191,8 +192,7 @@ class PatientMergeControllerTest {
   void testExportMatchesAsCSV() throws Exception {
     List<MatchRequiringReview> mockMatches = List.of(
         new MatchRequiringReview("111122", "John Smith", "2023-01-01T10:00:00Z", "2023-01-05T15:00:00Z", 2),
-        new MatchRequiringReview("111133", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z", 4)
-    );
+        new MatchRequiringReview("111133", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z", 4));
 
     when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
     when(pdfBuilder.formatDateTime("2023-01-01T10:00:00Z")).thenReturn("01/01/2023 10:00 AM");
@@ -215,12 +215,13 @@ class PatientMergeControllerTest {
     verify(pdfBuilder, times(4)).formatDateTime(anyString());
   }
 
-
   private List<PersonMergeData> expectedPersonMergeData() {
     return List.of(
         new PersonMergeData(
-            "2023-01-01", // commentDate
-            "test comment", // adminComments
+            "1",
+            new AdminComments(
+                "2023-01-01", // commentDate
+                "test comment"), // adminComments
             new PersonMergeData.Ethnicity( // Ethnicity
                 "2023-01-01",
                 "Hispanic or Latino",
@@ -272,8 +273,8 @@ class PatientMergeControllerTest {
     return """
         [
           {
-            "commentDate": "2023-01-01",
-            "adminComments": "test comment",
+            "personUid": "1",
+            "adminComments": {"date": "2023-01-01", "comment":  "test comment"},
             "ethnicity": {
               "asOfDate": "2023-01-01",
               "ethnicGroupDescription": "Hispanic or Latino",

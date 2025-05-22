@@ -586,6 +586,7 @@ public class QueryConstants {
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
       SELECT
+          p.person_parent_uid,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
           -- ETHNICITY
