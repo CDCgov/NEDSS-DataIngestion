@@ -358,78 +358,73 @@ public class PatientRepositoryUtil {
     private void updatePersonName(PersonContainer personContainer) throws DataProcessingException {
         List<PersonNameDto> personList = new ArrayList<>(personContainer.getThePersonNameDtoCollection());
 
-        try {
-            Long personUid = personContainer.getThePersonDto().getPersonUid();
-            List<PersonName> existingNames = personNameRepository.findBySeqIdByParentUid(personUid);
+        Long personUid = personContainer.getThePersonDto().getPersonUid();
+        List<PersonName> existingNames = personNameRepository.findBySeqIdByParentUid(personUid);
 
-            // Build current input name key
-            String inputNameKey = (
-                    defaultStr(personContainer.getThePersonDto().getFirstNm()) +
-                            defaultStr(personContainer.getThePersonDto().getLastNm()) +
-                            defaultStr(personContainer.getThePersonDto().getMiddleNm()) +
-                            defaultStr(personContainer.getThePersonDto().getNmPrefix()) +
-                            defaultStr(personContainer.getThePersonDto().getNmSuffix())
+        // Build current input name key
+        String inputNameKey = (
+                defaultStr(personContainer.getThePersonDto().getFirstNm()) +
+                        defaultStr(personContainer.getThePersonDto().getLastNm()) +
+                        defaultStr(personContainer.getThePersonDto().getMiddleNm()) +
+                        defaultStr(personContainer.getThePersonDto().getNmPrefix()) +
+                        defaultStr(personContainer.getThePersonDto().getNmSuffix())
+        ).toUpperCase();
+
+        // Build list of existing name keys
+        Set<String> existingNameKeys = new HashSet<>();
+        for (PersonName name : existingNames) {
+            String existingKey = (
+                    defaultStr(name.getFirstNm()) +
+                            defaultStr(name.getLastNm()) +
+                            defaultStr(name.getMiddleNm()) +
+                            defaultStr(name.getNmPrefix()) +
+                            defaultStr(name.getNmSuffix())
             ).toUpperCase();
+            existingNameKeys.add(existingKey);
+        }
 
-            // Build list of existing name keys
-            Set<String> existingNameKeys = new HashSet<>();
-            for (PersonName name : existingNames) {
-                String existingKey = (
-                        defaultStr(name.getFirstNm()) +
-                                defaultStr(name.getLastNm()) +
-                                defaultStr(name.getMiddleNm()) +
-                                defaultStr(name.getNmPrefix()) +
-                                defaultStr(name.getNmSuffix())
-                ).toUpperCase();
-                existingNameKeys.add(existingKey);
-            }
+        // Only save if it's a truly new name
+        if (!existingNameKeys.contains(inputNameKey)) {
+            int nextSeqId = existingNames.stream()
+                    .map(PersonName::getPersonNameSeq)
+                    .max(Comparator.naturalOrder())
+                    .orElse(0);
 
-            // Only save if it's a truly new name
-            if (!existingNameKeys.contains(inputNameKey)) {
-                int nextSeqId = existingNames.stream()
-                        .map(PersonName::getPersonNameSeq)
-                        .max(Comparator.naturalOrder())
-                        .orElse(0);
+            PersonNameDto newNameDto = null;
 
-                PersonNameDto newNameDto = null;
+            for (PersonNameDto dto : personList) {
+                if (!dto.isItDelete()) {
+                    newNameDto = dto;
+                } else if (newNameDto != null) {
+                    try {
+                        // Inactivate existing record
+                        dataModifierReposJdbc.updatePersonNameStatus(dto.getPersonUid(), nextSeqId);
 
-                for (PersonNameDto dto : personList) {
-                    if (!dto.isItDelete()) {
-                        newNameDto = dto;
-                    } else if (newNameDto != null) {
-                        try {
-                            // Inactivate existing record
-                            dataModifierReposJdbc.updatePersonNameStatus(dto.getPersonUid(), nextSeqId);
-
-                            nextSeqId++;
-                            if (newNameDto.getStatusCd() == null) {
-                                newNameDto.setStatusCd("A");
-                            }
-                            if (newNameDto.getStatusTime() == null) {
-                                newNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
-                            }
-
-                            newNameDto.setPersonNameSeq(nextSeqId);
-                            newNameDto.setRecordStatusCd("ACTIVE");
-                            newNameDto.setAddReasonCd("Add");
-
-                            // Save to person
-                            personNameRepository.save(new PersonName(newNameDto, tz));
-
-                            // Clone for MPR
-                            var mprCopy = SerializationUtils.clone(newNameDto);
-                            mprCopy.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
-                            personNameRepository.save(new PersonName(mprCopy, tz));
-
-                        } catch (Exception ex) {
-                            logger.error("{} {}", ERROR_UPDATE_MSG, ex.getMessage()); // NOSONAR
+                        nextSeqId++;
+                        if (newNameDto.getStatusCd() == null) {
+                            newNameDto.setStatusCd("A");
                         }
+                        if (newNameDto.getStatusTime() == null) {
+                            newNameDto.setStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
+                        }
+
+                        newNameDto.setPersonNameSeq(nextSeqId);
+                        newNameDto.setRecordStatusCd("ACTIVE");
+                        newNameDto.setAddReasonCd("Add");
+
+                        // Save to person
+                        personNameRepository.save(new PersonName(newNameDto, tz));
+
+                        // Clone for MPR
+                        var mprCopy = SerializationUtils.clone(newNameDto);
+                        mprCopy.setPersonUid(personContainer.getThePersonDto().getPersonParentUid());
+                        personNameRepository.save(new PersonName(mprCopy, tz));
+
+                    } catch (Exception ex) {
+                        logger.error("{} {}", ERROR_UPDATE_MSG, ex.getMessage()); // NOSONAR
                     }
                 }
             }
-
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
