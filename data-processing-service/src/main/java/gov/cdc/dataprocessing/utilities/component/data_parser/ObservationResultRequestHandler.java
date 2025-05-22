@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
@@ -20,12 +21,13 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -60,7 +62,7 @@ import java.util.StringTokenizer;
 public class ObservationResultRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationResultRequestHandler.class);
 
-    private final ICatchingValueService checkingValueService;
+    private final ICatchingValueDpService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
     private final CommonLabUtil commonLabUtil;
     private final ICacheApiService cacheApiService;
@@ -68,8 +70,8 @@ public class ObservationResultRequestHandler {
     private String tz = "UTC";
 
     public ObservationResultRequestHandler(
-            ICatchingValueService checkingValueService,
-            NBSObjectConverter nbsObjectConverter, CommonLabUtil commonLabUtil, ICacheApiService cacheApiService) {
+            ICatchingValueDpService checkingValueService,
+            NBSObjectConverter nbsObjectConverter, CommonLabUtil commonLabUtil, @Lazy ICacheApiService cacheApiService) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
         this.commonLabUtil = commonLabUtil;
@@ -692,7 +694,7 @@ public class ObservationResultRequestHandler {
     }
 
     protected ObservationContainer processingAbnormalFlag(List<HL7CWEType> abnormalFlag, ObservationDto observationDto,
-                                          ObservationContainer observationContainer) throws DataProcessingException {
+                                          ObservationContainer observationContainer) throws DataProcessingException, RtiCacheException {
         if(abnormalFlag !=null && !abnormalFlag.isEmpty())
         {
             ObservationInterpDto observationIntrepDT = new ObservationInterpDto();
@@ -759,7 +761,7 @@ public class ObservationResultRequestHandler {
         return observationContainer;
     }
     @SuppressWarnings("java:S3776")
-    protected ObservationContainer processingObservationMethod(List<HL7CEType> methodArray , EdxLabInformationDto edxLabInformationDto, ObservationContainer observationContainer) throws DataProcessingException {
+    protected ObservationContainer processingObservationMethod(List<HL7CEType> methodArray , EdxLabInformationDto edxLabInformationDto, ObservationContainer observationContainer) throws DataProcessingException, RtiCacheException {
         StringBuilder methodCd = null;
         StringBuilder methodDescTxt = null;
         final String delimiter = "**";

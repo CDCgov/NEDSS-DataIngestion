@@ -1,0 +1,31 @@
+FROM mcr.microsoft.com/mssql/server:2022-latest
+
+ARG DATABASE_PASSWORD
+
+ENV ACCEPT_EULA=Y \
+    MSSQL_PID=Developer \
+    SA_PASSWORD=${DATABASE_PASSWORD} \
+    SQLCMDPASSWORD=${DATABASE_PASSWORD}
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y curl gnupg unixodbc-dev && \
+    curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -sSL https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y mssql-tools18 && \
+    apt-get clean && \
+    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+
+ENV PATH="${PATH}:/opt/mssql-tools18/bin"
+
+COPY ./initialize /var/opt/database/initialize/
+RUN chmod +x /var/opt/database/initialize/*.sh
+
+RUN /opt/mssql/bin/mssql-conf set sqlagent.enabled true
+
+USER mssql
+
+# Start SQL Server and run the init script in container runtime
+CMD /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 30 && /var/opt/database/initialize/initialize.sh && wait"

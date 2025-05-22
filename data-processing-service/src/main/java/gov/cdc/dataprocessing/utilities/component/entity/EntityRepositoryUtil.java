@@ -2,8 +2,10 @@ package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,37 +33,36 @@ import org.springframework.stereotype.Component;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EntityRepositoryUtil {
     private final EntityRepository entityRepository;
+    private final EntityJdbcRepository entityJdbcRepository;
 
 
-    public EntityRepositoryUtil(EntityRepository entityRepository) {
+    public EntityRepositoryUtil(EntityRepository entityRepository, EntityJdbcRepository entityJdbcRepository) {
         this.entityRepository = entityRepository;
+        this.entityJdbcRepository = entityJdbcRepository;
     }
 
     @SuppressWarnings("java:S3923")
     public EntityODSE preparingEntityReposCallForPerson(PersonDto personDto, Long entityId, Object entityValue, String event) {
-        EntityODSE entityODSE = null;
-        if (entityValue.getClass().toString().equals("class java.lang.String")) {
-            entityODSE = new EntityODSE();
-            entityODSE.setEntityUid(entityId);
-            entityODSE.setClassCd((String) entityValue);
-            entityRepository.save(entityODSE);
-        } else {
-            if (entityValue.getClass().toString().equals("class java.sql.Timestamp")) {
-                //TODO: To be implemented
-            }
-            else {
-                //TODO: To be implemented
-            }
+        if (!(entityValue instanceof String stringValue)) {
+            return null; // or handle unsupported types later
         }
 
-        if (event.equals(NEDSSConstant.SELECT)) {
-                //TODO: To be implemented
-        }
-        else if (event.equals(NEDSSConstant.SELECT_COUNT)) {
-                //TODO: To be implemented
-        }
-        else {
-            return entityODSE;
+        EntityODSE entityODSE = new EntityODSE();
+        entityODSE.setEntityUid(entityId);
+        entityODSE.setClassCd(stringValue);
+
+        entityJdbcRepository.createEntity(entityODSE); // Consider batching if called repeatedly
+
+        switch (event) {
+            case NEDSSConstant.SELECT -> {
+                // TODO
+            }
+            case NEDSSConstant.SELECT_COUNT -> {
+                // TODO
+            }
+            default -> {
+                return entityODSE;
+            }
         }
 
         return entityODSE;

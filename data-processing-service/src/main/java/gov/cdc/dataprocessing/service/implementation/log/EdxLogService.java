@@ -64,11 +64,13 @@ public class EdxLogService implements IEdxLogService {
     @Override
     public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
-        var checkDetailLogList = edxActivityDetailLogRepository.findIdsByEdxActivityLogUidAndLogComment(edxActivityDetailLog.getEdxActivityLogUid(), edxActivityDetailLog.getLogComment());
-        if (checkDetailLogList.isEmpty()){
-            return edxActivityDetailLogRepository.save(edxActivityDetailLog);
-        }
-        return new EdxActivityDetailLog();
+//        var checkDetailLogList = edxActivityDetailLogRepository.findIdsByEdxActivityLogUidAndLogComment(edxActivityDetailLog.getEdxActivityLogUid(), edxActivityDetailLog.getLogComment());
+//        if (checkDetailLogList.isEmpty()){
+//            return edxActivityDetailLogRepository.save(edxActivityDetailLog);
+//        }
+//        return new EdxActivityDetailLog();
+
+        return edxActivityDetailLogRepository.save(edxActivityDetailLog);
     }
 
 

@@ -1,9 +1,11 @@
 package gov.cdc.dataprocessing.utilities.component.jurisdiction;
 
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class ProgAreaJurisdictionUtil {
     private final ICacheApiService cacheApiService;
     private static final Logger logger = LoggerFactory.getLogger(ProgAreaJurisdictionUtil.class); // NOSONAR
 
-    public ProgAreaJurisdictionUtil(ICacheApiService cacheApiService) {
+    public ProgAreaJurisdictionUtil(@Lazy ICacheApiService cacheApiService) {
         this.cacheApiService = cacheApiService;
     }
 
@@ -68,8 +70,7 @@ public class ProgAreaJurisdictionUtil {
      * code, but when the jurisdiction code is ALL, a hash code for each jurisdiction
      * in the jurisdictionMap is created.
      */
-    public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode)
-    {
+    public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode) throws RtiCacheException {
         ArrayList<Object>  arrayList = new ArrayList<>();
         if(jurisdictionCode.equals("ALL"))
         {

@@ -14,6 +14,7 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ParticipationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
@@ -33,10 +34,9 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRep
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationNameRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -44,6 +44,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -88,13 +89,14 @@ public class OrganizationRepositoryUtil {
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityHelper entityHelper;
-    private final ParticipationRepository participationRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final PrepareEntityStoredProcRepository prepareEntityStoredProcRepository;
     @Value("${service.timezone}")
     private String tz = "UTC";
+
+    private final ParticipationJdbcRepository participationJdbcRepository;
+    private final UidPoolManager uidPoolManager;
 
     public OrganizationRepositoryUtil(OrganizationRepository organizationRepository,
                                       OrganizationNameRepository organizationNameRepository,
@@ -105,10 +107,11 @@ public class OrganizationRepositoryUtil {
                                       TeleLocatorRepository teleLocatorRepository,
                                       PostalLocatorRepository postalLocatorRepository,
                                       PhysicalLocatorRepository physicalLocatorRepository,
-                                      IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityHelper entityHelper,
-                                      ParticipationRepository participationRepository,
+                                      EntityHelper entityHelper,
                                       PrepareAssocModelHelper prepareAssocModelHelper,
-                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository) {
+                                      PrepareEntityStoredProcRepository prepareEntityStoredProcRepository,
+                                      ParticipationJdbcRepository participationJdbcRepository,
+                                      @Lazy UidPoolManager uidPoolManager) {
         this.organizationRepository = organizationRepository;
         this.organizationNameRepository = organizationNameRepository;
         this.entityRepository = entityRepository;
@@ -118,11 +121,11 @@ public class OrganizationRepositoryUtil {
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityHelper = entityHelper;
-        this.participationRepository = participationRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.prepareEntityStoredProcRepository = prepareEntityStoredProcRepository;
+        this.participationJdbcRepository = participationJdbcRepository;
+        this.uidPoolManager = uidPoolManager;
     }
 
     public Organization findOrganizationByUid(Long orgUid) {
@@ -137,7 +140,7 @@ public class OrganizationRepositoryUtil {
         long oldOrgUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
 
         String localUid ;
-        var localIdModel = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+        var localIdModel = uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
         organizationUid = localIdModel.getGaTypeUid().getSeedValueNbr();
         localUid = localIdModel.getClassTypeUid().getUidPrefixCd() + localIdModel.getClassTypeUid().getSeedValueNbr() + localIdModel.getClassTypeUid().getUidSuffixCd();
 
@@ -176,34 +179,28 @@ public class OrganizationRepositoryUtil {
 
     public void updateOrganization(OrganizationContainer organizationContainer)
             throws DataProcessingException {
-        try {
-            /**
-             * Starts inserting a new organization
-             */
-            if (organizationContainer == null) {
-                throw new DataProcessingException("Organization Container Is Null");
-            }
-            insertOrganization(organizationContainer);
+        /**
+         * Starts inserting a new organization
+         */
+        if (organizationContainer == null) {
+            throw new DataProcessingException("Organization Container Is Null");
+        }
+        insertOrganization(organizationContainer);
 
-            if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
-                insertOrganizationNames(organizationContainer);
-            }
-            //NOTE: Upsert EntityID
-            if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
-                createEntityId(organizationContainer);
-            }
-            //NOTE: Create Entity Locator Participation
-            if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-                createEntityLocatorParticipation(organizationContainer);
-            }
-            //NOTE: Create Role
-            if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
-                createRole(organizationContainer);
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error while creating Organization {}", ex.getMessage());
-            throw new DataProcessingException(ex.getMessage(), ex);
+        if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
+            insertOrganizationNames(organizationContainer);
+        }
+        //NOTE: Upsert EntityID
+        if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
+            createEntityId(organizationContainer);
+        }
+        //NOTE: Create Entity Locator Participation
+        if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+            createEntityLocatorParticipation(organizationContainer);
+        }
+        //NOTE: Create Role
+        if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
+            createRole(organizationContainer);
         }
     }
 
@@ -285,7 +282,7 @@ public class OrganizationRepositoryUtil {
         ArrayList<EntityLocatorParticipationDto> entityLocatorList = (ArrayList<EntityLocatorParticipationDto>) ovo.getTheEntityLocatorParticipationDtoCollection();
         try {
             for (EntityLocatorParticipationDto entityLocatorDT : entityLocatorList) {
-                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true);
+                var localUid =  uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
                 if (entityLocatorDT.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorDT.getThePhysicalLocatorDto() != null) {
                     entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
                     physicalLocatorRepository.save(new PhysicalLocator(entityLocatorDT.getThePhysicalLocatorDto()));
@@ -686,14 +683,14 @@ public class OrganizationRepositoryUtil {
             List<Participation> participationList = new ArrayList<>();
 
             if (act_uid != null) {
-                var result = participationRepository.findBySubjectEntityUidAndActUid(uid, act_uid);
-                if (result.isPresent() && !result.get().isEmpty()) {
-                    participationList = result.get();
+                var result = participationJdbcRepository.selectParticipationBySubjectAndActUid(uid, act_uid);
+                if (result != null && !result.isEmpty()) {
+                    participationList = result;
                 }
             } else {
-                var result = participationRepository.findBySubjectEntityUid(uid);
-                if (result.isPresent() && !result.get().isEmpty()) {
-                    participationList = result.get();
+                var result = participationJdbcRepository.selectParticipationBySubjectEntityUid(uid);
+                if (result  != null && !result.isEmpty()) {
+                    participationList = result;
                 }
             }
 

@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityLocatorJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
@@ -13,8 +14,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorR
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,26 +53,30 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
     @Value("${service.timezone}")
     private String tz = "UTC";
 
+    private final UidPoolManager uidPoolManager;
+
     private final PersonRepository personRepository;
     private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final DataModifierReposJdbc dataModifierReposJdbc;
-    public EntityLocatorParticipationService(PersonRepository personRepository,
+    private final EntityLocatorJdbcRepository entityLocatorJdbcRepository;
+    public EntityLocatorParticipationService(UidPoolManager uidPoolManager, PersonRepository personRepository,
                                              EntityLocatorParticipationRepository entityLocatorParticipationRepository,
                                              TeleLocatorRepository teleLocatorRepository,
                                              PostalLocatorRepository postalLocatorRepository,
                                              PhysicalLocatorRepository physicalLocatorRepository,
-                                             IOdseIdGeneratorWCacheService odseIdGeneratorService, DataModifierReposJdbc dataModifierReposJdbc) {
+                                             DataModifierReposJdbc dataModifierReposJdbc,
+                                             EntityLocatorJdbcRepository entityLocatorJdbcRepository) {
+        this.uidPoolManager = uidPoolManager;
         this.personRepository = personRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
         this.teleLocatorRepository = teleLocatorRepository;
         this.postalLocatorRepository = postalLocatorRepository;
         this.physicalLocatorRepository = physicalLocatorRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.dataModifierReposJdbc = dataModifierReposJdbc;
+        this.entityLocatorJdbcRepository = entityLocatorJdbcRepository;
     }
 
     @SuppressWarnings({"java:S3776", "java:S125"})
@@ -183,8 +188,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             deleteEntityLocatorParticipation(locatorCollection, patientUid);
             StringBuilder comparingString = new StringBuilder();
             for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
-
-                var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+                var localUid = uidPoolManager.getNextUid(LocalIdClass.PERSON,true);
                 boolean newLocator = true;
                 if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null)
                 {
@@ -387,23 +391,23 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
         ArrayList<EntityLocatorParticipationDto>  personList = (ArrayList<EntityLocatorParticipationDto> ) locatorCollection;
         for (EntityLocatorParticipationDto entityLocatorParticipationDto : personList) {
             boolean inserted = false;
-            var localUid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.PERSON, true);
+            var localUid = uidPoolManager.getNextUid(LocalIdClass.PERSON,true);
             if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorParticipationDto.getThePhysicalLocatorDto() != null) {
                 entityLocatorParticipationDto.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
+                entityLocatorJdbcRepository.createPhysicalLocator(new PhysicalLocator(entityLocatorParticipationDto.getThePhysicalLocatorDto()));
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                     && entityLocatorParticipationDto.getThePostalLocatorDto() != null
 //                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null
             ) {
                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
+                entityLocatorJdbcRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));;
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
                     && entityLocatorParticipationDto.getTheTeleLocatorDto() != null
             && entityLocatorParticipationDto.getTheTeleLocatorDto().getPhoneNbrTxt() != null) {
                 entityLocatorParticipationDto.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
+                entityLocatorJdbcRepository.createTeleLocator(new TeleLocator(entityLocatorParticipationDto.getTheTeleLocatorDto()));
                 inserted = true;
             }
 
@@ -414,7 +418,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 if (entityLocatorParticipationDto.getVersionCtrlNbr() == null) {
                     entityLocatorParticipationDto.setVersionCtrlNbr(1);
                 }
-                entityLocatorParticipationRepository.save(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
+                entityLocatorJdbcRepository.createEntityLocatorParticipation(new EntityLocatorParticipation(entityLocatorParticipationDto, tz));
             }
 
         }
@@ -422,7 +426,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
 
 
     public List<EntityLocatorParticipation> findEntityLocatorById(Long uid) {
-       var result = entityLocatorParticipationRepository.findByParentUid(uid);
-        return result.orElseGet(ArrayList::new);
+       var result = entityLocatorJdbcRepository.findEntityLocatorParticipations(uid);
+        return Objects.requireNonNullElse(result, Collections.emptyList());
     }
 }

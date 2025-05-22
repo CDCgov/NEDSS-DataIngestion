@@ -9,7 +9,7 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
@@ -44,7 +44,7 @@ class PatientMatchingServiceTest {
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
     @Mock
-    private CachingValueService cachingValueService;
+    private CachingValueDpDpService cachingValueDpService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
@@ -62,7 +62,7 @@ class PatientMatchingServiceTest {
                 edxPatientMatchRepositoryUtil,
                 entityHelper,
                 patientRepositoryUtil,
-                cachingValueService,
+                cachingValueDpService,
                 prepareAssocModelHelper,
                 false,
                 serviceProvider);
@@ -73,7 +73,7 @@ class PatientMatchingServiceTest {
         Mockito.reset(edxPatientMatchRepositoryUtil);
         Mockito.reset(entityHelper);
         Mockito.reset(patientRepositoryUtil);
-        Mockito.reset(cachingValueService);
+        Mockito.reset(cachingValueDpService);
         Mockito.reset(prepareAssocModelHelper);
     }
 
@@ -92,7 +92,7 @@ class PatientMatchingServiceTest {
                 edxPatientMatchRepositoryUtil,
                 entityHelper,
                 patientRepositoryUtil,
-                cachingValueService,
+                cachingValueDpService,
                 prepareAssocModelHelper,
                 true,
                 serviceProvider);
@@ -120,7 +120,7 @@ class PatientMatchingServiceTest {
                 edxPatientMatchRepositoryUtil,
                 entityHelper,
                 patientRepositoryUtil,
-                cachingValueService,
+                cachingValueDpService,
                 prepareAssocModelHelper,
                 true,
                 serviceProvider);

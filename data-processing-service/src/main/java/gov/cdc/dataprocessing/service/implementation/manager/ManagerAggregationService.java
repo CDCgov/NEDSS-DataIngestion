@@ -59,9 +59,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
     private final IProgramAreaService programAreaService;
     private final IJurisdictionService jurisdictionService;
     private final IRoleService roleService;
-    private static final String THREAD_EXCEPTION_MSG = "Thread was interrupted";
     private static final Logger logger = LoggerFactory.getLogger(ManagerAggregationService.class);
-
     public ManagerAggregationService(IOrganizationService organizationService,
                                      IPersonService patientService,
                                      IUidService uidService,
@@ -86,6 +84,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
                                                        Long aPersonUid) throws DataProcessingException {
         ObservationDto observationDto = observationMatchingService.checkingMatchingObservation(edxLabInformationDto);
         if(observationDto !=null){
+            edxLabInformationDto.setMatchedObservationFound(true);
             logger.info("OBSERVE: Matched OBS Found");
             LabResultProxyContainer matchedlabResultProxyVO = observationService.getObservationToLabResultContainer(observationDto.getObservationUid());
             observationMatchingService.processMatchedProxyVO(labResultProxyContainer, matchedlabResultProxyVO, edxLabInformationDto );
@@ -112,20 +111,24 @@ public class ManagerAggregationService implements IManagerAggregationService {
     }
 
 
-    public void serviceAggregation(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws
-            DataProcessingException, DataProcessingConsumerException {
+    public void serviceAggregation(
+            LabResultProxyContainer labResult,
+            EdxLabInformationDto edxLabInformationDto
+    ) throws DataProcessingException, DataProcessingConsumerException {
+
         PersonAggContainer personAggContainer;
         OrganizationContainer organizationContainer;
         Collection<ObservationContainer> observationContainerCollection = labResult.getTheObservationContainerCollection();
         Collection<PersonContainer> personContainerCollection = labResult.getThePersonContainerCollection();
 
+
+        // Sequential fallback
         observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
         personAggContainer = patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
-
         organizationContainer = organizationService.processingOrganization(labResult);
-
         roleAggregation(labResult);
         progAndJurisdictionAggregationHelper(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+
     }
 
     protected void progAndJurisdictionAggregation(LabResultProxyContainer labResult,
@@ -332,36 +335,35 @@ public class ManagerAggregationService implements IManagerAggregationService {
 
     }
 
-    protected PersonAggContainer patientAggregation(LabResultProxyContainer labResultProxyContainer,
-                                                    EdxLabInformationDto edxLabInformationDto,
-                                                  Collection<PersonContainer>  personContainerCollection) throws DataProcessingConsumerException, DataProcessingException {
+    protected PersonAggContainer patientAggregation(
+            LabResultProxyContainer labResultProxyContainer,
+            EdxLabInformationDto edxLabInformationDto,
+            Collection<PersonContainer> personContainerCollection
+    ) throws DataProcessingConsumerException, DataProcessingException {
 
         PersonAggContainer container = new PersonAggContainer();
-        PersonContainer personContainerObj = null;
-        PersonContainer providerVOObj = null;
-        if (personContainerCollection != null && !personContainerCollection.isEmpty() ) {
-            Iterator<PersonContainer> it = personContainerCollection.iterator();
-            boolean orderingProviderIndicator = false;
 
-            while (it.hasNext()) {
-                PersonContainer personContainer = it.next();
-                if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                    patientService.processingNextOfKin(labResultProxyContainer, personContainer);
-                    edxLabInformationDto.setNextOfKin(true);
-                }
-                else {
-                    if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                        personContainerObj =  patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer);
-                    }
-                    else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD)) {
-                        providerVOObj = patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator);
-                    }
-                }
+        if (personContainerCollection == null || personContainerCollection.isEmpty()) {
+            return container;
+        }
+
+        boolean orderingProviderIndicator = false;
+
+        for (PersonContainer personContainer : personContainerCollection) {
+            String role = personContainer.getRole();
+            String cd = personContainer.thePersonDto.getCd();
+
+            if (EdxELRConstant.ELR_NEXT_OF_KIN.equalsIgnoreCase(role)) {
+                patientService.processingNextOfKin(labResultProxyContainer, personContainer);
+                edxLabInformationDto.setNextOfKin(true);
+            } else if (EdxELRConstant.ELR_PATIENT_CD.equalsIgnoreCase(cd)) {
+                container.setPersonContainer(patientService.processingPatient(labResultProxyContainer, edxLabInformationDto, personContainer));
+            } else if (EdxELRConstant.ELR_PROVIDER_CD.equalsIgnoreCase(cd)) {
+                container.setProviderContainer(patientService.processingProvider(labResultProxyContainer, edxLabInformationDto, personContainer, orderingProviderIndicator));
             }
         }
 
-        container.setPersonContainer(personContainerObj);
-        container.setProviderContainer(providerVOObj);
+
         return container;
     }
 }

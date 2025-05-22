@@ -3,7 +3,7 @@
 //import gov.cdc.dataprocessing.cache.SrteCache;
 //import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 //import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
-//import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+//import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@
 //class ManagerCacheServiceTest {
 //
 //    @Mock
-//    private ICatchingValueService catchingValueService;
+//    private ICatchingValueDpService catchingValueService;
 //
 //    @Mock
 //    private CacheManager cacheManager;

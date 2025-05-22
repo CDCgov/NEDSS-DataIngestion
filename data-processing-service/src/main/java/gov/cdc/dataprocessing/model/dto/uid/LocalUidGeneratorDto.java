@@ -55,4 +55,16 @@ public class LocalUidGeneratorDto {
         this.uidSuffixCd = localUidGenerator.getUidSuffixCd();
         this.seedValueNbr = localUidGenerator.getSeedValueNbr();
     }
+
+    public LocalUidGeneratorDto copy() {
+        LocalUidGeneratorDto copy = new LocalUidGeneratorDto();
+        copy.setClassNameCd(this.classNameCd);
+        copy.setTypeCd(this.typeCd);
+        copy.setUidPrefixCd(this.uidPrefixCd);
+        copy.setUidSuffixCd(this.uidSuffixCd);
+        copy.setSeedValueNbr(this.seedValueNbr);
+        copy.setCounter(this.counter);
+        copy.setUsedCounter(this.usedCounter);
+        return copy;
+    }
 }

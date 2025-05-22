@@ -10,7 +10,11 @@ import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationServ
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 /**
@@ -80,6 +84,45 @@ public class ParticipationService implements IParticipationService {
             var data = new Participation(participationDto);
             participationRepository.save(data);
         }
+    }
+
+    public void saveParticipationByBatch(List<ParticipationDto> toSave) {
+        if (toSave == null || toSave.isEmpty()) return;
+
+        List<Participation> entities = toSave.stream()
+                .filter(dto -> dto.getSubjectEntityUid() != null && dto.getActUid() != null)
+                .map(Participation::new)
+                .collect(Collectors.toList());
+
+        participationRepository.saveAll(entities);
+    }
+
+    public void saveParticipationHistBatch(List<ParticipationDto> dtos) throws DataProcessingException {
+        if (dtos == null || dtos.isEmpty()) return;
+
+        List<ParticipationHist> toPersist = new ArrayList<>();
+
+        for (ParticipationDto dto : dtos) {
+            Integer ver = 1;
+
+            Optional<List<Integer>> res = participationHistRepository.findVerNumberByKey(
+                    dto.getSubjectEntityUid(),
+                    dto.getActUid(),
+                    dto.getTypeCd()
+            );
+
+            if (res.isPresent() && !res.get().isEmpty()) {
+                ver = Collections.max(res.get());
+            }
+
+            ParticipationHist hist = new ParticipationHist(dto);
+            hist.setVersionCtrlNbr(ver);
+            toPersist.add(hist);
+
+            dto.setItNew(false);
+        }
+
+        participationHistRepository.saveAll(toPersist);
     }
 
     private void deleteParticipationByPk(Long subjectId, Long actId, String classCode)  {

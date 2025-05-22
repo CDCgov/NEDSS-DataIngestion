@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
@@ -16,7 +17,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
@@ -57,17 +58,17 @@ public class NBSObjectConverter {
 
     private final EntityIdUtil entityIdUtil;
 
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
 
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueService catchingValueService) {
+    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueDpService catchingValueService) {
         this.entityIdUtil = entityIdUtil;
         this.catchingValueService = catchingValueService;
     }
 
-    public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException {
+    public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException, RtiCacheException {
         PersonNameDto personNameDto = new PersonNameDto();
         HL7FNType hl7FamilyName = hl7XPNType.getHL7FamilyName();
         /** Optional maxOccurs="1 */
@@ -145,7 +146,7 @@ public class NBSObjectConverter {
         return personContainer;
     }
     @SuppressWarnings("java:S3776")
-    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
+    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException, RtiCacheException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null ) {
             entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
