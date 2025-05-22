@@ -50,7 +50,7 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
         config.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1024 * 1024); // Fetch at least 1MB of data
-        config.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 500); // Wait up to 500ms for data
+        config.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10000); // Wait up to 500ms for data
         config.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10 * 1024 * 1024); // Fetch up to 10MB per partition
         config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecord); // Max 500 records per poll
 //        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000); // Allow 5 minutes for processing

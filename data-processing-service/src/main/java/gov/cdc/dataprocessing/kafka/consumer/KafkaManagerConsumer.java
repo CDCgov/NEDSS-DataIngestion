@@ -101,6 +101,7 @@ public class KafkaManagerConsumer {
                 pendingMessages.add(nbs);
             }
 
+            logger.debug("[KafkaManagerConsumer] pending " + messages.size() + " messages");
             acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("Failed to process Kafka message: {}", e.getMessage());
@@ -111,7 +112,7 @@ public class KafkaManagerConsumer {
 
     @Scheduled(fixedDelayString = "${processor.delay_ms:30000}")
     public void processPendingMessages() {
-        logger.info("BATCH SIZE: {}", pendingMessages.size());
+        logger.debug("BATCH SIZE: {}", pendingMessages.size());
         if (pendingMessages.isEmpty()) return;
 
         if (threadEnabled) {
@@ -153,8 +154,8 @@ public class KafkaManagerConsumer {
 
                 try {
                     var result = managerService.processingELR(nbs);
-                    var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
-                    managerService.initiatingLabProcessing(phc);
+//                    var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
+                    managerService.initiatingLabProcessing(result);
                 } catch (Exception e) {
                     log.error("Single-threaded error: {}", e.getMessage(), e);
                 }
