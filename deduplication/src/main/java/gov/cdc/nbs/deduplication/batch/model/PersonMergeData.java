@@ -110,7 +110,7 @@ public record PersonMergeData(
 
   public record Name(
       String personUid,
-      String id,
+      String sequence,
       String asOf,
       String type,
       String prefix,

@@ -794,7 +794,7 @@ public class QueryConstants {
                           (
                               SELECT
                                   pn.person_uid AS personUid,
-                                  pn.person_name_seq AS id,
+                                  pn.person_name_seq AS sequence,
                                   pn.as_of_date AS asOf,
                                   cvg.code_short_desc_txt As type,
                                   cvg2.code_short_desc_txt AS prefix,
