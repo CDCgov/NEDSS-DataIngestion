@@ -794,20 +794,23 @@ public class QueryConstants {
                           (
                               SELECT
                                   pn.person_uid AS personUid,
-                                  pn.person_name_seq AS Id,
-                                  pn.as_of_date AS as_of_date_name,
+                                  pn.person_name_seq AS id,
+                                  pn.as_of_date AS asOf,
+                                  cvg.code_short_desc_txt As type,
+                                  cvg2.code_short_desc_txt AS prefix,
                                   STRING_ESCAPE(pn.first_nm, 'json') AS first,
                                   STRING_ESCAPE(pn.middle_nm, 'json') AS middle,
+                                  STRING_ESCAPE(pn.middle_nm2, 'json') AS secondMiddle,
                                   STRING_ESCAPE(pn.last_nm, 'json') AS last,
-                                  STRING_ESCAPE(pn.last_nm2, 'json') AS second_last,
-                                  STRING_ESCAPE(pn.nm_prefix, 'json') AS prefix,
-                                  STRING_ESCAPE(pn.nm_suffix, 'json') AS suffix,
-                                  STRING_ESCAPE(pn.nm_degree, 'json') AS degree,
-                                  cvg.code_short_desc_txt As type
+                                  STRING_ESCAPE(pn.last_nm2, 'json') AS secondLast,
+                                  cvg3.code_short_desc_txt AS suffix,
+                                  STRING_ESCAPE(pn.nm_degree, 'json') AS degree
+                                  
                               FROM
                                   person_name pn WITH (NOLOCK)
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON pn.nm_use_cd = cvg.code
-                                  AND cvg.code_set_nm = 'P_NM_USE'
+                                  LEFT JOIN nbs_srte..code_value_general cvg ON pn.nm_use_cd = cvg.code AND cvg.code_set_nm = 'P_NM_USE'
+                                  LEFT JOIN nbs_srte..code_value_general cvg2 ON pn.nm_prefix = cvg2.code AND cvg2.code_set_nm = 'P_NM_PFX'
+                                  LEFT JOIN nbs_srte..code_value_general cvg3 ON pn.nm_suffix = cvg3.code AND cvg3.code_set_nm = 'P_NM_SFX'
                               WHERE
                                   pn.person_uid = p.person_uid
                                   AND pn.record_status_cd = 'ACTIVE'

@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,15 +17,6 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.*;
 
 public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
-
-  private static final Map<String, String> RACE_MAP = Map.ofEntries(
-      Map.entry("1002-5", "AMERICAN_INDIAN"),
-      Map.entry("2028-9", "ASIAN"),
-      Map.entry("2054-5", "BLACK"),
-      Map.entry("2076-8", "HAWAIIAN"),
-      Map.entry("2106-3", "WHITE"),
-      Map.entry("2131-1", "OTHER"),
-      Map.entry("U", "UNKNOWN"));
 
   private final ObjectMapper mapper = new ObjectMapper();
 
@@ -289,50 +281,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
         comments);
   }
 
-  // NAME Mapping (unchanged)
   List<Name> mapNames(String nameString) {
-    return tryParse(nameString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asName)
-        .filter(Objects::nonNull)
-        .toList();
-  }
-
-  Name asName(Map<String, Object> nameMap) {
-    if (nameMap == null) {
-      return null;
+    if (nameString == null) {
+      return new ArrayList<>();
     }
-    String personUid = String.valueOf(nameMap.get("personUid"));
-    String id = String.valueOf(nameMap.get("Id"));
-    String type = String.valueOf(nameMap.get("type"));
-    String asOfDate = String.valueOf(nameMap.get("as_of_date_name"));
-    String first = String.valueOf(nameMap.get("first"));
-    String middle = String.valueOf(nameMap.get("middle"));
-    String last = String.valueOf(nameMap.get("last"));
-    String secondFamily = String.valueOf(nameMap.get("second_last"));
-    String prefix = String.valueOf(nameMap.get("prefix"));
-    String suffix = String.valueOf(nameMap.get("suffix"));
-    String degree = String.valueOf(nameMap.get("degree"));
-    List<String> givenNames = new ArrayList<>();
-    if (first != null && !first.isEmpty()) {
-      givenNames.add(first);
+    try {
+      return mapper.readValue(nameString, new TypeReference<List<Name>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient names");
     }
-    if (middle != null && !middle.isEmpty()) {
-      givenNames.add(middle);
-    }
-    return new Name(
-        personUid,
-        id,
-        asOfDate,
-        givenNames,
-        last,
-        secondFamily,
-        prefix,
-        suffix,
-        degree,
-        type);
   }
 
   // IDENTIFIER Mapping (unchanged)
@@ -374,6 +332,15 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
         .filter(Objects::nonNull)
         .toList();
   }
+
+  private static final Map<String, String> RACE_MAP = Map.ofEntries(
+      Map.entry("1002-5", "AMERICAN_INDIAN"),
+      Map.entry("2028-9", "ASIAN"),
+      Map.entry("2054-5", "BLACK"),
+      Map.entry("2076-8", "HAWAIIAN"),
+      Map.entry("2106-3", "WHITE"),
+      Map.entry("2131-1", "OTHER"),
+      Map.entry("U", "UNKNOWN"));
 
   Race asRace(Map<String, Object> raceMap) {
     if (raceMap == null) {

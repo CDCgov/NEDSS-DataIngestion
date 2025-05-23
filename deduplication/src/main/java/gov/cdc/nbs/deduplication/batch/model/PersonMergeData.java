@@ -13,7 +13,7 @@ public record PersonMergeData(
     List<Investigation> investigations,
     List<Address> address,
     List<Telecom> telecom,
-    List<Name> name,
+    List<Name> names,
     List<Identifier> identifiers,
     List<Race> race) {
 
@@ -108,18 +108,19 @@ public record PersonMergeData(
       String comments) {
   }
 
-  // NAME Object
   public record Name(
       String personUid,
       String id,
-      String asOfDate,
-      List<String> given,
-      String family,
-      String secondFamily,
+      String asOf,
+      String type,
       String prefix,
+      String first,
+      String middle,
+      String secondMiddle,
+      String last,
+      String secondLast,
       String suffix,
-      String degree,
-      String type) {
+      String degree) {
   }
 
   // IDENTIFIER

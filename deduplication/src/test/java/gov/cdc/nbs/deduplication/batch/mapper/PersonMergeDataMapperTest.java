@@ -267,7 +267,7 @@ class PersonMergeDataMapperTest {
   private void assertNestedFields(PersonMergeData personMergeData) {
     assertThat(personMergeData.address()).hasSize(2);
     assertThat(personMergeData.telecom()).hasSize(2);
-    assertThat(personMergeData.name()).hasSize(2);
+    assertThat(personMergeData.names()).hasSize(2);
     assertThat(personMergeData.identifiers()).hasSize(1);
     assertThat(personMergeData.race()).hasSize(2);
   }
