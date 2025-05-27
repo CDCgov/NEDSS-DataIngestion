@@ -17,9 +17,14 @@ public class QueryConstants {
       WHERE person_uid = :personId
       """;
 
-  public static final String MATCH_CANDIDATES_QUERY = """
-      INSERT INTO match_candidates (person_uid,potential_match_person_uid,date_identified,person_add_time,person_name)
-      VALUES (:personUid, :potentialPersonId,:identifiedDate,:personAddTime,:personName)
+  public static final String INSERT_MATCH_GROUP = """ 
+          INSERT INTO matches_requiring_review (person_uid, person_name, person_add_time, date_identified)
+          VALUES (:personUid, :personName, :personAddTime, :identifiedDate)
+      """;
+
+  public static final String INSERT_MATCH_CANDIDATE = """
+          INSERT INTO match_candidates (match_id, person_uid, is_merge)
+          VALUES (:matchId, :personUid, NULL)
       """;
 
   public static final String NBS_MPI_QUERY = """ 
@@ -480,19 +485,14 @@ public class QueryConstants {
           p.add_time ASC;
       """;
 
-
   public static final String UN_MERGE_ALL_GROUP = """
-      UPDATE match_candidates
-      SET is_merge = 0
-      WHERE person_uid = :person_id
+          UPDATE mc
+          SET is_merge = 0
+          FROM match_candidates mc
+          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
+          WHERE mrr.person_uid = :person_id
       """;
 
-  public static final String FIND_POSSIBLE_MATCH = """
-       SELECT COUNT(*)
-       FROM match_candidates
-       WHERE person_uid = :personUid
-       AND potential_match_person_uid = :potentialPersonId
-      """;
 
   public static final String PATIENT_IDS_BY_PERSON_UIDS = """
       SELECT mpi_person
@@ -509,32 +509,41 @@ public class QueryConstants {
       AND person_uid=person_parent_uid
       """;
 
-  public static final String UPDATE_MERGE_STATUS_FOR_PATIENTS = """
-      UPDATE match_candidates
-      SET is_merge = 1
-      WHERE person_uid = :personId
-      AND potential_match_person_uid IN (:potentialIds)
+
+  public static final String MARK_PATIENTS_AS_MERGED = """
+          UPDATE mc
+          SET is_merge = 1
+          FROM match_candidates mc
+          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
+          WHERE mrr.person_uid = :personUid
+            AND mc.person_uid IN (:potentialIds)
       """;
 
-  public static final String UPDATE_MERGE_STATUS_FOR_NON_PATIENTS = """
-      UPDATE match_candidates
-      SET is_merge = 0
-      WHERE person_uid IN (:personIds)
-      OR (potential_match_person_uid IN (:potentialIds) AND person_uid != :personId)
+  public static final String SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS = """
+          UPDATE mc
+          SET is_merge = 0
+          FROM match_candidates mc
+          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
+          WHERE mrr.person_uid = :personUid
+            AND mc.person_uid IN (:potentialUids)
       """;
+
 
   public static final String UPDATE_SINGLE_RECORD = """
-      WITH SingleUnmarkedRecord AS (
-          SELECT person_uid
-          FROM match_candidates
-          WHERE person_uid = :personUid
-            AND is_merge IS NULL
+      WITH UnmarkedCandidates AS (
+          SELECT mc.match_id, COUNT(*) AS unmarked_count
+          FROM match_candidates mc
+          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
+          WHERE mrr.person_uid = :personUid
+            AND mc.is_merge IS NULL
+          GROUP BY mc.match_id
+          HAVING COUNT(*) = 1
       )
       UPDATE match_candidates
       SET is_merge = 0
-      WHERE (SELECT COUNT(*) FROM SingleUnmarkedRecord) = 1
-      AND person_uid = :personUid
-      AND is_merge IS NULL
+      FROM UnmarkedCandidates
+      WHERE match_candidates.match_id = UnmarkedCandidates.match_id
+        AND match_candidates.is_merge IS NULL;
       """;
 
 
@@ -576,17 +585,17 @@ public class QueryConstants {
 
 
   public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
-      SELECT
-          potential_match_person_uid
-      FROM
-          match_candidates
-      WHERE person_uid =:personUid;
+      SELECT mc.person_uid
+      FROM match_candidates mc
+      WHERE mc.match_id IN (
+          SELECT mrr.id
+          FROM matches_requiring_review mrr
+          WHERE mrr.person_uid = :personUid
+      );
       """;
-
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
       SELECT
-          p.person_parent_uid,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
           -- ETHNICITY
@@ -849,11 +858,16 @@ public class QueryConstants {
       """;
 
 
+
   public static final String UN_MERGE_SINGLE_PERSON = """
-      UPDATE match_candidates
+      UPDATE mc
       SET is_merge = 0
-      WHERE person_uid = :person_uid
-      AND potential_match_person_uid = :potentialMatchPersonUid
+      FROM match_candidates mc
+      JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
+      WHERE mrr.person_uid = :person_uid
+      AND mc.person_uid = :potentialMatchPersonUid
       """;
+
+
 
 }

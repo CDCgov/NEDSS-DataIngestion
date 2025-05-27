@@ -22,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -126,21 +128,42 @@ public class PersonInsertSyncHandler {
   }
 
   private void insertMatchCandidates(MatchCandidate candidate) {
-    List<MapSqlParameterSource> batchParams = new ArrayList<>();
+    // Step 1: Insert into matches_requiring_review
+    Long matchId = insertMatchGroup(candidate.personUid());
+
+    // Step 2: Insert each potential match
     List<String> potentialNbsIds = getPersonIdsByMpiIds(candidate.possibleMatchList());
-    PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(candidate.personUid());
     for (String potentialNbsId : potentialNbsIds) {
-      batchParams.add(new MapSqlParameterSource()
-          .addValue("personUid", candidate.personUid())
-          .addValue("potentialPersonId", potentialNbsId)
-          .addValue("identifiedDate", getCurrentDate())
-          .addValue("personAddTime", patientNameAndTime.addTime())
-          .addValue("personName", patientNameAndTime.name()));
+      insertMatchCandidate(matchId, Long.valueOf(potentialNbsId));
     }
-    if (!batchParams.isEmpty()) {
-      deduplicationTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY,
-          batchParams.toArray(new MapSqlParameterSource[0]));
-    }
+  }
+
+  private Long insertMatchGroup(String personId) {
+    PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(personId);
+    MapSqlParameterSource groupParams = new MapSqlParameterSource()
+        .addValue("personUid", personId)
+        .addValue("personName", patientNameAndTime.name())
+        .addValue("personAddTime", patientNameAndTime.addTime())
+        .addValue("identifiedDate", getCurrentDate());
+
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+
+    deduplicationTemplate.update(
+        QueryConstants.INSERT_MATCH_GROUP,
+        groupParams,
+        keyHolder
+    );
+
+    Number matchGroupId = keyHolder.getKey();
+    return matchGroupId != null ? matchGroupId.longValue() : null;
+  }
+
+  private void insertMatchCandidate(Long matchId, Long personUid) {
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("matchId", matchId)
+        .addValue("personUid", personUid);
+
+    deduplicationTemplate.update(QueryConstants.INSERT_MATCH_CANDIDATE, params);
   }
 
   private void updateStatus(String personId) {

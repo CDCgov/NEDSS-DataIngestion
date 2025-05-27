@@ -22,12 +22,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
@@ -77,12 +79,18 @@ class PersonInsertSyncHandlerTest {
     mockSeedApi(mpiResponse);
     mockLinkNbsToMpi();
     mockDuplicateCheckServiceFindDuplicateRecords(mpiPerson, matchResponse);
-    mockInsertMatchCandidates();
-    mockUpdateStatus();
+
+    // Mock insertMatchGroup
+    Mockito.doAnswer(invocation -> {
+          KeyHolder keyHolder = invocation.getArgument(2);
+          keyHolder.getKeyList().add(Collections.singletonMap("GENERATED_KEY", 100L));
+          return null;
+        }).when(deduplicationTemplate)
+        .update(eq(QueryConstants.INSERT_MATCH_GROUP), any(MapSqlParameterSource.class), any(KeyHolder.class));
+
     mockObjectMapperWriteValueAsString(seedRequestJson());
     mockFetchPersonNameAndAddTime();
     mockGetPersonIdsByMpiIds();
-
 
     // Act
     personInsertSyncHandler.handleInsert(payloadNode);
@@ -90,12 +98,10 @@ class PersonInsertSyncHandlerTest {
     // Assert
     verifyRestClientCalls("/seed");
     verifyLinkNbsToMpi();
-    verifyInsertMatchCandidates();
+    verifyInsertMatchCandidates(1);
     verifyUpdateStatus();
     verifyDuplicateCheckServiceCall(mpiPerson);
   }
-
-
 
   @Test
   void testHandleInsert_NewPerson_NoMatch() throws JsonProcessingException {
@@ -120,6 +126,7 @@ class PersonInsertSyncHandlerTest {
     verifyLinkNbsToMpi();
     verifyDuplicateCheckServiceCall(mpiPerson);
   }
+
 
   @Test
   void testHandleInsert_NewPerson_MatchFound() throws JsonProcessingException {
@@ -212,17 +219,6 @@ class PersonInsertSyncHandlerTest {
     when(duplicateCheckService.findDuplicateRecords(mpiPerson)).thenReturn(matchResponse);
   }
 
-  private void mockInsertMatchCandidates() {
-    when(deduplicationTemplate.batchUpdate(
-        eq(QueryConstants.MATCH_CANDIDATES_QUERY),
-        any(MapSqlParameterSource[].class))).thenReturn(new int[] {1, 1});
-  }
-
-  private void mockUpdateStatus() {
-    when(deduplicationTemplate.update(eq(QueryConstants.UPDATE_PROCESSED_PERSON), any(SqlParameterSource.class)))
-        .thenReturn(1);
-  }
-
   private void mockObjectMapperWriteValueAsString(String json) throws JsonProcessingException {
     when(objectMapper.writeValueAsString(any())).thenReturn(json);
   }
@@ -239,8 +235,6 @@ class PersonInsertSyncHandlerTest {
         any(RowMapper.class)))
         .thenReturn(List.of("222"));
   }
-
-
 
   // Verification Methods
 
@@ -265,10 +259,11 @@ class PersonInsertSyncHandlerTest {
         parameterSourceCaptor.capture());
   }
 
-  private void verifyInsertMatchCandidates() {
-    verify(deduplicationTemplate).batchUpdate(
-        eq(QueryConstants.MATCH_CANDIDATES_QUERY),
-        any(MapSqlParameterSource[].class));
+  private void verifyInsertMatchCandidates(int expectedCount) {
+    verify(deduplicationTemplate, times(expectedCount)).update(
+        eq(QueryConstants.INSERT_MATCH_CANDIDATE),
+        any(MapSqlParameterSource.class)
+    );
   }
 
   private void verifyUpdateStatus() {
