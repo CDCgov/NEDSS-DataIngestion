@@ -11,7 +11,7 @@ public record PersonMergeData(
     Mortality mortality,
     GeneralPatientInformation generalPatientInformation,
     List<Investigation> investigations,
-    List<Address> address,
+    List<Address> addresses,
     List<Telecom> telecom,
     List<Name> names,
     List<Identifier> identifiers,
@@ -78,19 +78,19 @@ public record PersonMergeData(
       String condition) {
   }
 
-  // ADDRESS Object
   public record Address(
       String id,
-      String asOfDate,
-      String useCode,
-      List<String> line,
+      String asOf,
+      String type,
+      String use,
+      String address,
+      String address2,
       String city,
       String state,
-      String postalCode,
+      String zipcode,
       String county,
       String censusTract,
       String country,
-      String type,
       String comments) {
   }
 

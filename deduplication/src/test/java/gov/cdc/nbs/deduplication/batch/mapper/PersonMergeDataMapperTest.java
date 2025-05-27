@@ -72,10 +72,33 @@ class PersonMergeDataMapperTest {
 
   private static final String ADDRESS_STRING = """
       [
-          {"address1": "123 Main st", "city": "Atlanta", "state": "Georgia", "zip": "12345"},
-          {"address1": "456 Elm st", "city": "Nashville", "state": "Tennessee", "zip": "67890"}
+        {
+          "id": 10055283,
+          "asOf": "2025-05-27T00:00:00",
+          "type": "Dormitory",
+          "use": "Primary Business",
+          "streetAddress1": "1112 Another address",
+          "city": "Atlanta",
+          "state": "Georgia",
+          "zip": "12345"
+        },
+        {
+          "id": 10055283,
+          "asOf": "2025-05-13T00:00:00",
+          "type": "House",
+          "use": "Home",
+          "streetAddress1": "111 Main st",
+          "streetAddress2": "Block 2",
+          "city": "City ",
+          "state": "Georgia",
+          "zip": "11111",
+          "county": "Atkinson County",
+          "censusTract": "0111",
+          "country": "United States",
+          "comments": "Address comment 1"
+        }
       ]
-      """;
+            """;
 
   private static final String PHONE_STRING = """
       [
@@ -267,7 +290,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertNestedFields(PersonMergeData personMergeData) {
-    assertThat(personMergeData.address()).hasSize(2);
+    assertThat(personMergeData.addresses()).hasSize(2);
     assertThat(personMergeData.telecom()).hasSize(2);
     assertThat(personMergeData.names()).hasSize(2);
     assertThat(personMergeData.identifiers()).hasSize(1);

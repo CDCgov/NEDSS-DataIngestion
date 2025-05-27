@@ -193,54 +193,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
         condition);
   }
 
-  // ADDRESS Mapping (unchanged)
   List<Address> mapAddresses(String addressString) {
-    return tryParse(addressString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asAddress)
-        .filter(Objects::nonNull)
-        .toList();
-  }
-
-  Address asAddress(Map<String, Object> addressMap) {
-    if (addressMap == null) {
-      return null;
+    if (addressString == null) {
+      return new ArrayList<>();
     }
-    String type = String.valueOf(addressMap.get("code_short_desc_txt"));
-    String comments = String.valueOf(addressMap.get("address_comments"));
-    String id = String.valueOf(addressMap.get("Id"));
-    String asOfDate = String.valueOf(addressMap.get("as_of_date_address"));
-    String useCode = String.valueOf(addressMap.get("use_cd"));
-    String address1 = String.valueOf(addressMap.get("address1"));
-    String address2 = String.valueOf(addressMap.get("address2"));
-    String city = String.valueOf(addressMap.get("city"));
-    String state = String.valueOf(addressMap.get("state"));
-    String postalCode = String.valueOf(addressMap.get("zip"));
-    String county = String.valueOf(addressMap.get("county"));
-    String censusTract = String.valueOf(addressMap.get("census"));
-    String country = String.valueOf(addressMap.get("country"));
-    List<String> lines = new ArrayList<>();
-    if (address1 != null && !address1.isEmpty()) {
-      lines.add(address1);
+    try {
+      return mapper.readValue(addressString, new TypeReference<List<Address>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient addresses");
     }
-    if (address2 != null && !address2.isEmpty()) {
-      lines.add(address2);
-    }
-    return new Address(
-        id,
-        asOfDate,
-        useCode,
-        lines,
-        city,
-        state,
-        postalCode,
-        county,
-        censusTract,
-        country,
-        type,
-        comments);
   }
 
   // TELECOM Mapping (unchanged)
