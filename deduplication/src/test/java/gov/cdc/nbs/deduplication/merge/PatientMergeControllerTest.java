@@ -330,7 +330,7 @@ class PatientMergeControllerTest {
             ],
             "address": [],
             "telecom": [],
-            "name": [],
+            "names": [],
             "identifiers": [],
             "race": []
           }

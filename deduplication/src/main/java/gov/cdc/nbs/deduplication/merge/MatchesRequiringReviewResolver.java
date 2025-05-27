@@ -25,41 +25,41 @@ public class MatchesRequiringReviewResolver {
 
   static final String SELECT_QUERY = """
       SELECT
-        person_uid,
-        person_name,
-        person_add_time,
-        COUNT(potential_match_person_uid) + 1 AS match_count,
-        date_identified
+        mrr.person_uid,
+        mrr.person_name,
+        mrr.person_add_time,
+        mrr.date_identified,
+        count(mc.person_uid) as match_count
       FROM
-        match_candidates
-      WHERE
-        is_merge IS NULL
+        matches_requiring_review mrr
+        JOIN match_candidates mc ON mc.match_id = mrr.id
       GROUP BY
-        person_uid,
-        date_identified,
-        person_name,
-        person_add_time
-      ORDER BY :sort
-      OFFSET :offset ROWS
-          FETCH NEXT :limit ROWS ONLY;
-      """;
+        mrr.person_uid,
+        mrr.person_name,
+        mrr.person_add_time,
+        mrr.date_identified
+            ORDER BY :sort
+            OFFSET :offset ROWS
+                FETCH NEXT :limit ROWS ONLY;
+            """;
 
   static final String COUNT_QUERY = """
-  SELECT
-    count(*) as count
-  FROM
-  (
-    SELECT DISTINCT
-      person_uid,
-      date_identified,
-      person_name,
-      person_add_time
-    FROM
-      match_candidates
-    WHERE
-      is_merge IS NULL
-  ) AS COUNT;
-      """;
+      SELECT
+        count(*) AS COUNT
+      FROM
+        (
+          SELECT DISTINCT
+            mrr.person_uid,
+            date_identified,
+            person_name,
+            person_add_time
+          FROM
+            matches_requiring_review mrr
+            JOIN match_candidates mc ON mc.match_id = mrr.id
+          WHERE
+            is_merge IS NULL
+        ) AS COUNT;
+                """;
 
   MatchesRequireReviewResponse resolve(int page, int size, String sort) {
     int offset = page * size;

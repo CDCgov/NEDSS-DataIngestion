@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 class PersonMergeDataMapperTest {
@@ -267,7 +269,7 @@ class PersonMergeDataMapperTest {
   private void assertNestedFields(PersonMergeData personMergeData) {
     assertThat(personMergeData.address()).hasSize(2);
     assertThat(personMergeData.telecom()).hasSize(2);
-    assertThat(personMergeData.name()).hasSize(2);
+    assertThat(personMergeData.names()).hasSize(2);
     assertThat(personMergeData.identifiers()).hasSize(1);
     assertThat(personMergeData.race()).hasSize(2);
   }
@@ -282,6 +284,20 @@ class PersonMergeDataMapperTest {
     assertThat(investigations.get(1).investigationId()).isEqualTo("2");
     assertThat(investigations.get(1).startedOn()).isEqualTo("2023-07-01T00:00:00Z");
     assertThat(investigations.get(1).condition()).isEqualTo("Condition B");
+  }
+
+  @Test
+  void testMapNamesEmpty() {
+    String nameString = null;
+    List<Name> names = mapper.mapNames(nameString);
+    assertThat(names).isEmpty();
+  }
+
+  @Test
+  void testMapNamesException() {
+    String nameString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapNames(nameString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient names");
   }
 
   @Test
