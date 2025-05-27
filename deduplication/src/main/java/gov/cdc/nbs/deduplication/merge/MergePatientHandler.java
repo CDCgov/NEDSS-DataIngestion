@@ -65,7 +65,7 @@ public class MergePatientHandler {
   }
 
   private void updateTheMergedPatients(String survivorPersonId, List<String> supersededPersonIds) {
-    mergeGroupHandler.updateMergeStatusForPatients(survivorPersonId, supersededPersonIds);
+    mergeGroupHandler.resolvePatientMergeStatuses(survivorPersonId, supersededPersonIds);
   }
 
 }

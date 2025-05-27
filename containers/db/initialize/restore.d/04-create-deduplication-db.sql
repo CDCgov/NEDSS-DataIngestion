@@ -32,13 +32,20 @@ CREATE TABLE nbs_mpi_mapping (
 );
 GO
 
-CREATE TABLE match_candidates (
-  id bigint IDENTITY(1,1),
-  person_uid bigint NOT NULL,
-  potential_match_person_uid bigint NOT NULL,
+CREATE TABLE matches_requiring_review (
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  person_uid BIGINT NOT NULL,
   person_name NVARCHAR(300),
   person_add_time DATETIME NOT NULL,
-  date_identified DATETIME DEFAULT GETDATE(),
-  is_merge BIT NULL
+  date_identified DATETIME DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE match_candidates (
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  match_id BIGINT NOT NULL,
+  person_uid BIGINT NOT NULL,
+  is_merge BIT NULL,
+  FOREIGN KEY (match_id) REFERENCES matches_requiring_review(id)
 );
 GO

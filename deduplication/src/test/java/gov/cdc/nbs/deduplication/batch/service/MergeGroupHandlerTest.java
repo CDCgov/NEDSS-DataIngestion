@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +26,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
-import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.GeneralPatientInformation;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
@@ -64,7 +63,7 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUnMergeSinglePerson() {
-    mergeGroupHandler.unMergeSinglePerson(100L,111l);
+    mergeGroupHandler.unMergeSinglePerson(100L, 111l);
     verify(deduplicationTemplate, times(1)).update(
         eq(QueryConstants.UN_MERGE_SINGLE_PERSON),
         any(MapSqlParameterSource.class));
@@ -72,36 +71,27 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUpdateMergeStatusForPatients() {
-    String survivorPersonId = "survivorId";
-    List<String> personIds = List.of("person1", "person2");
-    List<String> mpiPersonIds = List.of("mpi1", "mpi2");
+    String survivorPersonId = "111";
+    List<String> personIds = List.of("222", "333");
 
-    updateMergeStatusForPatientsMocking(mpiPersonIds);
-    mergeGroupHandler.updateMergeStatusForPatients(survivorPersonId, personIds);
+    updateMergeStatusForPatientsMocking();
+    mergeGroupHandler.resolvePatientMergeStatuses(survivorPersonId, personIds);
     updateMergeStatusForPatientsVerifying(survivorPersonId);
   }
 
-  private void updateMergeStatusForPatientsMocking(List<String> mpiPersonIds) {
-    // Mock the call of getMpiIdsByPersonIds method
-    when(deduplicationTemplate.query(
-        eq(QueryConstants.PATIENT_IDS_BY_PERSON_UIDS),
-        argThat((MapSqlParameterSource params) -> params.getValue("personIds") != null),
-        ArgumentMatchers.<RowMapper<String>>any()))
-        .thenReturn(mpiPersonIds);
+  private void updateMergeStatusForPatientsMocking() {
 
     // Mock the update operations
     when(deduplicationTemplate.update(
-        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS),
+        eq(QueryConstants.MARK_PATIENTS_AS_MERGED),
         any(MapSqlParameterSource.class)))
         .thenReturn(1);
 
-    // Mock the markNonActiveRecordAsNoMerge call
     when(deduplicationTemplate.update(
-        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS),
+        eq(QueryConstants.SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS),
         any(MapSqlParameterSource.class)))
         .thenReturn(1);
 
-    // Mock the markSingleRemainingRecordAsNoMergeIfExists call
     when(deduplicationTemplate.update(
         eq(QueryConstants.UPDATE_SINGLE_RECORD),
         any(MapSqlParameterSource.class)))
@@ -110,43 +100,43 @@ class MergeGroupHandlerTest {
 
   @SuppressWarnings("unchecked")
   private void updateMergeStatusForPatientsVerifying(String survivorPersonId) {
-    // Verify the markMergedRecordAsMerge call
+    Long expectedPersonUid = Long.valueOf(survivorPersonId);
+
+    // Verify markMergedRecordAsMerge
     verify(deduplicationTemplate).update(
-        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS),
+        eq(QueryConstants.MARK_PATIENTS_AS_MERGED),
         argThat((MapSqlParameterSource params) -> {
-          List<String> mpiIds = (List<String>) params.getValue("potentialIds");
-          String personId = (String) params.getValue("personId");
-          return mpiIds != null && mpiIds.size() == 2
-              && personId != null && personId.equals(survivorPersonId);
+          List<Long> potentialIds = (List<Long>) params.getValue("potentialIds");
+          Long personUid = (Long) params.getValue("personUid");
+          return potentialIds != null && potentialIds.size() == 3 &&
+              personUid != null && personUid.equals(expectedPersonUid);
         }));
 
-    // Verify the markNonActiveRecordAsNoMerge call
+    // Verify markExcludedRecordAsNoMerge
     verify(deduplicationTemplate).update(
-        eq(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS),
+        eq(QueryConstants.SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS),
         argThat((MapSqlParameterSource params) -> {
-          List<String> mpiIds = (List<String>) params.getValue("potentialIds");
-          String personId = (String) params.getValue("personId");
-          List<String> personIdsParam = (List<String>) params.getValue("personIds");
-          return mpiIds != null && mpiIds.size() == 2
-              && personId != null && personId.equals(survivorPersonId)
-              && personIdsParam != null && personIdsParam.size() == 2;
+          List<Long> potentialUids = (List<Long>) params.getValue("potentialUids");
+          Long personUid = (Long) params.getValue("personUid");
+          return potentialUids != null && potentialUids.size() == 2 &&
+              personUid != null && personUid.equals(expectedPersonUid);
         }));
 
-    // Verify the markSingleRemainingRecordAsNoMergeIfExists call
+    // Verify markSingleRemainingRecordAsNoMergeIfExists
     verify(deduplicationTemplate).update(
         eq(QueryConstants.UPDATE_SINGLE_RECORD),
         argThat((MapSqlParameterSource params) -> {
-          String personId = (String) params.getValue("personUid");
-          return personId != null && personId.equals(survivorPersonId);
+          String personUid = (String) params.getValue("personUid");
+          return personUid != null && personUid.equals(survivorPersonId);
         }));
   }
+
+
 
   @Test
   void testGetPotentialMatchesDetails() {
     long personId = 123L;
-    List<String> nbsPersonIds = new ArrayList<>();
-    nbsPersonIds.add("person1");
-    nbsPersonIds.add("person2");
+    List<String> nbsPersonIds = Arrays.asList("person1", "person2");
     List<PersonMergeData> mockPersonMergeData = createMockPersonMergeData();
 
     mockPossibleMatchesOfPatient(personId, nbsPersonIds);
@@ -162,10 +152,8 @@ class MergeGroupHandlerTest {
   private List<PersonMergeData> createMockPersonMergeData() {
     return List.of(
         new PersonMergeData(
-            "1",
-            new AdminComments(
-                "2023-01-01T00:00", // commentDate
-                "test comment"), // adminComments
+            "person_id", // commentDate
+            new PersonMergeData.AdminComments("2023-01-01", "test comment"), // adminComments
             new Ethnicity( // Ethnicity
                 "2023-01-01",
                 "Hispanic or Latino",
@@ -229,7 +217,7 @@ class MergeGroupHandlerTest {
     assertNotNull(result);
     assertEquals(1, result.size());
     PersonMergeData firstResult = result.getFirst();
-    assertEquals("2023-01-01T00:00", firstResult.adminComments().date());
+    assertEquals("2023-01-01", firstResult.adminComments().date());
     assertEquals("test comment", firstResult.adminComments().comment());
   }
 

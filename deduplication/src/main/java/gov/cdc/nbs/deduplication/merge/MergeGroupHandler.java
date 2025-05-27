@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.merge;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,23 +28,15 @@ public class MergeGroupHandler {
 
   public List<PersonMergeData> getPotentialMatchesDetails(long personId) {
     List<String> nbsPersonIds = getPossibleMatchesOfPatient(personId);
-    nbsPersonIds.add(String.valueOf(personId));
     return patientRecordService.fetchPersonsMergeData(nbsPersonIds);
   }
 
   private List<String> getPossibleMatchesOfPatient(long personId) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
-        .addValue("personUid", personId);
+        .addValue("personUid", personId);//NOSONAR
     return deduplicationTemplate.query(
         QueryConstants.POSSIBLE_MATCH_IDS_BY_PATIENT_ID,
         parameters, (ResultSet rs, int rowNum) -> rs.getString(1));
-  }
-
-  private List<String> getMpiIdsByPersonIds(List<String> personIds) {
-    return deduplicationTemplate.query(
-        QueryConstants.PATIENT_IDS_BY_PERSON_UIDS,
-        new MapSqlParameterSource("personIds", personIds),
-        (rs, rowNum) -> rs.getString("mpi_person"));
   }
 
   public void unMergeAll(Long personUid) {//Keep Separate
@@ -52,27 +45,46 @@ public class MergeGroupHandler {
     deduplicationTemplate.update(QueryConstants.UN_MERGE_ALL_GROUP, parameters);
   }
 
-  public void updateMergeStatusForPatients(String survivorPersonId, List<String> personIds) {
+
+  public void resolvePatientMergeStatuses(String survivorPersonId, List<String> personIds) {
     markMergedRecordAsMerge(survivorPersonId, personIds);
     markNonActiveRecordAsNoMerge(survivorPersonId, personIds);
     markSingleRemainingRecordAsNoMergeIfExists(survivorPersonId);
   }
 
-  private void markMergedRecordAsMerge(String survivorPersonId, List<String> personIds) {
-    List<String> mpiPersonIds = getMpiIdsByPersonIds(personIds);
+
+  private void markMergedRecordAsMerge(String personId, List<String> potentialPersonIds) {
+    Long personUid = Long.valueOf(personId);
+    List<Long> mergedUids = potentialPersonIds.stream()
+        .map(Long::valueOf)
+        .toList();
+
+    List<Long> uidsToMarkAsMerged = new ArrayList<>();
+    uidsToMarkAsMerged.add(personUid);
+    uidsToMarkAsMerged.addAll(mergedUids);
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("potentialIds", mpiPersonIds);
-    parameters.addValue("personId", survivorPersonId);
-    deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_PATIENTS, parameters);
+    parameters.addValue("personUid", personUid);
+    parameters.addValue("potentialIds", uidsToMarkAsMerged);
+
+    deduplicationTemplate.update(QueryConstants.MARK_PATIENTS_AS_MERGED, parameters);
   }
 
-  private void markNonActiveRecordAsNoMerge(String survivorPersonId, List<String> personIds) {
+
+  private void markNonActiveRecordAsNoMerge(String personId, List<String> potentialPersonIds) {
+    Long personUid = Long.valueOf(personId);
+    List<Long> potentialUids = potentialPersonIds.stream()
+        .map(Long::valueOf)
+        .toList();
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    List<String> mpiPersonIds = getMpiIdsByPersonIds(personIds);
-    parameters.addValue("potentialIds", mpiPersonIds);
-    parameters.addValue("personId", survivorPersonId);
-    parameters.addValue("personIds", personIds);
-    deduplicationTemplate.update(QueryConstants.UPDATE_MERGE_STATUS_FOR_NON_PATIENTS, parameters);
+    parameters.addValue("personUid", personUid);
+    parameters.addValue("potentialUids", potentialUids);
+
+    deduplicationTemplate.update(
+        QueryConstants.SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS,
+        parameters
+    );
   }
 
   private void markSingleRemainingRecordAsNoMergeIfExists(String survivorPersonId) {
@@ -80,7 +92,7 @@ public class MergeGroupHandler {
         new MapSqlParameterSource("personUid", survivorPersonId));
   }
 
-  public void unMergeSinglePerson(Long personUid,Long potentialMatchPersonUid) {
+  public void unMergeSinglePerson(Long personUid, Long potentialMatchPersonUid) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("person_uid", personUid);
     parameters.addValue("potentialMatchPersonUid", potentialMatchPersonUid);
