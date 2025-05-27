@@ -10,6 +10,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -44,54 +46,38 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
     updateStatus(personIds);
   }
 
+
   private void insertMatchCandidates(List<MatchCandidate> candidates) {
-    MapSqlParameterSource params;
     for (MatchCandidate candidate : candidates) {
-      PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(candidate.personUid());
+      // Step 1: Insert into matches_requiring_review
+      Long matchId = insertMatchGroup(candidate.personUid());
+
+      // Step 2: Insert each potential match
       List<String> potentialNbsIds = getPersonIdsByMpiIds(candidate.possibleMatchList());
       for (String potentialNbsId : potentialNbsIds) {
-        if (isValidPossibleMatch(candidate.personUid(), potentialNbsId)) {
-          params = new MapSqlParameterSource()
-              .addValue("personUid", candidate.personUid())
-              .addValue("potentialPersonId", potentialNbsId)
-              .addValue("identifiedDate", getCurrentDate())
-              .addValue("personAddTime", patientNameAndTime.addTime())
-              .addValue("personName", patientNameAndTime.name());
-          namedParameterJdbcTemplate.update(QueryConstants.MATCH_CANDIDATES_QUERY, params);
-        }
+        insertMatchCandidate(matchId, Long.valueOf(potentialNbsId));
       }
     }
   }
 
-  private void updateStatus(List<String> personIds) {
-    if (!personIds.isEmpty()) {
-      MapSqlParameterSource parameters = new MapSqlParameterSource();
-      parameters.addValue("personIds", personIds);
-      namedParameterJdbcTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSONS, parameters);
-    }
-  }
+  private Long insertMatchGroup(String personId) {
+    PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(personId);
+    MapSqlParameterSource groupParams = new MapSqlParameterSource()
+        .addValue("personUid", personId)
+        .addValue("personName", patientNameAndTime.name())
+        .addValue("personAddTime", patientNameAndTime.addTime())
+        .addValue("identifiedDate", getCurrentDate());
 
+    KeyHolder keyHolder = new GeneratedKeyHolder();
 
-  private boolean isValidPossibleMatch(String personUid, String potentialNbsId) {
-    // Prevent self-matches (a person shouldn't match with themselves)
-    if (personUid.equals(potentialNbsId)) {
-      return false;
-    }
-    return !findExistingPossibleMatch(potentialNbsId, potentialNbsId);// ensure there is no overlapping
-  }
+    namedParameterJdbcTemplate.update(
+        QueryConstants.INSERT_MATCH_GROUP,
+        groupParams,
+        keyHolder
+    );
 
-  private boolean findExistingPossibleMatch(String personId, String mpiPersonId) {
-    long personUid = Long.parseLong(personId);
-    long potentialPersonUid = Long.parseLong(mpiPersonId);
-    MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("personUid", personUid);
-    parameters.addValue("potentialPersonId", potentialPersonUid);
-
-    Integer count = namedParameterJdbcTemplate.queryForObject(
-        QueryConstants.FIND_POSSIBLE_MATCH,
-        parameters,
-        Integer.class);
-    return count != null && count > 0;
+    Number matchGroupId = keyHolder.getKey();
+    return matchGroupId!=null?matchGroupId.longValue():null;
   }
 
   private List<String> getPersonIdsByMpiIds(List<String> mpiIds) {
@@ -99,6 +85,24 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
         QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS,
         new MapSqlParameterSource("mpiIds", mpiIds),
         (rs, rowNum) -> rs.getString("person_uid"));
+  }
+
+
+  private void insertMatchCandidate(Long matchId, Long personUid) {
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("matchId", matchId)
+        .addValue("personUid", personUid);
+
+    namedParameterJdbcTemplate.update(QueryConstants.INSERT_MATCH_CANDIDATE, params);
+  }
+
+
+  private void updateStatus(List<String> personIds) {
+    if (!personIds.isEmpty()) {
+      MapSqlParameterSource parameters = new MapSqlParameterSource();
+      parameters.addValue("personIds", personIds);
+      namedParameterJdbcTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSONS, parameters);
+    }
   }
 
   private String getCurrentDate() {
