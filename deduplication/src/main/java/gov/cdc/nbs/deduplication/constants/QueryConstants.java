@@ -752,16 +752,28 @@ public class QueryConstants {
                   (
                       SELECT
                           (
-                              SELECT
-                                  pr.person_uid AS personUid,
-                                  pr.race_cd AS Id,
-                                  pr.as_of_date AS as_of_date_race,
-                                  pr.race_category_cd
-                              FROM
-                                  Person_race pr WITH (NOLOCK)
-                              WHERE
-                                  pr.person_uid = p.person_uid
-                                  AND pr.record_status_cd = 'ACTIVE'
+                            SELECT
+                              person_uid AS personUid,
+                              pr.race_category_cd as raceCode,
+                              as_of_date AS asOf,
+                              cvg.code_short_desc_txt AS race,
+                              STRING_AGG(rc.code_short_desc_txt, ' | ') AS detailedRaces
+                            FROM
+                              Person_race pr
+                            WITH
+                              (NOLOCK)
+                              LEFT JOIN NBS_SRTE.dbo.race_code rc ON rc.code = race_cd
+                              AND rc.code_set_nm = 'P_RACE'
+                              LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = race_category_cd
+                              AND cvg.code_set_nm = 'RACE_CALCULATED'
+                            WHERE
+                              pr.person_uid = p.person_uid
+                              AND pr.record_status_cd = 'ACTIVE'
+                            GROUP BY
+                              person_uid,
+                              race_category_cd,
+                              as_of_date,
+                              cvg.code_short_desc_txt
                               FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS race
                   ) AS race,

@@ -14,7 +14,7 @@ public record PersonMergeData(
     List<PhoneEmail> phoneEmails,
     List<Name> names,
     List<Identification> identifications,
-    List<Race> race) {
+    List<Race> races) {
 
   public record AdminComments(
       String date,
@@ -130,11 +130,11 @@ public record PersonMergeData(
       String value) {
   }
 
-  // RACE Object
   public record Race(
       String personUid,
-      String id,
-      String asOfDate,
-      String category) {
+      String raceCode,
+      String asOf,
+      String race,
+      String detailedRaces) {
   }
 }

@@ -43,11 +43,11 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     List<Investigation> investigations = mapInvestigations(String.valueOf(rs.getString("investigations")));
 
     // Nested Fields
-    List<Address> addresses = mapAddresses(String.valueOf(rs.getString("address")));
-    List<PhoneEmail> phones = mapPhones(String.valueOf(rs.getString("phone")));
-    List<Name> names = mapNames(String.valueOf(rs.getString("name")));
-    List<Identification> identifiers = mapIdentifiers(String.valueOf(rs.getString("identifiers")));
-    List<Race> races = mapRaces(String.valueOf(rs.getString("race")));
+    List<Address> addresses = mapAddresses(rs.getString("address"));
+    List<PhoneEmail> phones = mapPhones(rs.getString("phone"));
+    List<Name> names = mapNames(rs.getString("name"));
+    List<Identification> identifiers = mapIdentifiers(rs.getString("identifiers"));
+    List<Race> races = mapRaces(rs.getString("race"));
 
     return new PersonMergeData(
         personUid,
@@ -241,42 +241,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // RACE Mapping (unchanged)
   List<Race> mapRaces(String raceString) {
-    return tryParse(raceString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asRace)
-        .filter(Objects::nonNull)
-        .toList();
+    if (raceString == null) {
+      return new ArrayList<>();
+    }
+    try {
+      return mapper.readValue(raceString, new TypeReference<List<Race>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient race");
+    }
   }
 
-  private static final Map<String, String> RACE_MAP = Map.ofEntries(
-      Map.entry("1002-5", "AMERICAN_INDIAN"),
-      Map.entry("2028-9", "ASIAN"),
-      Map.entry("2054-5", "BLACK"),
-      Map.entry("2076-8", "HAWAIIAN"),
-      Map.entry("2106-3", "WHITE"),
-      Map.entry("2131-1", "OTHER"),
-      Map.entry("U", "UNKNOWN"));
-
-  Race asRace(Map<String, Object> raceMap) {
-    if (raceMap == null) {
-      return null;
-    }
-    String personUid = String.valueOf(raceMap.get("personUid"));
-    String id = String.valueOf(raceMap.get("Id"));
-    String asOfDate = String.valueOf(raceMap.get("as_of_date_race"));
-    String category = String.valueOf(raceMap.get("race_category_cd"));
-    String mappedCategory = RACE_MAP.getOrDefault(category, null);
-    if (mappedCategory == null) {
-      return null;
-    }
-    return new Race(
-        personUid,
-        id,
-        asOfDate,
-        mappedCategory);
-  }
 }

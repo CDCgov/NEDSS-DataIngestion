@@ -4,13 +4,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -77,21 +80,21 @@ class PersonMergeDataMapperTest {
           "asOf": "2025-05-27T00:00:00",
           "type": "Dormitory",
           "use": "Primary Business",
-          "streetAddress1": "1112 Another address",
+          "address": "1112 Another address",
           "city": "Atlanta",
           "state": "Georgia",
-          "zip": "12345"
+          "zipcode": "12345"
         },
         {
           "id": 10055283,
           "asOf": "2025-05-13T00:00:00",
           "type": "House",
           "use": "Home",
-          "streetAddress1": "111 Main st",
-          "streetAddress2": "Block 2",
+          "address": "111 Main st",
+          "address2": "Block 2",
           "city": "City ",
           "state": "Georgia",
-          "zip": "11111",
+          "zipcode": "11111",
           "county": "Atkinson County",
           "censusTract": "0111",
           "country": "United States",
@@ -102,8 +105,8 @@ class PersonMergeDataMapperTest {
 
   private static final String PHONE_STRING = """
       [
-          {"phone_number": "1234567890"},
-          {"phone_number": "9876543210"}
+          {"phoneNumber": "1234567890"},
+          {"phoneNumber": "9876543210"}
       ]
       """;
 
@@ -117,19 +120,20 @@ class PersonMergeDataMapperTest {
   private static final String IDENTIFIER_STRING = """
       [
            {
-               "type": "DL",
-               "id": "1",
-               "as_of_date_identifier": "2023-01-01",
-               "value": "1234567",
-               "assigning_authority": "Test"
+            "personUid": "1",
+            "sequence": "1",
+            "type": "Driver's License",
+            "asOf": "2023-01-01",
+            "value": "1234567",
+            "assigningAuthority": "Test"
            }
        ]
       """;
 
   private static final String RACE_STRING = """
       [
-          {"race_category_cd": "2106-3"},
-          {"race_category_cd": "2054-5"}
+          {"personUid": "1234", "raceCode": "2106-3", "race": "white", "detailedRaces": "European | Middle Eastern or North African"},
+          {"personUid": "1234", "raceCode": "2028-9", "race": "asian", "detailedRaces": null}
       ]
       """;
 
@@ -291,10 +295,10 @@ class PersonMergeDataMapperTest {
 
   private void assertNestedFields(PersonMergeData personMergeData) {
     assertThat(personMergeData.addresses()).hasSize(2);
-    assertThat(personMergeData.telecom()).hasSize(2);
+    assertThat(personMergeData.phoneEmails()).hasSize(2);
     assertThat(personMergeData.names()).hasSize(2);
-    assertThat(personMergeData.identifiers()).hasSize(1);
-    assertThat(personMergeData.race()).hasSize(2);
+    assertThat(personMergeData.identifications()).hasSize(1);
+    assertThat(personMergeData.races()).hasSize(2);
   }
 
   @Test
@@ -324,6 +328,62 @@ class PersonMergeDataMapperTest {
   }
 
   @Test
+  void testMapAddressEmpty() {
+    String addressString = null;
+    List<Address> addresses = mapper.mapAddresses(addressString);
+    assertThat(addresses).isEmpty();
+  }
+
+  @Test
+  void testMapAddressException() {
+    String addressString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapAddresses(addressString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient addresses");
+  }
+
+  @Test
+  void testMapPhonesEmpty() {
+    String phoneString = null;
+    List<PhoneEmail> phoneEmails = mapper.mapPhones(phoneString);
+    assertThat(phoneEmails).isEmpty();
+  }
+
+  @Test
+  void testMapPhonesException() {
+    String phoneString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapPhones(phoneString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient phone and email");
+  }
+
+  @Test
+  void testMapIdentificationsEmpty() {
+    String identificationString = null;
+    List<Identification> identifications = mapper.mapIdentifiers(identificationString);
+    assertThat(identifications).isEmpty();
+  }
+
+  @Test
+  void testMapIdentificationsException() {
+    String identificationString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapIdentifiers(identificationString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient identification");
+  }
+
+  @Test
+  void testMapRaceEmpty() {
+    String raceString = null;
+    List<Race> races = mapper.mapRaces(raceString);
+    assertThat(races).isEmpty();
+  }
+
+  @Test
+  void testMapRaceException() {
+    String raceString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapRaces(raceString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient race");
+  }
+
+  @Test
   void testMapInvestigationsEmptyString() {
     final String investigationString = "";
     List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(investigationString);
@@ -334,23 +394,5 @@ class PersonMergeDataMapperTest {
   void testMapInvestigationsNull() {
     List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(null);
     assertThat(investigations).isEmpty();
-  }
-
-  @Test
-  void testAsRaceNullRaceMap() {
-    PersonMergeData.Race race = mapper.asRace(null);
-    assertThat(race).isNull();
-  }
-
-  @Test
-  void testAsRaceUnknownCategory() {
-    Map<String, Object> raceMap = Map.of(
-        "personUid", "12345",
-        "Id", "1",
-        "as_of_date_race", "2023-01-01",
-        "race_category_cd", "BAD_CATEGORY" // This category does not exist in RACE_MAP
-    );
-    PersonMergeData.Race race = mapper.asRace(raceMap);
-    assertThat(race).isNull();
   }
 }
