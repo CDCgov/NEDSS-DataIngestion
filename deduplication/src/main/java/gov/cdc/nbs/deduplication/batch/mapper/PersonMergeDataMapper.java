@@ -44,9 +44,9 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
     // Nested Fields
     List<Address> addresses = mapAddresses(String.valueOf(rs.getString("address")));
-    List<Telecom> phones = mapPhones(String.valueOf(rs.getString("phone")));
+    List<PhoneEmail> phones = mapPhones(String.valueOf(rs.getString("phone")));
     List<Name> names = mapNames(String.valueOf(rs.getString("name")));
-    List<Identifier> identifiers = mapIdentifiers(String.valueOf(rs.getString("identifiers")));
+    List<Identification> identifiers = mapIdentifiers(String.valueOf(rs.getString("identifiers")));
     List<Race> races = mapRaces(String.valueOf(rs.getString("race")));
 
     return new PersonMergeData(
@@ -205,42 +205,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // TELECOM Mapping (unchanged)
-  List<Telecom> mapPhones(String phoneString) {
-    return tryParse(phoneString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asTelecom)
-        .filter(Objects::nonNull)
-        .toList();
-  }
-
-  Telecom asTelecom(Map<String, Object> phoneMap) {
-    if (phoneMap == null) {
-      return null;
+  List<PhoneEmail> mapPhones(String phoneString) {
+    if (phoneString == null) {
+      return new ArrayList<>();
     }
-    String type = String.valueOf(phoneMap.get("Type"));
-    String comments = String.valueOf(phoneMap.get("telecom_comments"));
-    String id = String.valueOf(phoneMap.get("Id"));
-    String asOfDate = String.valueOf(phoneMap.get("as_of_date_telecom"));
-    String useCode = String.valueOf(phoneMap.get("use_cd"));
-    String countryCode = String.valueOf(phoneMap.get("country_code"));
-    String phoneNumber = String.valueOf(phoneMap.get("phone_number"));
-    String extension = String.valueOf(phoneMap.get("extension"));
-    String email = String.valueOf(phoneMap.get("email"));
-    String url = String.valueOf(phoneMap.get("url"));
-    return new Telecom(
-        id,
-        asOfDate,
-        useCode,
-        countryCode,
-        phoneNumber,
-        extension,
-        email,
-        url,
-        type,
-        comments);
+    try {
+      return mapper.readValue(phoneString, new TypeReference<List<PhoneEmail>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient phone and email");
+    }
   }
 
   List<Name> mapNames(String nameString) {
@@ -255,33 +229,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // IDENTIFIER Mapping (unchanged)
-  List<Identifier> mapIdentifiers(String identifierString) {
-    return tryParse(identifierString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asIdentifier)
-        .filter(Objects::nonNull)
-        .filter(i -> Identifier.SUPPORTED_IDENTIFIERS.contains(i.type()))
-        .toList();
-  }
-
-  Identifier asIdentifier(Map<String, Object> identifierMap) {
-    if (identifierMap == null) {
-      return null;
+  List<Identification> mapIdentifiers(String identifierString) {
+    if (identifierString == null) {
+      return new ArrayList<>();
     }
-    String type = String.valueOf(identifierMap.get("type"));
-    String id = String.valueOf(identifierMap.get("Id"));
-    String asOfDate = String.valueOf(identifierMap.get("as_of_date_identifier"));
-    String value = String.valueOf(identifierMap.get("value"));
-    String authority = String.valueOf(identifierMap.get("assigning_authority"));
-    return new Identifier(
-        id,
-        asOfDate,
-        value,
-        authority,
-        type);
+    try {
+      return mapper.readValue(identifierString, new TypeReference<List<Identification>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient identification");
+    }
   }
 
   // RACE Mapping (unchanged)

@@ -1,6 +1,5 @@
 package gov.cdc.nbs.deduplication.batch.model;
 
-import java.util.Arrays;
 import java.util.List;
 
 public record PersonMergeData(
@@ -12,9 +11,9 @@ public record PersonMergeData(
     GeneralPatientInformation generalPatientInformation,
     List<Investigation> investigations,
     List<Address> addresses,
-    List<Telecom> telecom,
+    List<PhoneEmail> phoneEmails,
     List<Name> names,
-    List<Identifier> identifiers,
+    List<Identification> identifications,
     List<Race> race) {
 
   public record AdminComments(
@@ -94,17 +93,16 @@ public record PersonMergeData(
       String comments) {
   }
 
-  // TELECOM Object
-  public record Telecom(
+  public record PhoneEmail(
       String id,
-      String asOfDate,
-      String useCode,
+      String asOf,
+      String type,
+      String use,
       String countryCode,
       String phoneNumber,
       String extension,
       String email,
       String url,
-      String type,
       String comments) {
   }
 
@@ -123,24 +121,13 @@ public record PersonMergeData(
       String degree) {
   }
 
-  // IDENTIFIER
-  public record Identifier(
-      String id,
-      String asOfDate,
-      String value,
-      String authority,
-      String type) {
-    public static final List<String> SUPPORTED_IDENTIFIERS = Arrays.asList(
-        "AC", "ACSN", "AIN", "AM", "AMA", "AN", "ANC", "AND", "ANON", "ANT", "APRN", "ASID", "BA", "BC",
-        "BCFN", "BCT", "BR", "BRN", "BSNR", "CAII", "CC", "CONM", "CY", "CZ", "DC", "DCFN", "DDS", "DEA",
-        "DFN", "DI", "DL", "DN", "DO", "DP", "DPM", "DR", "DS", "DSG", "EI", "EN", "ESN", "FDR", "FDRFN",
-        "FGN", "FI", "FILL", "GI", "GIN", "GL", "GN", "HC", "IND", "IRISTEM", "JHN", "LACSN", "LANR", "LI",
-        "LN", "LR", "MA", "MB", "MC", "MCD", "MCN", "MCR", "MCT", "MD", "MI", "MR", "MRT", "MS", "NBSNR",
-        "NCT", "NE", "NH", "NI", "NII", "NIIP", "NP", "NPI", "OBI", "OD", "PA", "PC", "PCN", "PE", "PEN",
-        "PGN", "PHC", "PHE", "PHO", "PI", "PIN", "PLAC", "PN", "PNT", "PPIN", "PPN", "PRC", "PRN", "PT",
-        "QA", "RI", "RN", "RPH", "RR", "RRI", "RRP", "SAMN", "SB", "SID", "SL", "SN", "SNBSN", "SNO", "SP",
-        "SR", "SRX", "SS", "STN", "TAX", "TN", "TPR", "TRL", "U", "UDI", "UPIN", "USID", "VN", "VP", "VS",
-        "WC", "WCN", "WP", "XV", "XX");
+  public record Identification(
+      String personUid,
+      String sequence,
+      String asOf,
+      String type,
+      String assigningAuthority,
+      String value) {
   }
 
   // RACE Object

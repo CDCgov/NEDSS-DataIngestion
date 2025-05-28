@@ -729,19 +729,22 @@ public class QueryConstants {
                   (
                       SELECT
                           (
-                              SELECT
-                                  eid.entity_id_seq AS Id,
-                                  eid.as_of_date AS as_of_date_identifier,
-                                  STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt,'-',''),' ',''), 'json') AS value,
-                                  STRING_ESCAPE(eid.assigning_authority_desc_txt, 'json') AS assigning_authority,
-                                  cvg.code_short_desc_txt Type
-                              FROM
-                                  Entity_id eid WITH (NOLOCK)
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON eid.type_cd = cvg.code
-                                  AND cvg.code_set_nm = 'EI_TYPE_PAT'
-                              WHERE
-                                  eid.entity_uid = p.person_uid
-                                  AND eid.record_status_cd = 'ACTIVE'
+                            SELECT
+                              eid.entity_uid AS personUid,
+                              eid.entity_id_seq AS 'sequence',
+                              eid.as_of_date AS asOf,
+                              cvg.code_short_desc_txt AS 'type',
+                              eid.assigning_authority_desc_txt AS assigningAuthority,
+                              STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt, '-', ''), ' ', ''), 'json') AS 'value'
+                            FROM
+                              Entity_id eid
+                            WITH
+                              (NOLOCK)
+                              LEFT JOIN nbs_srte..code_value_general cvg ON eid.type_cd = cvg.code
+                              AND cvg.code_set_nm = 'EI_TYPE_PAT'
+                            WHERE
+                              eid.entity_uid = p.person_uid
+                              AND eid.record_status_cd = 'ACTIVE'
                               FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS identifiers
                   ) AS identifiers,
@@ -767,25 +770,34 @@ public class QueryConstants {
                       SELECT
                           (
                               SELECT
-                                  tl.tele_locator_uid AS Id,
-                                  elp.as_of_date AS as_of_date_telecom,
-                                  elp.use_cd ,
-                                  tl.cntry_cd AS country_code,
-                                  REPLACE(REPLACE(tl.phone_nbr_txt,'-',''),' ','') AS phone_number,
-                                  tl.extension_txt AS extension,
-                                  STRING_ESCAPE(tl.email_address, 'json') AS email,
-                                  STRING_ESCAPE(tl.url_address, 'json') AS url,
-                                  elp.locator_desc_txt telecom_comments,
-                                  cvg.code_short_desc_txt type
+                                elp.locator_uid AS id,
+                                elp.as_of_date AS asOf,
+                                cvg2.code_short_desc_txt as 'type',
+                                cvg.code_short_desc_txt AS 'use',
+                                tl.cntry_cd AS countryCode,
+                                REPLACE(REPLACE(tl.phone_nbr_txt, '-', ''), ' ', '') AS phoneNumber,
+                                tl.extension_txt AS extension,
+                                STRING_ESCAPE(tl.email_address, 'json') AS email,
+                                STRING_ESCAPE(tl.url_address, 'json') AS url,
+                                elp.locator_desc_txt comments
                               FROM
-                                  Entity_locator_participation elp WITH (NOLOCK)
-                                  JOIN Tele_locator tl WITH (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON elp.cd = cvg.code
+                                Entity_locator_participation elp
+                              WITH
+                                (NOLOCK)
+                                JOIN Tele_locator tl
+                              WITH
+                                (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
+                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = elp.use_cd AND cvg.code_set_nm = 'EL_USE_TELE_PAT'
+                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = cd AND cvg2.code_set_nm = 'EL_TYPE_TELE_PAT'
                               WHERE
-                                  elp.entity_uid = p.person_uid
-                                  AND elp.class_cd = 'TELE'
-                                  AND elp.status_cd = 'A'
-                                  AND (tl.phone_nbr_txt IS NOT NULL OR tl.email_address IS NOT NULL OR tl.url_address IS NOT NULL)
+                                elp.entity_uid = p.person_uid
+                                AND elp.class_cd = 'TELE'
+                                AND elp.status_cd = 'A'
+                                AND (
+                                  tl.phone_nbr_txt IS NOT NULL
+                                  OR tl.email_address IS NOT NULL
+                                  OR tl.url_address IS NOT NULL
+                                )
                               FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS phone
                   ) AS phone,
