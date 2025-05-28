@@ -7,3 +7,67 @@ databaseChangeLog:
         - sqlFile:
             path: db/msgoute/tables/alter_nbs_interface-001.sql
             splitStatements: false
+  - changeSet:
+      id: 2
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/create_ecr_constant_lookup-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 3
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/create_ecr_question_identifier_map-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 4
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/create_ecr_phdc_question_lookup-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 5
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/create_ecr_phdc_answer_lookup-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 6
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/insert_ecr_constant_lookup-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 7
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/insert_ecr_question_identifier_map-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 8
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/insert_ecr_phdc_question_lookup-001.sql
+            splitStatements: false
+  - changeSet:
+      id: 9
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/insert_ecr_phdc_answer_lookup-001.sql
+            splitStatements: false
