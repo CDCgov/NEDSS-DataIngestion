@@ -59,14 +59,14 @@ class PersonUpdateSyncHandlerTest {
 
 
   @Test
-  void testHandleUpdate_patientExists_IsPatient_UpdateExisting() throws JsonProcessingException {
-    String PERSON_UID = "101";
-    String PARENT_ID = "100";
-    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
+  void testHandleUpdate_patientExists_isPatient_updateExisting() throws JsonProcessingException {
+    String personUid = "101";
+    String parentUid = "100";
+    MpiPerson mpiPerson = createMockMpiPerson(personUid, parentUid);
 
-    setupCommonMocksForPatientExists(PERSON_UID, mpiPerson);
+    setupCommonMocksForPatientExists(personUid, mpiPerson);
 
-    runHandleUpdate(PERSON_UID);
+    runHandleUpdate(personUid);
 
     verifyRestClientPatchCall();
     verify(personInsertSyncHandler, never()).insertNewMpiPerson(any());
@@ -75,14 +75,14 @@ class PersonUpdateSyncHandlerTest {
   }
 
   @Test
-  void testHandleUpdate_patientExists_IsPerson_UpdateExisting() throws JsonProcessingException {
-    String PERSON_UID = "100";
-    String PARENT_ID = "100";
-    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
+  void testHandleUpdate_patientExists_isPerson_updateExisting() throws JsonProcessingException {
+    String personUid = "100";
+    String parentUid = "100";
+    MpiPerson mpiPerson = createMockMpiPerson(personUid, parentUid);
 
-    setupCommonMocksForPatientExists(PERSON_UID, mpiPerson);
+    setupCommonMocksForPatientExists(personUid, mpiPerson);
 
-    runHandleUpdate(PERSON_UID);
+    runHandleUpdate(personUid);
 
     verifyRestClientPatchCall();
     verify(personInsertSyncHandler, never()).insertNewMpiPerson(any());
@@ -93,42 +93,42 @@ class PersonUpdateSyncHandlerTest {
 
   @Test
   void testHandleUpdate_patientDoesNotExists_isPerson_insertNewPerson() throws JsonProcessingException {
-    String PERSON_UID = "100";
+    String personUid = "100";
 
-    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PERSON_UID);//isPerson
-    notExist(PERSON_UID);// Patient does NOT exist
-    mockPatientRecordServiceFetchPersonRecord(PERSON_UID, mpiPerson);
+    MpiPerson mpiPerson = createMockMpiPerson(personUid, personUid);//isPerson
+    notExist(personUid);// Patient does NOT exist
+    mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
 
-    runHandleUpdate(PERSON_UID);
+    runHandleUpdate(personUid);
     verifyInsertNewPersonWasCalled(mpiPerson);
   }
 
   @Test
-  void testHandleUpdate_patientDoesNotExists_IsPatient_parentExists_insertNewPatient() throws JsonProcessingException {
-    String PERSON_UID = "101";
-    String PARENT_ID = "100";
+  void testHandleUpdate_patientDoesNotExists_isPatient_parentExists_insertNewPatient() throws JsonProcessingException {
+    String personUid = "101";
+    String parentUid = "100";
 
-    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
-    notExist(PERSON_UID);// Patient does NOT exist
-    exist(PARENT_ID); // parent exists
-    mockPatientRecordServiceFetchPersonRecord(PERSON_UID, mpiPerson);
+    MpiPerson mpiPerson = createMockMpiPerson(personUid, parentUid);
+    notExist(personUid);// Patient does NOT exist
+    exist(parentUid); // parent exists
+    mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
 
-    runHandleUpdate(PERSON_UID);
+    runHandleUpdate(personUid);
     verifyInsertNewPatientWasCalled(mpiPerson);
   }
 
   @Test
-  void testHandleUpdate_patientDoesNotExists_IsPatient_parentDoesNotExist_insertParentAndPatient()
+  void testHandleUpdate_patientDoesNotExists_isPatient_parentDoesNotExist_insertParentAndPatient()
       throws JsonProcessingException {
-    String PERSON_UID = "101";
-    String PARENT_ID = "100";
-    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
+    String personUid = "101";
+    String parentUid = "100";
+    MpiPerson mpiPerson = createMockMpiPerson(personUid, parentUid);
 
-    mockDoesPatientExistInMpi(PERSON_UID, false); // Patient does NOT exist
-    mockDoesPatientExistInMpi(PARENT_ID, false); // parent does NOT exist
-    mockPatientRecordServiceFetchPersonRecord(PERSON_UID, mpiPerson);
+    mockDoesPatientExistInMpi(personUid, false); // Patient does NOT exist
+    mockDoesPatientExistInMpi(parentUid, false); // parent does NOT exist
+    mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
 
-    runHandleUpdate(PERSON_UID);
+    runHandleUpdate(personUid);
     verifyInsertParentAndPatientWasCalled(mpiPerson);
   }
 
@@ -218,7 +218,7 @@ class PersonUpdateSyncHandlerTest {
          "external_person_id": "12345",
          "record": {
                  "external_id": "1234",
-                 "parent_id": "1234",
+                 "parentUid": "1234",
                  "birth_date": "2000-01-01",
                  "sex": "M",
                  "address": [],
@@ -235,7 +235,7 @@ class PersonUpdateSyncHandlerTest {
     JsonNodeFactory factory = JsonNodeFactory.instance;
     return factory.objectNode()
         .set("after", factory.objectNode()
-            .put("person_uid", personUid));
+            .put("personUid", personUid));
   }
 
   private MpiPerson createMockMpiPerson(String externalId, String parentId) {
