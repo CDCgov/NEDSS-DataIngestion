@@ -280,6 +280,7 @@ public class ManagerService implements IManagerService {
             }
 
             if (DecisionSupportConstants.CREATE_INVESTIGATION_WITH_NND_VALUE.equalsIgnoreCase(action)) {
+                // TODO: in legacy this is isolate into a separte transaction
                   handleNndNotification(phcContainerModel, edxDto);
 //                EDXActivityDetailLogDto detailLog = investigationNotificationService.sendNotification(phcContainerModel, edxDto.getNndComment());
 //                detailLog.setRecordType(EdxELRConstant.ELR_RECORD_TP);
