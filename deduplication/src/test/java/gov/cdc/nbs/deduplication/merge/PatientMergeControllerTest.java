@@ -328,11 +328,11 @@ class PatientMergeControllerTest {
                 "condition": "Condition B"
               }
             ],
-            "address": [],
-            "telecom": [],
+            "addresses": [],
+            "phoneEmails": [],
             "names": [],
-            "identifiers": [],
-            "race": []
+            "identifications": [],
+            "races": []
           }
         ]
         """;
