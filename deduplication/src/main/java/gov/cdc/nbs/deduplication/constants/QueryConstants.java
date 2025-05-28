@@ -494,13 +494,6 @@ public class QueryConstants {
       """;
 
 
-  public static final String PATIENT_IDS_BY_PERSON_UIDS = """
-      SELECT mpi_person
-      FROM nbs_mpi_mapping
-      WHERE person_uid IN (:personIds)
-      AND person_uid=person_parent_uid
-      """;
-
 
   public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
       SELECT person_uid
@@ -872,6 +865,13 @@ public class QueryConstants {
       AND mc.person_uid = :potentialMatchPersonUid
       """;
 
+  public static final String MPI_PATIENT_EXISTS_CHECK = """
+      SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM nbs_mpi_mapping
+            WHERE person_uid = :personId
+        ) THEN 1 ELSE 0 END
+      """;
 
 
 }

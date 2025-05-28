@@ -9,13 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -25,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+
 
 @ExtendWith(MockitoExtension.class)
 class PersonUpdateSyncHandlerTest {
@@ -36,8 +36,8 @@ class PersonUpdateSyncHandlerTest {
   private RestClient recordLinkageClient;
 
   @Mock
-  @Qualifier("nbsNamedTemplate")
-  private NamedParameterJdbcTemplate nbsTemplate;
+  @Qualifier("deduplicationNamedTemplate")
+  private NamedParameterJdbcTemplate deduplicationTemplate;
 
   @Mock
   private PatientRecordService patientRecordService;
@@ -51,104 +51,119 @@ class PersonUpdateSyncHandlerTest {
   @Mock
   private RestClient.ResponseSpec responseSpec;
 
+  @Mock
+  private PersonInsertSyncHandler personInsertSyncHandler;
+
   @InjectMocks
   private PersonUpdateSyncHandler personUpdateSyncHandler;
 
+
   @Test
-  void testHandleUpdate_personTable() throws JsonProcessingException {
-    // Arrange
-    JsonNode payloadNode = createPayloadNode("person_uid", "1234");
-    String topic = "test.NBS_ODSE.dbo.Person";// the "Person_name" and "Person_race" are the same case
-    MpiPerson mpiPerson = createMockMpiPerson("1234", "1234");
+  void testHandleUpdate_patientExists_IsPatient_UpdateExisting() throws JsonProcessingException {
+    String PERSON_UID = "101";
+    String PARENT_ID = "100";
+    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
 
-    mockPatientRecordServiceFetchPersonRecord("1234", mpiPerson);
-    mockPatchPatientApi();
-    mockObjectMapperWriteValueAsString(patientUpdateRequestJson());
+    setupCommonMocksForPatientExists(PERSON_UID, mpiPerson);
 
-    // Act
-    personUpdateSyncHandler.handleUpdate(payloadNode, topic);
+    runHandleUpdate(PERSON_UID);
 
-    // Assert
     verifyRestClientPatchCall();
-    verifyPatientRecordServiceCall("1234");
+    verify(personInsertSyncHandler, never()).insertNewMpiPerson(any());
+    verify(personInsertSyncHandler, never()).insertNewMpiPatient(any());
+    verify(personInsertSyncHandler, never()).insertParentAndPatient(any());
   }
 
   @Test
-  void testHandleUpdate_entityIdTable() throws JsonProcessingException {
-    // Arrange
-    JsonNode payloadNode = createPayloadNode("entity_uid", "5678");
-    String topic = "test.NBS_ODSE.dbo.Entity_id";
-    MpiPerson mpiPerson = createMockMpiPerson("5678", "5678");
+  void testHandleUpdate_patientExists_IsPerson_UpdateExisting() throws JsonProcessingException {
+    String PERSON_UID = "100";
+    String PARENT_ID = "100";
+    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
 
-    // Mocking
-    mockPatientRecordServiceFetchPersonRecord("5678", mpiPerson);
-    mockPatchPatientApi();
-    mockObjectMapperWriteValueAsString(patientUpdateRequestJson());
+    setupCommonMocksForPatientExists(PERSON_UID, mpiPerson);
 
-    // Act
-    personUpdateSyncHandler.handleUpdate(payloadNode, topic);
+    runHandleUpdate(PERSON_UID);
 
-    // Assert
     verifyRestClientPatchCall();
-    verifyPatientRecordServiceCall("5678");
+    verify(personInsertSyncHandler, never()).insertNewMpiPerson(any());
+    verify(personInsertSyncHandler, never()).insertNewMpiPatient(any());
+    verify(personInsertSyncHandler, never()).insertParentAndPatient(any());
+  }
+
+
+  @Test
+  void testHandleUpdate_patientDoesNotExists_isPerson_insertNewPerson() throws JsonProcessingException {
+    String PERSON_UID = "100";
+
+    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PERSON_UID);//isPerson
+    notExist(PERSON_UID);// Patient does NOT exist
+    mockPatientRecordServiceFetchPersonRecord(PERSON_UID, mpiPerson);
+
+    runHandleUpdate(PERSON_UID);
+    verifyInsertNewPersonWasCalled(mpiPerson);
   }
 
   @Test
-  void testHandleUpdate_postalLocatorTable() throws JsonProcessingException {
-    // Arrange
-    JsonNode payloadNode = createPayloadNode("postal_locator_uid", "10000");
-    String topic = "test.NBS_ODSE.dbo.Postal_locator";
-    MpiPerson mpiPerson = createMockMpiPerson("1234", "1234");
+  void testHandleUpdate_patientDoesNotExists_IsPatient_parentExists_insertNewPatient() throws JsonProcessingException {
+    String PERSON_UID = "101";
+    String PARENT_ID = "100";
 
-    // Mocking
-    mockNbsTemplateQueryForObject(QueryConstants.FETCH_PERSON_UID_BY_POSTAL_LOCATOR, "10000", "1234");
-    mockPatientRecordServiceFetchPersonRecord("1234", mpiPerson);
-    mockPatchPatientApi();
-    mockObjectMapperWriteValueAsString(patientUpdateRequestJson());
+    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
+    notExist(PERSON_UID);// Patient does NOT exist
+    exist(PARENT_ID); // parent exists
+    mockPatientRecordServiceFetchPersonRecord(PERSON_UID, mpiPerson);
 
-    // Act
-    personUpdateSyncHandler.handleUpdate(payloadNode, topic);
-
-    // Assert
-    verifyRestClientPatchCall();
-    verifyPatientRecordServiceCall("1234");
+    runHandleUpdate(PERSON_UID);
+    verifyInsertNewPatientWasCalled(mpiPerson);
   }
 
   @Test
-  void testHandleUpdate_teleLocatorTable() throws JsonProcessingException {
-    // Arrange
-    JsonNode payloadNode = createPayloadNode("tele_locator_uid", "20000");
-    String topic = "test.NBS_ODSE.dbo.Tele_locator";
-    MpiPerson mpiPerson = createMockMpiPerson("1234", "1234");
+  void testHandleUpdate_patientDoesNotExists_IsPatient_parentDoesNotExist_insertParentAndPatient()
+      throws JsonProcessingException {
+    String PERSON_UID = "101";
+    String PARENT_ID = "100";
+    MpiPerson mpiPerson = createMockMpiPerson(PERSON_UID, PARENT_ID);
 
-    // Mocking
-    mockNbsTemplateQueryForObject(QueryConstants.FETCH_PERSON_UID_BY_TELE_LOCATOR, "20000", "1234");
-    mockPatientRecordServiceFetchPersonRecord("1234", mpiPerson);
-    mockPatchPatientApi();
-    mockObjectMapperWriteValueAsString(patientUpdateRequestJson());
+    mockDoesPatientExistInMpi(PERSON_UID, false); // Patient does NOT exist
+    mockDoesPatientExistInMpi(PARENT_ID, false); // parent does NOT exist
+    mockPatientRecordServiceFetchPersonRecord(PERSON_UID, mpiPerson);
 
-    // Act
-    personUpdateSyncHandler.handleUpdate(payloadNode, topic);
-
-    // Assert
-    verifyRestClientPatchCall();
-    verifyPatientRecordServiceCall("1234");
+    runHandleUpdate(PERSON_UID);
+    verifyInsertParentAndPatientWasCalled(mpiPerson);
   }
 
-  @Test
-  void testHandleUpdate_UnknownTableName() {
-    // Arrange
-    JsonNode payloadNode = createPayloadNode("field_name", "field_value");
-    String topic = "test.NBS_ODSE.dbo.OutOfScopeTable";
 
-    // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> personUpdateSyncHandler.handleUpdate(payloadNode, topic));
+  private void runHandleUpdate(String personUid) throws JsonProcessingException {
+    JsonNode payloadNode = createPayloadNode(personUid);
+    personUpdateSyncHandler.handleUpdate(payloadNode);
   }
+
 
   // Mocking Methods
+  private void setupCommonMocksForPatientExists(String personUid, MpiPerson mpiPerson) throws JsonProcessingException {
+    mockDoesPatientExistInMpi(personUid, true); // Patient exists
+    mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
+    mockPatchPatientApi();
+    mockObjectMapperWriteValueAsString(patientUpdateRequestJson());
+  }
 
-  private void mockObjectMapperWriteValueAsString(String json) throws JsonProcessingException {
-    when(objectMapper.writeValueAsString(any())).thenReturn(json);
+  private void exist(String personId) {
+    mockDoesPatientExistInMpi(personId, true);
+  }
+
+  private void notExist(String personId) {
+    mockDoesPatientExistInMpi(personId, false);
+  }
+
+  private void mockDoesPatientExistInMpi(String personId, boolean exists) {
+    when(deduplicationTemplate.queryForObject(
+        eq(QueryConstants.MPI_PATIENT_EXISTS_CHECK),
+        argThat((MapSqlParameterSource source) -> {
+          Object value = source.getValue("personId");
+          return value != null && personId.equals(value.toString());
+        }),
+        eq(Boolean.class)))
+        .thenReturn(exists);
   }
 
   private void mockPatientRecordServiceFetchPersonRecord(String personUid, MpiPerson mpiPerson) {
@@ -165,15 +180,11 @@ class PersonUpdateSyncHandlerTest {
     when(responseSpec.body(MpiResponse.class)).thenReturn(null);
   }
 
-  private void mockNbsTemplateQueryForObject(String query, String id, String personUid) {
-    doReturn(personUid).when(nbsTemplate).queryForObject(
-        eq(query),
-        argThat((SqlParameterSource parameterSource) -> {
-          String actualId = (String) parameterSource.getValue("id");
-          return id.equals(actualId);
-        }),
-        eq(String.class));
+  private void mockObjectMapperWriteValueAsString(String json) throws JsonProcessingException {
+    when(objectMapper.writeValueAsString(any())).thenReturn(json);
   }
+
+  // Verification Methods
 
   private void verifyRestClientPatchCall() {
     verify(recordLinkageClient).patch();
@@ -185,12 +196,22 @@ class PersonUpdateSyncHandlerTest {
     verify(responseSpec).body(MpiResponse.class);
   }
 
-  private void verifyPatientRecordServiceCall(String personUid) {
-    verify(patientRecordService).fetchPersonRecord(personUid);
+  private void verifyInsertNewPersonWasCalled(MpiPerson mpiPerson) throws JsonProcessingException {
+    verify(personInsertSyncHandler).insertNewMpiPerson(mpiPerson);
+    verifyNoMoreInteractions(personInsertSyncHandler);
+  }
+
+  private void verifyInsertNewPatientWasCalled(MpiPerson mpiPerson) throws JsonProcessingException {
+    verify(personInsertSyncHandler).insertNewMpiPatient(mpiPerson);
+    verifyNoMoreInteractions(personInsertSyncHandler);
+  }
+
+  private void verifyInsertParentAndPatientWasCalled(MpiPerson mpiPerson) throws JsonProcessingException {
+    verify(personInsertSyncHandler).insertParentAndPatient(mpiPerson);
+    verifyNoMoreInteractions(personInsertSyncHandler);
   }
 
   // Helper Methods
-
   private String patientUpdateRequestJson() {
     return """
         {
@@ -210,24 +231,26 @@ class PersonUpdateSyncHandlerTest {
         """;
   }
 
-  private JsonNode createPayloadNode(String fieldName, String fieldValue) {
+  private JsonNode createPayloadNode(String personUid) {
     JsonNodeFactory factory = JsonNodeFactory.instance;
     return factory.objectNode()
         .set("after", factory.objectNode()
-            .put(fieldName, fieldValue));
+            .put("person_uid", personUid));
   }
 
-  private MpiPerson createMockMpiPerson(String personUid, String parentId) {
+  private MpiPerson createMockMpiPerson(String externalId, String parentId) {
     return new MpiPerson(
-        personUid,
+        externalId,
         parentId,
         "2000-01-01",
         "M",
-        Collections.emptyList(), // address
-        Collections.emptyList(), // name
-        Collections.emptyList(), // telecom
+        Collections.emptyList(),
+        Collections.emptyList(),
+        Collections.emptyList(),
         Collections.singletonList("race"),
-        Collections.emptyList() // identifiers
+        Collections.emptyList()
     );
   }
+
+
 }
