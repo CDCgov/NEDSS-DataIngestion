@@ -32,7 +32,7 @@ public class MatchesRequiringReviewResolver {
         count(mc.person_uid) as match_count
       FROM
         matches_requiring_review mrr
-        JOIN match_candidates mc ON mc.match_id = mrr.id
+        JOIN match_candidates mc ON mc.match_id = mrr.id AND mc.is_merge IS NULL
       GROUP BY
         mrr.person_uid,
         mrr.person_name,
@@ -55,7 +55,7 @@ public class MatchesRequiringReviewResolver {
             person_add_time
           FROM
             matches_requiring_review mrr
-            JOIN match_candidates mc ON mc.match_id = mrr.id
+            JOIN match_candidates mc ON mc.match_id = mrr.id AND mc.is_merge IS NULL
           WHERE
             is_merge IS NULL
         ) AS COUNT;

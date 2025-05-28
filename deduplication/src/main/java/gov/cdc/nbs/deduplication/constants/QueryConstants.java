@@ -574,7 +574,7 @@ public class QueryConstants {
       WHERE mc.match_id IN (
           SELECT mrr.id
           FROM matches_requiring_review mrr
-          WHERE mrr.person_uid = :personUid
+          WHERE mrr.person_uid = :personUid AND is_merge IS NULL
       );
       """;
 
