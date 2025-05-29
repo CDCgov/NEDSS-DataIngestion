@@ -17,7 +17,7 @@ public class QueryConstants {
       WHERE person_uid = :personId
       """;
 
-  public static final String INSERT_MATCH_GROUP = """ 
+  public static final String INSERT_MATCH_GROUP = """
           INSERT INTO matches_requiring_review (person_uid, person_name, person_add_time, date_identified)
           VALUES (:personUid, :personName, :personAddTime, :identifiedDate)
       """;
@@ -27,13 +27,12 @@ public class QueryConstants {
           VALUES (:matchId, :personUid, NULL)
       """;
 
-  public static final String NBS_MPI_QUERY = """ 
+  public static final String NBS_MPI_QUERY = """
       INSERT INTO nbs_mpi_mapping
         (person_uid, person_parent_uid, mpi_patient, mpi_person, status,person_add_time)
       VALUES
         (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status ,:person_add_time);
       """;
-
 
   public static final String MPI_PERSON_ID_QUERY = """
       SELECT mpi_person
@@ -66,7 +65,6 @@ public class QueryConstants {
       AND elp.status_cd = 'A'
       AND tl.tele_locator_uid = :id
       """;
-
 
   public static final String PERSON_RECORD_BY_PARENT_ID = """
       SELECT
@@ -173,8 +171,6 @@ public class QueryConstants {
       ORDER BY p.last_chg_time DESC
       """;
 
-
-
   public static final String PERSON_RECORD_BY_PERSON_ID = """
       SELECT
           p.person_uid external_id,
@@ -276,7 +272,6 @@ public class QueryConstants {
           AND p.record_status_cd = 'ACTIVE';
       """;
 
-
   public static final String PERSON_RECORDS_BY_PARENT_IDS = """
       SELECT
           p.person_uid external_id,
@@ -377,8 +372,6 @@ public class QueryConstants {
           p.person_parent_uid IN (:ids)
           AND p.record_status_cd = 'ACTIVE';
       """;
-
-
 
   public static final String PERSON_RECORDS_BY_PERSON_IDS = """
       SELECT
@@ -493,7 +486,6 @@ public class QueryConstants {
           WHERE mrr.person_uid = :person_id
       """;
 
-
   public static final String PATIENT_IDS_BY_PERSON_UIDS = """
       SELECT mpi_person
       FROM nbs_mpi_mapping
@@ -501,14 +493,12 @@ public class QueryConstants {
       AND person_uid=person_parent_uid
       """;
 
-
   public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
       SELECT person_uid
       FROM nbs_mpi_mapping
       WHERE mpi_person IN (:mpiIds)
       AND person_uid=person_parent_uid
       """;
-
 
   public static final String MARK_PATIENTS_AS_MERGED = """
           UPDATE mc
@@ -528,7 +518,6 @@ public class QueryConstants {
             AND mc.person_uid IN (:potentialUids)
       """;
 
-
   public static final String UPDATE_SINGLE_RECORD = """
       WITH UnmarkedCandidates AS (
           SELECT mc.match_id, COUNT(*) AS unmarked_count
@@ -546,14 +535,12 @@ public class QueryConstants {
         AND match_candidates.is_merge IS NULL;
       """;
 
-
   public static final String MARK_SUPERSEDED_RECORDS = """
       UPDATE person
       SET record_status_cd = 'SUPERCEDED',
           person_parent_uid = :personId
       WHERE person_uid IN (:supersededPersonIds)
       """;
-
 
   public static final String CREATE_MERGE_METADATA = """
        INSERT INTO PERSON_MERGE (
@@ -575,14 +562,11 @@ public class QueryConstants {
       )
       """;
 
-
   public static final String CHILD_PATIENT_IDS_OF_PERSON_ID = """
       SELECT person_uid
       FROM person
       WHERE person_parent_uid IN (:parentPersonIds)
       """;
-
-
 
   public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
       SELECT mc.person_uid
@@ -590,7 +574,7 @@ public class QueryConstants {
       WHERE mc.match_id IN (
           SELECT mrr.id
           FROM matches_requiring_review mrr
-          WHERE mrr.person_uid = :personUid
+          WHERE mrr.person_uid = :personUid AND is_merge IS NULL
       );
       """;
 
@@ -707,50 +691,60 @@ public class QueryConstants {
                       SELECT
                           (
                               SELECT
-                                  pl.postal_locator_uid AS Id,
-                                  elp.as_of_date AS as_of_date_address,
-                                  elp.use_cd,
-                                  STRING_ESCAPE(pl.street_addr1, 'json') AS address1,
-                                  STRING_ESCAPE(pl.street_addr2, 'json') AS address2,
-                                  STRING_ESCAPE(pl.city_desc_txt, 'json') AS city,
-                                  sc.code_desc_txt AS state,
-                                  pl.zip_cd AS zip,
-                                  scc.code_desc_txt AS county,
-                                  pl.census_tract AS census,
-                                  pl.cntry_cd AS country,
-                                  cvg.code_short_desc_txt,
-                                  elp.locator_desc_txt address_comments
-                              FROM
-                                  Entity_locator_participation elp WITH (NOLOCK)
-                                  JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
-                                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON elp.cd = cvg.code
-                              WHERE
-                                  elp.entity_uid = p.person_uid
-                                  AND elp.class_cd = 'PST'
-                                  AND elp.status_cd = 'A'
-                                  AND cvg.code_set_nm = 'EL_TYPE_PST_PAT'
-                                  AND pl.street_addr1 IS NOT NULL FOR JSON PATH, INCLUDE_NULL_VALUES
+                                elp.locator_uid as 'id',
+                                elp.as_of_date as 'asOf',
+                                cvg2.code_short_desc_txt as 'type',
+                                cvg.code_short_desc_txt as 'use',
+                                STRING_ESCAPE(pl.street_addr1, 'json') address,
+                                STRING_ESCAPE(pl.street_addr2, 'json') address2,
+                                city_desc_txt city,
+                                sc.code_desc_txt state,
+                                zip_cd zipcode,
+                                scc.code_desc_txt county,
+                                pl.census_tract as censusTract,
+                                cc.code_short_desc_txt as country,
+                                elp.locator_desc_txt as comments
+                            FROM
+                                Entity_locator_participation elp
+                            WITH
+                                (NOLOCK)
+                                JOIN Postal_locator pl
+                            WITH
+                                (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = use_cd
+                                AND cvg.code_set_nm = 'EL_USE_PST_PAT'
+                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = cd
+                                AND cvg2.code_set_nm = 'EL_TYPE_PST_PAT'
+                                LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                                LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+                                LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
+                            WHERE
+                                elp.entity_uid = p.person_uid
+                                AND use_cd NOT IN ('BIR', 'DTH')
+                                AND elp.class_cd = 'PST'
+                                AND elp.status_cd = 'A' FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS address
                   ) AS address,
                   -- identifiers
                   (
                       SELECT
                           (
-                              SELECT
-                                  eid.entity_id_seq AS Id,
-                                  eid.as_of_date AS as_of_date_identifier,
-                                  STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt,'-',''),' ',''), 'json') AS value,
-                                  STRING_ESCAPE(eid.assigning_authority_desc_txt, 'json') AS assigning_authority,
-                                  cvg.code_short_desc_txt Type
-                              FROM
-                                  Entity_id eid WITH (NOLOCK)
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON eid.type_cd = cvg.code
-                                  AND cvg.code_set_nm = 'EI_TYPE_PAT'
-                              WHERE
-                                  eid.entity_uid = p.person_uid
-                                  AND eid.record_status_cd = 'ACTIVE'
+                            SELECT
+                              eid.entity_uid AS personUid,
+                              eid.entity_id_seq AS 'sequence',
+                              eid.as_of_date AS asOf,
+                              cvg.code_short_desc_txt AS 'type',
+                              eid.assigning_authority_desc_txt AS assigningAuthority,
+                              STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt, '-', ''), ' ', ''), 'json') AS 'value'
+                            FROM
+                              Entity_id eid
+                            WITH
+                              (NOLOCK)
+                              LEFT JOIN nbs_srte..code_value_general cvg ON eid.type_cd = cvg.code
+                              AND cvg.code_set_nm = 'EI_TYPE_PAT'
+                            WHERE
+                              eid.entity_uid = p.person_uid
+                              AND eid.record_status_cd = 'ACTIVE'
                               FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS identifiers
                   ) AS identifiers,
@@ -758,16 +752,28 @@ public class QueryConstants {
                   (
                       SELECT
                           (
-                              SELECT
-                                  pr.person_uid AS personUid,
-                                  pr.race_cd AS Id,
-                                  pr.as_of_date AS as_of_date_race,
-                                  pr.race_category_cd
-                              FROM
-                                  Person_race pr WITH (NOLOCK)
-                              WHERE
-                                  pr.person_uid = p.person_uid
-                                  AND pr.record_status_cd = 'ACTIVE'
+                            SELECT
+                              person_uid AS personUid,
+                              pr.race_category_cd as raceCode,
+                              as_of_date AS asOf,
+                              cvg.code_short_desc_txt AS race,
+                              STRING_AGG(rc.code_short_desc_txt, ' | ') AS detailedRaces
+                            FROM
+                              Person_race pr
+                            WITH
+                              (NOLOCK)
+                              LEFT JOIN NBS_SRTE.dbo.race_code rc ON rc.code = race_cd
+                              AND rc.code_set_nm = 'P_RACE'
+                              LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = race_category_cd
+                              AND cvg.code_set_nm = 'RACE_CALCULATED'
+                            WHERE
+                              pr.person_uid = p.person_uid
+                              AND pr.record_status_cd = 'ACTIVE'
+                            GROUP BY
+                              person_uid,
+                              race_category_cd,
+                              as_of_date,
+                              cvg.code_short_desc_txt
                               FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS race
                   ) AS race,
@@ -776,25 +782,34 @@ public class QueryConstants {
                       SELECT
                           (
                               SELECT
-                                  tl.tele_locator_uid AS Id,
-                                  elp.as_of_date AS as_of_date_telecom,
-                                  elp.use_cd ,
-                                  tl.cntry_cd AS country_code,
-                                  REPLACE(REPLACE(tl.phone_nbr_txt,'-',''),' ','') AS phone_number,
-                                  tl.extension_txt AS extension,
-                                  STRING_ESCAPE(tl.email_address, 'json') AS email,
-                                  STRING_ESCAPE(tl.url_address, 'json') AS url,
-                                  elp.locator_desc_txt telecom_comments,
-                                  cvg.code_short_desc_txt type
+                                elp.locator_uid AS id,
+                                elp.as_of_date AS asOf,
+                                cvg2.code_short_desc_txt as 'type',
+                                cvg.code_short_desc_txt AS 'use',
+                                tl.cntry_cd AS countryCode,
+                                REPLACE(REPLACE(tl.phone_nbr_txt, '-', ''), ' ', '') AS phoneNumber,
+                                tl.extension_txt AS extension,
+                                STRING_ESCAPE(tl.email_address, 'json') AS email,
+                                STRING_ESCAPE(tl.url_address, 'json') AS url,
+                                elp.locator_desc_txt comments
                               FROM
-                                  Entity_locator_participation elp WITH (NOLOCK)
-                                  JOIN Tele_locator tl WITH (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON elp.cd = cvg.code
+                                Entity_locator_participation elp
+                              WITH
+                                (NOLOCK)
+                                JOIN Tele_locator tl
+                              WITH
+                                (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
+                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = elp.use_cd AND cvg.code_set_nm = 'EL_USE_TELE_PAT'
+                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = cd AND cvg2.code_set_nm = 'EL_TYPE_TELE_PAT'
                               WHERE
-                                  elp.entity_uid = p.person_uid
-                                  AND elp.class_cd = 'TELE'
-                                  AND elp.status_cd = 'A'
-                                  AND (tl.phone_nbr_txt IS NOT NULL OR tl.email_address IS NOT NULL OR tl.url_address IS NOT NULL)
+                                elp.entity_uid = p.person_uid
+                                AND elp.class_cd = 'TELE'
+                                AND elp.status_cd = 'A'
+                                AND (
+                                  tl.phone_nbr_txt IS NOT NULL
+                                  OR tl.email_address IS NOT NULL
+                                  OR tl.url_address IS NOT NULL
+                                )
                               FOR JSON PATH, INCLUDE_NULL_VALUES
                           ) AS phone
                   ) AS phone,
@@ -815,7 +830,7 @@ public class QueryConstants {
                                   STRING_ESCAPE(pn.last_nm2, 'json') AS secondLast,
                                   cvg3.code_short_desc_txt AS suffix,
                                   STRING_ESCAPE(pn.nm_degree, 'json') AS degree
-                                  
+
                               FROM
                                   person_name pn WITH (NOLOCK)
                                   LEFT JOIN nbs_srte..code_value_general cvg ON pn.nm_use_cd = cvg.code AND cvg.code_set_nm = 'P_NM_USE'
@@ -843,7 +858,6 @@ public class QueryConstants {
           p.person_uid IN (:ids)
       """;
 
-
   public static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
       SELECT
         TOP 1 CONCAT(COALESCE(pn.last_nm, '--'), ', ', COALESCE(pn.first_nm, '--')) AS name,
@@ -861,8 +875,6 @@ public class QueryConstants {
         pn.as_of_date DESC
       """;
 
-
-
   public static final String UN_MERGE_SINGLE_PERSON = """
       UPDATE mc
       SET is_merge = 0
@@ -871,7 +883,5 @@ public class QueryConstants {
       WHERE mrr.person_uid = :person_uid
       AND mc.person_uid = :potentialMatchPersonUid
       """;
-
-
 
 }
