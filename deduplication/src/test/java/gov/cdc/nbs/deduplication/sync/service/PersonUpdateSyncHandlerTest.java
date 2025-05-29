@@ -235,7 +235,7 @@ class PersonUpdateSyncHandlerTest {
     JsonNodeFactory factory = JsonNodeFactory.instance;
     return factory.objectNode()
         .set("after", factory.objectNode()
-            .put("personUid", personUid));
+            .put("person_uid", personUid));
   }
 
   private MpiPerson createMockMpiPerson(String externalId, String parentId) {
