@@ -46,7 +46,7 @@ public class KafkaConsumerService {
     if ("c".equals(operation)) {
       insertHandler.handleInsert(payloadNode); // c for adding a new row
     } else if ("u".equals(operation)) {
-      updateHandler.handleUpdate(payloadNode, "Person"); // u for update
+      updateHandler.handleUpdate(payloadNode); // u for update
     }
   }
 

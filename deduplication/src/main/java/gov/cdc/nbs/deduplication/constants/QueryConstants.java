@@ -486,13 +486,6 @@ public class QueryConstants {
           WHERE mrr.person_uid = :person_id
       """;
 
-  public static final String PATIENT_IDS_BY_PERSON_UIDS = """
-      SELECT mpi_person
-      FROM nbs_mpi_mapping
-      WHERE person_uid IN (:personIds)
-      AND person_uid=person_parent_uid
-      """;
-
   public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
       SELECT person_uid
       FROM nbs_mpi_mapping
@@ -882,6 +875,14 @@ public class QueryConstants {
       JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
       WHERE mrr.person_uid = :person_uid
       AND mc.person_uid = :potentialMatchPersonUid
+      """;
+
+  public static final String MPI_PATIENT_EXISTS_CHECK = """
+      SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM nbs_mpi_mapping
+            WHERE person_uid = :personId
+        ) THEN 1 ELSE 0 END
       """;
 
 }

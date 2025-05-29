@@ -73,7 +73,7 @@ class DuplicatesProcessorTest {
   }
 
   @Test
-  void processReturnsMatchCandidateWithNullForMatch() {
+  void processReturnsMatchCandidateForMatch() {
     String personUid = "1234";
     MpiPerson patientRecord = new MpiPerson(null, null, null, null,
         null, null, null, null, null);

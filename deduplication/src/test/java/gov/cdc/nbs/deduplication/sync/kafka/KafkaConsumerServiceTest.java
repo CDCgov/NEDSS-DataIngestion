@@ -50,7 +50,7 @@ class KafkaConsumerServiceTest {
     kafkaConsumerService.consumePersonMessage(message);
 
     verify(insertHandler, times(1)).handleInsert(payloadNode);
-    verify(updateHandler, never()).handleUpdate(any(), any());
+    verify(updateHandler, never()).handleUpdate(any());
   }
 
   @Test
@@ -60,7 +60,7 @@ class KafkaConsumerServiceTest {
 
     kafkaConsumerService.consumePersonMessage(message);
 
-    verify(updateHandler, times(1)).handleUpdate(payloadNode, "Person");
+    verify(updateHandler, times(1)).handleUpdate(payloadNode);
     verify(insertHandler, never()).handleInsert(any());
   }
 
@@ -69,7 +69,7 @@ class KafkaConsumerServiceTest {
     String message = "{\"payload\": {\"op\": \"d\"}}";
     kafkaConsumerService.consumePersonMessage(message);
 
-    verify(updateHandler, never()).handleUpdate(any(), any());
+    verify(updateHandler, never()).handleUpdate(any());
     verify(insertHandler, never()).handleInsert(any());
   }
 
