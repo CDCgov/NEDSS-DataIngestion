@@ -45,7 +45,7 @@ databaseChangeLog:
       runOnChange: true
       changes:
         - sqlFile:
-            path: db/msgoute/tables/insert_ecr_constant_lookup-001.sql
+            path: db/msgoute/routines/insert_ecr_constant_lookup-001.sql
             splitStatements: false
   - changeSet:
       id: 7
@@ -53,7 +53,7 @@ databaseChangeLog:
       runOnChange: true
       changes:
         - sqlFile:
-            path: db/msgoute/tables/insert_ecr_question_identifier_map-001.sql
+            path: db/msgoute/routines/insert_ecr_question_identifier_map-001.sql
             splitStatements: false
   - changeSet:
       id: 8
@@ -61,7 +61,7 @@ databaseChangeLog:
       runOnChange: true
       changes:
         - sqlFile:
-            path: db/msgoute/tables/insert_ecr_phdc_question_lookup-001.sql
+            path: db/msgoute/routines/insert_ecr_phdc_question_lookup-001.sql
             splitStatements: false
   - changeSet:
       id: 9
@@ -69,5 +69,5 @@ databaseChangeLog:
       runOnChange: true
       changes:
         - sqlFile:
-            path: db/msgoute/tables/insert_ecr_phdc_answer_lookup-001.sql
+            path: db/msgoute/routines/insert_ecr_phdc_answer_lookup-001.sql
             splitStatements: false
