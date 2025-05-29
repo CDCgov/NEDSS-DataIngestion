@@ -527,6 +527,7 @@ public class KafkaConsumerService {
             for(HL7ParsedMessage<OruR1> parsedMessageNew:parsedMessageList) {
                 String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageNew);
                 log.debug("phdcXml: {}", phdcXml);
+                System.out.println("phdcXml: " + phdcXml);
                 NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessageNew, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
