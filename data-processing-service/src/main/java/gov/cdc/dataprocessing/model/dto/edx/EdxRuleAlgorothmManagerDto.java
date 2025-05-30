@@ -60,14 +60,14 @@ public class EdxRuleAlgorothmManagerDto implements Serializable {
     private String errorText;
     private Collection<Object> sendingFacilityColl;
     private Map<Object, Object> edxBasicCriteriaMap;
-    public  enum STATUS_VAL {Success, Failure};
+    public  enum STATUS_VAL {Success, Failure}
     private Timestamp lastChgTime;
     private Long PHCUid;
     private Long PHCRevisionUid;
     private NBSDocumentDto documentDT;
     private Long MPRUid;
     private boolean isContactRecordDoc;
-    private Map<String, EDXEventProcessCaseSummaryDto> eDXEventProcessCaseSummaryDTMap = new HashMap<String, EDXEventProcessCaseSummaryDto>();
+    private Map<String, EDXEventProcessCaseSummaryDto> eDXEventProcessCaseSummaryDTMap = new HashMap<>();
     private boolean isUpdatedDocument;
     private boolean isLabReportDoc;
     private boolean isMorbReportDoc;

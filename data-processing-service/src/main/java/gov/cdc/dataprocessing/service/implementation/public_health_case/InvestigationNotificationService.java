@@ -5,8 +5,6 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
-import gov.cdc.dataprocessing.kafka.consumer.KafkaPublicHealthCaseConsumer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
@@ -64,7 +62,7 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
+    private static final Logger logger = LoggerFactory.getLogger(InvestigationNotificationService.class); // NOSONAR
 
     private final IInvestigationService investigationService;
     private final INotificationService notificationService;
@@ -85,16 +83,15 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     public EDXActivityDetailLogDto sendNotification(Object pageObj, String nndComment) throws DataProcessingException {
         NotificationProxyContainer notProxyVO;
         // Create the Notification object
-        PublicHealthCaseContainer publicHealthCaseContainer;
-        if (pageObj instanceof PageActProxyContainer) {
-            publicHealthCaseContainer = ((PageActProxyContainer) pageObj).getPublicHealthCaseContainer();
-        } else if (pageObj instanceof PamProxyContainer) {
-            publicHealthCaseContainer = ((PamProxyContainer) pageObj).getPublicHealthCaseContainer();
-        } else if (pageObj instanceof PublicHealthCaseContainer) {
-            publicHealthCaseContainer = ((PublicHealthCaseContainer) pageObj);
-        } else {
-            throw new DataProcessingException("Cannot create Notification for unknown page type: " + pageObj.getClass().getCanonicalName());
-        }
+        PublicHealthCaseContainer publicHealthCaseContainer = switch (pageObj) {
+            case PageActProxyContainer pageActProxyContainer -> pageActProxyContainer.getPublicHealthCaseContainer();
+            case PamProxyContainer pamProxyContainer -> pamProxyContainer.getPublicHealthCaseContainer();
+            case PublicHealthCaseContainer healthCaseContainer -> healthCaseContainer;
+            case null, default -> {
+                assert pageObj != null;
+                throw new DataProcessingException("Cannot create Notification for unknown page type: " + pageObj.getClass().getCanonicalName());
+            }
+        };
         NotificationDto notDT = new NotificationDto();
         notDT.setItNew(true);
         notDT.setNotificationUid(-1L);
@@ -132,10 +129,9 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         notProxyVO.setTheNotificationContainer(notVO);
 
         ArrayList<Object> actRelColl = new ArrayList<>();
-        actRelColl.add(0, actDT1);
+        actRelColl.addFirst(actDT1);
         notProxyVO.setTheActRelationshipDTCollection(actRelColl);
 
-        // EdxPHCRDocumentUtil.sendProxyToEJB(notProxyVO, pageObj);
         return sendProxyToEJB(notProxyVO, pageObj);
     }
 
@@ -196,7 +192,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             notifDT.setProgAreaCd(programAreaCd);
             notifVO.setTheNotificationDT(notifDT);
             notificationProxyVO.setTheNotificationContainer(notifVO);
-            Long realNotificationUid = setNotificationProxy(notificationProxyVO);
+            Long realNotificationUid = notificationService.setNotificationProxy(notificationProxyVO);
             eDXActivityDetailLogDT.setRecordId(String.valueOf(realNotificationUid));
             if (!formatErr)
             {
@@ -221,7 +217,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
      */
     @SuppressWarnings({"java:S3776", "java:S6541", "java:S1871"})
     protected Map<Object, Object> validatePAMNotficationRequiredFieldsGivenPageProxy(Object pageObj, Long publicHealthCaseUid,
-                                                                                  Map<Object, Object>  reqFields, String formCd) throws DataProcessingException, RtiCacheException {
+                                                                                  Map<Object, Object>  reqFields, String formCd) throws DataProcessingException {
 
         Map<Object, Object>  missingFields = new TreeMap<>();
 
@@ -298,7 +294,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             String dLocation = metaData.getDataLocation() == null ? "" : metaData.getDataLocation();
             String label = metaData.getQuestionLabel() == null ? "" : metaData.getQuestionLabel();
             Long nbsQueUid = metaData.getNbsQuestionUid();
-            if (!dLocation.equals("")) {
+            if (!dLocation.isEmpty()) {
                 if (dLocation.startsWith("NBS_Answer.") && answerMap != null) {
                     if (answerMap.get(key) == null) {
                         missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
@@ -396,7 +392,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                         for (ActIdDto adt : actIdColl) {
                             String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
                             String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
-                            if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.equals("") && (label.toLowerCase().contains(STATE_STR))) {
+                            if (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.isEmpty() && (label.toLowerCase().contains(STATE_STR))) {
                                 Map<Object, Object> methodMap = getMethods(adt.getClass());
                                 Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                 try {
@@ -417,7 +413,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                                     throw new DataProcessingException(e.getMessage(), e);
                                 }
                             } else if (typeCd.equalsIgnoreCase("CITY")
-                                    && value.equals("") && (label.toLowerCase().contains("city"))) {
+                                    && value.isEmpty() && (label.toLowerCase().contains("city"))) {
                                 Map<Object, Object> methodMap = getMethods(adt.getClass());
                                 Method method = (Method) methodMap.get(getterNm.toLowerCase());
                                 try {
@@ -486,7 +482,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
 
     private void checkObject(Object obj,  Map<Object, Object>  missingFields, NbsQuestionMetadata metaData)  {
         String value = obj == null ? "" : obj.toString();
-        if(value == null || value.trim().length() == 0) {
+        if(value == null || value.trim().isEmpty()) {
             missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
         }
     }
@@ -522,10 +518,5 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         return null;
     }
 
-
-    private Long setNotificationProxy(NotificationProxyContainer notificationProxyVO) throws DataProcessingException
-    {
-        return notificationService.setNotificationProxy(notificationProxyVO);
-    }
 
 }

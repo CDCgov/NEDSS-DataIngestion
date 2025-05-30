@@ -7,19 +7,15 @@ import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsActJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsAnswerJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntityHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswerHist;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
 import gov.cdc.dataprocessing.service.interfaces.answer.IAnswerService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -49,22 +45,16 @@ import java.util.*;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class AnswerService implements IAnswerService {
-    private static final Logger logger = LoggerFactory.getLogger(AnswerService.class); //NOSONAR
+    private final NbsActJdbcRepository nbsActJdbcRepository;
+    private final NbsAnswerJdbcRepository answerJdbcRepository;
 
-    private final NbsAnswerRepository nbsAnswerRepository;
-    private final NbsActEntityRepository nbsActEntityRepository;
-    private final NbsAnswerHistRepository nbsAnswerHistRepository;
-    private final NbsActEntityHistRepository nbsActEntityHistRepository;
     @Value("${service.timezone}")
     private String tz = "UTC";
-    public AnswerService(NbsAnswerRepository nbsAnswerRepository,
-                         NbsActEntityRepository nbsActEntityRepository,
-                         NbsAnswerHistRepository nbsAnswerHistRepository,
-                         NbsActEntityHistRepository nbsActEntityHistRepository) {
-        this.nbsAnswerRepository = nbsAnswerRepository;
-        this.nbsActEntityRepository = nbsActEntityRepository;
-        this.nbsAnswerHistRepository = nbsAnswerHistRepository;
-        this.nbsActEntityHistRepository = nbsActEntityHistRepository;
+    public AnswerService(
+            NbsActJdbcRepository nbsActJdbcRepository,
+            NbsAnswerJdbcRepository answerJdbcRepository) {
+        this.nbsActJdbcRepository = nbsActJdbcRepository;
+        this.answerJdbcRepository = answerJdbcRepository;
     }
 
     public PageContainer getNbsAnswerAndAssociation(Long uid) {
@@ -78,14 +68,13 @@ public class AnswerService implements IAnswerService {
         pageContainer.setAnswerDTMap(nbsAnswerMap);
         pageContainer.setPageRepeatingAnswerDTMap(nbsRepeatingAnswerMap);
 
-        var result = nbsActEntityRepository.getNbsActEntitiesByActUid(uid);
+        var result = nbsActJdbcRepository.getNbsActEntitiesByActUid(uid);
         Collection<NbsActEntityDto> pageCaseEntityDTCollection= new ArrayList<>();
-        if (result.isPresent()) {
-            for(var item : result.get()) {
-                var elem = new NbsActEntityDto(item);
-                pageCaseEntityDTCollection.add(elem);
-            }
+        for(var item : result) {
+            var elem = new NbsActEntityDto(item);
+            pageCaseEntityDTCollection.add(elem);
         }
+
         pageContainer.setActEntityDTCollection(pageCaseEntityDTCollection);
         return pageContainer;
 
@@ -99,13 +88,10 @@ public class AnswerService implements IAnswerService {
         Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
 
 
-        var result = nbsAnswerRepository.getPageAnswerByActUid(actUid);
-        if (result.isPresent()) {
-            for(var item : result.get()){
-                var elem = new NbsAnswerDto(item);
-                pageAnswerDTCollection.add(elem);
-            }
-
+        var result = answerJdbcRepository.findByActUid(actUid);
+        for(var item : result){
+            var elem = new NbsAnswerDto(item);
+            pageAnswerDTCollection.add(elem);
         }
 
 
@@ -172,23 +158,22 @@ public class AnswerService implements IAnswerService {
                 nbsAnswerMap.put(nbsQuestionUid, coll);
             }
             nbsAnswerMap.put(pageAnsDT.getNbsQuestionUid(), pageAnsDT);
-            coll = new ArrayList<>(); //NOSONAR
         }
         nbsQuestionUid = pageAnsDT.getNbsQuestionUid();
         return nbsQuestionUid;
     }
 
 
-    public void insertPageVO(PageContainer pageContainer, ObservationDto rootDTInterface) throws DataProcessingException{
+    public void insertPageVO(PageContainer pageContainer, ObservationDto rootDTInterface) {
         if(pageContainer !=null && pageContainer.getAnswerDTMap() !=null ) {
             Collection<Object> answerDTColl = new ArrayList<>(pageContainer.getAnswerDTMap().values());
             if(!answerDTColl.isEmpty()) {
-                storeAnswerDTCollection(answerDTColl, rootDTInterface);
+                storeAnswerDTCollection(answerDTColl);
             }
             if(pageContainer.getPageRepeatingAnswerDTMap() != null) {
                 Collection<Object> interviewRepeatingAnswerDTColl = pageContainer.getPageRepeatingAnswerDTMap().values();
                 if(!interviewRepeatingAnswerDTColl.isEmpty()) {
-                    storeAnswerDTCollection(interviewRepeatingAnswerDTColl, rootDTInterface);
+                    storeAnswerDTCollection(interviewRepeatingAnswerDTColl);
                 }
             }
         }
@@ -201,19 +186,19 @@ public class AnswerService implements IAnswerService {
     }
 
 
-    public void storePageAnswer(PageContainer pageContainer, ObservationDto observationDto) throws DataProcessingException{
+    public void storePageAnswer(PageContainer pageContainer, ObservationDto observationDto) {
         delete(observationDto);
         if(pageContainer != null && pageContainer.getAnswerDTMap() != null)
         {
-            storeAnswerDTCollection(new ArrayList<>( pageContainer.getAnswerDTMap().values()), observationDto);
+            storeAnswerDTCollection(new ArrayList<>( pageContainer.getAnswerDTMap().values()));
         }
         if(pageContainer != null && pageContainer.getPageRepeatingAnswerDTMap() != null)
         {
-            storeAnswerDTCollection(pageContainer.getPageRepeatingAnswerDTMap().values(), observationDto);
+            storeAnswerDTCollection(pageContainer.getPageRepeatingAnswerDTMap().values());
         }
 
         if (pageContainer != null) {
-            insertActEntityDTCollection(pageContainer.getActEntityDTCollection(), observationDto);
+            insertActEntityDTCollection(pageContainer.getActEntityDTCollection());
         }
     }
 
@@ -222,14 +207,14 @@ public class AnswerService implements IAnswerService {
         if(!pamDTCollection.isEmpty()){
             for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
                 if (pamCaseEntityDT.isItDelete()) {
-                    nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
+                    nbsActJdbcRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
                 } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
                     var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                     nbsActEntity.setActUid(rootDTInterface.getPublicHealthCaseUid());
                     nbsActEntity.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     nbsActEntity.setRecordStatusCd("OPEN");
                     nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
-                    nbsActEntityRepository.save(nbsActEntity);
+                    nbsActJdbcRepository.mergeNbsActEntity(nbsActEntity);
                 }
             }
         }
@@ -240,66 +225,63 @@ public class AnswerService implements IAnswerService {
         if(!pamDTCollection.isEmpty()){
             for (NbsActEntityDto pamCaseEntityDT : pamDTCollection) {
                 if (pamCaseEntityDT.isItDelete()) {
-                    nbsActEntityRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
+                    nbsActJdbcRepository.deleteNbsEntityAct(pamCaseEntityDT.getNbsActEntityUid());
                 } else if (pamCaseEntityDT.isItDirty() || pamCaseEntityDT.isItNew()) {
                     var nbsActEntity = new NbsActEntity(pamCaseEntityDT);
                     nbsActEntity.setActUid(rootDTInterface.getObservationUid());
                     nbsActEntity.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
                     nbsActEntity.setRecordStatusCd("OPEN");
                     nbsActEntity.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
-                    nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
+                    nbsActJdbcRepository.mergeNbsActEntity(new NbsActEntity(pamCaseEntityDT));
                 }
             }
         }
     }
 
-    void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection, ObservationDto observationDto) // NOSONAR
+    void insertActEntityDTCollection(Collection<NbsActEntityDto> actEntityDTCollection) // NOSONAR
     {
         if(!actEntityDTCollection.isEmpty()){
             for (NbsActEntityDto pamCaseEntityDT : actEntityDTCollection) {
-                nbsActEntityRepository.save(new NbsActEntity(pamCaseEntityDT));
+                nbsActJdbcRepository.mergeNbsActEntity(new NbsActEntity(pamCaseEntityDT));
             }
         }
     }
 
     @SuppressWarnings("java:S1172")
-    protected void storeAnswerDTCollection(Collection<Object> answerDTColl, ObservationDto interfaceDT) {
+    protected void storeAnswerDTCollection(Collection<Object> answerDTColl) {
         if (answerDTColl != null){
             for (Object o : answerDTColl) {
                 NbsAnswerDto answerDT = (NbsAnswerDto) o;
                 if (answerDT.isItDirty() || answerDT.isItNew()) {
-                    nbsAnswerRepository.save(new NbsAnswer(answerDT));
+                    answerJdbcRepository.mergeNbsAnswer(new NbsAnswer(answerDT));
                 } else if (answerDT.isItDelete()) {
-                    nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
+                    answerJdbcRepository.deleteByNbsAnswerUid(answerDT.getNbsAnswerUid());
                 }
             }
         }
     }
 
     protected void delete(ObservationDto rootDTInterface) {
-        Collection<Object> answerCollection = null;
+        Collection<Object> answerCollection;
 
-        var result = nbsAnswerRepository.getPageAnswerByActUid(rootDTInterface.getObservationUid());
-        if (result.isPresent()) {
-            answerCollection = new ArrayList<>();
-            for(var item : result.get()) {
-                answerCollection.add(new NbsAnswerDto(item));
-            }
+        var result = answerJdbcRepository.findByActUid(rootDTInterface.getObservationUid());
+        answerCollection = new ArrayList<>();
+        for(var item : result) {
+            answerCollection.add(new NbsAnswerDto(item));
         }
-        if(answerCollection!=null && !answerCollection.isEmpty()) {
+
+        if(!answerCollection.isEmpty()) {
             insertAnswerHistoryDTCollection(answerCollection);
         }
 
-        var actEntityResult = nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getObservationUid());
-        Collection<NbsActEntityDto> actEntityCollection = null;
-        if (actEntityResult.isPresent()) {
-            actEntityCollection = new ArrayList<>();
-            for(var item: actEntityResult.get()) {
-                actEntityCollection.add(new NbsActEntityDto(item));
-            }
+        var actEntityResult = nbsActJdbcRepository.getNbsActEntitiesByActUid(rootDTInterface.getObservationUid());
+        Collection<NbsActEntityDto> actEntityCollection;
+        actEntityCollection = new ArrayList<>();
+        for(var item: actEntityResult) {
+            actEntityCollection.add(new NbsActEntityDto(item));
         }
 
-        if(actEntityCollection!=null && !actEntityCollection.isEmpty()) {
+        if(!actEntityCollection.isEmpty()) {
             insertPageEntityHistoryDTCollection(actEntityCollection, rootDTInterface);
         }
     }
@@ -310,13 +292,12 @@ public class AnswerService implements IAnswerService {
             for (Object obj : oldAnswerDTCollection) {
                 if (obj instanceof ArrayList<?> && !((ArrayList<Object>) obj).isEmpty()) {
                     for (NbsAnswerDto answerDT : (ArrayList<NbsAnswerDto>) obj) {
-                        nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
-                        nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
+                        answerJdbcRepository.deleteByNbsAnswerUid(answerDT.getNbsAnswerUid());
+                        answerJdbcRepository.mergeNbsAnswerHist(new NbsAnswerHist(answerDT));
                     }
-                } else if (obj instanceof NbsAnswerDto) {
-                    NbsAnswerDto answerDT = (NbsAnswerDto) obj;
-                    nbsAnswerRepository.deleteNbsAnswer(answerDT.getNbsAnswerUid());
-                    nbsAnswerHistRepository.save(new NbsAnswerHist(answerDT));
+                } else if (obj instanceof NbsAnswerDto answerDT) {
+                    answerJdbcRepository.deleteByNbsAnswerUid(answerDT.getNbsAnswerUid());
+                    answerJdbcRepository.mergeNbsAnswerHist(new NbsAnswerHist(answerDT));
                 }
             }
         }
@@ -326,14 +307,14 @@ public class AnswerService implements IAnswerService {
     {
         if (nbsCaseEntityDTColl != null) {
             for (NbsActEntityDto nbsActEntityDto : nbsCaseEntityDTColl) {
-                nbsActEntityRepository.deleteNbsEntityAct(nbsActEntityDto.getNbsActEntityUid());
+                nbsActJdbcRepository.deleteNbsEntityAct(nbsActEntityDto.getNbsActEntityUid());
 
                 var data = new NbsActEntityHist(nbsActEntityDto);
                 data.setLastChgTime(oldrootDTInterface.getLastChgTime());
                 data.setLastChgUserId(oldrootDTInterface.getLastChgUserId());
                 data.setRecordStatusCd(oldrootDTInterface.getRecordStatusCd());
                 data.setRecordStatusTime(oldrootDTInterface.getRecordStatusTime());
-                nbsActEntityHistRepository.save(data);
+                nbsActJdbcRepository.mergeNbsActEntityHist(data);
             }
         }
     }

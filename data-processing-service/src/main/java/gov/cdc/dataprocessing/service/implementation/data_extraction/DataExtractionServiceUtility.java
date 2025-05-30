@@ -32,14 +32,6 @@ import java.io.StringReader;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class DataExtractionServiceUtility {
-//    public Container parsingElrXmlPayload(String xmlPayload) throws JAXBException {
-//
-//        JAXBContext context = JAXBContext.newInstance(Container.class);
-//        Unmarshaller unmarshaller = context.createUnmarshaller();
-//        StringReader reader = new StringReader(xmlPayload);
-//        return (Container) unmarshaller.unmarshal(reader);
-//    }
-
     private static final JAXBContext ELR_CONTEXT;
 
     static {

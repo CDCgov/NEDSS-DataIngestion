@@ -820,7 +820,9 @@ public class ObservationService implements IObservationService {
                 nndActivityLogDto.setLocalId(localId);
             }
             else
+            {
                 nndActivityLogDto.setLocalId("N/A");
+            }
             //catch & store auto resend notifications exceptions in NNDActivityLog table
             nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
             logger.error("Exception occurred while calling nndMessageSenderHelper.updateAutoResendNotificationsAsync");
@@ -1205,7 +1207,7 @@ public class ObservationService implements IObservationService {
             //Manipulate jurisdiction for preparing vo
             jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
             if(jurisdictionCd != null
-                && (jurisdictionCd.trim().equals("")
+                && (jurisdictionCd.trim().isEmpty()
                     || jurisdictionCd.equals("ANY")
                     || jurisdictionCd.equals("NONE")
                 )
@@ -1221,30 +1223,24 @@ public class ObservationService implements IObservationService {
 
     }
 
-    private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid) throws DataProcessingException {
-        Map<Object, Object> localIds = null;
+    private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid)  {
+        Map<Object, Object> localIds;
 
-        try
-        {
-            //Find observation local id
-            localIds = new HashMap<>();
-            var resObs = observationRepository.findById(observationUid);
-            ObservationDto obsDT = new ObservationDto();
-            if (resObs.isPresent()) {
-                obsDT = new ObservationDto(resObs.get());
-            }
-            localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
-            localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
-            //Find mpr local id
-            var resPat = personRepository.findById(personMprUid);
-            if (resPat.isPresent()) {
-                localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
-            }
+        //Find observation local id
+        localIds = new HashMap<>();
+        var resObs = observationRepository.findById(observationUid);
+        ObservationDto obsDT = new ObservationDto();
+        if (resObs.isPresent()) {
+            obsDT = new ObservationDto(resObs.get());
         }
-        catch (Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
+        localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
+        localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
+        //Find mpr local id
+        var resPat = personRepository.findById(personMprUid);
+        if (resPat.isPresent()) {
+            localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
         }
+
         return localIds;
     }
 
@@ -1252,7 +1248,7 @@ public class ObservationService implements IObservationService {
                                                       ObservationContainer orderTest,
                                                       String businessTriggerCd,
                                                       boolean isELR) {
-        if (labResultProxyVO.isItNew() && orderTest.getTheObservationDto().getProcessingDecisionCd()!=null && !orderTest.getTheObservationDto().getProcessingDecisionCd().trim().equals(""))
+        if (labResultProxyVO.isItNew() && orderTest.getTheObservationDto().getProcessingDecisionCd()!=null && !orderTest.getTheObservationDto().getProcessingDecisionCd().trim().isEmpty())
         {
             businessTriggerCd = NEDSSConstant.OBS_LAB_CR_MR;
         }
@@ -1302,73 +1298,65 @@ public class ObservationService implements IObservationService {
     }
     @SuppressWarnings("java:S3776")
     private Long storeObservationVOCollection(BaseContainer proxyVO) throws DataProcessingException {
-        try {
-            //Iterates the observation collection and process each observation vo
-            Collection<ObservationContainer>  obsVOColl = null;
-            boolean isLabResultProxyVO = false;
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
-                obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
-                isLabResultProxyVO = true;
-            }
-
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationContainerCollection();
-//            }
-
-            ObservationContainer observationContainer ;
-            Long returnObsVal = null;
-
-            if (obsVOColl != null && !obsVOColl.isEmpty())
-            {
-                for (ObservationContainer item : obsVOColl) {
-                    observationContainer = item;
-
-                    if (observationContainer == null) {
-                        continue;
-                    }
-
-                    //If lab report's order test, set a flag
-                    boolean isRootObs = false;
-
-                    String obsDomainCdSt1 = observationContainer.getTheObservationDto().
-                            getObsDomainCdSt1();
-                    if (isLabResultProxyVO && obsDomainCdSt1 != null &&
-                            obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)) {
-                        isRootObs = true;
-                    }
-
-                    //If a root morbidity, set a flag so to return the observation uid
-                    String ctrlCdDisplayForm = observationContainer.getTheObservationDto().
-                            getCtrlCdDisplayForm();
-                    if (ctrlCdDisplayForm != null &&
-                            ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)) {
-                        isRootObs = true;
-                    }
-
-                    //Persist the observation vo
-                    Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
-
-                    //Update associations with real uid if new
-                    if (observationContainer.isItNew()) {
-                        Long falseUid = observationContainer.getTheObservationDto().getObservationUid();
-                        if (falseUid.intValue() < 0) {
-                            uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
-                        }
-                    }
-
-
-                    //Return the order test uid
-                    if (observationUid != null && isRootObs) {
-                        returnObsVal = observationUid;
-                    }
-                } //end of for loop
-            } //end of main if
-            return returnObsVal;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        //Iterates the observation collection and process each observation vo
+        Collection<ObservationContainer>  obsVOColl = null;
+        boolean isLabResultProxyVO = false;
+        if (proxyVO instanceof LabResultProxyContainer)
+        {
+            obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
+            isLabResultProxyVO = true;
         }
+
+        ObservationContainer observationContainer ;
+        Long returnObsVal = null;
+
+        if (obsVOColl != null && !obsVOColl.isEmpty())
+        {
+            for (ObservationContainer item : obsVOColl) {
+                observationContainer = item;
+
+                if (observationContainer == null) {
+                    continue;
+                }
+
+                //If lab report's order test, set a flag
+                boolean isRootObs = false;
+
+                String obsDomainCdSt1 = observationContainer.getTheObservationDto().
+                        getObsDomainCdSt1();
+                if (isLabResultProxyVO && obsDomainCdSt1 != null &&
+                        obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)) {
+                    isRootObs = true;
+                }
+
+                //If a root morbidity, set a flag so to return the observation uid
+                String ctrlCdDisplayForm = observationContainer.getTheObservationDto().
+                        getCtrlCdDisplayForm();
+                if (ctrlCdDisplayForm != null &&
+                        ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)) {
+                    isRootObs = true;
+                }
+
+                //Persist the observation vo
+                Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
+
+                //Update associations with real uid if new
+                if (observationContainer.isItNew()) {
+                    Long falseUid = observationContainer.getTheObservationDto().getObservationUid();
+                    if (falseUid.intValue() < 0) {
+                        uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
+                    }
+                }
+
+
+                //Return the order test uid
+                if (observationUid != null && isRootObs) {
+                    returnObsVal = observationUid;
+                }
+            } //end of for loop
+        } //end of main if
+        return returnObsVal;
+
     }
 
 
@@ -1376,58 +1364,51 @@ public class ObservationService implements IObservationService {
 
     protected boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
 
-        try
+        ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+
+        ObservationDto observationDT = observationVO.getTheObservationDto();
+        observationDT.setProcessingDecisionCd(processingDecisionCd);
+        if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
         {
-            ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+            observationDT.setProcessingDecisionTxt(processingDecisionTxt);
+        }
 
-            ObservationDto observationDT = observationVO.getTheObservationDto();
-            observationDT.setProcessingDecisionCd(processingDecisionCd);
-            if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
-            {
-                observationDT.setProcessingDecisionTxt(processingDecisionTxt);
-            }
+        String observationType = observationDT.getCtrlCdDisplayForm();
+        String businessTrigger;
+        String businessObjLookupName;
 
-            String observationType = observationDT.getCtrlCdDisplayForm();
-            String businessTrigger;
-            String businessObjLookupName;
-
-            if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
-                businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
-                businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
-
-            }
-            else{
-                throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
-            }
-
-            if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
-            {
-                observationDT.setItNew(false);
-                observationDT.setItDirty(true);
-
-                RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
-                        observationDT,
-                        businessObjLookupName,
-                        businessTrigger,
-                        "OBSERVATION",
-                        NEDSSConstant.BASE,
-                        observationDT.getVersionCtrlNbr()
-                );
-
-                observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
-                observationRepositoryUtil.saveObservation(observationVO);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+        if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
+            businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
+            businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
 
         }
-        catch (Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
+        else{
+            throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
         }
+
+        if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
+        {
+            observationDT.setItNew(false);
+            observationDT.setItDirty(true);
+
+            RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
+                    observationDT,
+                    businessObjLookupName,
+                    businessTrigger,
+                    "OBSERVATION",
+                    NEDSSConstant.BASE,
+                    observationDT.getVersionCtrlNbr()
+            );
+
+            observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
+            observationRepositoryUtil.saveObservation(observationVO);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
 

@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.NNDActivityLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.NNDActivityLogRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.log.INNDActivityLogService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -39,16 +38,13 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class NNDActivityLogService implements INNDActivityLogService {
     private final NNDActivityLogRepository nndActivityLogRepository;
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Value("${service.timezone}")
     private String tz = "UTC";
     private final UidPoolManager uidPoolManager;
 
 
-    public NNDActivityLogService(NNDActivityLogRepository nndActivityLogRepository,
-                                 IOdseIdGeneratorWCacheService odseIdGeneratorService1, @Lazy UidPoolManager uidPoolManager) {
+    public NNDActivityLogService(NNDActivityLogRepository nndActivityLogRepository, @Lazy UidPoolManager uidPoolManager) {
         this.nndActivityLogRepository = nndActivityLogRepository;
-        this.odseIdGeneratorService = odseIdGeneratorService1;
         this.uidPoolManager = uidPoolManager;
     }
 

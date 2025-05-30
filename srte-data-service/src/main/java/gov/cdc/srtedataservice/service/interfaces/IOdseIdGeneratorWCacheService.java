@@ -5,5 +5,5 @@ import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.model.dto.LocalUidModel;
 
 public interface IOdseIdGeneratorWCacheService {
-    LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException;
+    LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException;
 }

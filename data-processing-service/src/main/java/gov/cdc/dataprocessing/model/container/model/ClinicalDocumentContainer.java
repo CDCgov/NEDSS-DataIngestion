@@ -34,14 +34,10 @@ import java.util.Collection;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ClinicalDocumentContainer extends BaseContainer implements Serializable
 {
-    // private boolean itDirty = false;
-    // private boolean itNew = true;
-    // private boolean itDelete = false;
     private static final long serialVersionUID = 1L;
     public ClinicalDocumentDto theClinicalDocumentDT = new ClinicalDocumentDto();
     public Collection<Object> theActivityLocatorParticipationDTCollection;
     public Collection<Object> theActIdDTCollection;
-    //Collections added for Participation and Activity Relationship object association
     public Collection<Object> theParticipationDTCollection;
     public Collection<Object> theActRelationshipDTCollection;
 

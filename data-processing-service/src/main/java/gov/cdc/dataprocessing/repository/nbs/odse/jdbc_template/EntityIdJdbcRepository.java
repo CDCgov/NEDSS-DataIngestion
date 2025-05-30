@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static gov.cdc.dataprocessing.constant.query.EntityQuery.INSERT_SQL_ENTITY_ID;
-import static gov.cdc.dataprocessing.constant.query.EntityQuery.SELECT_ENTITY_ID_BY_ENTITY_ID;
+import static gov.cdc.dataprocessing.constant.query.EntityQuery.*;
 
 @Component
 public class EntityIdJdbcRepository {
@@ -86,12 +85,49 @@ public class EntityIdJdbcRepository {
                 parameters.toArray(new MapSqlParameterSource[0]));
     }
 
+    public void mergeEntityId(EntityId entityId) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("entityUid", entityId.getEntityUid())
+                .addValue("entityIdSeq", entityId.getEntityIdSeq())
+                .addValue("addReasonCode", entityId.getAddReasonCode())
+                .addValue("addTime", entityId.getAddTime())
+                .addValue("addUserId", entityId.getAddUserId())
+                .addValue("assigningAuthorityCode", entityId.getAssigningAuthorityCode())
+                .addValue("assigningAuthorityDescription", entityId.getAssigningAuthorityDescription())
+                .addValue("durationAmount", entityId.getDurationAmount())
+                .addValue("durationUnitCode", entityId.getDurationUnitCode())
+                .addValue("effectiveFromTime", entityId.getEffectiveFromTime())
+                .addValue("effectiveToTime", entityId.getEffectiveToTime())
+                .addValue("lastChangeReasonCode", entityId.getLastChangeReasonCode())
+                .addValue("lastChangeTime", entityId.getLastChangeTime())
+                .addValue("lastChangeUserId", entityId.getLastChangeUserId())
+                .addValue("recordStatusCode", entityId.getRecordStatusCode())
+                .addValue("recordStatusTime", entityId.getRecordStatusTime())
+                .addValue("rootExtensionText", entityId.getRootExtensionText())
+                .addValue("statusCode", entityId.getStatusCode())
+                .addValue("statusTime", entityId.getStatusTime())
+                .addValue("typeCode", entityId.getTypeCode())
+                .addValue("typeDescriptionText", entityId.getTypeDescriptionText())
+                .addValue("userAffiliationText", entityId.getUserAffiliationText())
+                .addValue("validFromTime", entityId.getValidFromTime())
+                .addValue("validToTime", entityId.getValidToTime())
+                .addValue("asOfDate", entityId.getAsOfDate())
+                .addValue("assigningAuthorityIdType", entityId.getAssigningAuthorityIdType());
+
+        jdbcTemplateOdse.update(MERGE_ENTITY_ID, params);
+    }
 
 
     public List<EntityId> findEntityIds(Long entityUid) {
         MapSqlParameterSource params = new MapSqlParameterSource("entity_uid", entityUid);
 
         return jdbcTemplateOdse.query(SELECT_ENTITY_ID_BY_ENTITY_ID, params, new BeanPropertyRowMapper<>(EntityId.class));
+    }
+
+    public List<EntityId> findEntityIdsActive(Long entityUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("entity_uid", entityUid);
+
+        return jdbcTemplateOdse.query(SELECT_ENTITY_ID_BY_ENTITY_ID_ACTIVE, params, new BeanPropertyRowMapper<>(EntityId.class));
     }
 
 }

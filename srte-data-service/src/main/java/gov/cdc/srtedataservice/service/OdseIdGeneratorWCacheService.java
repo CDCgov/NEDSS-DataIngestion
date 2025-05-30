@@ -26,11 +26,11 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
     }
 
     @Transactional
-    public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
+    public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         return createNewLocalUid(localIdClass, gaApplied);
     }
 
-    private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
+    private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         LocalUidGeneratorDto localId = fetchLocalId(localIdClass);
 
 
@@ -43,7 +43,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         return localUidModel;
     }
 
-    private LocalUidGeneratorDto fetchLocalId(LocalIdClass localIdClass) throws RtiCacheException {
+    private LocalUidGeneratorDto fetchLocalId(LocalIdClass localIdClass) throws DataProcessingException {
         try {
             Optional<LocalUidGenerator> localUidOpt = localUidGeneratorRepository.findByIdForUpdate(localIdClass.name());
             if (localUidOpt.isPresent()) {

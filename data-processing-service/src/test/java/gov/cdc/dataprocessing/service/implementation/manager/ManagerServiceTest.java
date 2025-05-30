@@ -164,7 +164,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_Test_PageAct_ToStep3() throws DataProcessingException, RtiCacheException {
+    void initiatingInvestigationAndPublicHealthCase_Test_PageAct_ToStep3() throws DataProcessingException {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -210,7 +210,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_Test_Pam_ToStep3() throws DataProcessingException, RtiCacheException {
+    void initiatingInvestigationAndPublicHealthCase_Test_Pam_ToStep3() throws DataProcessingException {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -256,7 +256,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiatingInvestigationAndPublicHealthCase_NoFurther() throws DataProcessingException, RtiCacheException {
+    void initiatingInvestigationAndPublicHealthCase_NoFurther() throws DataProcessingException {
         PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = new PublicHealthCaseFlowContainer();
         var edxLabInfoDto = new EdxLabInformationDto();
         var obsDto = new ObservationDto();
@@ -737,7 +737,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -783,7 +783,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -827,7 +827,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -872,7 +872,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -919,7 +919,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -965,7 +965,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1011,7 +1011,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, RtiCacheException, EdxLogException {
+    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);

@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.jurisdiction;
 
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class ProgAreaJurisdictionUtil {
      * code, but when the jurisdiction code is ALL, a hash code for each jurisdiction
      * in the jurisdictionMap is created.
      */
-    public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode) throws RtiCacheException {
+    public Collection<Object> getPAJHashList(String programAreaCode, String jurisdictionCode) throws DataProcessingException {
         ArrayList<Object>  arrayList = new ArrayList<>();
         if(jurisdictionCode.equals("ALL"))
         {

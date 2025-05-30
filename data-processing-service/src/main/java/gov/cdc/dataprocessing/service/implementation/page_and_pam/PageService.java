@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.utilities.component.page_and_pam.PageRepositoryUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +47,6 @@ public class PageService implements IPageService {
         this.pageRepositoryUtil = pageRepositoryUtil;
     }
 
-    @Transactional()
     public Long setPageProxyWithAutoAssoc(String typeCd, PageActProxyContainer pageProxyVO, Long observationUid,
                                           String observationTypeCd, String processingDecision) throws DataProcessingException {
         Long publicHealthCaseUID=null;

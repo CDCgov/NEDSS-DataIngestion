@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.kafka.consumer;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
@@ -101,7 +100,7 @@ public class KafkaManagerConsumer {
                 pendingMessages.add(nbs);
             }
 
-            logger.debug("[KafkaManagerConsumer] pending " + messages.size() + " messages");
+            logger.debug("[KafkaManagerConsumer] pending {} messages", messages.size());
             acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("Failed to process Kafka message: {}", e.getMessage());
@@ -129,12 +128,12 @@ public class KafkaManagerConsumer {
                 concurrencyLimiter.acquireUninterruptibly();
                 Thread.startVirtualThread(() -> {
                     try {
-//                        managerService.processDataByBatch(batch);
                         for (Integer id : batch) {
                             try {
                                 var result = managerService.processingELR(id);
-                                var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
-                                managerService.initiatingLabProcessing(phc);
+                                if (result != null) {
+                                    managerService.initiatingLabProcessing(result);
+                                }
                             } catch (Exception e) {
                                 log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
                             }
@@ -154,8 +153,9 @@ public class KafkaManagerConsumer {
 
                 try {
                     var result = managerService.processingELR(nbs);
-//                    var phc = managerService.initiatingInvestigationAndPublicHealthCase(result);
-                    managerService.initiatingLabProcessing(result);
+                    if (result != null) {
+                        managerService.initiatingLabProcessing(result);
+                    }
                 } catch (Exception e) {
                     log.error("Single-threaded error: {}", e.getMessage(), e);
                 }
@@ -164,7 +164,7 @@ public class KafkaManagerConsumer {
     }
 
     @PostConstruct
-    public void init() throws DataProcessingException, RtiCacheException {
+    public void init() throws DataProcessingException {
         // Ensure this runs first at startup
         AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
@@ -189,7 +189,7 @@ public class KafkaManagerConsumer {
 
 
     @Scheduled(fixedDelay = 3600000) // every 1 hr
-    public void populateHashPAJList() throws DataProcessingException, RtiCacheException {
+    public void populateHashPAJList() throws DataProcessingException {
         logger.info("Started populateHashPAJList");
         OdseCache.OWNER_LIST_HASHED_PA_J =  queryHelper.getHashedPAJList(false);
         OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);

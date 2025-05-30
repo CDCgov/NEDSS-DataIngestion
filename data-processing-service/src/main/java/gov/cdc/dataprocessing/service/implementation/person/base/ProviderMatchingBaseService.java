@@ -71,7 +71,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)) {
                     if (entLocPartDT.getCd() != null && entLocPartDT.getCd().equals(NEDSSConstant.PHONE)) {
                         TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
-                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals(""))
+                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().isEmpty())
                             nameTeleStr = carrot + teleLocDT.getPhoneNbrTxt();
 
                     }
@@ -98,10 +98,10 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                             && entLocPartDT.getUseCd().equals(NEDSSConstant.WORK_PLACE)) {
                         PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
                         if (postLocDT != null) {
-                            if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().equals(""))
-                                    && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().equals(""))
-                                    && (postLocDT.getStateCd() != null && !postLocDT.getStateCd().equals(""))
-                                    && (postLocDT.getZipCd() != null && !postLocDT.getZipCd().equals(""))) {
+                            if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().isEmpty())
+                                    && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().isEmpty())
+                                    && (postLocDT.getStateCd() != null && !postLocDT.getStateCd().isEmpty())
+                                    && (postLocDT.getZipCd() != null && !postLocDT.getZipCd().isEmpty())) {
                                 nameAddStr = carrot
                                         + postLocDT.getStreetAddr1() + carrot
                                         + postLocDT.getCityDescTxt() + carrot
@@ -280,13 +280,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                                     + carrot + entityIdDto.getAssigningAuthorityIdType();
                         } else {
 
-//                                Coded coded = new Coded();
-//                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
-//                                coded.setCodesetName(NEDSSConstant.EI_AUTH_PRV);
-//                                coded.setCodesetTableName(DataTable.CODE_VALUE_GENERAL);
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
-
                             Coded coded = new Coded();
                             coded.setCode(entityIdDto.getAssigningAuthorityCd());
                             coded.setCodesetName(NEDSSConstant.EI_AUTH);
@@ -296,7 +289,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
 //                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
 //                                lookupDAO.retrieveSRTCodeInfo(coded);
 
-//                                var codedValueGenralList = getCachingValueDpService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
 
 
                             if (entityIdDto.getRootExtensionTxt() != null

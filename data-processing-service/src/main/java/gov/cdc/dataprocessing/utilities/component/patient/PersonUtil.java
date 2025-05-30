@@ -138,25 +138,19 @@ public class PersonUtil {
     @SuppressWarnings("java:S2589")
     private Long setPersonForObservationFlow(String personType, PersonContainer personVO, boolean isNew, boolean isExternal) throws DataProcessingException
     {
-        try
+        if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
         {
-            if (personType.equalsIgnoreCase(NEDSSConstant.PAT))
-            {
-                return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
-            }
-            else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
-            {
-                return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
-            }
-            else
-            {
-                throw new IllegalArgumentException("Expected a valid person type: " + personType);
-            }
+            return patientMatchingService.updateExistingPerson(personVO, isNew ? NEDSSConstant.PAT_CR : NEDSSConstant.PAT_EDIT);
         }
-        catch (Exception rex)
+        else if (personType.equalsIgnoreCase(NEDSSConstant.PRV) && (!isNew || (isNew && isExternal)))
         {
-            throw new DataProcessingException(rex.getMessage(), rex);
+            return providerMatchingService.setProvider(personVO, isNew ? NEDSSConstant.PRV_CR : NEDSSConstant.PRV_EDIT);
         }
+        else
+        {
+            throw new IllegalArgumentException("Expected a valid person type: " + personType);
+        }
+
     }
 
 

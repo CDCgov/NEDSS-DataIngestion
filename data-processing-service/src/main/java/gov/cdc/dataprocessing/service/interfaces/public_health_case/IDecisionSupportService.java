@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.interfaces.public_health_case;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 
@@ -36,5 +35,5 @@ import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface IDecisionSupportService {
     EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
-                                                       EdxLabInformationDto edxLabInformationDT) throws DataProcessingException, RtiCacheException;
+                                                       EdxLabInformationDto edxLabInformationDT) throws DataProcessingException;
 }

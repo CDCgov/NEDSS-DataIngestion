@@ -100,8 +100,7 @@ public class PageActProxyContainer extends BaseContainer {
         oos.writeObject(this);
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         ObjectInputStream ois = new ObjectInputStream(bais);
-        Object deepCopy = ois.readObject();
 
-        return  deepCopy;
+        return ois.readObject();
     }
 }

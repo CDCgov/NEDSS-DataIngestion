@@ -17,7 +17,7 @@ import java.sql.Timestamp;
  3776 - Complex complaint
  6204 - Forcing convert to stream to list complaint
  1141 - Nested complaint
-  1118 - Private constructor complaint
+ 1118 - Private constructor complaint
  1186 - Add nested comment for empty constructor complaint
  6809 - Calling transactional method with This. complaint
  2139 - exception rethrow complain
@@ -36,8 +36,8 @@ import java.sql.Timestamp;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class NbsInterfaceModel {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY )
-    @Column(name="nbs_interface_uid")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "nbs_interface_uid")
     private Integer nbsInterfaceUid;
 
     @Column(name = "payload", length = 2048, nullable = false)

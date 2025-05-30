@@ -4,8 +4,8 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EdxEventProcessJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import org.springframework.context.annotation.Lazy;
@@ -35,13 +35,14 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxEventProcessRepositoryUtil {
-    private final EdxEventProcessRepository edxEventProcessRepository;
+    private final EdxEventProcessJdbcRepository edxEventProcessJdbcRepository;
     private final ActRepositoryUtil actRepositoryUtil;
     private final UidPoolManager uidPoolManager;
-    public EdxEventProcessRepositoryUtil(EdxEventProcessRepository edxEventProcessRepository,
+    public EdxEventProcessRepositoryUtil(
+                                         EdxEventProcessJdbcRepository edxEventProcessJdbcRepository,
                                          ActRepositoryUtil actRepositoryUtil,
                                          @Lazy UidPoolManager uidPoolManager) {
-        this.edxEventProcessRepository = edxEventProcessRepository;
+        this.edxEventProcessJdbcRepository = edxEventProcessJdbcRepository;
         this.actRepositoryUtil = actRepositoryUtil;
         this.uidPoolManager = uidPoolManager;
     }
@@ -55,6 +56,6 @@ public class EdxEventProcessRepositoryUtil {
 
         EdxEventProcess data = new EdxEventProcess(edxEventProcessDto);
         data.setNbsEventUid(uid);
-        edxEventProcessRepository.save(data);
+        edxEventProcessJdbcRepository.mergeEdxEventProcess(data);
     }
 }

@@ -20,25 +20,16 @@ public class ActRelationshipJdbcRepository {
         this.jdbcTemplateOdse = jdbcTemplateOdse;
     }
 
-
     public void insertActRelationship(ActRelationship act) {
-        jdbcTemplateOdse.update(INSERT_SQL_ACT_RELATIONSHIP, buildParams(act)
-        );
+        jdbcTemplateOdse.update(INSERT_SQL_ACT_RELATIONSHIP, buildParams(act));
     }
 
     public void updateActRelationship(ActRelationship act) {
-        jdbcTemplateOdse.update(UPDATE_SQL_ACT_RELATIONSHIP, buildParams(act)
-        );
+        jdbcTemplateOdse.update(UPDATE_SQL_ACT_RELATIONSHIP, buildParams(act));
     }
 
-
-    public void deleteActRelationship(ActRelationship act) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("source_act_uid", act.getSourceActUid())
-                .addValue("target_act_uid", act.getTargetActUid())
-                .addValue("type_cd", act.getTypeCd());
-
-        jdbcTemplateOdse.update(DELETE_SQL_ACT_RELATIONSHIP, params);
+    public void mergeActRelationship(ActRelationship actRelationship) {
+        jdbcTemplateOdse.update(MERGE_ACT_RELATIONSHIP, buildParams(actRelationship));
     }
 
     private MapSqlParameterSource buildParams(ActRelationship a) {
@@ -65,25 +56,6 @@ public class ActRelationshipJdbcRepository {
                 .addValue("to_time", a.getToTime())
                 .addValue("type_desc_txt", a.getTypeDescTxt())
                 .addValue("user_affiliation_txt", a.getUserAffiliationTxt());
-    }
-
-
-    public List<ActRelationship> findBySourceActUid(Long sourceActUid) {
-        MapSqlParameterSource params = new MapSqlParameterSource("sourceActUid", sourceActUid);
-        return jdbcTemplateOdse.query(
-                SELECT_BY_SOURCE,
-                params,
-                new BeanPropertyRowMapper<>(ActRelationship.class)
-        );
-    }
-
-    public List<ActRelationship> findByTargetActUid(Long targetActUid) {
-        MapSqlParameterSource params = new MapSqlParameterSource("targetActUid", targetActUid);
-        return jdbcTemplateOdse.query(
-                SELECT_BY_TARGET,
-                params,
-                new BeanPropertyRowMapper<>(ActRelationship.class)
-        );
     }
 
     public void insertActRelationshipHistory(ActRelationshipHistory history) {
@@ -114,4 +86,43 @@ public class ActRelationshipJdbcRepository {
 
         jdbcTemplateOdse.update(CREATE_ACT_RELATIONSHIP_HISTORY, params);
     }
+
+    public void deleteActRelationship(ActRelationship act) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("source_act_uid", act.getSourceActUid())
+                .addValue("target_act_uid", act.getTargetActUid())
+                .addValue("type_cd", act.getTypeCd());
+
+        jdbcTemplateOdse.update(DELETE_SQL_ACT_RELATIONSHIP, params);
+    }
+
+    public List<ActRelationship> findBySourceActUid(Long sourceActUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("sourceActUid", sourceActUid);
+        return jdbcTemplateOdse.query(
+                SELECT_BY_SOURCE,
+                params,
+                new BeanPropertyRowMapper<>(ActRelationship.class)
+        );
+    }
+
+    public List<ActRelationship> findBySourceActUidAndTypeCode(Long sourceActUid, String typeCode) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("sourceActUid", sourceActUid)
+                .addValue("typeCd", typeCode);
+        return jdbcTemplateOdse.query(
+                SELECT_BY_SOURCE_AND_TYPE_CODE,
+                params,
+                new BeanPropertyRowMapper<>(ActRelationship.class)
+        );
+    }
+
+    public List<ActRelationship> findByTargetActUid(Long targetActUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("targetActUid", targetActUid);
+        return jdbcTemplateOdse.query(
+                SELECT_BY_TARGET,
+                params,
+                new BeanPropertyRowMapper<>(ActRelationship.class)
+        );
+    }
+
 }

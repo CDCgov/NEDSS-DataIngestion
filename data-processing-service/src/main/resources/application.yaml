@@ -30,10 +30,6 @@ cache:
   clientId: ${RC_CLIENT_ID}
   secret: ${RC_CLIENT_SECRET}
   token: ${RC_URL}${RC_EP_TOKEN:/data/api/auth/token}
-  srte:
-    cacheString: ${RC_URL}${RC_EP_CACHE_STR:/data/srte/cache/string}
-    cacheContain: ${RC_URL}${RC_EP_CACHE_CONTAIN:/data/srte/cache/contain}
-    cacheObject: ${RC_URL}${RC_EP_CACHE_OBJ:/data/srte/cache/object}
   odse:
     localId: ${RC_URL}${EP_CACHE_LOCALID:/data/odse/localId}
 
@@ -54,6 +50,7 @@ kafka:
     elr_micro: dp_elr_unprocessed
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
+    elr_nnd: dp_elr_handle_nnd
     elr_edx_log: dp_elr_edx_log
     elr_action_tracker: dp_elr_action_tracker
 nbs:
@@ -99,9 +96,6 @@ spring:
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
     group-id-edx: data-processing-group-edx
-    consumer:
-      maxPollIntervalMs: 30000
-#K8S Profile goes here
 
 service:
   timezone: ${SERVICE_TZ:UTC}
@@ -132,10 +126,9 @@ logging:
 feature:
   thread-enabled: ${THREAD_FLAG:true}
   thread-pool-size: ${THREAD_POOL_SIZE:5}
-  thread-queue-size: ${THREAD_QUEUE_SIZE:1000}
   thread-batch-size: ${THREAD_BATCH_SIZE:50}
 processor:
-  delay_ms: ${PROCESSOR_DELAY:30000}
+  delay_ms: ${PROCESSOR_DELAY:1000}
 uid:
   pool_size: ${UID_POOL_SIZE:5000}
   min_pool_size: ${UID_MIN_POOL_SIZE:1000}

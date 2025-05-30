@@ -78,7 +78,7 @@ public class ProgramAreaService implements IProgramAreaService {
     public void getProgramArea(Collection<ObservationContainer> observationResults, ObservationContainer observationRequest, String clia) throws DataProcessingException
     {
         String programAreaCode = null;
-        if (clia == null || clia.trim().equals(""))
+        if (clia == null || clia.trim().isEmpty())
         {
             clia = NEDSSConstant.DEFAULT;
         }
@@ -269,7 +269,7 @@ public class ProgramAreaService implements IProgramAreaService {
         }
 
         //Get the reporting lab clia
-        String reportingLabCLIA = "";
+        String reportingLabCLIA;
         if(labResultProxyVO.getLabClia()!=null && labResultProxyVO.isManualLab())
         {
             reportingLabCLIA =labResultProxyVO.getLabClia();
@@ -279,7 +279,7 @@ public class ProgramAreaService implements IProgramAreaService {
             reportingLabCLIA = observationCodeService.getReportingLabCLIA(labResultProxyVO);
         }
 
-        if(reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+        if(reportingLabCLIA == null || reportingLabCLIA.trim().isEmpty())
         {
             reportingLabCLIA = NEDSSConstant.DEFAULT;
         }

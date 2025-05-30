@@ -37,18 +37,6 @@ import java.util.Collection;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class OrganizationContainer extends LdfBaseContainer {
-//    public OrganizationDto theOrganizationDto = new OrganizationDto();
-//    public Collection<OrganizationNameDto> theOrganizationNameDtoCollection;
-//    public Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDTCollection = new ArrayList<>();
-//    public Collection<EntityIdDto> theEntityIdDTCollection = new ArrayList<>();
-
-    //collections for role and participation object association added by John Park
-//    public Collection<ParticipationDto> theParticipationDtoCollection=new ArrayList<>();
-//    public Collection<RoleDto> theRoleDTCollection = new ArrayList<>();
-//    private String sendingFacility;
-//    private String sendingSystem;
-//    private String localIdentifier;
-//    private String role;
 
     public OrganizationDto theOrganizationDto = new OrganizationDto();
     public Collection<OrganizationNameDto> theOrganizationNameDtoCollection;

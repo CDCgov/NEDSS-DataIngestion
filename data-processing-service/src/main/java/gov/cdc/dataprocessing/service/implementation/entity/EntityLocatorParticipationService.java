@@ -17,8 +17,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -49,19 +48,21 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EntityLocatorParticipationService implements IEntityLocatorParticipationService {
-    private static final Logger logger = LoggerFactory.getLogger(EntityLocatorParticipationService.class); // NOSONAR
     @Value("${service.timezone}")
     private String tz = "UTC";
 
     private final UidPoolManager uidPoolManager;
 
     private final PersonRepository personRepository;
-    private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     private final TeleLocatorRepository teleLocatorRepository;
     private final PostalLocatorRepository postalLocatorRepository;
     private final PhysicalLocatorRepository physicalLocatorRepository;
     private final DataModifierReposJdbc dataModifierReposJdbc;
+
     private final EntityLocatorJdbcRepository entityLocatorJdbcRepository;
+    private final EntityLocatorParticipationRepository entityLocatorParticipationRepository;
+
+
     public EntityLocatorParticipationService(UidPoolManager uidPoolManager, PersonRepository personRepository,
                                              EntityLocatorParticipationRepository entityLocatorParticipationRepository,
                                              TeleLocatorRepository teleLocatorRepository,
@@ -92,13 +93,11 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             if (personRes.isPresent()) {
                 parentUid = personRes.get().get(0).getPersonParentUid();
             }
-//            List<EntityLocatorParticipation> mprEntityHomeCheck = new ArrayList<EntityLocatorParticipation>();
             var postalRevision = postalLocatorRepository.findByPostalLocatorUids(deletePostal.stream().map(EntityLocatorParticipationDto::getLocatorUid).toList());
             if (parentUid != null && postalRevision.isPresent()) {
-                var entityMprEntityRes = entityLocatorParticipationRepository.findByParentUid(parentUid);
+                var entityMprEntityRes = entityLocatorJdbcRepository.findByEntityUid(parentUid);
                 var entityMprRes = entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid);
-                if (entityMprRes.isPresent() && entityMprEntityRes.isPresent()) {
-//                    mprEntityHomeCheck = entityMprEntityRes.get().stream().filter(x -> x.getCd().equalsIgnoreCase("H")).toList();
+                if (entityMprRes.isPresent()) {
                     var postalMpr = postalLocatorRepository.findByPostalLocatorUids(entityMprRes.get());
                     if (postalMpr.isPresent()) {
                         for(var revision : postalRevision.get()) {
@@ -132,7 +131,7 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                             comparingString.append(mpr.getStreetAddr2());
                             comparingString.append(mpr.getZipCd());
 
-                            var birCheck = entityMprEntityRes.get().stream().filter(x -> Objects.equals(x.getLocatorUid(), mpr.getPostalLocatorUid())
+                            var birCheck = entityMprEntityRes.stream().filter(x -> Objects.equals(x.getLocatorUid(), mpr.getPostalLocatorUid())
                             && x.getUseCd().equalsIgnoreCase("BIR")).toList();
                             // Comparing String of MPR matched with Incoming Revision Then Do Delete
                             if (comparingStrList.contains(comparingString.toString().toUpperCase()) && !birCheck.isEmpty()) {
@@ -175,15 +174,15 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
             physicalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
                             .equalsIgnoreCase(NEDSSConstant.PHYSICAL))
                     .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
-                    .collect(Collectors.toList());
+                    .toList();
             postalLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
                             .equalsIgnoreCase(NEDSSConstant.POSTAL))
                     .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
-                    .collect(Collectors.toList());
+                    .toList();
             teleLocators = entityLocatorParticipations.stream().filter(x -> x.getClassCd()
                             .equalsIgnoreCase(NEDSSConstant.TELE))
                     .sorted(Comparator.comparing(EntityLocatorParticipation::getRecordStatusTime).reversed())
-                    .collect(Collectors.toList());
+                    .toList();
             // This remove to be deleted entity from the Participation
             deleteEntityLocatorParticipation(locatorCollection, patientUid);
             StringBuilder comparingString = new StringBuilder();
@@ -398,10 +397,9 @@ public class EntityLocatorParticipationService implements IEntityLocatorParticip
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.POSTAL)
                     && entityLocatorParticipationDto.getThePostalLocatorDto() != null
-//                        && entityLocatorParticipationDto.getThePostalLocatorDto().getStreetAddr1() != null
             ) {
                 entityLocatorParticipationDto.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                entityLocatorJdbcRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));;
+                entityLocatorJdbcRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDto.getThePostalLocatorDto()));
                 inserted = true;
             } else if (entityLocatorParticipationDto.getClassCd().equals(NEDSSConstant.TELE)
                     && entityLocatorParticipationDto.getTheTeleLocatorDto() != null

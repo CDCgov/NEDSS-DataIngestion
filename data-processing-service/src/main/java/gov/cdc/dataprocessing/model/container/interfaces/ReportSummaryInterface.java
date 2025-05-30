@@ -32,19 +32,19 @@ import java.sql.Timestamp;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface ReportSummaryInterface {
-    public boolean getIsTouched();
+    boolean getIsTouched();
 
-    public void setItTouched(boolean touched);
+    void setItTouched(boolean touched);
 
-    public boolean getIsAssociated();
+    boolean getIsAssociated();
 
-    public void setItAssociated(boolean associated);
+    void setItAssociated(boolean associated);
 
-    public Long getObservationUid();
+    Long getObservationUid();
 
-    public void setObservationUid(Long observationUid);
+    void setObservationUid(Long observationUid);
 
-    public Timestamp getActivityFromTime();
+    Timestamp getActivityFromTime();
 
-    public void setActivityFromTime(Timestamp aActivityFromTime);
+    void setActivityFromTime(Timestamp aActivityFromTime);
 }

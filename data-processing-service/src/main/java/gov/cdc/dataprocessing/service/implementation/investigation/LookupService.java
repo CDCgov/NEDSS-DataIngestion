@@ -185,7 +185,7 @@ public class LookupService implements ILookupService {
         String previousFormCode = "";
 
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
-        PrePopMappingDto qMetadata = null;
+        PrePopMappingDto qMetadata;
         if (!coll.isEmpty()) {
             for (LookupMappingDto lookupMappingDto : coll) {
                 sizecount++;
@@ -199,7 +199,7 @@ public class LookupService implements ILookupService {
                                 : qMetadata.getFromQuestionIdentifier();
                         String fromAns = qMetadata.getFromAnswerCode();
                         map[count] = new TreeMap<>();
-                        if (!fromQuestionId.equals("")) {
+                        if (!fromQuestionId.isEmpty()) {
                             if (fromAns != null) {
                                 fromQuestionId = fromQuestionId + "$" + fromAns;
                                 map[count].put(fromQuestionId, qMetadata);
@@ -220,7 +220,7 @@ public class LookupService implements ILookupService {
                             String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                     : qMetadata.getFromQuestionIdentifier();
                             String fromAns = qMetadata.getFromAnswerCode();
-                            if (!fromQuestionId.equals("")) {
+                            if (!fromQuestionId.isEmpty()) {
                                 if (fromAns != null) {
                                     fromQuestionId = fromQuestionId + "$" + fromAns;
                                     map[count].put(fromQuestionId, qMetadata);
@@ -240,7 +240,7 @@ public class LookupService implements ILookupService {
                             String fromQuestionId = qMetadata.getFromQuestionIdentifier() == null ? ""
                                     : qMetadata.getFromQuestionIdentifier();
                             String fromAns = qMetadata.getFromAnswerCode();
-                            if (!fromQuestionId.equals("")) {
+                            if (!fromQuestionId.isEmpty()) {
                                 map[count] = new TreeMap<>();
                                 if (fromAns != null) {
                                     fromQuestionId = fromQuestionId + "$" + fromAns;
@@ -281,7 +281,7 @@ public class LookupService implements ILookupService {
         String previousFormCode = "";
 
         TreeMap<Object, Object>[] map = new TreeMap[coll.size()];
-        PrePopMappingDto qMetadata = null;
+        PrePopMappingDto qMetadata;
         if (!coll.isEmpty()) {
             for (LookupMappingDto lookupMappingDto : coll) {
                 sizecount++;
@@ -299,7 +299,7 @@ public class LookupService implements ILookupService {
                         String fromAns = qMetadata.getFromAnswerCode();
                         String toQuestionIdWithAns;
                         map[count] = new TreeMap<>();
-                        if (!toQuestionId.equals("")) {
+                        if (!toQuestionId.isEmpty()) {
                             if (fromAns != null) {
                                 toQuestionIdWithAns = toQuestionId + "$" + fromAns;
                                 map[count].put(toQuestionIdWithAns, qMetadata);
@@ -324,7 +324,7 @@ public class LookupService implements ILookupService {
                                     : qMetadata.getFromQuestionIdentifier();
                             String toQuestionIdWithAns;
                             toQuestionId = toQuestionId + '^' + fromQuestionId;
-                            if (!toQuestionId.equals("")) {
+                            if (!toQuestionId.isEmpty()) {
                                 if (fromAns != null) {
                                     toQuestionIdWithAns = toQuestionId + "$" + fromAns;
                                     map[count].put(toQuestionIdWithAns, qMetadata);
@@ -349,7 +349,7 @@ public class LookupService implements ILookupService {
                             toQuestionId = toQuestionId + '^' + fromQuestionId;
                             String toQuestionIdWithAns;
                             map[count] = new TreeMap<>();
-                            if (!toQuestionId.equals("")) {
+                            if (!toQuestionId.isEmpty()) {
                                 if (fromAns != null) {
                                     toQuestionIdWithAns = toQuestionId + "$" + fromAns;
                                     map[count].put(toQuestionIdWithAns, qMetadata);
@@ -382,7 +382,7 @@ public class LookupService implements ILookupService {
 
 
     @SuppressWarnings("java:S3776")
-    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) throws DataProcessingException{
+    private TreeMap<Object,Object> createDMBQuestionMap(Collection<MetaAndWaCommonAttribute>  coll) {
         TreeMap<Object, Object> qCodeMap = new TreeMap<>();
         int count =0;
         int loopcount=0;
@@ -394,70 +394,66 @@ public class LookupService implements ILookupService {
         TreeMap<Object, Object>[] map ;
         map = new TreeMap[coll.size()];
         NbsQuestionMetadata qMetadata = null;
-        try{
-            if (!coll.isEmpty()) {
-                for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
-                    sizecount++;
-                    qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
-                    String dataType = qMetadata.getDataType();
-                    List<CodeValueGeneral> aList;
-                    if (dataType != null && dataType.equals(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
-                        aList = catchingValueService.getGeneralCodedValue(qMetadata.getCodeSetNm());
-                        qMetadata.setAList(aList);
-                    }
+        if (!coll.isEmpty()) {
+            for (MetaAndWaCommonAttribute metaAndWaCommonAttribute : coll) {
+                sizecount++;
+                qMetadata = new NbsQuestionMetadata(metaAndWaCommonAttribute);
+                String dataType = qMetadata.getDataType();
+                List<CodeValueGeneral> aList;
+                if (dataType != null && dataType.equals(NEDSSConstant.NBS_QUESTION_DATATYPE_CODED_VALUE)) {
+                    aList = catchingValueService.getGeneralCodedValue(qMetadata.getCodeSetNm());
+                    qMetadata.setAList(aList);
+                }
 
-                    if (qMetadata.getInvestigationFormCd() != null) {
+                if (qMetadata.getInvestigationFormCd() != null) {
 
-                        if (loopcount == 0)
-                        {
-                            previousFormCode = qMetadata.getInvestigationFormCd();
-                            String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
-                            if (!questionId.equals("")) {
-                                map[count] = new TreeMap<>();
-                                map[count].put(questionId, qMetadata);
-                                loopcount++;
-                            }
-
-                        }
-                        else
-                        {
-                            currentFormCode = qMetadata.getInvestigationFormCd();
-                            if (currentFormCode.equals(previousFormCode))
-                            {
-                                String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
-                                if (!questionId.equals(""))
-                                {
-                                    map[count].put(questionId, qMetadata);
-                                }
-                            }
-                            else
-                            {
-                                qCodeMap.put(previousFormCode, map[count]);
-                                count = count + 1;
-                                String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
-                                if (!questionId.equals(""))
-                                {
-                                    map[count] = new TreeMap<>();
-                                    map[count].put(questionId, qMetadata);
-                                }
-
-                            }
-                            previousFormCode = currentFormCode;
+                    if (loopcount == 0)
+                    {
+                        previousFormCode = qMetadata.getInvestigationFormCd();
+                        String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
+                        if (!questionId.isEmpty()) {
+                            map[count] = new TreeMap<>();
+                            map[count].put(questionId, qMetadata);
                             loopcount++;
                         }
 
                     }
-                    if (sizecount == coll.size()) {
-                        qCodeMap.put(qMetadata.getInvestigationFormCd(), map[count]);
+                    else
+                    {
+                        currentFormCode = qMetadata.getInvestigationFormCd();
+                        if (currentFormCode.equals(previousFormCode))
+                        {
+                            String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
+                            if (!questionId.isEmpty())
+                            {
+                                map[count].put(questionId, qMetadata);
+                            }
+                        }
+                        else
+                        {
+                            qCodeMap.put(previousFormCode, map[count]);
+                            count = count + 1;
+                            String questionId = qMetadata.getQuestionIdentifier() == null ? "" : qMetadata.getQuestionIdentifier();
+                            if (!questionId.isEmpty())
+                            {
+                                map[count] = new TreeMap<>();
+                                map[count].put(questionId, qMetadata);
+                            }
+
+                        }
+                        previousFormCode = currentFormCode;
+                        loopcount++;
                     }
 
                 }
+                if (sizecount == coll.size()) {
+                    qCodeMap.put(qMetadata.getInvestigationFormCd(), map[count]);
+                }
 
             }
+
         }
-        catch(Exception ex){
-            throw new DataProcessingException("The caching failed due to question label :" + qMetadata.getQuestionLabel()+ EXCEPTION_APPENDING_MSG + qMetadata.getInvestigationFormCd());
-        }
+
 
         return qCodeMap;
     }

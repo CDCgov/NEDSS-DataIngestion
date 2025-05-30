@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
@@ -53,7 +52,7 @@ public class EntityIdUtil {
      * This method process then parse data from Person into EntityId Object
      * */
     @SuppressWarnings("java:S3776")
-    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException, RtiCacheException {
+    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int index) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null) {
             entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
@@ -85,7 +84,7 @@ public class EntityIdUtil {
 
                 String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
 
-                if (typeCode == null || typeCode.trim().equals("")) {
+                if (typeCode == null || typeCode.trim().isEmpty()) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
                     entityIdDto.setTypeDescTxt(typeCode);
@@ -145,7 +144,7 @@ public class EntityIdUtil {
 
     public Timestamp stringToStrutsTimestamp(String strTime) {
         try {
-            if (strTime != null && strTime.trim().length() > 0) {
+            if (strTime != null && !strTime.trim().isEmpty()) {
                 return TimeStampUtil.convertStringToTimestamp(strTime);
             }
             else {

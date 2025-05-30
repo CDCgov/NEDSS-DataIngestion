@@ -63,5 +63,4 @@ public class ActIdQuery {
     WHERE act_uid = :act_uid
     """;
 
-
 }

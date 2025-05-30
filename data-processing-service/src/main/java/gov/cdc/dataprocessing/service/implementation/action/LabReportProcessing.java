@@ -50,7 +50,8 @@ public class LabReportProcessing implements ILabReportProcessing {
                     markAsReviewedFlag = "UNPROCESSED";
                 }
             }else {
-                observationService.setLabInvAssociation(observationUid, edxLabInformationDT.getAssociatedPublicHealthCaseUid());
+                var investigationUid = edxLabInformationDT.getAssociatedPublicHealthCaseUid();
+                observationService.setLabInvAssociation(observationUid, investigationUid);
             }
         }catch(Exception ex){
             edxLabInformationDT.setLabIsMarkedAsReviewed(false);

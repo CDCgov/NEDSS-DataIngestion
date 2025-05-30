@@ -92,7 +92,7 @@ public class ORCHandler {
                 PersonContainer personContainer = new PersonContainer();
                 personContainer.getThePersonDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());
                 //Only need first index
-                address = addressArray.get(0);
+                address = addressArray.getFirst();
                 if (address != null) {
                     nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
                 }
@@ -169,7 +169,7 @@ public class ORCHandler {
 
                 Collection<EntityLocatorParticipationDto> addressCollection = new ArrayList<>();
                 if (!addressArray.isEmpty()) {
-                    HL7XADType addressType = addressArray.get(0);
+                    HL7XADType addressType = addressArray.getFirst();
                     EntityLocatorParticipationDto elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationContainer);
                     addressCollection.add(elpDT);
                 }
@@ -177,7 +177,7 @@ public class ORCHandler {
 
                 List<HL7XTNType> phoneArray = hl7ORCType.getOrderingFacilityPhoneNumber();
                 if (!phoneArray.isEmpty()) {
-                    HL7XTNType phone = phoneArray.get(0);
+                    HL7XTNType phone = phoneArray.getFirst();
                     if (phone != null) {
                         EntityLocatorParticipationDto elpdt = nbsObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationContainer);
                         elpdt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
@@ -188,7 +188,7 @@ public class ORCHandler {
                 Collection<OrganizationNameDto> orgNameColl = new ArrayList<>();
                 List<HL7XONType> nameArray = hl7ORCType.getOrderingFacilityName();
                 if (nameArray != null && !nameArray.isEmpty()) {
-                    HL7XONType orgName = nameArray.get(0);
+                    HL7XONType orgName = nameArray.getFirst();
                     OrganizationNameDto organizationNameDto = new OrganizationNameDto(tz);
                     organizationNameDto.setNmTxt(orgName.getHL7OrganizationName());
                     organizationNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);

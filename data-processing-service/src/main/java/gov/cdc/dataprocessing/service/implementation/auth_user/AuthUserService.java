@@ -45,7 +45,7 @@ public class AuthUserService implements IAuthUserService {
 
     private final JdbcTemplate jdbcTemplateOdse;
     private static final String SELECT_AUTH_USER_BY_USER_ID = """
-        SELECT 
+        SELECT
             auth_user_uid, user_id, user_type, user_title, user_department, user_first_nm, user_last_nm,
             user_work_email, user_work_phone, user_mobile_phone, master_sec_admin_ind, prog_area_admin_ind,
             nedss_entry_id, external_org_uid, user_password, user_comments, add_time, add_user_id,

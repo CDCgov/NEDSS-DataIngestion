@@ -4,8 +4,6 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,12 +30,10 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EntityRepositoryUtil {
-    private final EntityRepository entityRepository;
     private final EntityJdbcRepository entityJdbcRepository;
 
 
-    public EntityRepositoryUtil(EntityRepository entityRepository, EntityJdbcRepository entityJdbcRepository) {
-        this.entityRepository = entityRepository;
+    public EntityRepositoryUtil(EntityJdbcRepository entityJdbcRepository) {
         this.entityJdbcRepository = entityJdbcRepository;
     }
 

@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.sql;
 
 import gov.cdc.dataprocessing.cache.OdseCache;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.auth_user.RealizedRoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -136,7 +136,7 @@ public class QueryHelper {
 //        }
 //    }
 
-    public String getHashedPAJList(boolean guest) throws RtiCacheException {
+    public String getHashedPAJList(boolean guest) throws DataProcessingException {
         Set<Long> allPAJList = new HashSet<>();
 
         for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {
@@ -197,9 +197,9 @@ public class QueryHelper {
         String whereClauseOwner = "";
 
 
-        if (ownerList != null && ownerList.trim().length() != 0) {
+        if (ownerList != null && !ownerList.trim().isEmpty()) {
 
-            if (alias == null || alias.trim().length() == 0) {
+            if (alias == null || alias.trim().isEmpty()) {
                 whereClauseOwner = "(" + columnName + QUERY_HELPER_1 + ownerList +
                         "))";
             }
@@ -223,8 +223,8 @@ public class QueryHelper {
         //logger.debug("alias = " + alias);
         String whereClauseGuest = "";
 
-        if (guestList != null && guestList.trim().length() != 0) {
-            if (alias == null || alias.trim().length() == 0) {
+        if (guestList != null && !guestList.trim().isEmpty()) {
+            if (alias == null || alias.trim().isEmpty()) {
                 whereClauseGuest = "(("+ columnName + QUERY_HELPER_1 + guestList +
                         ")) and  shared_ind = '" +
                         "T" +

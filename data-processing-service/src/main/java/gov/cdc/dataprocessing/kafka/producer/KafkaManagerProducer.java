@@ -43,6 +43,9 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     @Value("${kafka.topic.elr_handle_lab}")
     private String labHandleTopic = "dp_elr_processing_handle_lab" ;
 
+    @Value("${kafka.topic.elr_nnd}")
+    private String nndTopic = "dp_elr_handle_nnd" ;
+
     @Value("${kafka.topic.elr_action_tracker}")
     private String actionTrackerTopic = "elr_action_tracker" ;
 
@@ -63,6 +66,11 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     public void sendDataLabHandling(String msg) {
         sendData(labHandleTopic, msg);
     }
+
+    public void sendNNDHandling(String msg) {
+        sendData(nndTopic, msg);
+    }
+
 
     public void sendDataActionTracker(String msg) {
         sendData(actionTrackerTopic, msg);

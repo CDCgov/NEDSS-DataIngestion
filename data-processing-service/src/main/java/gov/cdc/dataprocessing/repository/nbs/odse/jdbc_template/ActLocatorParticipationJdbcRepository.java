@@ -19,6 +19,18 @@ public class ActLocatorParticipationJdbcRepository {
         this.jdbcTemplateOdse = jdbcTemplateOdse;
     }
 
+    public void insertActLocatorParticipation(ActLocatorParticipation a) {
+        jdbcTemplateOdse.update(INSERT_SQL_ACT_LOCATOR_PAT, buildParamsActLocatorPat(a));
+    }
+
+    public void updateActLocatorParticipation(ActLocatorParticipation a) {
+        jdbcTemplateOdse.update(UPDATE_SQL_ACT_LOCATOR_PAT, buildParamsActLocatorPat(a));
+    }
+
+    public void mergeActLocatorParticipation(ActLocatorParticipation a) {
+        jdbcTemplateOdse.update(MERGE_ACT_LOCATOR, buildParamsActLocatorPat(a));
+    }
+
     private MapSqlParameterSource buildParamsActLocatorPat(ActLocatorParticipation a) {
         return new MapSqlParameterSource()
                 .addValue("entity_uid", a.getEntityUid())
@@ -43,14 +55,6 @@ public class ActLocatorParticipationJdbcRepository {
                 .addValue("user_affiliation_txt", a.getUserAffiliationTxt());
     }
 
-    public void insertActLocatorParticipation(ActLocatorParticipation a) {
-        jdbcTemplateOdse.update(INSERT_SQL_ACT_LOCATOR_PAT, buildParamsActLocatorPat(a));
-    }
-
-    public void updateActLocatorParticipation(ActLocatorParticipation a) {
-        jdbcTemplateOdse.update(UPDATE_SQL_ACT_LOCATOR_PAT, buildParamsActLocatorPat(a));
-    }
-
     public List<ActLocatorParticipation> findByActUid(Long actUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("act_uid", actUid);
@@ -61,4 +65,5 @@ public class ActLocatorParticipationJdbcRepository {
                 new BeanPropertyRowMapper<>(ActLocatorParticipation.class)
         );
     }
+
 }

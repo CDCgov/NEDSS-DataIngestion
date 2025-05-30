@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.utilities.component.data_parser;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
@@ -68,7 +67,7 @@ public class NBSObjectConverter {
         this.catchingValueService = catchingValueService;
     }
 
-    public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException, RtiCacheException {
+    public PersonContainer mapPersonNameType(HL7XPNType hl7XPNType, PersonContainer personContainer) throws DataProcessingException {
         PersonNameDto personNameDto = new PersonNameDto();
         HL7FNType hl7FamilyName = hl7XPNType.getHL7FamilyName();
         /** Optional maxOccurs="1 */
@@ -146,7 +145,7 @@ public class NBSObjectConverter {
         return personContainer;
     }
     @SuppressWarnings("java:S3776")
-    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException, RtiCacheException {
+    public EntityIdDto processEntityData(HL7CXType hl7CXType, PersonContainer personContainer, String indicator, int j) throws DataProcessingException {
         EntityIdDto entityIdDto = new EntityIdDto();
         if (hl7CXType != null ) {
             entityIdDto.setEntityUid(personContainer.getThePersonDto().getPersonUid());
@@ -169,11 +168,11 @@ public class NBSObjectConverter {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
             }
-            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
+            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().isEmpty()) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
                 String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
-                if (typeCode == null || typeCode.trim().equals("")) {
+                if (typeCode == null || typeCode.trim().isEmpty()) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
                     entityIdDto.setTypeDescTxt(typeCode);
@@ -386,7 +385,7 @@ public class NBSObjectConverter {
 
     public EntityIdDto validateSSN(EntityIdDto entityIdDto) {
         String ssn = entityIdDto.getRootExtensionTxt();
-        if(ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
+        if(ssn != null && !ssn.isEmpty() && !ssn.equals(" ")) {
             ssn =ssn.trim();
             if (ssn.length() > 3) {
                 String newSSN = ssn.substring(0, 3);

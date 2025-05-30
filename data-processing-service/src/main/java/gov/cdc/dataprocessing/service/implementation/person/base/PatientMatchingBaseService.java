@@ -195,7 +195,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         Long mprUID = null;
         if(newRevision == null)
         {
-            throw new DataProcessingException("Please provide a not null person object, newRevision is: "+ newRevision);
+            throw new DataProcessingException("Please provide a not null person object, newRevision is Null");
         }
         else
         {
@@ -387,12 +387,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                             if (asofDate == null
                                     || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) {
                                 if (personNameDto.getLastNm() != null
-                                        && !personNameDto.getLastNm().trim().equals("")
+                                        && !personNameDto.getLastNm().trim().isEmpty()
                                         && personNameDto.getFirstNm() != null
-                                        && !personNameDto.getFirstNm().trim().equals("")
+                                        && !personNameDto.getFirstNm().trim().isEmpty()
                                         && personDto.getBirthTime() != null
                                         && personDto.getCurrSexCd() != null
-                                        && !personDto.getCurrSexCd().trim().equals("")
+                                        && !personDto.getCurrSexCd().trim().isEmpty()
                                 )
                                 {
                                     namedobcursexStr = personNameDto.getLastNm()
@@ -421,12 +421,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                                         Timestamp asofDate, String namedobcursexStr) {
         String caret = "^";
         if (personNameDto.getLastNm() != null
-                && !personNameDto.getLastNm().trim().equals("")
+                && !personNameDto.getLastNm().trim().isEmpty()
                 && personNameDto.getFirstNm() != null
-                && !personNameDto.getFirstNm().trim().equals("")
+                && !personNameDto.getFirstNm().trim().isEmpty()
                 && personDto.getBirthTime() != null
                 && personDto.getCurrSexCd() != null
-                && !personDto.getCurrSexCd().trim().equals("")
+                && !personDto.getCurrSexCd().trim().isEmpty()
         )
         {
             namedobcursexStr = personNameDto.getLastNm()
@@ -441,7 +441,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return namedobcursexStr;
     }
 
-    protected void setPersonHashCdPatient(PersonContainer personContainer) throws DataProcessingException {
+    protected void setPersonHashCdPatient(PersonContainer personContainer)   {
         long personUid = personContainer.getThePersonDto().getPersonParentUid();
         getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
         try {
@@ -511,7 +511,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
 
         if (!personList.isEmpty()) {
-            revision = personList.get(0);
+            revision = personList.getFirst();
         }
 
         if (mpr != null)
@@ -619,7 +619,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
     }
 
-    protected void setPersonHashCdNok(PersonContainer personContainer) throws DataProcessingException {
+    protected void setPersonHashCdNok(PersonContainer personContainer)   {
         long personUid = personContainer.getThePersonDto().getPersonParentUid();
         getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
         try {
@@ -697,13 +697,13 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
                     if (postLocDT != null
                             && (postLocDT.getStreetAddr1() != null
-                            && !postLocDT.getStreetAddr1().equals(""))
+                            && !postLocDT.getStreetAddr1().isEmpty())
                             && (postLocDT.getCityDescTxt() != null
-                            && !postLocDT.getCityDescTxt().equals(""))
+                            && !postLocDT.getCityDescTxt().isEmpty())
                             && (postLocDT.getStateCd() != null
-                            && !postLocDT.getStateCd().equals(""))
+                            && !postLocDT.getStateCd().isEmpty())
                             && (postLocDT.getZipCd() != null
-                            && !postLocDT.getZipCd().equals("")))
+                            && !postLocDT.getZipCd().isEmpty()))
                     {
                         nameAddStr = carrot + postLocDT.getStreetAddr1() + carrot + postLocDT.getCityDescTxt() + carrot
                                 + postLocDT.getStateCd() + carrot + postLocDT.getZipCd();

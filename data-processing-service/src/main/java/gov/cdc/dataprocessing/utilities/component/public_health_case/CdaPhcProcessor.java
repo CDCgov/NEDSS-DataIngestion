@@ -33,8 +33,7 @@ public class CdaPhcProcessor {
     private static final Logger logger = LoggerFactory.getLogger(CdaPhcProcessor.class); //NOSONAR
 
     public static void setStandardNBSCaseAnswerVals(PublicHealthCaseDto phcDT,
-                                                    NbsCaseAnswerDto nbsCaseAnswerDT) throws DataProcessingException {
-        try {
+                                                    NbsCaseAnswerDto nbsCaseAnswerDT)   {
             nbsCaseAnswerDT.setActUid(phcDT.getPublicHealthCaseUid());
             nbsCaseAnswerDT.setAddTime(phcDT.getAddTime());
             nbsCaseAnswerDT.setLastChgTime(phcDT.getLastChgTime());
@@ -47,11 +46,7 @@ public class CdaPhcProcessor {
             }
             nbsCaseAnswerDT.setRecordStatusTime(phcDT.getRecordStatusTime());
             nbsCaseAnswerDT.setItNew(true);
-        } catch (Exception ex) {
-            String errorString = "Exception occured while setting standard values for NBS Case Answer DT. "+ex.getMessage();
-            logger.info(ex.getMessage()); // NOSONAR
-            throw new DataProcessingException(errorString,ex);
-        }
+
     }
 
 }

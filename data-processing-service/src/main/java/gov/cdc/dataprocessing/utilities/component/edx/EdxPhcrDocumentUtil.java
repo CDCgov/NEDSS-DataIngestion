@@ -4,7 +4,7 @@ import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -56,7 +56,7 @@ public class EdxPhcrDocumentUtil {
     }
 
     @SuppressWarnings("java:S3776")
-    public Map<Object, Object> loadQuestions(String conditionCode) throws RtiCacheException {
+    public Map<Object, Object> loadQuestions(String conditionCode) throws DataProcessingException {
         String invFormCd = "";
         if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode))
         {

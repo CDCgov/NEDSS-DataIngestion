@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static gov.cdc.dataprocessing.constant.query.PersonQuery.INSERT_SQL_ROLE;
-import static gov.cdc.dataprocessing.constant.query.PersonQuery.SELECT_ROLE_BY_SUBJECT_ENTITY_UID;
+import static gov.cdc.dataprocessing.constant.query.PersonQuery.*;
 
 @Component
 public class RoleJdbcRepository {
@@ -53,5 +52,42 @@ public class RoleJdbcRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("subject_entity_uid", subjectEntityUid);
 
         return jdbcTemplateOdse.query(SELECT_ROLE_BY_SUBJECT_ENTITY_UID, params, new BeanPropertyRowMapper<>(Role.class));
+    }
+
+    public void updateRole(Role role) {
+        jdbcTemplateOdse.update(UPDATE_ROLE_BY_UID_AND_SEQ, buildParams(role));
+    }
+
+    public List<Role> findActiveBySubjectEntityUid(Long subjectEntityUid) {
+        MapSqlParameterSource params = new MapSqlParameterSource("subjectEntityUid", subjectEntityUid);
+        return jdbcTemplateOdse.query(SELECT_ACTIVE_ROLES_BY_ENTITY_UID, params, new BeanPropertyRowMapper<>(Role.class));
+    }
+
+    private MapSqlParameterSource buildParams(Role r) {
+        return new MapSqlParameterSource()
+                .addValue("subjectEntityUid", r.getSubjectEntityUid())
+                .addValue("code", r.getCode())
+                .addValue("roleSeq", r.getRoleSeq())
+                .addValue("addReasonCode", r.getAddReasonCode())
+                .addValue("addTime", r.getAddTime())
+                .addValue("addUserId", r.getAddUserId())
+                .addValue("codeDescription", r.getCodeDescription())
+                .addValue("effectiveDurationAmount", r.getEffectiveDurationAmount())
+                .addValue("effectiveDurationUnitCode", r.getEffectiveDurationUnitCode())
+                .addValue("effectiveFromTime", r.getEffectiveFromTime())
+                .addValue("effectiveToTime", r.getEffectiveToTime())
+                .addValue("lastChangeReasonCode", r.getLastChangeReasonCode())
+                .addValue("lastChangeTime", r.getLastChangeTime())
+                .addValue("lastChangeUserId", r.getLastChangeUserId())
+                .addValue("recordStatusCode", r.getRecordStatusCode())
+                .addValue("recordStatusTime", r.getRecordStatusTime())
+                .addValue("scopingClassCode", r.getScopingClassCode())
+                .addValue("scopingEntityUid", r.getScopingEntityUid())
+                .addValue("scopingRoleCode", r.getScopingRoleCode())
+                .addValue("scopingRoleSeq", r.getScopingRoleSeq())
+                .addValue("statusCode", r.getStatusCode())
+                .addValue("statusTime", r.getStatusTime())
+                .addValue("subjectClassCode", r.getSubjectClassCode())
+                .addValue("userAffiliationText", r.getUserAffiliationText());
     }
 }

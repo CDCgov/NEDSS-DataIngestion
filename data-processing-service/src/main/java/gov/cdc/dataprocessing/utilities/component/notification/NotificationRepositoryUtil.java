@@ -8,8 +8,8 @@ import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NotificationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.utilities.component.act.ActIdRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActLocatorParticipationRepositoryUtil;
@@ -46,7 +46,6 @@ import java.util.Collection;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class NotificationRepositoryUtil {
-    private final NotificationRepository notificationRepository;
 
 
     private final ActIdRepositoryUtil actIdRepositoryUtil;
@@ -56,16 +55,17 @@ public class NotificationRepositoryUtil {
     private final EntityHelper entityHelper;
     private  final ActRepositoryUtil actRepositoryUtil;
     private final UidPoolManager uidPoolManager;
+    private final NotificationJdbcRepository notificationJdbcRepository;
 
-    public NotificationRepositoryUtil(NotificationRepository notificationRepository,
+    public NotificationRepositoryUtil(
                                       ActIdRepositoryUtil actIdRepositoryUtil,
                                       ActLocatorParticipationRepositoryUtil actLocatorParticipationRepositoryUtil,
                                       ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
                                       ParticipationRepositoryUtil participationRepositoryUtil,
                                       EntityHelper entityHelper,
                                       ActRepositoryUtil actRepositoryUtil,
-                                      @Lazy UidPoolManager uidPoolManager) {
-        this.notificationRepository = notificationRepository;
+                                      @Lazy UidPoolManager uidPoolManager,
+                                      NotificationJdbcRepository notificationJdbcRepository) {
         this.actIdRepositoryUtil = actIdRepositoryUtil;
         this.actLocatorParticipationRepositoryUtil = actLocatorParticipationRepositoryUtil;
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
@@ -73,15 +73,16 @@ public class NotificationRepositoryUtil {
         this.entityHelper = entityHelper;
         this.actRepositoryUtil = actRepositoryUtil;
         this.uidPoolManager = uidPoolManager;
+        this.notificationJdbcRepository = notificationJdbcRepository;
     }
 
     public NotificationContainer getNotificationContainer(Long uid) {
         NotificationContainer notificationContainer = new NotificationContainer();
-        var notificationData = notificationRepository.findById(uid);
-        if (notificationData.isEmpty()) {
+        var notificationData = notificationJdbcRepository.findById(uid);
+        if (notificationData == null) {
             return null;
         }
-        NotificationDto notificationDto = new NotificationDto(notificationData.get());
+        NotificationDto notificationDto = new NotificationDto(notificationData);
         notificationDto.setItNew(false);
         notificationDto.setItDirty(false);
         notificationContainer.setTheNotificationDT(notificationDto);
@@ -117,44 +118,37 @@ public class NotificationRepositoryUtil {
     {
         Long notificationUid;
 
-        try
+        Collection<ActivityLocatorParticipationDto> alpDTCol = notificationContainer.getTheActivityLocatorParticipationDTCollection();
+        Collection<ActRelationshipDto> arDTCol = notificationContainer.getTheActRelationshipDTCollection();
+        Collection<ParticipationDto> pDTCol = notificationContainer.getTheParticipationDTCollection();
+
+        if (alpDTCol != null)
         {
-            Collection<ActivityLocatorParticipationDto> alpDTCol = notificationContainer.getTheActivityLocatorParticipationDTCollection();
-            Collection<ActRelationshipDto> arDTCol = notificationContainer.getTheActRelationshipDTCollection();
-            Collection<ParticipationDto> pDTCol = notificationContainer.getTheParticipationDTCollection();
-
-            if (alpDTCol != null)
-            {
-                var col1 = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
-                notificationContainer.setTheActivityLocatorParticipationDTCollection(col1);
-            }
-
-            if (arDTCol != null)
-            {
-                var col2 = entityHelper.iterateARDTActRelationship(arDTCol);
-                notificationContainer.setTheActRelationshipDTCollection(col2);
-            }
-
-            if (pDTCol != null)
-            {
-                var col3 = entityHelper.iteratePDTForParticipation(pDTCol);
-                notificationContainer.setTheParticipationDTCollection(col3);
-            }
-
-            if (notificationContainer.isItNew())
-            {
-                notificationUid = createNotification(notificationContainer);
-            }
-            else
-            {
-                var  notification = getNotificationContainer(notificationContainer.getTheNotificationDT().getNotificationUid());
-                updateNotification(notification);
-                notificationUid = notification.getTheNotificationDT().getNotificationUid();
-            }
+            var col1 = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
+            notificationContainer.setTheActivityLocatorParticipationDTCollection(col1);
         }
-        catch (Exception e)
+
+        if (arDTCol != null)
         {
-            throw new DataProcessingException(e.getMessage(),e);
+            var col2 = entityHelper.iterateARDTActRelationship(arDTCol);
+            notificationContainer.setTheActRelationshipDTCollection(col2);
+        }
+
+        if (pDTCol != null)
+        {
+            var col3 = entityHelper.iteratePDTForParticipation(pDTCol);
+            notificationContainer.setTheParticipationDTCollection(col3);
+        }
+
+        if (notificationContainer.isItNew())
+        {
+            notificationUid = createNotification(notificationContainer);
+        }
+        else
+        {
+            var  notification = getNotificationContainer(notificationContainer.getTheNotificationDT().getNotificationUid());
+            updateNotification(notification);
+            notificationUid = notification.getTheNotificationDT().getNotificationUid();
         }
         return notificationUid;
     }
@@ -170,7 +164,7 @@ public class NotificationRepositoryUtil {
         notification.setNotificationUid(uid);
         notification.setLocalId(localId);
 
-        notificationRepository.save(notification);
+        notificationJdbcRepository.insertNotification(notification);
         notificationContainer.getTheNotificationDT().setItDirty(false);
         notificationContainer.getTheNotificationDT().setItNew(false);
         notificationContainer.getTheNotificationDT().setItDelete(false);
@@ -187,13 +181,13 @@ public class NotificationRepositoryUtil {
         var uid = notificationContainer.getTheNotificationDT().getNotificationUid();
         var localId = notificationContainer.getTheNotificationDT().getLocalId();
 
-        actRepositoryUtil.insertActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
+        actRepositoryUtil.updateActivityId(uid,NEDSSConstant.NOTIFICATION_CLASS_CODE, NEDSSConstant.EVENT_MOOD_CODE);
 
         Notification notification = new Notification(notificationContainer.getTheNotificationDT());
         notification.setNotificationUid(uid);
         notification.setLocalId(localId);
 
-        notificationRepository.save(notification);
+        notificationJdbcRepository.updateNotification(notification);
         notificationContainer.getTheNotificationDT().setItDirty(false);
         notificationContainer.getTheNotificationDT().setItNew(false);
         notificationContainer.getTheNotificationDT().setItDelete(false);

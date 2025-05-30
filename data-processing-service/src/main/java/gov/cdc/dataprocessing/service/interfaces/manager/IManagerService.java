@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.service.interfaces.manager;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 
 /**
@@ -37,7 +36,7 @@ import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public interface IManagerService {
     void processDistribution(Integer data) throws DataProcessingConsumerException, DataProcessingException, EdxLogException;
-    PublicHealthCaseFlowContainer initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data) throws DataProcessingException, RtiCacheException;
+    PublicHealthCaseFlowContainer initiatingInvestigationAndPublicHealthCase(PublicHealthCaseFlowContainer data) throws DataProcessingException;
     void initiatingLabProcessing(PublicHealthCaseFlowContainer data) throws DataProcessingConsumerException, DataProcessingException;
      PublicHealthCaseFlowContainer processingELR(Integer data) throws EdxLogException;
 }

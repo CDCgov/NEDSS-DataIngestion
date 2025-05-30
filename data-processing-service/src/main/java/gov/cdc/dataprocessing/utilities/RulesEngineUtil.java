@@ -36,7 +36,7 @@ public class RulesEngineUtil {
     {
         //  Create return variable.
         int[] r = {0,0};
-        if(pDate == null || pDate.trim().equals(""))
+        if(pDate == null || pDate.trim().isEmpty())
             return r;
         try{
             //  Define constants.
@@ -56,11 +56,10 @@ public class RulesEngineUtil {
             Calendar calJan1 = Calendar.getInstance();
             calJan1.setTime(varJan1Date);
             int varJan1Day = calJan1.get(Calendar.DAY_OF_WEEK);
-            long varJan1Time = calJan1.getTimeInMillis();
             //  Create temp variables.
-            long t = varJan1Time;
-            Date d = null;
-            int h = 0;
+            long t = calJan1.getTimeInMillis();
+            Date d;
+            int h;
             //  MMWR Year.
             int y = calJan1.get(Calendar.YEAR);
             //  MMWR Week.

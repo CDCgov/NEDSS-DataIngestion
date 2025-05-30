@@ -58,26 +58,19 @@ public class ActRelationshipRepositoryUtil {
         return dtoCollection;
     }
 
-    public Collection<ActRelationshipDto> selectActRelationshipDTCollectionFromActUid(long aUID) throws DataProcessingException
+    public Collection<ActRelationshipDto> selectActRelationshipDTCollectionFromActUid(long aUID)
     {
-        try
-        {
-            var col = actRelationshipJdbcRepository.findByTargetActUid(aUID);
-            Collection<ActRelationshipDto> dtCollection = new ArrayList<>();
-            if (col != null && !col.isEmpty()) {
-                for (var item : col) {
-                    ActRelationshipDto dt = new ActRelationshipDto(item);
-                    dt.setItNew(false);
-                    dt.setItDirty(false);
-                    dtCollection.add(dt);
-                }
+        var col = actRelationshipJdbcRepository.findByTargetActUid(aUID);
+        Collection<ActRelationshipDto> dtCollection = new ArrayList<>();
+        if (col != null && !col.isEmpty()) {
+            for (var item : col) {
+                ActRelationshipDto dt = new ActRelationshipDto(item);
+                dt.setItNew(false);
+                dt.setItDirty(false);
+                dtCollection.add(dt);
             }
-            return dtCollection;
         }
-        catch(Exception ndapex)
-        {
-            throw new DataProcessingException(ndapex.getMessage());
-        }
+        return dtCollection;
     }
 
 

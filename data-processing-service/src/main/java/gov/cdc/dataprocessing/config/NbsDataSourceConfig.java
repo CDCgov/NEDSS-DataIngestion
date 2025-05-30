@@ -106,6 +106,8 @@ public class NbsDataSourceConfig {
     public EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
+
+
     @Bean(name = "nbsEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
             EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,

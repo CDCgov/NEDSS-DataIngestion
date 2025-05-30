@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
@@ -274,7 +273,7 @@ public class ObservationResultRequestHandler {
                 }
 
                 if(edxLabInformationDto.isParentObsInd() &&
-                        observationContainer.getTheObservationDto().getCd() == null || observationContainer.getTheObservationDto().getCd().trim().equals("")){
+                        observationContainer.getTheObservationDto().getCd() == null || observationContainer.getTheObservationDto().getCd().trim().isEmpty()){
                     edxLabInformationDto.setDrugNameMissing(true);
                     edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                     throw new DataProcessingException(EdxELRConstant.NO_DRUG_NAME);
@@ -307,7 +306,7 @@ public class ObservationResultRequestHandler {
             if(hl7OBXType.getObservationResultStatus()!=null)
             {
                 String toCode = checkingValueService.findToCode("ELR_LCA_STATUS", hl7OBXType.getObservationResultStatus(), "ACT_OBJ_ST");
-                if (toCode != null && !toCode.equals("") && !toCode.equals(" ")){
+                if (toCode != null && !toCode.isEmpty() && !toCode.equals(" ")){
                     observationDto.setStatusCd(toCode.trim());
 
                 }else{
@@ -454,167 +453,147 @@ public class ObservationResultRequestHandler {
             type = hl7OBXType.getValueType();
             HL7CEType cEUnit = hl7OBXType.getUnits();
             if(type!=null){
-                if(type.equals(EdxELRConstant.ELR_CODED_WITH_EXC_CD) ||type.equals(EdxELRConstant.ELR_CODED_EXEC_CD))
-                {
-                    if(text!=null){
-                        ObsValueCodedDto obsvalueDT= new ObsValueCodedDto();
-                        obsvalueDT.setItNew(true);
-                        obsvalueDT.setItDirty(false);
-                        String[] textValue = text.split("\\^");
+                switch (type) {
+                    case EdxELRConstant.ELR_CODED_WITH_EXC_CD, EdxELRConstant.ELR_CODED_EXEC_CD -> {
+                        if (text != null) {
+                            ObsValueCodedDto obsvalueDT = new ObsValueCodedDto();
+                            obsvalueDT.setItNew(true);
+                            obsvalueDT.setItDirty(false);
+                            String[] textValue = text.split("\\^");
 
-                        if (!text.isEmpty() && textValue.length>0) {
-                            obsvalueDT.setCode(textValue[0]);
-                            obsvalueDT.setDisplayName(textValue[1]);
-                            if(textValue.length==2){
-                                obsvalueDT.setCodeSystemCd(EdxELRConstant.ELR_SNOMED_CD);
-                            }else if(textValue.length==3){
-                                obsvalueDT.setCodeSystemCd(textValue[2]);
-                            }
-
-                            if (textValue.length >= 6) {
-                                obsvalueDT.setAltCd(textValue[3]);
-                                obsvalueDT.setAltCdDescTxt(textValue[4]);
-                                /*
-                                if(textValue.length==4){
-                                    obsvalueDT.setAltCdSystemCd(EdxELRConstant.ELR_LOCAL_CD);
-                                }else if(textValue.length==5 || textValue.length>5){
-                                    obsvalueDT.setAltCdSystemCd(textValue[5]);
+                            if (!text.isEmpty() && textValue.length > 0) {
+                                obsvalueDT.setCode(textValue[0]);
+                                obsvalueDT.setDisplayName(textValue[1]);
+                                if (textValue.length == 2) {
+                                    obsvalueDT.setCodeSystemCd(EdxELRConstant.ELR_SNOMED_CD);
+                                } else if (textValue.length == 3) {
+                                    obsvalueDT.setCodeSystemCd(textValue[2]);
                                 }
-                                */
+
+                                if (textValue.length >= 6) {
+                                    obsvalueDT.setAltCd(textValue[3]);
+                                    obsvalueDT.setAltCdDescTxt(textValue[4]);
+                                }
+                            }
+                            if ((obsvalueDT.getCode() == null || obsvalueDT.getCode().trim().isEmpty())
+                                    && (obsvalueDT.getAltCd() == null || obsvalueDT.getAltCd().trim().isEmpty())) {
+                                edxLabInformationDto.setReflexResultedTestCdMissing(true);
+                                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
+                                String xmlElementName = commonLabUtil.getXMLElementNameForOBX(hl7OBXType) + "." + elementName;
+                                throw new DataProcessingException(EdxELRConstant.NO_REFLEX_RESULT_NM + " XMLElementName: " + xmlElementName);
+                            }
+
+                            if (obsvalueDT.getCode() == null || obsvalueDT.getCode().trim().isEmpty()) {
+                                obsvalueDT.setCode(obsvalueDT.getAltCd());
+                                obsvalueDT.setDisplayName(obsvalueDT.getAltCdDescTxt());
+                                obsvalueDT.setCodeSystemCd(obsvalueDT.getAltCdSystemCd());
+                                obsvalueDT.setAltCd(null);
+                                obsvalueDT.setAltCdDescTxt(null);
+                                obsvalueDT.setAltCdSystemCd(null);
+                            }
+
+                            if (obsvalueDT.getCodeSystemCd() != null && obsvalueDT.getCodeSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_SNOMED_CD)) {
+                                obsvalueDT.setCodeSystemDescTxt(EdxELRConstant.ELR_SNOMED_DESC);
+                            } else if (obsvalueDT.getCodeSystemCd() != null && obsvalueDT.getCodeSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_LOCAL_CD)) {
+                                obsvalueDT.setCodeSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
+                            }
+                            if (obsvalueDT.getAltCdSystemCd() != null && obsvalueDT.getAltCdSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_SNOMED_CD)) {
+                                obsvalueDT.setAltCdSystemDescTxt(EdxELRConstant.ELR_SNOMED_DESC);
+                            } else if (obsvalueDT.getAltCdSystemCd() != null && obsvalueDT.getAltCdSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_LOCAL_CD)) {
+                                obsvalueDT.setAltCdSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
+                            }
+
+                            obsvalueDT.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
+
+                            if (observationContainer.getTheObsValueCodedDtoCollection() == null) {
+                                observationContainer.setTheObsValueCodedDtoCollection(new ArrayList<>());
+                            }
+                            observationContainer.getTheObsValueCodedDtoCollection().add(obsvalueDT);
+                        }
+                    }
+                    case EdxELRConstant.ELR_STUCTURED_NUMERIC_CD -> {
+                        ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
+                        obsValueNumericDto.setObsValueNumericSeq(1);
+                        StringTokenizer st = new StringTokenizer(text, "^");
+                        obsValueNumericDto.setItNew(true);
+                        obsValueNumericDto.setItDirty(false);
+                        int i = 0;
+                        if (text.indexOf("^") == 0) {
+                            i = 1;
+                        }
+                        while (st.hasMoreTokens()) {
+                            i++;
+                            String token = st.nextToken();
+                            if (i == 1) {
+                                if (token != null && token.equals("&lt;"))
+                                    obsValueNumericDto.setComparatorCd1("<");
+                                else if (token != null && token.equals("&gt;"))
+                                    obsValueNumericDto.setComparatorCd1(">");
+                                else
+                                    obsValueNumericDto.setComparatorCd1(token);
+                            } else if (i == 2) {
+                                obsValueNumericDto.setNumericValue1(new BigDecimal(token));
+                            } else if (i == 3) {
+                                obsValueNumericDto.setSeparatorCd(token);
+                            } else if (i == 4) {
+                                obsValueNumericDto.setNumericValue2(new BigDecimal(token));
                             }
                         }
-                        if((obsvalueDT.getCode()==null || obsvalueDT.getCode().trim().equals(""))
-                                && (obsvalueDT.getAltCd()==null || obsvalueDT.getAltCd().trim().equals("")))
-                        {
-                            edxLabInformationDto.setReflexResultedTestCdMissing(true);
-                            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_19);
-                            String xmlElementName = commonLabUtil.getXMLElementNameForOBX(hl7OBXType)+"."+elementName;
-                            throw new DataProcessingException(EdxELRConstant.NO_REFLEX_RESULT_NM+" XMLElementName: "+xmlElementName);
+                        if (cEUnit != null)
+                            obsValueNumericDto.setNumericUnitCd(cEUnit.getHL7Identifier());
+                        obsValueNumericDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
+                        if (observationContainer.getTheObsValueNumericDtoCollection() == null) {
+                            observationContainer.setTheObsValueNumericDtoCollection(new ArrayList<>());
                         }
-
-                        if(obsvalueDT.getCode() == null || obsvalueDT.getCode().trim().equals(""))
-                        {
-                            obsvalueDT.setCode(obsvalueDT.getAltCd());
-                            obsvalueDT.setDisplayName(obsvalueDT.getAltCdDescTxt());
-                            obsvalueDT.setCodeSystemCd(obsvalueDT.getAltCdSystemCd());
-                            obsvalueDT.setAltCd(null);
-                            obsvalueDT.setAltCdDescTxt(null);
-                            obsvalueDT.setAltCdSystemCd(null);
-                        }
-
-                        if(obsvalueDT.getCodeSystemCd()!=null && obsvalueDT.getCodeSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_SNOMED_CD))
-                        {
-                            obsvalueDT.setCodeSystemDescTxt(EdxELRConstant.ELR_SNOMED_DESC);
-                        }
-                        else if(obsvalueDT.getCodeSystemCd()!=null && obsvalueDT.getCodeSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_LOCAL_CD))
-                        {
-                            obsvalueDT.setCodeSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
-                        }
-                        if(obsvalueDT.getAltCdSystemCd()!=null && obsvalueDT.getAltCdSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_SNOMED_CD))
-                        {
-                            obsvalueDT.setAltCdSystemDescTxt(EdxELRConstant.ELR_SNOMED_DESC);
-                        }
-                        else if(obsvalueDT.getAltCdSystemCd()!=null && obsvalueDT.getAltCdSystemCd().equalsIgnoreCase(EdxELRConstant.ELR_LOCAL_CD))
-                        {
-                            obsvalueDT.setAltCdSystemDescTxt(EdxELRConstant.ELR_LOCAL_DESC);
-                        }
-
-                        obsvalueDT.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
-
-                        if(observationContainer.getTheObsValueCodedDtoCollection()==null) {
-                            observationContainer.setTheObsValueCodedDtoCollection(new ArrayList<>());
-                        }
-                        observationContainer.getTheObsValueCodedDtoCollection().add(obsvalueDT);
-                    }
-                }
-                else if (type.equals(EdxELRConstant.ELR_STUCTURED_NUMERIC_CD))
-                {
-                    ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
-                    obsValueNumericDto.setObsValueNumericSeq(1);
-                    StringTokenizer st = new StringTokenizer(text, "^");
-                    obsValueNumericDto.setItNew(true);
-                    obsValueNumericDto.setItDirty(false);
-                    int i = 0;
-                    if (text.indexOf("^") == 0) {
-                        i = 1;
-                    }
-                    while (st.hasMoreTokens()) {
-                        i++;
-                        String token = st.nextToken();
-                        if (i == 1) {
-                            if (token != null && token.equals("&lt;"))
-                                obsValueNumericDto.setComparatorCd1("<");
-                            else if (token != null && token.equals("&gt;"))
-                                obsValueNumericDto.setComparatorCd1(">");
-                            else
-                                obsValueNumericDto.setComparatorCd1(token);
-                        } else if (i == 2) {
-                            obsValueNumericDto.setNumericValue1(new BigDecimal(token));
-                        }
-                        else if (i == 3) {
-                            obsValueNumericDto.setSeparatorCd(token);
-                        }
-                        else if (i == 4) {
-                            obsValueNumericDto.setNumericValue2(new BigDecimal(token));
-                        }
-                    }
-                    if (cEUnit != null)
-                        obsValueNumericDto.setNumericUnitCd(cEUnit.getHL7Identifier());
-                    obsValueNumericDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
-                    if (observationContainer.getTheObsValueNumericDtoCollection() == null) {
-                        observationContainer.setTheObsValueNumericDtoCollection(new ArrayList<>());
-                    }
-                    observationContainer.getTheObsValueNumericDtoCollection().add(obsValueNumericDto);
-
-                }
-                else if (type.equals(EdxELRConstant.ELR_NUMERIC_CD))
-                {
-                    ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
-                    obsValueNumericDto.setObsValueNumericSeq(1);
-                    obsValueNumericDto.setItNew(true);
-                    obsValueNumericDto.setItDirty(false);
-
-                    obsValueNumericDto.setNumericValue1(new BigDecimal(text));
-
-
-                    if (cEUnit != null) {
-                        obsValueNumericDto.setNumericUnitCd(cEUnit.getHL7Identifier());
-                    }
-                    obsValueNumericDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
-                    if (observationContainer.getTheObsValueNumericDtoCollection() == null) {
-                        observationContainer.setTheObsValueNumericDtoCollection(new ArrayList<>());
-                    }
-                    observationContainer.getTheObsValueNumericDtoCollection().add(obsValueNumericDto);
-
-                }
-                else if (type.equals(EdxELRConstant.ELR_STRING_CD) || type.equals(EdxELRConstant.ELR_TEXT_CD)
-                        || type.equals(EdxELRConstant.ELR_TEXT_DT) || type.equals(EdxELRConstant.ELR_TEXT_TS))
-                {
-                    ObsValueTxtDto obsValueTxtDto = new ObsValueTxtDto();
-                    StringTokenizer st = new StringTokenizer(text, "^");
-                    int i;
-                    if (observationContainer.getTheObsValueTxtDtoCollection() == null)
-                        observationContainer.setTheObsValueTxtDtoCollection(new ArrayList<>());
-
-                    while (st.hasMoreTokens()) {
-                        String token = st.nextToken();
-                        i = observationContainer.getTheObsValueTxtDtoCollection().size() + 1;
-                        obsValueTxtDto.setValueTxt(token);
-                        obsValueTxtDto.setObsValueTxtSeq(i++);
-                        obsValueTxtDto.setTxtTypeCd(EdxELRConstant.ELR_OFFICE_CD);
-                        obsValueTxtDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
-                        obsValueTxtDto.setItNew(true);
-                        obsValueTxtDto.setItDirty(false);
+                        observationContainer.getTheObsValueNumericDtoCollection().add(obsValueNumericDto);
 
                     }
-                    observationContainer.getTheObsValueTxtDtoCollection().add(obsValueTxtDto);
+                    case EdxELRConstant.ELR_NUMERIC_CD -> {
+                        ObsValueNumericDto obsValueNumericDto = new ObsValueNumericDto();
+                        obsValueNumericDto.setObsValueNumericSeq(1);
+                        obsValueNumericDto.setItNew(true);
+                        obsValueNumericDto.setItDirty(false);
 
-                }
-                else
-                {
-                    edxLabInformationDto.setUnexpectedResultType(true);
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                    throw new DataProcessingException(EdxELRConstant.UNEXPECTED_RESULT_TYPE);
+                        obsValueNumericDto.setNumericValue1(new BigDecimal(text));
+
+
+                        if (cEUnit != null) {
+                            obsValueNumericDto.setNumericUnitCd(cEUnit.getHL7Identifier());
+                        }
+                        obsValueNumericDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
+                        if (observationContainer.getTheObsValueNumericDtoCollection() == null) {
+                            observationContainer.setTheObsValueNumericDtoCollection(new ArrayList<>());
+                        }
+                        observationContainer.getTheObsValueNumericDtoCollection().add(obsValueNumericDto);
+
+                    }
+                    case EdxELRConstant.ELR_STRING_CD, EdxELRConstant.ELR_TEXT_CD, EdxELRConstant.ELR_TEXT_DT,
+                         EdxELRConstant.ELR_TEXT_TS -> {
+                        ObsValueTxtDto obsValueTxtDto = new ObsValueTxtDto();
+                        StringTokenizer st = new StringTokenizer(text, "^");
+                        int i;
+                        if (observationContainer.getTheObsValueTxtDtoCollection() == null)
+                            observationContainer.setTheObsValueTxtDtoCollection(new ArrayList<>());
+
+                        while (st.hasMoreTokens()) {
+                            String token = st.nextToken();
+                            i = observationContainer.getTheObsValueTxtDtoCollection().size() + 1;
+                            obsValueTxtDto.setValueTxt(token);
+                            obsValueTxtDto.setObsValueTxtSeq(i++);
+                            obsValueTxtDto.setTxtTypeCd(EdxELRConstant.ELR_OFFICE_CD);
+                            obsValueTxtDto.setObservationUid(observationContainer.getTheObservationDto().getObservationUid());
+                            obsValueTxtDto.setItNew(true);
+                            obsValueTxtDto.setItDirty(false);
+
+                        }
+                        observationContainer.getTheObsValueTxtDtoCollection().add(obsValueTxtDto);
+
+                    }
+                    default -> {
+                        edxLabInformationDto.setUnexpectedResultType(true);
+                        edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+                        throw new DataProcessingException(EdxELRConstant.UNEXPECTED_RESULT_TYPE);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -694,16 +673,16 @@ public class ObservationResultRequestHandler {
     }
 
     protected ObservationContainer processingAbnormalFlag(List<HL7CWEType> abnormalFlag, ObservationDto observationDto,
-                                          ObservationContainer observationContainer) throws DataProcessingException, RtiCacheException {
+                                          ObservationContainer observationContainer) throws DataProcessingException {
         if(abnormalFlag !=null && !abnormalFlag.isEmpty())
         {
             ObservationInterpDto observationIntrepDT = new ObservationInterpDto();
             observationIntrepDT.setObservationUid(observationDto.getObservationUid());
-            observationIntrepDT.setInterpretationCd(abnormalFlag.get(0).getHL7Identifier());
+            observationIntrepDT.setInterpretationCd(abnormalFlag.getFirst().getHL7Identifier());
 
             String str= checkingValueService.getCodeDescTxtForCd("OBS_INTRP",observationIntrepDT.getInterpretationCd());
-            if(str==null || str.trim().length()==0) {
-                observationIntrepDT.setInterpretationDescTxt(abnormalFlag.get(0).getHL7Text());
+            if(str==null || str.trim().isEmpty()) {
+                observationIntrepDT.setInterpretationDescTxt(abnormalFlag.getFirst().getHL7Text());
             }
             else {
                 observationIntrepDT.setInterpretationDescTxt(str);
@@ -722,7 +701,7 @@ public class ObservationResultRequestHandler {
             if(observationContainer.getTheObsValueNumericDtoCollection()!=null)
             {
                 var arrlist = new ArrayList<>(observationContainer.getTheObsValueNumericDtoCollection());
-                obsValueNumericDto = arrlist.get(0);
+                obsValueNumericDto = arrlist.getFirst();
             }
             else
             {
@@ -761,7 +740,7 @@ public class ObservationResultRequestHandler {
         return observationContainer;
     }
     @SuppressWarnings("java:S3776")
-    protected ObservationContainer processingObservationMethod(List<HL7CEType> methodArray , EdxLabInformationDto edxLabInformationDto, ObservationContainer observationContainer) throws DataProcessingException, RtiCacheException {
+    protected ObservationContainer processingObservationMethod(List<HL7CEType> methodArray , EdxLabInformationDto edxLabInformationDto, ObservationContainer observationContainer) throws DataProcessingException {
         StringBuilder methodCd = null;
         StringBuilder methodDescTxt = null;
         final String delimiter = "**";
@@ -777,7 +756,7 @@ public class ObservationResultRequestHandler {
                 }
 
                 String str = checkingValueService.getCodeDescTxtForCd("OBS_METH", method.getHL7Identifier());
-                if (str == null || str.trim().equals("")) {
+                if (str == null || str.trim().isEmpty()) {
 
                     logger.warn(
                             "ObservationResultRequest.getObservationResult warning: Method code could not be teranslated. Please check!!!");

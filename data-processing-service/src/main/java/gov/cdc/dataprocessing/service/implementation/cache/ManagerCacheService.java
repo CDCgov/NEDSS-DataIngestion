@@ -3,7 +3,7 @@ package gov.cdc.dataprocessing.service.implementation.cache;
 
 import gov.cdc.dataprocessing.cache.cache_model.SrteCache;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import jakarta.annotation.PostConstruct;
@@ -35,7 +35,7 @@ public class ManagerCacheService{
         }
         return null;
     }
-    public String getCache(ObjectName objectName, String key) throws RtiCacheException {
+    public String getCache(ObjectName objectName, String key) throws DataProcessingException {
         if (objectName == ObjectName.PROGRAM_AREA_CODES) {
             return SrteCache.programAreaCodesMap.get(key);
         }
@@ -111,7 +111,7 @@ public class ManagerCacheService{
         return "";
     }
 
-    public boolean containKey(ObjectName objectName, String key) throws RtiCacheException {
+    public boolean containKey(ObjectName objectName, String key) throws DataProcessingException {
         if (objectName == ObjectName.LOINC_CODES)
         {
             return SrteCache.loincCodesMap.containsKey(key);
@@ -149,7 +149,7 @@ public class ManagerCacheService{
     }
 
     @PostConstruct
-    public void loadCache() throws RtiCacheException {
+    public void loadCache() throws DataProcessingException {
         System.out.println("loadCache");
         SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes();
         SrteCache.raceCodesMap = cachingValueService.getRaceCodes();
@@ -168,30 +168,7 @@ public class ManagerCacheService{
         SrteCache.labResultWithOrganismNameIndMap = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
         SrteCache.loinCodeWithComponentNameMap = cachingValueService.getAllLoinCodeWithComponentName();
         System.out.println("loadCache completed");
-//        saveCache();
     }
 
-//
-//    private void saveCache() {
-//        saveToCacheHashMap( "loincCodes", SrteCache.loincCodesMap);
-//        saveToCacheHashMap( "raceCodes", SrteCache.raceCodesMap);
-//        saveToCacheHashMap( "programAreaCodes", SrteCache.programAreaCodesMap);
-//        saveToCacheHashMap( "jurisdictionCode", SrteCache.jurisdictionCodeMap);
-//        saveToCacheHashMap( "programAreaCodesWithNbsUid", SrteCache.programAreaCodesMapWithNbsUid);
-//        saveToCacheHashMap( "jurisdictionCodeWithNbsUid", SrteCache.jurisdictionCodeMapWithNbsUid);
-//        redisUtil.saveList( "elrXref", SrteCache.elrXrefsList);
-//        saveToCacheHashMap( "coInfectionConditionCode", SrteCache.coInfectionConditionCode);
-//        redisUtil.saveList( "conditionCode", SrteCache.conditionCodes);
-//        saveToCacheHashMap( "labResulDesc", SrteCache.labResultByDescMap);
-//        saveToCacheHashMap( "snomedCodeByDesc", SrteCache.snomedCodeByDescMap);
-//        saveToCacheHashMap( "labResulDescWithOrgnismName", SrteCache.labResultWithOrganismNameIndMap);
-//        saveToCacheHashMap( "loinCodeWithComponentName", SrteCache.loinCodeWithComponentNameMap);
-//        saveToCacheHashMap( "investigationFormConditionCode", SrteCache.investigationFormConditionCode);
-//
-//    }
-
-//    private void saveToCacheHashMap(String key,  HashMap<?, ?> target) {
-//        redisUtil.saveHashMap(key, target);
-//    }
 
 }

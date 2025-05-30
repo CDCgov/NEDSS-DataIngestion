@@ -5,8 +5,8 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsActJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsCaseAnswerJdbcRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,13 +36,15 @@ import java.util.Collection;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PamRepositoryUtil {
-    NbsActEntityRepository nbsActEntityRepository;
-    NbsCaseAnswerRepository nbsCaseAnswerRepository;
 
-    public PamRepositoryUtil(NbsActEntityRepository nbsActEntityRepository,
-                             NbsCaseAnswerRepository nbsCaseAnswerRepository) {
-        this.nbsActEntityRepository = nbsActEntityRepository;
-        this.nbsCaseAnswerRepository = nbsCaseAnswerRepository;
+    private final NbsActJdbcRepository nbsActJdbcRepository;
+    private final NbsCaseAnswerJdbcRepository nbsCaseAnswerJdbcRepository;
+
+    public PamRepositoryUtil(
+            NbsActJdbcRepository nbsActJdbcRepository,
+            NbsCaseAnswerJdbcRepository nbsCaseAnswerJdbcRepository) {
+        this.nbsActJdbcRepository = nbsActJdbcRepository;
+        this.nbsCaseAnswerJdbcRepository = nbsCaseAnswerJdbcRepository;
     }
     public PublicHealthCaseContainer getPamHistory(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
             Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
@@ -52,11 +54,11 @@ public class PamRepositoryUtil {
             return publicHealthCaseContainer;
     }
 
-    private Collection<NbsActEntityDto>  getPamCaseEntityDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
+    private Collection<NbsActEntityDto>  getPamCaseEntityDTCollection(RootDtoInterface rootDTInterface)   {
         ArrayList<NbsActEntityDto> pamEntityDTCollection  = new ArrayList<> ();
-        var res  =  nbsActEntityRepository.getNbsActEntitiesByActUid(rootDTInterface.getUid());
-        if (res.isPresent()) {
-            for(var item : res.get()) {
+        var res  =  nbsActJdbcRepository.getNbsActEntitiesByActUid(rootDTInterface.getUid());
+        if (res != null && !res.isEmpty()) {
+            for(var item : res) {
                 var nbsItem = new NbsActEntityDto(item);
                 pamEntityDTCollection.add(nbsItem);
             }
@@ -64,20 +66,17 @@ public class PamRepositoryUtil {
         return pamEntityDTCollection;
     }
 
-    private Collection<NbsCaseAnswerDto>  getPamAnswerDTCollection(RootDtoInterface rootDTInterface) throws DataProcessingException {
+    private Collection<NbsCaseAnswerDto>  getPamAnswerDTCollection(RootDtoInterface rootDTInterface)   {
         ArrayList<NbsCaseAnswerDto> nbsAnswerDTCollection  = new ArrayList<> ();
-        try {
 
-            var res  =  nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(rootDTInterface.getUid());
-            if (res.isPresent()) {
-                for(var item : res.get()) {
-                    var nbsItem = new NbsCaseAnswerDto(item);
-                    nbsAnswerDTCollection.add(nbsItem);
-                }
+        var res  =  nbsCaseAnswerJdbcRepository.getNbsCaseAnswerByActUid(rootDTInterface.getUid());
+        if (res != null && !res.isEmpty()) {
+            for(var item : res) {
+                var nbsItem = new NbsCaseAnswerDto(item);
+                nbsAnswerDTCollection.add(nbsItem);
             }
-        } catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
         }
+
         return nbsAnswerDTCollection;
 
     }

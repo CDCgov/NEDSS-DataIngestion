@@ -55,10 +55,10 @@ public class ParticipationService implements IParticipationService {
 
     public Long findPatientMprUidByObservationUid(String classCode, String typeCode, Long actUid) {
         var result = participationRepository.findPatientMprUidByObservationUid(classCode, typeCode, actUid);
-        return result.map(longs -> longs.get(0)).orElse(null);
+        return result.map(List::getFirst).orElse(null);
     }
 
-    public void saveParticipationHist(ParticipationDto participationDto) throws DataProcessingException {
+    public void saveParticipationHist(ParticipationDto participationDto)  {
         var res = participationHistRepository.findVerNumberByKey(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getTypeCd());
         Integer ver = 1;
         if (res.isPresent() && !res.get().isEmpty()) {
@@ -72,7 +72,7 @@ public class ParticipationService implements IParticipationService {
 
     }
 
-    public void saveParticipation(ParticipationDto participationDto) throws DataProcessingException {
+    public void saveParticipation(ParticipationDto participationDto)   {
         if (participationDto.isItNew() || participationDto.isItDirty()) {
             persistingParticipation(participationDto);
         } else if (participationDto.isItDelete()) {
@@ -97,7 +97,7 @@ public class ParticipationService implements IParticipationService {
         participationRepository.saveAll(entities);
     }
 
-    public void saveParticipationHistBatch(List<ParticipationDto> dtos) throws DataProcessingException {
+    public void saveParticipationHistBatch(List<ParticipationDto> dtos)   {
         if (dtos == null || dtos.isEmpty()) return;
 
         List<ParticipationHist> toPersist = new ArrayList<>();

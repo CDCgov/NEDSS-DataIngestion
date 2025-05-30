@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.utilities.component.act;
 
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActIdJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -32,17 +32,19 @@ import java.util.Collection;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ActIdRepositoryUtil {
-    private final ActIdRepository actIdRepository;
+    private final ActIdJdbcRepository actIdJdbcRepository;
 
-    public ActIdRepositoryUtil(ActIdRepository actIdRepository) {
-        this.actIdRepository = actIdRepository;
+    public ActIdRepositoryUtil(
+                               ActIdJdbcRepository actIdJdbcRepository) {
+        this.actIdJdbcRepository = actIdJdbcRepository;
     }
 
     public Collection<ActIdDto> getActIdCollection(Long actUid) {
-        var actIds = actIdRepository.findRecordsById(actUid);
+//        var actIds = actIdRepository.findRecordsById(actUid);
+        var actIds = actIdJdbcRepository.findRecordsByActUid(actUid);
         Collection<ActIdDto> actIdCollection = new ArrayList<>();
-        if (actIds.isPresent()) {
-            for(var item : actIds.get()) {
+        if (actIds != null && !actIds.isEmpty()) {
+            for(var item : actIds) {
                 var dto  = new ActIdDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
@@ -57,7 +59,8 @@ public class ActIdRepositoryUtil {
         for(var item: actIdDtoCollection){
             ActId data = new ActId(item);
             data.setActUid(uid);
-            actIdRepository.save(data);
+            actIdJdbcRepository.mergeActId(data);
+//            actIdRepository.save(data);
             item.setItDirty(false);
             item.setItNew(false);
             item.setItDelete(false);

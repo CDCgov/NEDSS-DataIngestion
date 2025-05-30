@@ -143,7 +143,7 @@ public class MatchingBaseService  {
                             }
                         }
 
-                        if (identifier.length() > 0 && getNamesStr(personContainer) != null) {
+                        if (!identifier.isEmpty() && getNamesStr(personContainer) != null) {
                             identifier.append(carrot).append(getNamesStr(personContainer));
                             identifierList.add(identifier.toString());
                         }
@@ -209,9 +209,9 @@ public class MatchingBaseService  {
     protected String processingPersonNameBasedOnAsOfDate(PersonNameDto personNameDto, String namesStr, Timestamp asofDate) {
         String caret = "^";
         if ((personNameDto.getLastNm() != null)
-                && (!personNameDto.getLastNm().trim().equals(""))
+                && (!personNameDto.getLastNm().trim().isEmpty())
                 && (personNameDto.getFirstNm() != null)
-                && (!personNameDto.getFirstNm().trim().equals("")))
+                && (!personNameDto.getFirstNm().trim().isEmpty()))
         {
             namesStr = personNameDto.getLastNm() + caret + personNameDto.getFirstNm();
             asofDate = personNameDto.getAsOfDate(); // NOSONAR

@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.data_extraction;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
@@ -27,7 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -84,134 +85,7 @@ public class DataExtractionService implements IDataExtractionService {
     }
 
     @SuppressWarnings("java:S3776")
-    public LabResultProxyContainer parsingDataToObjectOld(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException, RtiCacheException {
-
-        LabResultProxyContainer labResultProxyContainer;
-        int rootObsUid = 0;
-        long userId = AuthUtil.authUser.getAuthUserUid();
-        var time = TimeStampUtil.getCurrentTimeStamp(tz);
-        edxLabInformationDto.setRootObserbationUid(--rootObsUid);
-        edxLabInformationDto.setPatientUid(--rootObsUid);
-        edxLabInformationDto.setNextUid(--rootObsUid);
-        edxLabInformationDto.setUserId(userId);
-        edxLabInformationDto.setAddTime(time);
-
-        // Set Collection of EDXDocumentDto
-        Collection<EDXDocumentDto> collectionXmlDoc = new ArrayList<>();
-        EDXDocumentDto edxDocumentDto = new EDXDocumentDto();
-        edxDocumentDto.setAddTime(time);
-        edxDocumentDto.setDocTypeCd(EdxELRConstant.ELR_DOC_TYPE_CD);
-        edxDocumentDto.setPayload(nbsInterfaceModel.getPayload());
-        edxDocumentDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
-        edxDocumentDto.setRecordStatusTime(time);
-        edxDocumentDto.setNbsDocumentMetadataUid(EdxELRConstant.ELR_NBS_DOC_META_UID);
-        edxDocumentDto.setItDirty(false);
-        edxDocumentDto.setItNew(true);
-        collectionXmlDoc.add(edxDocumentDto);
-
-        Container container = dataExtractionServiceUtility.parsingElrXmlPayload(nbsInterfaceModel.getPayload());
-        HL7LabReportType hl7LabReportType = container.getHL7LabReport();
-        HL7MSHType hl7MSHType = hl7LabReportType.getHL7MSH();
-
-
-        labResultProxyContainer = labResultUtil.getLabResultMessage(hl7MSHType, edxLabInformationDto);
-        List<HL7PATIENTRESULTType> HL7PatientResultArray = hl7LabReportType.getHL7PATIENTRESULT(); // NOSONAR
-        HL7PatientResultSPMType hl7PatientResultSPMType = null;
-
-        if(HL7PatientResultArray == null || HL7PatientResultArray.isEmpty()){
-            edxLabInformationDto.setNoSubject(true);
-            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-            logger.error("HL7CommonLabUtil.processELR error thrown as NO patient segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
-            throw new DataProcessingException(EdxELRConstant.NO_SUBJECT);
-        }
-        // ENSURE HL7 Patient Result Array only has 1 record
-        else if(HL7PatientResultArray.size() > 1){
-            edxLabInformationDto.setMultipleSubject(true);
-            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-            logger.error("HL7CommonLabUtil.processELR error thrown as multiple patient segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
-            throw new DataProcessingException(EdxELRConstant.MULTIPLE_SUBJECT);
-        }
-
-        /**
-         * The If Else above ensure there is only Record with Single Patient Result can move forward
-         * */
-        HL7PATIENTRESULTType hl7PATIENTRESULTType = HL7PatientResultArray.get(0);
-        labResultProxyContainer = hl7PatientHandler.getPatientAndNextOfKin(hl7PATIENTRESULTType, labResultProxyContainer, edxLabInformationDto);
-
-        List<HL7OrderObservationType> hl7OrderObservationArray = hl7PATIENTRESULTType.getORDEROBSERVATION();
-
-        if(hl7OrderObservationArray==null || hl7OrderObservationArray.isEmpty()){
-            edxLabInformationDto.setOrderTestNameMissing(true);
-            logger.error("HL7CommonLabUtil.processELR error thrown as NO OBR segment is found.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
-            throw new DataProcessingException(EdxELRConstant.NO_ORDTEST_NAME);
-        }
-
-        for (int j = 0; j < hl7OrderObservationArray.size(); j++) {
-            HL7OrderObservationType hl7OrderObservationType = hl7OrderObservationArray.get(j);
-            if (hl7OrderObservationType.getCommonOrder() != null) {
-                orcHandler.getORCProcessing(hl7OrderObservationType.getCommonOrder(), labResultProxyContainer, edxLabInformationDto);
-            }
-
-            if (hl7OrderObservationType.getPatientResultOrderSPMObservation() != null) {
-                hl7PatientResultSPMType = hl7OrderObservationType.getPatientResultOrderSPMObservation();
-            }
-
-            if(
-                j==0 &&
-                (hl7OrderObservationType.getObservationRequest().getParent() != null
-                ||hl7OrderObservationType.getObservationRequest().getParentResult() != null)
-            )
-            {
-                edxLabInformationDto.setOrderOBRWithParent(true);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is \"NOT NULL\" for the first OBR section.Please check message with NBS_INTERFACE_UID:-{}", nbsInterfaceModel.getNbsInterfaceUid());
-                throw new DataProcessingException(EdxELRConstant.ORDER_OBR_WITH_PARENT);
-
-            }
-            else if(
-                    j>0 && (hl7OrderObservationType.getObservationRequest().getParent()==null
-                    || hl7OrderObservationType.getObservationRequest().getParentResult()==null
-                    || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor()== null
-                    || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String() == null
-                    || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationValueDescriptor().getHL7String().trim().equals("")
-                    || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier()==null
-                    || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier()==null
-                    || hl7OrderObservationType.getObservationRequest().getParent().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier().trim().equals("")
-                    || hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier()==null
-                    || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Identifier()==null
-                    && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateIdentifier()==null)
-                    || (hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7Text()==null
-                    && hl7OrderObservationType.getObservationRequest().getParentResult().getParentObservationIdentifier().getHL7AlternateText()==null))
-            )
-            {
-
-                edxLabInformationDto.setMultipleOBR(true);
-                logger.error("HL7CommonLabUtil.processELR error thrown as either OBR26 is null OR OBR 29 is null for the OBR {} .Please check message with NBS_INTERFACE_UID:-{}",(j+1), nbsInterfaceModel.getNbsInterfaceUid());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-                throw new DataProcessingException(EdxELRConstant.MULTIPLE_OBR);
-            }
-
-            observationRequestHandler.getObservationRequest(hl7OrderObservationType.getObservationRequest(), hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
-
-            if(
-                edxLabInformationDto.getRootObservationContainer()!=null
-                && edxLabInformationDto.getRootObservationContainer().getTheObservationDto()!=null
-                && edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()!=null
-            )
-            {
-                nbsInterfaceStoredProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime());
-            }
-
-            observationResultRequestHandler.getObservationResultRequest(hl7OrderObservationType.getPatientResultOrderObservation().getOBSERVATION(), labResultProxyContainer, edxLabInformationDto);
-
-        }
-        labResultProxyContainer.setEDXDocumentCollection(collectionXmlDoc);
-
-        return labResultProxyContainer;
-
-    }
-
-    public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException, RtiCacheException {
+    public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
         int rootObsUid = 0;
         long userId = AuthUtil.authUser.getAuthUserUid();
         Timestamp time = TimeStampUtil.getCurrentTimeStamp(tz);
@@ -316,10 +190,9 @@ public class DataExtractionService implements IDataExtractionService {
                         .orElse(null);
 
                 if (effectiveFromTime != null) {
-                    Timestamp finalTime = effectiveFromTime;
                     CompletableFuture.runAsync(() -> {
                         try {
-                            nbsInterfaceStoredProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), finalTime);
+                            nbsInterfaceStoredProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(), effectiveFromTime);
                         } catch (Exception e) {
                             logger.warn("SpecimenCollDate SP failed", e);
                         }

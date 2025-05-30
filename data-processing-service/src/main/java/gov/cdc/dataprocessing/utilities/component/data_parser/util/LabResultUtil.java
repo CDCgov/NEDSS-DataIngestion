@@ -194,7 +194,7 @@ public class LabResultUtil {
             EntityIdDto entityIdDto = new EntityIdDto();
             entityIdDto.setEntityIdSeq(1);
 
-            if(edxELRLabMap.getEntityIdRootExtensionTxt()!=null && edxELRLabMap.getEntityIdRootExtensionTxt().trim().length()>0){
+            if(edxELRLabMap.getEntityIdRootExtensionTxt()!=null && !edxELRLabMap.getEntityIdRootExtensionTxt().trim().isEmpty()){
                 entityIdDto.setRootExtensionTxt(edxELRLabMap.getEntityIdRootExtensionTxt());
                 edxLabInformation.setSendingFacilityClia(edxELRLabMap.getEntityIdRootExtensionTxt());
             }

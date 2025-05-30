@@ -2,7 +2,7 @@ package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.CaseManagementRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.CaseManagementJdbcRepository;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,23 +30,21 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class CaseManagementRepositoryUtil {
-    private final CaseManagementRepository caseManagementRepository;
+    private final CaseManagementJdbcRepository caseManagementJdbcRepository;
 
-    public CaseManagementRepositoryUtil(CaseManagementRepository caseManagementRepository) {
-        this.caseManagementRepository = caseManagementRepository;
+    public CaseManagementRepositoryUtil(
+                                        CaseManagementJdbcRepository caseManagementJdbcRepository) {
+        this.caseManagementJdbcRepository = caseManagementJdbcRepository;
     }
 
     public CaseManagementDto getCaseManagementPhc(Long phcUid) {
-        var res = caseManagementRepository.findRecordsByPhcUid(phcUid);
-        if (res.isEmpty()) {
+        var res = caseManagementJdbcRepository.findByPublicHealthCaseUid(phcUid);
+        if (res == null) {
             return null;
-        } else {
-            var item = res.get().stream().findFirst();
-            if (item.isPresent()) {
-                return new CaseManagementDto(item.get());
-            }
         }
-
-        return new CaseManagementDto();
+        else
+        {
+            return new CaseManagementDto(res);
+        }
     }
 }

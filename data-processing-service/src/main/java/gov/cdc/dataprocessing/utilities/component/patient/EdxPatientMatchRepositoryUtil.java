@@ -3,10 +3,9 @@ package gov.cdc.dataprocessing.utilities.component.patient;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EdxMatchJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxEntityMatch;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.matching.EdxPatientMatch;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxEntityMatchRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxPatientMatchRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.EdxPatientMatchStoredProcRepository;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.slf4j.Logger;
@@ -38,16 +37,14 @@ import org.springframework.stereotype.Component;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxPatientMatchRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class);
-    private final EdxPatientMatchRepository edxPatientMatchRepository;
-    private final EdxEntityMatchRepository edxEntityMatchRepository;
+    private final EdxMatchJdbcRepository edxMatchJdbcRepository;
     private final EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
     private final DataModifierReposJdbc dataModifierReposJdbc;
 
-    public EdxPatientMatchRepositoryUtil(EdxPatientMatchRepository edxPatientMatchRepository,
-                                         EdxEntityMatchRepository edxEntityMatchRepository,
-                                         EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository, DataModifierReposJdbc dataModifierReposJdbc) {
-        this.edxPatientMatchRepository = edxPatientMatchRepository;
-        this.edxEntityMatchRepository = edxEntityMatchRepository;
+    public EdxPatientMatchRepositoryUtil(EdxMatchJdbcRepository edxMatchJdbcRepository,
+                                         EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository,
+                                         DataModifierReposJdbc dataModifierReposJdbc) {
+        this.edxMatchJdbcRepository = edxMatchJdbcRepository;
         this.edxPatientMatchStoreProcRepository = edxPatientMatchStoreProcRepository;
         this.dataModifierReposJdbc = dataModifierReposJdbc;
     }
@@ -70,13 +67,13 @@ public class EdxPatientMatchRepositoryUtil {
 
     public void saveEdxEntityMatch(EdxEntityMatchDto edxEntityMatchDto) {
         EdxEntityMatch model = new EdxEntityMatch(edxEntityMatchDto);
-        edxEntityMatchRepository.save(model);
+        edxMatchJdbcRepository.mergeEdxEntityMatch(model);
     }
 
 
     public EdxPatientMatch setEdxPatientMatchDT(EdxPatientMatchDto edxPatientMatchDto) {
         EdxPatientMatch edxPatientMatch = new EdxPatientMatch(edxPatientMatchDto);
-        edxPatientMatchRepository.save(edxPatientMatch);
+        edxMatchJdbcRepository.mergeEdxPatientMatch(edxPatientMatch);
         return edxPatientMatch;
     }
 

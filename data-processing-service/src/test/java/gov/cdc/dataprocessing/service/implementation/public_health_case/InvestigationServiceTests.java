@@ -567,7 +567,7 @@ class InvestigationServiceTests {
 
 
     @Test
-    void testProcessingInvestigationSummary_LiteCase() throws DataProcessingException, RtiCacheException {
+    void testProcessingInvestigationSummary_LiteCase() throws DataProcessingException {
         InvestigationContainer investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseContainer thePublicHealthCaseContainer = new PublicHealthCaseContainer();
         boolean lite = true;
@@ -580,7 +580,7 @@ class InvestigationServiceTests {
     }
 
     @Test
-    void testProcessingInvestigationSummary_NonLiteCase() throws DataProcessingException, RtiCacheException {
+    void testProcessingInvestigationSummary_NonLiteCase() throws DataProcessingException {
         InvestigationContainer investigationProxyVO = new InvestigationContainer();
         investigationProxyVO.setThePublicHealthCaseContainer(new PublicHealthCaseContainer());
         PublicHealthCaseContainer thePublicHealthCaseContainer = new PublicHealthCaseContainer();
@@ -630,7 +630,7 @@ class InvestigationServiceTests {
 
 
     @Test
-    void populateDescTxtFromCachedValues_Test() throws DataProcessingException, RtiCacheException {
+    void populateDescTxtFromCachedValues_Test() throws DataProcessingException {
         var reportCol = new ArrayList<>();
         var report = new LabReportSummaryContainer();
         report.setProgramArea("TEST");

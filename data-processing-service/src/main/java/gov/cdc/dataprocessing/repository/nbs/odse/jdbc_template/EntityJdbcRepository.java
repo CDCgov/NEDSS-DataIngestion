@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import static gov.cdc.dataprocessing.constant.query.EntityQuery.INSERT_SQL_ENTITY;
+import static gov.cdc.dataprocessing.constant.query.EntityQuery.UPDATE_ENTITY_BY_ID;
 
 @Component
 public class EntityJdbcRepository {
@@ -21,5 +22,13 @@ public class EntityJdbcRepository {
                 .addValue("entity_uid", entity.getEntityUid())
                 .addValue("class_cd", entity.getClassCd())
         );
+    }
+
+    public void updateEntity(EntityODSE entity) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("entityUid", entity.getEntityUid())
+                .addValue("classCd", entity.getClassCd());
+
+        jdbcTemplateOdse.update(UPDATE_ENTITY_BY_ID, params);
     }
 }

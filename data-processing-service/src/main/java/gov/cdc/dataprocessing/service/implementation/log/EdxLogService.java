@@ -49,7 +49,7 @@ import java.util.Optional;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EdxLogService implements IEdxLogService {
-    private static final Logger logger = LoggerFactory.getLogger(PersonContainer.class); // NOSONAR
+    private static final Logger logger = LoggerFactory.getLogger(EdxLogService.class); // NOSONAR
 
     private final EdxActivityLogRepository edxActivityLogRepository;
     private final EdxActivityDetailLogRepository edxActivityDetailLogRepository;
@@ -64,12 +64,6 @@ public class EdxLogService implements IEdxLogService {
     @Override
     public EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) {
         EdxActivityDetailLog edxActivityDetailLog = new EdxActivityDetailLog(detailLogDto);
-//        var checkDetailLogList = edxActivityDetailLogRepository.findIdsByEdxActivityLogUidAndLogComment(edxActivityDetailLog.getEdxActivityLogUid(), edxActivityDetailLog.getLogComment());
-//        if (checkDetailLogList.isEmpty()){
-//            return edxActivityDetailLogRepository.save(edxActivityDetailLog);
-//        }
-//        return new EdxActivityDetailLog();
-
         return edxActivityDetailLogRepository.save(edxActivityDetailLog);
     }
 
@@ -509,22 +503,22 @@ public class EdxLogService implements IEdxLogService {
             }
             if (!edxLabInformationDto.getWdsReports().isEmpty()) {
                 String msg = EdxELRConstant.WDS_REPORT;
-                String action = "";
+                String action;
                 StringBuilder sb = new StringBuilder();
-                var item = edxLabInformationDto.getWdsReports().get(0);
+                var item = edxLabInformationDto.getWdsReports().getFirst();
 
                 action = item.getAction();
                 sb.append(action).append(" Action. ");
                 String underCond = "Under condition ";
                 if (!item.getWdsValueNumericReportList().isEmpty()) {
-                    var wdsNumeric = item.getWdsValueNumericReportList().get(0);
+                    var wdsNumeric = item.getWdsValueNumericReportList().getFirst();
                     sb.append("Matched on Numeric type. ").append(underCond).append(wdsNumeric.getWdsCode())
                             .append("(WDS value) ").append(wdsNumeric.getOperator()).append(" ")
                             .append(wdsNumeric.getInputCode1()).append(" (Input value 1) & ")
                             .append(wdsNumeric.getInputCode2()).append(" (Input value 2)");
                 }
                 else if (!item.getWdsValueTextReportList().isEmpty()) {
-                    var wdsText = item.getWdsValueTextReportList().get(0);
+                    var wdsText = item.getWdsValueTextReportList().getFirst();
                     sb.append("Matched on Text Value type. ").append(underCond).append(wdsText.getWdsCode())
                             .append("(WDS value) matching with ")
                             .append(wdsText.getInputCode());

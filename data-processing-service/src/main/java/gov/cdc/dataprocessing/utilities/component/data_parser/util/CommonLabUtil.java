@@ -33,8 +33,7 @@ public class CommonLabUtil {
     private final XmlMapper xmlMapper = new XmlMapper();
     public String getXMLElementNameForOBR(HL7OBRType hl7OBRType) throws DataProcessingException {
         try {
-            String value = xmlMapper.writeValueAsString(hl7OBRType);
-            return value;
+            return xmlMapper.writeValueAsString(hl7OBRType);
 
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
@@ -43,8 +42,7 @@ public class CommonLabUtil {
 
     public String getXMLElementNameForOBX(HL7OBXType hl7OBXType) throws DataProcessingException {
         try {
-            String value = xmlMapper.writeValueAsString(hl7OBXType);
-            return value;
+            return xmlMapper.writeValueAsString(hl7OBXType);
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }

@@ -285,10 +285,6 @@ public class ObservationJdbcRepository {
                 .addValue("value_txt", obs.getValueTxt());
     }
 
-    private byte[] convertToBytes(String text) {
-        return text != null ? text.getBytes(StandardCharsets.UTF_8) : null;
-    }
-
     public void insertObsValueDate(ObsValueDate obs) {
         jdbcTemplateOdse.update(INSERT_SQL_OBS_VALUE_DATE, buildParamsObsValueDate(obs));
     }

@@ -15,8 +15,6 @@ import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPageService;
 import gov.cdc.dataprocessing.service.interfaces.page_and_pam.IPamService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationNotificationService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -34,7 +32,7 @@ public class LabService {
         this.investigationNotificationService = investigationNotificationService;
     }
 
-//    @Transactional
+//    @Transactional()
     public Long handlePageContainer(PageActProxyContainer pageAct, EdxLabInformationDto edxDto) throws DataProcessingException {
         return pageService.setPageProxyWithAutoAssoc(
                 NEDSSConstant.CASE,
@@ -66,7 +64,6 @@ public class LabService {
     }
 
 //    @Transactional
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNndNotification(PublicHealthCaseContainer phcContainerModel, EdxLabInformationDto edxDto) throws DataProcessingException {
         EDXActivityDetailLogDto detailLog = investigationNotificationService.sendNotification(phcContainerModel, edxDto.getNndComment());
         detailLog.setRecordType(EdxELRConstant.ELR_RECORD_TP);
