@@ -90,7 +90,6 @@ public class ElrSplitter {
             //create new ELR for each OBX. OBR to be duplicated.
             int i = 0;
             for (Observation obx : obxList) {
-                i++;
                 changeSctToSnmForCodingSystem(obx);
                 obx.getObservationResult().setSetIdObx("1");
                 //Create new OBR object
@@ -108,11 +107,11 @@ public class ElrSplitter {
                 // ORUR01.MSH.MessageControlID
                 String msgControlId = oruR1Copy.getMessageHeader().getMessageControlId();
                 //create unique MessageControlId
-                String newMsgControlId = getCustomMessageControlId(msgControlId, i);
+                String newMsgControlId = getCustomMessageControlId(msgControlId, ++i);
                 oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
                 //out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID = (out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID + (i * .01) );//TODO //NOSONAR
 
-                //TODO
+                //TODO //NOSONAR
                 // To make split OBRs unique to defeat snapshot processing, make addtional changes to the specimen collection time, //NOSONAR
                 // First the outgoing minutes to incoming seconds field //NOSONAR
                 //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Minutes = in.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Seconds ;//NOSONAR
@@ -131,7 +130,7 @@ public class ElrSplitter {
         return parsedMessageList;
     }
 
-    @SuppressWarnings({"java:S3776","java:S117"})
+    @SuppressWarnings({"java:S3776","java:S117","java:S6541"})
     private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
         List<HL7ParsedMessage<OruR1>> parsedMessageList = new ArrayList<>();
         Gson gson = new Gson();
@@ -236,7 +235,7 @@ public class ElrSplitter {
                 //make MessageControlIDs unique for every message created when OBRs are split out.
                 //ORUR01.MSH.MessageControlID
                 String msgControlId = oruR1Copy.getMessageHeader().getMessageControlId();
-                String newMsgControlId = getCustomMessageControlId(msgControlId, i);
+                String newMsgControlId = getCustomMessageControlId(msgControlId, i+1);
                 oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
 
                 //create HL7ParsedMessage for xml creation
