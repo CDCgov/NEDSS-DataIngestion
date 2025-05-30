@@ -110,13 +110,13 @@ public class ElrSplitter {
                 //create unique MessageControlId
                 String newMsgControlId = getCustomMessageControlId(msgControlId, i);
                 oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
-                //out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID = (out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID + (i * .01) );//TODO
+                //out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID = (out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID + (i * .01) );//TODO //NOSONAR
 
                 //TODO
-                // To make split OBRs unique to defeat snapshot processing, make addtional changes to the specimen collection time, 03-07-13, L.Takashima.
-                // First the outgoing minutes to incoming seconds field
-                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Minutes = in.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Seconds ;
-                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Minutes = out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Seconds ;
+                // To make split OBRs unique to defeat snapshot processing, make addtional changes to the specimen collection time, //NOSONAR
+                // First the outgoing minutes to incoming seconds field //NOSONAR
+                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Minutes = in.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Seconds ;//NOSONAR
+                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Minutes = out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Seconds;//NOSONAR
 
                 //create HL7ParsedMessage for xml creation
                 HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
@@ -131,7 +131,7 @@ public class ElrSplitter {
         return parsedMessageList;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S117"})
     private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
         List<HL7ParsedMessage<OruR1>> parsedMessageList = new ArrayList<>();
         Gson gson = new Gson();
@@ -192,15 +192,15 @@ public class ElrSplitter {
                                 String obr_26_2_parentRsltSubId = nextObr.getObservationRequest().getParentResult().getParentObservationSubIdentifier();
                                 log.info("Child:obr_26_2_parentRsltSubId:" + obr_26_2_parentRsltSubId);
 
-                                //Child OBR-29.2.1(filler order number) = Parent OBR-3.1(filler order number);
-                                // Child OBR-29.1.1(placer order number) = Parent OBR-2.1(Placer order number);
-                                //the filler order may be blank but then it is blank in both OBR.3.1 and OBR.29.2.1
-                                //Child OBR-26.1 = OBX-3 from the parent OBX;
-                                //Child OBR-26.2 = OBX-4 from parent OBX;
+                                //Child OBR-29.2.1(filler order number) = Parent OBR-3.1(filler order number);//NOSONAR
+                                // Child OBR-29.1.1(placer order number) = Parent OBR-2.1(Placer order number);//NOSONAR
+                                //the filler order may be blank but then it is blank in both OBR.3.1 and OBR.29.2.1//NOSONAR
+                                //Child OBR-26.1 = OBX-3 from the parent OBX;//NOSONAR
+                                //Child OBR-26.2 = OBX-4 from parent OBX;//NOSONAR
                                 if (StringUtils.equals(obr_29_1_1_placerOrderNumId, obr_2_1_placerOrderId) && StringUtils.equals(obr_29_2_1_fillerOrderNumId, obr_3_1_fillerOrderId)
                                         && StringUtils.equals(obr_26_1_1_parentRsltId, obx_3_1_id) && StringUtils.equals(obr_26_1_2_parentRsltTxt, obx_3_2_text) && StringUtils.equals(obr_26_1_3_parentRsltCodeSys, obx_3_3_nameOfCodeSys)
                                         && StringUtils.equals(obr_26_2_parentRsltSubId, obx_4_subId)) {
-                                    log.info("Matching parent-child found. parent obr:"+obrId+ "child ObrId:" + nextObrId);
+                                    log.info("Matching parent-child found. parent obr:"+obrId+ "child Obr:" + nextObrId);
                                     OrderObservation nextObrCopy = gson.fromJson(gson.toJson(nextObr), OrderObservation.class);
                                     tempObr.add(nextObrCopy);
                                     obrIds.add(nextObrId);
@@ -211,9 +211,8 @@ public class ElrSplitter {
                     splitOBRs.add(tempObr);
                 }
             }
-            log.info("Number of OBR groups after finding parent child:" + splitOBRs.size());
+            log.info("Number of OBR groups after applying parent child:" + splitOBRs.size());
 
-            //int i = 0;
             for (int i = 0; i < splitOBRs.size(); i++) {
                 ArrayList<OrderObservation> obrs = splitOBRs.get(i);
                 int obrCount = obrs.size();
