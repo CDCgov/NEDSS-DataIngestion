@@ -770,22 +770,28 @@ public class QueryConstants {
                   (
                    SELECT
                       (
-                      SELECT
-                        p.as_of_date_ethnicity AS asOf,
-                        cvg.code_desc_txt AS ethnicity,
-                        p.ethnic_unk_reason_cd AS reasonUnknown,
-                        STRING_AGG(cvg2.code_desc_txt, ' | ') AS spanishOrigin
-                      FROM
-                        Person_ethnic_group eg
-                        JOIN nbs_srte..code_value_general cvg ON cvg.code = p.ethnic_group_ind
-                        AND cvg.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
-                        JOIN nbs_srte..code_value_general cvg2 ON cvg2.code = eg.ethnic_group_cd
-                        AND cvg2.code_set_nm = 'P_ETHN'
-                      WHERE
-                        eg.person_uid = p.person_uid
-                      GROUP BY
-                        eg.person_uid,
-                        cvg.code_desc_txt
+                        SELECT
+                            ep.as_of_date_ethnicity AS asOf,
+                            cvg.code_desc_txt AS ethnicity,
+                            cvg3.code_short_desc_txt AS reasonUnknown,
+                            STRING_AGG(cvg2.code_desc_txt, ' | ') AS spanishOrigin
+                        FROM
+                            person ep
+                            LEFT JOIN Person_ethnic_group eg ON ep.person_uid = eg.person_uid
+                            LEFT JOIN nbs_srte..code_value_general cvg ON cvg.code = ep.ethnic_group_ind
+                            AND cvg.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
+                            LEFT JOIN nbs_srte..code_value_general cvg2 ON cvg2.code = eg.ethnic_group_cd
+                            AND cvg2.code_set_nm = 'P_ETHN'
+                            LEFT JOIN nbs_srte..code_value_general cvg3 ON cvg3.code = ep.ethnic_unk_reason_cd
+                            AND cvg3.code_set_nm = 'P_ETHN_UNK_REASON'
+                        WHERE
+                            ep.person_uid = p.person_uid
+                        GROUP BY
+                            ep.person_uid,
+                            ep.as_of_date_ethnicity,
+                            ep.ethnic_unk_reason_cd,
+                            cvg.code_desc_txt,
+                            cvg3.code_short_desc_txt
                       FOR JSON
                         PATH,
                         INCLUDE_NULL_VALUES,
