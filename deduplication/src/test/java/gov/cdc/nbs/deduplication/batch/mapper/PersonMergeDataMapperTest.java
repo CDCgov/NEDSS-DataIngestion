@@ -29,10 +29,9 @@ class PersonMergeDataMapperTest {
   private static final Timestamp COMMENT_DATE_TIMESTAMP = Timestamp.valueOf("2023-01-10 00:00:00");
   private static final String COMMENTS = "Admin comments here";
 
-  private static final String ETHNICITY_AS_OF_DATE = "2023-01-01";
+  private static final String ETHNICITY_AS_OF_DATE = "2025-05-30T00:00:00";
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
-  private static final String SPANISH_ORIGIN = "Yes";
-  private static final String ETHNIC_UNKNOWN_REASON = "Unknown";
+  private static final String SPANISH_ORIGIN = "Central American | Cuban";
 
   private static final String SEX_AND_BIRTH_AS_OF_DATE = "2023-02-01";
   private static final String BIRTH_TIME = "1990-01-01T00:00:00Z";
@@ -137,13 +136,21 @@ class PersonMergeDataMapperTest {
       ]
       """;
 
+  private static final String ETHNICITY_STRING = """
+      {
+      "asOf": "2025-05-30T00:00:00",
+      "ethnicity": "Hispanic or Latino",
+      "reasonUnknown": null,
+      "spanishOrigin": "Central American | Cuban"
+      }
+      """;
+
   @Test
   void testMapRow() throws Exception {
     ResultSet rs = Mockito.mock(ResultSet.class);
     // Mocking
     when(rs.getString("person_parent_uid")).thenReturn(PERSON_UID);
     mockGeneralFields(rs);
-    mockEthnicityFields(rs);
     mockSexAndBirthFields(rs);
     mockMortalityFields(rs);
     mockGeneralPatientInformationFields(rs);
@@ -168,13 +175,6 @@ class PersonMergeDataMapperTest {
   private void mockGeneralFields(ResultSet rs) throws SQLException {
     when(rs.getTimestamp("comment_date")).thenReturn(COMMENT_DATE_TIMESTAMP);
     when(rs.getString("admin_comments")).thenReturn(COMMENTS);
-  }
-
-  private void mockEthnicityFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_ethnicity")).thenReturn(ETHNICITY_AS_OF_DATE);
-    when(rs.getString("ethnic_group_desc_txt")).thenReturn(ETHNIC_GROUP_DESC_TXT);
-    when(rs.getString("spanish_origin")).thenReturn(SPANISH_ORIGIN);
-    when(rs.getString("ethnic_unknown_reason")).thenReturn(ETHNIC_UNKNOWN_REASON);
   }
 
   private void mockSexAndBirthFields(ResultSet rs) throws SQLException {
@@ -225,6 +225,7 @@ class PersonMergeDataMapperTest {
     when(rs.getString("name")).thenReturn(NAME_STRING);
     when(rs.getString("identifiers")).thenReturn(IDENTIFIER_STRING);
     when(rs.getString("race")).thenReturn(RACE_STRING);
+    when(rs.getString("ethnicity")).thenReturn(ETHNICITY_STRING);
   }
 
   // Assertion Methods
@@ -235,9 +236,9 @@ class PersonMergeDataMapperTest {
 
   private void assertEthnicity(PersonMergeData personMergeData) {
     assertThat(personMergeData.ethnicity().asOf()).isEqualTo(ETHNICITY_AS_OF_DATE);
-    assertThat(personMergeData.ethnicity().ethnicGroupDescription()).isEqualTo(ETHNIC_GROUP_DESC_TXT);
+    assertThat(personMergeData.ethnicity().ethnicity()).isEqualTo(ETHNIC_GROUP_DESC_TXT);
     assertThat(personMergeData.ethnicity().spanishOrigin()).isEqualTo(SPANISH_ORIGIN);
-    assertThat(personMergeData.ethnicity().ethnicUnknownReason()).isEqualTo(ETHNIC_UNKNOWN_REASON);
+    assertThat(personMergeData.ethnicity().reasonUnknown()).isNull();
   }
 
   private void assertSexAndBirth(PersonMergeData personMergeData) {
