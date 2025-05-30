@@ -43,7 +43,7 @@ class DeduplicationServiceTest {
     when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
     when(bodySpec.body(Mockito.any(PersonMatchRequest.class))).thenReturn(bodySpec);
     when(bodySpec.retrieve()).thenReturn(response);
-    when(response.body(MatchResponse.class)).thenReturn(new MatchResponse(1L, MatchType.EXACT, null));
+    when(response.body(MatchResponse.class)).thenReturn(new MatchResponse(1L, MatchType.EXACT));
 
     MatchResponse matchResponse = service.match(new PersonMatchRequest(new PersonContainer()));
     assertThat(matchResponse.match()).isEqualTo(1L);
@@ -51,16 +51,4 @@ class DeduplicationServiceTest {
 
   }
 
-  @Test
-  void shouldCallRelate() {
-    when(restClient.post()).thenReturn(uriSpec);
-    when(uriSpec.uri("/relate")).thenReturn(bodySpec);
-    when(bodySpec.accept(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
-    when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
-    when(bodySpec.body(Mockito.any(RelateRequest.class))).thenReturn(bodySpec);
-    when(bodySpec.retrieve()).thenReturn(response);
-
-    service.relate(new RelateRequest(1L, 2L, MatchType.NONE, null));
-    verify(restClient, times(1)).post();
-  }
 }

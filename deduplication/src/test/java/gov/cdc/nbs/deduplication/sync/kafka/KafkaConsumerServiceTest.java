@@ -50,7 +50,7 @@ class KafkaConsumerServiceTest {
     kafkaConsumerService.consumePersonMessage(message);
 
     verify(insertHandler, times(1)).handleInsert(payloadNode);
-    verify(updateHandler, never()).handleUpdate(any(), any());
+    verify(updateHandler, never()).handleUpdate(any());
   }
 
   @Test
@@ -60,7 +60,7 @@ class KafkaConsumerServiceTest {
 
     kafkaConsumerService.consumePersonMessage(message);
 
-    verify(updateHandler, times(1)).handleUpdate(payloadNode, "Person");
+    verify(updateHandler, times(1)).handleUpdate(payloadNode);
     verify(insertHandler, never()).handleInsert(any());
   }
 
@@ -69,7 +69,7 @@ class KafkaConsumerServiceTest {
     String message = "{\"payload\": {\"op\": \"d\"}}";
     kafkaConsumerService.consumePersonMessage(message);
 
-    verify(updateHandler, never()).handleUpdate(any(), any());
+    verify(updateHandler, never()).handleUpdate(any());
     verify(insertHandler, never()).handleInsert(any());
   }
 
@@ -88,51 +88,5 @@ class KafkaConsumerServiceTest {
 
     assertTrue(logFound);
   }
-
-  @Test
-  void testConsumePersonDataMessage_CreateOperation() throws Exception {
-    String message = "{\"payload\": {\"op\": \"c\"}}";
-    String topic = "test.NBS_ODSE.dbo.Person_name";
-    kafkaConsumerService.consumePersonDataMessage(topic, message);
-    verify(updateHandler, times(1)).handleUpdate(any(), any());
-
-  }
-
-  @Test
-  void testConsumePersonDataMessage_UpdateOperation() throws Exception {
-    String message = "{\"payload\": {\"op\": \"u\"}}";
-    String topic = "test.NBS_ODSE.dbo.Person_name";
-    kafkaConsumerService.consumePersonDataMessage(topic, message);
-    verify(updateHandler, times(1)).handleUpdate(any(), any());
-  }
-
-  @Test
-  void testConsumePersonDataMessage_otherOperation() throws Exception {
-    String message = "{\"payload\": {\"op\": \"d\"}}";
-    String topic = "test.NBS_ODSE.dbo.Person_name";
-    kafkaConsumerService.consumePersonDataMessage(topic, message);
-
-    verify(updateHandler, never()).handleUpdate(any(), any());
-    verify(insertHandler, never()).handleInsert(any());
-  }
-
-  @Test
-  void testConsumePersonDataMessage_ExceptionHandling() throws Exception {
-    String message = "{\"payload\": {\"op\": \"u\"}}";
-    JsonNode payloadNode = objectMapper.readTree(message).path("payload");
-    String topic = "test.NBS_ODSE.dbo.Person_name";
-
-    doThrow(new RuntimeException("Test exception")).when(updateHandler).handleUpdate(payloadNode, topic);
-
-    kafkaConsumerService.consumePersonDataMessage(topic, message);
-
-    boolean logFound = listAppender
-        .list
-        .stream()
-        .anyMatch(loggingEvent -> loggingEvent.getMessage().contains("Error while processing message from topic:"));
-
-    assertTrue(logFound);
-  }
-
 
 }

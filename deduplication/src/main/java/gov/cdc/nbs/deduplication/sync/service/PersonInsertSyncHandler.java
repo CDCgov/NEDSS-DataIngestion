@@ -3,12 +3,9 @@ package gov.cdc.nbs.deduplication.sync.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.model.LinkResult;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchCandidate;
-import gov.cdc.nbs.deduplication.duplicates.model.MatchResponse;
-import gov.cdc.nbs.deduplication.duplicates.service.DuplicateCheckService;
-import gov.cdc.nbs.deduplication.duplicates.service.PatientRecordService;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.seed.model.SeedRequest;
@@ -22,69 +19,90 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import java.time.LocalDateTime;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Component
 public class PersonInsertSyncHandler {
 
-
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate deduplicationTemplate;
-  private final DuplicateCheckService duplicateCheckService;
   private final PatientRecordService patientRecordService;
-
 
   public PersonInsertSyncHandler(
       ObjectMapper objectMapper,
       @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient,
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
-      final DuplicateCheckService duplicateCheckService,
-      final PatientRecordService patientRecordService
-  ) {
+      final PatientRecordService patientRecordService) {
 
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
     this.deduplicationTemplate = deduplicationTemplate;
-    this.duplicateCheckService = duplicateCheckService;
     this.patientRecordService = patientRecordService;
   }
 
   public void handleInsert(JsonNode payloadNode) throws JsonProcessingException {
     JsonNode afterNode = payloadNode.path("after");
-    String personUid = afterNode.get("person_uid").asText();
-    String personParentUid = afterNode.get("person_parent_uid").asText();
-    MpiPerson mpiPerson = patientRecordService.fetchPersonRecord(personUid);
+    String personUid = afterNode.get("person_uid").asText();//NOSONAR
+    boolean patientExists = doesPatientExistInMpi(personUid);
+    if (!patientExists) {
+      String personParentUid = afterNode.get("person_parent_uid").asText();
+      MpiPerson mpiPerson = patientRecordService.fetchPersonRecord(personUid);
 
-    boolean isNewPerson = personUid.equals(personParentUid);
-    if (isNewPerson) {
-      insertNewMpiPerson(mpiPerson);
-    } else {
-      insertNewMpiPatient(mpiPerson);
+      boolean isNewPerson = personUid.equals(personParentUid);
+      if (isNewPerson) {
+        insertNewMpiPerson(mpiPerson);
+      } else {
+        handleInsertNewMpiPatient(mpiPerson);
+      }
     }
   }
 
-  private void insertNewMpiPerson(MpiPerson mpiPerson) throws JsonProcessingException {
-    MpiResponse mpiResponse = insertNewPersonIntoMpi(mpiPerson);
+  public void insertNewMpiPerson(MpiPerson mpiPerson) throws JsonProcessingException {
+    MpiResponse mpiResponse = createMpiPersonRecord(mpiPerson);
     linkNbsToMpi(new NbsMpiLinkDto(mpiResponse));
-    MatchCandidate matchCandidate = checkForPossibleMatch(mpiPerson);
-    if (matchCandidate.possibleMatchList() != null) {
-      insertMatchCandidates(matchCandidate);
-    }
-    updateStatus(matchCandidate.personUid());
   }
 
-  private void insertNewMpiPatient(MpiPerson mpiPerson) throws JsonProcessingException {
-    MpiPatientResponse mpiPatientResponse = insertNewPatientIntoMpi(mpiPerson);
+  private void handleInsertNewMpiPatient(MpiPerson mpiPerson) throws JsonProcessingException {
+    boolean parentExists = doesPatientExistInMpi(mpiPerson.parent_id());
+    if (parentExists) {
+      insertNewPatient(mpiPerson);
+    } else {
+      insertParentAndPatient(mpiPerson);
+    }
+  }
+
+  private void insertNewPatient(MpiPerson patient) throws JsonProcessingException {
+    insertNewMpiPatient(patient);
+  }
+
+  void insertParentAndPatient(MpiPerson patient) throws JsonProcessingException {
+    MpiPerson parent = patientRecordService.fetchPersonRecord(patient.parent_id());
+    insertNewPerson(parent);
+    insertNewPatient(patient);
+  }
+
+  private void insertNewPerson(MpiPerson person) throws JsonProcessingException {
+    insertNewMpiPerson(person);
+  }
+
+  private boolean doesPatientExistInMpi(String personId) {
+    return Boolean.TRUE.equals(deduplicationTemplate.queryForObject(
+        QueryConstants.MPI_PATIENT_EXISTS_CHECK,
+        new MapSqlParameterSource("personId", personId),//NOSONAR
+        Boolean.class
+    ));
+  }
+
+  public void insertNewMpiPatient(MpiPerson mpiPerson) throws JsonProcessingException {
+    MpiPatientResponse mpiPatientResponse = createMpiPatientRecord(mpiPerson);
     String personReferenceId = findPersonReferenceId(mpiPerson.parent_id());
     NbsMpiLinkDto nbsMpiLinkDto = new NbsMpiLinkDto(personReferenceId, mpiPerson.parent_id(), mpiPatientResponse);
     linkNbsToMpi(nbsMpiLinkDto);
   }
 
-  private MpiResponse insertNewPersonIntoMpi(MpiPerson mpiPerson) throws JsonProcessingException {
+  private MpiResponse createMpiPersonRecord(MpiPerson mpiPerson) throws JsonProcessingException {
     SeedRequest request = new SeedRequest(mpiPerson);
     String requestJson = objectMapper.writeValueAsString(request);
     return recordLinkageClient.post()
@@ -96,7 +114,7 @@ public class PersonInsertSyncHandler {
         .body(MpiResponse.class);
   }
 
-  private MpiPatientResponse insertNewPatientIntoMpi(MpiPerson mpiPerson) throws JsonProcessingException {
+  private MpiPatientResponse createMpiPatientRecord(MpiPerson mpiPerson) throws JsonProcessingException {
     String personReferenceId = findPersonReferenceId(mpiPerson.parent_id());
     PatientCreateRequest request = new PatientCreateRequest(personReferenceId, mpiPerson);
     String requestJson = objectMapper.writeValueAsString(request);
@@ -110,37 +128,10 @@ public class PersonInsertSyncHandler {
   }
 
   private void linkNbsToMpi(NbsMpiLinkDto nbsMpiLink) {
-    deduplicationTemplate.update(QueryConstants.NBS_MPI_QUERY, createParameterSource(nbsMpiLink));
+    deduplicationTemplate.update(QueryConstants.NBS_MPI_QUERY,
+        createParameterSource(nbsMpiLink, getPersonNameAndAddTime(nbsMpiLink.externalPersonId()).addTime()));
   }
 
-  private MatchCandidate checkForPossibleMatch(MpiPerson mpiPerson) {
-    MatchResponse matchResponse = duplicateCheckService.findDuplicateRecords(mpiPerson);
-    if (MatchResponse.Prediction.POSSIBLE_MATCH == matchResponse.prediction()) {
-      List<String> possibleMatchList = matchResponse.results().stream()
-          .map(LinkResult::personReferenceId)
-          .map(UUID::toString)
-          .toList();
-      return new MatchCandidate(mpiPerson.external_id(), possibleMatchList);
-    }
-    return new MatchCandidate(mpiPerson.external_id(), null);
-  }
-
-  private void insertMatchCandidates(MatchCandidate candidate) {
-    List<MapSqlParameterSource> batchParams = new ArrayList<>();
-    for (String possibleMatchMpiId : candidate.possibleMatchList()) {
-      batchParams.add(new MapSqlParameterSource()
-          .addValue("personUid", candidate.personUid())
-          .addValue("mpiPersonId", possibleMatchMpiId));
-    }
-    if (!batchParams.isEmpty()) {
-      deduplicationTemplate.batchUpdate(QueryConstants.MATCH_CANDIDATES_QUERY,
-          batchParams.toArray(new MapSqlParameterSource[0]));
-    }
-  }
-
-  private void updateStatus(String personId) {
-    deduplicationTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSON, new MapSqlParameterSource("personId", personId));
-  }
 
   private String findPersonReferenceId(String personId) {
     return deduplicationTemplate.queryForObject(QueryConstants.MPI_PERSON_ID_QUERY,
@@ -148,13 +139,19 @@ public class PersonInsertSyncHandler {
         String.class);
   }
 
-  private SqlParameterSource createParameterSource(NbsMpiLinkDto nbsMpiLink) {
+  private SqlParameterSource createParameterSource(NbsMpiLinkDto nbsMpiLink, LocalDateTime personAddTime) {
     return new MapSqlParameterSource()
         .addValue("person_uid", nbsMpiLink.externalPatientId())
         .addValue("person_parent_uid", nbsMpiLink.externalPersonId())
         .addValue("mpi_patient", nbsMpiLink.patientReferenceId())
         .addValue("mpi_person", nbsMpiLink.personReferenceId())
-        .addValue("status", "U");
+        .addValue("status", "U")
+        .addValue("person_add_time", personAddTime);
+  }
+
+
+  private PatientNameAndTime getPersonNameAndAddTime(String personId) {
+    return patientRecordService.fetchPersonNameAndAddTime(personId);
   }
 
 }

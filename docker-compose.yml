@@ -19,6 +19,26 @@ services:
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
     networks:
       - dataingestion
+  data-processing-service:
+    build:
+      context: ./
+      dockerfile: ./data-processing-service/Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      broker:
+        condition: service_started
+      di-keycloak:
+        condition: service_started
+      di-mssql:
+        condition: service_healthy
+    container_name: data-processing-service
+    env_file:
+      - dataingestion.env
+    environment:
+      SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+    networks:
+      - dataingestion
 
   srte-data-service:
     build:
@@ -59,27 +79,27 @@ services:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_LISTENERS: 'INTERNAL://broker:29092,EXTERNAL://broker:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://broker:29092,EXTERNAL://localhost:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_LISTENERS: "INTERNAL://broker:29092,EXTERNAL://broker:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://broker:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
     networks:
       - dataingestion
 
-  debezium-connect:
+  debezium:
     image: debezium/connect:2.4
-    hostname: kafka-connect
-    container_name: kafka-connect
+    hostname: debezium
+    container_name: debezium
     depends_on:
       - broker
       - zookeeper
     ports:
-      - "8083:8083"
+      - "8085:8083"
     environment:
       BOOTSTRAP_SERVERS: broker:29092
       GROUP_ID: connect-cluster
@@ -98,7 +118,7 @@ services:
       OFFSET_STORAGE_REPLICATION_FACTOR: 1
       STATUS_STORAGE_REPLICATION_FACTOR: 1
     volumes:
-      - ./debezium/plugins:/kafka/connect
+      - ./containers/debezium/plugins:/kafka/connect
     networks:
       - dataingestion
 
@@ -148,15 +168,17 @@ services:
       - dataingestion
 
   di-record-linker:
-    build: ./containers/record-linker
+    image: ghcr.io/cdcgov/recordlinker:v25.5.0
     container_name: di-record-linker
     depends_on:
       di-mssql:
         condition: service_healthy
     ports:
-      - "8062:8080"
+      - "8070:8070"
     env_file:
       - dataingestion.env
+    environment:
+      PORT: 8070
     networks:
       - dataingestion
 

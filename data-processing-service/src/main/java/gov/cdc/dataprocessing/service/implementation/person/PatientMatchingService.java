@@ -12,14 +12,12 @@ import gov.cdc.dataprocessing.service.implementation.person.matching.Deduplicati
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
 import gov.cdc.dataprocessing.service.implementation.person.matching.PersonMatchRequest;
-import gov.cdc.dataprocessing.service.implementation.person.matching.RelateRequest;
 import gov.cdc.dataprocessing.service.interfaces.person.IPatientMatchingService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -69,26 +67,16 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
   }
 
   // Sends a request to the NBS deduplication service and acts upon the response.
-  // After patient creation, sends another request to the NBS deduplication
-  // service to associate the newly created record with the entry the Record
-  // Linkage service created in the MPI
   private EdxPatientMatchDto doModernizedMatching(PersonContainer personContainer) throws DataProcessingException {
     PersonMatchRequest request = new PersonMatchRequest(personContainer);
     MatchResponse response = deduplicationService.match(request);
 
-    // Create new entry in database based on match result
     if (response == null) {
       throw new DataProcessingException("Null response returned from deduplication service");
     }
+    
+    // Create new entry in database based on match result
     handleCreatePerson(personContainer, MatchType.EXACT.equals(response.matchType()), response.match());
-
-    // Tell deduplication service to link newly created patient to MPI patient
-    RelateRequest relateRequest = new RelateRequest(
-        personContainer.getThePersonDto().getPersonUid(),
-        personContainer.getThePersonDto().getPersonParentUid(),
-        response.matchType(),
-        response.linkResponse());
-    deduplicationService.relate(relateRequest);
 
     return new EdxPatientMatchDto();
   }

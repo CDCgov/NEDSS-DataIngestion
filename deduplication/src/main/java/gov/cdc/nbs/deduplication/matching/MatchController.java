@@ -1,13 +1,13 @@
 package gov.cdc.nbs.deduplication.matching;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
-import gov.cdc.nbs.deduplication.matching.model.RelateRequest;
 
 @RestController
-@RequestMapping("/deduplication")
 public class MatchController {
 
   private final MatchService matchService;
@@ -19,12 +19,6 @@ public class MatchController {
   @PostMapping("/match")
   public MatchResponse checkForPatientMatch(@RequestBody PersonMatchRequest request) {
     return matchService.match(request);
-  }
-
-  @PostMapping("/relate")
-  public void relateNbsPatient(@RequestBody RelateRequest request) {
-    // NBS created a new person, associate it to the record in the MPI
-    matchService.relateNbsIdToMpiId(request);
   }
 
 }

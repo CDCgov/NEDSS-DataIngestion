@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +86,9 @@ class SeedingTest {
   private JobLauncherTestUtils jobLauncherTestUtils;
 
   @Autowired
+  private JobLauncher jobLauncher;
+
+  @Autowired
   @Qualifier("nbsTemplate")
   private JdbcTemplate nbsTemplate;
 
@@ -99,6 +103,7 @@ class SeedingTest {
   void seedMpiTest(@Autowired @Qualifier("seedJob") Job seedJob) throws Exception {
     // Kick off seeding job
     jobLauncherTestUtils.setJob(seedJob);
+    jobLauncherTestUtils.setJobLauncher(jobLauncher);
     JobExecution jobExecution = jobLauncherTestUtils.launchJob();
 
     // Verify seeding was completed successfully
@@ -134,7 +139,6 @@ class SeedingTest {
 
     return objectMapper.writeValueAsString(jsonNode);
   }
-
 
   private void validatePatientData(MpiPerson mpiData) {
     // Personal
@@ -194,7 +198,6 @@ class SeedingTest {
 
   private record RowCount(Integer unique, Integer total) {
   }
-
 
   private class RowCountMapper implements RowMapper<RowCount> {
     @Override

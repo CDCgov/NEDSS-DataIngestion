@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,12 +28,15 @@ class DeduplicationWriterTest {
   @Mock
   private NamedParameterJdbcTemplate template;
 
+  @Mock
+  PatientRecordService patientRecordService;
+
   @InjectMocks
   private DeduplicationWriter writer;
 
   @Test
   void initializes() {
-    DeduplicationWriter newWriter = new DeduplicationWriter(template);
+    DeduplicationWriter newWriter = new DeduplicationWriter(template, patientRecordService);
     assertThat(newWriter).isNotNull();
   }
 
@@ -65,12 +70,13 @@ class DeduplicationWriterTest {
 
   @Test
   void createsParameterSource() {
+    LocalDateTime now = LocalDateTime.now();
     DeduplicationEntry entry = new DeduplicationEntry(
         1l,
         2l,
         "mpiPatient1",
         "mpiPerson1");
-    SqlParameterSource source = writer.createParameterSource(entry);
+    SqlParameterSource source = writer.createParameterSource(entry,now);
 
     assertThat(source.getValue("person_uid")).isEqualTo(entry.nbsPersonId());
     assertThat(source.getValue("person_parent_uid")).isEqualTo(entry.nbsPersonParentId());

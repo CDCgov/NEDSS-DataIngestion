@@ -19,7 +19,11 @@ Following this guide will set up a fully functioning local development environme
       ```bash
       ./gradlew data-processing-service:bootRun
       ```
-5. Optional: Start deduplication service with gradle. Allows remote debugging using port `19042` (requires running [Record Linkage service](https://github.com/CDCgov/RecordLinker))
+5. Optional: Start [Record Linkage service](https://github.com/CDCgov/RecordLinker)
+      ```bash
+      docker compose up di-record-linker -d
+      ```
+6. Optional: Start deduplication service with gradle. Allows remote debugging using port `19042` (Note: Sync and Record Linker communcation are feature flagged off by default)
       ```bash
       ./gradlew deduplication:bootRun
       ```
@@ -38,7 +42,7 @@ If the optional NBS 6 WildFly container was built, NBS 6 can be accessed [here](
 The docker compose file supports pulling information from a `.dataingestion.env` file and each service supports creating an `application-local.yml`. Below are sample configuration files.
 #### dataingestion.env - place at the project root, alongside the docker-compose.yml
 ```bash
-DI_AUTH_URI=http://di-keycloak:8080/realms/NBS;
+DI_AUTH_URI=http://di-keycloak:8080/realms/NBS
 RTI_CACHE_AUTH_URI=http://di-keycloak:8080/realms/NBS
 
 NBS_DBSERVER=di-mssql:1433
@@ -46,6 +50,11 @@ NBS_DBUSER=sa
 NBS_DBPASSWORD=fake.fake.fake.1234
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
 KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
+RC_URL=srte-data-service
+RC_CLIENT_ID=di-keycloak-client
+RC_CLIENT_SECRET=OhBq1ar96aep8cnirHwkCNfgsO9yybZI
+
+DB_URI=mssql+pyodbc://sa:fake.fake.fake.1234@di-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
 ```
 
 #### data-ingestion-service/src/main/resources/application-local.yaml
