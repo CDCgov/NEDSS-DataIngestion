@@ -234,7 +234,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertEthnicity(PersonMergeData personMergeData) {
-    assertThat(personMergeData.ethnicity().asOfDate()).isEqualTo(ETHNICITY_AS_OF_DATE);
+    assertThat(personMergeData.ethnicity().asOf()).isEqualTo(ETHNICITY_AS_OF_DATE);
     assertThat(personMergeData.ethnicity().ethnicGroupDescription()).isEqualTo(ETHNIC_GROUP_DESC_TXT);
     assertThat(personMergeData.ethnicity().spanishOrigin()).isEqualTo(SPANISH_ORIGIN);
     assertThat(personMergeData.ethnicity().ethnicUnknownReason()).isEqualTo(ETHNIC_UNKNOWN_REASON);
