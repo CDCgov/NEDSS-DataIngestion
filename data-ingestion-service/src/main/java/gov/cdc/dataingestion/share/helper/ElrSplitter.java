@@ -49,8 +49,6 @@ public class ElrSplitter {
                 String code = obx.getObservationResult().getObservationIdentifier().getIdentifier();
                 Optional<ObxIdStdLookup> stdLookup = getValueType(code);
                 log.info("obx-3 code:" + code + " stdLookup.isPresent()" + stdLookup.isPresent());
-                System.out.println("obx-3 code:" + code + " stdLookup.isPresent()" + stdLookup.isPresent());
-
                 if (stdLookup.isPresent()) {
                     obrsByObxSplit.add(obr);
                     isSplitByOBX = true;
@@ -65,6 +63,7 @@ public class ElrSplitter {
         } else {
             parsedMessageList = splitElrByOBR(parsedMessageOrig);
         }
+        log.debug("After the split..ELRs size:" + parsedMessageList.size());
         return parsedMessageList;
     }
 
@@ -93,7 +92,6 @@ public class ElrSplitter {
             for (Observation obx : obxList) {
                 i++;
                 changeSctToSnmForCodingSystem(obx);
-                log.debug("from orig obx code:" + obx.getObservationResult().getObservationIdentifier().getIdentifier() + " obx id:" + obx.getObservationResult().getSetIdObx());
                 obx.getObservationResult().setSetIdObx("1");
                 //Create new OBR object
                 OrderObservation obrCopy = gson.fromJson(gson.toJson(orderObservation), OrderObservation.class);
@@ -142,7 +140,7 @@ public class ElrSplitter {
         //Take OBR list from the original ELR
         List<OrderObservation> obrList = patientResultList.getFirst().getOrderObservation();
         if (obrList != null && obrList.size() > 1) {
-            log.debug("splitElrByOBR Obr list size:" + obrList.size());
+            log.debug("Before split..splitElrByOBR Incoming Obr list size:" + obrList.size());
             //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
             CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
             //Check if a OBR is parent
@@ -157,7 +155,7 @@ public class ElrSplitter {
                 String obr_2_1_placerOrderId = obr.getObservationRequest().getPlacerOrderNumber().getEntityIdentifier();
                 String obr_3_1_fillerOrderId = obr.getObservationRequest().getFillerOrderNumber().getEntityIdentifier();
                 String obrId = obr.getObservationRequest().getSetIdObr();
-                System.out.println("SetIdObr:" + obrId + " placerOrderId:" + obr_2_1_placerOrderId + " fillerOrderId:" + obr_3_1_fillerOrderId);
+                log.info("Parent SetIdObr:" + obrId + " placerOrderId:" + obr_2_1_placerOrderId + " fillerOrderId:" + obr_3_1_fillerOrderId);
 
                 ArrayList<OrderObservation> tempObr = new ArrayList<>();
                 if (!obrIds.contains(obrId)) {
@@ -167,63 +165,55 @@ public class ElrSplitter {
 
                     List<Observation> obxList = obr.getObservation();
                     for (Observation obx : obxList) {
-                        System.out.println("obx setId:" + obx.getObservationResult().getSetIdObx());
+                        log.info("Parent obx setId:" + obx.getObservationResult().getSetIdObx());
                         //OBX-3 for Parent
                         String obx_3_1_id = obx.getObservationResult().getObservationIdentifier().getIdentifier();
                         String obx_3_2_text = obx.getObservationResult().getObservationIdentifier().getText();
                         String obx_3_3_nameOfCodeSys = obx.getObservationResult().getObservationIdentifier().getNameOfCodingSystem();
-                        System.out.println("OBX-3 - obx_3_1_id:" + obx_3_1_id + " obx_3_2_text:" + obx_3_2_text + " obx_3_3_nameOfCodeSys:" + obx_3_3_nameOfCodeSys);
+                        log.info("Parent OBX-3 - obx_3_1_id:" + obx_3_1_id + " obx_3_2_text:" + obx_3_2_text + " obx_3_3_nameOfCodeSys:" + obx_3_3_nameOfCodeSys);
                         //OBX-4 for Parent
                         String obx_4_subId = obx.getObservationResult().getObservationSubId();
-                        System.out.println("OBX-4 - obx_4_subId:" + obx_4_subId);
-                        String obx_5_obsVal = obx.getObservationResult().getObservationValue().get(0);
-                        System.out.println("OBX-5 - obx_5_obsVal:" + obx_5_obsVal);
-
+                        log.info("Parent OBX-4 sub-id obx_4_subId"+obx_4_subId);
                         //loop the next OBRs for the child
                         for (int j = i + 1; j < obrList.size(); j++) {
-                            //System.out.println(obrList.get(j));
                             OrderObservation nextObr = obrList.get(j);
                             String nextObrId = nextObr.getObservationRequest().getSetIdObr();
                             if (!obrIds.contains(nextObrId)) {
-                                //if(nextObr.getObservationRequest().getParentResult().getParentObservationIdentifier()!=null) {
+                                //OBR-29 Parent link from the child obr
+                                String obr_29_1_1_placerOrderNumId = nextObr.getObservationRequest().getParent().getPlacerAssignedIdentifier().getEntityIdentifier();
+                                String obr_29_2_1_fillerOrderNumId = nextObr.getObservationRequest().getParent().getFillerAssignedIdentifier().getEntityIdentifier();
+                                log.info("Child:OBR-29 obr_29_2_1_fillerOrderNumId:" + obr_29_2_1_fillerOrderNumId+" obr_29_1_1_placerOrderNumId:"+obr_29_1_1_placerOrderNumId+" parent:obr_2_1_placerOrderId"+obr_2_1_placerOrderId+" obr_3_1_fillerOrderId:"+obr_3_1_fillerOrderId);
+                                //OBR-26 Parent Result link from the child obr
                                 String obr_26_1_1_parentRsltId = nextObr.getObservationRequest().getParentResult().getParentObservationIdentifier().getIdentifier();
                                 String obr_26_1_2_parentRsltTxt = nextObr.getObservationRequest().getParentResult().getParentObservationIdentifier().getText();
                                 String obr_26_1_3_parentRsltCodeSys = nextObr.getObservationRequest().getParentResult().getParentObservationIdentifier().getNameOfCodingSystem();
-                                System.out.println("obr_26_1_1_parentRsltId:" + obr_26_1_1_parentRsltId + " obr_26_1_2_parentRsltTxt:" + obr_26_1_2_parentRsltTxt + " obr_26_1_3_parentRsltCodeSys:" + obr_26_1_3_parentRsltCodeSys);
-                                //}
-                                String obr_26_2_parentRsltSubId = nextObr.getObservationRequest().getParentResult().getParentObservationSubIdentifier();
-                                System.out.println("obr_26_2_parentRsltSubId:" + obr_26_2_parentRsltSubId);
-                                //OBR-29
-                                String obr_29_1_1_placerOrderNumId = nextObr.getObservationRequest().getParent().getPlacerAssignedIdentifier().getEntityIdentifier();
-                                String obr_29_2_1_fillerOrderNumId = nextObr.getObservationRequest().getParent().getFillerAssignedIdentifier().getEntityIdentifier();
-                                System.out.println("Child:OBR-29 obr_29_2_1_fillerOrderNumId:" + obr_29_2_1_fillerOrderNumId+" obr_29_1_1_placerOrderNumId:"+obr_29_1_1_placerOrderNumId+" parent:obr_2_1_placerOrderId"+obr_2_1_placerOrderId+" obr_3_1_fillerOrderId:"+obr_3_1_fillerOrderId);
+                                log.info("Child obr_26_1_1_parentRsltId:" + obr_26_1_1_parentRsltId + " obr_26_1_2_parentRsltTxt:" + obr_26_1_2_parentRsltTxt + " obr_26_1_3_parentRsltCodeSys:" + obr_26_1_3_parentRsltCodeSys);
 
-                                //Child OBR-29.2.1(filler order number) = Parent OBR-3.1(filler order number); Child OBR-29.1.1(placer order number) = Parent OBR-2.1(Placer order number);
+                                String obr_26_2_parentRsltSubId = nextObr.getObservationRequest().getParentResult().getParentObservationSubIdentifier();
+                                log.info("Child:obr_26_2_parentRsltSubId:" + obr_26_2_parentRsltSubId);
+
+                                //Child OBR-29.2.1(filler order number) = Parent OBR-3.1(filler order number);
+                                // Child OBR-29.1.1(placer order number) = Parent OBR-2.1(Placer order number);
                                 //the filler order may be blank but then it is blank in both OBR.3.1 and OBR.29.2.1
                                 //Child OBR-26.1 = OBX-3 from the parent OBX;
                                 //Child OBR-26.2 = OBX-4 from parent OBX;
                                 if (StringUtils.equals(obr_29_1_1_placerOrderNumId, obr_2_1_placerOrderId) && StringUtils.equals(obr_29_2_1_fillerOrderNumId, obr_3_1_fillerOrderId)
                                         && StringUtils.equals(obr_26_1_1_parentRsltId, obx_3_1_id) && StringUtils.equals(obr_26_1_2_parentRsltTxt, obx_3_2_text) && StringUtils.equals(obr_26_1_3_parentRsltCodeSys, obx_3_3_nameOfCodeSys)
                                         && StringUtils.equals(obr_26_2_parentRsltSubId, obx_4_subId)) {
-                                    System.out.println("inside parent-child nextObrId:" + nextObrId);
+                                    log.info("Matching parent-child found. parent obr:"+obrId+ "child ObrId:" + nextObrId);
                                     OrderObservation nextObrCopy = gson.fromJson(gson.toJson(nextObr), OrderObservation.class);
-                                    //tempObr.add(nextObr);
                                     tempObr.add(nextObrCopy);
                                     obrIds.add(nextObrId);
                                 }
                             }
                         }
                     }
-                    System.out.println("tempObr size:" + tempObr.size());
                     splitOBRs.add(tempObr);
                 }
             }
-            System.out.println("splitOBRs size:" + splitOBRs.size());
-            System.out.println("obrIds:" + obrIds);
-
+            log.info("Number of OBR groups after finding parent child:" + splitOBRs.size());
 
             //int i = 0;
-            //ArrayList<OrderObservation> obrs:splitOBRs
             for (int i = 0; i < splitOBRs.size(); i++) {
                 ArrayList<OrderObservation> obrs = splitOBRs.get(i);
                 int obrCount = obrs.size();
@@ -232,7 +222,7 @@ public class ElrSplitter {
                     obrs.getFirst().setCommonOrder(orc);
                 }
                 if(obrCount==1){
-                    //There is no valid parent child. So remove ParentResult,Parent from the OBR.
+                    //There is no valid parent child. So remove ParentResult,Parent if any from the OBR.
                     obrs.getFirst().getObservationRequest().setParent(new Eip());
                     obrs.getFirst().getObservationRequest().setParentResult(new Prl());
                 }
@@ -245,7 +235,7 @@ public class ElrSplitter {
                 OruR1 oruR1Copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
                 oruR1Copy.getPatientResult().get(0).setOrderObservation(obrs);
                 //make MessageControlIDs unique for every message created when OBRs are split out.
-                // ORUR01.MSH.MessageControlID
+                //ORUR01.MSH.MessageControlID
                 String msgControlId = oruR1Copy.getMessageHeader().getMessageControlId();
                 String newMsgControlId = getCustomMessageControlId(msgControlId, i);
                 oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
@@ -259,10 +249,10 @@ public class ElrSplitter {
                 parsedMessageList.add(parsedMessage);
             }
         } else {
-            log.debug("Single OBR exist.");
+            log.debug("Single OBR. No split.");
             parsedMessageList.add(parsedMessageOrig);
         }
-        log.debug("Parsed messages size in ELRsplitter: {}", parsedMessageList.size());
+        log.debug("Parsed ELR message sizes in ElrSplitter: {}", parsedMessageList.size());
         return parsedMessageList;
     }
 
