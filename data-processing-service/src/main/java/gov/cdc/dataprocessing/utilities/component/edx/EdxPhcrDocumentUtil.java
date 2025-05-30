@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -11,6 +12,7 @@ import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -47,15 +49,14 @@ public class EdxPhcrDocumentUtil {
 
     private final ICacheApiService cacheApiService;
 
-    public EdxPhcrDocumentUtil(ILookupService lookupService, ICacheApiService cacheApiService)
+    public EdxPhcrDocumentUtil(ILookupService lookupService, @Lazy ICacheApiService cacheApiService)
     {
         this.lookupService = lookupService;
         this.cacheApiService = cacheApiService;
     }
 
     @SuppressWarnings("java:S3776")
-    public Map<Object, Object> loadQuestions(String conditionCode)
-    {
+    public Map<Object, Object> loadQuestions(String conditionCode) throws DataProcessingException {
         String invFormCd = "";
         if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode))
         {
@@ -86,7 +87,9 @@ public class EdxPhcrDocumentUtil {
                 }
                 else if(!OdseCache.dmbMap.containsKey(invFormCd))
                 {
-                    Map<Object, Object> questions = (Map<Object, Object> )lookupService.getDMBQuestionMapAfterPublish().get(invFormCd);
+//                    Map<Object, Object> questions = (Map<Object, Object> )lookupService.getDMBQuestionMapAfterPublish().get(invFormCd);
+                    Map<Object, Object> questions = (Map<Object, Object> ) OdseCache.DMB_QUESTION_MAP.get(invFormCd);
+
                     if(questions != null)
                     {
                         tempMap.putAll(questions);

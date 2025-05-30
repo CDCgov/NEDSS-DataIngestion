@@ -13,7 +13,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.WAQuestionRepository
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.lookup.LookupMappingRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsUiMetaDataRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.CodeValueGeneral;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -42,7 +42,7 @@ class LookupServiceTest {
     @Mock
     private WAQuestionRepository waQuestionRepository;
     @Mock
-    private ICatchingValueService catchingValueService;
+    private ICatchingValueDpService catchingValueService;
     @InjectMocks
     private LookupService lookupService;
     @Mock

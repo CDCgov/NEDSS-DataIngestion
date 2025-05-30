@@ -8,7 +8,6 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 /**
@@ -37,7 +36,7 @@ public class EdxPatientMatchStoredProcRepository {
     @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
     private EntityManager entityManager;
 
-    @Transactional
+//    @Transactional
     public EdxPatientMatchDto getEdxPatientMatch(String typeCd, String matchString) throws DataProcessingException {
         EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
 
@@ -75,7 +74,7 @@ public class EdxPatientMatchStoredProcRepository {
     }
 
 
-    @Transactional
+//    @Transactional
     public EdxEntityMatchDto getEdxEntityMatch(String typeCd, String matchString) throws DataProcessingException {
         EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 

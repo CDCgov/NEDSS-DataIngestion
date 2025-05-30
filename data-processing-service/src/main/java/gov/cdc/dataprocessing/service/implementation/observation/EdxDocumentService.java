@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 /**
@@ -59,4 +61,17 @@ public class EdxDocumentService implements IEdxDocumentService {
         var res = edxDocumentRepository.save(data);
         return new EDXDocumentDto(res);
     }
+
+    public List<EDXDocumentDto> saveEdxDocumentBatch(List<EDXDocumentDto> dtos) {
+        List<EdxDocument> entities = dtos.stream()
+                .map(EdxDocument::new)
+                .collect(Collectors.toList());
+
+        List<EdxDocument> savedEntities = edxDocumentRepository.saveAll(entities);
+
+        return savedEntities.stream()
+                .map(EDXDocumentDto::new)
+                .collect(Collectors.toList());
+    }
+
 }

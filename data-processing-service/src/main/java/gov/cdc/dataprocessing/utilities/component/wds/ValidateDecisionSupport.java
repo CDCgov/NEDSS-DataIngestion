@@ -305,7 +305,7 @@ public class ValidateDecisionSupport {
                             ConfirmationMethodDto confirmDT =  cofirmIt.next();
                             if (confirmDT.getConfirmationMethodTime() != null)
                                 time = confirmDT.getConfirmationMethodTime();
-                            if (confirmDT.getConfirmationMethodCd() == null || confirmDT.getConfirmationMethodCd().trim().equals("")) {
+                            if (confirmDT.getConfirmationMethodCd() == null || confirmDT.getConfirmationMethodCd().trim().isEmpty()) {
                                 break;
                             } else {
                                 if (confirmDT.getConfirmationMethodCd().equals(code)) {
@@ -342,9 +342,9 @@ public class ValidateDecisionSupport {
                     else
                         setMethod.invoke(nbsObject, new BigDecimal(edxRuleManageDT.getDefaultStringValue()));
                 } else if (object.toString().equalsIgnoreCase("class java.lang.String")) {
-                    if (edxRuleManageDT.getDefaultStringValue() != null && !edxRuleManageDT.getDefaultStringValue().trim().equals(""))
+                    if (edxRuleManageDT.getDefaultStringValue() != null && !edxRuleManageDT.getDefaultStringValue().trim().isEmpty())
                         setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
-                    else if (edxRuleManageDT.getDefaultCommentValue() != null && !edxRuleManageDT.getDefaultCommentValue().trim().equals(""))
+                    else if (edxRuleManageDT.getDefaultCommentValue() != null && !edxRuleManageDT.getDefaultCommentValue().trim().isEmpty())
                         setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultCommentValue());
                 } else if (object.toString().equalsIgnoreCase("class java.sql.Timestamp")) {
                     setMethod.invoke(nbsObject, StringUtils.stringToStrutsTimestamp(edxRuleManageDT.getDefaultStringValue()));

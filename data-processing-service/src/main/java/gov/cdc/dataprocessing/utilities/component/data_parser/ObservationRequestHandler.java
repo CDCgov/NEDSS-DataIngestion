@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.model.dto.observation.ObservationReasonDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.phdc.*;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.HL7SpecimenUtil;
 import org.slf4j.Logger;
@@ -58,13 +58,13 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_OBSERVATION
 public class ObservationRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationRequestHandler.class);
 
-    private final ICatchingValueService checkingValueService;
+    private final ICatchingValueDpService checkingValueService;
     private final CommonLabUtil commonLabUtil;
     private final NBSObjectConverter nbsObjectConverter;
     private final HL7SpecimenUtil hl7SpecimenUtil;
     private final HL7PatientHandler hl7PatientHandler;
 
-    public ObservationRequestHandler(ICatchingValueService checkingValueService,
+    public ObservationRequestHandler(ICatchingValueDpService checkingValueService,
                                      CommonLabUtil commonLabUtil,
                                      NBSObjectConverter nbsObjectConverter,
                                      HL7SpecimenUtil hl7SpecimenUtil,
@@ -91,7 +91,7 @@ public class ObservationRequestHandler {
 
             if(hl7OBRType.getResultStatus()!=null){
                 String toCode = checkingValueService.findToCode("ELR_LCA_STATUS", hl7OBRType.getResultStatus(), "ACT_OBJ_ST");
-                if (toCode != null && !toCode.equals("") && !toCode.equals(" ")){
+                if (toCode != null && !toCode.isEmpty() && !toCode.equals(" ")){
                     observationDto.setStatusCd(toCode.trim());
 
                 }
@@ -454,7 +454,7 @@ public class ObservationRequestHandler {
                 edxLabInformationDto.setMultipleCollector(true);
             }
             if(collectorArray!=null && !collectorArray.isEmpty()){
-                HL7XCNType collector= collectorArray.get(0);
+                HL7XCNType collector= collectorArray.getFirst();
                 collectorVO = getCollectorVO(collector, labResultProxyContainer, edxLabInformationDto);
                 labResultProxyContainer.getThePersonContainerCollection().add(collectorVO);
             }
@@ -471,7 +471,7 @@ public class ObservationRequestHandler {
             }
             PersonContainer orderingProviderVO;
             if(orderingProviderArray!=null && !orderingProviderArray.isEmpty()){
-                HL7XCNType orderingProvider=orderingProviderArray.get(0);
+                HL7XCNType orderingProvider=orderingProviderArray.getFirst();
                 Collection<EntityLocatorParticipationDto> entitylocatorColl =null;
 
                 PersonContainer providerVO;
@@ -487,7 +487,7 @@ public class ObservationRequestHandler {
                 edxLabInformationDto.setOrderingProvider(true);
 
                 if(hl7OBRType.getOrderCallbackPhoneNumber()!=null && orderingProviderVO!=null && !hl7OBRType.getOrderCallbackPhoneNumber().isEmpty()){
-                    HL7XTNType orderingProvPhone  =hl7OBRType.getOrderCallbackPhoneNumber().get(0);
+                    HL7XTNType orderingProvPhone  =hl7OBRType.getOrderCallbackPhoneNumber().getFirst();
                     EntityLocatorParticipationDto elpt = nbsObjectConverter.personTelePhoneType(orderingProvPhone, EdxELRConstant.ELR_PROVIDER_CD, orderingProviderVO);
                     elpt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
                 }
@@ -656,30 +656,32 @@ public class ObservationRequestHandler {
             ParticipationDto participationDto = new ParticipationDto();
             participationDto.setSubjectEntityUid(personContainer.getThePersonDto().getPersonUid());
 
-            if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_PROVIDER_CD)){
-                participationDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
-                participationDto.setTypeCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
-                participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_VERIFIER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_VERIFIER_CD)){
-                participationDto.setCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
-                participationDto.setTypeCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
-                participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_VERIFIER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_PERFORMER_CD)){
-                participationDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
-                participationDto.setTypeCd(EdxELRConstant.ELR_LAB_PERFORMER_CD);
-                participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_PERFORMER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_ENTERER_CD)){
-                participationDto.setCd(EdxELRConstant.ELR_LAB_ENTERER_CD);
-                participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ENTERER_CD);
-                participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ENTERER_DESC);
-            }
-            else if(edxLabInformationDto.getRole().equals(EdxELRConstant.ELR_LAB_ASSISTANT_CD)){
-                participationDto.setCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
-                participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
-                participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ASSISTANT_DESC);
+            switch (edxLabInformationDto.getRole()) {
+                case EdxELRConstant.ELR_LAB_PROVIDER_CD -> {
+                    participationDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
+                    participationDto.setTypeCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
+                    participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_VERIFIER_DESC);
+                }
+                case EdxELRConstant.ELR_LAB_VERIFIER_CD -> {
+                    participationDto.setCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
+                    participationDto.setTypeCd(EdxELRConstant.ELR_LAB_VERIFIER_CD);
+                    participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_VERIFIER_DESC);
+                }
+                case EdxELRConstant.ELR_LAB_PERFORMER_CD -> {
+                    participationDto.setCd(EdxELRConstant.ELR_LAB_PROVIDER_CD);
+                    participationDto.setTypeCd(EdxELRConstant.ELR_LAB_PERFORMER_CD);
+                    participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_PERFORMER_DESC);
+                }
+                case EdxELRConstant.ELR_LAB_ENTERER_CD -> {
+                    participationDto.setCd(EdxELRConstant.ELR_LAB_ENTERER_CD);
+                    participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ENTERER_CD);
+                    participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ENTERER_DESC);
+                }
+                case EdxELRConstant.ELR_LAB_ASSISTANT_CD -> {
+                    participationDto.setCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
+                    participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
+                    participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ASSISTANT_DESC);
+                }
             }
             nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
 

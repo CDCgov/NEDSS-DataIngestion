@@ -65,7 +65,7 @@ public class HL7SpecimenUtil {
                 if(hl7SPECIMENTypeArray.size()>1) {
                     edxLabInformationDto.setMultipleSpecimen(true);
                 }
-                HL7SPECIMENType hl7SPECIMENType = hl7SPECIMENTypeArray.get(0);
+                HL7SPECIMENType hl7SPECIMENType = hl7SPECIMENTypeArray.getFirst();
                 if(hl7SPECIMENType!=null && hl7SPECIMENType.getSPECIMEN()!=null){
                     HL7SPMType hl7SPMType  =hl7SPECIMENType.getSPECIMEN();
                     MaterialContainer materialContainer = new MaterialContainer();
@@ -86,7 +86,7 @@ public class HL7SpecimenUtil {
 
                     List<String> specimenDec = hl7SPMType.getSpecimenDescription();
                     if (specimenDec!=null && !specimenDec.isEmpty()) {
-                        materialDto.setDescription(specimenDec.get(0));
+                        materialDto.setDescription(specimenDec.getFirst());
                     }
                     if(hl7SPMType.getSpecimenSourceSite()!=null){
                         observationDto.setTargetSiteCd(hl7SPMType.getSpecimenSourceSite().getHL7Identifier());
@@ -102,18 +102,18 @@ public class HL7SpecimenUtil {
                             && hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier() != null) {
                         String specimenID = hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7EntityIdentifier();
                         ArrayList<EntityIdDto> entityIdArrList = new ArrayList<>(materialContainer.getTheEntityIdDtoCollection());
-                        entityIdArrList.get(0).setRootExtensionTxt(specimenID);
+                        entityIdArrList.getFirst().setRootExtensionTxt(specimenID);
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7UniversalID() != null) {
-                            entityIdArrList.get(0).setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
+                            entityIdArrList.getFirst().setAssigningAuthorityCd(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7UniversalID());
                         }
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier().getHL7NamespaceID() != null) {
-                            entityIdArrList.get(0).setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
+                            entityIdArrList.getFirst().setAssigningAuthorityDescTxt(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7NamespaceID());
                         }
                         if (hl7SPMType.getSpecimenID().getHL7FillerAssignedIdentifier()
                                 .getHL7UniversalIDType() != null) {
-                            entityIdArrList.get(0).setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
+                            entityIdArrList.getFirst().setAssigningAuthorityIdType(hl7SPMType.getSpecimenID()
                                     .getHL7FillerAssignedIdentifier().getHL7UniversalIDType());
                         }
 

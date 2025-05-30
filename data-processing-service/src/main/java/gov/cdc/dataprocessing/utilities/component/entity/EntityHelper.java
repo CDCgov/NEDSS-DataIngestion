@@ -196,21 +196,12 @@ public class EntityHelper {
 
         if (collection != null)
         {
-
-            try
+            for (anIterator = collection.iterator(); anIterator.hasNext();)
             {
 
-                for (anIterator = collection.iterator(); anIterator.hasNext();)
-                {
-
-                    ActivityLocatorParticipationDto alpDT = anIterator.next();
-                    alpDT = prepareAssocModel.prepareAssocDTForActivityLocatorParticipation(alpDT);
-                    retCol.add(alpDT);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new DataProcessingException(e.getMessage(),e);
+                ActivityLocatorParticipationDto alpDT = anIterator.next();
+                alpDT = prepareAssocModel.prepareAssocDTForActivityLocatorParticipation(alpDT);
+                retCol.add(alpDT);
             }
         }
 
@@ -226,21 +217,14 @@ public class EntityHelper {
         collection = dtCol;
         if (collection != null)
         {
-            try
+            for (anIterator = collection.iterator(); anIterator.hasNext();)
             {
-                for (anIterator = collection.iterator(); anIterator.hasNext();)
+                ActRelationshipDto arDT = anIterator.next();
+                if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
                 {
-                    ActRelationshipDto arDT = anIterator.next();
-                    if(arDT.isItDirty() || arDT.isItNew() || arDT.isItDelete())
-                    {
-                        arDT = prepareAssocModel.prepareAssocDTForActRelationship(arDT);
-                        retCol.add(arDT);
-                    }
+                    arDT = prepareAssocModel.prepareAssocDTForActRelationship(arDT);
+                    retCol.add(arDT);
                 }
-            }
-            catch (Exception e)
-            {
-                throw new DataProcessingException(e.getMessage(),e);
             }
         }
 

@@ -189,7 +189,10 @@ dependencies {
     implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
     implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-    
+
+    implementation 'org.springframework.retry:spring-retry'
+
+
     // Code generation from xsd files
     jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'

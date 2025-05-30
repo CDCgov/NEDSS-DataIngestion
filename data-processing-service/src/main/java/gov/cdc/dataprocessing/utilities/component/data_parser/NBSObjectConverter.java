@@ -16,7 +16,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
@@ -57,12 +57,12 @@ public class NBSObjectConverter {
 
     private final EntityIdUtil entityIdUtil;
 
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
 
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueService catchingValueService) {
+    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueDpService catchingValueService) {
         this.entityIdUtil = entityIdUtil;
         this.catchingValueService = catchingValueService;
     }
@@ -168,11 +168,11 @@ public class NBSObjectConverter {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
             }
-            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
+            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().isEmpty()) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
                 String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
-                if (typeCode == null || typeCode.trim().equals("")) {
+                if (typeCode == null || typeCode.trim().isEmpty()) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
                     entityIdDto.setTypeDescTxt(typeCode);
@@ -385,7 +385,7 @@ public class NBSObjectConverter {
 
     public EntityIdDto validateSSN(EntityIdDto entityIdDto) {
         String ssn = entityIdDto.getRootExtensionTxt();
-        if(ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
+        if(ssn != null && !ssn.isEmpty() && !ssn.equals(" ")) {
             ssn =ssn.trim();
             if (ssn.length() > 3) {
                 String newSSN = ssn.substring(0, 3);

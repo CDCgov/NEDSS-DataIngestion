@@ -6,7 +6,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.implementation.person.base.PatientMatchingBaseService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.DeduplicationService;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse;
@@ -36,14 +36,14 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
       EntityHelper entityHelper,
       PatientRepositoryUtil patientRepositoryUtil,
-      CachingValueService cachingValueService,
+      CachingValueDpDpService cachingValueDpService,
       PrepareAssocModelHelper prepareAssocModelHelper,
       @Value("${features.modernizedMatching.enabled:false}") boolean modernizedMatchingEnabled,
       ObjectProvider<DeduplicationService> deduplicationService) {
     super(edxPatientMatchRepositoryUtil,
         entityHelper,
         patientRepositoryUtil,
-        cachingValueService,
+            cachingValueDpService,
         prepareAssocModelHelper);
     this.modernizedMatchingEnabled = modernizedMatchingEnabled;
     this.deduplicationService = deduplicationService.getIfAvailable();
@@ -107,15 +107,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     return edxPatientMatchDto;
   }
 
-  /**
-   * Calls the stored procedure with localId match string. Returns
-   * EdxPatientMatchDto if a match was found. Returns null otherwise
-   * 
-   * @param personContainer
-   * @return {@link EdxPatientMatchDto} if match, otherwise
-   *         null
-   * @throws DataProcessingException
-   */
+
   EdxPatientMatchDto tryMatchByLocalId(PersonContainer personContainer) throws DataProcessingException {
     String cd = personContainer.getThePersonDto().getCd();
     String localId;
@@ -137,19 +129,10 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
 
   }
 
-  /**
-   * Calls the stored procedure with identifier match string. Returns
-   * EdxPatientMatchDto if a match was found. Returns null otherwise
-   * 
-   * @param personContainer
-   * @return {@link EdxPatientMatchDto} if match, otherwise
-   *         null
-   * @throws DataProcessingException
-   */
   EdxPatientMatchDto tryMatchByIdentifier(PersonContainer personContainer) throws DataProcessingException {
     String cd = personContainer.getThePersonDto().getCd();
     List<String> identifierStrList = getIdentifier(personContainer);
-    EdxPatientMatchDto edxPatientMatchDto = null;
+    EdxPatientMatchDto edxPatientMatchDto;
 
     if (identifierStrList != null && !identifierStrList.isEmpty()) {
       for (String identifierStr : identifierStrList) {
@@ -170,15 +153,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     return null;
   }
 
-  /**
-   * Calls the stored procedure with demographic match string. Returns
-   * EdxPatientMatchDto if a match was found. Returns null otherwise
-   * 
-   * @param personContainer
-   * @return {@link EdxPatientMatchDto} if match, otherwise
-   *         null
-   * @throws DataProcessingException
-   */
+
   EdxPatientMatchDto tryMatchByDemographics(PersonContainer personContainer) throws DataProcessingException {
     String namesdobcursexStr = getLNmFnmDobCurSexStr(personContainer);
     String cd = personContainer.getThePersonDto().getCd();
@@ -204,7 +179,7 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
       boolean matchFound,
       Long matchUid)
       throws DataProcessingException {
-    PersonId patientPersonUid = null;
+    PersonId patientPersonUid;
     // Default personParentUid to matchUid (possibly null).
     // Will be overwritten if no match was found
     personContainer.getThePersonDto().setPersonParentUid(matchUid);

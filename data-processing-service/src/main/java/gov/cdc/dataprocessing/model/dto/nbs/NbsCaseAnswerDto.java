@@ -54,16 +54,10 @@ public class NbsCaseAnswerDto extends NbsAnswerDto {
         this.recordStatusCd = nbsCaseAnswer.getRecordStatusCd();
         this.recordStatusTime = nbsCaseAnswer.getRecordStatusTime();
         this.seqNbr = nbsCaseAnswer.getSeqNbr();
-//        this.answerLargeTxt = nbsCaseAnswer.getAnswerLargeTxt();
         this.nbsTableMetadataUid = nbsCaseAnswer.getNbsTableMetadataUid();
         this.nbsQuestionVersionCtrlNbr = nbsCaseAnswer.getNbsUiMetadataVerCtrlNbr();
         this.answerGroupSeqNbr = nbsCaseAnswer.getAnswerGroupSeqNbr();
     }
 
 
-//    public NbsCaseAnswerDto(NbsAnswerDto answerDT) {
-//        super(answerDT);
-//        if (answerDT.getNbsAnswerUid() != null)
-//            nbsCaseAnswerUid = answerDT.getNbsAnswerUid();
-//    }
 }

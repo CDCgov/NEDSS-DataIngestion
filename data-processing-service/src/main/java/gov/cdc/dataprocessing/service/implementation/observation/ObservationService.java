@@ -40,7 +40,6 @@ import gov.cdc.dataprocessing.utilities.component.observation.ObservationUtil;
 import gov.cdc.dataprocessing.utilities.component.organization.OrganizationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PersonUtil;
-import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +120,6 @@ public class ObservationService implements IObservationService {
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-
     public ObservationService(INNDActivityLogService nndActivityLogService,
                               IMessageLogService messageLogService,
                               ObservationRepositoryUtil observationRepositoryUtil,
@@ -185,6 +183,7 @@ public class ObservationService implements IObservationService {
     /**
      * Origin: sendLabResultToProxy
      * */
+
     public ObservationDto processingLabResultContainer(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
         if (labResultProxyContainer == null) {
             throw new DataProcessingException("Lab Result Container Is Null");
@@ -210,7 +209,7 @@ public class ObservationService implements IObservationService {
         labReportSummaryVO.setTouched(true);
         labReportSummaryVO.setAssociated(true);
         labReportSummaryVO.setObservationUid(labUid);
-        labReportSummaryVO.setActivityFromTime(TimeStampUtil.getCurrentTimeStamp(tz));
+        labReportSummaryVO.setActivityFromTime(getCurrentTimeStamp(tz));
         Collection<LabReportSummaryContainer> labReportSummaryVOColl = new ArrayList<>();
         labReportSummaryVOColl.add(labReportSummaryVO);
 
@@ -821,7 +820,9 @@ public class ObservationService implements IObservationService {
                 nndActivityLogDto.setLocalId(localId);
             }
             else
+            {
                 nndActivityLogDto.setLocalId("N/A");
+            }
             //catch & store auto resend notifications exceptions in NNDActivityLog table
             nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
             logger.error("Exception occurred while calling nndMessageSenderHelper.updateAutoResendNotificationsAsync");
@@ -830,39 +831,30 @@ public class ObservationService implements IObservationService {
 
         return nndActivityLogDto;
     }
+
     @SuppressWarnings({"java:S3776", "java:S1199"})
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
-
-        //Set flag for type of processing
-        boolean ELR_PROCESSING = false; // NOSONAR
-
-        // We need specific auth User for elr processing, but probably wont applicable for data processing
-        if (AuthUtil.authUser != null || (AuthUtil.authUser != null && AuthUtil.authUser.getUserId().equals(NEDSSConstant.ELR_LOAD_USER_ACCOUNT)))
-        {
-            ELR_PROCESSING = true;
-        }
-
         //All well to proceed
         Map<Object, Object> returnVal = new HashMap<>();
         Long falseUid;
-        Long realUid ;
+        Long realUid;
 
-            //Process PersonVOCollection  and adds the patient mpr uid to the return
-            Long patientMprUid = personUtil.processLabPersonContainerCollection(
-                    labResultProxyVO.getThePersonContainerCollection(),
-                    false,
-                    labResultProxyVO
-            );
+        //Process PersonVOCollection  and adds the patient mpr uid to the return
+        Long patientMprUid = personUtil.processLabPersonContainerCollection(
+                labResultProxyVO.getThePersonContainerCollection(),
+                false,
+                labResultProxyVO
+        );
 
-            if (patientMprUid != null)
-            {
+        if (patientMprUid != null)
+        {
             {
                 returnVal.put(NEDSSConstant.SETLAB_RETURN_MPR_UID, patientMprUid);
             }
 
             //ObservationVOCollection
             Map<Object, Object> obsResults;
-            obsResults = processObservationContainerCollection(labResultProxyVO, ELR_PROCESSING);
+            obsResults = processObservationContainerCollection(labResultProxyVO, true);
 
             if (!obsResults.isEmpty())
             {
@@ -883,10 +875,10 @@ public class ObservationService implements IObservationService {
                 returnVal.put(NEDSSConstant.SETLAB_RETURN_MPR_UID, patientMprUid);
             }
 
-
             //Retrieve and return local ids for the patient and observation
             Long observationUid = (Long)obsResults.get(NEDSSConstant.SETLAB_RETURN_OBS_UID);
             returnVal.putAll(findLocalUidsFor(patientMprUid, observationUid));
+
 
             //OrganizationCollection
             OrganizationContainer organizationContainer;
@@ -933,8 +925,8 @@ public class ObservationService implements IObservationService {
                 }
             }
 
-            //MaterialCollection
 
+            //MaterialCollection
             MaterialContainer materialContainer;
             if (labResultProxyVO.getTheMaterialContainerCollection() != null)
             {
@@ -952,7 +944,8 @@ public class ObservationService implements IObservationService {
                     }
 
 
-                    if (materialContainer.isItNew()) {
+                    if (materialContainer.isItNew())
+                    {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_CR, "MATERIAL",
@@ -965,7 +958,9 @@ public class ObservationService implements IObservationService {
                         if (falseUid.intValue() < 0) {
                             uidService.setFalseToNewForObservation(labResultProxyVO, falseUid, realUid);
                         }
-                    } else if (materialContainer.isItDirty()) {
+                    }
+                    else if (materialContainer.isItDirty())
+                    {
                         newMaterialDto = (MaterialDto) prepareAssocModelHelper.prepareVO(materialContainer.
                                         getTheMaterialDto(), NBSBOLookup.MATERIAL,
                                 NEDSSConstant.MAT_MFG_EDIT, "MATERIAL",
@@ -981,39 +976,42 @@ public class ObservationService implements IObservationService {
             }
 
             //ParticipationCollection
-
             if (labResultProxyVO.getTheParticipationDtoCollection() != null)
             {
-                logger.debug("Iniside participation Collection<Object>  Loop - Lab");
+                List<ParticipationDto> toSave = new ArrayList<>();
+                List<ParticipationDto> toDelete = new ArrayList<>();
+
                 for (ParticipationDto dt : labResultProxyVO.getTheParticipationDtoCollection()) {
                     if (dt != null) {
                         if (dt.isItDelete()) {
-                            participationService.saveParticipationHist(dt);
+                            toDelete.add(dt);
+                        } else {
+                            toSave.add(dt);
                         }
-                        participationService.saveParticipation(dt);
                     }
+                }
+
+                if (!toDelete.isEmpty()) {
+                    participationService.saveParticipationHistBatch(toDelete); // Batch delete history
+                }
+
+                if (!toSave.isEmpty()) {
+                    participationService.saveParticipationByBatch(toSave); // Batch save
                 }
             }
 
-
             //ActRelationship Collection
-
             if (labResultProxyVO.getTheActRelationshipDtoCollection() != null)
             {
                 logger.debug("Act relationship size: {}", labResultProxyVO.getTheActRelationshipDtoCollection().size());
                 for (ActRelationshipDto actRelationshipDto : labResultProxyVO.getTheActRelationshipDtoCollection()) {
-                    try {
-                        if (actRelationshipDto != null) {
-                            actRelationshipService.saveActRelationship(actRelationshipDto);
-                        }
-                    } catch (Exception e) {
-                        logger.info(e.getMessage());
-                        throw new DataProcessingException(e.getMessage(), e);
+                    if (actRelationshipDto != null) {
+                        actRelationshipService.saveActRelationship(actRelationshipDto);
                     }
                 }
             }
 
-
+            // RoleCol
             Collection<RoleDto>  roleDTColl = labResultProxyVO.getTheRoleDtoCollection();
             if (roleDTColl != null && !roleDTColl.isEmpty())
             {
@@ -1022,32 +1020,36 @@ public class ObservationService implements IObservationService {
 
 
 
-            //add LDF data
-            /**
-             * @TBD Release 6.0, Commented out as LDF will be planned out as new type of answers
-            LDFHelper ldfHelper = LDFHelper.getInstance();
-            ldfHelper.setLDFCollection(labResultProxyVO.getTheStateDefinedFieldDataDTCollection(), labResultProxyVO.getLdfUids(),
-            NEDSSConstant.LABREPORT_LDF,null,observationUid,securityObj);
-             */
-
             //EDX Document
-
-
             Collection<EDXDocumentDto> edxDocumentCollection = labResultProxyVO.getEDXDocumentCollection();
             ObservationDto rootDT = observationUtil.getRootObservationDto(labResultProxyVO);
             if (edxDocumentCollection != null && !edxDocumentCollection.isEmpty() && rootDT.getElectronicInd() != null && rootDT.getElectronicInd().equals(NEDSSConstant.YES)) {
-                for (EDXDocumentDto eDXDocumentDto : edxDocumentCollection) {
-                    if (eDXDocumentDto.getPayload() != null) {
-                        String payload = eDXDocumentDto.getPayload();
+                List<EDXDocumentDto> toSave = new ArrayList<>();
+                for (EDXDocumentDto dto : edxDocumentCollection) {
+                    if (dto.getPayload() != null) {
+                        String payload = dto.getPayload();
                         int containerIndex = payload.indexOf("<Container");
-                        eDXDocumentDto.setPayload(payload.substring(containerIndex));
+                        if (containerIndex != -1) {
+                            dto.setPayload(payload.substring(containerIndex));
+                        }
                     }
-                    if (eDXDocumentDto.isItNew()) {
-                        eDXDocumentDto.setActUid(observationUid);
+
+                    if (dto.isItNew()) {
+                        dto.setActUid(observationUid);
                     }
-                    edxDocumentService.saveEdxDocument(eDXDocumentDto);
+
+                    toSave.add(dto);
                 }
+
+                if (!toSave.isEmpty()) {
+                    edxDocumentService.saveEdxDocumentBatch(toSave);
+                }
+
             }
+
+
+
+
             rootDT.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
             rootDT.setObservationUid(observationUid);
 
@@ -1059,9 +1061,8 @@ public class ObservationService implements IObservationService {
                 answerService.storePageAnswer(pageContainer, rootDT);
             }
             else {
-                    answerService.insertPageVO(pageContainer, rootDT);
+                answerService.insertPageVO(pageContainer, rootDT);
             }
-
 
         }
 
@@ -1104,15 +1105,6 @@ public class ObservationService implements IObservationService {
         {
             return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
         }
-
-        //If coming from morbidity, processing this way
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                return processMorbObsVOCollection( (MorbidityProxyVO) proxyVO,
-//                        securityObj);
-//            }
-
-        //If not above, abort the operation
         else
         {
             throw new DataProcessingException("Expected a valid observation proxy vo, it is: " + proxyVO.getClass().getName());
@@ -1215,7 +1207,7 @@ public class ObservationService implements IObservationService {
             //Manipulate jurisdiction for preparing vo
             jurisdictionCd = orderTest.getTheObservationDto().getJurisdictionCd();
             if(jurisdictionCd != null
-                && (jurisdictionCd.trim().equals("")
+                && (jurisdictionCd.trim().isEmpty()
                     || jurisdictionCd.equals("ANY")
                     || jurisdictionCd.equals("NONE")
                 )
@@ -1231,30 +1223,24 @@ public class ObservationService implements IObservationService {
 
     }
 
-    private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid) throws DataProcessingException {
-        Map<Object, Object> localIds = null;
+    private Map<Object, Object> findLocalUidsFor(Long personMprUid, Long observationUid)  {
+        Map<Object, Object> localIds;
 
-        try
-        {
-            //Find observation local id
-            localIds = new HashMap<>();
-            var resObs = observationRepository.findById(observationUid);
-            ObservationDto obsDT = new ObservationDto();
-            if (resObs.isPresent()) {
-                obsDT = new ObservationDto(resObs.get());
-            }
-            localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
-            localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
-            //Find mpr local id
-            var resPat = personRepository.findById(personMprUid);
-            if (resPat.isPresent()) {
-                localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
-            }
+        //Find observation local id
+        localIds = new HashMap<>();
+        var resObs = observationRepository.findById(observationUid);
+        ObservationDto obsDT = new ObservationDto();
+        if (resObs.isPresent()) {
+            obsDT = new ObservationDto(resObs.get());
         }
-        catch (Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
+        localIds.put(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL, obsDT.getLocalId());
+        localIds.put(NEDSSConstant.SETLAB_RETURN_OBSDT, obsDT);
+        //Find mpr local id
+        var resPat = personRepository.findById(personMprUid);
+        if (resPat.isPresent()) {
+            localIds.put(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL, resPat.get().getLocalId());
         }
+
         return localIds;
     }
 
@@ -1262,7 +1248,7 @@ public class ObservationService implements IObservationService {
                                                       ObservationContainer orderTest,
                                                       String businessTriggerCd,
                                                       boolean isELR) {
-        if (labResultProxyVO.isItNew() && orderTest.getTheObservationDto().getProcessingDecisionCd()!=null && !orderTest.getTheObservationDto().getProcessingDecisionCd().trim().equals(""))
+        if (labResultProxyVO.isItNew() && orderTest.getTheObservationDto().getProcessingDecisionCd()!=null && !orderTest.getTheObservationDto().getProcessingDecisionCd().trim().isEmpty())
         {
             businessTriggerCd = NEDSSConstant.OBS_LAB_CR_MR;
         }
@@ -1312,73 +1298,65 @@ public class ObservationService implements IObservationService {
     }
     @SuppressWarnings("java:S3776")
     private Long storeObservationVOCollection(BaseContainer proxyVO) throws DataProcessingException {
-        try {
-            //Iterates the observation collection and process each observation vo
-            Collection<ObservationContainer>  obsVOColl = null;
-            boolean isLabResultProxyVO = false;
-            if (proxyVO instanceof LabResultProxyContainer)
-            {
-                obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
-                isLabResultProxyVO = true;
-            }
-
-//            if (proxyVO instanceof MorbidityProxyVO)
-//            {
-//                obsVOColl = ( (MorbidityProxyVO) proxyVO).getTheObservationContainerCollection();
-//            }
-
-            ObservationContainer observationContainer ;
-            Long returnObsVal = null;
-
-            if (obsVOColl != null && !obsVOColl.isEmpty())
-            {
-                for (ObservationContainer item : obsVOColl) {
-                    observationContainer = item;
-
-                    if (observationContainer == null) {
-                        continue;
-                    }
-
-                    //If lab report's order test, set a flag
-                    boolean isRootObs = false;
-
-                    String obsDomainCdSt1 = observationContainer.getTheObservationDto().
-                            getObsDomainCdSt1();
-                    if (isLabResultProxyVO && obsDomainCdSt1 != null &&
-                            obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)) {
-                        isRootObs = true;
-                    }
-
-                    //If a root morbidity, set a flag so to return the observation uid
-                    String ctrlCdDisplayForm = observationContainer.getTheObservationDto().
-                            getCtrlCdDisplayForm();
-                    if (ctrlCdDisplayForm != null &&
-                            ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)) {
-                        isRootObs = true;
-                    }
-
-                    //Persist the observation vo
-                    Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
-
-                    //Update associations with real uid if new
-                    if (observationContainer.isItNew()) {
-                        Long falseUid = observationContainer.getTheObservationDto().getObservationUid();
-                        if (falseUid.intValue() < 0) {
-                            uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
-                        }
-                    }
-
-
-                    //Return the order test uid
-                    if (observationUid != null && isRootObs) {
-                        returnObsVal = observationUid;
-                    }
-                } //end of for loop
-            } //end of main if
-            return returnObsVal;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        //Iterates the observation collection and process each observation vo
+        Collection<ObservationContainer>  obsVOColl = null;
+        boolean isLabResultProxyVO = false;
+        if (proxyVO instanceof LabResultProxyContainer)
+        {
+            obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
+            isLabResultProxyVO = true;
         }
+
+        ObservationContainer observationContainer ;
+        Long returnObsVal = null;
+
+        if (obsVOColl != null && !obsVOColl.isEmpty())
+        {
+            for (ObservationContainer item : obsVOColl) {
+                observationContainer = item;
+
+                if (observationContainer == null) {
+                    continue;
+                }
+
+                //If lab report's order test, set a flag
+                boolean isRootObs = false;
+
+                String obsDomainCdSt1 = observationContainer.getTheObservationDto().
+                        getObsDomainCdSt1();
+                if (isLabResultProxyVO && obsDomainCdSt1 != null &&
+                        obsDomainCdSt1.equalsIgnoreCase(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)) {
+                    isRootObs = true;
+                }
+
+                //If a root morbidity, set a flag so to return the observation uid
+                String ctrlCdDisplayForm = observationContainer.getTheObservationDto().
+                        getCtrlCdDisplayForm();
+                if (ctrlCdDisplayForm != null &&
+                        ctrlCdDisplayForm.equalsIgnoreCase(NEDSSConstant.MOB_CTRLCD_DISPLAY)) {
+                    isRootObs = true;
+                }
+
+                //Persist the observation vo
+                Long observationUid = observationRepositoryUtil.saveObservation(observationContainer);
+
+                //Update associations with real uid if new
+                if (observationContainer.isItNew()) {
+                    Long falseUid = observationContainer.getTheObservationDto().getObservationUid();
+                    if (falseUid.intValue() < 0) {
+                        uidService.setFalseToNewForObservation(proxyVO, falseUid, observationUid);
+                    }
+                }
+
+
+                //Return the order test uid
+                if (observationUid != null && isRootObs) {
+                    returnObsVal = observationUid;
+                }
+            } //end of for loop
+        } //end of main if
+        return returnObsVal;
+
     }
 
 
@@ -1386,58 +1364,51 @@ public class ObservationService implements IObservationService {
 
     protected boolean processObservationWithProcessingDecision(Long observationUid, String processingDecisionCd, String processingDecisionTxt) throws DataProcessingException {
 
-        try
+        ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+
+        ObservationDto observationDT = observationVO.getTheObservationDto();
+        observationDT.setProcessingDecisionCd(processingDecisionCd);
+        if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
         {
-            ObservationContainer observationVO = observationRepositoryUtil.loadObject(observationUid);
+            observationDT.setProcessingDecisionTxt(processingDecisionTxt);
+        }
 
-            ObservationDto observationDT = observationVO.getTheObservationDto();
-            observationDT.setProcessingDecisionCd(processingDecisionCd);
-            if(processingDecisionTxt!=null && !processingDecisionTxt.isEmpty())
-            {
-                observationDT.setProcessingDecisionTxt(processingDecisionTxt);
-            }
+        String observationType = observationDT.getCtrlCdDisplayForm();
+        String businessTrigger;
+        String businessObjLookupName;
 
-            String observationType = observationDT.getCtrlCdDisplayForm();
-            String businessTrigger;
-            String businessObjLookupName;
-
-            if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
-                businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
-                businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
-
-            }
-            else{
-                throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
-            }
-
-            if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
-            {
-                observationDT.setItNew(false);
-                observationDT.setItDirty(true);
-
-                RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
-                        observationDT,
-                        businessObjLookupName,
-                        businessTrigger,
-                        "OBSERVATION",
-                        NEDSSConstant.BASE,
-                        observationDT.getVersionCtrlNbr()
-                );
-
-                observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
-                observationRepositoryUtil.saveObservation(observationVO);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+        if(observationType.equalsIgnoreCase(NEDSSConstant.LABRESULT_CODE)){
+            businessTrigger = NEDSSConstant.OBS_LAB_PROCESS;
+            businessObjLookupName = NBSBOLookup.OBSERVATIONLABREPORT;
 
         }
-        catch (Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
+        else{
+            throw new DataProcessingException("This is not a Lab Report OR a Morbidity Report! MarkAsReviewed only applies to Lab Report or Morbidity Report ");
         }
+
+        if (observationDT.getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.OBS_UNPROCESSED))
+        {
+            observationDT.setItNew(false);
+            observationDT.setItDirty(true);
+
+            RootDtoInterface rootDTInterface =  prepareAssocModelHelper.prepareVO(
+                    observationDT,
+                    businessObjLookupName,
+                    businessTrigger,
+                    "OBSERVATION",
+                    NEDSSConstant.BASE,
+                    observationDT.getVersionCtrlNbr()
+            );
+
+            observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
+            observationRepositoryUtil.saveObservation(observationVO);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
 

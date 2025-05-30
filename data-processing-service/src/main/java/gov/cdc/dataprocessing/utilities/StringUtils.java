@@ -28,14 +28,12 @@ import java.util.Date;
 public class StringUtils {
     public static Timestamp stringToStrutsTimestamp(String strTime) {
 
-        String input = strTime;
         java.util.Date t;
         try {
             java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("MM/dd/yyyy");
-            if (input != null && input.trim().length() > 0) {
-                t = formatter.parse(input);
-                java.sql.Timestamp ts = new java.sql.Timestamp(t.getTime());
-                return ts;
+            if (strTime != null && !strTime.trim().isEmpty()) {
+                t = formatter.parse(strTime);
+                return new Timestamp(t.getTime());
             }
             else {
                 return null;
@@ -49,7 +47,7 @@ public class StringUtils {
     public static String formatDate(Date date) {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("MM/dd/yyyy");
         if (date == null) {
-            return new String("");
+            return "";
         }
         else {
             return formatter.format(date);

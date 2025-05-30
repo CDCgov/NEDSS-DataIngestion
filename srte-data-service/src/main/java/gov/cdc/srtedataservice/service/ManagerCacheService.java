@@ -37,7 +37,7 @@ public class ManagerCacheService implements IManagerCacheService {
         }
         return null;
     }
-    public String getCache(ObjectName objectName, String key) throws RtiCacheException {
+    public String getCache(ObjectName objectName, String key) throws DataProcessingException {
         if (objectName == ObjectName.PROGRAM_AREA_CODES) {
             return SrteCache.programAreaCodesMap.get(key);
         }
@@ -113,7 +113,7 @@ public class ManagerCacheService implements IManagerCacheService {
         return "";
     }
 
-    public boolean containKey(ObjectName objectName, String key) throws RtiCacheException {
+    public boolean containKey(ObjectName objectName, String key) throws DataProcessingException {
         if (objectName == ObjectName.LOINC_CODES)
         {
             return SrteCache.loincCodesMap.containsKey(key);
@@ -151,7 +151,7 @@ public class ManagerCacheService implements IManagerCacheService {
     }
 
     @PostConstruct
-    public void loadCache() throws RtiCacheException {
+    public void loadCache() throws DataProcessingException {
         SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes();
         SrteCache.raceCodesMap = cachingValueService.getRaceCodes();
         SrteCache.programAreaCodesMap = cachingValueService.getAllProgramAreaCodes();

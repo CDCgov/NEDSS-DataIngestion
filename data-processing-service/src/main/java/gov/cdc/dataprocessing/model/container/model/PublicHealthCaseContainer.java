@@ -43,8 +43,6 @@ import java.util.Collection;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class PublicHealthCaseContainer extends BaseContainer {
     private static final long serialVersionUID = 1L;
-    //  private boolean itNew = false;
-    // private boolean itDirty = true;
     private boolean isPamCase;
     private CaseManagementDto theCaseManagementDto = new CaseManagementDto();
     private PublicHealthCaseDto thePublicHealthCaseDto = new PublicHealthCaseDto();

@@ -83,7 +83,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = snomedConditionRepository.getConditionForSnomedCode(snomedCd);
 
         if (result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         return "";
     }
@@ -91,7 +91,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getConditionForLoincCode(String loinCd) {
         var result = loincCodeRepository.findConditionForLoincCode(loinCd);
         if(result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         else {
             return "";
@@ -101,7 +101,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getDefaultConditionForLocalResultCode(String labResultCd, String laboratoryId) {
         var result = labResultRepository.findDefaultConditionCdByLabResultCdAndLaboratoryId(labResultCd, laboratoryId);
         if (result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         else {
             return "";
@@ -111,7 +111,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getDefaultConditionForLabTest(String labTestCd, String laboratoryId) {
         var result = labTestRepository.findDefaultConditionForLabTest(labTestCd, laboratoryId);
         if (result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         else {
             return "";
@@ -154,7 +154,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 loincCdList = result.get();
                 if (loincCdList.size() == 1) {
                     obsDT.setAltCdSystemCd("LN");
-                    obsDT.setAltCd(loincCdList.get(0));
+                    obsDT.setAltCd(loincCdList.getFirst());
                     obsDT.setCdDerivedInd("Y");
                 }
             }
@@ -181,7 +181,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                     //If only one snomed cd found, use it, otherwise discard
                     if (snomedCdList.size() == 1) {
                         obsValueCodedDto.setAltCdSystemCd("SNM");
-                        obsValueCodedDto.setAltCd(snomedCdList.get(0));
+                        obsValueCodedDto.setAltCd(snomedCdList.getFirst());
                         obsValueCodedDto.setCodeDerivedInd("Y");
                     }
                 }
@@ -434,13 +434,13 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
 
         String cdSystemCd = obsDt.getCdSystemCd();
-        if (cdSystemCd == null || cdSystemCd.trim().equals(""))
+        if (cdSystemCd == null || cdSystemCd.trim().isEmpty())
         {
             return null;
         }
 
         String obsCode = obsDt.getCd();
-        if (obsCode == null || obsCode.trim().equals(""))
+        if (obsCode == null || obsCode.trim().isEmpty())
         {
             return null;
         }
@@ -633,7 +633,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
         String code = getLocalTestCode(obsDt);
 
-        if (reportingLabCLIA == null || code == null || code.trim().equals(""))
+        if (reportingLabCLIA == null || code == null || code.trim().isEmpty())
         {
             return null;
         }
@@ -733,7 +733,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     private String getLocalTestCode(ObservationDto obsDt)
     {
         String code = null;
-        if (obsDt != null && obsDt.getCdSystemCd() != null && (obsDt.getCd() != null && !obsDt.getCd().equals("") &&
+        if (obsDt != null && obsDt.getCdSystemCd() != null && (obsDt.getCd() != null && !obsDt.getCd().isEmpty() &&
                 !obsDt.getCd().equals(" ")))
         {
             code = obsDt.getCd();

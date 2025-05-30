@@ -76,7 +76,7 @@ public class NBSDocumentDto extends BaseContainer implements RootDtoInterface {
     private String superclass;
     private String xmldocPayload;
     private Integer externalVersionCtrlNbr;
-    private Map<Object, Object> eventIdMap = new HashMap<Object, Object>();
+    private Map<Object, Object> eventIdMap = new HashMap<>();
     private Object documentObject;
     private String docEventTypeCd;
     private String processingDecisionCd;

@@ -8,6 +8,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.auth.AuthUserRepository;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class AuthUserService implements IAuthUserService {
 
     private final JdbcTemplate jdbcTemplateOdse;
     private static final String SELECT_AUTH_USER_BY_USER_ID = """
-        SELECT 
+        SELECT
             auth_user_uid, user_id, user_type, user_title, user_department, user_first_nm, user_last_nm,
             user_work_email, user_work_phone, user_mobile_phone, master_sec_admin_ind, prog_area_admin_ind,
             nedss_entry_id, external_org_uid, user_password, user_comments, add_time, add_user_id,
@@ -85,11 +86,16 @@ public class AuthUserService implements IAuthUserService {
 
     @SuppressWarnings("java:S1874")
     private Optional<AuthUser> findAuthUserByUserId(String userId) {
-        return jdbcTemplateOdse.query(
-                SELECT_AUTH_USER_BY_USER_ID,
-                new Object[]{userId},
-                (ResultSet rs) -> rs.next() ? Optional.of(mapRowToAuthUser(rs)) : Optional.empty()
-        );
+        try {
+            AuthUser user = jdbcTemplateOdse.queryForObject(
+                    SELECT_AUTH_USER_BY_USER_ID,
+                    new Object[]{userId},
+                    (rs, rowNum) -> mapRowToAuthUser(rs)
+            );
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty(); // No result found
+        }
     }
 
     private AuthUser mapRowToAuthUser(ResultSet rs) throws SQLException {

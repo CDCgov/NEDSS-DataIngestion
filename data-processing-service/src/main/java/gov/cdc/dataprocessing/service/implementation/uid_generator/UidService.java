@@ -300,7 +300,7 @@ public class UidService implements IUidService {
         }
     }
 
-    public ActRelationshipDto setFalseToNewForNotification(NotificationProxyContainer notificationProxyVO, Long falseUid, Long actualUid) throws DataProcessingException {
+    public ActRelationshipDto setFalseToNewForNotification(NotificationProxyContainer notificationProxyVO, Long falseUid, Long actualUid)  {
 
         Iterator<Object> anIterator;
         ActRelationshipDto actRelationshipDT = null;

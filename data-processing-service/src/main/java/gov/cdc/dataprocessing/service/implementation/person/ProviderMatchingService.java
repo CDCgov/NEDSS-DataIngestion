@@ -7,15 +7,14 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.implementation.person.base.ProviderMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -48,15 +47,14 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ProviderMatchingService extends ProviderMatchingBaseService implements IProviderMatchingService {
-    private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingService.class); // NOSONAR
 
     public ProviderMatchingService(
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService,
+            CachingValueDpDpService cachingValueDpService,
             PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
 
     @SuppressWarnings("java:S3776")
@@ -97,11 +95,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         // Matching the Identifier (i.e. NPI)
         String identifier;
         int identifierHshCd = 0;
-        List identifierList ;
+        List<String> identifierList ;
         identifierList = getIdentifier(personContainer);
         if (identifierList != null && !identifierList.isEmpty()) {
-            for (Object o : identifierList) {
-                identifier = (String) o;
+            for (String o : identifierList) {
+                identifier = o;
                 if (identifier != null) {
                     identifier = identifier.toUpperCase();
                     identifierHshCd = identifier.hashCode();

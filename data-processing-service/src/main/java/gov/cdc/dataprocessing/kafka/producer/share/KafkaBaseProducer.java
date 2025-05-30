@@ -40,11 +40,5 @@ public class KafkaBaseProducer {
         kafkaTemplate.send(prodRecord);
     }
 
-//    protected void sendMessageTransactional(ProducerRecord<String, String> prodRecord) {
-//        kafkaTemplate.executeInTransaction(operations -> {
-//            operations.send(prodRecord);
-//            return "OK";
-//        });
-//    }
 
 }

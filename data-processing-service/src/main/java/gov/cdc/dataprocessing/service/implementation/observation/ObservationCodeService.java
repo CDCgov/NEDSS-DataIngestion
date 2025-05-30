@@ -153,7 +153,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 reportingLabCLIA = getReportingLabCLIAId(orderTest.getTheParticipationDtoCollection());
             }
         }
-        if (reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+        if (reportingLabCLIA == null || reportingLabCLIA.trim().isEmpty())
         {
             reportingLabCLIA = NEDSSConstant.DEFAULT;
         }
@@ -321,12 +321,12 @@ public class ObservationCodeService implements IObservationCodeService {
                 String conditionCd = "";
                 String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
 
-                if (codeSystemCd == null || codeSystemCd.trim().equals("")) {
+                if (codeSystemCd == null || codeSystemCd.trim().isEmpty()) {
                     continue;
                 }
 
                 String obsCode = obsValueCodedDto.getCode();
-                if (obsCode == null || obsCode.trim().equals("")) {
+                if (obsCode == null || obsCode.trim().isEmpty()) {
                     continue;
                 }
 
@@ -378,13 +378,13 @@ public class ObservationCodeService implements IObservationCodeService {
         }
 
         String cdSystemCd = obsDt.getCdSystemCd();
-        if (cdSystemCd == null || cdSystemCd.trim().equals(""))
+        if (cdSystemCd == null || cdSystemCd.trim().isEmpty())
         {
             return null;
         }
 
         String obsCode = obsDt.getCd();
-        if (obsCode == null || obsCode.trim().equals(""))
+        if (obsCode == null || obsCode.trim().isEmpty())
         {
             return null;
         }
@@ -443,7 +443,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 }
             }
         }
-        if (conditionMap.size() > 1 || conditionMap.isEmpty())
+        if (conditionMap.size() != 1)
         {
             return("");
         }
@@ -466,7 +466,7 @@ public class ObservationCodeService implements IObservationCodeService {
             return null;
         }
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
-        if (obsDt.getCd() == null || obsDt.getCd().equals("") || obsDt.getCd().equals(" ") || obsDt.getCdSystemCd() == null)
+        if (obsDt.getCd() == null || obsDt.getCd().isEmpty() || obsDt.getCd().equals(" ") || obsDt.getCdSystemCd() == null)
         {
             return null;
         }

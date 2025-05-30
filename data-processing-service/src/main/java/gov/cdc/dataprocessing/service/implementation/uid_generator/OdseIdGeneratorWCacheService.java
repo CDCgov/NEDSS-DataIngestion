@@ -7,9 +7,7 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
-import gov.cdc.dataprocessing.utilities.GsonUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,19 +17,18 @@ import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.GA;
 
 @Service
 public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheService {
-    private final ICacheApiService cacheApiService;
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
 
-    public OdseIdGeneratorWCacheService(ICacheApiService cacheApiService, LocalUidGeneratorRepository localUidGeneratorRepository) {
-        this.cacheApiService = cacheApiService;
+    public OdseIdGeneratorWCacheService(
+                                        LocalUidGeneratorRepository localUidGeneratorRepository
+                                       ) {
         this.localUidGeneratorRepository = localUidGeneratorRepository;
     }
 
-    public LocalUidModel getValidLocalUidByApi(LocalIdClass localIdClass, boolean gaApplied) {
-        var res = cacheApiService.getOdseLocalId(localIdClass.name(), gaApplied);
-        return GsonUtil.GSON.fromJson(res, LocalUidModel.class);
-    }
 
+    /**
+     * Transaction here for guarantee no race condition
+     * */
     @Transactional
     public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         return createNewLocalUid(localIdClass, gaApplied);
@@ -40,8 +37,6 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
     private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         LocalUidGeneratorDto localId = fetchLocalId(localIdClass);
-
-
         LocalUidGeneratorDto gaLocalId = gaApplied ? fetchLocalId(GA) : null;
 
         var localUidModel = new LocalUidModel();

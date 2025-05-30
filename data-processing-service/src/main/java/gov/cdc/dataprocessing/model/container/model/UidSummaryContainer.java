@@ -37,7 +37,7 @@ public class UidSummaryContainer extends BaseContainer implements RootDtoInterfa
     private Long linkingUid;
     private String uniqueMapKey;
 
-    private Timestamp statusTime;//(Release 4.5) extended to populate Investigation create time
+    private Timestamp statusTime;
     private String addReasonCd;
 
     @Override

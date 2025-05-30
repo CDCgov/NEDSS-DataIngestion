@@ -23,7 +23,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummaryService;
@@ -42,6 +42,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -98,7 +99,7 @@ public class InvestigationService implements IInvestigationService {
     private static final String LAB_EVENT_LIST = "labEventList";
 
     private final ICacheApiService cacheApiService;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     @Value("${service.timezone}")
     private String tz = "UTC";
     public InvestigationService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
@@ -115,7 +116,7 @@ public class InvestigationService implements IInvestigationService {
                                 Observation_SummaryRepository observationSummaryRepository,
                                 IContactSummaryService contactSummaryService,
                                 ILdfService ldfService,
-                                LabTestRepository labTestRepository, ICacheApiService cacheApiService, ICatchingValueService catchingValueService) {
+                                LabTestRepository labTestRepository, @Lazy ICacheApiService cacheApiService, ICatchingValueDpService catchingValueService) {
         this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.patientRepositoryUtil = patientRepositoryUtil;
@@ -165,99 +166,92 @@ public class InvestigationService implements IInvestigationService {
     public void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException
     {
         PublicHealthCaseDto phcDT =  publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
-        try
+
+        //For each report summary vo
+        if(!reportSumVOCollection.isEmpty())
         {
-            //For each report summary vo
-            if(!reportSumVOCollection.isEmpty())
-            {
-                for (LabReportSummaryContainer reportSumVO : reportSumVOCollection) {
-                    ActRelationshipDto actRelationshipDT;
-                    RootDtoInterface rootDT = null;
+            for (LabReportSummaryContainer reportSumVO : reportSumVOCollection) {
+                ActRelationshipDto actRelationshipDT;
+                RootDtoInterface rootDT = null;
 
-                    //Gets and checks whether any association change; if changed, do something, else go next one
-                    boolean isTouched = reportSumVO.getIsTouched();
-                    if (!isTouched) {
-                        continue;
-                    }
+                //Gets and checks whether any association change; if changed, do something, else go next one
+                boolean isTouched = reportSumVO.getIsTouched();
+                if (!isTouched) {
+                    continue;
+                }
 
-                    actRelationshipDT = new ActRelationshipDto();
-                    //Sets the properties of ActRelationshipDT object
-                    actRelationshipDT.setTargetActUid(investigationUID);
-                    actRelationshipDT.setSourceActUid(reportSumVO.getObservationUid());
-                    actRelationshipDT.setFromTime(reportSumVO.getActivityFromTime());
-                    actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
-                    //Set from time same as investigation create time if act relationship is created while creating investigation from lab or morbidity report
-                    if (invFromEvent) {
-                        actRelationshipDT.setFromTime(phcDT.getAddTime());
-                    }
-                    actRelationshipDT.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
-                    actRelationshipDT.setTargetClassCd(NEDSSConstant.PUBLIC_HEALTH_CASE_CLASS_CODE);
-                    //actRelationshipDT.setStatusTime(new Timestamp(new java.util.Date().getTime()));
-                    boolean reportFromDoc = false;
-                    actRelationshipDT.setTypeCd(NEDSSConstant.LAB_DISPALY_FORM);
-                    if (reportSumVO.isLabFromDoc()) {
-                        reportFromDoc = true;
-                    }
-                    if (invFromEvent) {
-                        actRelationshipDT.setAddReasonCd(reportSumVO.getProcessingDecisionCd());
-                    }
+                actRelationshipDT = new ActRelationshipDto();
+                //Sets the properties of ActRelationshipDT object
+                actRelationshipDT.setTargetActUid(investigationUID);
+                actRelationshipDT.setSourceActUid(reportSumVO.getObservationUid());
+                actRelationshipDT.setFromTime(reportSumVO.getActivityFromTime());
+                actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+                //Set from time same as investigation create time if act relationship is created while creating investigation from lab or morbidity report
+                if (invFromEvent) {
+                    actRelationshipDT.setFromTime(phcDT.getAddTime());
+                }
+                actRelationshipDT.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
+                actRelationshipDT.setTargetClassCd(NEDSSConstant.PUBLIC_HEALTH_CASE_CLASS_CODE);
+                //actRelationshipDT.setStatusTime(new Timestamp(new java.util.Date().getTime()));
+                boolean reportFromDoc = false;
+                actRelationshipDT.setTypeCd(NEDSSConstant.LAB_DISPALY_FORM);
+                if (reportSumVO.isLabFromDoc()) {
+                    reportFromDoc = true;
+                }
+                if (invFromEvent) {
+                    actRelationshipDT.setAddReasonCd(reportSumVO.getProcessingDecisionCd());
+                }
 
 
-                    if (reportSumVO.getIsAssociated()) {
-                        actRelationshipDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
-                        actRelationshipDT.setStatusCd(NEDSSConstant.A);
-                    } else {
-                        actRelationshipDT.setRecordStatusCd(NEDSSConstant.INACTIVE);
-                        actRelationshipDT.setStatusCd(NEDSSConstant.I);
-                    }
+                if (reportSumVO.getIsAssociated()) {
+                    actRelationshipDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
+                    actRelationshipDT.setStatusCd(NEDSSConstant.A);
+                } else {
+                    actRelationshipDT.setRecordStatusCd(NEDSSConstant.INACTIVE);
+                    actRelationshipDT.setStatusCd(NEDSSConstant.I);
+                }
 
-                    actRelationshipDT = prepareAssocModelHelper.prepareAssocDTForActRelationship(actRelationshipDT);
-                    // needs to be done here as prepareAssocDT will always set dirty flag true
+                actRelationshipDT = prepareAssocModelHelper.prepareAssocDTForActRelationship(actRelationshipDT);
+                // needs to be done here as prepareAssocDT will always set dirty flag true
+                if (reportSumVO.getIsAssociated())
+                {
+                    actRelationshipDT.setItNew(true);
+                    actRelationshipDT.setItDirty(false);
+                }
+                else
+                {
+                    actRelationshipDT.setItDelete(true);
+                    actRelationshipDT.setItDirty(false);
+                }
+                observationRepositoryUtil.saveActRelationship(actRelationshipDT);
+
+                if (!reportFromDoc) {
+                    //Obtains the core observation object
+                    var obs = observationRepositoryUtil.loadObject(reportSumVO.getObservationUid());
+                    ObservationDto obsDT = obs.getTheObservationDto();
+                    //Starts persist observationDT
                     if (reportSumVO.getIsAssociated())
                     {
-                        actRelationshipDT.setItNew(true);
-                        actRelationshipDT.setItDirty(false);
+                        obsDT.setItDirty(true);
+                        String businessObjLookupName;
+                        String businessTriggerCd ;
+                        String tableName = NEDSSConstant.OBSERVATION;
+                        String moduleCd = NEDSSConstant.BASE;
+                        businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
+                        businessTriggerCd = NEDSSConstant.OBS_LAB_ASC;
+
+                        rootDT = prepareAssocModelHelper.prepareVO(obsDT, businessObjLookupName, businessTriggerCd, tableName, moduleCd, obsDT.getVersionCtrlNbr());
                     }
-                    else
-                    {
-                        actRelationshipDT.setItDelete(true);
-                        actRelationshipDT.setItDirty(false);
-                    }
-                    observationRepositoryUtil.saveActRelationship(actRelationshipDT);
 
-                    if (!reportFromDoc) {
-                        //Obtains the core observation object
-                        var obs = observationRepositoryUtil.loadObject(reportSumVO.getObservationUid());
-                        ObservationDto obsDT = obs.getTheObservationDto();
-                        //Starts persist observationDT
-                        if (reportSumVO.getIsAssociated())
-                        {
-                            obsDT.setItDirty(true);
-                            String businessObjLookupName = "";
-                            String businessTriggerCd = "";
-                            String tableName = NEDSSConstant.OBSERVATION;
-                            String moduleCd = NEDSSConstant.BASE;
-                            businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
-                            businessTriggerCd = NEDSSConstant.OBS_LAB_ASC;
+                    // processing non associate report summary
+                    rootDT = this.processingNonAssociatedReportSummaryContainer(reportSumVO, obsDT, rootDT);
 
-                            rootDT = prepareAssocModelHelper.prepareVO(obsDT, businessObjLookupName, businessTriggerCd, tableName, moduleCd, obsDT.getVersionCtrlNbr());
-                        }
-
-                        // processing non associate report summary
-                        rootDT = this.processingNonAssociatedReportSummaryContainer(reportSumVO, obsDT, rootDT);
-
-                        obsDT = (ObservationDto) rootDT;
-                        //set the previous entered processing decision to null
-                        obsDT.setProcessingDecisionCd(null);
-                        observationRepositoryUtil.setObservationInfo(obsDT);
-                    }
+                    obsDT = (ObservationDto) rootDT;
+                    //set the previous entered processing decision to null
+                    obsDT.setProcessingDecisionCd(null);
+                    observationRepositoryUtil.setObservationInfo(obsDT);
                 }
             }
-        }
-        catch(Exception e)
-        {
-            logger.info(e.getMessage());
-            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -267,8 +261,8 @@ public class InvestigationService implements IInvestigationService {
         if (!reportSumVO.getIsAssociated())
         {
             obsDT.setItDirty(true);
-            String businessObjLookupName = "";
-            String businessTriggerCd = "";
+            String businessObjLookupName;
+            String businessTriggerCd;
             String tableName = NEDSSConstant.OBSERVATION;
             String moduleCd = NEDSSConstant.BASE;
             Collection<ActRelationshipDto> actRelColl = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(reportSumVO.getObservationUid(), "LabReport");
@@ -989,7 +983,7 @@ public class InvestigationService implements IInvestigationService {
                                 if (orderingFacilityUid != null) {
                                     var org = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                                     if (org != null && !org.getTheOrganizationNameDtoCollection().isEmpty()) {
-                                        OrganizationNameDto dt = null;
+                                        OrganizationNameDto dt;
                                         dt = org.getTheOrganizationNameDtoCollection().stream().findFirst().get();
                                         providerDataForPrintVO.setFacilityName(dt.getNmTxt());
                                     }
@@ -1076,7 +1070,7 @@ public class InvestigationService implements IInvestigationService {
 
     @SuppressWarnings({"java:S3776","java:S6541", "java:S1066"})
     protected void populateDescTxtFromCachedValues(Collection<Object> reportSummaryVOCollection) throws DataProcessingException {
-        ReportSummaryInterface sumVO ;
+        LabReportSummaryContainer sumVO ;
         LabReportSummaryContainer labVO;
         ResultedTestSummaryContainer resVO;
         Iterator<ResultedTestSummaryContainer> resItor;
@@ -1088,7 +1082,7 @@ public class InvestigationService implements IInvestigationService {
         for (Object o : reportSummaryVOCollection) {
             sumVO = (LabReportSummaryContainer) o;
             if (sumVO instanceof LabReportSummaryContainer) {
-                labVO = (LabReportSummaryContainer) sumVO;
+                labVO = sumVO;
                 labVO.setType(NEDSSConstant.LAB_REPORT_DESC);
                 if (labVO.getProgramArea() != null) {
                     tempStr = cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES.name(), labVO.getProgramArea());
@@ -1114,7 +1108,7 @@ public class InvestigationService implements IInvestigationService {
                         if (resVO.getCtrlCdUserDefined1() != null) {
                             if (resVO.getCtrlCdUserDefined1().equals("N") &&
                                     resVO.getCodedResultValue() != null &&
-                                    !resVO.getCodedResultValue().equals("")) {
+                                    !resVO.getCodedResultValue().isEmpty()) {
                                 tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC.name(),resVO.getCodedResultValue());
                                 resVO.setCodedResultValue(tempStr);
                             } else if (resVO.getCtrlCdUserDefined1().equals("Y") &&
@@ -1161,31 +1155,31 @@ public class InvestigationService implements IInvestigationService {
                         }
 
                         if ((resVO.getCdSystemCd() != null) &&
-                                (!(resVO.getCdSystemCd().equals("")))) {
+                                (!(resVO.getCdSystemCd().isEmpty()))) {
                             if (resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
-                                        !resVO.getResultedTestCd().equals("")) {
+                                        !resVO.getResultedTestCd().isEmpty()) {
                                     tempStr = cacheApiService.getSrteCacheString(ObjectName.LOIN_CODE_WITH_COMPONENT_NAME.name(),resVO.getResultedTestCd());
-                                    if (tempStr != null && !tempStr.equals(""))
+                                    if (tempStr != null && !tempStr.isEmpty())
                                         resVO.setResultedTest(tempStr);
                                 }
                             } else if (!resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
-                                        !resVO.getResultedTestCd().equals("")) {
+                                        !resVO.getResultedTestCd().isEmpty()) {
                                     var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                     if (res.isPresent()) {
-                                        tempStr = res.get().get(0).getLabResultDescTxt();
+                                        tempStr = res.get().getFirst().getLabResultDescTxt();
                                     }
-                                    if (tempStr != null && !tempStr.equals(""))
+                                    if (tempStr != null && !tempStr.isEmpty())
                                         resVO.setResultedTest(tempStr);
 
                                 }
                             }
                         }
                         // Added this for ER16368
-                        if ((resVO.getResultedTestStatusCd() != null) && (!(resVO.getResultedTestStatusCd().equals("")))) {
+                        if ((resVO.getResultedTestStatusCd() != null) && (!(resVO.getResultedTestStatusCd().isEmpty()))) {
                             tempStr = catchingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", resVO.getResultedTestStatusCd());
-                            if (tempStr != null && !tempStr.equals(""))
+                            if (tempStr != null && !tempStr.isEmpty())
                                 resVO.setResultedTestStatus(tempStr);
                         }
                         // End  ER16368
@@ -1196,30 +1190,30 @@ public class InvestigationService implements IInvestigationService {
                                 susVO = (ResultedTestSummaryContainer) susItor.next();
 
                                 if (susVO.getCodedResultValue() != null &&
-                                        !susVO.getCodedResultValue().equals("")) {
+                                        !susVO.getCodedResultValue().isEmpty()) {
                                     tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC.name(),susVO.getCodedResultValue());
-                                    if (tempStr != null && !tempStr.equals(""))
+                                    if (tempStr != null && !tempStr.isEmpty())
                                         susVO.setCodedResultValue(tempStr);
                                 }
                                 if (susVO.getCdSystemCd() != null &&
-                                        !susVO.getCdSystemCd().equals("")) {
+                                        !susVO.getCdSystemCd().isEmpty()) {
                                     if (susVO.getCdSystemCd().equals("LN")) {
                                         if (susVO.getResultedTestCd() != null &&
-                                                !susVO.getResultedTestCd().equals("")) {
+                                                !susVO.getResultedTestCd().isEmpty()) {
                                             tempStr = cacheApiService.getSrteCacheString(ObjectName.LOIN_CODE_WITH_COMPONENT_NAME.name(),susVO.getResultedTestCd());
-                                            if (tempStr != null && !tempStr.equals("")) {
+                                            if (tempStr != null && !tempStr.isEmpty()) {
                                                 susVO.setResultedTest(tempStr);
                                             }
                                         }
                                     } else {
-                                        if (susVO.getResultedTestCd() != null && !susVO.getResultedTestCd().equals(""))
+                                        if (susVO.getResultedTestCd() != null && !susVO.getResultedTestCd().isEmpty())
                                         {
                                             var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                             if (res.isPresent()) {
-                                                tempStr = res.get().get(0).getLabResultDescTxt();
+                                                tempStr = res.get().getFirst().getLabResultDescTxt();
                                             }
 
-                                            if (tempStr != null && !tempStr.equals("")) {
+                                            if (tempStr != null && !tempStr.isEmpty()) {
                                                 susVO.setResultedTest(tempStr);
                                             }
                                         }

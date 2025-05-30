@@ -39,4 +39,13 @@ public class WdsReport {
     private String Action;
     private String message;
     private boolean algorithmMatched;
+
+
+    public WdsReport() {
+    }
+
+    public WdsReport(boolean matched, String msg) {
+        this.algorithmMatched = matched;
+        this.message = msg;
+    }
 }

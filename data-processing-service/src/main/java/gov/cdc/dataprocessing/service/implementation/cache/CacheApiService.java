@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.cache;
 
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ITokenService;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,16 +22,6 @@ import java.util.Map;
 
 @Service
 public class CacheApiService implements ICacheApiService {
-
-    @Value("${cache.srte.cacheString}")
-    protected String srteCacheString;
-
-    @Value("${cache.srte.cacheObject}")
-    protected String srteCacheObject;
-
-    @Value("${cache.srte.cacheContain}")
-    protected String srteCacheContain;
-
     @Value("${cache.odse.localId}")
     protected String odseLocalId;
 
@@ -43,34 +33,25 @@ public class CacheApiService implements ICacheApiService {
 
     private final ITokenService tokenService;
 
-    private final Gson gson;
-
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public CacheApiService(ITokenService tokenService) {
+    private final ManagerCacheService managerCacheService;
+
+    public CacheApiService(ITokenService tokenService, ManagerCacheService managerCacheService) {
         this.tokenService = tokenService;
-        this.gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-                .create();
+        this.managerCacheService = managerCacheService;
     }
 
-    public String getSrteCacheString(String objectName, String key) {
-        var param = new HashMap<String, String>();
-
-        param.put("key", key);
-        return callEndpoint(srteCacheString + "/" + objectName, param, tokenService.getToken(), String.class);
+    public String getSrteCacheString(String objectName, String key) throws DataProcessingException {
+        return managerCacheService.getCache(ObjectName.valueOf(objectName), key);
     }
 
-    public String getSrteCacheObject(String objectName, String key) {
-        var param = new HashMap<String, String>();
-        param.put("key", key);
-        return callEndpoint(srteCacheObject + "/" + objectName, param, tokenService.getToken(), String.class);
+    public Object getSrteCacheObject(String objectName, String key) {
+        return managerCacheService.getCacheObject(ObjectName.valueOf(objectName), key);
     }
 
-    public Boolean getSrteCacheBool(String objectName, String key) {
-        var param = new HashMap<String, String>();
-        param.put("key", key);
-        return callEndpoint(srteCacheContain + "/" + objectName, param, tokenService.getToken(), Boolean.class);
+    public Boolean getSrteCacheBool(String objectName, String key) throws DataProcessingException {
+        return managerCacheService.containKey(ObjectName.valueOf(objectName), key);
     }
 
     public String getOdseLocalId(String objectName, boolean geApplied) {

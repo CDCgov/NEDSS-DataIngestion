@@ -1,6 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.person.base;
 
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -34,9 +34,9 @@ public class NokMatchingBaseService extends PatientMatchingBaseService {
 
     public NokMatchingBaseService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
                                   EntityHelper entityHelper, PatientRepositoryUtil patientRepositoryUtil,
-                                  CachingValueService cachingValueService,
+                                  CachingValueDpDpService cachingValueDpService,
                                   PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
 
 

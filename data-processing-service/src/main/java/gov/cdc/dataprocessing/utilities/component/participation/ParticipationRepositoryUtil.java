@@ -2,10 +2,9 @@ package gov.cdc.dataprocessing.utilities.component.participation;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ParticipationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.ParticipationHist;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,20 +35,19 @@ import java.util.Objects;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ParticipationRepositoryUtil {
-    private final ParticipationRepository participationRepository;
-    private final ParticipationHistRepository participationHistRepository;
 
-    public ParticipationRepositoryUtil(ParticipationRepository participationRepository,
-                                       ParticipationHistRepository participationHistRepository) {
-        this.participationRepository = participationRepository;
-        this.participationHistRepository = participationHistRepository;
+    private final ParticipationJdbcRepository participationJdbcRepository;
+
+    public ParticipationRepositoryUtil(
+                                       ParticipationJdbcRepository participationJdbcRepository) {
+        this.participationJdbcRepository = participationJdbcRepository;
     }
 
     public Collection<ParticipationDto> getParticipationCollection(Long actUid) {
-        var res = participationRepository.findByActUid(actUid);
+        var res = participationJdbcRepository.findByActUid(actUid);
         Collection<ParticipationDto> dtoCollection = new ArrayList<>();
-        if (res.isPresent()) {
-            for(var item : res.get()) {
+        if (res != null && !res.isEmpty()) {
+            for(var item : res) {
                 var dto  = new ParticipationDto(item);
                 dto.setItNew(false);
                 dto.setItDirty(false);
@@ -67,26 +65,26 @@ public class ParticipationRepositoryUtil {
         } else {
             hist.setVersionCtrlNbr(1);
         }
-        participationHistRepository.save(hist);
+        participationJdbcRepository.mergeParticipationHist(hist);
         participationDto.setItNew(false);
     }
 
     public void storeParticipation(ParticipationDto dt) throws DataProcessingException {
-        try{
 
-            if (dt == null)
-                throw new DataProcessingException("Error: try to store null ParticipationDT object.");
+        if (dt == null)
+            throw new DataProcessingException("Error: try to store null ParticipationDT object.");
 
-            Participation data = new Participation(dt);
-            if (dt.isItNew())
-                participationRepository.save(data);
-            else if (dt.isItDelete())
-                participationRepository.delete(data);
-            else if (dt.isItDirty())
-                participationRepository.save(data);
-        }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage(), ex);
+        Participation data = new Participation(dt);
+        if (dt.isItNew()) {
+            participationJdbcRepository.createParticipation(data);
         }
+        else if (dt.isItDelete()) {
+            participationJdbcRepository.deleteParticipation(data.getSubjectEntityUid(), data.getActUid(), data.getTypeCode());
+        }
+        else if (dt.isItDirty()) {
+            participationJdbcRepository.updateParticipation(data);
+        }
+
     }
 
     public ParticipationDto getParticipation(Long subjectEntityUid, Long actUid) {
@@ -101,9 +99,9 @@ public class ParticipationRepositoryUtil {
 
     public Collection<ParticipationDto> getParticipations(Long subjectEntityUid) {
         Collection<ParticipationDto> col = new ArrayList<>();
-        var res = participationRepository.findByParentUid(subjectEntityUid);
-        if (res.isPresent()) {
-            for(var item : res.get()) {
+        var res = participationJdbcRepository.findBySubjectUid(subjectEntityUid);
+        if (res != null && !res.isEmpty()) {
+            for(var item : res) {
                 var pat = new ParticipationDto(item);
                 col.add(pat);
             }
@@ -113,9 +111,9 @@ public class ParticipationRepositoryUtil {
 
     public Collection<ParticipationDto> getParticipationsByActUid(Long actUid) {
         Collection<ParticipationDto> col = new ArrayList<>();
-        var res = participationRepository.findByActUid(actUid);
-        if (res.isPresent()) {
-            for(var item : res.get()) {
+        var res = participationJdbcRepository.findByActUid(actUid);
+        if (res != null && !res.isEmpty()) {
+            for(var item : res) {
                 var pat = new ParticipationDto(item);
                 col.add(pat);
             }
