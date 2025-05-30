@@ -46,8 +46,9 @@ spring:
 
 kafka:
   topic:
-    elr_micro_transaction: elr_unprocessed_transaction
-    elr_micro: dp_elr_unprocessed
+    elr_unprocessed: dp_elr_unprocessed
+    elr_reprocessing_step_1: dp_elr_reprocessing_step_1
+    elr_reprocessing_step_2: dp_elr_reprocessing_step_2
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
     elr_nnd: dp_elr_handle_nnd

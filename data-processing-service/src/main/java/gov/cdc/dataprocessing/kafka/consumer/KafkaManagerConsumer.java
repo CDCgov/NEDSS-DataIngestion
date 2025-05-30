@@ -86,7 +86,7 @@ public class KafkaManagerConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topic.elr_micro}",
+            topics = "${kafka.topic.elr_unprocessed}",
             containerFactory = "kafkaListenerContainerFactoryStep1",
             batch = "true"
     )
@@ -132,7 +132,7 @@ public class KafkaManagerConsumer {
                             try {
                                 var result = managerService.processingELR(id);
                                 if (result != null) {
-                                    managerService.initiatingLabProcessing(result);
+                                    managerService.handlingWdsAndLab(result);
                                 }
                             } catch (Exception e) {
                                 log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
@@ -154,7 +154,7 @@ public class KafkaManagerConsumer {
                 try {
                     var result = managerService.processingELR(nbs);
                     if (result != null) {
-                        managerService.initiatingLabProcessing(result);
+                        managerService.handlingWdsAndLab(result);
                     }
                 } catch (Exception e) {
                     log.error("Single-threaded error: {}", e.getMessage(), e);
