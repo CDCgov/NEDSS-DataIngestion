@@ -78,7 +78,7 @@ spring:
     password: ${NBS_DBPASSWORD}
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:5}
+      maximum-pool-size: ${HIKARI_POOL_SIZE:2}
       connection-timeout: ${HIKARI_CON_TIMEOUT:5000}
       minimum-idle: ${HIKARI_MINIMUM_IDLE:1}
       idle-timeout: ${HIKARI_IDLE_TIMEOUT:30000}
