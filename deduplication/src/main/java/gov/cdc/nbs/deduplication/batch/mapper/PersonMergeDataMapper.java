@@ -3,7 +3,12 @@ package gov.cdc.nbs.deduplication.batch.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
@@ -14,7 +19,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
-import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.*;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.GeneralPatientInformation;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Investigation;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
 
 public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
@@ -28,7 +43,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     AdminComments adminComments = mapAdminComments(rs);
 
     // Ethnicity Mapping
-    Ethnicity ethnicity = mapEthnicity(rs);
+    Ethnicity ethnicity = mapEthnicity(rs.getString("ethnicity"));
 
     // Sex & Birth Mapping
     SexAndBirth sexAndBirth = mapSexAndBirth(rs);
@@ -83,17 +98,15 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
         rs.getString("admin_comments"));
   }
 
-  // ETHNICITY Mapping
-  Ethnicity mapEthnicity(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_ethnicity"));
-    String ethnicGroupDescription = String.valueOf(rs.getString("ethnic_group_desc_txt"));
-    String spanishOrigin = String.valueOf(rs.getString("spanish_origin"));
-    String ethnicUnknownReason = String.valueOf(rs.getString("ethnic_unknown_reason"));
-    return new Ethnicity(
-        asOfDate,
-        ethnicGroupDescription,
-        spanishOrigin,
-        ethnicUnknownReason);
+  Ethnicity mapEthnicity(String ethnicityString) {
+    if (ethnicityString == null) {
+      return new Ethnicity();
+    }
+    try {
+      return mapper.readValue(ethnicityString, Ethnicity.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient ethnicity");
+    }
   }
 
   // SEX & BIRTH Mapping

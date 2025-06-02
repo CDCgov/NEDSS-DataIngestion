@@ -21,12 +21,18 @@ public record PersonMergeData(
       String comment) {
   }
 
-  // ETHNICITY Object
   public record Ethnicity(
-      String asOfDate,
-      String ethnicGroupDescription,
-      String spanishOrigin,
-      String ethnicUnknownReason) {
+      String asOf,
+      String ethnicity,
+      String reasonUnknown,
+      String spanishOrigin) {
+    public Ethnicity() {
+      this(
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
   // SEX & BIRTH Object
