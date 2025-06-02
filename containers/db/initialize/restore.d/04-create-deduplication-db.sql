@@ -27,15 +27,25 @@ CREATE TABLE nbs_mpi_mapping (
     mpi_person uniqueidentifier,
     mpi_patient uniqueidentifier,
     status varchar,
+    person_add_time datetime NOT NULL,
     PRIMARY KEY ([id])
 );
 GO
 
+CREATE TABLE matches_requiring_review (
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  person_uid BIGINT NOT NULL,
+  person_name NVARCHAR(300),
+  person_add_time DATETIME NOT NULL,
+  date_identified DATETIME DEFAULT GETDATE()
+);
+GO
+
 CREATE TABLE match_candidates (
-  id bigint IDENTITY(1,1),
-  person_uid bigint,
-  mpi_person_id uniqueidentifier,
-  date_identified DATETIME DEFAULT GETDATE(),
-  is_merge BIT NULL
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  match_id BIGINT NOT NULL,
+  person_uid BIGINT NOT NULL,
+  is_merge BIT NULL,
+  FOREIGN KEY (match_id) REFERENCES matches_requiring_review(id)
 );
 GO

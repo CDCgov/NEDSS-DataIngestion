@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
@@ -12,35 +13,46 @@ import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class DeduplicationWriter implements ItemWriter<DeduplicationEntry> {
 
 
   private final NamedParameterJdbcTemplate template;
+  private final PatientRecordService patientRecordService;
 
-  public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
+  public DeduplicationWriter(@Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
+      final PatientRecordService patientRecordService) {
     this.template = template;
+    this.patientRecordService = patientRecordService;
   }
 
   @Override
-  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) throws Exception {
+  public void write(@NonNull Chunk<? extends DeduplicationEntry> chunk) {
     List<SqlParameterSource> batchParams = new ArrayList<>();
+    Map<String, LocalDateTime> patientNameAndTimeMap = patientRecordService.fetchPersonAddTimeMap(
+        chunk.getItems().stream().map(i -> i.nbsPersonId().toString()).toList());
+
     for (DeduplicationEntry entry : chunk) {
-      batchParams.add(createParameterSource(entry));
+      batchParams.add(
+          createParameterSource(entry, patientNameAndTimeMap.get(entry.nbsPersonId().toString())));
     }
     template.batchUpdate(QueryConstants.NBS_MPI_QUERY, batchParams.toArray(new SqlParameterSource[0]));
   }
 
-  SqlParameterSource createParameterSource(DeduplicationEntry entry) {
+  SqlParameterSource createParameterSource(DeduplicationEntry entry, LocalDateTime personAddTime) {
     return new MapSqlParameterSource()
         .addValue("person_uid", entry.nbsPersonId())
         .addValue("person_parent_uid", entry.nbsPersonParentId())
         .addValue("mpi_patient", entry.mpiPatientId())
         .addValue("mpi_person", entry.mpiPersonId())
-        .addValue("status", "U");
+        .addValue("status", "U")
+        .addValue("person_add_time", personAddTime);
   }
+
 
 }

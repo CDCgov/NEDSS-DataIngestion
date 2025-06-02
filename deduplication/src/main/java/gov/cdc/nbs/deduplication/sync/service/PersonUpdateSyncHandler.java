@@ -3,8 +3,9 @@ package gov.cdc.nbs.deduplication.sync.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.duplicates.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.sync.model.PatientUpdateRequest;
@@ -19,31 +20,78 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class PersonUpdateSyncHandler {
 
-  private final NamedParameterJdbcTemplate nbsTemplate;
+
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate deduplicationTemplate;
   private final PatientRecordService patientRecordService;
+  private final PersonInsertSyncHandler personInsertSyncHandler;
 
-  public PersonUpdateSyncHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate,
+  public PersonUpdateSyncHandler(
       ObjectMapper objectMapper,
       @Qualifier("recordLinkerRestClient") RestClient recordLinkageClient,
       @Qualifier("deduplicationNamedTemplate") NamedParameterJdbcTemplate deduplicationTemplate,
-      final PatientRecordService patientRecordService
-  ) {
-    this.nbsTemplate = nbsTemplate;
+      final PatientRecordService patientRecordService,
+      final PersonInsertSyncHandler personInsertSyncHandler) {
     this.objectMapper = objectMapper;
     this.recordLinkageClient = recordLinkageClient;
     this.deduplicationTemplate = deduplicationTemplate;
     this.patientRecordService = patientRecordService;
+    this.personInsertSyncHandler = personInsertSyncHandler;
   }
 
-  public void handleUpdate(JsonNode payloadNode, String topic) throws JsonProcessingException {
+  public void handleUpdate(JsonNode payloadNode) throws JsonProcessingException {
     JsonNode afterNode = payloadNode.path("after");
-    String personUid = extractPersonUidFromTopic(afterNode, topic);
+    String personUid = afterNode.get("person_uid").asText();
     MpiPerson mpiPerson = patientRecordService.fetchPersonRecord(personUid);
-    updateExistingPatient(mpiPerson);
+    handleUpdateExistingPatient(mpiPerson);
   }
+
+
+  private void handleUpdateExistingPatient(MpiPerson mpiPerson) throws JsonProcessingException {
+    boolean patientExists = doesPatientExistInMpi(mpiPerson.external_id());
+    boolean isPerson = isPersonRecord(mpiPerson);
+
+    if (patientExists) {
+      updateExistingPatient(mpiPerson);
+    } else {
+      if (isPerson) {
+        insertNewPerson(mpiPerson);
+      } else {//patient
+        boolean parentExists = doesPatientExistInMpi(mpiPerson.parent_id());
+        if (parentExists) {
+          insertNewPatient(mpiPerson);
+        } else {
+          insertParentAndPatient(mpiPerson);
+        }
+      }
+    }
+  }
+
+  private boolean doesPatientExistInMpi(String personId) {
+    return Boolean.TRUE.equals(deduplicationTemplate.queryForObject(
+        QueryConstants.MPI_PATIENT_EXISTS_CHECK,
+        new MapSqlParameterSource("personId", personId),//NOSONAR
+        Boolean.class
+    ));
+  }
+
+  private boolean isPersonRecord(MpiPerson mpiPerson) {
+    return mpiPerson.external_id().equals(mpiPerson.parent_id());
+  }
+
+  private void insertNewPerson(MpiPerson person) throws JsonProcessingException {
+    personInsertSyncHandler.insertNewMpiPerson(person);
+  }
+
+  private void insertNewPatient(MpiPerson patient) throws JsonProcessingException {
+    personInsertSyncHandler.insertNewMpiPatient(patient);
+  }
+
+  private void insertParentAndPatient(MpiPerson patient) throws JsonProcessingException {
+    personInsertSyncHandler.insertParentAndPatient(patient);
+  }
+
 
   private void updateExistingPatient(MpiPerson mpiPerson) throws JsonProcessingException {
     String personReferenceId = getPersonReferenceIdByParentId(mpiPerson.parent_id());
@@ -62,6 +110,8 @@ public class PersonUpdateSyncHandler {
         .body(MpiResponse.class);
   }
 
+
+
   private String getPersonReferenceIdByParentId(String personId) {
     return deduplicationTemplate.queryForObject(QueryConstants.MPI_PERSON_ID_QUERY,
         new MapSqlParameterSource("personId", personId),
@@ -72,28 +122,6 @@ public class PersonUpdateSyncHandler {
     return deduplicationTemplate.queryForObject(QueryConstants.MPI_PATIENT_ID_QUERY,
         new MapSqlParameterSource("personId", personId),
         String.class);
-  }
-
-  private String extractPersonUidFromTopic(JsonNode afterNode, String topic) {
-    String[] topicParts = topic.split("\\.");
-    String tableName = topicParts[topicParts.length - 1];
-    return switch (tableName) {
-      case "Person", "Person_name", "Person_race" -> afterNode.get("person_uid").asText();
-      case "Entity_id" -> afterNode.get("entity_uid").asText();
-      case "Postal_locator" -> {
-        String postalLocatorUid = afterNode.get("postal_locator_uid").asText();
-        yield findPersonUidFromQuery(QueryConstants.FETCH_PERSON_UID_BY_POSTAL_LOCATOR, postalLocatorUid);
-      }
-      case "Tele_locator" -> {
-        String teleLocatorUid = afterNode.get("tele_locator_uid").asText();
-        yield findPersonUidFromQuery(QueryConstants.FETCH_PERSON_UID_BY_TELE_LOCATOR, teleLocatorUid);
-      }
-      default -> throw new IllegalArgumentException("Unknown table name: " + tableName);
-    };
-  }
-
-  private String findPersonUidFromQuery(String query, String id) {
-    return nbsTemplate.queryForObject(query, new MapSqlParameterSource("id", id), String.class);
   }
 
 }

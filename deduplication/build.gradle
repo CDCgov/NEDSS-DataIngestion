@@ -64,10 +64,7 @@ bootRun {
         enabled = true
         server = true
         suspend = false
-        port = java.util.Optional.ofNullable(findProperty('debug.port'))
-                .map(Object::toString)
-                .map(Integer::parseInt)
-                .orElse(19042)
+        port = 19042
     }
 }
 
