@@ -5,6 +5,7 @@ import org.mockito.Mockito;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
@@ -382,6 +383,23 @@ class PersonMergeDataMapperTest {
     String raceString = "asdf";
     PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapRaces(raceString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient race");
+  }
+
+  @Test
+  void testMapEthnicityEmpty() {
+    String ethnicityString = null;
+    Ethnicity ethnicity = mapper.mapEthnicity(ethnicityString);
+    assertThat(ethnicity.asOf()).isNull();
+    assertThat(ethnicity.ethnicity()).isNull();
+    assertThat(ethnicity.reasonUnknown()).isNull();
+    assertThat(ethnicity.spanishOrigin()).isNull();
+  }
+
+  @Test
+  void testMapEthnicityException() {
+    String ethnicityString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapEthnicity(ethnicityString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient ethnicity");
   }
 
   @Test
