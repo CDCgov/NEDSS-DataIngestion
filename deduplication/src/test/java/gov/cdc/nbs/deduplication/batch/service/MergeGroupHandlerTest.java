@@ -131,8 +131,6 @@ class MergeGroupHandlerTest {
         }));
   }
 
-
-
   @Test
   void testGetPotentialMatchesDetails() {
     long personId = 123L;
@@ -159,19 +157,20 @@ class MergeGroupHandlerTest {
                 "Hispanic or Latino",
                 "Yes",
                 "Unknown"),
-            new SexAndBirth( // Sex & Birth
-                "2023-02-01",
-                "1990-01-01T00:00:00Z",
-                "M",
-                "",
-                "",
+            new SexAndBirth(
+                "2025-05-27T00:00:00",
+                "2025-05-12T00:00:00",
                 "Male",
-                true,
-                1,
-                "12345",
-                "GA",
-                "US",
-                "Male"),
+                "Refused",
+                "Did not ask",
+                "Add Gender",
+                "Male",
+                "No",
+                "1",
+                "Birth City",
+                "Tennessee",
+                "Some County",
+                "United States"),
             new Mortality( // Mortality
                 "2023-03-01",
                 "Y",

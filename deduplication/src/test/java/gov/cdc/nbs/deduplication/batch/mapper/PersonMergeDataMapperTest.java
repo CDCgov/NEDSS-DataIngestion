@@ -10,6 +10,7 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,19 +34,6 @@ class PersonMergeDataMapperTest {
   private static final String ETHNICITY_AS_OF_DATE = "2025-05-30T00:00:00";
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
-
-  private static final String SEX_AND_BIRTH_AS_OF_DATE = "2023-02-01";
-  private static final String BIRTH_TIME = "1990-01-01T00:00:00Z";
-  private static final String CURRENT_SEX_CODE = "M";
-  private static final String SEX_UNKNOWN_REASON = "Not applicable";
-  private static final String ADDITIONAL_GENDER_CODE = "";
-  private static final String BIRTH_GENDER_CODE = "Male";
-  private static final Boolean MULTIPLE_BIRTH_INDICATOR = true;
-  private static final Integer BIRTH_ORDER_NUMBER = 1;
-  private static final String BIRTH_CITY_CODE = "12345";
-  private static final String BIRTH_STATE_CODE = "GA";
-  private static final String BIRTH_COUNTRY_CODE = "US";
-  private static final String PREFERRED_GENDER = "Male";
 
   private static final String MORTALITY_AS_OF_DATE = "2023-03-01";
   private static final String DECEASED_INDICATOR_CODE = "Y";
@@ -146,6 +134,24 @@ class PersonMergeDataMapperTest {
       }
       """;
 
+  private static final String SEX_AND_BIRTH_STRING = """
+        {
+        "asOf": "2025-05-27T00:00:00",
+        "dateOfBirth": "2025-05-12T00:00:00",
+        "currentSex": "Male",
+        "sexUnknown": null,
+        "transgender": "Did not ask",
+        "additionalGender": "Add Gender",
+        "birthGender": "Male",
+        "multipleBirth": "No",
+        "birthOrder": 1,
+        "birthCity": "Birth City",
+        "birthState": "Tennessee",
+        "birthCounty": "Some County",
+        "birthCountry": "United States"
+      }
+            """;
+
   @Test
   void testMapRow() throws Exception {
     ResultSet rs = Mockito.mock(ResultSet.class);
@@ -179,18 +185,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void mockSexAndBirthFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_sex")).thenReturn(SEX_AND_BIRTH_AS_OF_DATE);
-    when(rs.getString("birth_time")).thenReturn(BIRTH_TIME);
-    when(rs.getString("curr_sex_cd")).thenReturn(CURRENT_SEX_CODE);
-    when(rs.getString("sex_unknown_reason")).thenReturn(SEX_UNKNOWN_REASON);
-    when(rs.getString("additional_gender_cd")).thenReturn(ADDITIONAL_GENDER_CODE);
-    when(rs.getString("birth_gender_cd")).thenReturn(BIRTH_GENDER_CODE);
-    when(rs.getBoolean("multiple_birth_ind")).thenReturn(MULTIPLE_BIRTH_INDICATOR);
-    when(rs.getInt("birth_order_nbr")).thenReturn(BIRTH_ORDER_NUMBER);
-    when(rs.getString("birth_city_cd")).thenReturn(BIRTH_CITY_CODE);
-    when(rs.getString("birth_state_cd")).thenReturn(BIRTH_STATE_CODE);
-    when(rs.getString("birth_cntry_cd")).thenReturn(BIRTH_COUNTRY_CODE);
-    when(rs.getString("preferred_gender")).thenReturn(PREFERRED_GENDER);
+    when(rs.getString("sexAndBirth")).thenReturn(SEX_AND_BIRTH_STRING);
   }
 
   private void mockMortalityFields(ResultSet rs) throws SQLException {
@@ -243,18 +238,20 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertSexAndBirth(PersonMergeData personMergeData) {
-    assertThat(personMergeData.sexAndBirth().asOfDate()).isEqualTo(SEX_AND_BIRTH_AS_OF_DATE);
-    assertThat(personMergeData.sexAndBirth().birthTime()).isEqualTo(BIRTH_TIME);
-    assertThat(personMergeData.sexAndBirth().currentSexCode()).isEqualTo(CURRENT_SEX_CODE);
-    assertThat(personMergeData.sexAndBirth().sexUnknownReason()).isEqualTo(SEX_UNKNOWN_REASON);
-    assertThat(personMergeData.sexAndBirth().additionalGenderCode()).isEqualTo(ADDITIONAL_GENDER_CODE);
-    assertThat(personMergeData.sexAndBirth().birthGenderCode()).isEqualTo(BIRTH_GENDER_CODE);
-    assertThat(personMergeData.sexAndBirth().multipleBirthIndicator()).isEqualTo(MULTIPLE_BIRTH_INDICATOR);
-    assertThat(personMergeData.sexAndBirth().birthOrderNumber()).isEqualTo(BIRTH_ORDER_NUMBER);
-    assertThat(personMergeData.sexAndBirth().birthCityCode()).isEqualTo(BIRTH_CITY_CODE);
-    assertThat(personMergeData.sexAndBirth().birthStateCode()).isEqualTo(BIRTH_STATE_CODE);
-    assertThat(personMergeData.sexAndBirth().birthCountryCode()).isEqualTo(BIRTH_COUNTRY_CODE);
-    assertThat(personMergeData.sexAndBirth().preferredGender()).isEqualTo(PREFERRED_GENDER);
+    assertThat(personMergeData.sexAndBirth().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.sexAndBirth().dateOfBirth()).isEqualTo("2025-05-12T00:00:00");
+    assertThat(personMergeData.sexAndBirth().currentSex()).isEqualTo("Male");
+    assertThat(personMergeData.sexAndBirth().sexUnknown()).isNull();
+    assertThat(personMergeData.sexAndBirth().transgender()).isEqualTo("Did not ask");
+    assertThat(personMergeData.sexAndBirth().additionalGender()).isEqualTo("Add Gender");
+    assertThat(personMergeData.sexAndBirth().birthGender()).isEqualTo("Male");
+    assertThat(personMergeData.sexAndBirth().multipleBirth()).isEqualTo("No");
+    assertThat(personMergeData.sexAndBirth().birthOrder()).isEqualTo("1");
+    assertThat(personMergeData.sexAndBirth().birthCity()).isEqualTo("Birth City");
+    assertThat(personMergeData.sexAndBirth().birthState()).isEqualTo("Tennessee");
+    assertThat(personMergeData.sexAndBirth().birthCounty()).isEqualTo("Some County");
+    assertThat(personMergeData.sexAndBirth().birthCountry()).isEqualTo("United States");
+
   }
 
   private void assertMortality(PersonMergeData personMergeData) {
@@ -400,6 +397,31 @@ class PersonMergeDataMapperTest {
     String ethnicityString = "asdf";
     PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapEthnicity(ethnicityString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient ethnicity");
+  }
+
+  @Test
+  void testMapSexAndBirthEmpty() {
+    String sexAndBirthString = null;
+    SexAndBirth sexAndBirth = mapper.mapSexAndBirth(sexAndBirthString);
+    assertThat(sexAndBirth.asOf()).isNull();
+    assertThat(sexAndBirth.dateOfBirth()).isNull();
+    assertThat(sexAndBirth.currentSex()).isNull();
+    assertThat(sexAndBirth.sexUnknown()).isNull();
+    assertThat(sexAndBirth.transgender()).isNull();
+    assertThat(sexAndBirth.additionalGender()).isNull();
+    assertThat(sexAndBirth.birthGender()).isNull();
+    assertThat(sexAndBirth.multipleBirth()).isNull();
+    assertThat(sexAndBirth.birthOrder()).isNull();
+    assertThat(sexAndBirth.birthCity()).isNull();
+    assertThat(sexAndBirth.birthState()).isNull();
+    assertThat(sexAndBirth.birthCounty()).isNull();
+  }
+
+  @Test
+  void testMapSexAndBirthException() {
+    String sexAndBirthString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapSexAndBirth(sexAndBirthString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient sex and birth");
   }
 
   @Test
