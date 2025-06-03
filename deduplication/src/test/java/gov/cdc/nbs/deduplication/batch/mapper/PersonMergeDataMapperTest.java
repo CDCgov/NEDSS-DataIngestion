@@ -10,6 +10,7 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -396,6 +397,31 @@ class PersonMergeDataMapperTest {
     String ethnicityString = "asdf";
     PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapEthnicity(ethnicityString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient ethnicity");
+  }
+
+  @Test
+  void testMapSexAndBirthEmpty() {
+    String sexAndBirthString = null;
+    SexAndBirth sexAndBirth = mapper.mapSexAndBirth(sexAndBirthString);
+    assertThat(sexAndBirth.asOf()).isNull();
+    assertThat(sexAndBirth.dateOfBirth()).isNull();
+    assertThat(sexAndBirth.currentSex()).isNull();
+    assertThat(sexAndBirth.sexUnknown()).isNull();
+    assertThat(sexAndBirth.transgender()).isNull();
+    assertThat(sexAndBirth.additionalGender()).isNull();
+    assertThat(sexAndBirth.birthGender()).isNull();
+    assertThat(sexAndBirth.multipleBirth()).isNull();
+    assertThat(sexAndBirth.birthOrder()).isNull();
+    assertThat(sexAndBirth.birthCity()).isNull();
+    assertThat(sexAndBirth.birthState()).isNull();
+    assertThat(sexAndBirth.birthCounty()).isNull();
+  }
+
+  @Test
+  void testMapSexAndBirthException() {
+    String sexAndBirthString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapSexAndBirth(sexAndBirthString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient sex and birth");
   }
 
   @Test
