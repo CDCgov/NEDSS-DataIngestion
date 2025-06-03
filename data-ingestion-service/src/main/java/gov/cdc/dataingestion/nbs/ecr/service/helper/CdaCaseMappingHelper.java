@@ -347,8 +347,9 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         if(output.getCode() == null) {
             output.addNewCode();
         }
-        output.getCode().setCode(questionLookUpDto.getQuesCodeSystemCd());
-        output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemDescTxt());
+        output.getCode().setCode(questionId);
+        output.getCode().setCodeSystem(questionLookUpDto.getQuesCodeSystemCd());
+        output.getCode().setCodeSystemName(questionLookUpDto.getQuesCodeSystemDescTxt());
         output.getCode().setDisplayName(questionLookUpDto.getQuesDisplayName());
 
         for(int i = 0; i < repeats.size(); i++) {
