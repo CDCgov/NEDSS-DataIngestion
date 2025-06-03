@@ -46,7 +46,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     Ethnicity ethnicity = mapEthnicity(rs.getString("ethnicity"));
 
     // Sex & Birth Mapping
-    SexAndBirth sexAndBirth = mapSexAndBirth(rs);
+    SexAndBirth sexAndBirth = mapSexAndBirth(rs.getString("sexAndBirth"));
 
     // Mortality Mapping
     Mortality mortality = mapMortality(rs);
@@ -109,33 +109,15 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // SEX & BIRTH Mapping
-  SexAndBirth mapSexAndBirth(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_sex"));
-    String birthTime = String.valueOf(rs.getString("birth_time"));
-    String currentSexCode = String.valueOf(rs.getString("curr_sex_cd"));
-    String sexUnknownReason = String.valueOf(rs.getString("sex_unknown_reason"));
-    String additionalGenderCode = String.valueOf(rs.getString("additional_gender_cd"));
-    String birthGenderCode = String.valueOf(rs.getString("birth_gender_cd"));
-    Boolean multipleBirthIndicator = rs.getBoolean("multiple_birth_ind");
-    Integer birthOrderNumber = rs.getInt("birth_order_nbr");
-    String birthCityCode = String.valueOf(rs.getString("birth_city_cd"));
-    String birthStateCode = String.valueOf(rs.getString("birth_state_cd"));
-    String birthCountryCode = String.valueOf(rs.getString("birth_cntry_cd"));
-    String preferredGender = String.valueOf(rs.getString("preferred_gender"));
-    return new SexAndBirth(
-        asOfDate,
-        birthTime,
-        currentSexCode,
-        sexUnknownReason,
-        additionalGenderCode,
-        birthGenderCode,
-        multipleBirthIndicator,
-        birthOrderNumber,
-        birthCityCode,
-        birthStateCode,
-        birthCountryCode,
-        preferredGender);
+  SexAndBirth mapSexAndBirth(String sexAndBirthString) {
+    if (sexAndBirthString == null) {
+      return new SexAndBirth();
+    }
+    try {
+      return mapper.readValue(sexAndBirthString, SexAndBirth.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient sex and birth");
+    }
   }
 
   // MORTALITY Mapping

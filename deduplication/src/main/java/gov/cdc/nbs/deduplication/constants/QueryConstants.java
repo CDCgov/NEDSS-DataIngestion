@@ -576,19 +576,6 @@ public class QueryConstants {
           p.person_parent_uid,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
-          -- SEX & BIRTH
-          p.as_of_date_sex,
-          p.birth_time,
-          p.curr_sex_cd,
-          sex_unknown.code_short_desc_txt sex_unknown_reason,
-          p.additional_gender_cd,
-          p.birth_gender_cd,
-          p.multiple_birth_ind,
-          p.birth_order_nbr,
-          p.birth_city_cd,
-          p.birth_state_cd,
-          p.birth_cntry_cd,
-          cvg_preferred.code_short_desc_txt AS preferred_gender,
           -- MORTALITY
           p.as_of_date_morbidity,
           p.deceased_ind_cd,
@@ -614,6 +601,7 @@ public class QueryConstants {
           nested.identifiers,
           nested.race,
           nested.ethnicity,
+          nested.sexAndBirth,
           --INVESTIGATIONS
           (
               SELECT
@@ -861,7 +849,57 @@ public class QueryConstants {
                                   AND pn.record_status_cd = 'ACTIVE'
                               FOR JSON PATH ,INCLUDE_NULL_VALUES
                           ) AS name
-                  ) AS name
+                  ) AS name,
+            -- sex & birth
+            (
+                SELECT
+                    (
+                        SELECT
+                            psb.as_of_date_sex AS asOf,
+                            psb.birth_time AS dateOfBirth,
+                            cvg4.code_short_desc_txt AS currentSex,
+                            cvg6.code_short_desc_txt AS sexUnknown,
+                            cvg.code_short_desc_txt AS transgender,
+                            psb.additional_gender_cd AS additionalGender,
+                            cvg5.code_short_desc_txt AS birthGender,
+                            cvg2.code_short_desc_txt AS multipleBirth,
+                            psb.birth_order_nbr AS birthOrder,
+                            pl.city_desc_txt AS birthCity,
+                            sc.code_desc_txt AS birthState,
+                            scc.code_desc_txt AS birthCounty,
+                            cc.code_desc_txt AS birthCountry
+                        FROM
+                            person psb
+                        WITH
+                            (NOLOCK)
+                            LEFT JOIN Entity_locator_participation elp ON elp.entity_uid = psb.person_uid
+                            AND elp.use_cd = 'BIR'
+                            LEFT JOIN Postal_locator pl ON pl.postal_locator_uid = elp.locator_uid
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = psb.preferred_gender_cd
+                            AND cvg.code_set_nm = 'NBS_STD_GENDER_PARPT'
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = psb.multiple_birth_ind
+                            AND cvg2.code_set_nm = 'YNU'
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg3 ON cvg3.code = psb.multiple_birth_ind
+                            AND cvg3.code_set_nm = 'YNU'
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg4 ON cvg4.code = psb.curr_sex_cd
+                            AND cvg4.code_set_nm = 'SEX'
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg5 ON cvg5.code = psb.birth_gender_cd
+                            AND cvg5.code_set_nm = 'SEX'
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg6 ON cvg6.code = psb.sex_unk_reason_cd
+                            AND cvg6.code_set_nm = 'SEX_UNK_REASON'
+                            LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                            LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+                            AND scc.parent_is_cd = pl.state_cd
+                            LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
+                        WHERE
+                            psb.person_uid = p.person_uid
+                            AND psb.record_status_cd = 'ACTIVE'
+                        FOR JSON
+                            PATH,
+                            INCLUDE_NULL_VALUES,
+                            WITHOUT_ARRAY_WRAPPER
+                    ) AS sexAndBirth
+            ) AS sexAndBirth
           ) AS nested
       WHERE
           p.person_uid IN (:ids)

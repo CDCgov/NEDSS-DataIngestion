@@ -35,20 +35,36 @@ public record PersonMergeData(
     }
   }
 
-  // SEX & BIRTH Object
   public record SexAndBirth(
-      String asOfDate,
-      String birthTime,
-      String currentSexCode,
-      String sexUnknownReason,
-      String additionalGenderCode,
-      String birthGenderCode,
-      Boolean multipleBirthIndicator,
-      Integer birthOrderNumber,
-      String birthCityCode,
-      String birthStateCode,
-      String birthCountryCode,
-      String preferredGender) {
+      String asOf,
+      String dateOfBirth,
+      String currentSex,
+      String sexUnknown,
+      String transgender,
+      String additionalGender,
+      String birthGender,
+      String multipleBirth,
+      String birthOrder,
+      String birthCity,
+      String birthState,
+      String birthCounty,
+      String birthCountry) {
+    public SexAndBirth() {
+      this(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
   // MORTALITY Object
