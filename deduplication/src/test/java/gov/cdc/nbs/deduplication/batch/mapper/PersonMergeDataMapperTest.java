@@ -7,6 +7,7 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
@@ -34,14 +35,6 @@ class PersonMergeDataMapperTest {
   private static final String ETHNICITY_AS_OF_DATE = "2025-05-30T00:00:00";
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
-
-  private static final String MORTALITY_AS_OF_DATE = "2023-03-01";
-  private static final String DECEASED_INDICATOR_CODE = "Y";
-  private static final String DECEASED_TIME = "2023-04-01T00:00:00Z";
-  private static final String DEATH_CITY = "Atlanta";
-  private static final String DEATH_STATE = "Georgia";
-  private static final String DEATH_COUNTY = "Fulton";
-  private static final String DEATH_COUNTRY = "US";
 
   private static final String GENERAL_PATIENT_INFO_AS_OF_DATE = "2023-05-01";
   private static final String MARITAL_STATUS_DESCRIPTION = "Married";
@@ -150,7 +143,19 @@ class PersonMergeDataMapperTest {
         "birthCounty": "Some County",
         "birthCountry": "United States"
       }
-            """;
+      """;
+
+  private static final String MORTALITY_STRING = """
+      {
+      "asOf": "2025-05-27T00:00:00",
+      "dateOfDeath": "2025-05-11T00:00:00",
+      "deathCity": "Death city",
+      "deceased": "Yes",
+      "deathState": "Texas",
+      "deathCounty": "Anderson County",
+      "deathCountry": "Afghanistan"
+      }
+      """;
 
   @Test
   void testMapRow() throws Exception {
@@ -189,13 +194,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void mockMortalityFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_morbidity")).thenReturn(MORTALITY_AS_OF_DATE);
-    when(rs.getString("deceased_ind_cd")).thenReturn(DECEASED_INDICATOR_CODE);
-    when(rs.getString("deceased_time")).thenReturn(DECEASED_TIME);
-    when(rs.getString("death_city")).thenReturn(DEATH_CITY);
-    when(rs.getString("death_state")).thenReturn(DEATH_STATE);
-    when(rs.getString("death_county")).thenReturn(DEATH_COUNTY);
-    when(rs.getString("death_country")).thenReturn(DEATH_COUNTRY);
+    when(rs.getString("mortality")).thenReturn(MORTALITY_STRING);
   }
 
   private void mockGeneralPatientInformationFields(ResultSet rs) throws SQLException {
@@ -255,13 +254,13 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertMortality(PersonMergeData personMergeData) {
-    assertThat(personMergeData.mortality().asOfDate()).isEqualTo(MORTALITY_AS_OF_DATE);
-    assertThat(personMergeData.mortality().deceasedIndicatorCode()).isEqualTo(DECEASED_INDICATOR_CODE);
-    assertThat(personMergeData.mortality().deceasedTime()).isEqualTo(DECEASED_TIME);
-    assertThat(personMergeData.mortality().deathCity()).isEqualTo(DEATH_CITY);
-    assertThat(personMergeData.mortality().deathState()).isEqualTo(DEATH_STATE);
-    assertThat(personMergeData.mortality().deathCounty()).isEqualTo(DEATH_COUNTY);
-    assertThat(personMergeData.mortality().deathCountry()).isEqualTo(DEATH_COUNTRY);
+    assertThat(personMergeData.mortality().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.mortality().deceased()).isEqualTo("Yes");
+    assertThat(personMergeData.mortality().dateOfDeath()).isEqualTo("2025-05-11T00:00:00");
+    assertThat(personMergeData.mortality().deathCity()).isEqualTo("Death city");
+    assertThat(personMergeData.mortality().deathState()).isEqualTo("Texas");
+    assertThat(personMergeData.mortality().deathCounty()).isEqualTo("Anderson County");
+    assertThat(personMergeData.mortality().deathCountry()).isEqualTo("Afghanistan");
   }
 
   private void assertGeneralPatientInformation(PersonMergeData personMergeData) {
@@ -422,6 +421,26 @@ class PersonMergeDataMapperTest {
     String sexAndBirthString = "asdf";
     PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapSexAndBirth(sexAndBirthString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient sex and birth");
+  }
+
+  @Test
+  void testMapMortalityEmpty() {
+    String mortalityString = null;
+    Mortality mortality = mapper.mapMortality(mortalityString);
+    assertThat(mortality.asOf()).isNull();
+    assertThat(mortality.deceased()).isNull();
+    assertThat(mortality.dateOfDeath()).isNull();
+    assertThat(mortality.deathCity()).isNull();
+    assertThat(mortality.deathState()).isNull();
+    assertThat(mortality.deathCounty()).isNull();
+    assertThat(mortality.deathCountry()).isNull();
+  }
+
+  @Test
+  void testMapMortalityException() {
+    String mortalityString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapMortality(mortalityString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient mortality");
   }
 
   @Test

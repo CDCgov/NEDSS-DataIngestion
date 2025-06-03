@@ -576,14 +576,6 @@ public class QueryConstants {
           p.person_parent_uid,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
-          -- MORTALITY
-          p.as_of_date_morbidity,
-          p.deceased_ind_cd,
-          p.deceased_time,
-          death_details.city AS death_city,
-          death_details.state AS death_state,
-          death_details.county AS death_county,
-          death_details.country AS death_country,
           -- GENERAL PATIENT INFORMATION
           p.as_of_date_general,
           p.marital_status_desc_txt,
@@ -602,6 +594,7 @@ public class QueryConstants {
           nested.race,
           nested.ethnicity,
           nested.sexAndBirth,
+          nested.mortality,
           --INVESTIGATIONS
           (
               SELECT
@@ -627,38 +620,6 @@ public class QueryConstants {
           ) AS investigations
       FROM
           person p WITH (NOLOCK)
-          -- For ethnicity-related fields
-          LEFT JOIN nbs_srte..code_value_general cvg_ethnic_group
-              ON p.ethnic_group_ind = cvg_ethnic_group.code
-              AND cvg_ethnic_group.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
-          LEFT JOIN nbs_srte..code_value_general ethnic_unknown
-              ON p.ethnic_unk_reason_cd = ethnic_unknown.code
-              AND ethnic_unknown.code_set_nm = 'P_ETHN_UNK_REASON'
-          -- For preferred gender field
-          LEFT JOIN nbs_srte..code_value_general cvg_preferred
-              ON p.preferred_gender_cd = cvg_preferred.code
-              AND cvg_preferred.code_set_nm = 'NBS_STD_GENDER_PARPT'
-          LEFT JOIN nbs_srte..code_value_general sex_unknown
-              ON p.sex_unk_reason_cd = sex_unknown.code
-              AND sex_unknown.code_set_nm = 'SEX_UNK_REASON'
-          -- Death Details
-          OUTER APPLY (
-              SELECT
-                  STRING_ESCAPE(pl.city_desc_txt, 'json') AS city,
-                  sc.code_desc_txt AS state,
-                  scc.code_desc_txt AS county,
-                  pl.cntry_cd AS country
-              FROM
-                  Entity_locator_participation elp WITH (NOLOCK)
-                  JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
-                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-              WHERE
-                  elp.entity_uid = p.person_uid
-                  AND elp.class_cd = 'PST'
-                  AND elp.status_cd = 'A'
-                  AND elp.use_cd = 'DTH'
-          ) AS death_details
           OUTER APPLY (
               SELECT
                   *
@@ -899,7 +860,42 @@ public class QueryConstants {
                             INCLUDE_NULL_VALUES,
                             WITHOUT_ARRAY_WRAPPER
                     ) AS sexAndBirth
-            ) AS sexAndBirth
+            ) AS sexAndBirth,
+             -- Mortality
+              (
+                SELECT
+                    (
+                        SELECT
+                            p.as_of_date_morbidity AS asOf,
+                            deceasedCode.code_short_desc_txt AS deceased,
+                            p.deceased_time AS dateOfDeath,
+                            STRING_ESCAPE(pl.city_desc_txt, 'json') AS deathCity,
+                            sc.code_desc_txt AS deathState,
+                            scc.code_desc_txt AS deathCounty,
+                            cc.code_short_desc_txt AS deathCountry
+                        FROM
+                            Entity_locator_participation elp
+                        WITH
+                            (NOLOCK)
+                            LEFT JOIN Postal_locator pl
+                        WITH
+                            (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                            LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                            LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+                            LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
+                            LEFT JOIN NBS_SRTE.dbo.code_value_general deceasedCode ON deceasedCode.code = p.deceased_ind_cd
+                            AND deceasedCode.code_set_nm = 'YNU'
+                        WHERE
+                            elp.entity_uid = p.person_uid
+                            AND elp.class_cd = 'PST'
+                            AND elp.status_cd = 'A'
+                            AND elp.use_cd = 'DTH'
+                        FOR JSON
+                            PATH,
+                            INCLUDE_NULL_VALUES,
+                            WITHOUT_ARRAY_WRAPPER
+                    ) AS mortality
+            ) AS mortality
           ) AS nested
       WHERE
           p.person_uid IN (:ids)

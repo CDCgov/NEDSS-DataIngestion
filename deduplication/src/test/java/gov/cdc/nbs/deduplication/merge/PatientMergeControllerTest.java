@@ -242,13 +242,13 @@ class PatientMergeControllerTest {
                 "Some County",
                 "United States"),
             new PersonMergeData.Mortality( // Mortality
-                "2023-03-01",
-                "Y",
-                "2023-04-01T00:00:00Z",
-                "Atlanta",
-                "Georgia",
-                "Fulton",
-                "US"),
+                "2025-05-27T00:00:00",
+                "Yes",
+                "2025-05-11T00:00:00",
+                "Death city",
+                "Texas",
+                "Anderson County",
+                "Afghanistan"),
             new PersonMergeData.GeneralPatientInformation(
                 "2023-05-01",
                 "Married",
@@ -298,13 +298,13 @@ class PatientMergeControllerTest {
               "birthCountry": "United States"
             },
             "mortality": {
-              "asOfDate": "2023-03-01",
-              "deceasedIndicatorCode": "Y",
-              "deceasedTime": "2023-04-01T00:00:00Z",
-              "deathCity": "Atlanta",
-              "deathState": "Georgia",
-              "deathCounty": "Fulton",
-              "deathCountry": "US"
+              "asOf": "2025-05-27T00:00:00",
+              "dateOfDeath": "2025-05-11T00:00:00",
+              "deathCity": "Death city",
+              "deceased": "Yes",
+              "deathState": "Texas",
+              "deathCounty": "Anderson County",
+              "deathCountry": "Afghanistan"
             },
             "generalPatientInformation": {
               "asOfDate": "2023-05-01",
