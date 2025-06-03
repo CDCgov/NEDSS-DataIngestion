@@ -225,8 +225,8 @@ class PatientMergeControllerTest {
             new PersonMergeData.Ethnicity( // Ethnicity
                 "2023-01-01",
                 "Hispanic or Latino",
-                "Yes",
-                "Unknown"),
+                "Unknown reason",
+                "Cuban"),
             new PersonMergeData.SexAndBirth( // Sex & Birth
                 "2023-02-01",
                 "1990-01-01T00:00:00Z",
@@ -276,10 +276,10 @@ class PatientMergeControllerTest {
             "personUid": "1",
             "adminComments": {"date": "2023-01-01", "comment":  "test comment"},
             "ethnicity": {
-              "asOfDate": "2023-01-01",
-              "ethnicGroupDescription": "Hispanic or Latino",
-              "spanishOrigin": "Yes",
-              "ethnicUnknownReason": "Unknown"
+              "asOf": "2023-01-01",
+              "ethnicity": "Hispanic or Latino",
+              "spanishOrigin": "Cuban",
+              "reasonUnknown": "Unknown reason"
             },
             "sexAndBirth": {
               "asOfDate": "2023-02-01",

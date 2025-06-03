@@ -1,6 +1,10 @@
-USE [NBS_MSGOUTE]
-GO
-
+USE NBS_MSGOUTE;
+IF
+NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'ecr_phdc_answer_lookup')
+BEGIN
 CREATE TABLE [dbo].[ecr_phdc_answer_lookup](
     [ANS_FROM_CODE] [varchar](255) NULL,
     [ANS_FROM_CODE_SYSTEM_CD] [varchar](255) NULL,
@@ -17,4 +21,4 @@ CREATE TABLE [dbo].[ecr_phdc_answer_lookup](
     [QUESTION_IDENTIFIER] [varchar](255) NULL,
     [SENDING_SYSTEM_CD] [varchar](255) NULL
     ) ON [PRIMARY]
-    GO
+END

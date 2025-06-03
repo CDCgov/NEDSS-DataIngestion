@@ -1,15 +1,19 @@
-USE [NBS_MSGOUTE]
-GO
-
-CREATE TABLE [dbo].[ecr_phdc_question_lookup](
-    [DOC_TYPE_CD] [varchar](255) NULL,
-    [DOC_TYPE_VERSION_TXT] [real] NULL,
-    [QUES_CODE_SYSTEM_CD] [varchar](255) NULL,
-    [QUES_CODE_SYSTEM_DESC_TXT] [varchar](255) NULL,
-    [DATA_TYPE] [varchar](255) NULL,
-    [QUESTION_IDENTIFIER] [varchar](255) NULL,
-    [QUES_DISPLAY_NAME] [varchar](255) NULL,
-    [SECTION_NM] [varchar](255) NULL,
-    [SENDING_SYSTEM_CD] [varchar](255) NULL
-    ) ON [PRIMARY]
-    GO
+USE NBS_MSGOUTE;
+IF
+NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'ecr_phdc_question_lookup')
+BEGIN
+CREATE TABLE [dbo].[ecr_phdc_question_lookup] (
+    [DOC_TYPE_CD]              VARCHAR(255) NULL,
+    [DOC_TYPE_VERSION_TXT]     REAL NULL,
+    [QUES_CODE_SYSTEM_CD]      VARCHAR(255) NULL,
+    [QUES_CODE_SYSTEM_DESC_TXT] VARCHAR(255) NULL,
+    [DATA_TYPE]                VARCHAR(255) NULL,
+    [QUESTION_IDENTIFIER]      VARCHAR(255) NULL,
+    [QUES_DISPLAY_NAME]        VARCHAR(255) NULL,
+    [SECTION_NM]               VARCHAR(255) NULL,
+    [SENDING_SYSTEM_CD]        VARCHAR(255) NULL
+) ON [PRIMARY]
+END
