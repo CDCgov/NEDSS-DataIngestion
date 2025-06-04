@@ -49,7 +49,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     SexAndBirth sexAndBirth = mapSexAndBirth(rs.getString("sexAndBirth"));
 
     // Mortality Mapping
-    Mortality mortality = mapMortality(rs);
+    Mortality mortality = mapMortality(rs.getString("mortality"));
 
     // General Patient Information Mapping
     GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs);
@@ -120,23 +120,15 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // MORTALITY Mapping
-  Mortality mapMortality(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_morbidity"));
-    String deceasedIndicatorCode = String.valueOf(rs.getString("deceased_ind_cd"));
-    String deceasedTime = String.valueOf(rs.getString("deceased_time"));
-    String deathCity = String.valueOf(rs.getString("death_city"));
-    String deathState = String.valueOf(rs.getString("death_state"));
-    String deathCounty = String.valueOf(rs.getString("death_county"));
-    String deathCountry = String.valueOf(rs.getString("death_country"));
-    return new Mortality(
-        asOfDate,
-        deceasedIndicatorCode,
-        deceasedTime,
-        deathCity,
-        deathState,
-        deathCounty,
-        deathCountry);
+  Mortality mapMortality(String mortalityString) {
+    if (mortalityString == null) {
+      return new Mortality();
+    }
+    try {
+      return mapper.readValue(mortalityString, Mortality.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient mortality");
+    }
   }
 
   // GENERAL PATIENT INFORMATION Mapping

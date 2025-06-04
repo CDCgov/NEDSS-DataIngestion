@@ -67,15 +67,24 @@ public record PersonMergeData(
     }
   }
 
-  // MORTALITY Object
   public record Mortality(
-      String asOfDate,
-      String deceasedIndicatorCode,
-      String deceasedTime,
+      String asOf,
+      String deceased,
+      String dateOfDeath,
       String deathCity,
       String deathState,
       String deathCounty,
       String deathCountry) {
+    public Mortality() {
+      this(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
   // GENERAL PATIENT INFORMATION Object

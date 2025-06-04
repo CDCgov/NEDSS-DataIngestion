@@ -576,14 +576,6 @@ public class QueryConstants {
           p.person_parent_uid,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
-          -- MORTALITY
-          p.as_of_date_morbidity,
-          p.deceased_ind_cd,
-          p.deceased_time,
-          death_details.city AS death_city,
-          death_details.state AS death_state,
-          death_details.county AS death_county,
-          death_details.country AS death_country,
           -- GENERAL PATIENT INFORMATION
           p.as_of_date_general,
           p.marital_status_desc_txt,
@@ -602,63 +594,40 @@ public class QueryConstants {
           nested.race,
           nested.ethnicity,
           nested.sexAndBirth,
+          nested.mortality,
           --INVESTIGATIONS
           (
               SELECT
                   inv.public_health_case_uid AS investigationId,
                   inv.activity_from_time AS started_on,
-                  cvg.code_short_desc_txt AS condition
+                  conditionCode.code_short_desc_txt AS condition
               FROM
                   Participation part
+              WITH
+                  (NOLOCK)
                   JOIN Public_health_case inv
-                      ON inv.public_health_case_uid = part.act_uid
-                      AND inv.record_status_cd != 'LOG_DEL'
-                      AND inv.investigation_status_cd IN ('O', 'C')
-                  LEFT JOIN nbs_srte..code_value_general cvg
-                      ON cvg.code = inv.cd
-                      AND cvg.code_set_nm = ''
+              WITH
+                  (NOLOCK) ON inv.public_health_case_uid = part.act_uid
+                  AND inv.record_status_cd != 'LOG_DEL'
+                  AND inv.investigation_status_cd IN ('O', 'C')
+                  LEFT JOIN nbs_srte..code_value_general conditionCode
+              WITH
+                  (NOLOCK) ON conditionCode.code = inv.cd
+                  AND conditionCode.code_set_nm = ''
               WHERE
                   part.subject_entity_uid = p.person_uid
                   AND part.type_cd = 'SubjOfPHC'
                   AND part.record_status_cd = 'ACTIVE'
                   AND part.subject_class_cd = 'PSN'
                   AND part.act_class_cd = 'CASE'
-              FOR JSON PATH, INCLUDE_NULL_VALUES
+              FOR JSON
+                  PATH,
+                  INCLUDE_NULL_VALUES
           ) AS investigations
       FROM
-          person p WITH (NOLOCK)
-          -- For ethnicity-related fields
-          LEFT JOIN nbs_srte..code_value_general cvg_ethnic_group
-              ON p.ethnic_group_ind = cvg_ethnic_group.code
-              AND cvg_ethnic_group.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
-          LEFT JOIN nbs_srte..code_value_general ethnic_unknown
-              ON p.ethnic_unk_reason_cd = ethnic_unknown.code
-              AND ethnic_unknown.code_set_nm = 'P_ETHN_UNK_REASON'
-          -- For preferred gender field
-          LEFT JOIN nbs_srte..code_value_general cvg_preferred
-              ON p.preferred_gender_cd = cvg_preferred.code
-              AND cvg_preferred.code_set_nm = 'NBS_STD_GENDER_PARPT'
-          LEFT JOIN nbs_srte..code_value_general sex_unknown
-              ON p.sex_unk_reason_cd = sex_unknown.code
-              AND sex_unknown.code_set_nm = 'SEX_UNK_REASON'
-          -- Death Details
-          OUTER APPLY (
-              SELECT
-                  STRING_ESCAPE(pl.city_desc_txt, 'json') AS city,
-                  sc.code_desc_txt AS state,
-                  scc.code_desc_txt AS county,
-                  pl.cntry_cd AS country
-              FROM
-                  Entity_locator_participation elp WITH (NOLOCK)
-                  JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
-                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-              WHERE
-                  elp.entity_uid = p.person_uid
-                  AND elp.class_cd = 'PST'
-                  AND elp.status_cd = 'A'
-                  AND elp.use_cd = 'DTH'
-          ) AS death_details
+          person p
+      WITH
+          (NOLOCK)
           OUTER APPLY (
               SELECT
                   *
@@ -668,158 +637,195 @@ public class QueryConstants {
                       SELECT
                           (
                               SELECT
-                                elp.locator_uid as 'id',
-                                elp.as_of_date as 'asOf',
-                                cvg2.code_short_desc_txt as 'type',
-                                cvg.code_short_desc_txt as 'use',
-                                STRING_ESCAPE(pl.street_addr1, 'json') address,
-                                STRING_ESCAPE(pl.street_addr2, 'json') address2,
-                                city_desc_txt city,
-                                sc.code_desc_txt state,
-                                zip_cd zipcode,
-                                scc.code_desc_txt county,
-                                pl.census_tract as censusTract,
-                                cc.code_short_desc_txt as country,
-                                elp.locator_desc_txt as comments
-                            FROM
-                                Entity_locator_participation elp
-                            WITH
-                                (NOLOCK)
-                                JOIN Postal_locator pl
-                            WITH
-                                (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
-                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = use_cd
-                                AND cvg.code_set_nm = 'EL_USE_PST_PAT'
-                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = cd
-                                AND cvg2.code_set_nm = 'EL_TYPE_PST_PAT'
-                                LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                                LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-                                LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
-                            WHERE
-                                elp.entity_uid = p.person_uid
-                                AND use_cd NOT IN ('BIR', 'DTH')
-                                AND elp.class_cd = 'PST'
-                                AND elp.status_cd = 'A' FOR JSON PATH, INCLUDE_NULL_VALUES
+                                  elp.locator_uid AS 'id',
+                                  elp.as_of_date AS 'asOf',
+                                  addressTypeCode.code_short_desc_txt AS 'type',
+                                  addressUseCode.code_short_desc_txt AS 'use',
+                                  STRING_ESCAPE(pl.street_addr1, 'json') address,
+                                  STRING_ESCAPE(pl.street_addr2, 'json') address2,
+                                  city_desc_txt city,
+                                  sc.code_desc_txt state,
+                                  zip_cd zipcode,
+                                  scc.code_desc_txt county,
+                                  pl.census_tract AS censusTract,
+                                  cc.code_short_desc_txt AS country,
+                                  elp.locator_desc_txt AS comments
+                              FROM
+                                  Entity_locator_participation elp
+                              WITH
+                                  (NOLOCK)
+                                  JOIN Postal_locator pl
+                              WITH
+                                  (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general addressUseCode
+                              WITH
+                                  (NOLOCK) ON addressUseCode.code = use_cd
+                                  AND addressUseCode.code_set_nm = 'EL_USE_PST_PAT'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general addressTypeCode
+                              WITH
+                                  (NOLOCK) ON addressTypeCode.code = cd
+                                  AND addressTypeCode.code_set_nm = 'EL_TYPE_PST_PAT'
+                                  LEFT JOIN NBS_SRTE.dbo.state_code sc
+                              WITH
+                                  (NOLOCK) ON sc.state_cd = pl.state_cd
+                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc
+                              WITH
+                                  (NOLOCK) ON scc.code = pl.cnty_cd
+                                  LEFT JOIN NBS_SRTE.dbo.country_code cc
+                              WITH
+                                  (NOLOCK) ON cc.code = pl.cntry_cd
+                              WHERE
+                                  elp.entity_uid = p.person_uid
+                                  AND use_cd NOT IN ('BIR', 'DTH')
+                                  AND elp.class_cd = 'PST'
+                                  AND elp.status_cd = 'A'
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES
                           ) AS address
                   ) AS address,
                   -- identifiers
                   (
                       SELECT
                           (
-                            SELECT
-                              eid.entity_uid AS personUid,
-                              eid.entity_id_seq AS 'sequence',
-                              eid.as_of_date AS asOf,
-                              cvg.code_short_desc_txt AS 'type',
-                              eid.assigning_authority_desc_txt AS assigningAuthority,
-                              STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt, '-', ''), ' ', ''), 'json') AS 'value'
-                            FROM
-                              Entity_id eid
-                            WITH
-                              (NOLOCK)
-                              LEFT JOIN nbs_srte..code_value_general cvg ON eid.type_cd = cvg.code
-                              AND cvg.code_set_nm = 'EI_TYPE_PAT'
-                            WHERE
-                              eid.entity_uid = p.person_uid
-                              AND eid.record_status_cd = 'ACTIVE'
-                              FOR JSON PATH, INCLUDE_NULL_VALUES
+                              SELECT
+                                  eid.entity_uid AS personUid,
+                                  eid.entity_id_seq AS 'sequence',
+                                  eid.as_of_date AS asOf,
+                                  identifierTypeCode.code_short_desc_txt AS 'type',
+                                  eid.assigning_authority_desc_txt AS assigningAuthority,
+                                  STRING_ESCAPE(REPLACE(REPLACE(eid.root_extension_txt, '-', ''), ' ', ''), 'json') AS 'value'
+                              FROM
+                                  Entity_id eid
+                              WITH
+                                  (NOLOCK)
+                                  LEFT JOIN nbs_srte..code_value_general identifierTypeCode
+                              WITH
+                                  (NOLOCK) ON eid.type_cd = identifierTypeCode.code
+                                  AND identifierTypeCode.code_set_nm = 'EI_TYPE_PAT'
+                              WHERE
+                                  eid.entity_uid = p.person_uid
+                                  AND eid.record_status_cd = 'ACTIVE'
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES
                           ) AS identifiers
                   ) AS identifiers,
                   -- person races
                   (
                       SELECT
                           (
-                            SELECT
-                              person_uid AS personUid,
-                              pr.race_category_cd as raceCode,
-                              as_of_date AS asOf,
-                              cvg.code_short_desc_txt AS race,
-                              STRING_AGG(rc.code_short_desc_txt, ' | ') AS detailedRaces
-                            FROM
-                              Person_race pr
-                            WITH
-                              (NOLOCK)
-                              LEFT JOIN NBS_SRTE.dbo.race_code rc ON rc.code = race_cd
-                              AND rc.code_set_nm = 'P_RACE'
-                              LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = race_category_cd
-                              AND cvg.code_set_nm = 'RACE_CALCULATED'
-                            WHERE
-                              pr.person_uid = p.person_uid
-                              AND pr.record_status_cd = 'ACTIVE'
-                            GROUP BY
-                              person_uid,
-                              race_category_cd,
-                              as_of_date,
-                              cvg.code_short_desc_txt
-                              FOR JSON PATH, INCLUDE_NULL_VALUES
+                              SELECT
+                                  person_uid AS personUid,
+                                  pr.race_category_cd AS raceCode,
+                                  as_of_date AS asOf,
+                                  raceCode.code_short_desc_txt AS race,
+                                  STRING_AGG(rc.code_short_desc_txt, ' | ') AS detailedRaces
+                              FROM
+                                  Person_race pr
+                              WITH
+                                  (NOLOCK)
+                                  LEFT JOIN NBS_SRTE.dbo.race_code rc
+                              WITH
+                                  (NOLOCK) ON rc.code = race_cd
+                                  AND rc.code_set_nm = 'P_RACE'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general raceCode
+                              WITH
+                                  (NOLOCK) ON raceCode.code = race_category_cd
+                                  AND raceCode.code_set_nm = 'RACE_CALCULATED'
+                              WHERE
+                                  pr.person_uid = p.person_uid
+                                  AND pr.record_status_cd = 'ACTIVE'
+                              GROUP BY
+                                  person_uid,
+                                  race_category_cd,
+                                  as_of_date,
+                                  raceCode.code_short_desc_txt
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES
                           ) AS race
                   ) AS race,
-                -- Ethnicity
+                  -- Ethnicity
                   (
-                   SELECT
-                      (
-                        SELECT
-                            ep.as_of_date_ethnicity AS asOf,
-                            cvg.code_desc_txt AS ethnicity,
-                            cvg3.code_short_desc_txt AS reasonUnknown,
-                            STRING_AGG(cvg2.code_desc_txt, ' | ') AS spanishOrigin
-                        FROM
-                            person ep
-                            LEFT JOIN Person_ethnic_group eg ON ep.person_uid = eg.person_uid
-                            LEFT JOIN nbs_srte..code_value_general cvg ON cvg.code = ep.ethnic_group_ind
-                            AND cvg.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
-                            LEFT JOIN nbs_srte..code_value_general cvg2 ON cvg2.code = eg.ethnic_group_cd
-                            AND cvg2.code_set_nm = 'P_ETHN'
-                            LEFT JOIN nbs_srte..code_value_general cvg3 ON cvg3.code = ep.ethnic_unk_reason_cd
-                            AND cvg3.code_set_nm = 'P_ETHN_UNK_REASON'
-                        WHERE
-                            ep.person_uid = p.person_uid
-                        GROUP BY
-                            ep.person_uid,
-                            ep.as_of_date_ethnicity,
-                            ep.ethnic_unk_reason_cd,
-                            cvg.code_desc_txt,
-                            cvg3.code_short_desc_txt
-                      FOR JSON
-                        PATH,
-                        INCLUDE_NULL_VALUES,
-                        WITHOUT_ARRAY_WRAPPER
-                    ) AS ethnicity
-                ) AS ethnicity,
+                      SELECT
+                          (
+                              SELECT
+                                  ep.as_of_date_ethnicity AS asOf,
+                                  ethnicityCode.code_desc_txt AS ethnicity,
+                                  reasonUnknownCode.code_short_desc_txt AS reasonUnknown,
+                                  STRING_AGG(spanishOriginCode.code_desc_txt, ' | ') AS spanishOrigin
+                              FROM
+                                  person ep
+                                  LEFT JOIN Person_ethnic_group eg ON ep.person_uid = eg.person_uid
+                                  LEFT JOIN nbs_srte..code_value_general ethnicityCode
+                              WITH
+                                  (NOLOCK) ON ethnicityCode.code = ep.ethnic_group_ind
+                                  AND ethnicityCode.code_set_nm = 'PHVS_ETHNICITYGROUP_CDC_UNK'
+                                  LEFT JOIN nbs_srte..code_value_general spanishOriginCode
+                              WITH
+                                  (NOLOCK) ON spanishOriginCode.code = eg.ethnic_group_cd
+                                  AND spanishOriginCode.code_set_nm = 'P_ETHN'
+                                  LEFT JOIN nbs_srte..code_value_general reasonUnknownCode
+                              WITH
+                                  (NOLOCK) ON reasonUnknownCode.code = ep.ethnic_unk_reason_cd
+                                  AND reasonUnknownCode.code_set_nm = 'P_ETHN_UNK_REASON'
+                              WHERE
+                                  ep.person_uid = p.person_uid
+                              GROUP BY
+                                  ep.person_uid,
+                                  ep.as_of_date_ethnicity,
+                                  ep.ethnic_unk_reason_cd,
+                                  ethnicityCode.code_desc_txt,
+                                  reasonUnknownCode.code_short_desc_txt
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES,
+                                  WITHOUT_ARRAY_WRAPPER
+                          ) AS ethnicity
+                  ) AS ethnicity,
                   -- person phone
                   (
                       SELECT
                           (
                               SELECT
-                                elp.locator_uid AS id,
-                                elp.as_of_date AS asOf,
-                                cvg2.code_short_desc_txt as 'type',
-                                cvg.code_short_desc_txt AS 'use',
-                                tl.cntry_cd AS countryCode,
-                                REPLACE(REPLACE(tl.phone_nbr_txt, '-', ''), ' ', '') AS phoneNumber,
-                                tl.extension_txt AS extension,
-                                STRING_ESCAPE(tl.email_address, 'json') AS email,
-                                STRING_ESCAPE(tl.url_address, 'json') AS url,
-                                elp.locator_desc_txt comments
+                                  elp.locator_uid AS id,
+                                  elp.as_of_date AS asOf,
+                                  phoneTypeCode.code_short_desc_txt AS 'type',
+                                  phoneUseCode.code_short_desc_txt AS 'use',
+                                  tl.cntry_cd AS countryCode,
+                                  REPLACE(REPLACE(tl.phone_nbr_txt, '-', ''), ' ', '') AS phoneNumber,
+                                  tl.extension_txt AS extension,
+                                  STRING_ESCAPE(tl.email_address, 'json') AS email,
+                                  STRING_ESCAPE(tl.url_address, 'json') AS url,
+                                  elp.locator_desc_txt comments
                               FROM
-                                Entity_locator_participation elp
+                                  Entity_locator_participation elp
                               WITH
-                                (NOLOCK)
-                                JOIN Tele_locator tl
+                                  (NOLOCK)
+                                  JOIN Tele_locator tl
                               WITH
-                                (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
-                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = elp.use_cd AND cvg.code_set_nm = 'EL_USE_TELE_PAT'
-                                LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = cd AND cvg2.code_set_nm = 'EL_TYPE_TELE_PAT'
+                                  (NOLOCK) ON elp.locator_uid = tl.tele_locator_uid
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general phoneUseCode
+                              WITH
+                                  (NOLOCK) ON phoneUseCode.code = elp.use_cd
+                                  AND phoneUseCode.code_set_nm = 'EL_USE_TELE_PAT'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general phoneTypeCode
+                              WITH
+                                  (NOLOCK) ON phoneTypeCode.code = cd
+                                  AND phoneTypeCode.code_set_nm = 'EL_TYPE_TELE_PAT'
                               WHERE
-                                elp.entity_uid = p.person_uid
-                                AND elp.class_cd = 'TELE'
-                                AND elp.status_cd = 'A'
-                                AND (
-                                  tl.phone_nbr_txt IS NOT NULL
-                                  OR tl.email_address IS NOT NULL
-                                  OR tl.url_address IS NOT NULL
-                                )
-                              FOR JSON PATH, INCLUDE_NULL_VALUES
+                                  elp.entity_uid = p.person_uid
+                                  AND elp.class_cd = 'TELE'
+                                  AND elp.status_cd = 'A'
+                                  AND (
+                                      tl.phone_nbr_txt IS NOT NULL
+                                      OR tl.email_address IS NOT NULL
+                                      OR tl.url_address IS NOT NULL
+                                  )
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES
                           ) AS phone
                   ) AS phone,
                   -- person_names
@@ -828,83 +834,139 @@ public class QueryConstants {
                           (
                               SELECT
                                   pn.person_uid AS personUid,
-                                  pn.person_name_seq AS sequence,
-                                  pn.as_of_date AS asOf,
-                                  cvg.code_short_desc_txt As type,
-                                  cvg2.code_short_desc_txt AS prefix,
-                                  STRING_ESCAPE(pn.first_nm, 'json') AS first,
-                                  STRING_ESCAPE(pn.middle_nm, 'json') AS middle,
-                                  STRING_ESCAPE(pn.middle_nm2, 'json') AS secondMiddle,
-                                  STRING_ESCAPE(pn.last_nm, 'json') AS last,
-                                  STRING_ESCAPE(pn.last_nm2, 'json') AS secondLast,
-                                  cvg3.code_short_desc_txt AS suffix,
-                                  STRING_ESCAPE(pn.nm_degree, 'json') AS degree
+                                  pn.person_name_seq AS 'sequence',
+                              pn.as_of_date AS asOf,
+                              nameTypeCode.code_short_desc_txt AS 'type',
+                              namePrefixCode.code_short_desc_txt AS prefix,
+                              STRING_ESCAPE(pn.first_nm, 'json') AS 'first',
+                              STRING_ESCAPE(pn.middle_nm, 'json') AS middle,
+                              STRING_ESCAPE(pn.middle_nm2, 'json') AS secondMiddle,
+                              STRING_ESCAPE(pn.last_nm, 'json') AS 'last',
+                              STRING_ESCAPE(pn.last_nm2, 'json') AS secondLast,
+                              nameSuffixCode.code_short_desc_txt AS suffix,
+                              STRING_ESCAPE(pn.nm_degree, 'json') AS degree
                               FROM
-                                  person_name pn WITH (NOLOCK)
-                                  LEFT JOIN nbs_srte..code_value_general cvg ON pn.nm_use_cd = cvg.code AND cvg.code_set_nm = 'P_NM_USE'
-                                  LEFT JOIN nbs_srte..code_value_general cvg2 ON pn.nm_prefix = cvg2.code AND cvg2.code_set_nm = 'P_NM_PFX'
-                                  LEFT JOIN nbs_srte..code_value_general cvg3 ON pn.nm_suffix = cvg3.code AND cvg3.code_set_nm = 'P_NM_SFX'
+                                  person_name pn
+                              WITH
+                                  (NOLOCK)
+                                  LEFT JOIN nbs_srte..code_value_general nameTypeCode
+                              WITH
+                                  (NOLOCK) ON pn.nm_use_cd = nameTypeCode.code
+                                  AND nameTypeCode.code_set_nm = 'P_NM_USE'
+                                  LEFT JOIN nbs_srte..code_value_general namePrefixCode
+                              WITH
+                                  (NOLOCK) ON pn.nm_prefix = namePrefixCode.code
+                                  AND namePrefixCode.code_set_nm = 'P_NM_PFX'
+                                  LEFT JOIN nbs_srte..code_value_general nameSuffixCode
+                              WITH
+                                  (NOLOCK) ON pn.nm_suffix = nameSuffixCode.code
+                                  AND nameSuffixCode.code_set_nm = 'P_NM_SFX'
                               WHERE
                                   pn.person_uid = p.person_uid
                                   AND pn.record_status_cd = 'ACTIVE'
-                              FOR JSON PATH ,INCLUDE_NULL_VALUES
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES
                           ) AS name
                   ) AS name,
-            -- sex & birth
-            (
-                SELECT
-                    (
-                        SELECT
-                            psb.as_of_date_sex AS asOf,
-                            psb.birth_time AS dateOfBirth,
-                            cvg4.code_short_desc_txt AS currentSex,
-                            cvg6.code_short_desc_txt AS sexUnknown,
-                            cvg.code_short_desc_txt AS transgender,
-                            psb.additional_gender_cd AS additionalGender,
-                            cvg5.code_short_desc_txt AS birthGender,
-                            cvg2.code_short_desc_txt AS multipleBirth,
-                            psb.birth_order_nbr AS birthOrder,
-                            pl.city_desc_txt AS birthCity,
-                            sc.code_desc_txt AS birthState,
-                            scc.code_desc_txt AS birthCounty,
-                            cc.code_desc_txt AS birthCountry
-                        FROM
-                            person psb
-                        WITH
-                            (NOLOCK)
-                            LEFT JOIN Entity_locator_participation elp ON elp.entity_uid = psb.person_uid
-                            AND elp.use_cd = 'BIR'
-                            LEFT JOIN Postal_locator pl ON pl.postal_locator_uid = elp.locator_uid
-                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg ON cvg.code = psb.preferred_gender_cd
-                            AND cvg.code_set_nm = 'NBS_STD_GENDER_PARPT'
-                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg2 ON cvg2.code = psb.multiple_birth_ind
-                            AND cvg2.code_set_nm = 'YNU'
-                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg3 ON cvg3.code = psb.multiple_birth_ind
-                            AND cvg3.code_set_nm = 'YNU'
-                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg4 ON cvg4.code = psb.curr_sex_cd
-                            AND cvg4.code_set_nm = 'SEX'
-                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg5 ON cvg5.code = psb.birth_gender_cd
-                            AND cvg5.code_set_nm = 'SEX'
-                            LEFT JOIN NBS_SRTE.dbo.code_value_general cvg6 ON cvg6.code = psb.sex_unk_reason_cd
-                            AND cvg6.code_set_nm = 'SEX_UNK_REASON'
-                            LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                            LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-                            AND scc.parent_is_cd = pl.state_cd
-                            LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
-                        WHERE
-                            psb.person_uid = p.person_uid
-                            AND psb.record_status_cd = 'ACTIVE'
-                        FOR JSON
-                            PATH,
-                            INCLUDE_NULL_VALUES,
-                            WITHOUT_ARRAY_WRAPPER
-                    ) AS sexAndBirth
-            ) AS sexAndBirth
+                  -- sex & birth
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  psb.as_of_date_sex AS asOf,
+                                  psb.birth_time AS dateOfBirth,
+                                  currentSexCode.code_short_desc_txt AS currentSex,
+                                  sexUnknownCode.code_short_desc_txt AS sexUnknown,
+                                  transgenderCode.code_short_desc_txt AS transgender,
+                                  psb.additional_gender_cd AS additionalGender,
+                                  birthGenderCode.code_short_desc_txt AS birthGender,
+                                  multipleBirthCode.code_short_desc_txt AS multipleBirth,
+                                  psb.birth_order_nbr AS birthOrder,
+                                  pl.city_desc_txt AS birthCity,
+                                  sc.code_desc_txt AS birthState,
+                                  scc.code_desc_txt AS birthCounty,
+                                  cc.code_desc_txt AS birthCountry
+                              FROM
+                                  person psb
+                              WITH
+                                  (NOLOCK)
+                                  LEFT JOIN Entity_locator_participation elp ON elp.entity_uid = psb.person_uid
+                                  AND elp.use_cd = 'BIR'
+                                  LEFT JOIN Postal_locator pl ON pl.postal_locator_uid = elp.locator_uid
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general transgenderCode
+                              WITH
+                                  (NOLOCK) ON transgenderCode.code = psb.preferred_gender_cd
+                                  AND transgenderCode.code_set_nm = 'NBS_STD_GENDER_PARPT'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general multipleBirthCode
+                              WITH
+                                  (NOLOCK) ON multipleBirthCode.code = psb.multiple_birth_ind
+                                  AND multipleBirthCode.code_set_nm = 'YNU'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general currentSexCode
+                              WITH
+                                  (NOLOCK) ON currentSexCode.code = psb.curr_sex_cd
+                                  AND currentSexCode.code_set_nm = 'SEX'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general birthGenderCode
+                              WITH
+                                  (NOLOCK) ON birthGenderCode.code = psb.birth_gender_cd
+                                  AND birthGenderCode.code_set_nm = 'SEX'
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general sexUnknownCode
+                              WITH
+                                  (NOLOCK) ON sexUnknownCode.code = psb.sex_unk_reason_cd
+                                  AND sexUnknownCode.code_set_nm = 'SEX_UNK_REASON'
+                                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+                                  AND scc.parent_is_cd = pl.state_cd
+                                  LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
+                              WHERE
+                                  psb.person_uid = p.person_uid
+                                  AND psb.record_status_cd = 'ACTIVE'
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES,
+                                  WITHOUT_ARRAY_WRAPPER
+                          ) AS sexAndBirth
+                  ) AS sexAndBirth,
+                  -- Mortality
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  p.as_of_date_morbidity AS asOf,
+                                  deceasedCode.code_short_desc_txt AS deceased,
+                                  p.deceased_time AS dateOfDeath,
+                                  STRING_ESCAPE(pl.city_desc_txt, 'json') AS deathCity,
+                                  sc.code_desc_txt AS deathState,
+                                  scc.code_desc_txt AS deathCounty,
+                                  cc.code_short_desc_txt AS deathCountry
+                              FROM
+                                  Entity_locator_participation elp
+                              WITH
+                                  (NOLOCK)
+                                  LEFT JOIN Postal_locator pl
+                              WITH
+                                  (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
+                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
+                                  LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general deceasedCode ON deceasedCode.code = p.deceased_ind_cd
+                                  AND deceasedCode.code_set_nm = 'YNU'
+                              WHERE
+                                  elp.entity_uid = p.person_uid
+                                  AND elp.class_cd = 'PST'
+                                  AND elp.status_cd = 'A'
+                                  AND elp.use_cd = 'DTH'
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES,
+                                  WITHOUT_ARRAY_WRAPPER
+                          ) AS mortality
+                  ) AS mortality
           ) AS nested
       WHERE
           p.person_uid IN (:ids)
           AND p.record_status_cd = 'ACTIVE';
-      """;
+        """;
 
   public static final String FETCH_PATIENT_ADD_TIME_QUERY = """
       SELECT
