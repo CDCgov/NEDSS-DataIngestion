@@ -127,7 +127,6 @@ public class PatientRepositoryUtil {
         Person person = new Person(personDto, tz);
         person.setBirthCntryCd(null);
 
-        person.setLastChgTime(null);
         personJdbcRepository.createPerson(person);
 
 
@@ -169,8 +168,6 @@ public class PatientRepositoryUtil {
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setVersionCtrlNbr(person.getVersionCtrlNbr() + 1);
         person.setBirthCntryCd(null);
-
-        person.setLastChgTime(null);
         personJdbcRepository.updatePerson(person);
 
         // Cache UID for reuse
