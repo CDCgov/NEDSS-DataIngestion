@@ -25,7 +25,7 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.utilities.DynamicBeanBinding;
@@ -37,6 +37,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -71,13 +72,13 @@ public class AutoInvestigationService implements IAutoInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICacheApiService cacheApiService;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     private final ILookupService lookupService;
     @Value("${service.timezone}")
     private String tz = "UTC";
 
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
-                                    ICacheApiService cacheApiService, ICatchingValueService catchingValueService, ILookupService lookupService) {
+                                    @Lazy ICacheApiService cacheApiService, ICatchingValueDpService catchingValueService, ILookupService lookupService) {
         this.conditionCodeRepository = conditionCodeRepository;
         this.cacheApiService = cacheApiService;
         this.catchingValueService = catchingValueService;
@@ -141,7 +142,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
                                              Collection<Object> entities,
-                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException{
+                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
         PersonContainer patientVO;
         boolean isOrgAsReporterOfPHCPartDT=false;
         boolean isPhysicianOfPHCDT=false;
@@ -282,7 +283,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         var res = conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode());
         ConditionCodeWithPA programAreaVO = new ConditionCodeWithPA();
         if (res.isPresent()) {
-            programAreaVO = res.get().get(0);
+            programAreaVO = res.get().getFirst();
         }
         phcVO.getThePublicHealthCaseDto().setCd(programAreaVO.getConditionCd());
         phcVO.getThePublicHealthCaseDto().setProgAreaCd(programAreaVO.getStateProgAreaCode());
@@ -318,17 +319,14 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.setItNew(true);
         phcVO.setItDirty(false);
 
-        try{
-            boolean isSTDProgramArea = cacheApiService.getSrteCacheBool(ObjectName.CHECK_PAI_FOR_STD_OR_HIV.name(), phcVO.getThePublicHealthCaseDto().getProgAreaCd());
-            if (isSTDProgramArea) {
-                CaseManagementDto caseMgtDT = new CaseManagementDto();
-                caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid());
-                caseMgtDT.setCaseManagementDTPopulated(true);
-                phcVO.setTheCaseManagementDto(caseMgtDT);
-            }
-        } catch(Exception ex){
-            throw new DataProcessingException("Unexpected exception setting CaseManagementDto to PHC -->" +ex);
+        boolean isSTDProgramArea = cacheApiService.getSrteCacheBool(ObjectName.CHECK_PAI_FOR_STD_OR_HIV.name(), phcVO.getThePublicHealthCaseDto().getProgAreaCd());
+        if (isSTDProgramArea) {
+            CaseManagementDto caseMgtDT = new CaseManagementDto();
+            caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid());
+            caseMgtDT.setCaseManagementDTPopulated(true);
+            phcVO.setTheCaseManagementDto(caseMgtDT);
         }
+
 
         return phcVO;
     }
@@ -356,10 +354,10 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             {
 
                 List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
-                String value = obsValueNumList.get(0).getNumericUnitCd() == null
-                        ? String.valueOf(obsValueNumList.get(0).getNumericValue1())
-                        : obsValueNumList.get(0).getNumericValue1() + "^"
-                        + obsValueNumList.get(0).getNumericUnitCd();
+                String value = obsValueNumList.getFirst().getNumericUnitCd() == null
+                        ? String.valueOf(obsValueNumList.getFirst().getNumericValue1())
+                        : obsValueNumList.getFirst().getNumericValue1() + "^"
+                        + obsValueNumList.getFirst().getNumericUnitCd();
                 prePopMap.put(obs.getTheObservationDto().getCd(), value);
             }
             else if (obs.getTheObsValueDateDtoCollection() != null
@@ -368,7 +366,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             {
                 List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
 
-                String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
+                String value = StringUtils.formatDate(obsValueDateList.getFirst().getFromTime());
                 prePopMap.put(obs.getTheObservationDto().getCd(), value);
             }
             else if (obs.getTheObsValueCodedDtoCollection() != null
@@ -377,18 +375,18 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
                 List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
 
-                String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.get(0).getCode();
+                String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.getFirst().getCode();
                 if (fromPrePopMap.containsKey(key)) {
-                    prePopMap.put(key, obsValueCodeList.get(0).getCode());
+                    prePopMap.put(key, obsValueCodeList.getFirst().getCode());
                 } else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
-                    prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
+                    prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.getFirst().getCode());
                 }
             }
             else if (obs.getTheObsValueTxtDtoCollection() != null && !obs.getTheObsValueTxtDtoCollection().isEmpty()
                     && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
             {
                 for (ObsValueTxtDto obsValueTxtDT : obs.getTheObsValueTxtDtoCollection()) {
-                    if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
+                    if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().isEmpty()
                             || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
                         prePopMap.put(obs.getTheObservationDto().getCd(), obsValueTxtDT.getValueTxt());
                         break;

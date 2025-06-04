@@ -166,14 +166,14 @@ public class ContactSummaryService implements IContactSummaryService {
             //add the contact summary dt
             returnCTContactNameByPatientSummDTColl.add(cTContactSumyDT);
 
-            Collection contactNameColl = new ArrayList<>();
+            Collection<PersonName> contactNameColl = new ArrayList<>();
             if (lst.isPresent()) {
                 contactNameColl = lst.get();
             }
 
             if (!contactNameColl.isEmpty()) {
-                for (Object o : contactNameColl) {
-                    PersonNameDto personNameDT = new PersonNameDto( (PersonName) o);
+                for (PersonName o : contactNameColl) {
+                    PersonNameDto personNameDT = new PersonNameDto(o);
                     if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
                         String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
                         String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();

@@ -163,12 +163,6 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
 
     private Integer versionCtrlNbr;
 
-//    private boolean itDirty = false;
-//
-//    private boolean itNew = true;
-//
-//    private boolean itDelete = false;
-
     private String cdVersion;
 
     private String searchResultOT;
@@ -221,13 +215,8 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
         this.addReasonCd = observation.getAddReasonCd();
         this.addTime = observation.getAddTime();
         this.addUserId = observation.getAddUserId();
-//        this.addUserName = observation.getAddUserName();
-        this.altCd = observation.getAltCd();
-        this.altCdDescTxt = observation.getAltCdDescTxt();
-        this.altCdSystemCd = observation.getAltCdSystemCd();
-        this.altCdSystemDescTxt = observation.getAltCdSystemDescTxt();
+//        this.addUserName = "RTI";
         this.cd = observation.getCd();
-        this.cdDerivedInd = observation.getCdDerivedInd();
         this.cdDescTxt = observation.getCdDescTxt();
         this.cdSystemCd = observation.getCdSystemCd();
         this.cdSystemDescTxt = observation.getCdSystemDescTxt();
@@ -250,7 +239,7 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
         this.lastChgReasonCd = observation.getLastChgReasonCd();
         this.lastChgTime = observation.getLastChgTime();
         this.lastChgUserId = observation.getLastChgUserId();
-//        this.lastChgUserName = observation.getLastChgUserName();
+//        this.lastChgUserName = "RTI";
         this.localId = observation.getLocalId();
         this.methodCd = observation.getMethodCd();
         this.methodDescTxt = observation.getMethodDescTxt();
@@ -287,83 +276,5 @@ public class ObservationDto extends BaseContainer implements RootDtoInterface {
         this.pregnantWeek = observation.getPregnantWeek();
         this.processingDecisionTxt = observation.getProcessingDecisionTxt();
     }
-
-//    // Constructor for converting Observation to ObservationDto
-//    public ObservationDto(Observation observation) {
-//        this.observationUid = observation.getObservationUid();
-//        this.activityDurationAmt = observation.getActivityDurationAmt();
-//        this.activityDurationUnitCd = observation.getActivityDurationUnitCd();
-//        this.activityFromTime = observation.getActivityFromTime();
-//        this.activityToTime = observation.getActivityToTime();
-//        this.addReasonCd = observation.getAddReasonCd();
-//        this.addTime = observation.getAddTime();
-//        this.addUserId = observation.getAddUserId();
-////        this.addUserName = observation.getAddUserName();
-//        this.altCd = observation.getAltCd();
-//        this.altCdDescTxt = observation.getAltCdDescTxt();
-//        this.altCdSystemCd = observation.getAltCdSystemCd();
-//        this.altCdSystemDescTxt = observation.getAltCdSystemDescTxt();
-//        this.cd = observation.getCd();
-//        this.cdDerivedInd = observation.getCdDerivedInd();
-//        this.cdDescTxt = observation.getCdDescTxt();
-//        this.cdSystemCd = observation.getCdSystemCd();
-//        this.cdSystemDescTxt = observation.getCdSystemDescTxt();
-//        this.confidentialityCd = observation.getConfidentialityCd();
-//        this.confidentialityDescTxt = observation.getConfidentialityDescTxt();
-//        this.ctrlCdDisplayForm = observation.getCtrlCdDisplayForm();
-//        this.ctrlCdUserDefined1 = observation.getCtrlCdUserDefined1();
-//        this.ctrlCdUserDefined2 = observation.getCtrlCdUserDefined2();
-//        this.ctrlCdUserDefined3 = observation.getCtrlCdUserDefined3();
-//        this.ctrlCdUserDefined4 = observation.getCtrlCdUserDefined4();
-//        this.derivationExp = observation.getDerivationExp();
-//        this.effectiveDurationAmt = observation.getEffectiveDurationAmt();
-//        this.effectiveDurationUnitCd = observation.getEffectiveDurationUnitCd();
-//        this.effectiveFromTime = observation.getEffectiveFromTime();
-//        this.effectiveToTime = observation.getEffectiveToTime();
-//        this.electronicInd = observation.getElectronicInd();
-//        this.groupLevelCd = observation.getGroupLevelCd();
-//        this.jurisdictionCd = observation.getJurisdictionCd();
-//        this.labConditionCd = observation.getLabConditionCd();
-//        this.lastChgReasonCd = observation.getLastChgReasonCd();
-//        this.lastChgTime = observation.getLastChgTime();
-//        this.lastChgUserId = observation.getLastChgUserId();
-////        this.lastChgUserName = observation.getLastChgUserName();
-//        this.localId = observation.getLocalId();
-//        this.methodCd = observation.getMethodCd();
-//        this.methodDescTxt = observation.getMethodDescTxt();
-//        this.obsDomainCd = observation.getObsDomainCd();
-//        this.obsDomainCdSt1 = observation.getObsDomainCdSt1();
-//        this.pnuCd = observation.getPnuCd();
-//        this.priorityCd = observation.getPriorityCd();
-//        this.priorityDescTxt = observation.getPriorityDescTxt();
-//        this.progAreaCd = observation.getProgAreaCd();
-//        this.recordStatusCd = observation.getRecordStatusCd();
-//        this.recordStatusTime = observation.getRecordStatusTime();
-//        this.repeatNbr = observation.getRepeatNbr();
-//        this.statusCd = observation.getStatusCd();
-//        this.statusTime = observation.getStatusTime();
-//        this.subjectPersonUid = observation.getSubjectPersonUid();
-//        this.targetSiteCd = observation.getTargetSiteCd();
-//        this.targetSiteDescTxt = observation.getTargetSiteDescTxt();
-//        this.txt = observation.getTxt();
-//        this.userAffiliationTxt = observation.getUserAffiliationTxt();
-//        this.valueCd = observation.getValueCd();
-//        this.ynuCd = observation.getYnuCd();
-//        this.programJurisdictionOid = observation.getProgramJurisdictionOid();
-//        this.sharedInd = observation.getSharedInd();
-//        this.versionCtrlNbr = observation.getVersionCtrlNbr();
-//        this.altCd = observation.getAltCd();
-//        this.altCdDescTxt = observation.getAltCdDescTxt();
-//        this.altCdSystemCd = observation.getAltCdSystemCd();
-//        this.altCdSystemDescTxt = observation.getAltCdSystemDescTxt();
-//        this.cdDerivedInd = observation.getCdDerivedInd();
-//        this.rptToStateTime = observation.getRptToStateTime();
-//        this.cdVersion = observation.getCdVersion();
-//        this.processingDecisionCd = observation.getProcessingDecisionCd();
-//        this.pregnantIndCd = observation.getPregnantIndCd();
-//        this.pregnantWeek = observation.getPregnantWeek();
-//        this.processingDecisionTxt = observation.getProcessingDecisionTxt();
-//    }
-
 
 }

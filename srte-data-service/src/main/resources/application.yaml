@@ -52,7 +52,7 @@ spring:
   datasource:
     hikari:
       connection-timeout: 60000
-      maximum-pool-size: 10
+      maximum-pool-size: 2
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}

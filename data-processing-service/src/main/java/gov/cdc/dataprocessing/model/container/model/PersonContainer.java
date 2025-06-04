@@ -56,7 +56,6 @@ public class PersonContainer extends LdfBaseContainer implements Serializable {
     public Collection<RoleDto> theRoleDtoCollection = new ArrayList<>();
 
     private String defaultJurisdictionCd;
-//    private Boolean isExistingPatient;
     private boolean isExt = false;
     private boolean isMPRUpdateValid = true;
     private String localIdentifier;

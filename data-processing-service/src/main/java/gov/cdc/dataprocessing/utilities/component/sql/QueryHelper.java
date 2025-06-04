@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.sql;
 
+import gov.cdc.dataprocessing.cache.OdseCache;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.auth_user.RealizedRoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PROGRAM_JUS_OID;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.QUERY_HELPER_1;
@@ -66,8 +70,8 @@ public class QueryHelper {
 //        if (paSecured && jSecured)
 //        {
             columnName = PROGRAM_JUS_OID;
-            ownerList = getHashedPAJList(businessObjLookupName, operation, false);
-            guestList = getHashedPAJList(businessObjLookupName, operation, true);
+            ownerList =  OdseCache.OWNER_LIST_HASHED_PA_J ; //getHashedPAJList(false);
+            guestList = OdseCache.GUEST_LIST_HASHED_PA_J ; //getHashedPAJList(true);
             whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
 //          }
 //        else if (paSecured || jSecured) {
@@ -100,43 +104,69 @@ public class QueryHelper {
     }
 
     @SuppressWarnings("java:S1172")
-    private String getHashedPAJList(String businessObjLookupName, String operation, boolean guest) {
-        Collection<Object> allPAJList = new HashSet<>();
-        StringBuilder hashedPAJList = new StringBuilder();
+//    private String getHashedPAJList(boolean guest) {
+//        Collection<Object> allPAJList = new HashSet<>();
+//        StringBuilder hashedPAJList = new StringBuilder();
+//
+//        for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {
+//            RealizedRoleDto rRole = new RealizedRoleDto(authUserRealizedRole);
+//
+//            if (rRole.isGuest() == guest) {
+//                String paCd = rRole.getProgramAreaCode();
+//                String jCd = rRole.getJurisdictionCode();
+//                Collection<Object> pajCds = progAreaJurisdictionUtil.getPAJHashList(paCd, jCd);
+//                allPAJList.addAll(pajCds);
+//
+//            }
+//        }
+//
+//        for (Object o : allPAJList) {
+//            Long cd = (Long) o;
+//            if (cd != null && !cd.toString().trim().isEmpty()) {
+//                hashedPAJList.append(cd).append(", ");
+//            }
+//        }
+//
+//
+//        if (!hashedPAJList.toString().trim().isEmpty()) {
+//            return hashedPAJList.toString().trim().substring(0, (hashedPAJList.toString().trim().length() - 1));
+//        }
+//        else {
+//            return hashedPAJList.toString();
+//        }
+//    }
 
+    public String getHashedPAJList(boolean guest) throws DataProcessingException {
+        Set<Long> allPAJList = new HashSet<>();
 
         for (AuthUserRealizedRole authUserRealizedRole : AuthUtil.authUserRealizedRoleCollection) {
             RealizedRoleDto rRole = new RealizedRoleDto(authUserRealizedRole);
 
-            if (rRole.isGuest() == guest) { //only consider roles that match the requested guest status
-                boolean isOpAvailable = true;
-                //logger.debug("rRole.getRoleName() = " + rRole.getRoleName());
+            if (rRole.isGuest() == guest) {
+                String paCd = rRole.getProgramAreaCode();
+                String jCd = rRole.getJurisdictionCode();
+                Collection<Object> pajCds = progAreaJurisdictionUtil.getPAJHashList(paCd, jCd);
 
-
-                if (isOpAvailable) {
-                    String paCd = rRole.getProgramAreaCode();
-                    String jCd = rRole.getJurisdictionCode();
-                    Collection<Object> pajCds = progAreaJurisdictionUtil.getPAJHashList(paCd, jCd);
-                    allPAJList.addAll(pajCds);
+                for (Object pajCd : pajCds) {
+                    if (pajCd instanceof Long) {
+                        allPAJList.add((Long) pajCd);
+                    }
                 }
             }
         }
 
-        for (Object o : allPAJList) {
-            Long cd = (Long) o;
-            if (cd != null && cd.toString().trim().length() != 0) {
-                hashedPAJList = hashedPAJList.append(cd).append(", ");
+        if (allPAJList.isEmpty()) return "";
+
+        StringJoiner joiner = new StringJoiner(", ");
+        for (Long cd : allPAJList) {
+            if (cd != null) {
+                joiner.add(cd.toString());
             }
         }
 
-
-        if (hashedPAJList.toString().trim().length() > 0) {
-            return hashedPAJList.toString().trim().substring(0, (hashedPAJList.toString().trim().length() - 1));
-        }
-        else {
-            return hashedPAJList.toString();
-        }
+        return joiner.toString();
     }
+
 
     public String buildWhereClause(String ownerList, String guestList,
                                    String columnName, String alias, boolean OIDFlag, String businessObjLookupName) {
@@ -167,9 +197,9 @@ public class QueryHelper {
         String whereClauseOwner = "";
 
 
-        if (ownerList != null && ownerList.trim().length() != 0) {
+        if (ownerList != null && !ownerList.trim().isEmpty()) {
 
-            if (alias == null || alias.trim().length() == 0) {
+            if (alias == null || alias.trim().isEmpty()) {
                 whereClauseOwner = "(" + columnName + QUERY_HELPER_1 + ownerList +
                         "))";
             }
@@ -193,8 +223,8 @@ public class QueryHelper {
         //logger.debug("alias = " + alias);
         String whereClauseGuest = "";
 
-        if (guestList != null && guestList.trim().length() != 0) {
-            if (alias == null || alias.trim().length() == 0) {
+        if (guestList != null && !guestList.trim().isEmpty()) {
+            if (alias == null || alias.trim().isEmpty()) {
                 whereClauseGuest = "(("+ columnName + QUERY_HELPER_1 + guestList +
                         ")) and  shared_ind = '" +
                         "T" +

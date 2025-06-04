@@ -1,7 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.act;
 
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.Act;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,10 +28,10 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class ActRepositoryUtil {
-    private final ActRepository actRepository;
+    private final ActJdbcRepository actJdbcRepository;
 
-    public ActRepositoryUtil(ActRepository actRepository) {
-        this.actRepository = actRepository;
+    public ActRepositoryUtil(ActJdbcRepository actJdbcRepository) {
+        this.actJdbcRepository = actJdbcRepository;
     }
 
     public void insertActivityId(Long uid, String classCode, String moodCode) {
@@ -39,7 +39,14 @@ public class ActRepositoryUtil {
         act.setActUid(uid);
         act.setClassCode(classCode);
         act.setMoodCode(moodCode);
+        actJdbcRepository.insertAct(act);
+    }
 
-        actRepository.save(act);
+    public void updateActivityId(Long uid, String classCode, String moodCode) {
+        Act act = new Act();
+        act.setActUid(uid);
+        act.setClassCode(classCode);
+        act.setMoodCode(moodCode);
+        actJdbcRepository.updateAct(act);
     }
 }

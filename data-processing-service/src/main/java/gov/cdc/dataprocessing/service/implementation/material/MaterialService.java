@@ -21,12 +21,13 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.ManufacturedMat
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.MaterialRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
-import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -70,9 +71,9 @@ public class MaterialService implements IMaterialService {
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    private final IOdseIdGeneratorWCacheService odseIdGeneratorService;
     private final EntityRepository entityRepository;
     private final IEntityLocatorParticipationService entityLocatorParticipationService;
+    private final UidPoolManager uidPoolManager;
 
     public MaterialService(MaterialRepository materialRepository,
                            EntityIdRepository entityIdRepository,
@@ -81,8 +82,8 @@ public class MaterialService implements IMaterialService {
                            ParticipationRepository participationRepository,
                            ManufacturedMaterialRepository manufacturedMaterialRepository,
                            EntityHelper entityHelper,
-                           IOdseIdGeneratorWCacheService odseIdGeneratorService, EntityRepository entityRepository,
-                           IEntityLocatorParticipationService entityLocatorParticipationService) {
+                           EntityRepository entityRepository,
+                           IEntityLocatorParticipationService entityLocatorParticipationService, @Lazy UidPoolManager uidPoolManager) {
         this.materialRepository = materialRepository;
         this.entityIdRepository = entityIdRepository;
         this.entityLocatorParticipationRepository = entityLocatorParticipationRepository;
@@ -90,9 +91,9 @@ public class MaterialService implements IMaterialService {
         this.participationRepository = participationRepository;
         this.manufacturedMaterialRepository = manufacturedMaterialRepository;
         this.entityHelper = entityHelper;
-        this.odseIdGeneratorService = odseIdGeneratorService;
         this.entityRepository = entityRepository;
         this.entityLocatorParticipationService = entityLocatorParticipationService;
+        this.uidPoolManager = uidPoolManager;
     }
 
     @SuppressWarnings("java:S3776")
@@ -241,7 +242,7 @@ public class MaterialService implements IMaterialService {
     }
 
     private Long insertNewMaterial(MaterialContainer materialContainer) throws DataProcessingException {
-        var uid = odseIdGeneratorService.getValidLocalUid(LocalIdClass.MATERIAL, true);
+        var uid = uidPoolManager.getNextUid(LocalIdClass.MATERIAL, true);
         var timestamp = getCurrentTimeStamp(tz);
         if (materialContainer.getTheMaterialDto() != null) {
             Material material = new Material(materialContainer.getTheMaterialDto());

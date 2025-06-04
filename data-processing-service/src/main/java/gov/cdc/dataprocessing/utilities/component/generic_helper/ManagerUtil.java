@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Component
 /**
@@ -115,104 +113,6 @@ public class ManagerUtil {
         container.setProviderContainer(providerVOObj);
         return container;
     }
-
-
-    /**
-     * This wont work in this Transactional architecture
-     * As we update the person and its assoc tables serveral time, so we must keep the Transactional as synchronous flow
-     * */
-    @SuppressWarnings("java:S3776")
-
-    public PersonAggContainer personAggregationAsync(LabResultProxyContainer labResult, EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        PersonAggContainer container = new PersonAggContainer();
-        CompletableFuture<PersonContainer> patientFuture = null;
-        CompletableFuture<PersonContainer> providerFuture = null;
-        CompletableFuture<Void> nextOfKinFuture = null;
-
-        if (labResult.getThePersonContainerCollection() != null && !labResult.getThePersonContainerCollection().isEmpty()) {
-            for (PersonContainer personContainer : labResult.getThePersonContainerCollection()) {
-                // Expecting multiple NOK
-                // NOK info wont be return
-                if (personContainer.getRole() != null && personContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_NEXT_OF_KIN)) {
-                    if (nextOfKinFuture == null) {
-                        nextOfKinFuture = CompletableFuture.runAsync(() -> {
-                            try {
-                                patientService.processingNextOfKin(labResult, personContainer);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    } else {
-                        nextOfKinFuture = nextOfKinFuture.thenRunAsync(() -> {
-                            try {
-                                patientService.processingNextOfKin(labResult, personContainer);
-                            } catch (DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-                // Expecting single patient
-                // patient uid is needed in return
-                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PATIENT_CD)) {
-                    // Asynchronously process Patient
-                    if (patientFuture == null) {
-                        patientFuture = CompletableFuture.supplyAsync(() -> {
-                            try {
-                                return patientService.processingPatient(labResult, edxLabInformationDto, personContainer);
-                            } catch (DataProcessingConsumerException | DataProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-                // Expecting single provider
-                // provider uid is needed in return
-                else if (personContainer.thePersonDto.getCd().equalsIgnoreCase(EdxELRConstant.ELR_PROVIDER_CD) && providerFuture == null) {
-                    // Asynchronously process Provider
-                    providerFuture = CompletableFuture.supplyAsync(() -> {
-                        try {
-                            return patientService.processingProvider(labResult, edxLabInformationDto, personContainer, false);
-                        } catch (DataProcessingConsumerException | DataProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                }
-            }
-        }
-
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(
-                nextOfKinFuture != null ? nextOfKinFuture : CompletableFuture.completedFuture(null),
-                patientFuture != null ? patientFuture : CompletableFuture.completedFuture(null),
-                providerFuture != null ? providerFuture : CompletableFuture.completedFuture(null)
-        );
-
-        try {
-            allFutures.get(); // Wait for all futures to complete
-            if (patientFuture != null) {
-                container.setPersonContainer(patientFuture.get()); // Set patient
-            }
-            if (providerFuture != null) {
-                container.setPersonContainer(providerFuture.get());
-            }
-            // You can similarly set provider or other information if needed here
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new DataProcessingException("Thread was interrupted", e);
-        } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException && cause.getCause() instanceof DataProcessingException) {
-                throw (DataProcessingException) cause.getCause();
-            } else {
-                throw new DataProcessingException("Error processing lab results", e);
-            }
-        }
-
-
-        return container;
-    }
-
-
 
 
 }

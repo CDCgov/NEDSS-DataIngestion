@@ -18,12 +18,12 @@ import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
-import gov.cdc.dataprocessing.utilities.GsonUtil;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -58,15 +58,15 @@ import java.util.List;
 public class HL7PatientHandler {
     private static final Logger logger = LoggerFactory.getLogger(HL7PatientHandler.class);
 
-    private final ICatchingValueService checkingValueService;
+    private final ICatchingValueDpService checkingValueService;
     private final NBSObjectConverter nbsObjectConverter;
     private final EntityIdUtil entityIdUtil;
 
     private final ICacheApiService cacheApiService;
 
-    public HL7PatientHandler(ICatchingValueService checkingValueService,
+    public HL7PatientHandler(ICatchingValueDpService checkingValueService,
                              NBSObjectConverter nbsObjectConverter,
-                             EntityIdUtil entityIdUtil, ICacheApiService cacheApiService) {
+                             EntityIdUtil entityIdUtil, @Lazy ICacheApiService cacheApiService) {
         this.checkingValueService = checkingValueService;
         this.nbsObjectConverter = nbsObjectConverter;
         this.entityIdUtil = entityIdUtil;
@@ -82,26 +82,34 @@ public class HL7PatientHandler {
             HL7PATIENTRESULTType hl7PatientResult,
             LabResultProxyContainer labResultProxyContainer,
             EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-            if (hl7PatientResult != null && hl7PatientResult.getPATIENT() != null) {
-                // Processing Patient Identification
-                if (hl7PatientResult.getPATIENT().getPatientIdentification() != null) {
-                    HL7PIDType patientInfo = hl7PatientResult.getPATIENT().getPatientIdentification();
-                    getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
-                }
-                // Processing Next of kin
-                if (hl7PatientResult.getPATIENT().getNextofKinAssociatedParties() != null) {
-                    List<HL7NK1Type> hl7NK1TypeList = hl7PatientResult.getPATIENT().getNextofKinAssociatedParties();
-                    // Only need the first index
-                    if (!hl7NK1TypeList.isEmpty()) {
-                        HL7NK1Type hl7NK1Type = hl7NK1TypeList.get(0);
-                        if (hl7NK1Type.getName() != null && !hl7NK1Type.getName().isEmpty()) {
-                            getNextOfKinVO(hl7NK1Type, labResultProxyContainer, edxLabInformationDto);
-                        }
-                    }
-                }
+
+        if (hl7PatientResult == null) {
+            return labResultProxyContainer;
+        }
+
+        var patient = hl7PatientResult.getPATIENT();
+        if (patient == null) {
+            return labResultProxyContainer;
+        }
+
+        var patientInfo = patient.getPatientIdentification();
+        if (patientInfo != null) {
+            getPatient(patientInfo, labResultProxyContainer, edxLabInformationDto);
+        }
+
+        var nokList = patient.getNextofKinAssociatedParties();
+        if (nokList != null && !nokList.isEmpty()) {
+            var nok = nokList.getFirst();
+            var nokName = nok.getName();
+            if (nokName != null && !nokName.isEmpty()) {
+                getNextOfKinVO(nok, labResultProxyContainer, edxLabInformationDto);
             }
+        }
+
         return labResultProxyContainer;
     }
+
+
     @SuppressWarnings("java:S3776")
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,
@@ -174,7 +182,7 @@ public class HL7PatientHandler {
             //Setup Person Lang
             var langList = hl7PIDType.getPrimaryLanguage();
             if (!langList.isEmpty()) {
-                var primaryLang = langList.get(0);
+                var primaryLang = langList.getFirst();
                 personContainer.getThePersonDto().setPrimLangCd(primaryLang.getHL7Identifier());
                 personContainer.getThePersonDto().setPrimLangDescTxt(primaryLang.getHL7Text());
 
@@ -186,9 +194,9 @@ public class HL7PatientHandler {
             }
 
             // Setup Person Sex Code
-            ElrXref elrXref = new ElrXref();
+            ElrXref elrXref;
             String key = "ELR_LCA_SEX_" + personContainer.getThePersonDto().getCurrSexCd() + "_P_SEX";
-            ElrXref result = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
+            ElrXref result = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
             if (result == null) {
                 result = new ElrXref();
             }
@@ -213,7 +221,7 @@ public class HL7PatientHandler {
             }
 
             // Setup Person Birth Place
-            if(hl7PIDType.getBirthPlace()!=null && !hl7PIDType.getBirthPlace().trim().equals("")){
+            if(hl7PIDType.getBirthPlace()!=null && !hl7PIDType.getBirthPlace().trim().isEmpty()){
                 nbsObjectConverter.setPersonBirthType(hl7PIDType.getBirthPlace(), personContainer);
             }
 
@@ -222,25 +230,25 @@ public class HL7PatientHandler {
             List<HL7CWEType> ethnicArray = hl7PIDType.getEthnicGroup();
             for (HL7CWEType ethnicType : ethnicArray) {
                 PersonEthnicGroupDto personEthnicGroupDto = nbsObjectConverter.ethnicGroupType(ethnicType, personContainer);
-                ElrXref elrXrefForEthnic = new ElrXref();
+                ElrXref elrXrefForEthnic;
                 String keyEthnic = "ELR_LCA_ETHN_GRP_" + personEthnicGroupDto.getEthnicGroupCd() + "_P_ETHN_GRP";
-                ElrXref resultEthnic = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
+                ElrXref resultEthnic = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
                 if ( resultEthnic == null) {
                     resultEthnic = new ElrXref();
                 }
                 elrXrefForEthnic = resultEthnic;
 
                 String ethnicGroupCd = elrXrefForEthnic.getToCode();
-                if (ethnicGroupCd != null && !ethnicGroupCd.trim().equals("")) {
+                if (ethnicGroupCd != null && !ethnicGroupCd.trim().isEmpty()) {
                     personEthnicGroupDto.setEthnicGroupCd(ethnicGroupCd);
                 }
-                if (personEthnicGroupDto.getEthnicGroupCd() != null && !personEthnicGroupDto.getEthnicGroupCd().trim().equals("")) {
+                if (personEthnicGroupDto.getEthnicGroupCd() != null && !personEthnicGroupDto.getEthnicGroupCd().trim().isEmpty()) {
                     if (checkingValueService.checkCodedValue("P_ETHN_GRP", personEthnicGroupDto.getEthnicGroupCd())) {
                         edxLabInformationDto.setEthnicityCodeTranslated(false);
                     }
                 }
                 if (personEthnicGroupDto.getEthnicGroupCd() != null
-                        && !personEthnicGroupDto.getEthnicGroupCd().trim().equals("")
+                        && !personEthnicGroupDto.getEthnicGroupCd().trim().isEmpty()
                 ) {
                     ethnicColl.add(personEthnicGroupDto);
                     personContainer.getThePersonDto().setEthnicGroupInd(personEthnicGroupDto.getEthnicGroupCd());
@@ -275,10 +283,10 @@ public class HL7PatientHandler {
             //Setup Person Maiden Mother Name
             if(hl7PIDType.getMothersMaidenName() != null && (!hl7PIDType.getMothersMaidenName().isEmpty())){
                 String surname = "";
-                if(hl7PIDType.getMothersMaidenName().get(0).getHL7FamilyName()!=null) {
-                    surname = hl7PIDType.getMothersMaidenName().get(0).getHL7FamilyName().getHL7Surname();
+                if(hl7PIDType.getMothersMaidenName().getFirst().getHL7FamilyName()!=null) {
+                    surname = hl7PIDType.getMothersMaidenName().getFirst().getHL7FamilyName().getHL7Surname();
                 }
-                String givenName = hl7PIDType.getMothersMaidenName().get(0).getHL7GivenName();
+                String givenName = hl7PIDType.getMothersMaidenName().getFirst().getHL7GivenName();
                 String motherMaidenNm = "";
                 if(surname!= null) {
                     motherMaidenNm = surname;
@@ -315,7 +323,7 @@ public class HL7PatientHandler {
             Collection<Object> addressCollection = new ArrayList<>();
 
             if (!addressArray.isEmpty()) {
-                HL7XADType addressType = addressArray.get(0);
+                HL7XADType addressType = addressArray.getFirst();
                 nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_PATIENT_CD, personContainer);
             }
             //Setup Person Deceased Status
@@ -335,7 +343,7 @@ public class HL7PatientHandler {
             if(hl7PIDType.getPhoneNumberBusiness() != null){
                 List<HL7XTNType> phoneBusinessArray = hl7PIDType.getPhoneNumberBusiness();
                 if (phoneBusinessArray != null && !phoneBusinessArray.isEmpty()) {
-                    HL7XTNType phoneType = phoneBusinessArray.get(0);
+                    HL7XTNType phoneType = phoneBusinessArray.getFirst();
                     EntityLocatorParticipationDto elpDT = nbsObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personContainer);
                     elpDT.setUseCd(NEDSSConstant.WORK_PHONE);
                     addressCollection.add(elpDT);
@@ -346,7 +354,7 @@ public class HL7PatientHandler {
             if(hl7PIDType.getPhoneNumberHome()!=null ){
                 List<HL7XTNType> phoneHomeArray = hl7PIDType.getPhoneNumberHome();
                 if (!phoneHomeArray.isEmpty()) {
-                    HL7XTNType phoneType = phoneHomeArray.get(0);
+                    HL7XTNType phoneType = phoneHomeArray.getFirst();
                     EntityLocatorParticipationDto elpDT = nbsObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_PATIENT_CD, personContainer);
                     elpDT.setUseCd(NEDSSConstant.HOME);
                     addressCollection.add(elpDT);
@@ -362,17 +370,17 @@ public class HL7PatientHandler {
                     try {
                         raceDT = nbsObjectConverter.raceType(hl7CWEType, personContainer);
                         raceDT.setPersonUid(personContainer.getThePersonDto().getPersonUid());
-                        ElrXref elrXrefForRace = new ElrXref();
+                        ElrXref elrXrefForRace;
 
                         String keyRace = "ELR_LCA_RACE_" + raceDT.getRaceCategoryCd() + "_P_RACE_CAT";
-                        ElrXref resultRace = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
+                        ElrXref resultRace = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
                         if (resultRace == null) {
                             resultRace = new ElrXref();
                         }
                         elrXrefForRace = resultRace;
 
                         String newRaceCat = elrXrefForRace.getToCode();
-                        if (newRaceCat != null && !newRaceCat.trim().equals("")) {
+                        if (newRaceCat != null && !newRaceCat.trim().isEmpty()) {
                             raceDT.setRaceCd(newRaceCat);
                             raceDT.setRaceCategoryCd(newRaceCat);
                         }
@@ -439,7 +447,7 @@ public class HL7PatientHandler {
 
             personContainer.getThePersonDto().setVersionCtrlNbr(1);
             personContainer.getThePersonDto().setItNew(true);
-            personContainer.getThePersonDto().setLastChgTime(edxLabInformationDto.getAddTime());
+            personContainer.getThePersonDto().setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
             personContainer.getThePersonDto().setAddTime(edxLabInformationDto.getAddTime());
             personContainer.getThePersonDto().setLastChgUserId(edxLabInformationDto.getUserId());
             personContainer.getThePersonDto().setAddUserId(edxLabInformationDto.getUserId());
@@ -447,7 +455,7 @@ public class HL7PatientHandler {
             personContainer.getThePersonDto().setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
             personContainer.getThePersonDto().setStatusTime(personContainer.getThePersonDto().getLastChgTime());
 
-            personDto.setLastChgTime(edxLabInformationDto.getAddTime());
+            personDto.setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
             personDto.setLastChgUserId(edxLabInformationDto.getUserId());
             personDto.setAsOfDateAdmin(edxLabInformationDto.getAddTime());
             personDto.setAsOfDateEthnicity(edxLabInformationDto.getAddTime());
@@ -567,7 +575,7 @@ public class HL7PatientHandler {
             if(hl7NK1Type.getRelationship()!=null){
                 edxLabInformationDto.setRelationship(hl7NK1Type.getRelationship().getHL7Identifier());
                 String desc= checkingValueService.getCodeDescTxtForCd(edxLabInformationDto.getRelationship(), EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS);
-                if(desc!=null && desc.trim().length()>0 && hl7NK1Type.getRelationship().getHL7Text()==null) {
+                if(desc!=null && !desc.trim().isEmpty() && hl7NK1Type.getRelationship().getHL7Text()==null) {
                     edxLabInformationDto.setRelationshipDesc(desc);
                 }
                 else if(hl7NK1Type.getRelationship().getHL7Text()!=null) {
@@ -579,19 +587,19 @@ public class HL7PatientHandler {
             List<HL7XADType> addressArray = hl7NK1Type.getAddress();
             Collection<Object> addressCollection = new ArrayList<>();
             if (!addressArray.isEmpty()) {
-                HL7XADType addressType = addressArray.get(0);
+                HL7XADType addressType = addressArray.getFirst();
                 nbsObjectConverter.personAddressType(addressType, EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);
             }
 
             List<HL7XPNType> nameArray = hl7NK1Type.getName();
             if (!nameArray.isEmpty()) {
-                HL7XPNType hl7XPNType = nameArray.get(0);
+                HL7XPNType hl7XPNType = nameArray.getFirst();
                 nbsObjectConverter.mapPersonNameType(hl7XPNType, personContainer);
             }
 
             List<HL7XTNType> phoneHomeArray = hl7NK1Type.getPhoneNumber();
             if (!phoneHomeArray.isEmpty()) {
-                HL7XTNType phoneType = phoneHomeArray.get(0);
+                HL7XTNType phoneType = phoneHomeArray.getFirst();
                 EntityLocatorParticipationDto elpDT = nbsObjectConverter.personTelePhoneType(phoneType, EdxELRConstant.ELR_NEXT_OF_KIN, personContainer);
                 addressCollection.add(elpDT);
             }

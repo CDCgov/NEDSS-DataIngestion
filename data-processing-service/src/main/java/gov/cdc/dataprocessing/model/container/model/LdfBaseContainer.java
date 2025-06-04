@@ -47,12 +47,9 @@ public class LdfBaseContainer extends BaseContainer {
         if(newLdfs != null && !newLdfs.isEmpty()){
             ldfs = new ArrayList<> ();
             ldfUids = new ArrayList<>();
-            Iterator<StateDefinedFieldDataDto> itr = newLdfs.iterator();
-            while (itr.hasNext()) {
-                StateDefinedFieldDataDto dt = (StateDefinedFieldDataDto) itr.next();
+            for (StateDefinedFieldDataDto dt : newLdfs) {
                 ldfUids.add(dt.getLdfUid());
-                if (dt != null && dt.getLdfValue() != null
-                        && dt.getLdfValue().trim().length() != 0) {
+                if (dt.getLdfValue() != null && !dt.getLdfValue().trim().isEmpty()) {
                     ldfs.add(dt);
                 }
             }

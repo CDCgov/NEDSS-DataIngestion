@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
 @SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class DynamicBeanBinding {
-    private static Map<Object, Object> beanMethodMap = new HashMap<>();
+    private static final Map<Object, Object> beanMethodMap = new HashMap<>();
 
 
 
@@ -59,7 +59,7 @@ public class DynamicBeanBinding {
         Object[] arg = { "" };
         Object[] nullArg = null;
 
-        if (colVal!=null && !colVal.equals("")) {
+        if (colVal!=null && !colVal.isEmpty()) {
             if (pType.equalsIgnoreCase("java.sql.Timestamp")) {
 
                 Timestamp ts = TimeStampUtil.getCurrentTimeStamp(tz);
@@ -123,11 +123,10 @@ public class DynamicBeanBinding {
                 Method[] gettingMethods = beanClass.getMethods();
                 Map<Object, Object> resultMap = new HashMap<>();
                 for (Method gettingMethod : gettingMethods) {
-                    Method method =  gettingMethod;
-                    String methodName = method.getName();
-                    Object[] parmTypes = method.getParameterTypes();
+                    String methodName = gettingMethod.getName();
+                    Object[] parmTypes = gettingMethod.getParameterTypes();
                     if (methodName.startsWith("set") && parmTypes.length == 1)
-                        resultMap.put(methodName, method);
+                        resultMap.put(methodName, gettingMethod);
                 }
                 beanMethodMap.put(beanClass, resultMap);
             }

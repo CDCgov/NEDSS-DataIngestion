@@ -567,7 +567,7 @@ class AnswerServiceTest {
 
 
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            answerService.storeAnswerDTCollection(answerDTColl, interfaceDt);
+            answerService.storeAnswerDTCollection(answerDTColl);
         });
 
         assertNotNull(thrown);
@@ -738,7 +738,7 @@ class AnswerServiceTest {
         Collection<NbsActEntityDto> actEntityDTCollection = new ArrayList<>();
         ObservationDto observationDto = new ObservationDto();
 
-        answerService.insertActEntityDTCollection(actEntityDTCollection, observationDto);
+        answerService.insertActEntityDTCollection(actEntityDTCollection);
 
         verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
     }
@@ -748,7 +748,7 @@ class AnswerServiceTest {
     void testStoreAnswerDTCollection_NullCollection()  {
         ObservationDto interfaceDT = new ObservationDto();
 
-        answerService.storeAnswerDTCollection(null, interfaceDT);
+        answerService.storeAnswerDTCollection(null);
 
         verify(nbsAnswerRepository, never()).save(any(NbsAnswer.class));
     }
@@ -763,7 +763,7 @@ class AnswerServiceTest {
 
         ObservationDto interfaceDT = new ObservationDto();
 
-        answerService.storeAnswerDTCollection(answerDTColl, interfaceDT);
+        answerService.storeAnswerDTCollection(answerDTColl);
 
         verify(nbsAnswerRepository, never()).save(any(NbsAnswer.class));
     }

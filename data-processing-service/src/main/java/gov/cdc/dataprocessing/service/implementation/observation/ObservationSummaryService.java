@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
 import gov.cdc.dataprocessing.model.container.model.ProviderDataForPrintContainer;
 import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
@@ -56,114 +55,85 @@ public class ObservationSummaryService implements IObservationSummaryService {
         this.queryHelper = queryHelper;
     }
 
-    public Collection<UidSummaryContainer> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause) throws DataProcessingException {
+    public Collection<UidSummaryContainer> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause)  {
 
         Collection<UidSummaryContainer>  uidSummaryVOCollection  = new ArrayList<>();
-        try{
-            var obsSums = observationSummaryRepository.findAllActiveLabReportUidListForManage(investigationUid, whereClause);
+        var obsSums = observationSummaryRepository.findAllActiveLabReportUidListForManage(investigationUid, whereClause);
 
-            for(var item : obsSums) {
-                UidSummaryContainer container = new UidSummaryContainer();
-                container.setUid(item.getUid());
-                container.setAddTime(item.getAddTime());
-                container.setAddReasonCd(item.getAddReasonCd());
-                uidSummaryVOCollection.add(container);
-            }
-
-        }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage(), ex);
+        for(var item : obsSums) {
+            UidSummaryContainer container = new UidSummaryContainer();
+            container.setUid(item.getUid());
+            container.setAddTime(item.getAddTime());
+            container.setAddReasonCd(item.getAddReasonCd());
+            uidSummaryVOCollection.add(container);
         }
+
         return uidSummaryVOCollection;
     }
 
 
-    public Map<Object,Object> getLabParticipations(Long observationUID) throws DataProcessingException {
+    public Map<Object,Object> getLabParticipations(Long observationUID)   {
         Map<Object,Object> vals;
         vals = customRepository.getLabParticipations(observationUID);
         return vals;
     }
 
 
-    public ArrayList<Object>  getPatientPersonInfo(Long observationUID) throws DataProcessingException
+    public ArrayList<Object>  getPatientPersonInfo(Long observationUID)
     {
         ArrayList<Object> vals;
-        try
-        {
-            vals = customRepository.getPatientPersonInfo(observationUID);
-        }
-        catch(Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
-
-
+        vals = customRepository.getPatientPersonInfo(observationUID);
         return vals;
     }
 
 
-    public ArrayList<Object>  getProviderInfo(Long observationUID,String partTypeCd) throws DataProcessingException
+    public ArrayList<Object>  getProviderInfo(Long observationUID,String partTypeCd)
     {
         ArrayList<Object> orderProviderInfo;
-        try
-        {
-           orderProviderInfo = customRepository.getProviderInfo(observationUID, partTypeCd);
-        }
-        catch(Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
-
+        orderProviderInfo = customRepository.getProviderInfo(observationUID, partTypeCd);
         return orderProviderInfo;
     }
 
-    public ArrayList<Object>  getActIdDetails(Long observationUID) throws DataProcessingException
+    public ArrayList<Object>  getActIdDetails(Long observationUID)
     {
         ArrayList<Object> actIdDetails;
-        try
-        {
-            actIdDetails = customRepository.getActIdDetails(observationUID);
-        }
-        catch(Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
-
+        actIdDetails = customRepository.getActIdDetails(observationUID);
         return actIdDetails;
     }
 
-    public String getReportingFacilityName(Long organizationUid) throws DataProcessingException
+    public String getReportingFacilityName(Long organizationUid)
     {
         String orgName;
         orgName = customRepository.getReportingFacilityName(organizationUid);
         return orgName;
     }
 
-    public String getSpecimanSource(Long materialUid) throws DataProcessingException {
+    public String getSpecimanSource(Long materialUid)   {
         String specSource;
         specSource = customRepository.getSpecimanSource(materialUid);
         return specSource;
     }
 
 
-    public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
+    public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
         providerDataForPrintVO = customRepository.getOrderingFacilityAddress(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 
-    public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
+    public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
         providerDataForPrintVO = customRepository.getOrderingFacilityPhone(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 
-    public ProviderDataForPrintContainer getOrderingPersonAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws  DataProcessingException
+    public ProviderDataForPrintContainer getOrderingPersonAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
         providerDataForPrintVO = customRepository.getOrderingPersonAddress(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
     }
 
-    public ProviderDataForPrintContainer getOrderingPersonPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) throws DataProcessingException
+    public ProviderDataForPrintContainer getOrderingPersonPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
         providerDataForPrintVO = customRepository.getOrderingPersonPhone(providerDataForPrintVO, organizationUid);
         return providerDataForPrintVO;
@@ -208,9 +178,6 @@ public class ObservationSummaryService implements IObservationSummaryService {
         ArrayList<ResultedTestSummaryContainer>  testList;
 
         testList = customRepository.getTestAndSusceptibilities(typeCode, observationUid, labRepEvent, labRepSumm);
-        //afterReflex = System.currentTimeMillis();
-        //totalReflex += (afterReflex - beforeReflex);
-
         if (testList != null) {
 
             if(labRepEvent != null)
@@ -218,8 +185,6 @@ public class ObservationSummaryService implements IObservationSummaryService {
             if(labRepSumm != null)
                 labRepSumm.setTheResultedTestSummaryVOCollection(testList);
 
-            //timing
-            //t3begin = System.currentTimeMillis();
             for (ResultedTestSummaryContainer RVO : testList) {
                 setSusceptibility(RVO, labRepEvent, labRepSumm);
 
@@ -228,27 +193,21 @@ public class ObservationSummaryService implements IObservationSummaryService {
         
     }
 
-    public Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd) throws DataProcessingException
+    public Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd)
     {
         Map<Object,Object> assocoiatedInvMap;
-        try{
-            String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
-            if (dataAccessWhereClause == null) {
-                dataAccessWhereClause = "";
-            }
-            else {
-                dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
-
-            }
-
-            String query = ASSOCIATED_INV_QUERY+dataAccessWhereClause;
-
-            assocoiatedInvMap = customRepository.getAssociatedInvList(uid, sourceClassCd, query);
+        String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
+        if (dataAccessWhereClause == null) {
+            dataAccessWhereClause = "";
         }
-        catch(Exception ex)
-        {
-            throw new DataProcessingException(ex.getMessage(), ex);
+        else {
+            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
+
         }
+
+        String query = ASSOCIATED_INV_QUERY+dataAccessWhereClause;
+
+        assocoiatedInvMap = customRepository.getAssociatedInvList(uid, sourceClassCd, query);
 
         return assocoiatedInvMap;
     }
@@ -264,13 +223,10 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
 
         susList = customRepository.getSusceptibilityUidSummary(RVO, labRepEvent, labRepSumm, "REFR", sourceActUid);
-        //afterSus = System.currentTimeMillis();
-        //totalSus += (afterSus - beforeSus);
+
         if (susList != null) {
             Iterator<UidSummaryContainer> susIter = susList.iterator();
             ArrayList<ResultedTestSummaryContainer>  susListFinal ;
-            //timing
-            //t4begin = System.currentTimeMillis();
 
             ArrayList<Object>  multipleSusceptArray = new ArrayList<> ();
 
@@ -279,29 +235,18 @@ public class ObservationSummaryService implements IObservationSummaryService {
                 Long sourceAct = uidVO.getUid();
 
                 countSus = countSus + 1;
-                //beforeReflex2 = System.currentTimeMillis();
 
                 susListFinal = customRepository.getSusceptibilityResultedTestSummary( "COMP", sourceAct);
 
-
-                //afterReflex2 = System.currentTimeMillis();
-                //totalReflex2 += (afterReflex2 - beforeReflex2);
-
                 multipleSusceptArray.addAll(susListFinal);
-                //multipleSuscept.add(susListFinal);
             }
 
             if (multipleSusceptArray != null) {
                 RVO.setTheSusTestSummaryVOColl(multipleSusceptArray);
             }
 
-            //if (multipleSuscept != null) {
-            //	RVO.setTheSusTestSummaryVOColl(multipleSuscept);
-            //}
-            //t4end = System.currentTimeMillis();
         }
 
-        //t3end = System.currentTimeMillis();
 
 
 

@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +42,9 @@ import java.util.Date;
         "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class EntityIdUtil {
     private static final Logger logger = LoggerFactory.getLogger(EntityIdUtil.class);
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
 
-    public EntityIdUtil(ICatchingValueService catchingValueService) {
+    public EntityIdUtil(ICatchingValueDpService catchingValueService) {
         this.catchingValueService = catchingValueService;
     }
 
@@ -84,7 +84,7 @@ public class EntityIdUtil {
 
                 String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
 
-                if (typeCode == null || typeCode.trim().equals("")) {
+                if (typeCode == null || typeCode.trim().isEmpty()) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
                     entityIdDto.setTypeDescTxt(typeCode);
@@ -144,7 +144,7 @@ public class EntityIdUtil {
 
     public Timestamp stringToStrutsTimestamp(String strTime) {
         try {
-            if (strTime != null && strTime.trim().length() > 0) {
+            if (strTime != null && !strTime.trim().isEmpty()) {
                 return TimeStampUtil.convertStringToTimestamp(strTime);
             }
             else {

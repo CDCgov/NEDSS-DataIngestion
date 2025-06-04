@@ -53,7 +53,6 @@ public class RealizedRoleDto extends BaseContainer
         roleName = role.getAuthRoleNm();
         programAreaCode = role.getProgAreaCd();
         jurisdictionCode = role.getJurisdictionCd();
-//        recordStatus = role.getRecordStatusCd();
 
     }
 }

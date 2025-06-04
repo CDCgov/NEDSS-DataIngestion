@@ -36,28 +36,28 @@ public class Controller {
     }
 
     @GetMapping(path = "/srte/cache/string/{objectName}")
-    public ResponseEntity<String> getSrteCacheMapString(@PathVariable String objectName, @RequestParam String key) throws RtiCacheException {
+    public ResponseEntity<String> getSrteCacheMapString(@PathVariable String objectName, @RequestParam String key) throws DataProcessingException {
         var res =  managerCacheService.getCache(ObjectName.valueOf(objectName), key);
         logger.info("/srte/cache/string/{}?key={}", objectName, key);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @GetMapping(path = "/srte/cache/object/{objectName}")
-    public ResponseEntity<Object> getSrteCacheObject(@PathVariable String objectName, @RequestParam String key) throws RtiCacheException {
+    public ResponseEntity<Object> getSrteCacheObject(@PathVariable String objectName, @RequestParam String key) throws DataProcessingException {
         var res =  managerCacheService.getCacheObject(ObjectName.valueOf(objectName), key);
         logger.info("/srte/cache/object/{}?key={}", objectName, key);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @GetMapping(path = "/srte/cache/contain/{objectName}")
-    public ResponseEntity<Boolean> getSrteCacheMapContain(@PathVariable String objectName, @RequestParam String key) throws RtiCacheException {
+    public ResponseEntity<Boolean> getSrteCacheMapContain(@PathVariable String objectName, @RequestParam String key) throws DataProcessingException {
         var res =  managerCacheService.containKey(ObjectName.valueOf(objectName), key);
         logger.info("/srte/cache/contain/{}?key={}", objectName, key);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @GetMapping(path = "/odse/localId")
-    public ResponseEntity<Object> getOdseLocalId(@RequestParam String localIdClass, @RequestParam boolean geApplied) throws RtiCacheException {
+    public ResponseEntity<Object> getOdseLocalId(@RequestParam String localIdClass, @RequestParam boolean geApplied) throws DataProcessingException {
         var res = odseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.valueOf(localIdClass), geApplied);
         logger.info("/odse/localId/{}?geApplied={}", localIdClass, geApplied);
         return ResponseEntity.status(HttpStatus.OK).body(res);

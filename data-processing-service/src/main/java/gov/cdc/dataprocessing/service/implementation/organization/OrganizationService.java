@@ -50,7 +50,7 @@ public class OrganizationService implements IOrganizationService {
         this.uidService = uidService;
     }
     @SuppressWarnings("java:S3776")
-    public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException, DataProcessingException {
+    public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
 
         OrganizationContainer orderingFacilityVO = null;
         Collection<OrganizationContainer> orgColl = labResultProxyContainer.getTheOrganizationContainerCollection();

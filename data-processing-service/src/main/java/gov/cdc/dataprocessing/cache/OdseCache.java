@@ -32,4 +32,8 @@ public class OdseCache {
     public static Map<Object,Object> map = new TreeMap<>();
 
 
+    public static TreeMap<Object,Object> DMB_QUESTION_MAP = new TreeMap<>();
+    public static String GUEST_LIST_HASHED_PA_J = "";
+    public static String OWNER_LIST_HASHED_PA_J = "";
+
 }

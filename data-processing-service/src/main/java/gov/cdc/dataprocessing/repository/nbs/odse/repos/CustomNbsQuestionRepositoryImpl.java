@@ -5,7 +5,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +53,7 @@ public class CustomNbsQuestionRepositoryImpl implements CustomNbsQuestionReposit
         // For Unit Test
     }
 
-    @Transactional
+    // @Transactional
     public  Collection<QuestionRequiredNnd> retrieveQuestionRequiredNnd(String formCd) {
         Query query = entityManager.createNativeQuery(NND_UI_META_DATA_BY_FORM_CODE);
         query.setParameter("investigationFormCode", formCd);

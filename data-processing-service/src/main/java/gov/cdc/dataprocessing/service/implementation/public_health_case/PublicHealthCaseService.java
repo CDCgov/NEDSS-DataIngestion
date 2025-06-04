@@ -52,52 +52,45 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
 
         Long PubHealthCaseUid;
 
-        try
+        PublicHealthCaseDto publicHealthCase;
+
+        Collection<ActivityLocatorParticipationDto> alpDTCol = publicHealthCaseContainer.getTheActivityLocatorParticipationDTCollection();
+        Collection<ActRelationshipDto> arDTCol = publicHealthCaseContainer.getTheActRelationshipDTCollection();
+        Collection<ParticipationDto> pDTCol = publicHealthCaseContainer.getTheParticipationDTCollection();
+        Collection<ActivityLocatorParticipationDto> col;
+        Collection<ActRelationshipDto> colActRelationship;
+        Collection<ParticipationDto> colParticipation ;
+
+        if (alpDTCol != null)
         {
-
-            PublicHealthCaseDto publicHealthCase;
-
-            Collection<ActivityLocatorParticipationDto> alpDTCol = publicHealthCaseContainer.getTheActivityLocatorParticipationDTCollection();
-            Collection<ActRelationshipDto> arDTCol = publicHealthCaseContainer.getTheActRelationshipDTCollection();
-            Collection<ParticipationDto> pDTCol = publicHealthCaseContainer.getTheParticipationDTCollection();
-            Collection<ActivityLocatorParticipationDto> col;
-            Collection<ActRelationshipDto> colActRelationship;
-            Collection<ParticipationDto> colParticipation ;
-
-            if (alpDTCol != null)
-            {
-                col = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
-                publicHealthCaseContainer.setTheActivityLocatorParticipationDTCollection(col);
-            }
-
-            if (arDTCol != null)
-            {
-                colActRelationship = entityHelper.iterateARDTActRelationship(arDTCol);
-                publicHealthCaseContainer.setTheActRelationshipDTCollection(colActRelationship);
-            }
-
-            if (pDTCol != null)
-            {
-                colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
-                publicHealthCaseContainer.setTheParticipationDTCollection(colParticipation);
-            }
-
-            if (publicHealthCaseContainer.isItNew())
-            {
-                publicHealthCaseRepositoryUtil.create(publicHealthCaseContainer);
-                publicHealthCase =  publicHealthCaseContainer.getThePublicHealthCaseDto();
-                PubHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
-            }
-            else
-            {
-                publicHealthCaseRepositoryUtil.update(publicHealthCaseContainer);
-                PubHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
-            }
+            col = entityHelper.iterateALPDTActivityLocatorParticipation(alpDTCol);
+            publicHealthCaseContainer.setTheActivityLocatorParticipationDTCollection(col);
         }
-        catch (Exception e)
+
+        if (arDTCol != null)
         {
-           throw new DataProcessingException(e.getMessage(), e);
+            colActRelationship = entityHelper.iterateARDTActRelationship(arDTCol);
+            publicHealthCaseContainer.setTheActRelationshipDTCollection(colActRelationship);
         }
+
+        if (pDTCol != null)
+        {
+            colParticipation = entityHelper.iteratePDTForParticipation(pDTCol);
+            publicHealthCaseContainer.setTheParticipationDTCollection(colParticipation);
+        }
+
+        if (publicHealthCaseContainer.isItNew())
+        {
+            publicHealthCaseRepositoryUtil.create(publicHealthCaseContainer);
+            publicHealthCase =  publicHealthCaseContainer.getThePublicHealthCaseDto();
+            PubHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
+        }
+        else
+        {
+            publicHealthCaseRepositoryUtil.update(publicHealthCaseContainer);
+            PubHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
+        }
+
 
         return PubHealthCaseUid;
     }

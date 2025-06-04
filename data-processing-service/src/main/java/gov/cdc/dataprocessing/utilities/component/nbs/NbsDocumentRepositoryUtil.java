@@ -8,11 +8,10 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsDocumentJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentRepository;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
@@ -45,22 +44,20 @@ public class NbsDocumentRepositoryUtil {
     private final PatientRepositoryUtil patientRepositoryUtil;
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
-    private final NbsDocumentRepository nbsDocumentRepository;
+    private final NbsDocumentJdbcRepository nbsDocumentJdbcRepository;
 
-    private final NbsDocumentHistRepository nbsDocumentHistRepository;
 
     public NbsDocumentRepositoryUtil(CustomRepository customRepository,
                                      PatientRepositoryUtil patientRepositoryUtil,
                                      ParticipationRepositoryUtil participationRepositoryUtil,
                                      PrepareAssocModelHelper prepareAssocModelHelper,
-                                     NbsDocumentRepository nbsDocumentRepository,
-                                     NbsDocumentHistRepository nbsDocumentHistRepository) {
+                                     NbsDocumentJdbcRepository nbsDocumentJdbcRepository
+    ) {
         this.customRepository = customRepository;
         this.patientRepositoryUtil = patientRepositoryUtil;
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
-        this.nbsDocumentRepository = nbsDocumentRepository;
-        this.nbsDocumentHistRepository = nbsDocumentHistRepository;
+        this.nbsDocumentJdbcRepository = nbsDocumentJdbcRepository;
     }
 
     public NbsDocumentContainer getNBSDocumentWithoutActRelationship(Long nbsDocUid) throws  DataProcessingException {
@@ -123,11 +120,13 @@ public class NbsDocumentRepositoryUtil {
 
     public void insertNBSDocumentHist(NBSDocumentDto nbsDocumentDto) {
         var nbs = new NbsDocumentHist(nbsDocumentDto);
-        nbsDocumentHistRepository.save(nbs);
+        nbsDocumentJdbcRepository.mergeNbsDocumentHist(nbs);
+//        nbsDocumentHistRepository.save(nbs);
     }
     public Long updateNbsDocument(NBSDocumentDto nbsDocumentDto) {
         var nbs = new NbsDocument(nbsDocumentDto);
-        nbsDocumentRepository.save(nbs);
+        nbsDocumentJdbcRepository.mergeNbsDocument(nbs);
+//        nbsDocumentRepository.save(nbs);
         return nbs.getNbsDocumentUid();
     }
 

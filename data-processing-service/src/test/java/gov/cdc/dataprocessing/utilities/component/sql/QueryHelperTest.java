@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.sql;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
@@ -57,7 +58,7 @@ class QueryHelperTest {
     }
 
     @Test
-    void getDataAccessWhereClause_Test() {
+    void getDataAccessWhereClause_Test() throws DataProcessingException {
         String businessObjLookupName = "";
         String operation = "";
         String alias = "";

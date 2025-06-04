@@ -10,7 +10,11 @@ import gov.cdc.dataprocessing.service.interfaces.paticipation.IParticipationServ
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 /**
@@ -51,10 +55,10 @@ public class ParticipationService implements IParticipationService {
 
     public Long findPatientMprUidByObservationUid(String classCode, String typeCode, Long actUid) {
         var result = participationRepository.findPatientMprUidByObservationUid(classCode, typeCode, actUid);
-        return result.map(longs -> longs.get(0)).orElse(null);
+        return result.map(List::getFirst).orElse(null);
     }
 
-    public void saveParticipationHist(ParticipationDto participationDto) throws DataProcessingException {
+    public void saveParticipationHist(ParticipationDto participationDto)  {
         var res = participationHistRepository.findVerNumberByKey(participationDto.getSubjectEntityUid(), participationDto.getActUid(), participationDto.getTypeCd());
         Integer ver = 1;
         if (res.isPresent() && !res.get().isEmpty()) {
@@ -68,7 +72,7 @@ public class ParticipationService implements IParticipationService {
 
     }
 
-    public void saveParticipation(ParticipationDto participationDto) throws DataProcessingException {
+    public void saveParticipation(ParticipationDto participationDto)   {
         if (participationDto.isItNew() || participationDto.isItDirty()) {
             persistingParticipation(participationDto);
         } else if (participationDto.isItDelete()) {
@@ -80,6 +84,45 @@ public class ParticipationService implements IParticipationService {
             var data = new Participation(participationDto);
             participationRepository.save(data);
         }
+    }
+
+    public void saveParticipationByBatch(List<ParticipationDto> toSave) {
+        if (toSave == null || toSave.isEmpty()) return;
+
+        List<Participation> entities = toSave.stream()
+                .filter(dto -> dto.getSubjectEntityUid() != null && dto.getActUid() != null)
+                .map(Participation::new)
+                .collect(Collectors.toList());
+
+        participationRepository.saveAll(entities);
+    }
+
+    public void saveParticipationHistBatch(List<ParticipationDto> dtos)   {
+        if (dtos == null || dtos.isEmpty()) return;
+
+        List<ParticipationHist> toPersist = new ArrayList<>();
+
+        for (ParticipationDto dto : dtos) {
+            Integer ver = 1;
+
+            Optional<List<Integer>> res = participationHistRepository.findVerNumberByKey(
+                    dto.getSubjectEntityUid(),
+                    dto.getActUid(),
+                    dto.getTypeCd()
+            );
+
+            if (res.isPresent() && !res.get().isEmpty()) {
+                ver = Collections.max(res.get());
+            }
+
+            ParticipationHist hist = new ParticipationHist(dto);
+            hist.setVersionCtrlNbr(ver);
+            toPersist.add(hist);
+
+            dto.setItNew(false);
+        }
+
+        participationHistRepository.saveAll(toPersist);
     }
 
     private void deleteParticipationByPk(Long subjectId, Long actId, String classCode)  {

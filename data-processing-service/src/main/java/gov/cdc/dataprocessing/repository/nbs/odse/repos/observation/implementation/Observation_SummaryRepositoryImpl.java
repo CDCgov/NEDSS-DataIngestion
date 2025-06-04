@@ -8,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
                     "AND person_parent_uid = :personParentUid";
 
 
-    @Transactional
+//    @Transactional
     @Override
     public Collection<Observation_Summary> findAllActiveLabReportUidListForManage(Long investigationUid, String whereClause) {
         var sql = findAllActiveLabReportUidListForManage_SQL + whereClause;
@@ -93,7 +92,7 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
         return lst;
     }
 
-    @Transactional
+//    @Transactional
     @Override
     public Optional<Collection<Observation_Lab_Summary_ForWorkUp_New>> findLabSummaryForWorkupNew(Long personParentUid, String whereClause) {
         var sql = SELECT_LABSUMMARY_FORWORKUPNEW + whereClause;
