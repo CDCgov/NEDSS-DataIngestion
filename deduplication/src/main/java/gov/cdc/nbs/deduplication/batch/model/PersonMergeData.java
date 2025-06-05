@@ -8,7 +8,7 @@ public record PersonMergeData(
     Ethnicity ethnicity,
     SexAndBirth sexAndBirth,
     Mortality mortality,
-    GeneralPatientInformation generalPatientInformation,
+    GeneralPatientInformation general,
     List<Investigation> investigations,
     List<Address> addresses,
     List<PhoneEmail> phoneEmails,
@@ -87,18 +87,30 @@ public record PersonMergeData(
     }
   }
 
-  // GENERAL PATIENT INFORMATION Object
   public record GeneralPatientInformation(
-      String asOfDate,
-      String maritalStatusDescription,
+      String asOf,
+      String maritalStatus,
       String mothersMaidenName,
-      Integer adultsInHouseholdNumber,
-      Integer childrenInHouseholdNumber,
-      String occupationCode,
-      String educationLevelDescription,
-      String primaryLanguageDescription,
-      String speaksEnglishCode,
+      String numberOfAdultsInResidence,
+      String numberOfChildrenInResidence,
+      String primaryOccupation,
+      String educationLevel,
+      String primaryLanguage,
+      String speaksEnglish,
       String stateHivCaseId) {
+    public GeneralPatientInformation() {
+      this(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
   // INVESTIGATION Object

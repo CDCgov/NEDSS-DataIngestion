@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.GeneralPatientInformation;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
@@ -35,17 +36,6 @@ class PersonMergeDataMapperTest {
   private static final String ETHNICITY_AS_OF_DATE = "2025-05-30T00:00:00";
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
-
-  private static final String GENERAL_PATIENT_INFO_AS_OF_DATE = "2023-05-01";
-  private static final String MARITAL_STATUS_DESCRIPTION = "Married";
-  private static final String MOTHERS_MAIDEN_NAME = "Jane Doe";
-  private static final Integer ADULTS_IN_HOUSEHOLD_NUMBER = 2;
-  private static final Integer CHILDREN_IN_HOUSEHOLD_NUMBER = 1;
-  private static final String OCCUPATION_CODE = "Engineer";
-  private static final String EDUCATION_LEVEL_DESCRIPTION = "Bachelor's Degree";
-  private static final String PRIMARY_LANGUAGE_DESCRIPTION = "English";
-  private static final String SPEAKS_ENGLISH_CODE = "Y";
-  private static final String STATE_HIV_CASE_ID = "123456789";
 
   private static final String INVESTIGATIONS_STRING = """
       [
@@ -156,6 +146,20 @@ class PersonMergeDataMapperTest {
       "deathCountry": "Afghanistan"
       }
       """;
+  private static final String GENERAL_INFO_STRING = """
+        {
+        "asOf": "2025-05-27T00:00:00",
+        "maritalStatus": "Annulled",
+        "mothersMaidenName": "MotherMaiden",
+        "numberOfAdultsInResidence": 2,
+        "numberOfChildrenInResidence": 0,
+        "primaryOccupation": "Mining",
+        "educationLevel": "10th grade",
+        "primaryLanguage": "Eastern Frisian",
+        "speaksEnglish": "Yes",
+        "stateHivCaseId": "123"
+      }
+      """;
 
   @Test
   void testMapRow() throws Exception {
@@ -198,16 +202,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void mockGeneralPatientInformationFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_general")).thenReturn(GENERAL_PATIENT_INFO_AS_OF_DATE);
-    when(rs.getString("marital_status_desc_txt")).thenReturn(MARITAL_STATUS_DESCRIPTION);
-    when(rs.getString("mothers_maiden_nm")).thenReturn(MOTHERS_MAIDEN_NAME);
-    when(rs.getInt("adults_in_house_nbr")).thenReturn(ADULTS_IN_HOUSEHOLD_NUMBER);
-    when(rs.getInt("children_in_house_nbr")).thenReturn(CHILDREN_IN_HOUSEHOLD_NUMBER);
-    when(rs.getString("occupation_cd")).thenReturn(OCCUPATION_CODE);
-    when(rs.getString("education_level_desc_txt")).thenReturn(EDUCATION_LEVEL_DESCRIPTION);
-    when(rs.getString("prim_lang_desc_txt")).thenReturn(PRIMARY_LANGUAGE_DESCRIPTION);
-    when(rs.getString("speaks_english_cd")).thenReturn(SPEAKS_ENGLISH_CODE);
-    when(rs.getString("State_HIV_Case_ID")).thenReturn(STATE_HIV_CASE_ID);
+    when(rs.getString("general")).thenReturn(GENERAL_INFO_STRING);
   }
 
   private void mockInvestigationsField(ResultSet rs) throws SQLException {
@@ -264,21 +259,16 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertGeneralPatientInformation(PersonMergeData personMergeData) {
-    assertThat(personMergeData.generalPatientInformation().asOfDate()).isEqualTo(GENERAL_PATIENT_INFO_AS_OF_DATE);
-    assertThat(personMergeData.generalPatientInformation().maritalStatusDescription())
-        .isEqualTo(MARITAL_STATUS_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().mothersMaidenName()).isEqualTo(MOTHERS_MAIDEN_NAME);
-    assertThat(personMergeData.generalPatientInformation().adultsInHouseholdNumber())
-        .isEqualTo(ADULTS_IN_HOUSEHOLD_NUMBER);
-    assertThat(personMergeData.generalPatientInformation().childrenInHouseholdNumber())
-        .isEqualTo(CHILDREN_IN_HOUSEHOLD_NUMBER);
-    assertThat(personMergeData.generalPatientInformation().occupationCode()).isEqualTo(OCCUPATION_CODE);
-    assertThat(personMergeData.generalPatientInformation().educationLevelDescription())
-        .isEqualTo(EDUCATION_LEVEL_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().primaryLanguageDescription())
-        .isEqualTo(PRIMARY_LANGUAGE_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().speaksEnglishCode()).isEqualTo(SPEAKS_ENGLISH_CODE);
-    assertThat(personMergeData.generalPatientInformation().stateHivCaseId()).isEqualTo(STATE_HIV_CASE_ID);
+    assertThat(personMergeData.general().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.general().maritalStatus()).isEqualTo("Annulled");
+    assertThat(personMergeData.general().mothersMaidenName()).isEqualTo("MotherMaiden");
+    assertThat(personMergeData.general().numberOfAdultsInResidence()).isEqualTo("2");
+    assertThat(personMergeData.general().numberOfChildrenInResidence()).isEqualTo("0");
+    assertThat(personMergeData.general().primaryOccupation()).isEqualTo("Mining");
+    assertThat(personMergeData.general().educationLevel()).isEqualTo("10th grade");
+    assertThat(personMergeData.general().primaryLanguage()).isEqualTo("Eastern Frisian");
+    assertThat(personMergeData.general().speaksEnglish()).isEqualTo("Yes");
+    assertThat(personMergeData.general().stateHivCaseId()).isEqualTo("123");
   }
 
   private void assertInvestigations(PersonMergeData personMergeData) {
@@ -441,6 +431,31 @@ class PersonMergeDataMapperTest {
     String mortalityString = "asdf";
     PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapMortality(mortalityString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient mortality");
+  }
+
+  @Test
+  void testMapGeneralEmpty() {
+    String generalInfoString = null;
+    GeneralPatientInformation generalInfo = mapper.mapGeneralPatientInformation(generalInfoString);
+    assertThat(generalInfo.asOf()).isNull();
+    assertThat(generalInfo.asOf()).isNull();
+    assertThat(generalInfo.maritalStatus()).isNull();
+    assertThat(generalInfo.mothersMaidenName()).isNull();
+    assertThat(generalInfo.numberOfAdultsInResidence()).isNull();
+    assertThat(generalInfo.numberOfChildrenInResidence()).isNull();
+    assertThat(generalInfo.primaryOccupation()).isNull();
+    assertThat(generalInfo.educationLevel()).isNull();
+    assertThat(generalInfo.primaryLanguage()).isNull();
+    assertThat(generalInfo.speaksEnglish()).isNull();
+    assertThat(generalInfo.stateHivCaseId()).isNull();
+  }
+
+  @Test
+  void testMapGeneralException() {
+    String generalInfoString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class,
+        () -> mapper.mapGeneralPatientInformation(generalInfoString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient general information");
   }
 
   @Test

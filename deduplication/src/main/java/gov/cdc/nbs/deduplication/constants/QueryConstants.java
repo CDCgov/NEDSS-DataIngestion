@@ -576,17 +576,6 @@ public class QueryConstants {
           p.person_parent_uid,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
-          -- GENERAL PATIENT INFORMATION
-          p.as_of_date_general,
-          p.marital_status_desc_txt,
-          p.mothers_maiden_nm,
-          p.adults_in_house_nbr,
-          p.children_in_house_nbr,
-          p.occupation_cd,
-          p.education_level_desc_txt,
-          p.prim_lang_desc_txt,
-          p.speaks_english_cd,
-          p.ehars_id AS State_HIV_Case_ID,
           nested.address,
           nested.phone,
           nested.name,
@@ -595,6 +584,7 @@ public class QueryConstants {
           nested.ethnicity,
           nested.sexAndBirth,
           nested.mortality,
+          nested.general,
           --INVESTIGATIONS
           (
               SELECT
@@ -678,7 +668,7 @@ public class QueryConstants {
                                   elp.entity_uid = p.person_uid
                                   AND use_cd NOT IN ('BIR', 'DTH')
                                   AND elp.class_cd = 'PST'
-                                  AND elp.status_cd = 'A'
+                                  AND elp.record_status_cd = 'ACTIVE'
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES
@@ -772,6 +762,7 @@ public class QueryConstants {
                                   AND reasonUnknownCode.code_set_nm = 'P_ETHN_UNK_REASON'
                               WHERE
                                   ep.person_uid = p.person_uid
+                                  AND eg.record_status_cd = 'ACTIVE'
                               GROUP BY
                                   ep.person_uid,
                                   ep.as_of_date_ethnicity,
@@ -817,7 +808,7 @@ public class QueryConstants {
                               WHERE
                                   elp.entity_uid = p.person_uid
                                   AND elp.class_cd = 'TELE'
-                                  AND elp.status_cd = 'A'
+                                  AND elp.record_status_cd = 'ACTIVE'
                                   AND (
                                       tl.phone_nbr_txt IS NOT NULL
                                       OR tl.email_address IS NOT NULL
@@ -961,7 +952,40 @@ public class QueryConstants {
                                   INCLUDE_NULL_VALUES,
                                   WITHOUT_ARRAY_WRAPPER
                           ) AS mortality
-                  ) AS mortality
+                  ) AS mortality,
+                  -- General Patient Info
+                  (
+                      SELECT
+                          (
+                              SELECT
+                                  p.as_of_date_general AS asOf,
+                                  maritalStatusCode.code_short_desc_txt AS maritalStatus,
+                                  p.mothers_maiden_nm AS mothersMaidenName,
+                                  p.adults_in_house_nbr AS numberOfAdultsInResidence,
+                                  p.children_in_house_nbr AS numberOfChildrenInResidence,
+                                  occupationCode.code_short_desc_txt AS primaryOccupation,
+                                  educationLevelCode.code_short_desc_txt AS educationLevel,
+                                  languageCode.code_short_desc_txt AS primaryLanguage,
+                                  englishCode.code_short_desc_txt AS speaksEnglish,
+                                  p.ehars_id AS stateHivCaseId
+                              FROM
+                                  person gp WITH (NOLOCK)
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general maritalStatusCode WITH (NOLOCK) ON maritalStatusCode.code = p.marital_status_cd
+                                  AND maritalStatusCode.code_set_nm = 'P_MARITAL'
+                                  LEFT JOIN NBS_SRTE.dbo.NAICS_Industry_code occupationCode WITH (NOLOCK) ON occupationCode.code = p.occupation_cd
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general educationLevelCode WITH (NOLOCK) ON educationLevelCode.code = p.education_level_cd
+                                  AND educationLevelCode.code_set_nm = 'P_EDUC_LVL'
+                                  LEFT JOIN NBS_SRTE.dbo.Language_code languageCode WITH (NOLOCK) ON languageCode.code = p.prim_lang_cd
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general englishCode WITH (NOLOCK) ON englishCode.code = p.speaks_english_cd
+                                  AND englishCode.code_set_nm = 'YNU'
+                              WHERE
+                                  gp.person_uid = p.person_uid
+                              FOR JSON
+                                  PATH,
+                                  INCLUDE_NULL_VALUES,
+                                  WITHOUT_ARRAY_WRAPPER
+                          ) AS general
+                  ) AS general
           ) AS nested
       WHERE
           p.person_uid IN (:ids)
