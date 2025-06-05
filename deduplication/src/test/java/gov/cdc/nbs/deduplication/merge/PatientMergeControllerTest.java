@@ -122,7 +122,7 @@ class PatientMergeControllerTest {
     Long matchId = 123L;
     String requestBody = createPatientMergeRequestJson();
 
-    mockMvc.perform(post("/merge/merge-patient/{matchId}", matchId)
+    mockMvc.perform(post("/merge/{matchId}", matchId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         .andExpect(status().isOk());
@@ -138,7 +138,7 @@ class PatientMergeControllerTest {
     doThrow(new RuntimeException("Merge failed"))
         .when(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
 
-    mockMvc.perform(post("/merge/merge-patient/{matchId}", matchId)
+    mockMvc.perform(post("/merge/{matchId}", matchId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         .andExpect(status().isInternalServerError());

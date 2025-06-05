@@ -74,7 +74,7 @@ public class PatientMergeController {
     }
   }
 
-  @PostMapping("/merge-patient/{matchId}")
+  @PostMapping("/{matchId}")
   public ResponseEntity<Void> mergePatients(@RequestBody PatientMergeRequest mergeRequest,
       @PathVariable("matchId") Long matchId) {
     try {
