@@ -320,13 +320,13 @@ class PatientMergeControllerTest {
             },
             "investigations": [
               {
-                "investigationId": "1",
-                "startedOn": "2023-06-01T00:00:00Z",
+                "id": "1",
+                "startDate": "2023-06-01T00:00:00Z",
                 "condition": "Condition A"
               },
               {
-                "investigationId": "2",
-                "startedOn": "2023-07-01T00:00:00Z",
+                "id": "2",
+                "startDate": "2023-07-01T00:00:00Z",
                 "condition": "Condition B"
               }
             ],

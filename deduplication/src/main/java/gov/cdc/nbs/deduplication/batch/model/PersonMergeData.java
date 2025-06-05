@@ -113,10 +113,9 @@ public record PersonMergeData(
     }
   }
 
-  // INVESTIGATION Object
   public record Investigation(
-      String investigationId,
-      String startedOn,
+      String id,
+      String startDate,
       String condition) {
   }
 
