@@ -258,16 +258,16 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertGeneralPatientInformation(PersonMergeData personMergeData) {
-    assertThat(personMergeData.generalPatientInformation().asOf()).isEqualTo("2025-05-27T00:00:00");
-    assertThat(personMergeData.generalPatientInformation().maritalStatus()).isEqualTo("Annulled");
-    assertThat(personMergeData.generalPatientInformation().mothersMaidenName()).isEqualTo("MotherMaiden");
-    assertThat(personMergeData.generalPatientInformation().numberOfAdultsInResidence()).isEqualTo("2");
-    assertThat(personMergeData.generalPatientInformation().numberOfChildrenInResidence()).isEqualTo("0");
-    assertThat(personMergeData.generalPatientInformation().primaryOccupation()).isEqualTo("Mining");
-    assertThat(personMergeData.generalPatientInformation().educationLevel()).isEqualTo("10th grade");
-    assertThat(personMergeData.generalPatientInformation().primaryLanguage()).isEqualTo("Eastern Frisian");
-    assertThat(personMergeData.generalPatientInformation().speaksEnglish()).isEqualTo("Yes");
-    assertThat(personMergeData.generalPatientInformation().stateHivCaseId()).isEqualTo("123");
+    assertThat(personMergeData.general().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.general().maritalStatus()).isEqualTo("Annulled");
+    assertThat(personMergeData.general().mothersMaidenName()).isEqualTo("MotherMaiden");
+    assertThat(personMergeData.general().numberOfAdultsInResidence()).isEqualTo("2");
+    assertThat(personMergeData.general().numberOfChildrenInResidence()).isEqualTo("0");
+    assertThat(personMergeData.general().primaryOccupation()).isEqualTo("Mining");
+    assertThat(personMergeData.general().educationLevel()).isEqualTo("10th grade");
+    assertThat(personMergeData.general().primaryLanguage()).isEqualTo("Eastern Frisian");
+    assertThat(personMergeData.general().speaksEnglish()).isEqualTo("Yes");
+    assertThat(personMergeData.general().stateHivCaseId()).isEqualTo("123");
   }
 
   private void assertInvestigations(PersonMergeData personMergeData) {

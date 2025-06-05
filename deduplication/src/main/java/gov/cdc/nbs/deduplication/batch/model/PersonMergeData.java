@@ -8,7 +8,7 @@ public record PersonMergeData(
     Ethnicity ethnicity,
     SexAndBirth sexAndBirth,
     Mortality mortality,
-    GeneralPatientInformation generalPatientInformation,
+    GeneralPatientInformation general,
     List<Investigation> investigations,
     List<Address> addresses,
     List<PhoneEmail> phoneEmails,
