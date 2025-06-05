@@ -588,9 +588,9 @@ public class QueryConstants {
           --INVESTIGATIONS
           (
               SELECT
-                  inv.public_health_case_uid AS investigationId,
-                  inv.activity_from_time AS started_on,
-                  conditionCode.code_short_desc_txt AS condition
+                  inv.local_id AS id,
+                  inv.activity_from_time AS startDate,
+                  conditionCode.condition_short_nm AS 'condition'
               FROM
                   Participation part
               WITH
@@ -600,12 +600,18 @@ public class QueryConstants {
                   (NOLOCK) ON inv.public_health_case_uid = part.act_uid
                   AND inv.record_status_cd != 'LOG_DEL'
                   AND inv.investigation_status_cd IN ('O', 'C')
-                  LEFT JOIN nbs_srte..code_value_general conditionCode
+                  LEFT JOIN nbs_srte..condition_code conditionCode
               WITH
-                  (NOLOCK) ON conditionCode.code = inv.cd
-                  AND conditionCode.code_set_nm = ''
+                  (NOLOCK) ON conditionCode.condition_cd = inv.cd
               WHERE
-                  part.subject_entity_uid = p.person_uid
+                  part.subject_entity_uid IN (
+                      SELECT
+                          person_uid
+                      FROM
+                          person
+                      WHERE
+                          person_parent_uid = p.person_uid
+                  )
                   AND part.type_cd = 'SubjOfPHC'
                   AND part.record_status_cd = 'ACTIVE'
                   AND part.subject_class_cd = 'PSN'
@@ -923,27 +929,24 @@ public class QueryConstants {
                       SELECT
                           (
                               SELECT
-                                  p.as_of_date_morbidity AS asOf,
+                                  mp.as_of_date_morbidity AS asOf,
                                   deceasedCode.code_short_desc_txt AS deceased,
-                                  p.deceased_time AS dateOfDeath,
+                                  mp.deceased_time AS dateOfDeath,
                                   STRING_ESCAPE(pl.city_desc_txt, 'json') AS deathCity,
                                   sc.code_desc_txt AS deathState,
                                   scc.code_desc_txt AS deathCounty,
                                   cc.code_short_desc_txt AS deathCountry
                               FROM
-                                  Entity_locator_participation elp
-                              WITH
-                                  (NOLOCK)
-                                  LEFT JOIN Postal_locator pl
-                              WITH
-                                  (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
-                                  LEFT JOIN NBS_SRTE.dbo.state_code sc ON sc.state_cd = pl.state_cd
-                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc ON scc.code = pl.cnty_cd
-                                  LEFT JOIN NBS_SRTE.dbo.country_code cc ON cc.code = pl.cntry_cd
-                                  LEFT JOIN NBS_SRTE.dbo.code_value_general deceasedCode ON deceasedCode.code = p.deceased_ind_cd
+                                  person mp WITH (NOLOCK)
+                                  LEFT JOIN Entity_locator_participation elp WITH (NOLOCK) ON elp.entity_uid = mp.person_uid
+                                  LEFT JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
+                                  LEFT JOIN NBS_SRTE.dbo.state_code sc WITH (NOLOCK) ON sc.state_cd = pl.state_cd
+                                  LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc WITH (NOLOCK) ON scc.code = pl.cnty_cd
+                                  LEFT JOIN NBS_SRTE.dbo.country_code cc WITH (NOLOCK) ON cc.code = pl.cntry_cd
+                                  LEFT JOIN NBS_SRTE.dbo.code_value_general deceasedCode WITH (NOLOCK) ON deceasedCode.code = mp.deceased_ind_cd
                                   AND deceasedCode.code_set_nm = 'YNU'
                               WHERE
-                                  elp.entity_uid = p.person_uid
+                                  mp.person_uid = p.person_uid
                                   AND elp.class_cd = 'PST'
                                   AND elp.status_cd = 'A'
                                   AND elp.use_cd = 'DTH'

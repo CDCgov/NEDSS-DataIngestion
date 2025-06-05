@@ -4,11 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
@@ -55,7 +52,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs.getString("general"));
 
     // Investigations Mapping
-    List<Investigation> investigations = mapInvestigations(String.valueOf(rs.getString("investigations")));
+    List<Investigation> investigations = mapInvestigations(rs.getString("investigations"));
 
     // Nested Fields
     List<Address> addresses = mapAddresses(rs.getString("address"));
@@ -77,17 +74,6 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
         names,
         identifiers,
         races);
-  }
-
-  <T> Optional<T> tryParse(String stringValue, TypeReference<T> reference) {
-    if (stringValue == null || stringValue.isBlank()) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(mapper.readValue(stringValue, reference));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
   }
 
   AdminComments mapAdminComments(ResultSet rs) throws SQLException {
@@ -142,15 +128,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // INVESTIGATIONS Mapping
-  List<PersonMergeData.Investigation> mapInvestigations(String investigationString) {
-    return tryParse(investigationString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asInvestigation)
-        .filter(Objects::nonNull)
-        .toList();
+  List<Investigation> mapInvestigations(String investigationString) {
+    if (investigationString == null) {
+      return new ArrayList<>();
+    }
+    try {
+      return mapper.readValue(investigationString, new TypeReference<List<Investigation>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient investigations");
+    }
   }
 
   Investigation asInvestigation(Map<String, Object> investigationMap) {

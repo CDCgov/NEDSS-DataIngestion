@@ -37,13 +37,6 @@ class PersonMergeDataMapperTest {
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
 
-  private static final String INVESTIGATIONS_STRING = """
-      [
-          {"investigationId": "1", "started_on": "2023-06-01T00:00:00Z", "condition": "Condition A"},
-          {"investigationId": "2", "started_on": "2023-07-01T00:00:00Z", "condition": "Condition B"}
-      ]
-      """;
-
   private static final String ADDRESS_STRING = """
       [
         {
@@ -161,6 +154,21 @@ class PersonMergeDataMapperTest {
       }
       """;
 
+  private static final String INVESTIGATION_STRING = """
+      [
+        {
+          "id": "CAS10001000GA01",
+          "startDate": "2025-06-05T00:00:00",
+          "condition": "2019 Novel Coronavirus"
+        },
+        {
+          "id": "CAS10001001GA01",
+          "startDate": null,
+          "condition": "Cholera"
+        }
+      ]
+      """;
+
   @Test
   void testMapRow() throws Exception {
     ResultSet rs = Mockito.mock(ResultSet.class);
@@ -206,7 +214,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void mockInvestigationsField(ResultSet rs) throws SQLException {
-    when(rs.getString("investigations")).thenReturn(INVESTIGATIONS_STRING);
+    when(rs.getString("investigations")).thenReturn(INVESTIGATION_STRING);
   }
 
   private void mockNestedFields(ResultSet rs) throws SQLException {
@@ -273,12 +281,13 @@ class PersonMergeDataMapperTest {
 
   private void assertInvestigations(PersonMergeData personMergeData) {
     assertThat(personMergeData.investigations()).hasSize(2);
-    assertThat(personMergeData.investigations().getFirst().investigationId()).isEqualTo("1");
-    assertThat(personMergeData.investigations().getFirst().startedOn()).isEqualTo("2023-06-01T00:00:00Z");
-    assertThat(personMergeData.investigations().getFirst().condition()).isEqualTo("Condition A");
-    assertThat(personMergeData.investigations().get(1).investigationId()).isEqualTo("2");
-    assertThat(personMergeData.investigations().get(1).startedOn()).isEqualTo("2023-07-01T00:00:00Z");
-    assertThat(personMergeData.investigations().get(1).condition()).isEqualTo("Condition B");
+    assertThat(personMergeData.investigations().getFirst().id()).isEqualTo("CAS10001000GA01");
+    assertThat(personMergeData.investigations().getFirst().startDate()).isEqualTo("2025-06-05T00:00:00");
+    assertThat(personMergeData.investigations().getFirst().condition()).isEqualTo("2019 Novel Coronavirus");
+
+    assertThat(personMergeData.investigations().get(1).id()).isEqualTo("CAS10001001GA01");
+    assertThat(personMergeData.investigations().get(1).startDate()).isNull();
+    assertThat(personMergeData.investigations().get(1).condition()).isEqualTo("Cholera");
   }
 
   private void assertNestedFields(PersonMergeData personMergeData) {
@@ -287,18 +296,6 @@ class PersonMergeDataMapperTest {
     assertThat(personMergeData.names()).hasSize(2);
     assertThat(personMergeData.identifications()).hasSize(1);
     assertThat(personMergeData.races()).hasSize(2);
-  }
-
-  @Test
-  void testMapInvestigations() {
-    List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(INVESTIGATIONS_STRING);
-    assertThat(investigations).hasSize(2);
-    assertThat(investigations.getFirst().investigationId()).isEqualTo("1");
-    assertThat(investigations.getFirst().startedOn()).isEqualTo("2023-06-01T00:00:00Z");
-    assertThat(investigations.getFirst().condition()).isEqualTo("Condition A");
-    assertThat(investigations.get(1).investigationId()).isEqualTo("2");
-    assertThat(investigations.get(1).startedOn()).isEqualTo("2023-07-01T00:00:00Z");
-    assertThat(investigations.get(1).condition()).isEqualTo("Condition B");
   }
 
   @Test
@@ -459,15 +456,16 @@ class PersonMergeDataMapperTest {
   }
 
   @Test
-  void testMapInvestigationsEmptyString() {
-    final String investigationString = "";
-    List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(investigationString);
+  void testMapInvestigationsNull() {
+    List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(null);
     assertThat(investigations).isEmpty();
   }
 
   @Test
-  void testMapInvestigationsNull() {
-    List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(null);
-    assertThat(investigations).isEmpty();
+  void testMapInvestigationException() {
+    String investigationString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class,
+        () -> mapper.mapInvestigations(investigationString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient investigations");
   }
 }
