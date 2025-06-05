@@ -250,16 +250,16 @@ class PatientMergeControllerTest {
                 "Anderson County",
                 "Afghanistan"),
             new PersonMergeData.GeneralPatientInformation(
-                "2023-05-01",
-                "Married",
-                "Jane Doe",
-                2,
-                1,
-                "Engineer",
-                "Bachelor's Degree",
-                "English",
-                "Y",
-                "123456789"),
+                "2025-05-27T00:00:00",
+                "Annulled",
+                "MotherMaiden",
+                "2",
+                "0",
+                "Mining",
+                "10th grade",
+                "Eastern Frisian",
+                "Yes",
+                "123"),
             List.of( // Investigations
                 new PersonMergeData.Investigation("1", "2023-06-01T00:00:00Z", "Condition A"),
                 new PersonMergeData.Investigation("2", "2023-07-01T00:00:00Z", "Condition B")),
@@ -307,16 +307,16 @@ class PatientMergeControllerTest {
               "deathCountry": "Afghanistan"
             },
             "generalPatientInformation": {
-              "asOfDate": "2023-05-01",
-              "maritalStatusDescription": "Married",
-              "mothersMaidenName": "Jane Doe",
-              "adultsInHouseholdNumber": 2,
-              "childrenInHouseholdNumber": 1,
-              "occupationCode": "Engineer",
-              "educationLevelDescription": "Bachelor's Degree",
-              "primaryLanguageDescription": "English",
-              "speaksEnglishCode": "Y",
-              "stateHivCaseId": "123456789"
+              "asOf": "2025-05-27T00:00:00",
+              "maritalStatus": "Annulled",
+              "mothersMaidenName": "MotherMaiden",
+              "numberOfAdultsInResidence": "2",
+              "numberOfChildrenInResidence": "0",
+              "primaryOccupation": "Mining",
+              "educationLevel": "10th grade",
+              "primaryLanguage": "Eastern Frisian",
+              "speaksEnglish": "Yes",
+              "stateHivCaseId": "123"
             },
             "investigations": [
               {

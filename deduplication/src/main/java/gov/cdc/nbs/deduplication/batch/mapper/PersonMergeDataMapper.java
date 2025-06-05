@@ -52,7 +52,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     Mortality mortality = mapMortality(rs.getString("mortality"));
 
     // General Patient Information Mapping
-    GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs);
+    GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs.getString("general"));
 
     // Investigations Mapping
     List<Investigation> investigations = mapInvestigations(String.valueOf(rs.getString("investigations")));
@@ -131,29 +131,15 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // GENERAL PATIENT INFORMATION Mapping
-  GeneralPatientInformation mapGeneralPatientInformation(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_general"));
-    String maritalStatusDescription = String.valueOf(rs.getString("marital_status_desc_txt"));
-    String mothersMaidenName = String.valueOf(rs.getString("mothers_maiden_nm"));
-    Integer adultsInHouseholdNumber = rs.getInt("adults_in_house_nbr");
-    Integer childrenInHouseholdNumber = rs.getInt("children_in_house_nbr");
-    String occupationCode = String.valueOf(rs.getString("occupation_cd"));
-    String educationLevelDescription = String.valueOf(rs.getString("education_level_desc_txt"));
-    String primaryLanguageDescription = String.valueOf(rs.getString("prim_lang_desc_txt"));
-    String speaksEnglishCode = String.valueOf(rs.getString("speaks_english_cd"));
-    String stateHivCaseId = String.valueOf(rs.getString("State_HIV_Case_ID"));
-    return new GeneralPatientInformation(
-        asOfDate,
-        maritalStatusDescription,
-        mothersMaidenName,
-        adultsInHouseholdNumber,
-        childrenInHouseholdNumber,
-        occupationCode,
-        educationLevelDescription,
-        primaryLanguageDescription,
-        speaksEnglishCode,
-        stateHivCaseId);
+  GeneralPatientInformation mapGeneralPatientInformation(String generalInfoString) {
+    if (generalInfoString == null) {
+      return new GeneralPatientInformation();
+    }
+    try {
+      return mapper.readValue(generalInfoString, GeneralPatientInformation.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient general information");
+    }
   }
 
   // INVESTIGATIONS Mapping

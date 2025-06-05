@@ -36,17 +36,6 @@ class PersonMergeDataMapperTest {
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
 
-  private static final String GENERAL_PATIENT_INFO_AS_OF_DATE = "2023-05-01";
-  private static final String MARITAL_STATUS_DESCRIPTION = "Married";
-  private static final String MOTHERS_MAIDEN_NAME = "Jane Doe";
-  private static final Integer ADULTS_IN_HOUSEHOLD_NUMBER = 2;
-  private static final Integer CHILDREN_IN_HOUSEHOLD_NUMBER = 1;
-  private static final String OCCUPATION_CODE = "Engineer";
-  private static final String EDUCATION_LEVEL_DESCRIPTION = "Bachelor's Degree";
-  private static final String PRIMARY_LANGUAGE_DESCRIPTION = "English";
-  private static final String SPEAKS_ENGLISH_CODE = "Y";
-  private static final String STATE_HIV_CASE_ID = "123456789";
-
   private static final String INVESTIGATIONS_STRING = """
       [
           {"investigationId": "1", "started_on": "2023-06-01T00:00:00Z", "condition": "Condition A"},
@@ -156,6 +145,20 @@ class PersonMergeDataMapperTest {
       "deathCountry": "Afghanistan"
       }
       """;
+  private static final String GENERAL_INFO_STRING = """
+        {
+        "asOf": "2025-05-27T00:00:00",
+        "maritalStatus": "Annulled",
+        "mothersMaidenName": "MotherMaiden",
+        "numberOfAdultsInResidence": 2,
+        "numberOfChildrenInResidence": 0,
+        "primaryOccupation": "Mining",
+        "educationLevel": "10th grade",
+        "primaryLanguage": "Eastern Frisian",
+        "speaksEnglish": "Yes",
+        "stateHivCaseId": "123"
+      }
+      """;
 
   @Test
   void testMapRow() throws Exception {
@@ -198,16 +201,7 @@ class PersonMergeDataMapperTest {
   }
 
   private void mockGeneralPatientInformationFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_general")).thenReturn(GENERAL_PATIENT_INFO_AS_OF_DATE);
-    when(rs.getString("marital_status_desc_txt")).thenReturn(MARITAL_STATUS_DESCRIPTION);
-    when(rs.getString("mothers_maiden_nm")).thenReturn(MOTHERS_MAIDEN_NAME);
-    when(rs.getInt("adults_in_house_nbr")).thenReturn(ADULTS_IN_HOUSEHOLD_NUMBER);
-    when(rs.getInt("children_in_house_nbr")).thenReturn(CHILDREN_IN_HOUSEHOLD_NUMBER);
-    when(rs.getString("occupation_cd")).thenReturn(OCCUPATION_CODE);
-    when(rs.getString("education_level_desc_txt")).thenReturn(EDUCATION_LEVEL_DESCRIPTION);
-    when(rs.getString("prim_lang_desc_txt")).thenReturn(PRIMARY_LANGUAGE_DESCRIPTION);
-    when(rs.getString("speaks_english_cd")).thenReturn(SPEAKS_ENGLISH_CODE);
-    when(rs.getString("State_HIV_Case_ID")).thenReturn(STATE_HIV_CASE_ID);
+    when(rs.getString("general")).thenReturn(GENERAL_INFO_STRING);
   }
 
   private void mockInvestigationsField(ResultSet rs) throws SQLException {
@@ -264,21 +258,16 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertGeneralPatientInformation(PersonMergeData personMergeData) {
-    assertThat(personMergeData.generalPatientInformation().asOfDate()).isEqualTo(GENERAL_PATIENT_INFO_AS_OF_DATE);
-    assertThat(personMergeData.generalPatientInformation().maritalStatusDescription())
-        .isEqualTo(MARITAL_STATUS_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().mothersMaidenName()).isEqualTo(MOTHERS_MAIDEN_NAME);
-    assertThat(personMergeData.generalPatientInformation().adultsInHouseholdNumber())
-        .isEqualTo(ADULTS_IN_HOUSEHOLD_NUMBER);
-    assertThat(personMergeData.generalPatientInformation().childrenInHouseholdNumber())
-        .isEqualTo(CHILDREN_IN_HOUSEHOLD_NUMBER);
-    assertThat(personMergeData.generalPatientInformation().occupationCode()).isEqualTo(OCCUPATION_CODE);
-    assertThat(personMergeData.generalPatientInformation().educationLevelDescription())
-        .isEqualTo(EDUCATION_LEVEL_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().primaryLanguageDescription())
-        .isEqualTo(PRIMARY_LANGUAGE_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().speaksEnglishCode()).isEqualTo(SPEAKS_ENGLISH_CODE);
-    assertThat(personMergeData.generalPatientInformation().stateHivCaseId()).isEqualTo(STATE_HIV_CASE_ID);
+    assertThat(personMergeData.generalPatientInformation().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.generalPatientInformation().maritalStatus()).isEqualTo("Annulled");
+    assertThat(personMergeData.generalPatientInformation().mothersMaidenName()).isEqualTo("MotherMaiden");
+    assertThat(personMergeData.generalPatientInformation().numberOfAdultsInResidence()).isEqualTo("2");
+    assertThat(personMergeData.generalPatientInformation().numberOfChildrenInResidence()).isEqualTo("0");
+    assertThat(personMergeData.generalPatientInformation().primaryOccupation()).isEqualTo("Mining");
+    assertThat(personMergeData.generalPatientInformation().educationLevel()).isEqualTo("10th grade");
+    assertThat(personMergeData.generalPatientInformation().primaryLanguage()).isEqualTo("Eastern Frisian");
+    assertThat(personMergeData.generalPatientInformation().speaksEnglish()).isEqualTo("Yes");
+    assertThat(personMergeData.generalPatientInformation().stateHivCaseId()).isEqualTo("123");
   }
 
   private void assertInvestigations(PersonMergeData personMergeData) {
