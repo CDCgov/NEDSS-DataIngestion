@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.GeneralPatientInformation;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
@@ -430,6 +431,31 @@ class PersonMergeDataMapperTest {
     String mortalityString = "asdf";
     PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapMortality(mortalityString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient mortality");
+  }
+
+  @Test
+  void testMapGeneralEmpty() {
+    String generalInfoString = null;
+    GeneralPatientInformation generalInfo = mapper.mapGeneralPatientInformation(generalInfoString);
+    assertThat(generalInfo.asOf()).isNull();
+    assertThat(generalInfo.asOf()).isNull();
+    assertThat(generalInfo.maritalStatus()).isNull();
+    assertThat(generalInfo.mothersMaidenName()).isNull();
+    assertThat(generalInfo.numberOfAdultsInResidence()).isNull();
+    assertThat(generalInfo.numberOfChildrenInResidence()).isNull();
+    assertThat(generalInfo.primaryOccupation()).isNull();
+    assertThat(generalInfo.educationLevel()).isNull();
+    assertThat(generalInfo.primaryLanguage()).isNull();
+    assertThat(generalInfo.speaksEnglish()).isNull();
+    assertThat(generalInfo.stateHivCaseId()).isNull();
+  }
+
+  @Test
+  void testMapGeneralException() {
+    String generalInfoString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class,
+        () -> mapper.mapGeneralPatientInformation(generalInfoString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient general information");
   }
 
   @Test
