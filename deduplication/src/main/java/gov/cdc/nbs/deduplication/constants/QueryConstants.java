@@ -584,7 +584,7 @@ public class QueryConstants {
           nested.ethnicity,
           nested.sexAndBirth,
           nested.mortality,
-          nest.general
+          nested.general,
           --INVESTIGATIONS
           (
               SELECT
