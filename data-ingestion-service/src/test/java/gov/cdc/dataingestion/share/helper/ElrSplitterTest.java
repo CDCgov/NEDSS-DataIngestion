@@ -49,8 +49,9 @@ class ElrSplitterTest {
             "OBR|1|EX41B1FE^EHR^2.16.840.1.113883.3.2226^ISO|14061001|94559-2^SARS coronavirus 2 ORF1ab region [Presence] in Respiratory specimen by NAA with probe detect^LN^COV2_Pnthr^Aptima SARS-CoV-2 (Panther)^L|||202202241139|||||||||^Ellis^Esther||||||20220224164200.000-0800|||F\r" +
             "OBX|1|CWE|94559-2^SARS coronavirus 2 ORF1ab region [Presence] in Respiratory specimen by NAA with probe detect^LN^SARSINT^SARSCoV2 Interpretation^L||260415000^Not detected^LN^260415000^SARS-CoV2 Not Detected^L||||||F|||202202241139|||^^^05^TMA^L||202202241210||||USVIPHL Territorial Public Health Laboratory^L^^^^CLIA&48D2179122|3500 Richmond Estate^^Christiansted^VI^00820-4370\r" +
             "OBX|2|CWE|95417-2^Whether this is the patients first test for the condition of interest^LN||UNK^Unknown^NULLFL||||||F|||202202241139|||||||||USVIPHL Territorial Public Health Laboratory^L^^^^CLIA&48D2179122|3500 Richmond Estate^^Christiansted^VI^00820-4370\r"+
+            "SPM|1|1619001^1619001&USVI Public Health Laboratory&48D2179122&CLIA||258500001^Nasopharyngeal swab^SCT^SN^Swab - NP^L|||||||||||||20210616112233.000|202106221357\r" +
             "OBR|2|EX41B1FE^EHR^2.16.840.1.113883.3.2226^ISO|14061001_1|68991-9^Epidemiologically important information for public health reporting panel^LN|||202202241139|||||||||^Ellis^Esther||||||20220224164200.000-0800|||F\r" +
-            "OBX|1|CWE|95417-2^Whether this is the patients first test for the condition of interest^LN||UNK^Unknown^NULLFL||||||F|||202202241139|||||||||USVIPHL Territorial Public Health Laboratory^L^^^^CLIA&48D2179122|3500 Richmond Estate^^Christiansted^VI^00820-4370\r";
+            "OBX|1|CWE|95417-2^Whether this is the patients first test for the condition of interest^LN||UNK^Unknown^NULLFL||||||F|||202202241139|||||||||USVIPHL Territorial Public Health Laboratory^L^^^^CLIA&48D2179122|3500 Richmond Estate^^Christiansted^VI^00820-4370";
 
     @BeforeEach
     void setUp() {
