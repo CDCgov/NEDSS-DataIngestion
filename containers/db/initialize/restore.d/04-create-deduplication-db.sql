@@ -35,6 +35,7 @@ GO
 CREATE TABLE matches_requiring_review (
   id BIGINT IDENTITY(1,1) PRIMARY KEY,
   person_uid BIGINT NOT NULL,
+  person_local_id BIGINT NOT NULL,
   person_name NVARCHAR(300),
   person_add_time DATETIME NOT NULL,
   date_identified DATETIME DEFAULT GETDATE()
