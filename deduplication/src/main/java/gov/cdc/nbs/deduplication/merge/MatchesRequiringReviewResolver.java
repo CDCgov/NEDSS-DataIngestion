@@ -107,7 +107,7 @@ public class MatchesRequiringReviewResolver {
   Sort.Order toOrder(String sort) {
     String[] sortParams = sort.split(",");
     String column = switch (sortParams[0]) {
-      case "patient-id" -> "person_uid";
+      case "patient-id" -> "person_local_id";
       case "name" -> "person_name";
       case "created" -> "person_add_time";
       case "identified" -> "date_identified";

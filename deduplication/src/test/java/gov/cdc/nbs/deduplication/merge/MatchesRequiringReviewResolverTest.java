@@ -147,8 +147,8 @@ class MatchesRequiringReviewResolverTest {
 
   @ParameterizedTest
   @CsvSource(delimiter = '|', textBlock = """
-      patient-id,asc | person_uid | ASC
-      patient-id,desc | person_uid | DESC
+      patient-id,asc | person_local_id | ASC
+      patient-id,desc | person_local_id | DESC
       name,asc | person_name | ASC
       name,desc | person_name | DESC
       created,asc | person_add_time | ASC
