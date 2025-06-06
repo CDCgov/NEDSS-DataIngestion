@@ -29,7 +29,12 @@ class PdfBuilderTest {
     // Arrange
     List<MatchesRequireReviewResponse.MatchRequiringReview> matches = List.of(
         new MatchesRequireReviewResponse.MatchRequiringReview(
-            "123456", "John Doe", "2023-09-10T10:00:00", "2023-09-11T11:30:00", 2));
+            "123456",
+            "444",
+            "John Doe",
+            "2023-09-10T10:00:00",
+            "2023-09-11T11:30:00",
+            2));
 
     ByteArrayOutputStream pdfContent = new ByteArrayOutputStream();
 

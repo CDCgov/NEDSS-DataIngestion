@@ -42,14 +42,11 @@ class MatchServiceTest {
   @Mock
   private NamedParameterJdbcTemplate template;
 
-  @Mock
-  private NamedParameterJdbcTemplate nbsTemplate;
-
   private MatchService matchService;
 
   @BeforeEach
   void setup() {
-    matchService = new MatchService(restClient, template, nbsTemplate);
+    matchService = new MatchService(restClient, template);
   }
 
   @Test

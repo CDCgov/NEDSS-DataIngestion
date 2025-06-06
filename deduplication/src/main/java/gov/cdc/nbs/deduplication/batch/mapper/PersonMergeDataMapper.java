@@ -35,7 +35,10 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
   @Override
   @Nullable
   public PersonMergeData mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+    String personId = rs.getString("personId");
     String personUid = rs.getString("person_parent_uid");
+    String addTime = rs.getString("add_time");
+
     // General Fields
     AdminComments adminComments = mapAdminComments(rs);
 
@@ -62,7 +65,9 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     List<Race> races = mapRaces(rs.getString("race"));
 
     return new PersonMergeData(
+        personId,
         personUid,
+        addTime,
         adminComments,
         ethnicity,
         sexAndBirth,

@@ -55,7 +55,7 @@ class PatientMergeControllerTest {
     Long patientId = 100L;
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).unMergeAll(patientId);
@@ -68,7 +68,7 @@ class PatientMergeControllerTest {
     doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).unMergeAll(patientId);
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).unMergeAll(patientId);
@@ -80,7 +80,7 @@ class PatientMergeControllerTest {
     Long removePatientId = 111L;
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
@@ -95,12 +95,11 @@ class PatientMergeControllerTest {
         .unMergeSinglePerson(patientId, removePatientId);
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-            .contentType(MediaType.APPLICATION_JSON))
+        .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
   }
-
 
   @Test
   void testGetPotentialMatchesDetails() throws Exception {
@@ -123,8 +122,8 @@ class PatientMergeControllerTest {
     String requestBody = createPatientMergeRequestJson();
 
     mockMvc.perform(post("/merge/{matchId}", matchId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestBody))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
         .andExpect(status().isOk());
 
     verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
@@ -139,20 +138,18 @@ class PatientMergeControllerTest {
         .when(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
 
     mockMvc.perform(post("/merge/{matchId}", matchId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestBody))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody))
         .andExpect(status().isInternalServerError());
 
     verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
   }
 
-
-
   @Test
   void testExportMatchesAsPDF() throws Exception {
     List<MatchRequiringReview> mockMatches = List.of(
-        new MatchRequiringReview("111122", "john smith", "1990-01-01", "2000-01-01", 2),
-        new MatchRequiringReview("111133", "Andrew James", "1990-02-02", "2000-02-02", 4));
+        new MatchRequiringReview("111122", "444", "john smith", "1990-01-01", "2000-01-01", 2),
+        new MatchRequiringReview("111133", " 333", "Andrew James", "1990-02-02", "2000-02-02", 4));
 
     when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
 
@@ -172,8 +169,8 @@ class PatientMergeControllerTest {
   @Test
   void testExportMatchesAsCSV() throws Exception {
     List<MatchRequiringReview> mockMatches = List.of(
-        new MatchRequiringReview("111122", "John Smith", "2023-01-01T10:00:00Z", "2023-01-05T15:00:00Z", 2),
-        new MatchRequiringReview("111133", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z", 4));
+        new MatchRequiringReview("111122", "444", "John Smith", "2023-01-01T10:00:00Z", "2023-01-05T15:00:00Z", 2),
+        new MatchRequiringReview("111133", "333", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z", 4));
 
     when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
     when(pdfBuilder.formatDateTime("2023-01-01T10:00:00Z")).thenReturn("01/01/2023 10:00 AM");
@@ -199,7 +196,9 @@ class PatientMergeControllerTest {
   private List<PersonMergeData> expectedPersonMergeData() {
     return List.of(
         new PersonMergeData(
+            "localId",
             "1",
+            "2023-01-01",
             new AdminComments(
                 "2023-01-01", // commentDate
                 "test comment"), // adminComments
@@ -255,7 +254,9 @@ class PatientMergeControllerTest {
     return """
         [
           {
+            "personLocalId": "localId",
             "personUid": "1",
+            "addTime": "2023-01-01",
             "adminComments": {"date": "2023-01-01", "comment":  "test comment"},
             "ethnicity": {
               "asOf": "2023-01-01",

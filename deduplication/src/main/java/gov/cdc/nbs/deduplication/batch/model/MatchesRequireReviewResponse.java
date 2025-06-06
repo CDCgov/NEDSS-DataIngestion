@@ -10,6 +10,7 @@ public record MatchesRequireReviewResponse(List<MatchRequiringReview> matches, i
 
   public record MatchRequiringReview(
       String patientId,
+      String patientLocalId,
       String patientName,
       String createdDate,
       String identifiedDate,

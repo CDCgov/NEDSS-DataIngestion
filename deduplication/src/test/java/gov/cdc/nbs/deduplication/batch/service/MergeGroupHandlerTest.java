@@ -150,7 +150,9 @@ class MergeGroupHandlerTest {
   private List<PersonMergeData> createMockPersonMergeData() {
     return List.of(
         new PersonMergeData(
+            "person_local_id",
             "person_id", // commentDate
+            "2003-01-01",
             new PersonMergeData.AdminComments("2023-01-01", "test comment"), // adminComments
             new Ethnicity( // Ethnicity
                 "2023-01-01",
