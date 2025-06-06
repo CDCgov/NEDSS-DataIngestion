@@ -54,7 +54,7 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUnMergeAll() {
-    mergeGroupHandler.unMergeAll(100L);
+    mergeGroupHandler.removeAll(100L);
 
     verify(deduplicationTemplate, times(1)).update(
         eq(QueryConstants.UN_MERGE_ALL_GROUP),
@@ -63,7 +63,7 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUnMergeSinglePerson() {
-    mergeGroupHandler.unMergeSinglePerson(100L, 111l);
+    mergeGroupHandler.removePerson(100L, 111l);
     verify(deduplicationTemplate, times(1)).update(
         eq(QueryConstants.UN_MERGE_SINGLE_PERSON),
         any(MapSqlParameterSource.class));

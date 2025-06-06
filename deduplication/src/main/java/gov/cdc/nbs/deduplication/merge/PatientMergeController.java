@@ -55,7 +55,7 @@ public class PatientMergeController {
   @DeleteMapping("/{matchId}")
   public ResponseEntity<Void> unMergeAll(@PathVariable("matchId") Long matchId) {
     try {
-      mergeGroupHandler.unMergeAll(matchId);
+      mergeGroupHandler.removeAll(matchId);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
@@ -66,7 +66,7 @@ public class PatientMergeController {
   public ResponseEntity<Void> unMergeSinglePerson(@PathVariable("matchId") Long matchId,
       @PathVariable("removePatientId") Long removePatientId) {
     try {
-      mergeGroupHandler.unMergeSinglePerson(matchId, removePatientId);
+      mergeGroupHandler.removePerson(matchId, removePatientId);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();

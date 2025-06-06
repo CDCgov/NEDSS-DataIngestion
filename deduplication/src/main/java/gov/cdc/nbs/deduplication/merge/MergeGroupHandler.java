@@ -38,13 +38,13 @@ public class MergeGroupHandler {
         parameters, (ResultSet rs, int rowNum) -> rs.getString(1));
   }
 
-  public void unMergeAll(Long matchId) {// Keep Separate
+  public void removeAll(Long matchId) {// Keep Separate
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("matchId", matchId);
     deduplicationTemplate.update(QueryConstants.UN_MERGE_ALL_GROUP, parameters);
   }
 
-  public void unMergeSinglePerson(Long matchId, Long potentialMatchPersonUid) {
+  public void removePerson(Long matchId, Long potentialMatchPersonUid) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("matchId", matchId);
     parameters.addValue("potentialMatchPersonUid", potentialMatchPersonUid);
