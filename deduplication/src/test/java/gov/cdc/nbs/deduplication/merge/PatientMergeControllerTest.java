@@ -7,14 +7,13 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import gov.cdc.nbs.deduplication.batch.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ class PatientMergeControllerTest {
   private MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
   @Mock
-  private MergePatientHandler mergePatientHandler;
+  MergeService mergeService;
 
   @Mock
   private PdfBuilder pdfBuilder;
@@ -56,7 +55,7 @@ class PatientMergeControllerTest {
     Long patientId = 100L;
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).unMergeAll(patientId);
@@ -69,7 +68,7 @@ class PatientMergeControllerTest {
     doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).unMergeAll(patientId);
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).unMergeAll(patientId);
@@ -81,7 +80,7 @@ class PatientMergeControllerTest {
     Long removePatientId = 111L;
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
@@ -96,61 +95,12 @@ class PatientMergeControllerTest {
         .unMergeSinglePerson(patientId, removePatientId);
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).unMergeSinglePerson(patientId, removePatientId);
   }
 
-  @Test
-  void testMergeRecords_Success() throws Exception {
-    MergePatientRequest mergeRequest = new MergePatientRequest();
-    mergeRequest.setSurvivorPersonId("survivor123");
-    mergeRequest.setSupersededPersonIds(Arrays.asList("superseded1", "superseded2"));
-
-    // Act & Assert
-    mockMvc.perform(post("/merge/merge-patient")
-        .contentType("application/json")
-        .content(
-            "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
-        .andExpect(status().isOk());
-
-    verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
-  }
-
-  @Test
-  void testMergeRecords_BadRequest() throws Exception {
-    MergePatientRequest mergeRequest = new MergePatientRequest();
-    mergeRequest.setSurvivorPersonId(null); // Invalid data
-    mergeRequest.setSupersededPersonIds(null); // Invalid data
-
-    // Act & Assert
-    mockMvc.perform(post("/merge/merge-patient")
-        .contentType("application/json")
-        .content("{\"survivorPersonId\": null, \"supersededPersonIds\": null}"))
-        .andExpect(status().isBadRequest());
-
-    verify(mergePatientHandler, never()).performMerge(any(), any());
-  }
-
-  @Test
-  void testMergeRecords_InternalServerError() throws Exception {
-    MergePatientRequest mergeRequest = new MergePatientRequest();
-    mergeRequest.setSurvivorPersonId("survivor123");
-    mergeRequest.setSupersededPersonIds(Arrays.asList("superseded1", "superseded2"));
-
-    doThrow(new RuntimeException("Merge failed")).when(mergePatientHandler)
-        .performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
-
-    // Act & Assert
-    mockMvc.perform(post("/merge/merge-patient")
-        .contentType("application/json")
-        .content(
-            "{\"survivorPersonId\": \"survivor123\", \"supersededPersonIds\": [\"superseded1\", \"superseded2\"]}"))
-        .andExpect(status().isInternalServerError());
-
-    verify(mergePatientHandler).performMerge("survivor123", Arrays.asList("superseded1", "superseded2"));
-  }
 
   @Test
   void testGetPotentialMatchesDetails() throws Exception {
@@ -166,6 +116,37 @@ class PatientMergeControllerTest {
 
     verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
   }
+
+  @Test
+  void testMergePatients_Success() throws Exception {
+    Long matchId = 123L;
+    String requestBody = createPatientMergeRequestJson();
+
+    mockMvc.perform(post("/merge/{matchId}", matchId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody))
+        .andExpect(status().isOk());
+
+    verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
+  }
+
+  @Test
+  void testMergePatients_ServiceThrowsException() throws Exception {
+    Long matchId = 123L;
+    String requestBody = createPatientMergeRequestJson();
+
+    doThrow(new RuntimeException("Merge failed"))
+        .when(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
+
+    mockMvc.perform(post("/merge/{matchId}", matchId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody))
+        .andExpect(status().isInternalServerError());
+
+    verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
+  }
+
+
 
   @Test
   void testExportMatchesAsPDF() throws Exception {
@@ -337,6 +318,20 @@ class PatientMergeControllerTest {
             "races": []
           }
         ]
+        """;
+  }
+
+  private String createPatientMergeRequestJson() {
+    return """
+        {
+            "survivingRecord": "surviving1",
+            "adminCommentsSource": "superseded-1",
+            "names": null,
+            "addresses": null,
+            "phoneEmails": null,
+            "identifications": null,
+            "races": null
+        }
         """;
   }
 

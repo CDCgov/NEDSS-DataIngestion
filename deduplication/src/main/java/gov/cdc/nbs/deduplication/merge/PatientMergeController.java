@@ -1,12 +1,12 @@
 package gov.cdc.nbs.deduplication.merge;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
-import gov.cdc.nbs.deduplication.batch.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
 
@@ -23,17 +23,17 @@ public class PatientMergeController {
   static final String DEFAULT_SORT = "patient-id,desc";
 
   private final MergeGroupHandler mergeGroupHandler;
-  private final MergePatientHandler mergePatientsHandler;
+  private final MergeService mergeService;
   private final PdfBuilder pdfBuilder;
   private final MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
   public PatientMergeController(
       final MergeGroupHandler possibleMatchHandler,
-      final MergePatientHandler mergePatientsHandler,
+      final MergeService mergeService,
       final PdfBuilder pdfBuilder,
       final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
     this.mergeGroupHandler = possibleMatchHandler;
-    this.mergePatientsHandler = mergePatientsHandler;
+    this.mergeService = mergeService;
     this.pdfBuilder = pdfBuilder;
     this.matchesRequiringReviewResolver = matchesRequiringReviewResolver;
   }
@@ -74,15 +74,11 @@ public class PatientMergeController {
     }
   }
 
-  @PostMapping("/merge-patient")
-  public ResponseEntity<Void> mergeRecords(@RequestBody MergePatientRequest mergeRequest) {
-    if (mergeRequest.getSurvivorPersonId() == null
-        || mergeRequest.getSupersededPersonIds() == null
-        || mergeRequest.getSupersededPersonIds().isEmpty()) {
-      return ResponseEntity.badRequest().build();
-    }
+  @PostMapping("/{matchId}")
+  public ResponseEntity<Void> mergePatients(@RequestBody PatientMergeRequest mergeRequest,
+      @PathVariable("matchId") Long matchId) {
     try {
-      mergePatientsHandler.performMerge(mergeRequest.getSurvivorPersonId(), mergeRequest.getSupersededPersonIds());
+      mergeService.performMerge(matchId, mergeRequest);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
