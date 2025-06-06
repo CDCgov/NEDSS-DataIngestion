@@ -514,10 +514,11 @@ public class QueryConstants {
       AND person_uid != person_parent_uid
       """;
 
-  public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
+  public static final String POSSIBLE_MATCH_IDS_BY_MATCH_ID = """
       SELECT mc.person_uid
       FROM match_candidates mc
-      WHERE mc.match_id = :matchId;
+      WHERE mc.match_id = :matchId
+      AND mc.is_merge IS NULL;
       """;
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """

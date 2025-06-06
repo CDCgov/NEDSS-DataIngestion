@@ -142,7 +142,7 @@ class MergeGroupHandlerTest {
 
   private void mockPossibleMatchesOfPatient(long matchId, List<String> possibleMatchesMpiIds) {
     when(deduplicationTemplate.query(
-        eq(QueryConstants.POSSIBLE_MATCH_IDS_BY_PATIENT_ID),
+        eq(QueryConstants.POSSIBLE_MATCH_IDS_BY_MATCH_ID),
         argThat((MapSqlParameterSource params) -> Objects.equals(params.getValue("matchId"), matchId)),
         ArgumentMatchers.<RowMapper<String>>any()))
         .thenReturn(possibleMatchesMpiIds);

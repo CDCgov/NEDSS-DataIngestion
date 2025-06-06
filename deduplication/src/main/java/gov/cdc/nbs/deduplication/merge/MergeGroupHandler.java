@@ -34,7 +34,7 @@ public class MergeGroupHandler {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
         .addValue("matchId", matchId); // NOSONAR
     return deduplicationTemplate.query(
-        QueryConstants.POSSIBLE_MATCH_IDS_BY_PATIENT_ID,
+        QueryConstants.POSSIBLE_MATCH_IDS_BY_MATCH_ID,
         parameters, (ResultSet rs, int rowNum) -> rs.getString(1));
   }
 
