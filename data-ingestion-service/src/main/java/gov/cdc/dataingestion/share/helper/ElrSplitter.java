@@ -8,6 +8,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_data_type.Prl;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Observation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.OrderObservation;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
+import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.Specimen;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.share.repository.IObxIdStdLookupRepository;
 import gov.cdc.dataingestion.share.repository.model.ObxIdStdLookup;
@@ -71,14 +72,13 @@ public class ElrSplitter {
         List<HL7ParsedMessage<OruR1>> parsedMessageList = new ArrayList<>();
         OruR1 oruR1 = parsedMessageOrig.getParsedMessage();
         //Get ORC content
+        //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
         CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
         Gson gson = new Gson();
 
         log.debug("OBR size in original Message:" + oruR1.getPatientResult().getFirst().getOrderObservation().size());
 
-        for (OrderObservation orderObservation : obrListToSplit) {
-            orderObservation.getObservationRequest().setSetIdObr("1");
-            //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
+        for (OrderObservation orderObservation:obrListToSplit) {
             orderObservation.setCommonOrder(orc);
             //remove ParentResult,Parent from ObservationRequest
             orderObservation.getObservationRequest().setParent(new Eip());
@@ -88,12 +88,22 @@ public class ElrSplitter {
             //Empty OBX list from OBR
             orderObservation.setObservation(new ArrayList<>());
             //create new ELR for each OBX. OBR to be duplicated.
-            int i = 0;
-            for (Observation obx : obxList) {
+
+            for (int j=0;j<obxList.size();j++) {
+                Observation obx =obxList.get(j);
                 changeSctToSnmForCodingSystem(obx);
                 obx.getObservationResult().setSetIdObx("1");
-                //Create new OBR object
+
+                //Clone the OBR object
                 OrderObservation obrCopy = gson.fromJson(gson.toJson(orderObservation), OrderObservation.class);
+                obrCopy.getObservationRequest().setSetIdObr("1");
+                List<Specimen> spmList= obrCopy.getSpecimen();
+                for(Specimen specimen : spmList) {
+                    String spmCollTime= specimen.getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime();
+                    String newCollTime=updateTimeWithNewSeconds(spmCollTime,j+1);
+                    System.out.println("old:spmCollTime:"+spmCollTime+" newCollTime:"+newCollTime);
+                    specimen.getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().setTime(newCollTime);
+                }
                 //Add obx in the OBR
                 obrCopy.setObservation(List.of(obx));
 
@@ -107,8 +117,11 @@ public class ElrSplitter {
                 // ORUR01.MSH.MessageControlID
                 String msgControlId = oruR1Copy.getMessageHeader().getMessageControlId();
                 //create unique MessageControlId
-                String newMsgControlId = getCustomMessageControlId(msgControlId, ++i);
+                String newMsgControlId = getCustomMessageControlId(msgControlId, j+1);
                 oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
+                oruR1Copy.getMessageHeader().getSendingFacility().getUniversalId();
+                String newUniversalID=oruR1Copy.getMessageHeader().getSendingFacility().getUniversalId()+((j+1) * .01);
+                oruR1Copy.getMessageHeader().getSendingFacility().setUniversalId(newUniversalID);
                 //out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID = (out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID + (i * .01) );//TODO //NOSONAR
 
                 //TODO //NOSONAR
@@ -126,7 +139,7 @@ public class ElrSplitter {
                 parsedMessageList.add(parsedMessage);
             }
         }
-        log.debug("splitElrByOBX - parsedMessageList size:" + parsedMessageList.size());
+        log.info("splitElrByOBX - parsedMessageList size:" + parsedMessageList.size());
         return parsedMessageList;
     }
 
@@ -142,6 +155,9 @@ public class ElrSplitter {
             log.debug("Before split..splitElrByOBR Incoming Obr list size:" + obrList.size());
             //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
             CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
+            //In some cases, the SPM segment is available only in the last OBR. Some STLTs need it in all the ELRs after splitting.
+            List<Specimen> spmList =oruR1.getPatientResult().getFirst().getOrderObservation().getLast().getSpecimen();
+            System.out.println("last spm.. from backup spmList:"+spmList.size());
             //Check if a OBR is parent
             //parent order number
             //filler order number
@@ -159,6 +175,11 @@ public class ElrSplitter {
                 ArrayList<OrderObservation> tempObr = new ArrayList<>();
                 if (!obrIds.contains(obrId)) {
                     OrderObservation obrCopy = gson.fromJson(gson.toJson(obr), OrderObservation.class);
+                    System.out.println("SPM list size:" + obrCopy.getSpecimen().size()+" obrId:"+obrId+" from backup spmList:"+spmList.size());
+                    if (COPY_SPM && (obrCopy.getSpecimen() != null && obrCopy.getSpecimen().isEmpty())) {
+                        System.out.println("SPM copying ");
+                        obrCopy.setSpecimen(spmList);
+                    }
                     tempObr.add(obrCopy);
                     obrIds.add(obrId);
 
@@ -247,10 +268,10 @@ public class ElrSplitter {
                 parsedMessageList.add(parsedMessage);
             }
         } else {
-            log.debug("Single OBR. No split.");
+            log.info("Single OBR. No split.");
             parsedMessageList.add(parsedMessageOrig);
         }
-        log.debug("Parsed ELR message sizes in ElrSplitter: {}", parsedMessageList.size());
+        log.info("Parsed ELR message sizes in ElrSplitter: {}", parsedMessageList.size());
         return parsedMessageList;
     }
 
@@ -267,5 +288,22 @@ public class ElrSplitter {
 
     private static String getCustomMessageControlId(String messageControlId, int i) {
         return StringUtils.left(messageControlId, 8) + i + (i + 1) + (i + 2) + StringUtils.right(messageControlId, 9);
+    }
+    private static String updateTimeWithNewSeconds(String specimenTime,int indexVal) {
+        String newSeconds = String.format("%02d", indexVal);
+        //String specimenTime="201205101655";//14
+        String updatedtTime="";
+        if(!StringUtils.isBlank(specimenTime) && specimenTime.length()>=12) {
+            String uptoMinutes= StringUtils.left(specimenTime, 12);
+            System.out.println("uptoMinutes:"+uptoMinutes);
+            String afterSeconds="";
+            if(specimenTime.length()>14){
+                afterSeconds= specimenTime.substring(14);
+                System.out.println("right:"+afterSeconds);
+            }
+            updatedtTime=uptoMinutes+newSeconds+afterSeconds;
+        }
+        System.out.println("updatedSpecimentTime:"+updatedtTime);
+        return updatedtTime;
     }
 }
