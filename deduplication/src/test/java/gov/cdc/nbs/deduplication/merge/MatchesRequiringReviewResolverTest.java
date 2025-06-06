@@ -55,6 +55,7 @@ class MatchesRequiringReviewResolverTest {
         captor.capture(),
         ArgumentMatchers.<RowMapper<MatchRequiringReview>>any())).thenReturn(List.of(
             new MatchRequiringReview(
+                1l,
                 "12345",
                 "444",
                 "John Doe",
@@ -70,6 +71,7 @@ class MatchesRequiringReviewResolverTest {
     assertThat(params.getValue("limit")).isEqualTo(13);
     assertThat(params.getValue("offset")).isEqualTo(13);
     assertThat(response.matches()).hasSize(1);
+    assertThat(response.matches().get(0).matchId()).isEqualTo(1l);
     assertThat(response.matches().get(0).patientId()).isEqualTo("12345");
     assertThat(response.matches().get(0).patientLocalId()).isEqualTo("444");
     assertThat(response.matches().get(0).patientName()).isEqualTo("John Doe");
@@ -89,6 +91,7 @@ class MatchesRequiringReviewResolverTest {
         captor.capture(),
         ArgumentMatchers.<RowMapper<MatchRequiringReview>>any())).thenReturn(List.of(
             new MatchRequiringReview(
+                1l,
                 "12345",
                 "444",
                 "John Doe",

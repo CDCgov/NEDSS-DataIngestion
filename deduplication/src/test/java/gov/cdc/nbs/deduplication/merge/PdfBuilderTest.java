@@ -29,6 +29,7 @@ class PdfBuilderTest {
     // Arrange
     List<MatchesRequireReviewResponse.MatchRequiringReview> matches = List.of(
         new MatchesRequireReviewResponse.MatchRequiringReview(
+            1l,
             "123456",
             "444",
             "John Doe",

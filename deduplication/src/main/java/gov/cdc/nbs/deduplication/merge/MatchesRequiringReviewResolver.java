@@ -25,6 +25,7 @@ public class MatchesRequiringReviewResolver {
 
   static final String SELECT_QUERY = """
       SELECT
+        mrr.id,
         mrr.person_uid,
         mrr.person_local_id,
         mrr.person_name,
@@ -35,6 +36,7 @@ public class MatchesRequiringReviewResolver {
         matches_requiring_review mrr
         JOIN match_candidates mc ON mc.match_id = mrr.id AND mc.is_merge IS NULL
       GROUP BY
+        mrr.id,
         mrr.person_uid,
         mrr.person_local_id,
         mrr.person_name,
@@ -96,6 +98,7 @@ public class MatchesRequiringReviewResolver {
 
   MatchRequiringReview mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
     return new MatchRequiringReview(
+        rs.getLong("id"),
         rs.getString("person_uid"),
         rs.getString("person_local_id"),
         rs.getString("person_name"),

@@ -9,6 +9,7 @@ public record MatchesRequireReviewResponse(List<MatchRequiringReview> matches, i
   }
 
   public record MatchRequiringReview(
+      Long matchId,
       String patientId,
       String patientLocalId,
       String patientName,

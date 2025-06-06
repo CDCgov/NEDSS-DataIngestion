@@ -452,8 +452,7 @@ public class QueryConstants {
           UPDATE mc
           SET is_merge = 0
           FROM match_candidates mc
-          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
-          WHERE mrr.person_uid = :person_id
+          WHERE mc.match_id = :matchId
       """;
 
   public static final String MARK_PATIENTS_AS_MERGED = """
@@ -518,11 +517,7 @@ public class QueryConstants {
   public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
       SELECT mc.person_uid
       FROM match_candidates mc
-      WHERE mc.match_id IN (
-          SELECT mrr.id
-          FROM matches_requiring_review mrr
-          WHERE mrr.person_uid = :personUid AND is_merge IS NULL
-      );
+      WHERE mc.match_id = :matchId;
       """;
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
@@ -1015,8 +1010,7 @@ public class QueryConstants {
       UPDATE mc
       SET is_merge = 0
       FROM match_candidates mc
-      JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
-      WHERE mrr.person_uid = :person_uid
+      WHERE mc.match_id = :matchId
       AND mc.person_uid = :potentialMatchPersonUid
       """;
 
