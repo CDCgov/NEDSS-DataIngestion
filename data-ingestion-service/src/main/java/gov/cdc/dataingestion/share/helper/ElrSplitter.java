@@ -26,8 +26,6 @@ import java.util.Optional;
 @Slf4j
 public class ElrSplitter {
 
-    private static final boolean COPY_SPM = false;
-
     private final IObxIdStdLookupRepository obxIdStdLookupRepository;
 
     public List<HL7ParsedMessage<OruR1>> splitElr(HL7ParsedMessage<OruR1> parsedMessageOrig) {
@@ -64,7 +62,7 @@ public class ElrSplitter {
         } else {
             parsedMessageList = splitElrByOBR(parsedMessageOrig);
         }
-        log.debug("After the split..ELRs size:" + parsedMessageList.size());
+        log.info("After the split..ELRs size:" + parsedMessageList.size());
         return parsedMessageList;
     }
 
@@ -76,7 +74,7 @@ public class ElrSplitter {
         CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
         Gson gson = new Gson();
 
-        log.debug("OBR size in original Message:" + oruR1.getPatientResult().getFirst().getOrderObservation().size());
+        log.info("OBR size in original Message:" + oruR1.getPatientResult().getFirst().getOrderObservation().size());
 
         for (OrderObservation orderObservation:obrListToSplit) {
             orderObservation.setCommonOrder(orc);
@@ -87,7 +85,7 @@ public class ElrSplitter {
             List<Observation> obxList = orderObservation.getObservation();
             //Empty OBX list from OBR
             orderObservation.setObservation(new ArrayList<>());
-            //create new ELR for each OBX. OBR to be duplicated.
+            //create new ELR for each OBX. Duplicate the OBR.
 
             for (int j=0;j<obxList.size();j++) {
                 Observation obx =obxList.get(j);
@@ -97,11 +95,19 @@ public class ElrSplitter {
                 //Clone the OBR object
                 OrderObservation obrCopy = gson.fromJson(gson.toJson(orderObservation), OrderObservation.class);
                 obrCopy.getObservationRequest().setSetIdObr("1");
+
+                // To make split OBRs unique to defeat snapshot processing, make addtional changes to the specimen collection time, //NOSONAR
+                // First the outgoing minutes to incoming seconds field //NOSONAR
+                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Minutes = in.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Seconds ;//NOSONAR
+                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Minutes = out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Seconds;//NOSONAR
+                String obrDateTime= obrCopy.getObservationRequest().getObservationDateTime().getTime();
+                String newObrDateTime=replaceMinutesWithSeconds(obrDateTime);
+                obrCopy.getObservationRequest().getObservationDateTime().setTime(newObrDateTime);
                 List<Specimen> spmList= obrCopy.getSpecimen();
                 for(Specimen specimen : spmList) {
                     String spmCollTime= specimen.getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().getTime();
-                    String newCollTime=updateTimeWithNewSeconds(spmCollTime,j+1);
-                    System.out.println("old:spmCollTime:"+spmCollTime+" newCollTime:"+newCollTime);
+                    String newCollTime=replaceMinutesWithSeconds(spmCollTime);
+                    newCollTime=replaceSecondsWithIndex(newCollTime,j+1);
                     specimen.getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().setTime(newCollTime);
                 }
                 //Add obx in the OBR
@@ -111,7 +117,7 @@ public class ElrSplitter {
                 OruR1 oruR1Copy = gson.fromJson(gson.toJson(oruR1), OruR1.class);
                 //Empty the existing OBRs
                 oruR1Copy.getPatientResult().getFirst().getOrderObservation().clear();
-                //set OBR
+                //Add OBR
                 oruR1Copy.getPatientResult().getFirst().setOrderObservation(List.of(obrCopy));
                 //make MessageControlIDs unique for every message created when OBRs are split out.
                 // ORUR01.MSH.MessageControlID
@@ -120,15 +126,10 @@ public class ElrSplitter {
                 String newMsgControlId = getCustomMessageControlId(msgControlId, j+1);
                 oruR1Copy.getMessageHeader().setMessageControlId(newMsgControlId);
                 oruR1Copy.getMessageHeader().getSendingFacility().getUniversalId();
+                //Update MSH.SendingFacility.UniversalID
+                //out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID = (out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID + (i * .01) );//NOSONAR
                 String newUniversalID=oruR1Copy.getMessageHeader().getSendingFacility().getUniversalId()+((j+1) * .01);
                 oruR1Copy.getMessageHeader().getSendingFacility().setUniversalId(newUniversalID);
-                //out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID = (out.Messages[i].ORUR01.MSH.SendingFacility.UniversalID + (i * .01) );//TODO //NOSONAR
-
-                //TODO //NOSONAR
-                // To make split OBRs unique to defeat snapshot processing, make addtional changes to the specimen collection time, //NOSONAR
-                // First the outgoing minutes to incoming seconds field //NOSONAR
-                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Minutes = in.PATIENT_RESULT[0].ORDER_OBSERVATION[0].OBR.ObservationDateTime.Time.Seconds ;//NOSONAR
-                //out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Minutes = out.Messages[i].ORUR01.PATIENT_RESULT[0].ORDER_OBSERVATION[0].SPECIMEN[0].SPM.SpecimenCollectionDateTime.RangeStartDateTime.Time.Seconds;//NOSONAR
 
                 //create HL7ParsedMessage for xml creation
                 HL7ParsedMessage<OruR1> parsedMessage = new HL7ParsedMessage<>();
@@ -155,9 +156,6 @@ public class ElrSplitter {
             log.debug("Before split..splitElrByOBR Incoming Obr list size:" + obrList.size());
             //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
             CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
-            //In some cases, the SPM segment is available only in the last OBR. Some STLTs need it in all the ELRs after splitting.
-            List<Specimen> spmList =oruR1.getPatientResult().getFirst().getOrderObservation().getLast().getSpecimen();
-            System.out.println("last spm.. from backup spmList:"+spmList.size());
             //Check if a OBR is parent
             //parent order number
             //filler order number
@@ -175,11 +173,6 @@ public class ElrSplitter {
                 ArrayList<OrderObservation> tempObr = new ArrayList<>();
                 if (!obrIds.contains(obrId)) {
                     OrderObservation obrCopy = gson.fromJson(gson.toJson(obr), OrderObservation.class);
-                    System.out.println("SPM list size:" + obrCopy.getSpecimen().size()+" obrId:"+obrId+" from backup spmList:"+spmList.size());
-                    if (COPY_SPM && (obrCopy.getSpecimen() != null && obrCopy.getSpecimen().isEmpty())) {
-                        System.out.println("SPM copying ");
-                        obrCopy.setSpecimen(spmList);
-                    }
                     tempObr.add(obrCopy);
                     obrIds.add(obrId);
 
@@ -289,21 +282,27 @@ public class ElrSplitter {
     private static String getCustomMessageControlId(String messageControlId, int i) {
         return StringUtils.left(messageControlId, 8) + i + (i + 1) + (i + 2) + StringUtils.right(messageControlId, 9);
     }
-    private static String updateTimeWithNewSeconds(String specimenTime,int indexVal) {
+    private static String replaceSecondsWithIndex(String specimenTime,int indexVal) {
         String newSeconds = String.format("%02d", indexVal);
-        //String specimenTime="201205101655";//14
-        String updatedtTime="";
+        String updatedtTime=specimenTime;
         if(!StringUtils.isBlank(specimenTime) && specimenTime.length()>=12) {
             String uptoMinutes= StringUtils.left(specimenTime, 12);
-            System.out.println("uptoMinutes:"+uptoMinutes);
             String afterSeconds="";
             if(specimenTime.length()>14){
                 afterSeconds= specimenTime.substring(14);
-                System.out.println("right:"+afterSeconds);
             }
             updatedtTime=uptoMinutes+newSeconds+afterSeconds;
         }
-        System.out.println("updatedSpecimentTime:"+updatedtTime);
         return updatedtTime;
+    }
+    static String replaceMinutesWithSeconds(String specimenTime) {
+        String updatedTime=specimenTime;
+        if(!StringUtils.isBlank(specimenTime) && specimenTime.length()>=14) {
+            String seconds=specimenTime.substring(12,14);
+            String uptoHours= StringUtils.left(specimenTime, 10);
+            String fromSeconds=specimenTime.substring(12);
+            updatedTime=uptoHours+seconds+fromSeconds;
+        }
+        return updatedTime;
     }
 }
