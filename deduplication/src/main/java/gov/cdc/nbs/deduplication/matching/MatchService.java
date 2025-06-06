@@ -1,7 +1,5 @@
 package gov.cdc.nbs.deduplication.matching;
 
-import java.sql.ResultSet;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -16,27 +14,9 @@ import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
 import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
-import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @Service
 public class MatchService {
-  // Selects the most recent legal name
-  static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
-      SELECT
-        TOP 1 CONCAT(pn.first_nm, ' ', pn.last_nm) AS name,
-        p.add_time
-      FROM
-        person p
-        LEFT JOIN person_name pn ON pn.person_uid = p.person_uid
-      WHERE
-        p.person_uid = :id
-      ORDER BY
-        CASE
-          WHEN pn.nm_use_cd = 'L' THEN 1
-          ELSE 2
-        END,
-        pn.as_of_date DESC
-            """;
 
   static final String FIND_NBS_PERSON_QUERY = """
       SELECT TOP 1
@@ -47,19 +27,15 @@ public class MatchService {
         mpi_person = :mpi_person;
       """;
 
-
   private final RestClient recordLinkageClient;
   private final NamedParameterJdbcTemplate template;
-  private final NamedParameterJdbcTemplate nbsTemplate;
   private final LinkRequestMapper linkRequestMapper = new LinkRequestMapper();
 
   public MatchService(
       @Qualifier("recordLinkerRestClient") final RestClient recordLinkageClient,
-      @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
-      @Qualifier("nbsNamedTemplate") final NamedParameterJdbcTemplate nbsTemplate) {
+      @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template) {
     this.recordLinkageClient = recordLinkageClient;
     this.template = template;
-    this.nbsTemplate = nbsTemplate;
   }
 
   public MatchResponse match(PersonMatchRequest request) {
@@ -69,7 +45,8 @@ public class MatchService {
     // Send to RL
     LinkResponse linkResponse = sendMatchRequest(linkRequest);
 
-    // Do not fail ELR ingestion if RL fails to return. Batch job can reprocess and flag
+    // Do not fail ELR ingestion if RL fails to return. Batch job can reprocess and
+    // flag
     if (linkResponse == null) {
       return new MatchResponse(null, MatchType.NONE);
     }
@@ -105,18 +82,6 @@ public class MatchService {
     SqlParameterSource parameters = new MapSqlParameterSource()
         .addValue("mpi_person", mpiPerson);
     return template.queryForObject(FIND_NBS_PERSON_QUERY, parameters, Long.class);
-  }
-
-
-  PatientNameAndTime findNbsInfo(Long id) {
-    return nbsTemplate.query(
-        FIND_NBS_ADD_TIME_AND_NAME_QUERY,
-        new MapSqlParameterSource()
-            .addValue("id", id),
-        (ResultSet rs, int rowNum) -> new PatientNameAndTime(
-            rs.getString("name"),
-            rs.getTimestamp("add_time").toLocalDateTime()))
-        .getFirst();
   }
 
 }

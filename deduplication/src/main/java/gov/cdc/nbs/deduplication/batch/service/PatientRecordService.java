@@ -84,12 +84,13 @@ public class PatientRecordService {
 
   public PatientNameAndTime fetchPersonNameAndAddTime(String id) {
     return namedParameterJdbcTemplate.query(
-            QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY,
-            new MapSqlParameterSource()
-                .addValue("id", id),
-            (ResultSet rs, int rowNum) -> new PatientNameAndTime(
-                rs.getString("name"),
-                rs.getTimestamp("add_time").toLocalDateTime()))
+        QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY,
+        new MapSqlParameterSource()
+            .addValue("id", id),
+        (ResultSet rs, int rowNum) -> new PatientNameAndTime(
+            rs.getString("personLocalId"),
+            rs.getString("name"),
+            rs.getTimestamp("add_time").toLocalDateTime()))
         .getFirst();
   }
 

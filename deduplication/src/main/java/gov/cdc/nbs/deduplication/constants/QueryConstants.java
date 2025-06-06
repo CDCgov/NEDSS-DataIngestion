@@ -17,16 +17,6 @@ public class QueryConstants {
       WHERE person_uid = :personId
       """;
 
-  public static final String INSERT_MATCH_GROUP = """
-          INSERT INTO matches_requiring_review (person_uid, person_name, person_add_time, date_identified)
-          VALUES (:personUid, :personName, :personAddTime, :identifiedDate)
-      """;
-
-  public static final String INSERT_MATCH_CANDIDATE = """
-          INSERT INTO match_candidates (match_id, person_uid, is_merge)
-          VALUES (:matchId, :personUid, NULL)
-      """;
-
   public static final String NBS_MPI_QUERY = """
       INSERT INTO nbs_mpi_mapping
         (person_uid, person_parent_uid, mpi_patient, mpi_person, status,person_add_time)
@@ -45,8 +35,6 @@ public class QueryConstants {
       FROM nbs_mpi_mapping
       WHERE person_uid =  :personId
       """;
-
-
 
   public static final String PERSON_RECORD_BY_PARENT_ID = """
       SELECT
@@ -464,15 +452,7 @@ public class QueryConstants {
           UPDATE mc
           SET is_merge = 0
           FROM match_candidates mc
-          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
-          WHERE mrr.person_uid = :person_id
-      """;
-
-  public static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
-      SELECT person_uid
-      FROM nbs_mpi_mapping
-      WHERE mpi_person IN (:mpiIds)
-      AND person_uid=person_parent_uid
+          WHERE mc.match_id = :matchId
       """;
 
   public static final String MARK_PATIENTS_AS_MERGED = """
@@ -507,8 +487,6 @@ public class QueryConstants {
         AND match_candidates.is_merge IS NULL;
       """;
 
-
-
   public static final String INSERT_PERSON_MERGE_RECORD = """
        INSERT INTO PERSON_MERGE (
           SURVIVING_PERSON_UID,
@@ -536,19 +514,32 @@ public class QueryConstants {
       AND person_uid != person_parent_uid
       """;
 
-  public static final String POSSIBLE_MATCH_IDS_BY_PATIENT_ID = """
+  public static final String POSSIBLE_MATCH_IDS_BY_MATCH_ID = """
       SELECT mc.person_uid
       FROM match_candidates mc
-      WHERE mc.match_id IN (
-          SELECT mrr.id
-          FROM matches_requiring_review mrr
-          WHERE mrr.person_uid = :personUid AND is_merge IS NULL
-      );
+      WHERE mc.match_id = :matchId
+      AND mc.is_merge IS NULL;
       """;
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
+      WITH id_settings(prefix, suffix,initial) as   (
+        select
+          generator.UID_prefix_cd     as prefix,
+          generator.UID_suffix_CD     as suffix,
+          cast(config.config_value as bigint)  as initial
+        from Local_UID_generator generator WITH (NOLOCK), NBS_configuration config WITH (NOLOCK)
+        where generator.class_name_cd = 'PERSON' AND generator.type_cd = 'LOCAL' AND config.config_key = 'SEED_VALUE'
+      )
       SELECT
+          cast(
+              substring(
+                  p.local_id,
+                  len(id_settings.prefix) + 1,
+                  len(p.local_id) - len(id_settings.prefix) - len(id_settings.suffix)
+              ) as bigint
+          ) - id_settings.initial                 as personId,
           p.person_parent_uid,
+          p.add_time,
           p.as_of_date_admin AS comment_date,
           p.description AS admin_comments,
           nested.address,
@@ -596,7 +587,7 @@ public class QueryConstants {
                   INCLUDE_NULL_VALUES
           ) AS investigations
       FROM
-          person p
+          id_settings, person p
       WITH
           (NOLOCK)
           OUTER APPLY (
@@ -981,11 +972,30 @@ public class QueryConstants {
       """;
 
   public static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
-      SELECT
-        TOP 1 CONCAT(COALESCE(pn.last_nm, '--'), ', ', COALESCE(pn.first_nm, '--')) AS name,
+      WITH
+        id_settings (prefix, suffix, initial) AS (
+          SELECT
+            generator.UID_prefix_cd AS prefix,
+            generator.UID_suffix_CD AS suffix,
+            cast(config.config_value AS bigint) AS initial
+          FROM
+            Local_UID_generator generator
+          WITH
+            (NOLOCK),
+            NBS_configuration config
+          WITH
+            (NOLOCK)
+          WHERE
+            generator.class_name_cd = 'PERSON'
+            AND generator.type_cd = 'LOCAL'
+            AND config.config_key = 'SEED_VALUE'
+        )
+      SELECT TOP 1
+        CAST(SUBSTRING(p.local_id, LEN(id_settings.prefix) + 1, LEN(p.local_id) - LEN(id_settings.prefix) - LEN(id_settings.suffix)) AS bigint) - id_settings.initial AS personLocalId,
+        CONCAT(COALESCE(pn.last_nm, '--'), ', ', COALESCE(pn.first_nm, '--')) AS name,
         p.add_time
       FROM
-        person p
+        id_settings, person p
         LEFT JOIN person_name pn ON pn.person_uid = p.person_uid
       WHERE
         p.person_uid = :id
@@ -1001,8 +1011,7 @@ public class QueryConstants {
       UPDATE mc
       SET is_merge = 0
       FROM match_candidates mc
-      JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
-      WHERE mrr.person_uid = :person_uid
+      WHERE mc.match_id = :matchId
       AND mc.person_uid = :potentialMatchPersonUid
       """;
 
@@ -1039,7 +1048,6 @@ public class QueryConstants {
       AND person_uid != :survivorId
       AND is_merge IS NULL;
       """;
-
 
   public static final String COPY_PERSON_TO_HISTORY = """
         INSERT INTO person_hist (
@@ -1150,7 +1158,7 @@ public class QueryConstants {
           ethnic_unk_reason_cd,
           sex_unk_reason_cd
       )
-      SELECT 
+      SELECT
           person_uid,
           version_ctrl_nbr,
           add_reason_cd,
@@ -1232,7 +1240,7 @@ public class QueryConstants {
           race_seq_nbr,
           race_category_cd,
           ethnicity_group_cd,
-          ethnic_group_seq_nbr,  
+          ethnic_group_seq_nbr,
           adults_in_house_nbr,
           children_in_house_nbr,
           birth_city_cd,

@@ -46,28 +46,27 @@ public class PatientMergeController {
     return matchesRequiringReviewResolver.resolve(page, size, sort);
   }
 
-  @GetMapping("/{patientId}")
+  @GetMapping("/{matchId}")
   public ResponseEntity<List<PersonMergeData>> getPotentialMatchesDetails(
-      @PathVariable("patientId") Long patientId) {
-    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(patientId));
+      @PathVariable("matchId") Long matchId) {
+    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(matchId));
   }
 
-
-  @DeleteMapping("/{patientId}")
-  public ResponseEntity<Void> unMergeAll(@PathVariable("patientId") Long patientId) {
+  @DeleteMapping("/{matchId}")
+  public ResponseEntity<Void> unMergeAll(@PathVariable("matchId") Long matchId) {
     try {
-      mergeGroupHandler.unMergeAll(patientId);
+      mergeGroupHandler.removeAll(matchId);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }
   }
 
-  @DeleteMapping("/{patientId}/{removePatientId}")
-  public ResponseEntity<Void> unMergeSinglePerson(@PathVariable("patientId") Long patientId,
+  @DeleteMapping("/{matchId}/{removePatientId}")
+  public ResponseEntity<Void> unMergeSinglePerson(@PathVariable("matchId") Long matchId,
       @PathVariable("removePatientId") Long removePatientId) {
     try {
-      mergeGroupHandler.unMergeSinglePerson(patientId, removePatientId);
+      mergeGroupHandler.removePerson(matchId, removePatientId);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
@@ -100,7 +99,7 @@ public class PatientMergeController {
       for (MatchRequiringReview match : matches) {
         writer.printf(
             "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
-            match.patientId(),
+            match.patientLocalId(),
             match.patientName(),
             pdfBuilder.formatDateTime(match.createdDate()),
             pdfBuilder.formatDateTime(match.identifiedDate()),
