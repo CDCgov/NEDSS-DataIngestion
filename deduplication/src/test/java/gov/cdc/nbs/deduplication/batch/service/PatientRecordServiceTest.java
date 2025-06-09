@@ -129,6 +129,8 @@ class PatientRecordServiceTest {
         null,
         null,
         null,
+        null,
+        null,
         null);
   }
 
@@ -154,6 +156,7 @@ class PatientRecordServiceTest {
   @SuppressWarnings("unchecked")
   void fetchPersonNameAndAddTime_returnsCorrectObject() throws Exception {
     String personId = "789";
+    String personLocalId = "809";
     String expectedName = "John Doe";
 
     when(namedParameterJdbcTemplate.query(
@@ -163,7 +166,7 @@ class PatientRecordServiceTest {
         .thenAnswer(invocation -> {
           RowMapper<?> rowMapper = invocation.getArgument(2);
           ResultSet rs = mock(ResultSet.class);
-
+          when(rs.getString("personLocalId")).thenReturn(personLocalId);
           when(rs.getString("name")).thenReturn(expectedName);
           when(rs.getTimestamp("add_time")).thenReturn(Timestamp.valueOf(LocalDateTime.now()));
 

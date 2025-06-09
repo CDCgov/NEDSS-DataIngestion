@@ -286,6 +286,14 @@ dependencies {
   implementation files('libs/cda-schema.jar')
 }
 
+dependencyManagement {
+	dependencies {
+		dependency 'org.apache.tomcat.embed:tomcat-embed-core:10.1.41'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-el:10.1.41'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.41'
+	}
+}
+
 test {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport

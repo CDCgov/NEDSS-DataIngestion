@@ -6,10 +6,13 @@ import org.mockito.Mockito;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Ethnicity;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.GeneralPatientInformation;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Identification;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Mortality;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,45 +36,6 @@ class PersonMergeDataMapperTest {
   private static final String ETHNICITY_AS_OF_DATE = "2025-05-30T00:00:00";
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
-
-  private static final String SEX_AND_BIRTH_AS_OF_DATE = "2023-02-01";
-  private static final String BIRTH_TIME = "1990-01-01T00:00:00Z";
-  private static final String CURRENT_SEX_CODE = "M";
-  private static final String SEX_UNKNOWN_REASON = "Not applicable";
-  private static final String ADDITIONAL_GENDER_CODE = "";
-  private static final String BIRTH_GENDER_CODE = "Male";
-  private static final Boolean MULTIPLE_BIRTH_INDICATOR = true;
-  private static final Integer BIRTH_ORDER_NUMBER = 1;
-  private static final String BIRTH_CITY_CODE = "12345";
-  private static final String BIRTH_STATE_CODE = "GA";
-  private static final String BIRTH_COUNTRY_CODE = "US";
-  private static final String PREFERRED_GENDER = "Male";
-
-  private static final String MORTALITY_AS_OF_DATE = "2023-03-01";
-  private static final String DECEASED_INDICATOR_CODE = "Y";
-  private static final String DECEASED_TIME = "2023-04-01T00:00:00Z";
-  private static final String DEATH_CITY = "Atlanta";
-  private static final String DEATH_STATE = "Georgia";
-  private static final String DEATH_COUNTY = "Fulton";
-  private static final String DEATH_COUNTRY = "US";
-
-  private static final String GENERAL_PATIENT_INFO_AS_OF_DATE = "2023-05-01";
-  private static final String MARITAL_STATUS_DESCRIPTION = "Married";
-  private static final String MOTHERS_MAIDEN_NAME = "Jane Doe";
-  private static final Integer ADULTS_IN_HOUSEHOLD_NUMBER = 2;
-  private static final Integer CHILDREN_IN_HOUSEHOLD_NUMBER = 1;
-  private static final String OCCUPATION_CODE = "Engineer";
-  private static final String EDUCATION_LEVEL_DESCRIPTION = "Bachelor's Degree";
-  private static final String PRIMARY_LANGUAGE_DESCRIPTION = "English";
-  private static final String SPEAKS_ENGLISH_CODE = "Y";
-  private static final String STATE_HIV_CASE_ID = "123456789";
-
-  private static final String INVESTIGATIONS_STRING = """
-      [
-          {"investigationId": "1", "started_on": "2023-06-01T00:00:00Z", "condition": "Condition A"},
-          {"investigationId": "2", "started_on": "2023-07-01T00:00:00Z", "condition": "Condition B"}
-      ]
-      """;
 
   private static final String ADDRESS_STRING = """
       [
@@ -146,6 +110,65 @@ class PersonMergeDataMapperTest {
       }
       """;
 
+  private static final String SEX_AND_BIRTH_STRING = """
+        {
+        "asOf": "2025-05-27T00:00:00",
+        "dateOfBirth": "2025-05-12T00:00:00",
+        "currentSex": "Male",
+        "sexUnknown": null,
+        "transgender": "Did not ask",
+        "additionalGender": "Add Gender",
+        "birthGender": "Male",
+        "multipleBirth": "No",
+        "birthOrder": 1,
+        "birthCity": "Birth City",
+        "birthState": "Tennessee",
+        "birthCounty": "Some County",
+        "birthCountry": "United States"
+      }
+      """;
+
+  private static final String MORTALITY_STRING = """
+      {
+      "asOf": "2025-05-27T00:00:00",
+      "dateOfDeath": "2025-05-11T00:00:00",
+      "deathCity": "Death city",
+      "deceased": "Yes",
+      "deathState": "Texas",
+      "deathCounty": "Anderson County",
+      "deathCountry": "Afghanistan"
+      }
+      """;
+  private static final String GENERAL_INFO_STRING = """
+        {
+        "asOf": "2025-05-27T00:00:00",
+        "maritalStatus": "Annulled",
+        "mothersMaidenName": "MotherMaiden",
+        "numberOfAdultsInResidence": 2,
+        "numberOfChildrenInResidence": 0,
+        "primaryOccupation": "Mining",
+        "educationLevel": "10th grade",
+        "primaryLanguage": "Eastern Frisian",
+        "speaksEnglish": "Yes",
+        "stateHivCaseId": "123"
+      }
+      """;
+
+  private static final String INVESTIGATION_STRING = """
+      [
+        {
+          "id": "CAS10001000GA01",
+          "startDate": "2025-06-05T00:00:00",
+          "condition": "2019 Novel Coronavirus"
+        },
+        {
+          "id": "CAS10001001GA01",
+          "startDate": null,
+          "condition": "Cholera"
+        }
+      ]
+      """;
+
   @Test
   void testMapRow() throws Exception {
     ResultSet rs = Mockito.mock(ResultSet.class);
@@ -179,45 +202,19 @@ class PersonMergeDataMapperTest {
   }
 
   private void mockSexAndBirthFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_sex")).thenReturn(SEX_AND_BIRTH_AS_OF_DATE);
-    when(rs.getString("birth_time")).thenReturn(BIRTH_TIME);
-    when(rs.getString("curr_sex_cd")).thenReturn(CURRENT_SEX_CODE);
-    when(rs.getString("sex_unknown_reason")).thenReturn(SEX_UNKNOWN_REASON);
-    when(rs.getString("additional_gender_cd")).thenReturn(ADDITIONAL_GENDER_CODE);
-    when(rs.getString("birth_gender_cd")).thenReturn(BIRTH_GENDER_CODE);
-    when(rs.getBoolean("multiple_birth_ind")).thenReturn(MULTIPLE_BIRTH_INDICATOR);
-    when(rs.getInt("birth_order_nbr")).thenReturn(BIRTH_ORDER_NUMBER);
-    when(rs.getString("birth_city_cd")).thenReturn(BIRTH_CITY_CODE);
-    when(rs.getString("birth_state_cd")).thenReturn(BIRTH_STATE_CODE);
-    when(rs.getString("birth_cntry_cd")).thenReturn(BIRTH_COUNTRY_CODE);
-    when(rs.getString("preferred_gender")).thenReturn(PREFERRED_GENDER);
+    when(rs.getString("sexAndBirth")).thenReturn(SEX_AND_BIRTH_STRING);
   }
 
   private void mockMortalityFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_morbidity")).thenReturn(MORTALITY_AS_OF_DATE);
-    when(rs.getString("deceased_ind_cd")).thenReturn(DECEASED_INDICATOR_CODE);
-    when(rs.getString("deceased_time")).thenReturn(DECEASED_TIME);
-    when(rs.getString("death_city")).thenReturn(DEATH_CITY);
-    when(rs.getString("death_state")).thenReturn(DEATH_STATE);
-    when(rs.getString("death_county")).thenReturn(DEATH_COUNTY);
-    when(rs.getString("death_country")).thenReturn(DEATH_COUNTRY);
+    when(rs.getString("mortality")).thenReturn(MORTALITY_STRING);
   }
 
   private void mockGeneralPatientInformationFields(ResultSet rs) throws SQLException {
-    when(rs.getString("as_of_date_general")).thenReturn(GENERAL_PATIENT_INFO_AS_OF_DATE);
-    when(rs.getString("marital_status_desc_txt")).thenReturn(MARITAL_STATUS_DESCRIPTION);
-    when(rs.getString("mothers_maiden_nm")).thenReturn(MOTHERS_MAIDEN_NAME);
-    when(rs.getInt("adults_in_house_nbr")).thenReturn(ADULTS_IN_HOUSEHOLD_NUMBER);
-    when(rs.getInt("children_in_house_nbr")).thenReturn(CHILDREN_IN_HOUSEHOLD_NUMBER);
-    when(rs.getString("occupation_cd")).thenReturn(OCCUPATION_CODE);
-    when(rs.getString("education_level_desc_txt")).thenReturn(EDUCATION_LEVEL_DESCRIPTION);
-    when(rs.getString("prim_lang_desc_txt")).thenReturn(PRIMARY_LANGUAGE_DESCRIPTION);
-    when(rs.getString("speaks_english_cd")).thenReturn(SPEAKS_ENGLISH_CODE);
-    when(rs.getString("State_HIV_Case_ID")).thenReturn(STATE_HIV_CASE_ID);
+    when(rs.getString("general")).thenReturn(GENERAL_INFO_STRING);
   }
 
   private void mockInvestigationsField(ResultSet rs) throws SQLException {
-    when(rs.getString("investigations")).thenReturn(INVESTIGATIONS_STRING);
+    when(rs.getString("investigations")).thenReturn(INVESTIGATION_STRING);
   }
 
   private void mockNestedFields(ResultSet rs) throws SQLException {
@@ -243,56 +240,54 @@ class PersonMergeDataMapperTest {
   }
 
   private void assertSexAndBirth(PersonMergeData personMergeData) {
-    assertThat(personMergeData.sexAndBirth().asOfDate()).isEqualTo(SEX_AND_BIRTH_AS_OF_DATE);
-    assertThat(personMergeData.sexAndBirth().birthTime()).isEqualTo(BIRTH_TIME);
-    assertThat(personMergeData.sexAndBirth().currentSexCode()).isEqualTo(CURRENT_SEX_CODE);
-    assertThat(personMergeData.sexAndBirth().sexUnknownReason()).isEqualTo(SEX_UNKNOWN_REASON);
-    assertThat(personMergeData.sexAndBirth().additionalGenderCode()).isEqualTo(ADDITIONAL_GENDER_CODE);
-    assertThat(personMergeData.sexAndBirth().birthGenderCode()).isEqualTo(BIRTH_GENDER_CODE);
-    assertThat(personMergeData.sexAndBirth().multipleBirthIndicator()).isEqualTo(MULTIPLE_BIRTH_INDICATOR);
-    assertThat(personMergeData.sexAndBirth().birthOrderNumber()).isEqualTo(BIRTH_ORDER_NUMBER);
-    assertThat(personMergeData.sexAndBirth().birthCityCode()).isEqualTo(BIRTH_CITY_CODE);
-    assertThat(personMergeData.sexAndBirth().birthStateCode()).isEqualTo(BIRTH_STATE_CODE);
-    assertThat(personMergeData.sexAndBirth().birthCountryCode()).isEqualTo(BIRTH_COUNTRY_CODE);
-    assertThat(personMergeData.sexAndBirth().preferredGender()).isEqualTo(PREFERRED_GENDER);
+    assertThat(personMergeData.sexAndBirth().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.sexAndBirth().dateOfBirth()).isEqualTo("2025-05-12T00:00:00");
+    assertThat(personMergeData.sexAndBirth().currentSex()).isEqualTo("Male");
+    assertThat(personMergeData.sexAndBirth().sexUnknown()).isNull();
+    assertThat(personMergeData.sexAndBirth().transgender()).isEqualTo("Did not ask");
+    assertThat(personMergeData.sexAndBirth().additionalGender()).isEqualTo("Add Gender");
+    assertThat(personMergeData.sexAndBirth().birthGender()).isEqualTo("Male");
+    assertThat(personMergeData.sexAndBirth().multipleBirth()).isEqualTo("No");
+    assertThat(personMergeData.sexAndBirth().birthOrder()).isEqualTo("1");
+    assertThat(personMergeData.sexAndBirth().birthCity()).isEqualTo("Birth City");
+    assertThat(personMergeData.sexAndBirth().birthState()).isEqualTo("Tennessee");
+    assertThat(personMergeData.sexAndBirth().birthCounty()).isEqualTo("Some County");
+    assertThat(personMergeData.sexAndBirth().birthCountry()).isEqualTo("United States");
+
   }
 
   private void assertMortality(PersonMergeData personMergeData) {
-    assertThat(personMergeData.mortality().asOfDate()).isEqualTo(MORTALITY_AS_OF_DATE);
-    assertThat(personMergeData.mortality().deceasedIndicatorCode()).isEqualTo(DECEASED_INDICATOR_CODE);
-    assertThat(personMergeData.mortality().deceasedTime()).isEqualTo(DECEASED_TIME);
-    assertThat(personMergeData.mortality().deathCity()).isEqualTo(DEATH_CITY);
-    assertThat(personMergeData.mortality().deathState()).isEqualTo(DEATH_STATE);
-    assertThat(personMergeData.mortality().deathCounty()).isEqualTo(DEATH_COUNTY);
-    assertThat(personMergeData.mortality().deathCountry()).isEqualTo(DEATH_COUNTRY);
+    assertThat(personMergeData.mortality().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.mortality().deceased()).isEqualTo("Yes");
+    assertThat(personMergeData.mortality().dateOfDeath()).isEqualTo("2025-05-11T00:00:00");
+    assertThat(personMergeData.mortality().deathCity()).isEqualTo("Death city");
+    assertThat(personMergeData.mortality().deathState()).isEqualTo("Texas");
+    assertThat(personMergeData.mortality().deathCounty()).isEqualTo("Anderson County");
+    assertThat(personMergeData.mortality().deathCountry()).isEqualTo("Afghanistan");
   }
 
   private void assertGeneralPatientInformation(PersonMergeData personMergeData) {
-    assertThat(personMergeData.generalPatientInformation().asOfDate()).isEqualTo(GENERAL_PATIENT_INFO_AS_OF_DATE);
-    assertThat(personMergeData.generalPatientInformation().maritalStatusDescription())
-        .isEqualTo(MARITAL_STATUS_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().mothersMaidenName()).isEqualTo(MOTHERS_MAIDEN_NAME);
-    assertThat(personMergeData.generalPatientInformation().adultsInHouseholdNumber())
-        .isEqualTo(ADULTS_IN_HOUSEHOLD_NUMBER);
-    assertThat(personMergeData.generalPatientInformation().childrenInHouseholdNumber())
-        .isEqualTo(CHILDREN_IN_HOUSEHOLD_NUMBER);
-    assertThat(personMergeData.generalPatientInformation().occupationCode()).isEqualTo(OCCUPATION_CODE);
-    assertThat(personMergeData.generalPatientInformation().educationLevelDescription())
-        .isEqualTo(EDUCATION_LEVEL_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().primaryLanguageDescription())
-        .isEqualTo(PRIMARY_LANGUAGE_DESCRIPTION);
-    assertThat(personMergeData.generalPatientInformation().speaksEnglishCode()).isEqualTo(SPEAKS_ENGLISH_CODE);
-    assertThat(personMergeData.generalPatientInformation().stateHivCaseId()).isEqualTo(STATE_HIV_CASE_ID);
+    assertThat(personMergeData.general().asOf()).isEqualTo("2025-05-27T00:00:00");
+    assertThat(personMergeData.general().maritalStatus()).isEqualTo("Annulled");
+    assertThat(personMergeData.general().mothersMaidenName()).isEqualTo("MotherMaiden");
+    assertThat(personMergeData.general().numberOfAdultsInResidence()).isEqualTo("2");
+    assertThat(personMergeData.general().numberOfChildrenInResidence()).isEqualTo("0");
+    assertThat(personMergeData.general().primaryOccupation()).isEqualTo("Mining");
+    assertThat(personMergeData.general().educationLevel()).isEqualTo("10th grade");
+    assertThat(personMergeData.general().primaryLanguage()).isEqualTo("Eastern Frisian");
+    assertThat(personMergeData.general().speaksEnglish()).isEqualTo("Yes");
+    assertThat(personMergeData.general().stateHivCaseId()).isEqualTo("123");
   }
 
   private void assertInvestigations(PersonMergeData personMergeData) {
     assertThat(personMergeData.investigations()).hasSize(2);
-    assertThat(personMergeData.investigations().getFirst().investigationId()).isEqualTo("1");
-    assertThat(personMergeData.investigations().getFirst().startedOn()).isEqualTo("2023-06-01T00:00:00Z");
-    assertThat(personMergeData.investigations().getFirst().condition()).isEqualTo("Condition A");
-    assertThat(personMergeData.investigations().get(1).investigationId()).isEqualTo("2");
-    assertThat(personMergeData.investigations().get(1).startedOn()).isEqualTo("2023-07-01T00:00:00Z");
-    assertThat(personMergeData.investigations().get(1).condition()).isEqualTo("Condition B");
+    assertThat(personMergeData.investigations().getFirst().id()).isEqualTo("CAS10001000GA01");
+    assertThat(personMergeData.investigations().getFirst().startDate()).isEqualTo("2025-06-05T00:00:00");
+    assertThat(personMergeData.investigations().getFirst().condition()).isEqualTo("2019 Novel Coronavirus");
+
+    assertThat(personMergeData.investigations().get(1).id()).isEqualTo("CAS10001001GA01");
+    assertThat(personMergeData.investigations().get(1).startDate()).isNull();
+    assertThat(personMergeData.investigations().get(1).condition()).isEqualTo("Cholera");
   }
 
   private void assertNestedFields(PersonMergeData personMergeData) {
@@ -301,18 +296,6 @@ class PersonMergeDataMapperTest {
     assertThat(personMergeData.names()).hasSize(2);
     assertThat(personMergeData.identifications()).hasSize(1);
     assertThat(personMergeData.races()).hasSize(2);
-  }
-
-  @Test
-  void testMapInvestigations() {
-    List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(INVESTIGATIONS_STRING);
-    assertThat(investigations).hasSize(2);
-    assertThat(investigations.getFirst().investigationId()).isEqualTo("1");
-    assertThat(investigations.getFirst().startedOn()).isEqualTo("2023-06-01T00:00:00Z");
-    assertThat(investigations.getFirst().condition()).isEqualTo("Condition A");
-    assertThat(investigations.get(1).investigationId()).isEqualTo("2");
-    assertThat(investigations.get(1).startedOn()).isEqualTo("2023-07-01T00:00:00Z");
-    assertThat(investigations.get(1).condition()).isEqualTo("Condition B");
   }
 
   @Test
@@ -403,15 +386,86 @@ class PersonMergeDataMapperTest {
   }
 
   @Test
-  void testMapInvestigationsEmptyString() {
-    final String investigationString = "";
-    List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(investigationString);
-    assertThat(investigations).isEmpty();
+  void testMapSexAndBirthEmpty() {
+    String sexAndBirthString = null;
+    SexAndBirth sexAndBirth = mapper.mapSexAndBirth(sexAndBirthString);
+    assertThat(sexAndBirth.asOf()).isNull();
+    assertThat(sexAndBirth.dateOfBirth()).isNull();
+    assertThat(sexAndBirth.currentSex()).isNull();
+    assertThat(sexAndBirth.sexUnknown()).isNull();
+    assertThat(sexAndBirth.transgender()).isNull();
+    assertThat(sexAndBirth.additionalGender()).isNull();
+    assertThat(sexAndBirth.birthGender()).isNull();
+    assertThat(sexAndBirth.multipleBirth()).isNull();
+    assertThat(sexAndBirth.birthOrder()).isNull();
+    assertThat(sexAndBirth.birthCity()).isNull();
+    assertThat(sexAndBirth.birthState()).isNull();
+    assertThat(sexAndBirth.birthCounty()).isNull();
+  }
+
+  @Test
+  void testMapSexAndBirthException() {
+    String sexAndBirthString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapSexAndBirth(sexAndBirthString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient sex and birth");
+  }
+
+  @Test
+  void testMapMortalityEmpty() {
+    String mortalityString = null;
+    Mortality mortality = mapper.mapMortality(mortalityString);
+    assertThat(mortality.asOf()).isNull();
+    assertThat(mortality.deceased()).isNull();
+    assertThat(mortality.dateOfDeath()).isNull();
+    assertThat(mortality.deathCity()).isNull();
+    assertThat(mortality.deathState()).isNull();
+    assertThat(mortality.deathCounty()).isNull();
+    assertThat(mortality.deathCountry()).isNull();
+  }
+
+  @Test
+  void testMapMortalityException() {
+    String mortalityString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapMortality(mortalityString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient mortality");
+  }
+
+  @Test
+  void testMapGeneralEmpty() {
+    String generalInfoString = null;
+    GeneralPatientInformation generalInfo = mapper.mapGeneralPatientInformation(generalInfoString);
+    assertThat(generalInfo.asOf()).isNull();
+    assertThat(generalInfo.asOf()).isNull();
+    assertThat(generalInfo.maritalStatus()).isNull();
+    assertThat(generalInfo.mothersMaidenName()).isNull();
+    assertThat(generalInfo.numberOfAdultsInResidence()).isNull();
+    assertThat(generalInfo.numberOfChildrenInResidence()).isNull();
+    assertThat(generalInfo.primaryOccupation()).isNull();
+    assertThat(generalInfo.educationLevel()).isNull();
+    assertThat(generalInfo.primaryLanguage()).isNull();
+    assertThat(generalInfo.speaksEnglish()).isNull();
+    assertThat(generalInfo.stateHivCaseId()).isNull();
+  }
+
+  @Test
+  void testMapGeneralException() {
+    String generalInfoString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class,
+        () -> mapper.mapGeneralPatientInformation(generalInfoString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient general information");
   }
 
   @Test
   void testMapInvestigationsNull() {
     List<PersonMergeData.Investigation> investigations = mapper.mapInvestigations(null);
     assertThat(investigations).isEmpty();
+  }
+
+  @Test
+  void testMapInvestigationException() {
+    String investigationString = "asdf";
+    PersonMapException ex = assertThrows(PersonMapException.class,
+        () -> mapper.mapInvestigations(investigationString));
+    assertThat(ex.getMessage()).isEqualTo("Failed to parse patient investigations");
   }
 }

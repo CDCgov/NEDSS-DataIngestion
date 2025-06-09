@@ -55,7 +55,9 @@ class MatchesRequiringReviewResolverTest {
         captor.capture(),
         ArgumentMatchers.<RowMapper<MatchRequiringReview>>any())).thenReturn(List.of(
             new MatchRequiringReview(
+                1l,
                 "12345",
+                "444",
                 "John Doe",
                 "create date as string",
                 "identified date as string",
@@ -69,7 +71,9 @@ class MatchesRequiringReviewResolverTest {
     assertThat(params.getValue("limit")).isEqualTo(13);
     assertThat(params.getValue("offset")).isEqualTo(13);
     assertThat(response.matches()).hasSize(1);
+    assertThat(response.matches().get(0).matchId()).isEqualTo(1l);
     assertThat(response.matches().get(0).patientId()).isEqualTo("12345");
+    assertThat(response.matches().get(0).patientLocalId()).isEqualTo("444");
     assertThat(response.matches().get(0).patientName()).isEqualTo("John Doe");
     assertThat(response.matches().get(0).createdDate()).isEqualTo("create date as string");
     assertThat(response.matches().get(0).identifiedDate()).isEqualTo("identified date as string");
@@ -87,7 +91,9 @@ class MatchesRequiringReviewResolverTest {
         captor.capture(),
         ArgumentMatchers.<RowMapper<MatchRequiringReview>>any())).thenReturn(List.of(
             new MatchRequiringReview(
+                1l,
                 "12345",
+                "444",
                 "John Doe",
                 "create date as string",
                 "identified date as string",
@@ -124,6 +130,7 @@ class MatchesRequiringReviewResolverTest {
     java.sql.Timestamp dateIdentified = java.sql.Timestamp.from(Instant.now());
 
     when(resultSet.getString("person_uid")).thenReturn("12345");
+    when(resultSet.getString("person_local_id")).thenReturn("444");
     when(resultSet.getString("person_name")).thenReturn("John Doe");
     when(resultSet.getTimestamp("person_add_time")).thenReturn(addTime);
     when(resultSet.getTimestamp("date_identified")).thenReturn(dateIdentified);
@@ -134,6 +141,7 @@ class MatchesRequiringReviewResolverTest {
 
     // validate mapping
     assertThat(mappedRow.patientId()).isEqualTo("12345");
+    assertThat(mappedRow.patientLocalId()).isEqualTo("444");
     assertThat(mappedRow.patientName()).isEqualTo("John Doe");
     assertThat(mappedRow.createdDate()).isEqualTo(addTime.toLocalDateTime().toString());
     assertThat(mappedRow.identifiedDate()).isEqualTo(dateIdentified.toLocalDateTime().toString());
@@ -142,8 +150,8 @@ class MatchesRequiringReviewResolverTest {
 
   @ParameterizedTest
   @CsvSource(delimiter = '|', textBlock = """
-      patient-id,asc | person_uid | ASC
-      patient-id,desc | person_uid | DESC
+      patient-id,asc | person_local_id | ASC
+      patient-id,desc | person_local_id | DESC
       name,asc | person_name | ASC
       name,desc | person_name | DESC
       created,asc | person_add_time | ASC

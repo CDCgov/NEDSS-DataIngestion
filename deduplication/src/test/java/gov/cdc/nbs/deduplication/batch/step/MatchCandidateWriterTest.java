@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 @ExtendWith(MockitoExtension.class)
 class MatchCandidateWriterTest {
 
@@ -56,8 +55,7 @@ class MatchCandidateWriterTest {
     String possibleMatchUid = "456";
     MatchCandidate candidate = new MatchCandidate(
         personUid,
-        List.of(possibleMatchUid)
-    );
+        List.of(possibleMatchUid));
 
     mockFetchPersonNameAndAddTime();
     mockGetPersonIdsByMpiIds();
@@ -72,13 +70,13 @@ class MatchCandidateWriterTest {
 
   private void mockFetchPersonNameAndAddTime() {
     when(patientRecordService.fetchPersonNameAndAddTime(anyString()))
-        .thenReturn(new PatientNameAndTime("John Doe", LocalDateTime.now()));
+        .thenReturn(new PatientNameAndTime("123", "John Doe", LocalDateTime.now()));
   }
 
   @SuppressWarnings("unchecked")
   private void mockGetPersonIdsByMpiIds() {
     when(namedParameterJdbcTemplate.query(
-        eq(QueryConstants.PERSON_UIDS_BY_MPI_PATIENT_IDS),
+        eq(MatchCandidateWriter.PERSON_UIDS_BY_MPI_PATIENT_IDS),
         any(MapSqlParameterSource.class),
         any(RowMapper.class)))
         .thenAnswer(invocation -> {
@@ -93,32 +91,29 @@ class MatchCandidateWriterTest {
 
   private void mockInsertMatchGroup() {
     Mockito.doAnswer(invocation -> {
-          KeyHolder keyHolder = invocation.getArgument(2);
-          keyHolder.getKeyList().add(Collections.singletonMap("GENERATED_KEY", 100L));
-          return null;
-        }).when(namedParameterJdbcTemplate)
-        .update(eq(QueryConstants.INSERT_MATCH_GROUP), any(MapSqlParameterSource.class), any(KeyHolder.class));
+      KeyHolder keyHolder = invocation.getArgument(2);
+      keyHolder.getKeyList().add(Collections.singletonMap("GENERATED_KEY", 100L));
+      return null;
+    }).when(namedParameterJdbcTemplate)
+        .update(eq(MatchCandidateWriter.INSERT_MATCH_GROUP), any(MapSqlParameterSource.class), any(KeyHolder.class));
   }
 
   private void verifyInsertMatchGroup() {
     verify(namedParameterJdbcTemplate).update(
-        eq(QueryConstants.INSERT_MATCH_GROUP),
+        eq(MatchCandidateWriter.INSERT_MATCH_GROUP),
         any(MapSqlParameterSource.class),
-        any(KeyHolder.class)
-    );
+        any(KeyHolder.class));
   }
 
   private void verifyGetPersonIdsByMpiIds() {
     verify(namedParameterJdbcTemplate).update(
-        eq(QueryConstants.INSERT_MATCH_CANDIDATE),
-        any(MapSqlParameterSource.class)
-    );
+        eq(MatchCandidateWriter.INSERT_MATCH_CANDIDATE),
+        any(MapSqlParameterSource.class));
   }
-
 
   private void verifyInsertMatchGroup(VerificationMode callingTimes) {
     verify(namedParameterJdbcTemplate, callingTimes).update(
-        eq(QueryConstants.INSERT_MATCH_GROUP),
+        eq(MatchCandidateWriter.INSERT_MATCH_GROUP),
         any(MapSqlParameterSource.class));
   }
 

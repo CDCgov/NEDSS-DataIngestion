@@ -3,12 +3,14 @@ package gov.cdc.nbs.deduplication.batch.model;
 import java.util.List;
 
 public record PersonMergeData(
+    String personLocalId,
     String personUid,
+    String addTime,
     AdminComments adminComments,
     Ethnicity ethnicity,
     SexAndBirth sexAndBirth,
     Mortality mortality,
-    GeneralPatientInformation generalPatientInformation,
+    GeneralPatientInformation general,
     List<Investigation> investigations,
     List<Address> addresses,
     List<PhoneEmail> phoneEmails,
@@ -35,51 +37,87 @@ public record PersonMergeData(
     }
   }
 
-  // SEX & BIRTH Object
   public record SexAndBirth(
-      String asOfDate,
-      String birthTime,
-      String currentSexCode,
-      String sexUnknownReason,
-      String additionalGenderCode,
-      String birthGenderCode,
-      Boolean multipleBirthIndicator,
-      Integer birthOrderNumber,
-      String birthCityCode,
-      String birthStateCode,
-      String birthCountryCode,
-      String preferredGender) {
+      String asOf,
+      String dateOfBirth,
+      String currentSex,
+      String sexUnknown,
+      String transgender,
+      String additionalGender,
+      String birthGender,
+      String multipleBirth,
+      String birthOrder,
+      String birthCity,
+      String birthState,
+      String birthCounty,
+      String birthCountry) {
+    public SexAndBirth() {
+      this(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
-  // MORTALITY Object
   public record Mortality(
-      String asOfDate,
-      String deceasedIndicatorCode,
-      String deceasedTime,
+      String asOf,
+      String deceased,
+      String dateOfDeath,
       String deathCity,
       String deathState,
       String deathCounty,
       String deathCountry) {
+    public Mortality() {
+      this(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
-  // GENERAL PATIENT INFORMATION Object
   public record GeneralPatientInformation(
-      String asOfDate,
-      String maritalStatusDescription,
+      String asOf,
+      String maritalStatus,
       String mothersMaidenName,
-      Integer adultsInHouseholdNumber,
-      Integer childrenInHouseholdNumber,
-      String occupationCode,
-      String educationLevelDescription,
-      String primaryLanguageDescription,
-      String speaksEnglishCode,
+      String numberOfAdultsInResidence,
+      String numberOfChildrenInResidence,
+      String primaryOccupation,
+      String educationLevel,
+      String primaryLanguage,
+      String speaksEnglish,
       String stateHivCaseId) {
+    public GeneralPatientInformation() {
+      this(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
   }
 
-  // INVESTIGATION Object
   public record Investigation(
-      String investigationId,
-      String startedOn,
+      String id,
+      String startDate,
       String condition) {
   }
 

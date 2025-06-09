@@ -4,11 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
@@ -38,7 +35,10 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
   @Override
   @Nullable
   public PersonMergeData mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+    String personId = rs.getString("personId");
     String personUid = rs.getString("person_parent_uid");
+    String addTime = rs.getString("add_time");
+
     // General Fields
     AdminComments adminComments = mapAdminComments(rs);
 
@@ -46,16 +46,16 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     Ethnicity ethnicity = mapEthnicity(rs.getString("ethnicity"));
 
     // Sex & Birth Mapping
-    SexAndBirth sexAndBirth = mapSexAndBirth(rs);
+    SexAndBirth sexAndBirth = mapSexAndBirth(rs.getString("sexAndBirth"));
 
     // Mortality Mapping
-    Mortality mortality = mapMortality(rs);
+    Mortality mortality = mapMortality(rs.getString("mortality"));
 
     // General Patient Information Mapping
-    GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs);
+    GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs.getString("general"));
 
     // Investigations Mapping
-    List<Investigation> investigations = mapInvestigations(String.valueOf(rs.getString("investigations")));
+    List<Investigation> investigations = mapInvestigations(rs.getString("investigations"));
 
     // Nested Fields
     List<Address> addresses = mapAddresses(rs.getString("address"));
@@ -65,7 +65,9 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     List<Race> races = mapRaces(rs.getString("race"));
 
     return new PersonMergeData(
+        personId,
         personUid,
+        addTime,
         adminComments,
         ethnicity,
         sexAndBirth,
@@ -77,17 +79,6 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
         names,
         identifiers,
         races);
-  }
-
-  <T> Optional<T> tryParse(String stringValue, TypeReference<T> reference) {
-    if (stringValue == null || stringValue.isBlank()) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(mapper.readValue(stringValue, reference));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
   }
 
   AdminComments mapAdminComments(ResultSet rs) throws SQLException {
@@ -109,88 +100,49 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     }
   }
 
-  // SEX & BIRTH Mapping
-  SexAndBirth mapSexAndBirth(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_sex"));
-    String birthTime = String.valueOf(rs.getString("birth_time"));
-    String currentSexCode = String.valueOf(rs.getString("curr_sex_cd"));
-    String sexUnknownReason = String.valueOf(rs.getString("sex_unknown_reason"));
-    String additionalGenderCode = String.valueOf(rs.getString("additional_gender_cd"));
-    String birthGenderCode = String.valueOf(rs.getString("birth_gender_cd"));
-    Boolean multipleBirthIndicator = rs.getBoolean("multiple_birth_ind");
-    Integer birthOrderNumber = rs.getInt("birth_order_nbr");
-    String birthCityCode = String.valueOf(rs.getString("birth_city_cd"));
-    String birthStateCode = String.valueOf(rs.getString("birth_state_cd"));
-    String birthCountryCode = String.valueOf(rs.getString("birth_cntry_cd"));
-    String preferredGender = String.valueOf(rs.getString("preferred_gender"));
-    return new SexAndBirth(
-        asOfDate,
-        birthTime,
-        currentSexCode,
-        sexUnknownReason,
-        additionalGenderCode,
-        birthGenderCode,
-        multipleBirthIndicator,
-        birthOrderNumber,
-        birthCityCode,
-        birthStateCode,
-        birthCountryCode,
-        preferredGender);
+  SexAndBirth mapSexAndBirth(String sexAndBirthString) {
+    if (sexAndBirthString == null) {
+      return new SexAndBirth();
+    }
+    try {
+      return mapper.readValue(sexAndBirthString, SexAndBirth.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient sex and birth");
+    }
   }
 
-  // MORTALITY Mapping
-  Mortality mapMortality(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_morbidity"));
-    String deceasedIndicatorCode = String.valueOf(rs.getString("deceased_ind_cd"));
-    String deceasedTime = String.valueOf(rs.getString("deceased_time"));
-    String deathCity = String.valueOf(rs.getString("death_city"));
-    String deathState = String.valueOf(rs.getString("death_state"));
-    String deathCounty = String.valueOf(rs.getString("death_county"));
-    String deathCountry = String.valueOf(rs.getString("death_country"));
-    return new Mortality(
-        asOfDate,
-        deceasedIndicatorCode,
-        deceasedTime,
-        deathCity,
-        deathState,
-        deathCounty,
-        deathCountry);
+  Mortality mapMortality(String mortalityString) {
+    if (mortalityString == null) {
+      return new Mortality();
+    }
+    try {
+      return mapper.readValue(mortalityString, Mortality.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient mortality");
+    }
   }
 
-  // GENERAL PATIENT INFORMATION Mapping
-  GeneralPatientInformation mapGeneralPatientInformation(ResultSet rs) throws SQLException {
-    String asOfDate = String.valueOf(rs.getString("as_of_date_general"));
-    String maritalStatusDescription = String.valueOf(rs.getString("marital_status_desc_txt"));
-    String mothersMaidenName = String.valueOf(rs.getString("mothers_maiden_nm"));
-    Integer adultsInHouseholdNumber = rs.getInt("adults_in_house_nbr");
-    Integer childrenInHouseholdNumber = rs.getInt("children_in_house_nbr");
-    String occupationCode = String.valueOf(rs.getString("occupation_cd"));
-    String educationLevelDescription = String.valueOf(rs.getString("education_level_desc_txt"));
-    String primaryLanguageDescription = String.valueOf(rs.getString("prim_lang_desc_txt"));
-    String speaksEnglishCode = String.valueOf(rs.getString("speaks_english_cd"));
-    String stateHivCaseId = String.valueOf(rs.getString("State_HIV_Case_ID"));
-    return new GeneralPatientInformation(
-        asOfDate,
-        maritalStatusDescription,
-        mothersMaidenName,
-        adultsInHouseholdNumber,
-        childrenInHouseholdNumber,
-        occupationCode,
-        educationLevelDescription,
-        primaryLanguageDescription,
-        speaksEnglishCode,
-        stateHivCaseId);
+  GeneralPatientInformation mapGeneralPatientInformation(String generalInfoString) {
+    if (generalInfoString == null) {
+      return new GeneralPatientInformation();
+    }
+    try {
+      return mapper.readValue(generalInfoString, GeneralPatientInformation.class);
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient general information");
+    }
   }
 
-  // INVESTIGATIONS Mapping
-  List<PersonMergeData.Investigation> mapInvestigations(String investigationString) {
-    return tryParse(investigationString, new TypeReference<List<Map<String, Object>>>() {
-    })
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::asInvestigation)
-        .filter(Objects::nonNull)
-        .toList();
+  List<Investigation> mapInvestigations(String investigationString) {
+    if (investigationString == null) {
+      return new ArrayList<>();
+    }
+    try {
+      return mapper.readValue(investigationString, new TypeReference<List<Investigation>>() {
+      });
+    } catch (JsonProcessingException e) {
+      throw new PersonMapException("Failed to parse patient investigations");
+    }
   }
 
   Investigation asInvestigation(Map<String, Object> investigationMap) {

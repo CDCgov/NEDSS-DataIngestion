@@ -557,10 +557,10 @@ public class CdaMapHelper implements ICdaMapHelper {
                 if (result.getQuesCodeSystemCd() != null && !result.getQuesCodeSystemCd().isEmpty()) {
                     dto.setQuesCodeSystemCd(result.getQuesCodeSystemCd());
                 }
-                else if (result.getQuesCodeSystemDescTxt() != null && !result.getQuesCodeSystemDescTxt().isEmpty()) {
+                if (result.getQuesCodeSystemDescTxt() != null && !result.getQuesCodeSystemDescTxt().isEmpty()) {
                     dto.setQuesCodeSystemDescTxt(result.getQuesCodeSystemDescTxt());
                 }
-                else if (result.getQuesDisplayName() != null && !result.getQuesDisplayName().isEmpty()) {
+                if (result.getQuesDisplayName() != null && !result.getQuesDisplayName().isEmpty()) {
                     dto.setQuesDisplayName(result.getQuesDisplayName());
                 }
             }

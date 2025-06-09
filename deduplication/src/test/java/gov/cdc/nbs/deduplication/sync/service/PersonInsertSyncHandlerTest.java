@@ -252,7 +252,7 @@ class PersonInsertSyncHandlerTest {
 
   private void mockFetchPersonNameAndAddTime() {
     when(patientRecordService.fetchPersonNameAndAddTime(anyString()))
-        .thenReturn(new PatientNameAndTime("John Doe", LocalDateTime.now()));
+        .thenReturn(new PatientNameAndTime("123", "John Doe", LocalDateTime.now()));
   }
 
   // Verification Methods
