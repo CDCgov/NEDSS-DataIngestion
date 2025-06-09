@@ -1,3 +1,6 @@
+/* For Dev testing, the following data was copied from a Rhapsody route that is specific to one STLT.
+   Each STLT should provide its own values if they have them.
+*/
 INSERT INTO obx_id_std_lookup(UID,OBX_VALUE_TYPE_ID,OBX_VALUE_TYPE_DESC) VALUES (1,'82306-2',NULL);
 INSERT INTO obx_id_std_lookup(UID,OBX_VALUE_TYPE_ID,OBX_VALUE_TYPE_DESC) VALUES (2,'80364-3','Chlamydia trachomatis rRNA [Presence] in Rectum by Probe and target amplification method (80364-3)');
 INSERT INTO obx_id_std_lookup(UID,OBX_VALUE_TYPE_ID,OBX_VALUE_TYPE_DESC) VALUES (3,'6920-3',NULL);
