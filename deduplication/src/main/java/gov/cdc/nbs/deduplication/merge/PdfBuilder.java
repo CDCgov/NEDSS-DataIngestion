@@ -63,7 +63,7 @@ public class PdfBuilder {
               });
 
       for (MatchesRequireReviewResponse.MatchRequiringReview match : matches) {
-        table.addCell(createCenteredCell(String.valueOf(match.patientId()), tableFont));
+        table.addCell(createCenteredCell(String.valueOf(match.patientLocalId()), tableFont));
         table.addCell(createCenteredCell(match.patientName(), tableFont));
         table.addCell(createCenteredCell(formatDateTime(match.createdDate()), tableFont));
         table.addCell(createCenteredCell(formatDateTime(match.identifiedDate()), tableFont));

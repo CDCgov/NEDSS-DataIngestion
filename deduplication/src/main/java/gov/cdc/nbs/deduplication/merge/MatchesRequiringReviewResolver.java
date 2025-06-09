@@ -25,7 +25,9 @@ public class MatchesRequiringReviewResolver {
 
   static final String SELECT_QUERY = """
       SELECT
+        mrr.id,
         mrr.person_uid,
+        mrr.person_local_id,
         mrr.person_name,
         mrr.person_add_time,
         mrr.date_identified,
@@ -34,7 +36,9 @@ public class MatchesRequiringReviewResolver {
         matches_requiring_review mrr
         JOIN match_candidates mc ON mc.match_id = mrr.id AND mc.is_merge IS NULL
       GROUP BY
+        mrr.id,
         mrr.person_uid,
+        mrr.person_local_id,
         mrr.person_name,
         mrr.person_add_time,
         mrr.date_identified
@@ -94,7 +98,9 @@ public class MatchesRequiringReviewResolver {
 
   MatchRequiringReview mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
     return new MatchRequiringReview(
+        rs.getLong("id"),
         rs.getString("person_uid"),
+        rs.getString("person_local_id"),
         rs.getString("person_name"),
         rs.getTimestamp("person_add_time").toLocalDateTime().toString(),
         rs.getTimestamp("date_identified").toLocalDateTime().toString(),
@@ -104,7 +110,7 @@ public class MatchesRequiringReviewResolver {
   Sort.Order toOrder(String sort) {
     String[] sortParams = sort.split(",");
     String column = switch (sortParams[0]) {
-      case "patient-id" -> "person_uid";
+      case "patient-id" -> "person_local_id";
       case "name" -> "person_name";
       case "created" -> "person_add_time";
       case "identified" -> "date_identified";

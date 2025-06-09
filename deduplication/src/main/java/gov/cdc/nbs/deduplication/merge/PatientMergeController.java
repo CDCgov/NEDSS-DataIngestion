@@ -1,12 +1,12 @@
 package gov.cdc.nbs.deduplication.merge;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
-import gov.cdc.nbs.deduplication.batch.model.MergePatientRequest;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
 
@@ -23,17 +23,17 @@ public class PatientMergeController {
   static final String DEFAULT_SORT = "patient-id,desc";
 
   private final MergeGroupHandler mergeGroupHandler;
-  private final MergePatientHandler mergePatientsHandler;
+  private final MergeService mergeService;
   private final PdfBuilder pdfBuilder;
   private final MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
   public PatientMergeController(
       final MergeGroupHandler possibleMatchHandler,
-      final MergePatientHandler mergePatientsHandler,
+      final MergeService mergeService,
       final PdfBuilder pdfBuilder,
       final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
     this.mergeGroupHandler = possibleMatchHandler;
-    this.mergePatientsHandler = mergePatientsHandler;
+    this.mergeService = mergeService;
     this.pdfBuilder = pdfBuilder;
     this.matchesRequiringReviewResolver = matchesRequiringReviewResolver;
   }
@@ -46,43 +46,38 @@ public class PatientMergeController {
     return matchesRequiringReviewResolver.resolve(page, size, sort);
   }
 
-  @GetMapping("/{patientId}")
+  @GetMapping("/{matchId}")
   public ResponseEntity<List<PersonMergeData>> getPotentialMatchesDetails(
-      @PathVariable("patientId") Long patientId) {
-    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(patientId));
+      @PathVariable("matchId") Long matchId) {
+    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(matchId));
   }
 
-
-  @DeleteMapping("/{patientId}")
-  public ResponseEntity<Void> unMergeAll(@PathVariable("patientId") Long patientId) {
+  @DeleteMapping("/{matchId}")
+  public ResponseEntity<Void> unMergeAll(@PathVariable("matchId") Long matchId) {
     try {
-      mergeGroupHandler.unMergeAll(patientId);
+      mergeGroupHandler.removeAll(matchId);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }
   }
 
-  @DeleteMapping("/{patientId}/{removePatientId}")
-  public ResponseEntity<Void> unMergeSinglePerson(@PathVariable("patientId") Long patientId,
+  @DeleteMapping("/{matchId}/{removePatientId}")
+  public ResponseEntity<Void> unMergeSinglePerson(@PathVariable("matchId") Long matchId,
       @PathVariable("removePatientId") Long removePatientId) {
     try {
-      mergeGroupHandler.unMergeSinglePerson(patientId, removePatientId);
+      mergeGroupHandler.removePerson(matchId, removePatientId);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }
   }
 
-  @PostMapping("/merge-patient")
-  public ResponseEntity<Void> mergeRecords(@RequestBody MergePatientRequest mergeRequest) {
-    if (mergeRequest.getSurvivorPersonId() == null
-        || mergeRequest.getSupersededPersonIds() == null
-        || mergeRequest.getSupersededPersonIds().isEmpty()) {
-      return ResponseEntity.badRequest().build();
-    }
+  @PostMapping("/{matchId}")
+  public ResponseEntity<Void> mergePatients(@RequestBody PatientMergeRequest mergeRequest,
+      @PathVariable("matchId") Long matchId) {
     try {
-      mergePatientsHandler.performMerge(mergeRequest.getSurvivorPersonId(), mergeRequest.getSupersededPersonIds());
+      mergeService.performMerge(matchId, mergeRequest);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -104,7 +99,7 @@ public class PatientMergeController {
       for (MatchRequiringReview match : matches) {
         writer.printf(
             "\"%s\",\"%s\",\"%s\",\"%s\",%d%n",
-            match.patientId(),
+            match.patientLocalId(),
             match.patientName(),
             pdfBuilder.formatDateTime(match.createdDate()),
             pdfBuilder.formatDateTime(match.identifiedDate()),
