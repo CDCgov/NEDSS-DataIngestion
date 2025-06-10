@@ -62,19 +62,6 @@ class PatientMergeControllerTest {
   }
 
   @Test
-  void testUnMergeAll_Error() throws Exception {
-    Long patientId = 100L;
-
-    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler).removeAll(patientId);
-
-    mockMvc.perform(delete("/merge/{patientId}", patientId)
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isInternalServerError());
-
-    verify(mergeGroupHandler).removeAll(patientId);
-  }
-
-  @Test
   void testUnMergeSinglePerson() throws Exception {
     Long patientId = 100L;
     Long removePatientId = 111L;
@@ -82,21 +69,6 @@ class PatientMergeControllerTest {
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
-
-    verify(mergeGroupHandler).removePerson(patientId, removePatientId);
-  }
-
-  @Test
-  void testUnMergeSinglePerson_Error() throws Exception {
-    Long patientId = 100L;
-    Long removePatientId = 111L;
-
-    doThrow(new RuntimeException("Some error")).when(mergeGroupHandler)
-        .removePerson(patientId, removePatientId);
-
-    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isInternalServerError());
 
     verify(mergeGroupHandler).removePerson(patientId, removePatientId);
   }
