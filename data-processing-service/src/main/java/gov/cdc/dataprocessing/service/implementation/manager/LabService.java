@@ -32,7 +32,6 @@ public class LabService {
         this.investigationNotificationService = investigationNotificationService;
     }
 
-//    @Transactional()
     public Long handlePageContainer(PageActProxyContainer pageAct, EdxLabInformationDto edxDto) throws DataProcessingException {
         return pageService.setPageProxyWithAutoAssoc(
                 NEDSSConstant.CASE,
@@ -42,7 +41,6 @@ public class LabService {
                 null);
     }
 
-//    @Transactional
     public Long handlePamContainer(PamProxyContainer pamProxy, EdxLabInformationDto edxDto) throws DataProcessingException {
         return pamService.setPamProxyWithAutoAssoc(
                 pamProxy,
@@ -50,7 +48,6 @@ public class LabService {
                 NEDSSConstant.LABRESULT_CODE);
     }
 
-//    @Transactional
     public void handleMarkAsReviewed(ObservationDto obsDto, EdxLabInformationDto edxDto) throws DataProcessingException {
         labReportProcessing.markAsReviewedHandler(obsDto.getObservationUid(), edxDto);
         Long associatedPhcUid = edxDto.getAssociatedPublicHealthCaseUid();
@@ -63,7 +60,6 @@ public class LabService {
         }
     }
 
-//    @Transactional
     public void handleNndNotification(PublicHealthCaseContainer phcContainerModel, EdxLabInformationDto edxDto) throws DataProcessingException {
         EDXActivityDetailLogDto detailLog = investigationNotificationService.sendNotification(phcContainerModel, edxDto.getNndComment());
         detailLog.setRecordType(EdxELRConstant.ELR_RECORD_TP);

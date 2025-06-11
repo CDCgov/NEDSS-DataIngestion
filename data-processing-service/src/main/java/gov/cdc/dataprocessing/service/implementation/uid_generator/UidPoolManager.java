@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class UidPoolManager {
 
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
-    private final Map<String, Queue<LocalUidModel>> uidPools = new ConcurrentHashMap<>();
+    protected final Map<String, Queue<LocalUidModel>> uidPools = new ConcurrentHashMap<>();
     private final Map<String, AtomicBoolean> refillInProgress = new ConcurrentHashMap<>();
 
     @Value("${uid.pool_size}")

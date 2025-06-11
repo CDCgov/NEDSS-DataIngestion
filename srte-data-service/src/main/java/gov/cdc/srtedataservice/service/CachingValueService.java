@@ -45,7 +45,6 @@ public class CachingValueService implements ICatchingValueService {
                                StateCountyCodeValueRepository stateCountyCodeValueRepository,
                                StateCodeRepository stateCodeRepository,
                                LOINCCodeRepository loincCodeRepository,
-                               CacheManager cacheManager,
                                IProgramAreaService programAreaService,
                                IJurisdictionService jurisdictionService,
                                ConditionCodeRepository conditionCodeRepository,
@@ -68,7 +67,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllLoinCodeWithComponentName()  {
-       // return loadCache(loincCodeRepository::findAll, LOINCCode::getLoincCode, LOINCCode::getComponentName);
         HashMap<String, String> result = new HashMap<>();
 
         List<LOINCCode> loincCodes = loincCodeRepository.findAll();
@@ -81,7 +79,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()  {
-    //    return loadCache(srteCustomRepository::getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd, LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
         List<LabResult> labResults = srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
@@ -94,7 +91,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllSnomedCode()  {
-       // return loadCache(snomedCodeRepository::findAll, SnomedCode::getSnomedCd, SnomedCode::getSnomedDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
         List<SnomedCode> snomedCodes = snomedCodeRepository.findAll();
@@ -107,7 +103,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getLabResultDesc()  {
-       // return loadCache(() -> labResultRepository.findLabResultByDefaultLabAndOrgNameN().orElse(Collections.emptyList()), LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
         List<LabResult> labResults = labResultRepository.findLabResultByDefaultLabAndOrgNameN()
@@ -121,7 +116,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAOELOINCCodes()  {
-       // return loadCache(() -> loincCodeRepository.findLoincCodes().orElse(Collections.emptyList()), LOINCCode::getLoincCode, LOINCCode::getLoincCode);
         HashMap<String, String> result = new HashMap<>();
 
         List<LOINCCode> loincCodes = loincCodeRepository.findLoincCodes()
@@ -135,7 +129,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getRaceCodes()  {
-      //  return loadCache(() -> raceCodeRepository.findAllActiveRaceCodes().orElse(Collections.emptyList()), RaceCode::getCode, RaceCode::getCodeShortDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
         List<RaceCode> raceCodes = raceCodeRepository.findAllActiveRaceCodes()
@@ -149,7 +142,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllProgramAreaCodes()  {
-    //    return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getProgAreaDescTxt);
         HashMap<String, String> result = new HashMap<>();
         List<ProgramAreaCode> programAreaCodes = programAreaService.getAllProgramAreaCode();
         for (ProgramAreaCode programAreaCode : programAreaCodes) {
@@ -160,7 +152,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid()  {
-     //   return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getNbsUid);
         HashMap<String, Integer> result = new HashMap<>();
         List<ProgramAreaCode> programAreaCodes = programAreaService.getAllProgramAreaCode();
         for (ProgramAreaCode programAreaCode : programAreaCodes) {
@@ -171,7 +162,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllJurisdictionCode()  {
-        //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
         HashMap<String, String> result = new HashMap<>();
         List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
         for (JurisdictionCode jurisdictionCode : jurisdictionCodes) {
@@ -184,7 +174,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid()  {
-        //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getNbsUid);
         HashMap<String, Integer> result = new HashMap<>();
         List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
         for (JurisdictionCode jurisdictionCode : jurisdictionCodes) {
@@ -202,7 +191,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, String> getAllOnInfectionConditionCode()  {
-        //return loadCache(() -> conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList()), ConditionCode::getConditionCd, ConditionCode::getCoinfectionGrpCd);
         HashMap<String, String> result = new HashMap<>();
         List<ConditionCode> conditionCodes = conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList());
         for (ConditionCode conditionCode : conditionCodes) {

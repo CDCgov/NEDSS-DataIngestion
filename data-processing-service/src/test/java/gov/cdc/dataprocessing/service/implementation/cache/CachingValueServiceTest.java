@@ -1,971 +1,182 @@
-//package gov.cdc.dataprocessing.service.implementation.cache;
-//
-//import gov.cdc.dataprocessing.cache.SrteCache;
-//import gov.cdc.dataprocessing.constant.elr.ELRConstant;
-//import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-//import gov.cdc.dataprocessing.exception.DataProcessingException;
-//import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-//import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
-//import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
-//import gov.cdc.dataprocessing.repository.nbs.srte.repository.custom.SrteCustomRepository;
-//import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
-//import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
-//import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
-//import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
-//import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.Mockito;
-//import org.mockito.MockitoAnnotations;
-//import org.springframework.cache.Cache;
-//import org.springframework.cache.CacheManager;
-//
-//import java.util.*;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//class CachingValueServiceTest {
-//    @Mock
-//    private JurisdictionCodeRepository jurisdictionCodeRepository;
-//    @Mock
-//    private CodeValueGeneralRepository codeValueGeneralRepository;
-//    @Mock
-//    private ElrXrefRepository elrXrefRepository;
-//    @Mock
-//    private RaceCodeRepository raceCodeRepository;
-//    @Mock
-//    private StateCountyCodeValueRepository stateCountyCodeValueRepository;
-//    @Mock
-//    private StateCodeRepository stateCodeRepository;
-//    @Mock
-//    private LOINCCodeRepository loincCodeRepository;
-//    @Mock
-//    private CacheManager cacheManager;
-//    @Mock
-//    private IProgramAreaService programAreaService;
-//    @Mock
-//    private IJurisdictionService jurisdictionService;
-//    @Mock
-//    private ConditionCodeRepository conditionCodeRepository;
-//    @Mock
-//    private LabResultRepository labResultRepository;
-//    @Mock
-//    private SnomedCodeRepository snomedCodeRepository;
-//    @Mock
-//    private SrteCustomRepository srteCustomRepository;
-//
-//    @Mock
-//    private Cache cacheMock;
-//
-//    @Mock
-//    private Cache.ValueWrapper valueWrapperMock;
-//
-//    @InjectMocks
-//    private CachingValueDpDpService cachingValueService;
-//    @Mock
-//    AuthUtil authUtil;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
-//        AuthUser user = new AuthUser();
-//        user.setAuthUserUid(1L);
-//        user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
-//        userInfo.setAuthUser(user);
-//
-//        authUtil.setGlobalAuthUser(userInfo);
-//        SrteCache.codedValuesMap.clear();
-//        SrteCache.codeDescTxtMap.clear();
-//        SrteCache.countyCodeByDescMap.clear();
-//    }
-//
-//    @AfterEach
-//    void tearDown() {
-//        Mockito.reset(cacheMock, valueWrapperMock,
-//                jurisdictionCodeRepository, codeValueGeneralRepository,elrXrefRepository, raceCodeRepository,
-//                stateCountyCodeValueRepository, stateCodeRepository, loincCodeRepository,cacheManager,
-//                programAreaService, jurisdictionService, conditionCodeRepository, labResultRepository,
-//                snomedCodeRepository, srteCustomRepository, authUtil);
-//    }
-//
-//    @Test
-//    void getAllLoinCodeWithComponentName_1 () throws DataProcessingException {
-//        var lstRes = new ArrayList<LOINCCode>();
-//        var code = new LOINCCode();
-//        code.setLoincCode("TEST");
-//        code.setComponentName("TEST");
-//        lstRes.add(code);
-//        when(loincCodeRepository.findAll()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllLoinCodeWithComponentName();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllLoinCodeWithComponentName_Exception () {
-//        when(loincCodeRepository.findAll()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllLoinCodeWithComponentName();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<LabResult>();
-//        var code = new LabResult();
-//        code.setLabResultCd("TEST");
-//        code.setLabResultDescTxt("TEST");
-//        lstRes.add(code);
-//        when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_Exception () {
-//        when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllSnomedCode_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<SnomedCode>();
-//        var code = new SnomedCode();
-//        code.setSnomedCd("TEST");
-//        code.setSnomedDescTxt("TEST");
-//        lstRes.add(code);
-//        when(snomedCodeRepository.findAll()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllSnomedCode();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllSnomedCode_Exception () {
-//        when(snomedCodeRepository.findAll()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllSnomedCode();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getLabResultDesc_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<LabResult>();
-//        var code = new LabResult();
-//        code.setLabResultCd("TEST");
-//        code.setLabResultDescTxt("TEST");
-//        lstRes.add(code);
-//        when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenReturn(Optional.of(lstRes));
-//        var res = cachingValueService.getLabResultDesc();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getLabResultDesc_Exception () {
-//        when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getLabResultDesc();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//
-//    @Test
-//    void getAOELOINCCodes_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<LOINCCode>();
-//        var code = new LOINCCode();
-//        code.setLoincCode("TEST");
-//        code.setLoincCode("TEST");
-//        lstRes.add(code);
-//        when(loincCodeRepository.findLoincCodes()).thenReturn(Optional.of(lstRes));
-//        var res = cachingValueService.getAOELOINCCodes();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAOELOINCCodesException () {
-//        when(loincCodeRepository.findLoincCodes()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAOELOINCCodes();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getRaceCodes_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<RaceCode>();
-//        var code = new RaceCode();
-//        code.setCode("TEST");
-//        code.setCodeShortDescTxt("TEST");
-//        lstRes.add(code);
-//        when(raceCodeRepository.findAllActiveRaceCodes()).thenReturn(Optional.of(lstRes));
-//        var res = cachingValueService.getRaceCodes();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getRaceCodes_Exception () {
-//        when(raceCodeRepository.findAllActiveRaceCodes()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getRaceCodes();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//
-//    @Test
-//    void getAllProgramAreaCodes_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<ProgramAreaCode>();
-//        var code = new ProgramAreaCode();
-//        code.setProgAreaCd("TEST");
-//        code.setProgAreaDescTxt("TEST");
-//        lstRes.add(code);
-//        when(programAreaService.getAllProgramAreaCode()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllProgramAreaCodes();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllProgramAreaCodes_Exception () {
-//        when(programAreaService.getAllProgramAreaCode()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllProgramAreaCodes();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllProgramAreaCodesWithNbsUid_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<ProgramAreaCode>();
-//        var code = new ProgramAreaCode();
-//        code.setProgAreaCd("TEST");
-//        code.setNbsUid(1);
-//        lstRes.add(code);
-//        when(programAreaService.getAllProgramAreaCode()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllProgramAreaCodesWithNbsUid();
-//        assertEquals(1, res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllProgramAreaCodesWithNbsUid_Exception () {
-//        when(programAreaService.getAllProgramAreaCode()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllProgramAreaCodesWithNbsUid();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllJurisdictionCode_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<JurisdictionCode>();
-//        var code = new JurisdictionCode();
-//        code.setCode("TEST");
-//        code.setCodeDescTxt("TEST");
-//        lstRes.add(code);
-//        when(jurisdictionService.getJurisdictionCode()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllJurisdictionCode();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllJurisdictionCode_Exception () {
-//        when(jurisdictionService.getJurisdictionCode()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllJurisdictionCode();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllJurisdictionCodeWithNbsUid_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<JurisdictionCode>();
-//        var code = new JurisdictionCode();
-//        code.setCode("TEST");
-//        code.setNbsUid(1);
-//        lstRes.add(code);
-//        when(jurisdictionService.getJurisdictionCode()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllJurisdictionCodeWithNbsUid();
-//        assertEquals(1, res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllJurisdictionCodeWithNbsUid_Exception () {
-//        when(jurisdictionService.getJurisdictionCode()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllJurisdictionCodeWithNbsUid();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllElrXref_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<ElrXref>();
-//        var code = new ElrXref();
-//        code.setToCode("TEST");
-//        code.setNbsUid(1);
-//        lstRes.add(code);
-//        when(elrXrefRepository.findAll()).thenReturn(lstRes);
-//        var res = cachingValueService.getAllElrXref();
-//        assertEquals(1, res.size());
-//    }
-//
-//    @Test
-//    void getAllElrXref_Exception () {
-//        when(elrXrefRepository.findAll()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllElrXref();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllOnInfectionConditionCode_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<ConditionCode>();
-//        var code = new ConditionCode();
-//        code.setConditionCd("TEST");
-//        code.setCoinfectionGrpCd("TEST");
-//        lstRes.add(code);
-//        when(conditionCodeRepository.findCoInfectionConditionCode()).thenReturn(Optional.of(lstRes));
-//        var res = cachingValueService.getAllOnInfectionConditionCode();
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getAllOnInfectionConditionCode_Exception () {
-//        when(conditionCodeRepository.findCoInfectionConditionCode()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllOnInfectionConditionCode();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getAllConditionCode_Success () throws DataProcessingException {
-//        var lstRes = new ArrayList<ConditionCode>();
-//        var code = new ConditionCode();
-//        code.setConditionCd("TEST");
-//        code.setCoinfectionGrpCd("TEST");
-//        lstRes.add(code);
-//        when(conditionCodeRepository.findAllConditionCode()).thenReturn(Optional.of(lstRes));
-//        var res = cachingValueService.getAllConditionCode();
-//        assertEquals(1, res.size());
-//    }
-//
-//    @Test
-//    void getAllConditionCode_Exception () {
-//        when(conditionCodeRepository.findAllConditionCode()).thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getAllConditionCode();
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//
-//    @Test
-//    void getCodedValues_Cache_Found() throws DataProcessingException {
-//        String pType = "";
-//        String key = "key";
-//
-//        HashMap<String, String> codeMap = new HashMap<>();
-//        codeMap.put("key", "value1");
-//        SrteCache.codedValuesMap.put("key", "value");
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
-//        when(cacheMock.get("codedValues")).thenReturn(valueWrapperMock);
-//        when(valueWrapperMock.get()).thenReturn(codeMap);
-//
-//        var res = cachingValueService.getCodedValues(pType, key);
-//
-//        assertEquals(1, res.size());
-//    }
-//
-//    @Test
-//    void getCodedValues_Cache_Found_2() throws DataProcessingException {
-//        String pType = "";
-//        String key = "key";
-//
-//        HashMap<String, String> codeMap = new HashMap<>();
-//        codeMap.put("DUMP", "value1");
-//        SrteCache.codedValuesMap.put("key-2", "value");
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
-//        when(cacheMock.get("codedValues")).thenReturn(valueWrapperMock);
-//        when(valueWrapperMock.get()).thenReturn(codeMap);
-//
-//        var res = cachingValueService.getCodedValues(pType, key);
-//
-//        assertEquals(1, res.size());
-//    }
-//
-//    @Test
-//    void getCodeDescTxtForCd_Cache_Found() throws DataProcessingException {
-//        String code = "key";
-//        String codeSetNm = "key";
-//
-//        HashMap<String, String> codeMap = new HashMap<>();
-//        codeMap.put("key", "value1");
-//        SrteCache.codeDescTxtMap.put("key", "value");
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
-//        when(cacheMock.get("codeDescTxt")).thenReturn(valueWrapperMock);
-//        when(valueWrapperMock.get()).thenReturn(codeMap);
-//
-//        var res = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
-//
-//        assertEquals("value1", res);
-//    }
-//
-//    @Test
-//    void getCodeDescTxtForCd_Cache_Found_2() throws DataProcessingException {
-//        String code = "";
-//        String codeSetNm = "key";
-//
-//        HashMap<String, String> codeMap = new HashMap<>();
-//        codeMap.put("DUMP", "value1");
-//        SrteCache.codeDescTxtMap.put("key-2", "value");
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
-//        when(cacheMock.get("codeDescTxt")).thenReturn(valueWrapperMock);
-//        when(valueWrapperMock.get()).thenReturn(codeMap);
-//
-//        var res = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
-//
-//        assertNull(res);
-//    }
-//
-//    @Test
-//    void findToCode_1() throws DataProcessingException {
-//        String fromCodeSetNm = "";
-//        String fromCode = "";
-//        String toCodeSetNm = "";
-//
-//        var resElr = new ElrXref();
-//        resElr.setToCode("TEST");
-//        when(elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm))
-//                .thenReturn(Optional.of(resElr));
-//        var res = cachingValueService.findToCode(fromCodeSetNm, fromCode, toCodeSetNm);
-//        assertEquals("TEST", res);
-//    }
-//
-//    @Test
-//    void findToCode_2() throws DataProcessingException {
-//        String fromCodeSetNm = "";
-//        String fromCode = "";
-//        String toCodeSetNm = "";
-//
-//        when(elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm))
-//                .thenReturn(Optional.empty());
-//        var res = cachingValueService.findToCode(fromCodeSetNm, fromCode, toCodeSetNm);
-//        assertEquals("", res);
-//    }
-//
-//    @Test
-//    void findToCode_Exception() {
-//        String fromCodeSetNm = "";
-//        String fromCode = "";
-//        String toCodeSetNm = "";
-//
-//        when(elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm))
-//                .thenThrow(new RuntimeException("TEST"));
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.findToCode(fromCodeSetNm, fromCode, toCodeSetNm);
-//        });
-//        assertEquals("TEST",thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getCountyCdByDesc_null_1() throws DataProcessingException {
-//        String county = null;
-//        String stateCd = "";
-//
-//        var res = cachingValueService.getCountyCdByDesc(county, stateCd);
-//        assertNull(res);
-//    }
-//
-//    @Test
-//    void getCountyCdByDesc_null_2() throws DataProcessingException {
-//        String county = "";
-//        String stateCd = null;
-//
-//        var res = cachingValueService.getCountyCdByDesc(county, stateCd);
-//        assertNull(res);
-//    }
-//
-//    @Test
-//    void getCountyCdByDesc_1() throws DataProcessingException {
-//        String county = "MARICOPA";
-//        String stateCd = "ARIZONA";
-//
-//
-//        HashMap<String, String> codeMap = new HashMap<>();
-//        codeMap.put("MARICOPA COUNTY", "");
-//        SrteCache.countyCodeByDescMap.put("key-2", "value");
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
-//        when(cacheMock.get("countyCodeByDesc")).thenReturn(valueWrapperMock);
-//        when(valueWrapperMock.get()).thenReturn(codeMap);
-//
-//
-//        var res = cachingValueService.getCountyCdByDesc(county, stateCd);
-//        assertEquals("", res);
-//    }
-//
-//    @Test
-//    void getCountyCdByDesc_2() throws DataProcessingException {
-//        String county = "MARICOPA";
-//        String stateCd = "ARIZONA";
-//
-//
-//        HashMap<String, String> codeMap = new HashMap<>();
-//        codeMap.put("MARICOPA COUNTY", "ARIZONA");
-//        SrteCache.countyCodeByDescMap.put("key-2", "value");
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cacheMock);
-//        when(cacheMock.get("countyCodeByDesc")).thenReturn(valueWrapperMock);
-//        when(valueWrapperMock.get()).thenReturn(codeMap);
-//
-//
-//        var res = cachingValueService.getCountyCdByDesc(county, stateCd);
-//        assertEquals("ARIZONA", res);
-//    }
-//
-//    @Test
-//    void findCodeValuesByCodeSetNmAndCode_1() {
-//        String codeSetNm = "";
-//        String code = "";
-//        var lstCode = new ArrayList<CodeValueGeneral>();
-//        var codeValue = new CodeValueGeneral();
-//        lstCode.add(codeValue);
-//        when(codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code)).thenReturn(Optional.of(lstCode));
-//
-//        var res = cachingValueService.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
-//        assertEquals(1, res.size());
-//    }
-//
-//    @Test
-//    void findCodeValuesByCodeSetNmAndCode_2() {
-//        String codeSetNm = "";
-//        String code = "";
-//        when(codeValueGeneralRepository.findCodeValuesByCodeSetNmAndCode(codeSetNm, code)).thenReturn(Optional.empty());
-//
-//        var res = cachingValueService.findCodeValuesByCodeSetNmAndCode(codeSetNm, code);
-//        assertEquals(0, res.size());
-//    }
-//
-//    @Test
-//    void findStateCodeByStateNm_1() {
-//        String stateNm = "";
-//        var codeValue = new StateCode();
-//        codeValue.setCodeDescTxt("TEST");
-//        when(stateCodeRepository.findStateCdByStateName(stateNm)).thenReturn(Optional.of(codeValue));
-//
-//        var res = cachingValueService.findStateCodeByStateNm(stateNm);
-//        assertEquals("TEST",  res.getCodeDescTxt());
-//    }
-//
-//    @Test
-//    void findStateCodeByStateNm_2() {
-//        String stateNm = "";
-//        when(stateCodeRepository.findStateCdByStateName(stateNm)).thenReturn(Optional.empty());
-//
-//        var res = cachingValueService.findStateCodeByStateNm(stateNm);
-//        assertNull(res.getCodeDescTxt());
-//    }
-//
-//    @Test
-//    void getGeneralCodedValue_1() {
-//        String code = "";
-//        var lstCode = new ArrayList<CodeValueGeneral>();
-//        var codeValue = new CodeValueGeneral();
-//        lstCode.add(codeValue);
-//        when(codeValueGeneralRepository.findCodeValuesByCodeSetNm(code)).thenReturn(Optional.of(lstCode));
-//
-//        var res = cachingValueService.getGeneralCodedValue(code);
-//        assertEquals(1,  res.size());
-//    }
-//
-//    @Test
-//    void getGeneralCodedValue_2() {
-//        String code = "";
-//        when(codeValueGeneralRepository.findCodeValuesByCodeSetNm(code)).thenReturn(Optional.empty());
-//
-//        var res = cachingValueService.getGeneralCodedValue(code);
-//        assertEquals(0, res.size());
-//    }
-//
-//    @Test
-//    void getCodedValuesCallRepos_Jus_1() throws DataProcessingException {
-//        String pType = "S_JURDIC_C";
-//        var justLst = new ArrayList<JurisdictionCode>();
-//        var just = new JurisdictionCode();
-//        just.setCode("TEST");
-//        just.setCodeDescTxt("TEST");
-//        justLst.add(just);
-//        when(jurisdictionCodeRepository.findJurisdictionCodeValues())
-//                .thenReturn(Optional.of(justLst));
-//
-//        var res = cachingValueService.getCodedValuesCallRepos(pType);
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getCodedValuesCallRepos_Jus_Expcetion() {
-//        String pType = "S_JURDIC_C";
-//        when(jurisdictionCodeRepository.findJurisdictionCodeValues())
-//                .thenThrow(new RuntimeException("TEST"));
-//
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getCodedValuesCallRepos(pType);
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//
-//    @Test
-//    void getCodedValue_1() throws DataProcessingException {
-//        String code = ELRConstant.ELR_LOG_PROCESS;
-//
-//        var lstCode = new ArrayList<CodeValueGeneral>();
-//        var codeVa = new CodeValueGeneral();
-//        codeVa.setCode("TEST");
-//        codeVa.setCodeDescTxt("TEST");
-//        lstCode.add(codeVa);
-//        when(codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code))
-//                .thenReturn(Optional.of(lstCode));
-//
-//        var res = cachingValueService.getCodedValue(code);
-//
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getCodedValue_2() throws DataProcessingException {
-//        String code = "BLAH";
-//
-//        var lstCode = new ArrayList<CodeValueGeneral>();
-//        var codeVa = new CodeValueGeneral();
-//        codeVa.setCode("TEST");
-//        codeVa.setCodeShortDescTxt("TEST");
-//        lstCode.add(codeVa);
-//        when(codeValueGeneralRepository.findCodeValuesByCodeSetNm(code))
-//                .thenReturn(Optional.of(lstCode));
-//
-//        var res = cachingValueService.getCodedValue(code);
-//
-//        assertEquals("TEST", res.get("TEST"));
-//    }
-//
-//    @Test
-//    void getCodedValue_Exception()  {
-//        String code = ELRConstant.ELR_LOG_PROCESS;
-//
-//
-//        when(codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code))
-//                .thenThrow(new RuntimeException("TEST"));
-//
-//
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getCodedValue(code);
-//        });
-//
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//    @Test
-//    void getCountyCdByDescCallRepos_1() throws DataProcessingException {
-//        String stateCd = "";
-//
-//        var lstState = new ArrayList<StateCountyCodeValue>();
-//        var state = new StateCountyCodeValue();
-//        state.setCode("TEST");
-//        state.setAssigningAuthorityDescTxt("TEST");
-//        lstState.add(state);
-//        when(stateCountyCodeValueRepository.findByIndentLevelNbr())
-//                .thenReturn(Optional.of(lstState));
-//
-//        var res=   cachingValueService.getCountyCdByDescCallRepos(stateCd);
-//
-//        assertEquals("TEST", res.get("TEST COUNTY"));
-//    }
-//
-//    @Test
-//    void getCountyCdByDescCallRepos_2() throws DataProcessingException {
-//        String stateCd = "TEST";
-//
-//        var lstState = new ArrayList<StateCountyCodeValue>();
-//        var state = new StateCountyCodeValue();
-//        state.setCode("TEST");
-//        state.setAssigningAuthorityDescTxt("TEST");
-//        lstState.add(state);
-//        when(stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd))
-//                .thenReturn(Optional.of(lstState));
-//
-//        var res=   cachingValueService.getCountyCdByDescCallRepos(stateCd);
-//
-//        assertEquals("TEST", res.get("TEST COUNTY"));
-//    }
-//
-//    @Test
-//    void getCountyCdByDescCallRepos_Exception() {
-//        String stateCd = "";
-//
-//        when(stateCountyCodeValueRepository.findByIndentLevelNbr())
-//                .thenThrow(new RuntimeException("TEST"));
-//
-//        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-//            cachingValueService.getCountyCdByDescCallRepos(stateCd);
-//        });
-//        assertEquals("TEST", thrown.getMessage());
-//    }
-//
-//
-//    @Test
-//    void testGetAllLabResultJoinWithLabCodingSystemWithOrganismNameInd_EmptyResult() throws DataProcessingException {
-//        // Mock the repository to return an empty list
-//        when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()).thenReturn(Collections.emptyList());
-//
-//        // Call the method
-//        HashMap<String, String> result = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-//
-//        // Verify that the result is an empty HashMap
-//        assertTrue(result.isEmpty());
-//
-//        // Verify that the repository method was called
-//        verify(srteCustomRepository, times(1)).getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
-//    }
-//
-//
-//    @Test
-//    void testGetAllSnomedCode_EmptyResult() throws DataProcessingException {
-//        when(snomedCodeRepository.findAll()).thenReturn(Collections.emptyList());
-//
-//        HashMap<String, String> result = cachingValueService.getAllSnomedCode();
-//
-//        assertTrue(result.isEmpty());
-//        verify(snomedCodeRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    void testGetLabResultDesc_EmptyResult() throws DataProcessingException {
-//        when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenReturn(Optional.empty());
-//
-//        HashMap<String, String> result = cachingValueService.getLabResultDesc();
-//
-//        assertTrue(result.isEmpty());
-//        verify(labResultRepository, times(1)).findLabResultByDefaultLabAndOrgNameN();
-//    }
-//
-//    @Test
-//    void testGetAOELOINCCodes_EmptyResult() throws DataProcessingException {
-//        when(loincCodeRepository.findLoincCodes()).thenReturn(Optional.empty());
-//
-//        HashMap<String, String> result = cachingValueService.getAOELOINCCodes();
-//
-//        assertTrue(result.isEmpty());
-//        verify(loincCodeRepository, times(1)).findLoincCodes();
-//    }
-//
-//    @Test
-//    void testGetRaceCodes_EmptyResult() throws DataProcessingException {
-//        when(raceCodeRepository.findAllActiveRaceCodes()).thenReturn(Optional.empty());
-//
-//        HashMap<String, String> result = cachingValueService.getRaceCodes();
-//
-//        assertTrue(result.isEmpty());
-//        verify(raceCodeRepository, times(1)).findAllActiveRaceCodes();
-//    }
-//
-//    @Test
-//    void testGetAllLoinCodeWithComponentName_EmptyResult() throws DataProcessingException {
-//        when(loincCodeRepository.findAll()).thenReturn(Collections.emptyList());
-//
-//        HashMap<String, String> result = cachingValueService.getAllLoinCodeWithComponentName();
-//
-//        assertTrue(result.isEmpty());
-//        verify(loincCodeRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    void testGetAllOnInfectionConditionCode_EmptyResult() throws DataProcessingException {
-//        when(conditionCodeRepository.findCoInfectionConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
-//
-//        HashMap<String, String> result = cachingValueService.getAllOnInfectionConditionCode();
-//
-//        assertTrue(result.isEmpty());
-//        verify(conditionCodeRepository, times(1)).findCoInfectionConditionCode();
-//    }
-//
-//    @Test
-//    void testGetAllConditionCode_EmptyResult() throws DataProcessingException {
-//        when(conditionCodeRepository.findAllConditionCode()).thenReturn(Optional.of(Collections.emptyList()));
-//
-//        List<ConditionCode> result = cachingValueService.getAllConditionCode();
-//
-//        assertTrue(result.isEmpty());
-//        verify(conditionCodeRepository, times(1)).findAllConditionCode();
-//    }
-//
-//    @Test
-//    void testGetCodedValues_CacheIsNull() throws DataProcessingException {
-//        String pType = "testType";
-//        String key = "testKey";
-//        SrteCache.codedValuesMap = new HashMap<>();
-//
-//        when(cacheManager.getCache("srte")).thenReturn(null);
-//
-//        HashMap<String, String> result = cachingValueService.getCodedValues(pType, key);
-//
-//        assertEquals(SrteCache.codedValuesMap, result);
-//    }
-//
-//    @Test
-//    void testGetCodedValues_CacheValueWrapperIsNull() throws DataProcessingException {
-//        String pType = "testType";
-//        String key = "testKey";
-//        SrteCache.codedValuesMap = new HashMap<>();
-//        Cache cache = mock(Cache.class);
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cache);
-//        when(cache.get("codedValues")).thenReturn(null);
-//
-//        HashMap<String, String> result = cachingValueService.getCodedValues(pType, key);
-//
-//        assertEquals(SrteCache.codedValuesMap, result);
-//    }
-//
-//    @Test
-//    void testGetCodedValues_CacheValueIsEmptyOrNull() throws DataProcessingException {
-//        String pType = "testType";
-//        String key = "testKey";
-//        SrteCache.codedValuesMap = new HashMap<>();
-//        Cache cache = mock(Cache.class);
-//        Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cache);
-//        when(cache.get("codedValues")).thenReturn(valueWrapper);
-//        when(valueWrapper.get()).thenReturn(SrteCache.codedValuesMap);
-//
-//
-//        SrteCache.codedValuesMap.put(key, "");
-//        HashMap<String, String> result = cachingValueService.getCodedValues(pType, key);
-//
-//        assertNotNull(result);
-//    }
-//
-//
-//    @Test
-//    void testGetCodeDescTxtForCd_CacheIsNull() throws DataProcessingException {
-//        String code = "testCode";
-//        String codeSetNm = "testCodeSet";
-//        SrteCache.codeDescTxtMap = new HashMap<>();
-//
-//        when(cacheManager.getCache("srte")).thenReturn(null);
-//
-//        String result = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
-//
-//        assertEquals(SrteCache.codeDescTxtMap.get(code), result);
-//    }
-//
-//    @Test
-//    void testGetCodeDescTxtForCd_CacheValueWrapperIsNull() throws DataProcessingException {
-//        String code = "testCode";
-//        String codeSetNm = "testCodeSet";
-//        SrteCache.codeDescTxtMap = new HashMap<>();
-//        Cache cache = mock(Cache.class);
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cache);
-//        when(cache.get("codeDescTxt")).thenReturn(null);
-//
-//        String result = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
-//
-//        assertEquals(SrteCache.codeDescTxtMap.get(code), result);
-//    }
-//
-//    @Test
-//    void testGetCodeDescTxtForCd_CacheValueIsEmptyOrNull() throws DataProcessingException {
-//        String code = "testCode";
-//        String codeSetNm = "testCodeSet";
-//        SrteCache.codeDescTxtMap = new HashMap<>();
-//        Cache cache = mock(Cache.class);
-//        Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cache);
-//        when(cache.get("codeDescTxt")).thenReturn(valueWrapper);
-//        when(valueWrapper.get()).thenReturn(SrteCache.codeDescTxtMap);
-//
-//        HashMap<String, String> mockedRepoResponse = new HashMap<>();
-//        mockedRepoResponse.put("newCode", "newDesc");
-//
-//        SrteCache.codeDescTxtMap.put(code, "");
-//        String result = cachingValueService.getCodeDescTxtForCd(code, codeSetNm);
-//
-//        assertNotNull(result);
-//    }
-//
-//
-//    @Test
-//    void testGetCountyCdByDesc_CountyOrStateCdIsNull() throws DataProcessingException {
-//        String result = cachingValueService.getCountyCdByDesc(null, "stateCd");
-//        assertNull(result);
-//
-//        result = cachingValueService.getCountyCdByDesc("county", null);
-//        assertNull(result);
-//
-//    }
-//
-//    @Test
-//    void testGetCountyCdByDesc_CacheIsNull() throws DataProcessingException {
-//        String county = "county";
-//        String stateCd = "stateCd";
-//        SrteCache.countyCodeByDescMap = new HashMap<>();
-//
-//        when(cacheManager.getCache("srte")).thenReturn(null);
-//
-//        String result = cachingValueService.getCountyCdByDesc(county, stateCd);
-//
-//        assertEquals(SrteCache.countyCodeByDescMap.get(county.toUpperCase() + " COUNTY"), result);
-//    }
-//
-//    @Test
-//    void testGetCountyCdByDesc_CacheValueWrapperIsNull() throws DataProcessingException {
-//        String county = "county";
-//        String stateCd = "stateCd";
-//        SrteCache.countyCodeByDescMap = new HashMap<>();
-//        Cache cache = mock(Cache.class);
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cache);
-//        when(cache.get("countyCodeByDesc")).thenReturn(null);
-//
-//        String result = cachingValueService.getCountyCdByDesc(county, stateCd);
-//
-//        assertEquals(SrteCache.countyCodeByDescMap.get(county.toUpperCase() + " COUNTY"), result);
-//    }
-//
-//    @Test
-//    void testGetCountyCdByDesc_CacheValueIsEmptyOrNull() throws DataProcessingException {
-//        String county = "county";
-//        String stateCd = "stateCd";
-//        SrteCache.countyCodeByDescMap = new HashMap<>();
-//        Cache cache = mock(Cache.class);
-//        Cache.ValueWrapper valueWrapper = mock(Cache.ValueWrapper.class);
-//
-//        when(cacheManager.getCache("srte")).thenReturn(cache);
-//        when(cache.get("countyCodeByDesc")).thenReturn(valueWrapper);
-//        when(valueWrapper.get()).thenReturn(SrteCache.countyCodeByDescMap);
-//
-//        HashMap<String, String> mockedRepoResponse = new HashMap<>();
-//        mockedRepoResponse.put(county.toUpperCase() + " COUNTY", "mockedCode");
-//
-//        SrteCache.countyCodeByDescMap.put(county.toUpperCase() + " COUNTY", "");
-//        String result = cachingValueService.getCountyCdByDesc(county, stateCd);
-//
-//        assertNull(result);
-//    }
-//}
+
+package gov.cdc.dataprocessing.service.implementation.cache;
+
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.CodeValueJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.*;
+import gov.cdc.dataprocessing.repository.nbs.srte.repository.custom.SrteCustomRepository;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IJurisdictionService;
+import gov.cdc.dataprocessing.service.interfaces.jurisdiction.IProgramAreaService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class CachingValueServiceTest {
+
+    @Mock
+    private CodeValueJdbcRepository codeValueJdbcRepository;
+    @Mock
+    private ElrXrefRepository elrXrefRepository;
+    @Mock
+    private RaceCodeRepository raceCodeRepository;
+    @Mock
+    private StateCountyCodeValueRepository stateCountyCodeValueRepository;
+    @Mock
+    private StateCodeRepository stateCodeRepository;
+    @Mock
+    private LOINCCodeRepository loincCodeRepository;
+    @Mock
+    private ConditionCodeRepository conditionCodeRepository;
+    @Mock
+    private LabResultRepository labResultRepository;
+    @Mock
+    private SnomedCodeRepository snomedCodeRepository;
+    @Mock
+    private JurisdictionCodeRepository jurisdictionCodeRepository;
+    @Mock
+    private SrteCustomRepository srteCustomRepository;
+    @Mock
+    private IProgramAreaService programAreaService;
+    @Mock
+    private IJurisdictionService jurisdictionService;
+
+    @InjectMocks
+    private CachingValueService cachingValueService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllLoinCodeWithComponentName() {
+        LOINCCode loinc = new LOINCCode();
+        loinc.setLoincCode("123");
+        loinc.setComponentName("Comp");
+        when(loincCodeRepository.findAll()).thenReturn(List.of(loinc));
+        var result = cachingValueService.getAllLoinCodeWithComponentName();
+        assertEquals("Comp", result.get("123"));
+    }
+
+    @Test
+    void testGetAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() {
+        LabResult lab = new LabResult();
+        lab.setLabResultCd("code");
+        lab.setLabResultDescTxt("desc");
+        when(srteCustomRepository.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd())
+                .thenReturn(List.of(lab));
+        var result = cachingValueService.getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd();
+        assertEquals("desc", result.get("code"));
+    }
+
+    @Test
+    void testGetAllSnomedCode() {
+        SnomedCode snomed = new SnomedCode();
+        snomed.setSnomedCd("001");
+        snomed.setSnomedDescTxt("sdesc");
+        when(snomedCodeRepository.findAll()).thenReturn(List.of(snomed));
+        var result = cachingValueService.getAllSnomedCode();
+        assertEquals("sdesc", result.get("001"));
+    }
+
+    @Test
+    void testFindToCode() throws DataProcessingException {
+        ElrXref xref = new ElrXref();
+        xref.setToCode("tgt");
+        when(elrXrefRepository.findToCodeByConditions("a", "b", "c")).thenReturn(Optional.of(xref));
+        assertEquals("tgt", cachingValueService.findToCode("a", "b", "c"));
+    }
+
+    @Test
+    void testGetAOELOINCCodes() {
+        LOINCCode loinc = new LOINCCode();
+        loinc.setLoincCode("xyz");
+        when(loincCodeRepository.findLoincCodes()).thenReturn(Optional.of(List.of(loinc)));
+        var result = cachingValueService.getAOELOINCCodes();
+        assertEquals("xyz", result.get("xyz"));
+    }
+
+    @Test
+    void testGetAllProgramAreaCodes() {
+        ProgramAreaCode pac = new ProgramAreaCode();
+        pac.setProgAreaCd("abc");
+        pac.setProgAreaDescTxt("desc");
+        when(programAreaService.getAllProgramAreaCode()).thenReturn(List.of(pac));
+        var result = cachingValueService.getAllProgramAreaCodes();
+        assertEquals("desc", result.get("abc"));
+    }
+
+    @Test
+    void testGetAllProgramAreaCodesWithNbsUid() {
+        ProgramAreaCode pac = new ProgramAreaCode();
+        pac.setProgAreaCd("abc");
+        pac.setNbsUid(100);
+        when(programAreaService.getAllProgramAreaCode()).thenReturn(List.of(pac));
+        var result = cachingValueService.getAllProgramAreaCodesWithNbsUid();
+        assertEquals(100, result.get("abc"));
+    }
+
+    @Test
+    void testGetAllJurisdictionCode() {
+        JurisdictionCode jc = new JurisdictionCode();
+        jc.setCode("J1");
+        jc.setCodeDescTxt("JDesc");
+        when(jurisdictionService.getJurisdictionCode()).thenReturn(List.of(jc));
+        var result = cachingValueService.getAllJurisdictionCode();
+        assertEquals("JDesc", result.get("J1"));
+    }
+
+    @Test
+    void testGetAllJurisdictionCodeWithNbsUid() {
+        JurisdictionCode jc = new JurisdictionCode();
+        jc.setCode("J2");
+        jc.setNbsUid(200);
+        when(jurisdictionService.getJurisdictionCode()).thenReturn(List.of(jc));
+        var result = cachingValueService.getAllJurisdictionCodeWithNbsUid();
+        assertEquals(200, result.get("J2"));
+    }
+
+    @Test
+    void testGetAllElrXref() {
+        ElrXref x = new ElrXref();
+        when(elrXrefRepository.findAll()).thenReturn(List.of(x));
+        var result = cachingValueService.getAllElrXref();
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testGetAllOnInfectionConditionCode() {
+        ConditionCode c = new ConditionCode();
+        c.setConditionCd("cond");
+        c.setCoinfectionGrpCd("grp");
+        when(conditionCodeRepository.findCoInfectionConditionCode()).thenReturn(Optional.of(List.of(c)));
+        var result = cachingValueService.getAllOnInfectionConditionCode();
+        assertEquals("grp", result.get("cond"));
+    }
+
+    @Test
+    void testFindCodeValuesByCodeSetNmAndCode() {
+        CodeValueGeneral cv = new CodeValueGeneral();
+        cv.setCode("C1");
+        when(codeValueJdbcRepository.findCodeValuesByCodeSetNmAndCode("set", "C1")).thenReturn(List.of(cv));
+        var result = cachingValueService.findCodeValuesByCodeSetNmAndCode("set", "C1");
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testFindStateCodeByStateNm() {
+        StateCode stateCode = new StateCode();
+        when(stateCodeRepository.findStateCdByStateName("NY")).thenReturn(Optional.of(stateCode));
+        var result = cachingValueService.findStateCodeByStateNm("NY");
+        assertNotNull(result);
+    }
+}
