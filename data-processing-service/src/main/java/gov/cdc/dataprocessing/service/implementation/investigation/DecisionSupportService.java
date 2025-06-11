@@ -514,6 +514,8 @@ public class DecisionSupportService implements IDecisionSupportService {
 
 
     private static JAXBContext ALGORITHM_JAXB_CONTEXT;
+
+    @SuppressWarnings("java:S5164")
     private static final ThreadLocal<Unmarshaller> ALGORITHM_UNMARSHALLER = ThreadLocal.withInitial(() -> {
         try {
             return ALGORITHM_JAXB_CONTEXT.createUnmarshaller();
@@ -691,7 +693,7 @@ public class DecisionSupportService implements IDecisionSupportService {
         {
             for (PublicHealthCaseDto phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
 
-                if (!advanceInvCriteriaMap.isEmpty())
+                if (advanceInvCriteriaMap != null && !advanceInvCriteriaMap.isEmpty())
                 {
                     Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
 
