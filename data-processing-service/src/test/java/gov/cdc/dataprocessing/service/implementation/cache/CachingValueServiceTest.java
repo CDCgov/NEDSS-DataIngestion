@@ -1,6 +1,8 @@
 
 package gov.cdc.dataprocessing.service.implementation.cache;
 
+import gov.cdc.dataprocessing.cache.cache_model.SrteCache;
+import gov.cdc.dataprocessing.constant.elr.ELRConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.CodeValueJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.*;
@@ -14,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -178,5 +182,145 @@ class CachingValueServiceTest {
         when(stateCodeRepository.findStateCdByStateName("NY")).thenReturn(Optional.of(stateCode));
         var result = cachingValueService.findStateCodeByStateNm("NY");
         assertNotNull(result);
+    }
+
+    @Test
+    void testGetLabResultDesc() {
+        LabResult lab = new LabResult();
+        lab.setLabResultCd("001");
+        lab.setLabResultDescTxt("Description");
+        when(labResultRepository.findLabResultByDefaultLabAndOrgNameN()).thenReturn(Optional.of(List.of(lab)));
+
+        HashMap<String, String> result = cachingValueService.getLabResultDesc();
+        assertEquals("Description", result.get("001"));
+    }
+
+    @Test
+    void testGetRaceCodes() {
+        RaceCode race = new RaceCode();
+        race.setCode("A");
+        race.setCodeShortDescTxt("RaceA");
+        when(raceCodeRepository.findAllActiveRaceCodes()).thenReturn(Optional.of(List.of(race)));
+
+        HashMap<String, String> result = cachingValueService.getRaceCodes();
+        assertEquals("RaceA", result.get("A"));
+    }
+
+    @Test
+    void testGetAllConditionCode() {
+        ConditionCode cc = new ConditionCode();
+        cc.setConditionCd("COND1");
+        when(conditionCodeRepository.findAllConditionCode()).thenReturn(Optional.of(List.of(cc)));
+
+        List<ConditionCode> result = cachingValueService.getAllConditionCode();
+        assertEquals(1, result.size());
+        assertEquals("COND1", result.get(0).getConditionCd());
+    }
+
+    @Test
+    void testGetCodedValues() {
+        CodeValueGeneral codeValue = new CodeValueGeneral();
+        codeValue.setCode("key1");
+        codeValue.setCodeShortDescTxt("desc1");
+
+        when(codeValueJdbcRepository.findCodeValuesByCodeSetNm("type1"))
+                .thenReturn(List.of(codeValue));
+
+        HashMap<String, String> codedMap = cachingValueService.getCodedValues("type1", "key1");
+        assertNotNull(codedMap);
+        assertEquals("desc1", codedMap.get("key1"));
+    }
+
+    @Test
+    void testGetCountyCdByDescFromCache() {
+        SrteCache.countyCodeByDescMap.put("MARICOPA COUNTY", "001");
+
+        String result = cachingValueService.getCountyCdByDesc("Maricopa", "AZ");
+        assertEquals("001", result);
+    }
+
+    @Test
+    void testGetCountyCdByDescFromRepo() {
+        SrteCache.countyCodeByDescMap.clear();
+
+        StateCountyCodeValue scv = new StateCountyCodeValue();
+        scv.setCode("PIMA"); // Must match input county for proper key: "PIMA COUNTY"
+        scv.setAssigningAuthorityDescTxt("002");
+
+        when(stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt("AZ"))
+                .thenReturn(Optional.of(List.of(scv)));
+
+        String result = cachingValueService.getCountyCdByDesc("Pima", "AZ");
+
+        assertEquals("002", result); // Now will pass
+    }
+
+
+    @Test
+    void testFindCodeValuesByCodeSetNmAndCodeEmpty() {
+        when(codeValueJdbcRepository.findCodeValuesByCodeSetNmAndCode("set", "X"))
+                .thenReturn(Collections.emptyList());
+
+        List<CodeValueGeneral> result = cachingValueService.findCodeValuesByCodeSetNmAndCode("set", "X");
+        assertTrue(result.isEmpty());
+    }
+
+
+    @Test
+    void testGetCodedValuesCallReposJurisdiction() {
+        JurisdictionCode code = new JurisdictionCode();
+        code.setCode("J1");
+        code.setCodeDescTxt("Jurisdiction Desc");
+        when(jurisdictionCodeRepository.findJurisdictionCodeValues()).thenReturn(Optional.of(List.of(code)));
+
+        HashMap<String, String> result = cachingValueService.getCodedValuesCallRepos("S_JURDIC_C");
+        assertEquals("Jurisdiction Desc", result.get("J1"));
+    }
+
+    @Test
+    void testGetCodedValuesCallReposOther() {
+        CodeValueGeneral codeValue = new CodeValueGeneral();
+        codeValue.setCode("C1");
+        codeValue.setCodeShortDescTxt("Short Desc");
+        when(codeValueJdbcRepository.findCodeValuesByCodeSetNm("SOME")).thenReturn(List.of(codeValue));
+
+        HashMap<String, String> result = cachingValueService.getCodedValuesCallRepos("SOME");
+        assertEquals("Short Desc", result.get("C1"));
+    }
+
+    @Test
+    void testGetCodedValueForLogProcess() {
+        CodeValueGeneral codeValue = new CodeValueGeneral();
+        codeValue.setCode("LOG1");
+        codeValue.setCodeDescTxt("Log Desc");
+        when(codeValueJdbcRepository.findCodeDescriptionsByCodeSetNm(ELRConstant.ELR_LOG_PROCESS))
+                .thenReturn(List.of(codeValue));
+
+        HashMap<String, String> result = cachingValueService.getCodedValue(ELRConstant.ELR_LOG_PROCESS);
+        assertEquals("Log Desc", result.get("LOG1"));
+    }
+
+    @Test
+    void testGetCountyCdByDescCallReposWithState() {
+        StateCountyCodeValue value = new StateCountyCodeValue();
+        value.setCode("101");
+        value.setAssigningAuthorityDescTxt("Desc101");
+        when(stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt("AZ"))
+                .thenReturn(Optional.of(List.of(value)));
+
+        HashMap<String, String> result = cachingValueService.getCountyCdByDescCallRepos("AZ");
+        assertEquals("Desc101", result.get("101 COUNTY"));
+    }
+
+    @Test
+    void testGetCountyCdByDescCallReposWithoutState() {
+        StateCountyCodeValue value = new StateCountyCodeValue();
+        value.setCode("102");
+        value.setAssigningAuthorityDescTxt("Desc102");
+        when(stateCountyCodeValueRepository.findByIndentLevelNbr())
+                .thenReturn(Optional.of(List.of(value)));
+
+        HashMap<String, String> result = cachingValueService.getCountyCdByDescCallRepos(null);
+        assertEquals("Desc102", result.get("102 COUNTY"));
     }
 }

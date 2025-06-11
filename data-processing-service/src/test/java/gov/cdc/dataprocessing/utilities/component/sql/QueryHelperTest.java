@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.utilities.component.sql;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.dto.auth_user.RealizedRoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUserRealizedRole;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
@@ -16,11 +17,15 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 class QueryHelperTest {
     @Mock
@@ -176,5 +181,12 @@ class QueryHelperTest {
 
         // Assert
         assertNotNull( result);
+    }
+
+    @Test
+    void testGetHashedPAJListEmpty() throws DataProcessingException {
+        AuthUtil.authUserRealizedRoleCollection = new HashSet<>();
+        String result = queryHelper.getHashedPAJList(true);
+        assertEquals("", result);
     }
 }

@@ -44,12 +44,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.QueryTimeoutException;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -1142,6 +1145,59 @@ class ManagerServiceTest {
         assertThrows(NullPointerException.class, () -> managerService.initiatingLabProcessing(phc));
 
         PropertyUtilCache.kafkaFailedCheckStep3 = 0;
+    }
+
+    @Test
+    void testHandlingWdsAndLab_CannotAcquireLockException() throws Exception {
+        PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
+        EdxLabInformationDto edxDto = mock(EdxLabInformationDto.class);
+        NbsInterfaceModel model = mock(NbsInterfaceModel.class);
+
+        when(container.getEdxLabInformationDto()).thenReturn(edxDto);
+        when(container.getNbsInterfaceModel()).thenReturn(model);
+
+        // Using spy to override protected method
+        ManagerService spyManager = spy(managerService);
+        doThrow(new CannotAcquireLockException("Lock error"))
+                .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+
+        assertDoesNotThrow(() -> {
+            try {
+                spyManager.handlingWdsAndLab(container);
+            } catch (DataProcessingException | DataProcessingDBException | EdxLogException ignored) {}
+        });
+    }
+
+    @Test
+    void testHandlingWdsAndLab_QueryTimeoutException() throws DataProcessingException {
+        PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
+        EdxLabInformationDto edxDto = mock(EdxLabInformationDto.class);
+        NbsInterfaceModel model = mock(NbsInterfaceModel.class);
+
+        when(container.getEdxLabInformationDto()).thenReturn(edxDto);
+        when(container.getNbsInterfaceModel()).thenReturn(model);
+
+        ManagerService spyManager = spy(managerService);
+        doThrow(new QueryTimeoutException("Timeout"))
+                .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+
+        assertThrows(DataProcessingDBException.class, () -> spyManager.handlingWdsAndLab(container));
+    }
+
+    @Test
+    void testHandlingWdsAndLab_GenericException() throws DataProcessingException {
+        PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
+        EdxLabInformationDto edxDto = mock(EdxLabInformationDto.class);
+        NbsInterfaceModel model = mock(NbsInterfaceModel.class);
+
+        when(container.getEdxLabInformationDto()).thenReturn(edxDto);
+        when(container.getNbsInterfaceModel()).thenReturn(model);
+
+        ManagerService spyManager = spy(managerService);
+        doThrow(new RuntimeException("Unexpected error"))
+                .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+
+        assertThrows(DataProcessingException.class, () -> spyManager.handlingWdsAndLab(container));
     }
 
 }

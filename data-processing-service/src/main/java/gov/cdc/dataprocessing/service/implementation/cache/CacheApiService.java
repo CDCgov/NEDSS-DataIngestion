@@ -21,19 +21,6 @@ import java.util.Map;
 
 @Service
 public class CacheApiService implements ICacheApiService {
-    @Value("${cache.odse.localId}")
-    protected String odseLocalId;
-
-    @Value("${cache.clientId}")
-    private String clientId;
-
-    @Value("${cache.secret}")
-    private String clientSecret;
-
-
-
-    private final RestTemplate restTemplate = new RestTemplate();
-
     private final ManagerCacheService managerCacheService;
 
     public CacheApiService( ManagerCacheService managerCacheService) {
@@ -52,27 +39,4 @@ public class CacheApiService implements ICacheApiService {
         return managerCacheService.containKey(ObjectName.valueOf(objectName), key);
     }
 
-
-    protected  <T> T callEndpoint(String endpoint, Map<String, String> params, String token, Class<T> responseType) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        headers.add("clientid", clientId);
-        headers.add("clientsecret", clientSecret);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        MultiValueMap<String, String> multiValueParams = new LinkedMultiValueMap<>();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            multiValueParams.add(entry.getKey(), entry.getValue());
-        }
-
-        URI uri = UriComponentsBuilder.fromHttpUrl(endpoint)
-                .queryParams(multiValueParams)
-                .build()
-                .toUri();
-
-        ResponseEntity<T> response = restTemplate.exchange(uri, HttpMethod.GET, entity, responseType);
-
-        return response.getBody();
-    }
 }

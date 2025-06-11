@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,5 +93,43 @@ class ParticipationServiceTest {
         participationService.saveParticipation(participationDto);
 
         verify(dataModifierReposJdbc, times(1)).deleteParticipationByPk(any(), any(), any());
+    }
+
+    @Test
+    void testSaveParticipationByBatch() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectEntityUid(1L);
+        dto.setActUid(2L);
+        List<ParticipationDto> toSave = List.of(dto);
+
+        participationService.saveParticipationByBatch(toSave);
+
+        verify(participationRepository).saveAll(anyList());
+    }
+
+    @Test
+    void testSaveParticipationByBatchWithEmptyList() {
+        participationService.saveParticipationByBatch(Collections.emptyList());
+        verify(participationRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    void testSaveParticipationHistBatch() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectEntityUid(1L);
+        dto.setActUid(2L);
+        dto.setTypeCd("type");
+        when(participationHistRepository.findVerNumberByKey(1L, 2L, "type"))
+                .thenReturn(Optional.of(List.of(1, 2)));
+
+        participationService.saveParticipationHistBatch(List.of(dto));
+
+        verify(participationHistRepository).saveAll(anyList());
+    }
+
+    @Test
+    void testSaveParticipationHistBatchWithEmptyList() {
+        participationService.saveParticipationHistBatch(Collections.emptyList());
+        verify(participationHistRepository, never()).saveAll(anyList());
     }
 }
