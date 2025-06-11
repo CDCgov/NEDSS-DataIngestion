@@ -108,4 +108,45 @@ class EntityLocatorJdbcRepositoryTest {
         List<TeleLocator> result = repository.findByTeleLocatorUids(List.of(1L));
         assertEquals(1, result.size());
     }
+
+
+    @Test
+    void testUpdateTeleLocator() {
+        TeleLocator teleLocator = new TeleLocator();
+        when(jdbcTemplateOdse.update(any(String.class), any(MapSqlParameterSource.class))).thenReturn(1);
+        repository.updateTeleLocator(teleLocator);
+        verify(jdbcTemplateOdse).update(any(String.class), any(MapSqlParameterSource.class));
+    }
+
+    @Test
+    void testCreateEntityLocatorParticipation() {
+        EntityLocatorParticipation entityLocatorParticipation = new EntityLocatorParticipation();
+        when(jdbcTemplateOdse.update(any(String.class), any(MapSqlParameterSource.class))).thenReturn(1);
+        repository.createEntityLocatorParticipation(entityLocatorParticipation);
+        verify(jdbcTemplateOdse).update(any(String.class), any(MapSqlParameterSource.class));
+    }
+
+    @Test
+    void testUpdateEntityLocatorParticipation() {
+        EntityLocatorParticipation entity = new EntityLocatorParticipation();
+        when(jdbcTemplateOdse.update(any(String.class), any(MapSqlParameterSource.class))).thenReturn(1);
+        repository.updateEntityLocatorParticipation(entity);
+        verify(jdbcTemplateOdse).update(any(String.class), any(MapSqlParameterSource.class));
+    }
+
+    @Test
+    void testUpdatePostalLocator() {
+        PostalLocator postalLocator = new PostalLocator();
+        when(jdbcTemplateOdse.update(any(String.class), any(MapSqlParameterSource.class))).thenReturn(1);
+        repository.updatePostalLocator(postalLocator);
+        verify(jdbcTemplateOdse).update(any(String.class), any(MapSqlParameterSource.class));
+    }
+
+    @Test
+    void testUpdatePhysicalLocator() {
+        PhysicalLocator physicalLocator = new PhysicalLocator();
+        when(jdbcTemplateOdse.update(any(String.class), any(MapSqlParameterSource.class))).thenReturn(1);
+        repository.updatePhysicalLocator(physicalLocator);
+        verify(jdbcTemplateOdse).update(any(String.class), any(MapSqlParameterSource.class));
+    }
 }

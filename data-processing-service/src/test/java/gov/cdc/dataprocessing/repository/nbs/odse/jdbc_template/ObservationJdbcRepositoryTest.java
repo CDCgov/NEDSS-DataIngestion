@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class ObservationJdbcRepositoryTest {
@@ -194,5 +195,51 @@ class ObservationJdbcRepositoryTest {
 
         repository.findByObservationReasons(1L);
         verify(jdbcTemplate).query(anyString(), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class));
+    }
+
+
+    @Test
+    void testFindByObservationInterp() {
+        ObservationInterp mockItem = new ObservationInterp();
+        when(jdbcTemplate.query(any(String.class), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
+                .thenReturn(List.of(mockItem));
+        List<ObservationInterp> result = repository.findByObservationInterp(1L);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testFindByObservationCodedUid() {
+        ObsValueCoded mockItem = new ObsValueCoded();
+        when(jdbcTemplate.query(any(String.class), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
+                .thenReturn(List.of(mockItem));
+        List<ObsValueCoded> result = repository.findByObservationCodedUid(1L);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testFindByObservationTxtUid() {
+        ObsValueTxt mockItem = new ObsValueTxt();
+        when(jdbcTemplate.query(any(String.class), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
+                .thenReturn(List.of(mockItem));
+        List<ObsValueTxt> result = repository.findByObservationTxtUid(1L);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testFindByObservationDateUid() {
+        ObsValueDate mockItem = new ObsValueDate();
+        when(jdbcTemplate.query(any(String.class), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
+                .thenReturn(List.of(mockItem));
+        List<ObsValueDate> result = repository.findByObservationDateUid(1L);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testFindByObservationNumericUid() {
+        ObsValueNumeric mockItem = new ObsValueNumeric();
+        when(jdbcTemplate.query(any(String.class), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
+                .thenReturn(List.of(mockItem));
+        List<ObsValueNumeric> result = repository.findByObservationNumericUid(1L);
+        assertEquals(1, result.size());
     }
 }

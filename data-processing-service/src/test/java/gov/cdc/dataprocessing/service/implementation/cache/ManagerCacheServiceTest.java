@@ -31,7 +31,7 @@ class ManagerCacheServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-    
+
 
     @Test
     void testGetCacheProgramAreaCode() throws DataProcessingException {
