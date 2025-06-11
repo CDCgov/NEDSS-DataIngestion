@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ConfirmationMethodJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.ConfirmationMethod;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.ConfirmationMethodRepository;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 class ConfirmationMethodRepositoryTest {
     @Mock
-    private ConfirmationMethodRepository confirmationMethodRepository;
+    private ConfirmationMethodJdbcRepository confirmationMethodRepository;
     @InjectMocks
     private ConfirmationMethodRepositoryUtil confirmationMethodRepositoryUtil;
     @Mock
@@ -52,7 +53,7 @@ class ConfirmationMethodRepositoryTest {
         var methodArr = new ArrayList<ConfirmationMethod>();
         var method = new ConfirmationMethod();
         methodArr.add(method);
-        when(confirmationMethodRepository.findRecordsByPhcUid(any())).thenReturn(Optional.of(methodArr));
+        when(confirmationMethodRepository.findByPublicHealthCaseUid(any())).thenReturn(methodArr);
 
         var res = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(uid);
         assertNotNull(res);
@@ -62,7 +63,7 @@ class ConfirmationMethodRepositoryTest {
     void getConfirmationMethodByPhc_Test_2() {
         var uid = 10L;
 
-        when(confirmationMethodRepository.findRecordsByPhcUid(any())).thenReturn(Optional.empty());
+        when(confirmationMethodRepository.findByPublicHealthCaseUid(any())).thenReturn(new ArrayList<>());
 
         var res = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(uid);
         assertNotNull(res);

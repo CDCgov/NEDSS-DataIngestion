@@ -4,6 +4,7 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxPatientMatchDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EdxMatchJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxEntityMatchRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.matching.EdxPatientMatchRepository;
@@ -26,11 +27,9 @@ import static org.mockito.Mockito.*;
 
 class EdxPatientMatchRepositoryUtilTest {
     @Mock
-    private EdxPatientMatchRepository edxPatientMatchRepository;
+    private EdxMatchJdbcRepository edxPatientMatchRepository;
     @Mock
     private DataModifierReposJdbc dataModifierReposJdbc;
-    @Mock
-    private EdxEntityMatchRepository edxEntityMatchRepository;
     @Mock
     private EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
     @InjectMocks
@@ -52,7 +51,7 @@ class EdxPatientMatchRepositoryUtilTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(edxPatientMatchRepository, edxEntityMatchRepository, edxPatientMatchStoreProcRepository, authUtil, dataModifierReposJdbc);
+        Mockito.reset(edxPatientMatchRepository, edxPatientMatchStoreProcRepository, authUtil, dataModifierReposJdbc);
     }
 
     @Test
@@ -131,7 +130,7 @@ class EdxPatientMatchRepositoryUtilTest {
         var edx = new EdxEntityMatchDto();
         edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edx);
 
-        verify(edxEntityMatchRepository, times(1)).save(any());
+        verify(edxPatientMatchRepository, times(1)).mergeEdxEntityMatch(any());
 
     }
 
@@ -140,7 +139,7 @@ class EdxPatientMatchRepositoryUtilTest {
         var edx = new EdxPatientMatchDto();
         edxPatientMatchRepositoryUtil.setEdxPatientMatchDT(edx);
 
-        verify(edxPatientMatchRepository, times(1)).save(any());
+        verify(edxPatientMatchRepository, times(1)).mergeEdxPatientMatch(any());
 
     }
 

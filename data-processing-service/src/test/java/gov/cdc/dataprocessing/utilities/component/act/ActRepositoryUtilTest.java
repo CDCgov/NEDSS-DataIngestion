@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.act;
 
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ class ActRepositoryUtilTest {
     private ActRepositoryUtil actRepositoryUtil;
 
     @Mock
-    private ActRepository actRepository;
+    private ActJdbcRepository actRepository;
 
     @BeforeEach
     public void setUp() {
@@ -31,7 +32,7 @@ class ActRepositoryUtilTest {
 
         actRepositoryUtil.insertActivityId(uid, classCode, moodCode);
 
-        verify(actRepository, times(1)).save(any());
+        verify(actRepository, times(1)).insertAct(any());
     }
 
     @Test
@@ -42,7 +43,7 @@ class ActRepositoryUtilTest {
 
         actRepositoryUtil.insertActivityId(uid, classCode, moodCode);
 
-        verify(actRepository, times(1)).save(any());
+        verify(actRepository, times(1)).insertAct(any());
     }
 
     @Test
@@ -53,6 +54,6 @@ class ActRepositoryUtilTest {
 
         actRepositoryUtil.insertActivityId(uid, classCode, moodCode);
 
-        verify(actRepository, times(1)).save(any());
+        verify(actRepository, times(1)).insertAct(any());
     }
 }

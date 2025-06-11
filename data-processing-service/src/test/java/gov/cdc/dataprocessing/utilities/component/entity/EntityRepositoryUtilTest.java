@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.utilities.component.entity;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +21,7 @@ class EntityRepositoryUtilTest {
     private EntityRepositoryUtil entityRepositoryUtil;
 
     @Mock
-    private EntityRepository entityRepository;
+    private EntityJdbcRepository entityRepository;
 
     @BeforeEach
     public void setUp() {
@@ -39,7 +40,7 @@ class EntityRepositoryUtilTest {
         assertNotNull(result);
         assertEquals(entityId, result.getEntityUid());
         assertEquals(entityValue, result.getClassCd());
-        verify(entityRepository, times(1)).save(any(EntityODSE.class));
+        verify(entityRepository, times(1)).createEntity(any(EntityODSE.class));
     }
 
     @Test
@@ -52,7 +53,7 @@ class EntityRepositoryUtilTest {
         EntityODSE result = entityRepositoryUtil.preparingEntityReposCallForPerson(personDto, entityId, entityValue, event);
 
         assertNull(result);
-        verify(entityRepository, times(0)).save(any(EntityODSE.class));
+        verify(entityRepository, times(0)).createEntity(any(EntityODSE.class));
     }
 
     @Test
@@ -67,7 +68,7 @@ class EntityRepositoryUtilTest {
         assertNotNull(result);
         assertEquals(entityId, result.getEntityUid());
         assertEquals(entityValue, result.getClassCd());
-        verify(entityRepository, times(1)).save(any(EntityODSE.class));
+        verify(entityRepository, times(1)).createEntity(any(EntityODSE.class));
     }
 
     @Test
@@ -82,7 +83,7 @@ class EntityRepositoryUtilTest {
         assertNotNull(result);
         assertEquals(entityId, result.getEntityUid());
         assertEquals(entityValue, result.getClassCd());
-        verify(entityRepository, times(1)).save(any(EntityODSE.class));
+        verify(entityRepository, times(1)).createEntity(any(EntityODSE.class));
     }
 
 }

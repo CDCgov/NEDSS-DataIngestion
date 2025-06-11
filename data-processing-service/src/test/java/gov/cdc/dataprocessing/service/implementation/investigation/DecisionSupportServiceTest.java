@@ -415,8 +415,7 @@ class DecisionSupportServiceTest {
                 .thenReturn(pam);
 
         ConditionCode test = new ConditionCode();
-        var testStr = GsonUtil.GSON.toJson(test, ConditionCode.class);
-        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(testStr);
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(test);
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
@@ -476,8 +475,7 @@ class DecisionSupportServiceTest {
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
         ConditionCode test = new ConditionCode();
-        var testStr = GsonUtil.GSON.toJson(test, ConditionCode.class);
-        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(testStr);
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(test);
 
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
                 orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);

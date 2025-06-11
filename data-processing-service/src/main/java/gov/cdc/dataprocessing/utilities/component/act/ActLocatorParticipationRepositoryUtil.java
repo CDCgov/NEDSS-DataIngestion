@@ -19,7 +19,6 @@ public class ActLocatorParticipationRepositoryUtil {
     }
 
     public Collection<ActivityLocatorParticipationDto> getActLocatorParticipationCollection(Long actUid) {
-        //var res = actLocatorParticipationRepository.findRecordsById(actUid);
         var res = actLocatorParticipationJdbcRepository.findByActUid(actUid);
         Collection<ActivityLocatorParticipationDto> dtoCollection = new ArrayList<>();
         if (!res.isEmpty()) {
@@ -38,7 +37,6 @@ public class ActLocatorParticipationRepositoryUtil {
         for(var item : activityLocatorParticipationDtoCollection) {
             ActLocatorParticipation data = new ActLocatorParticipation(item);
             data.setActUid(uid);
-//            actLocatorParticipationRepository.save(data);
             actLocatorParticipationJdbcRepository.mergeActLocatorParticipation(data);
             item.setItNew(false);
             item.setItDirty(false);

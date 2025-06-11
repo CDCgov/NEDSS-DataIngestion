@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
@@ -7,6 +8,7 @@ import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
+import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
 import jakarta.annotation.PostConstruct;
@@ -29,28 +31,6 @@ import static gov.cdc.dataprocessing.utilities.GsonUtil.GSON;
 
 @Service
 @Slf4j
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
 public class KafkaManagerConsumer {
     private static final Logger logger = LoggerFactory.getLogger(KafkaManagerConsumer.class);
     private static final Queue<Integer> pendingMessages = new ConcurrentLinkedQueue<>();
@@ -81,7 +61,20 @@ public class KafkaManagerConsumer {
         this.authUserService = authUserService;
         this.queryHelper = queryHelper;
         this.lookupService = lookupService;
+    }
 
+    @PostConstruct
+    public void init() throws DataProcessingException {
+        // Ensure this runs first at startup
+        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
+        AuthUtil.setGlobalAuthUser(profile);
+
+        OdseCache.OWNER_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(false);
+        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
+
+        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
+
+        logger.info("Completed Initializing");
 
     }
 
@@ -94,20 +87,56 @@ public class KafkaManagerConsumer {
         try {
             AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
             AuthUtil.setGlobalAuthUser(profile);
-
+            List<Integer> ids = new ArrayList<>();
             for (String message : messages) {
                 Integer nbs = GSON.fromJson(message, Integer.class);
+                ids.add(nbs);
                 pendingMessages.add(nbs);
             }
 
+            // Update the status to RTI processing for tracking
+            managerService.updateNbsInterfaceStatus(ids);
             logger.debug("[KafkaManagerConsumer] pending {} messages", messages.size());
             acknowledgment.acknowledge();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Failed to process Kafka message: {}", e.getMessage());
             // Do not ack, Kafka will retry
         }
     }
 
+    @KafkaListener(
+            topics = "${kafka.topic.elr_reprocessing_locking}",
+            containerFactory = "kafkaListenerContainerFactoryDltStep1"
+    )
+    public void handleDltMessageUnifiedForLockingException(String message, Acknowledgment acknowledgment) {
+        if (!pendingMessages.isEmpty()) {
+            log.info("Skipping due to active processing. Will be retried.");
+            return;
+        }
+
+        try {
+            // First, try parsing as Integer
+            try {
+                Integer id = Integer.valueOf(message);
+                var result = managerService.processingELR(id);
+                if (result != null) {
+                    managerService.handlingWdsAndLab(result);
+                }
+            }
+            catch (NumberFormatException ex) {
+                // If it's not an integer, try parsing as JSON object
+                Gson consumerGson = new Gson();
+                PublicHealthCaseFlowContainer phc = consumerGson.fromJson(message, PublicHealthCaseFlowContainer.class);
+                managerService.handlingWdsAndLab(phc);
+            }
+
+            acknowledgment.acknowledge();
+        } catch (Exception e) {
+            log.error("Failed to process handleDltMessageUnifiedForLockingException: {}", e.getMessage(), e);
+        }
+    }
 
     @Scheduled(fixedDelayString = "${processor.delay_ms:30000}")
     public void processPendingMessages() {
@@ -163,30 +192,12 @@ public class KafkaManagerConsumer {
         }
     }
 
-    @PostConstruct
-    public void init() throws DataProcessingException {
-        // Ensure this runs first at startup
-        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
-        AuthUtil.setGlobalAuthUser(profile);
-
-        OdseCache.OWNER_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(false);
-        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
-
-        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
-
-        logger.info("Completed Initializing");
-
-    }
-
-
     @Scheduled(fixedDelay = 1800000) // every 30 min
     public void populateAuthUser() throws DataProcessingException {
         AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
         AuthUtil.setGlobalAuthUser(profile);
         logger.info("Completed populateAuthUser");
     }
-
-
 
     @Scheduled(fixedDelay = 3600000) // every 1 hr
     public void populateHashPAJList() throws DataProcessingException {

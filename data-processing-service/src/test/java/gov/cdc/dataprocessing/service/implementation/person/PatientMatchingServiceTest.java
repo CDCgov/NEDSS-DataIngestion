@@ -668,10 +668,16 @@ class PatientMatchingServiceTest {
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
+        mpr.getThePersonDto().setPersonParentUid(1L);
         mpr.setExt(true);
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(mpr.getThePersonDto());
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(mpr);
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
         EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
@@ -719,10 +725,16 @@ class PatientMatchingServiceTest {
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
+        mpr.getThePersonDto().setPersonParentUid(1L);
         mpr.setExt(true);
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(mpr.getThePersonDto());
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(mpr);
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
         EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
@@ -771,10 +783,16 @@ class PatientMatchingServiceTest {
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
+        mpr.getThePersonDto().setPersonParentUid(1L);
         mpr.setExt(true);
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(mpr.getThePersonDto());
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(mpr);
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
         EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
@@ -823,10 +841,16 @@ class PatientMatchingServiceTest {
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
+        mpr.getThePersonDto().setPersonParentUid(1L);
         mpr.setExt(true);
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(mpr.getThePersonDto());
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(mpr);
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
         EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
@@ -863,10 +887,16 @@ class PatientMatchingServiceTest {
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
+        mpr.getThePersonDto().setPersonParentUid(1L);
         mpr.setExt(true);
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(mpr.getThePersonDto());
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(mpr);
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
         EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }
@@ -903,10 +933,17 @@ class PatientMatchingServiceTest {
 
         PersonContainer mpr = new PersonContainer();
         mpr.getThePersonDto().setLocalId("4444");
+        mpr.getThePersonDto().setPersonParentUid(1L);
         mpr.setExt(true);
         mpr.setItNew(false);
         mpr.setItDirty(false);
         when(patientRepositoryUtil.loadPerson(any())).thenReturn(mpr);
+
+        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(mpr.getThePersonDto());
+        when(patientRepositoryUtil.preparePersonNameBeforePersistence(any())).thenReturn(mpr);
+        when(patientRepositoryUtil.createPerson(any())).thenReturn(person);
+
+
         EdxPatientMatchDto edxPatientMatchDtoResult = patientMatchingService.getMatchingPatient(personContainer);
         assertNotNull(edxPatientMatchDtoResult);
     }

@@ -1,11 +1,13 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
+import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.enums.NbsInterfaceStatus;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
+import gov.cdc.dataprocessing.exception.DataProcessingDBException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
@@ -30,12 +32,14 @@ import gov.cdc.dataprocessing.service.model.wds.WdsTrackerView;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.ManagerUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.dao.TransientDataAccessException;
 import org.springframework.retry.annotation.Backoff;
@@ -46,33 +50,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Service
 @Slf4j
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class ManagerService implements IManagerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
@@ -109,7 +93,8 @@ public class ManagerService implements IManagerService {
                           IManagerAggregationService managerAggregationService,
                           LabService labService,
                           NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository,
-                          KafkaManagerProducer kafkaManagerProducer) {
+                          KafkaManagerProducer kafkaManagerProducer)
+    {
         this.cacheApiService = cacheApiService;
         this.observationService = observationService;
         this.edxLogService = edxLogService;
@@ -127,15 +112,18 @@ public class ManagerService implements IManagerService {
     @Transactional()
     @Retryable(
             maxAttempts = 5,
-            backoff = @Backoff(delay = 1000, multiplier = 2)
+            backoff = @Backoff(delay = 1000, multiplier = 2),
+            retryFor = {DataProcessingDBException.class}
     )
-    public PublicHealthCaseFlowContainer processingELR(Integer data) throws EdxLogException {
+    public PublicHealthCaseFlowContainer processingELR(Integer data) throws EdxLogException, DataProcessingDBException {
         logger.debug("Interface Id: {}", data);
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
         boolean kafkaFailedCheck = false;
-        try {
+        boolean dltLockError = false;
+        try
+        {
 
             // Load interface model
             nbsInterfaceModel = nbsInterfaceJdbcRepository.getNbsInterfaceByUid(data);
@@ -214,28 +202,38 @@ public class ManagerService implements IManagerService {
             phcContainer.setNbsInterfaceId(nbsInterfaceModel.getNbsInterfaceUid());
             phcContainer.setNbsInterfaceModel(nbsInterfaceModel);
 
-//            nbsInterfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_1);
-//            nbsInterfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
-//            nbsInterfaceRepository.save(nbsInterfaceModel);
-
             return phcContainer;
         }
         catch (Exception e)
         {
-            if (e instanceof CannotAcquireLockException || e instanceof QueryTimeoutException || e instanceof TransientDataAccessException) {
-                // DEAD LOCK -- HANDLE THIS,
-                // transaction will roll back once hitting this -- shoot these trouble to another topic - handling it sequentially
-            } else {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            if (e instanceof CannotAcquireLockException ||
+                    e instanceof QueryTimeoutException ||
+                    e instanceof TransientDataAccessException ||
+                    e instanceof DataAccessException ||
+                    rootCause instanceof java.sql.SQLException) {
+                log.warn("DB-related exception caught: {}", e.getMessage(), e);
+                if (e instanceof CannotAcquireLockException) {
+                    dltLockError = true;
+                }
+                else {
+                    throw new DataProcessingDBException(e.getMessage(), e);
+                }
+            }
+            else
+            {
                 detailedMsg = handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel);
             }
         }
         finally
         {
-            if (nbsInterfaceModel != null && !kafkaFailedCheck) {
-                edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
-                edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-                edxLogService.saveEdxActivityLogs(edxLabInformationDto.getEdxActivityLogDto());
+            if (dltLockError)
+            {
+                composeDlt(String.valueOf(data));
             }
+            edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+            edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
+            edxLogService.saveEdxActivityLogs(edxLabInformationDto.getEdxActivityLogDto());
         }
 
         return null;
@@ -244,29 +242,64 @@ public class ManagerService implements IManagerService {
     @Transactional()
     @Retryable(
             maxAttempts = 5,
-            backoff = @Backoff(delay = 1000, multiplier = 2)
+            backoff = @Backoff(delay = 1000, multiplier = 2),
+            retryFor = {DataProcessingDBException.class}
     )
-    public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException {
+    public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
-        try {
+        boolean dltLockError = false;
+        try
+        {
             wds = initiatingInvestigationAndPublicHealthCase(phcContainer);
-        } catch (Exception e) {
-            // TODO SEND TO DLT QUEUE HERE && ISOLATE LOCK EXCEPTION and push it to sequence queue
-            phcContainer.getNbsInterfaceModel().setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
-            phcContainer.getNbsInterfaceModel().setRecordStatusTime(getCurrentTimeStamp(tz));
-            nbsInterfaceRepository.save(phcContainer.getNbsInterfaceModel());
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-
-        try {
             initiatingLabProcessing(wds);
-        } catch (Exception e) {
-            // TODO SEND TO DLT QUEUE HERE && ISOLATE LOCK EXCEPTION and push it to sequence queue
-            phcContainer.getNbsInterfaceModel().setRecordStatusCd(DpConstant.DP_FAILURE_STEP_3);
-            phcContainer.getNbsInterfaceModel().setRecordStatusTime(getCurrentTimeStamp(tz));
-            nbsInterfaceRepository.save(phcContainer.getNbsInterfaceModel());
-            throw new DataProcessingException(e.getMessage(), e);
         }
+        catch (Exception e)
+        {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            if (e instanceof CannotAcquireLockException ||
+                    e instanceof QueryTimeoutException ||
+                    e instanceof TransientDataAccessException ||
+                    e instanceof DataAccessException ||
+                    rootCause instanceof java.sql.SQLException) {
+
+                log.warn("DB-related exception caught: {}", e.getMessage(), e);
+                if (e instanceof CannotAcquireLockException) {
+                    dltLockError = true;
+                }
+                else {
+                    throw new DataProcessingDBException(e.getMessage(), e);
+                }
+            }
+            else
+            {
+                // TODO SEND TO DLT QUEUE HERE && ISOLATE LOCK EXCEPTION and push it to sequence queue
+                phcContainer.getNbsInterfaceModel().setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
+                phcContainer.getNbsInterfaceModel().setRecordStatusTime(getCurrentTimeStamp(tz));
+                nbsInterfaceRepository.save(phcContainer.getNbsInterfaceModel());
+                throw new DataProcessingException(e.getMessage(), e);
+            }
+        }
+        finally
+        {
+            if (dltLockError) {
+                var localGson = new Gson();
+                composeDlt(localGson.toJson(phcContainer));
+            }
+            else
+            {
+                edxLogService.updateActivityLogDT(phcContainer.getNbsInterfaceModel(), phcContainer.getEdxLabInformationDto());
+                edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), "");
+                edxLogService.saveEdxActivityLogs(phcContainer.getEdxLabInformationDto().getEdxActivityLogDto());
+            }
+        }
+    }
+
+    public void updateNbsInterfaceStatus(List<Integer> ids) {
+        nbsInterfaceJdbcRepository.updateRecordStatusToRtiProcess(ids);
+    }
+
+    protected void composeDlt(String message) {
+        kafkaManagerProducer.sendDltForLocking(message);
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
@@ -309,9 +342,12 @@ public class ManagerService implements IManagerService {
         phcContainer.setNbsInterfaceModel(interfaceModel);
 
         // Set public health case in tracker view
-        if (edxDto.getPageActContainer() != null) {
+        if (edxDto.getPageActContainer() != null)
+        {
             tracker.setPublicHealthCase(edxDto.getPageActContainer().getPublicHealthCaseContainer().getThePublicHealthCaseDto());
-        } else if (edxDto.getPamContainer() != null) {
+        }
+        else if (edxDto.getPamContainer() != null)
+        {
             tracker.setPublicHealthCase(edxDto.getPamContainer().getPublicHealthCaseContainer().getThePublicHealthCaseDto());
         }
 
@@ -334,9 +370,11 @@ public class ManagerService implements IManagerService {
         Long phcUid;
 
         String action = edxDto.getAction();
-        if (DecisionSupportConstants.MARK_AS_REVIEWED.equalsIgnoreCase(action)) {
+        if (DecisionSupportConstants.MARK_AS_REVIEWED.equalsIgnoreCase(action))
+        {
             labService.handleMarkAsReviewed(obsDto, edxDto);
-        } else if (pageAct != null || pamProxy != null) {
+        } else if (pageAct != null || pamProxy != null)
+        {
             if (pageAct != null) {
                 phcContainerModel = pageAct.getPublicHealthCaseContainer();
             } else {

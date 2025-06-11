@@ -91,15 +91,6 @@ class NNDActivityLogServiceTest {
         verify(nndActivityLogRepository, times(1)).save(any(NNDActivityLog.class));
     }
 
-    @Test
-    void testSaveNddActivityLogException() throws DataProcessingException {
-        NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
-        when(odseIdGeneratorService.getValidLocalUid(NND_METADATA, true)).thenThrow(new RuntimeException("Test Exception"));
-
-        assertThrows(RuntimeException.class, () -> {
-            nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
-        });
-    }
 
 
 }

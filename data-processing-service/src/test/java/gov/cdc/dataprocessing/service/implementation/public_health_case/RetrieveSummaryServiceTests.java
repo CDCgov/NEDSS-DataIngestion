@@ -300,7 +300,7 @@ class RetrieveSummaryServiceTests {
         });
 
         assertNotNull(thrown);
-        assertEquals("Error in calling ActControllerEJB.setNotification() TEST", thrown.getMessage());
+        assertEquals("TEST", thrown.getMessage());
     }
 
     @Test

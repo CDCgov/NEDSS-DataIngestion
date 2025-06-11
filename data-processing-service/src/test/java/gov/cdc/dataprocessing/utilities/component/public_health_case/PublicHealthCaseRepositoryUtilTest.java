@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.model.dto.phc.ConfirmationMethodDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsCaseAnswer;
@@ -45,31 +46,21 @@ import static org.mockito.Mockito.*;
 
 class PublicHealthCaseRepositoryUtilTest {
     @Mock
-    private PublicHealthCaseRepository publicHealthCaseRepository;
+    private PublicHealthCaseJdbcRepository publicHealthCaseRepository;
     @Mock
-    private EntityGroupRepository entityGroupRepository;
-    @Mock
-    private PlaceRepository placeRepository;
-    @Mock
-    private NonPersonLivingSubjectRepository nonPersonLivingSubjectRepository;
-    @Mock
-    private ClinicalDocumentRepository clinicalDocumentRepository;
-    @Mock
-    private ReferralRepository referralRepository;
-    @Mock
-    private PatientEncounterRepository patientEncounterRepository;
+    private SupportForPhcJdbcRepository supportForPhcJdbcRepository;
     @Mock
     private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
-    private ActRepository actRepository;
+    private ActJdbcRepository actRepository;
     @Mock
-    private ActIdRepository actIdRepository;
+    private ActIdJdbcRepository actIdRepository;
     @Mock
-    private ConfirmationMethodRepository confirmationMethodRepository;
+    private ConfirmationMethodJdbcRepository confirmationMethodRepository;
     @Mock
-    private ActLocatorParticipationRepository actLocatorParticipationRepository;
+    private ActLocatorParticipationJdbcRepository actLocatorParticipationRepository;
     @Mock
-    private CaseManagementRepository caseManagementRepository;
+    private CaseManagementJdbcRepository caseManagementRepository;
     @Mock
     private ConfirmationMethodRepositoryUtil confirmationMethodRepositoryUtil;
     @Mock
@@ -83,9 +74,9 @@ class PublicHealthCaseRepositoryUtilTest {
     @Mock
     private ParticipationRepositoryUtil participationRepositoryUtil;
     @Mock
-    private NbsCaseAnswerRepository nbsCaseAnswerRepository;
+    private NbsCaseAnswerJdbcRepository nbsCaseAnswerRepository;
     @Mock
-    private NbsActEntityRepository actEntityRepository;
+    private NbsActJdbcRepository actEntityRepository;
     @InjectMocks
     private PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     @Mock
@@ -122,9 +113,7 @@ class PublicHealthCaseRepositoryUtilTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(publicHealthCaseRepository, entityGroupRepository, authUtil,
-                placeRepository, nonPersonLivingSubjectRepository, clinicalDocumentRepository,
-                referralRepository, patientEncounterRepository, odseIdGeneratorService,
+        Mockito.reset(publicHealthCaseRepository, authUtil,odseIdGeneratorService,
                 actRepository, actIdRepository, confirmationMethodRepository, caseManagementRepository,
                 confirmationMethodRepositoryUtil, caseManagementRepositoryUtil, actIdRepositoryUtil,
                 actLocatorParticipationRepositoryUtil,
@@ -217,7 +206,7 @@ class PublicHealthCaseRepositoryUtilTest {
         phc.getThePublicHealthCaseDto().setSharedInd("T");
         phc.getThePublicHealthCaseDto().setCaseTypeCd(NEDSSConstant.I);
 
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             publicHealthCaseRepositoryUtil.create(phc);
         });
         assertNotNull(thrown);
@@ -284,7 +273,7 @@ class PublicHealthCaseRepositoryUtilTest {
         Long phcUid = 10L;
 
         var phcDt = new PublicHealthCase();
-        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.of(phcDt));
+        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(phcDt);
         when(confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid)).thenReturn(new ArrayList<>());
         when(caseManagementRepositoryUtil.getCaseManagementPhc(phcUid)).thenReturn(new CaseManagementDto());
         when(actIdRepositoryUtil.getActIdCollection(phcUid)).thenReturn(new ArrayList<>());
@@ -300,7 +289,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void loadObject_Test_2()   {
         Long phcUid = 10L;
 
-        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.empty());
+        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(new PublicHealthCase());
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             publicHealthCaseRepositoryUtil.loadObject(phcUid);
@@ -326,7 +315,7 @@ class PublicHealthCaseRepositoryUtilTest {
     void getPublicHealthCaseContainer_Test() throws DataProcessingException {
         long phcUid = 10L;
         var phcDt = new PublicHealthCase();
-        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.of(phcDt));
+        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(phcDt);
 
         var res = publicHealthCaseRepositoryUtil.getPublicHealthCaseContainer(phcUid);
         assertNotNull(res);
@@ -337,7 +326,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getPublicHealthCaseContainer_Test_2()  {
         long phcUid = 10L;
-        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(Optional.empty());
+        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(new PublicHealthCase());
 
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
@@ -376,12 +365,12 @@ class PublicHealthCaseRepositoryUtilTest {
         nsbCaseAn.setAnswerGroupSeqNbr(-2);
         nsbCaseAn.setSeqNbr(-2);
         nbsCaseAnCol.add(nsbCaseAn);
-        when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(phcUid)).thenReturn(Optional.of(nbsCaseAnCol));
+        when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(phcUid)).thenReturn(nbsCaseAnCol);
 
         var actCol = new ArrayList<NbsActEntity>();
         var act = new NbsActEntity();
         actCol.add(act);
-        when(actEntityRepository.getNbsActEntitiesByActUid(phcUid)).thenReturn(Optional.of(actCol));
+        when(actEntityRepository.getNbsActEntitiesByActUid(phcUid)).thenReturn(actCol);
 
 
         var res= publicHealthCaseRepositoryUtil.getPamVO(phcUid);
@@ -394,7 +383,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getPlace_Test() {
         var uid = 10L;
-        when(placeRepository.findById(uid)).thenReturn(Optional.of(new Place()));
+        when(supportForPhcJdbcRepository.findPlaceById(uid)).thenReturn(new Place());
         var res= publicHealthCaseRepositoryUtil.getPlace(uid);
         assertNotNull(res);
     }
@@ -402,7 +391,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getPlace_Test_2() {
         var uid = 10L;
-        when(placeRepository.findById(uid)).thenReturn(Optional.empty());
+        when(supportForPhcJdbcRepository.findPlaceById(uid)).thenReturn(null);
         var res= publicHealthCaseRepositoryUtil.getPlace(uid);
         assertNull(res);
     }
@@ -410,7 +399,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getNonPersonLivingSubject_Test() {
         var uid = 10L;
-        when(nonPersonLivingSubjectRepository.findById(uid)).thenReturn(Optional.of(new NonPersonLivingSubject()));
+        when(supportForPhcJdbcRepository.findNonPersonLivingSubjectById(uid)).thenReturn(new NonPersonLivingSubject());
         var res= publicHealthCaseRepositoryUtil.getNonPersonLivingSubject(uid);
         assertNotNull(res);
     }
@@ -418,7 +407,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getNonPersonLivingSubject_Test_2() {
         var uid = 10L;
-        when(nonPersonLivingSubjectRepository.findById(uid)).thenReturn(Optional.empty());
+        when(supportForPhcJdbcRepository.findNonPersonLivingSubjectById(uid)).thenReturn(null);
         var res= publicHealthCaseRepositoryUtil.getNonPersonLivingSubject(uid);
         assertNull(res);
     }
@@ -426,7 +415,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getClinicalDocument_Test() {
         var uid = 10L;
-        when(clinicalDocumentRepository.findById(uid)).thenReturn(Optional.of(new ClinicalDocument()));
+        when(supportForPhcJdbcRepository.findClinicalDocumentById(uid)).thenReturn(new ClinicalDocument());
         var res= publicHealthCaseRepositoryUtil.getClinicalDocument(uid);
         assertNotNull(res);
     }
@@ -434,7 +423,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getClinicalDocument_Test_2() {
         var uid = 10L;
-        when(clinicalDocumentRepository.findById(uid)).thenReturn(Optional.empty());
+        when(supportForPhcJdbcRepository.findClinicalDocumentById(uid)).thenReturn(null);
         var res= publicHealthCaseRepositoryUtil.getClinicalDocument(uid);
         assertNull(res);
     }
@@ -442,7 +431,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getReferral_Test() {
         var uid = 10L;
-        when(referralRepository.findById(uid)).thenReturn(Optional.of(new Referral()));
+        when(supportForPhcJdbcRepository.findReferralById(uid)).thenReturn(new Referral());
         var res= publicHealthCaseRepositoryUtil.getReferral(uid);
         assertNotNull(res);
     }
@@ -450,7 +439,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getReferral_Test_2() {
         var uid = 10L;
-        when(referralRepository.findById(uid)).thenReturn(Optional.empty());
+        when(supportForPhcJdbcRepository.findReferralById(uid)).thenReturn(null);
         var res= publicHealthCaseRepositoryUtil.getReferral(uid);
         assertNull(res);
     }
@@ -458,7 +447,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getPatientEncounter_Test() {
         var uid = 10L;
-        when(patientEncounterRepository.findById(uid)).thenReturn(Optional.of(new PatientEncounter()));
+        when(supportForPhcJdbcRepository.findPatientEncounterById(uid)).thenReturn(new PatientEncounter());
         var res= publicHealthCaseRepositoryUtil.getPatientEncounter(uid);
         assertNotNull(res);
     }
@@ -466,7 +455,7 @@ class PublicHealthCaseRepositoryUtilTest {
     @Test
     void getPatientEncounter_Test_2() {
         var uid = 10L;
-        when(patientEncounterRepository.findById(uid)).thenReturn(Optional.empty());
+        when(supportForPhcJdbcRepository.findPatientEncounterById(uid)).thenReturn(null);
         var res= publicHealthCaseRepositoryUtil.getPatientEncounter(uid);
         assertNull(res);
     }
@@ -477,11 +466,10 @@ class PublicHealthCaseRepositoryUtilTest {
         var localId = new LocalUidModel();
         localId.setGaTypeUid(new LocalUidGeneratorDto());
         localId.setClassTypeUid(new LocalUidGeneratorDto());
-        when(odseIdGeneratorService.getValidLocalUid(eq(EPILINK), anyBoolean())).thenReturn(localId);
 
         publicHealthCaseRepositoryUtil.updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
 
-        verify(odseIdGeneratorService, times(1)).getValidLocalUid(any(), eq(false));
+        verify(uidPoolManager, times(1)).getNextUid(any(), anyBoolean());
     }
 
     @Test
@@ -491,10 +479,9 @@ class PublicHealthCaseRepositoryUtilTest {
         var localId = new LocalUidModel();
         localId.setGaTypeUid(new LocalUidGeneratorDto());
         localId.setClassTypeUid(new LocalUidGeneratorDto());
-        when(odseIdGeneratorService.getValidLocalUid(eq(EPILINK), anyBoolean())).thenReturn(localId);
 
         publicHealthCaseRepositoryUtil.updateCaseManagementWithEPIIDandFRNum(caseManagementDto);
 
-        verify(odseIdGeneratorService, times(1)).getValidLocalUid(any(), eq(false));
+        verify(uidPoolManager, times(1)).getNextUid(any(), anyBoolean());
     }
 }

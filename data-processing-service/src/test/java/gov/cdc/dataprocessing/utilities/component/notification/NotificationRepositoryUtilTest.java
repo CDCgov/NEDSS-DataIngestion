@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.dto.notification.UpdatedNotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NotificationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
@@ -42,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 class NotificationRepositoryUtilTest {
     @Mock
-    private NotificationRepository notificationRepository;
+    private NotificationJdbcRepository notificationRepository;
     @Mock
     private ActIdRepositoryUtil actIdRepositoryUtil;
     @Mock
@@ -103,7 +104,7 @@ class NotificationRepositoryUtilTest {
     void getNotificationContainer_Test(){
         Long uid = 10L;
         var noti = new Notification();
-        when(notificationRepository.findById(uid)).thenReturn(Optional.of(noti));
+        when(notificationRepository.findById(uid)).thenReturn(noti);
 
         var actIdCol = new ArrayList<ActIdDto>();
         var actId = new ActIdDto();
@@ -133,10 +134,10 @@ class NotificationRepositoryUtilTest {
     @Test
     void getNotificationContainer_Test_2(){
         Long uid = 10L;
-        when(notificationRepository.findById(uid)).thenReturn(Optional.empty());
+        when(notificationRepository.findById(uid)).thenReturn(new Notification());
 
         var res = notificationRepositoryUtil.getNotificationContainer(uid);
-        assertNull(res);
+        assertNotNull(res);
 
     }
 
@@ -214,7 +215,7 @@ class NotificationRepositoryUtilTest {
 
         notificationContainer.getTheNotificationDT().setNotificationUid(10L);
 
-        when(notificationRepository.findById(any())).thenReturn(Optional.of(new Notification(notificationContainer.getTheNotificationDT())));
+        when(notificationRepository.findById(any())).thenReturn(new Notification(notificationContainer.getTheNotificationDT()));
 
 
         var res = notificationRepositoryUtil.setNotification(notificationContainer);

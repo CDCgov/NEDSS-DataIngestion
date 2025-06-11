@@ -282,21 +282,13 @@ class EntityLocatorParticipationServiceTest {
         locator.setTheTeleLocatorDto(teleDto);
         locatorCollection.add(locator);
 
-        LocalUidModel localUid = new LocalUidModel();
-        localUid.setGaTypeUid(new LocalUidGeneratorDto());
-        localUid.setClassTypeUid(new LocalUidGeneratorDto());
-        localUid.getClassTypeUid().setSeedValueNbr(1L);
-        localUid.getGaTypeUid().setSeedValueNbr(1L);
-
-        when(iOdseIdGeneratorWCacheService.getValidLocalUid(any(), anyBoolean())).thenReturn(localUid);
-
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
 
 
-        verify(physicalLocatorRepository, times(1)).save(any());
-        verify(postalLocatorRepository, times(1)).save(any());
-        verify(teleLocatorRepository, times(1)).save(any());
+        verify(entityLocatorJdbcRepository, times(1)).createPhysicalLocator(any());
+        verify(entityLocatorJdbcRepository, times(1)).createPostalLocator(any());
+        verify(entityLocatorJdbcRepository, times(1)).createTeleLocator(any());
     }
 
 
@@ -322,21 +314,13 @@ class EntityLocatorParticipationServiceTest {
         locator.setTheTeleLocatorDto(teleDto);
         locatorCollection.add(locator);
 
-        LocalUidModel localUid = new LocalUidModel();
-        localUid.setGaTypeUid(new LocalUidGeneratorDto());
-        localUid.setClassTypeUid(new LocalUidGeneratorDto());
-        localUid.getClassTypeUid().setSeedValueNbr(1L);
-        localUid.getGaTypeUid().setSeedValueNbr(1L);
-
-        when(iOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
-
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
 
 
-        verify(physicalLocatorRepository, times(1)).save(any());
-        verify(postalLocatorRepository, times(1)).save(any());
-        verify(teleLocatorRepository, times(0)).save(any());
+        verify(entityLocatorJdbcRepository, times(1)).createPhysicalLocator(any());
+        verify(entityLocatorJdbcRepository, times(1)).createPostalLocator(any());
+        verify(entityLocatorJdbcRepository, times(0)).createTeleLocator(any());
     }
 
 
@@ -358,20 +342,14 @@ class EntityLocatorParticipationServiceTest {
         locator.setTheTeleLocatorDto(null);
         locatorCollection.add(locator);
 
-        LocalUidModel localUid = new LocalUidModel();
-        localUid.setGaTypeUid(new LocalUidGeneratorDto());
-        localUid.setClassTypeUid(new LocalUidGeneratorDto());
-        localUid.getClassTypeUid().setSeedValueNbr(1L);
-        localUid.getGaTypeUid().setSeedValueNbr(1L);
-        when(iOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
 
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
 
 
-        verify(physicalLocatorRepository, times(1)).save(any());
-        verify(postalLocatorRepository, times(0)).save(any());
-        verify(teleLocatorRepository, times(0)).save(any());
+        verify(entityLocatorJdbcRepository, times(1)).createPhysicalLocator(any());
+        verify(entityLocatorJdbcRepository, times(0)).createPostalLocator(any());
+        verify(entityLocatorJdbcRepository, times(0)).createTeleLocator(any());
     }
 
 
@@ -529,13 +507,13 @@ class EntityLocatorParticipationServiceTest {
         p.setPersonParentUid(parentUid);
         when(personRepository.findByPersonUid(anyLong())).thenReturn(Optional.of(List.of(p)));
         when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
-        when(entityLocatorParticipationRepository.findByParentUid(parentUid)).thenReturn(Optional.of(List.of(entityLocator)));
+        when(entityLocatorJdbcRepository.findByEntityUid(parentUid)).thenReturn(List.of(entityLocator));
         when(entityLocatorParticipationRepository.findLocatorUidsByEntityUid(parentUid)).thenReturn(Optional.of(List.of(1L)));
         when(postalLocatorRepository.findByPostalLocatorUids(anyList())).thenReturn(Optional.of(List.of(postalLocator)));
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
 
-        verify(dataModifierReposJdbc, times(1)).deletePostalLocatorById(1L);
+        verify(dataModifierReposJdbc, times(2)).deletePostalLocatorById(1L);
         verify(dataModifierReposJdbc).deleteLocatorById(parentUid, 1L);
     }
 

@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -67,10 +68,12 @@ class AuthUserServiceTest {
         var role = new AuthUserRealizedRole();
         roleCol.add(role);
         when(customAuthUserRepository.getAuthUserRealizedRole(any())).thenReturn(roleCol);
-        when(jdbcTemplateOdse.query(anyString(), any(Object[].class), (ResultSetExtractor<Object>) any()))
-                .thenAnswer(invocation -> {
-                    return Optional.of(authUser);
-                });
+        when(jdbcTemplateOdse.queryForObject(
+                anyString(),
+                any(Object[].class),
+                any(RowMapper.class))
+        ).thenReturn(authUser);
+
 
         var test = authUserService.getAuthUserInfo(authUserId);
 

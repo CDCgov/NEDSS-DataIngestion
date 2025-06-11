@@ -182,7 +182,7 @@ class HL7PatientHandlerTest {
         // NOK
         when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");
 
-        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn("{}");
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(new ElrXref());
 
         var res = hl7PatientHandler.getPatientAndNextOfKin(hl7PatientResult, labResultProxyContainer, edxLabInformationDto);
 

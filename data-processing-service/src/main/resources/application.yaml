@@ -47,9 +47,7 @@ spring:
 kafka:
   topic:
     elr_unprocessed: dp_elr_unprocessed
-    elr_reprocessing_step_1: dp_elr_reprocessing_step_1
-    elr_reprocessing_step_2: dp_elr_reprocessing_step_2
-    elr_reprocessing_step_3: dp_elr_reprocessing_step_3
+    elr_reprocessing_locking: dp_elr_reprocess_locking
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
     elr_nnd: dp_elr_handle_nnd
@@ -120,6 +118,7 @@ logging:
     com.zaxxer.hikari: WARN
     # Spring Data JPA repositories
     org.springframework.data.jpa.repository: WARN
+#    org.springframework.retry: DEBUG
     # JDBC (optional)
 #    org.springframework.jdbc.core: WARN
 #    org.hibernate.SQL: DEBUG
