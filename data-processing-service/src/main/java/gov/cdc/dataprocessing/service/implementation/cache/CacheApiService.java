@@ -4,7 +4,6 @@ package gov.cdc.dataprocessing.service.implementation.cache;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ITokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,14 +30,13 @@ public class CacheApiService implements ICacheApiService {
     @Value("${cache.secret}")
     private String clientSecret;
 
-    private final ITokenService tokenService;
+
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     private final ManagerCacheService managerCacheService;
 
-    public CacheApiService(ITokenService tokenService, ManagerCacheService managerCacheService) {
-        this.tokenService = tokenService;
+    public CacheApiService( ManagerCacheService managerCacheService) {
         this.managerCacheService = managerCacheService;
     }
 
@@ -54,12 +52,6 @@ public class CacheApiService implements ICacheApiService {
         return managerCacheService.containKey(ObjectName.valueOf(objectName), key);
     }
 
-    public String getOdseLocalId(String objectName, boolean geApplied) {
-        var param = new HashMap<String, String>();
-        param.put("localIdClass", objectName);
-        param.put("geApplied", String.valueOf(geApplied));
-        return callEndpoint(odseLocalId, param, tokenService.getToken(), String.class);
-    }
 
     protected  <T> T callEndpoint(String endpoint, Map<String, String> params, String token, Class<T> responseType) {
         HttpHeaders headers = new HttpHeaders();

@@ -6,5 +6,4 @@ public interface ICacheApiService {
     String getSrteCacheString(String objectName, String key) throws DataProcessingException;
     Object getSrteCacheObject(String objectName, String key);
     Boolean getSrteCacheBool(String objectName, String key) throws DataProcessingException;
-    String getOdseLocalId(String objectName, boolean geApplied);
 }
