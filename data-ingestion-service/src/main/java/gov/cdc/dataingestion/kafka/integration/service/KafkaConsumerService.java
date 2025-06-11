@@ -23,6 +23,7 @@ import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.share.helper.ElrSplitter;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -46,6 +47,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Optional;
 
 import static gov.cdc.dataingestion.constant.MessageType.XML_ELR;
@@ -99,6 +101,7 @@ public class KafkaConsumerService {
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
+    private final ElrSplitter elrSplitter;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -116,7 +119,8 @@ public class KafkaConsumerService {
             IElrDeadLetterRepository elrDeadLetterRepository,
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
-            TimeMetricsBuilder timeMetricsBuilder) {
+            TimeMetricsBuilder timeMetricsBuilder,
+            ElrSplitter elrSplitter) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -127,6 +131,7 @@ public class KafkaConsumerService {
         this.iReportStatusRepository = iReportStatusRepository;
         this.customMetricsBuilder = customMetricsBuilder;
         this.timeMetricsBuilder = timeMetricsBuilder;
+        this.elrSplitter = elrSplitter;
     }
     //endregion
 
@@ -484,23 +489,28 @@ public class KafkaConsumerService {
      * make this public so we can add unit test for now.
      * we need to implementation interface pattern for NBS convert and transformation classes. it better for unit testing
      * */
-    public void xmlConversionHandlerProcessing(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {
+    @SuppressWarnings("java:S3776")
+    public void xmlConversionHandlerProcessing(String rawElrId, String operation, String dataProcessingEnable) throws KafkaProducerException {
         String hl7Msg = "";
         try {
-            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(message);
+            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(rawElrId);
             if (validatedELRModel.isEmpty()) {
                 throw new XmlConversionException("Message Not Found in Validated");
             }
-            var statusCheck = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
-            if (statusCheck.isPresent() && statusCheck.get().getNbsInterfaceUid() != null) {
-                logger.info("Kafka Rebalancing Error Hit");
-                return;
+            List<ReportStatusIdData> statusList = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
+            if (statusList!=null && !statusList.isEmpty()) {
+                for(ReportStatusIdData reportStatusIdData:statusList){
+                    if(reportStatusIdData.getNbsInterfaceUid() != null){
+                        logger.info("Kafka Rebalancing Error Hit");
+                        return;
+                    }
+                }
             }
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
-                Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(message);
+                Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(rawElrId);
                 hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
             } else {
-                Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(message);
+                Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(rawElrId);
                 if (response.isPresent()) {
                     var validMessage = iHl7v2Validator.messageStringFormat(response.get().getMessage());
                     validMessage = iHl7v2Validator.processFhsMessage(validMessage);
@@ -510,60 +520,60 @@ public class KafkaConsumerService {
                     throw new XmlConversionException(errorDltMessage);
                 }
             }
-            HL7ParsedMessage<OruR1> parsedMessage = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
-            String rhapsodyXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(message, parsedMessage);
-
-            // Modified from debug ==> info to capture xml for analysis.
-            // Please leave below at "info" level for the time being, before going live,
-            // this will be changed to debug
-            log.debug("rhapsodyXml: {}", rhapsodyXml);
-
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
-            NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(message, rhapsodyXml, parsedMessage, dataProcessingApplied);
 
-            customMetricsBuilder.incrementXmlConversionRequested();
-            // Once the XML is saved to the NBS_Interface table, we get the ID to save it
-            // in the Data Ingestion elr_record_status_id table, so that we can get the status
-            // of the record straight-forward from the NBS_Interface table.
+            HL7ParsedMessage<OruR1> parsedMessageOrig = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
+            List<HL7ParsedMessage<OruR1>> parsedMessageList= splitElrByOBR(parsedMessageOrig);
+            for(HL7ParsedMessage<OruR1> parsedMessageNew:parsedMessageList) {
+                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageNew);
+                log.debug("phdcXml: {}", phdcXml);
+                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessageNew, dataProcessingApplied);
 
-            if(nbsInterfaceModel == null) {
-                customMetricsBuilder.incrementXmlConversionRequestedFailure();
+                customMetricsBuilder.incrementXmlConversionRequested();
+                // Once the XML is saved to the NBS_Interface table, we get the ID to save it
+                // in the Data Ingestion elr_record_status_id table, so that we can get the status
+                // of the record straight-forward from the NBS_Interface table.
+
+                if(nbsInterfaceModel == null) {
+                    customMetricsBuilder.incrementXmlConversionRequestedFailure();
+                }
+                else {
+                    customMetricsBuilder.incrementXmlConversionRequestedSuccess();
+                    ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
+                    reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
+                    reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
+                    reportStatusIdData.setCreatedBy(convertedToXmlTopic);
+                    reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
+
+                    var timestamp = getCurrentTimeStamp(tz);
+                    reportStatusIdData.setCreatedOn(timestamp);
+                    reportStatusIdData.setUpdatedOn(timestamp);
+                    iReportStatusRepository.save(reportStatusIdData);
+                }
+                if (dataProcessingApplied) {
+                    kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), rtiTopic, 0); //NOSONAR
+                } else {
+                    kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
+                }
             }
-            else {
-                customMetricsBuilder.incrementXmlConversionRequestedSuccess();
-                ReportStatusIdData reportStatusIdData = new ReportStatusIdData();
-                reportStatusIdData.setRawMessageId(validatedELRModel.get().getRawId());
-                reportStatusIdData.setNbsInterfaceUid(nbsInterfaceModel.getNbsInterfaceUid());
-                reportStatusIdData.setCreatedBy(convertedToXmlTopic);
-                reportStatusIdData.setUpdatedBy(convertedToXmlTopic);
-
-                var timestamp = getCurrentTimeStamp(tz);
-                reportStatusIdData.setCreatedOn(timestamp);
-                reportStatusIdData.setUpdatedOn(timestamp);
-                iReportStatusRepository.save(reportStatusIdData);
-            }
-
-            if (dataProcessingApplied) {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), rtiTopic, 0); //NOSONAR
-            } else {
-                kafkaProducerService.sendMessageAfterConvertedToXml(nbsInterfaceModel.getNbsInterfaceUid().toString(), convertedToXmlTopic, 0);
-            }
-
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             String stackTrace = sw.toString();
 
-
             var msg =  e.getMessage();
             // Handle any exceptions here
             kafkaProducerService.sendMessageDlt(
-                    msg, message, "xml_prep_dlt_manual", 0 ,
+                    msg, rawElrId, "xml_prep_dlt_manual", 0 ,
                     stackTrace,prepXmlTopic
             );
         }
     }
+    private List<HL7ParsedMessage<OruR1>> splitElrByOBR(HL7ParsedMessage<OruR1> parsedMessageOrig) {
+        return elrSplitter.splitElr(parsedMessageOrig);
+    }
+
     private void xmlConversionHandler(String message, String operation, String dataProcessingEnable) throws KafkaProducerException {
         log.debug("Received message id will be retrieved from db and associated hl7 will be converted to xml");
         xmlConversionHandlerProcessing(message, operation, dataProcessingEnable);

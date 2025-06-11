@@ -14,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 /**
  1118 - require constructor complaint
@@ -41,10 +44,11 @@ class ElrProcessStatusComponentTest {
         String rawId = "7DAC34BD-B011-469A-BF27-25904370E9E3";
 
         MessageStatus status = new MessageStatus();
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
+
         status.getRawInfo().setRawMessageId(rawId);
-        when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
-        );
+        when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(msgStatusList);
         String processStatus = elrProcessStatusComponent.process(body);
         Assertions.assertEquals(body, processStatus);
     }
@@ -55,11 +59,12 @@ class ElrProcessStatusComponentTest {
 
         MessageStatus status = new MessageStatus();
         status.getNbsInfo().setNbsInterfaceStatus("Success");
-        when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
-        );
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
+
+        when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(msgStatusList);
         String processStatus = elrProcessStatusComponent.process(body);
-        Assertions.assertEquals("Success", processStatus);
+        Assertions.assertTrue(processStatus.startsWith("Status: Success"));
     }
     @Test
     void testProcessForNbsFailure(){
@@ -68,6 +73,8 @@ class ElrProcessStatusComponentTest {
 
         MessageStatus status = new MessageStatus();
         status.getNbsInfo().setNbsInterfaceStatus("Failure");
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
 
         EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
         edxActivityLogStatus.setRecordType("Test Record Type");
@@ -76,7 +83,7 @@ class ElrProcessStatusComponentTest {
         edxActivityLogStatus.setRecordStatusTime(TimeStampHelper.convertTimestampToString(TimeStampHelper.getCurrentTimeStamp("UTC")));
 //        status.getNbsIngestionInfo().add(edxActivityLogStatus);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
+                msgStatusList
         );
         String processStatus = elrProcessStatusComponent.process(body);
         Assertions.assertTrue(processStatus.contains("Status:"));
@@ -88,6 +95,7 @@ class ElrProcessStatusComponentTest {
 
         MessageStatus status = new MessageStatus();
         status.getNbsInfo().setNbsInterfaceStatus("Failure");
+
         String logComment= "Test Log Comment123 Test Log Comment123 Test Log Comment123 Test Log Comment234 Test Log Comment345 Test Log Comment456 Test Log Comment567 Test Log Comment678 Test Log Comment678 Test Log Comment78901";
         EdxActivityDetailLog edxActivityLogStatus=new EdxActivityDetailLog();
         edxActivityLogStatus.setRecordType("Test Record Type");
@@ -97,8 +105,11 @@ class ElrProcessStatusComponentTest {
         var edx = new EdxActivityLog();
         edx.setRecordStatusTime(TimeStampHelper.convertTimestampToString(TimeStampHelper.getCurrentTimeStamp("UTC")));
         status.getEdxLogStatus().setEdxActivityLog(edx);
+
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
+                msgStatusList
         );
         String processStatus = elrProcessStatusComponent.process(body);
         Assertions.assertTrue(processStatus.contains("Status:"));
@@ -118,8 +129,12 @@ class ElrProcessStatusComponentTest {
         var edx = new EdxActivityLog();
         edx.setRecordStatusTime(TimeStampHelper.convertTimestampToString(TimeStampHelper.getCurrentTimeStamp("UTC")));
         status.getEdxLogStatus().setEdxActivityLog(edx);
+
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
+
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
+                msgStatusList
         );
         String processStatus = elrProcessStatusComponent.process(body);
         Assertions.assertTrue(processStatus.contains("Status:"));
@@ -132,8 +147,11 @@ class ElrProcessStatusComponentTest {
         MessageStatus status = new MessageStatus();
         status.getValidatedInfo().setDltInfo(new DltMessageStatus());
         status.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_FAILED);
+
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
+                msgStatusList
         );
         String processStatus = elrProcessStatusComponent.process(body);
         Assertions.assertTrue(processStatus.contains("Status:"));
@@ -146,8 +164,12 @@ class ElrProcessStatusComponentTest {
         MessageStatus status = new MessageStatus();
         status.getRawInfo().setDltInfo(new DltMessageStatus());
         status.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_FAILED);
+
+        List<MessageStatus> msgStatusList= new ArrayList<>();
+        msgStatusList.add(status);
+
         when(reportStatusServiceMock.getMessageStatus(rawId)).thenReturn(
-                status
+                msgStatusList
         );
         String processStatus = elrProcessStatusComponent.process(body);
         Assertions.assertTrue(processStatus.contains("Status:"));
