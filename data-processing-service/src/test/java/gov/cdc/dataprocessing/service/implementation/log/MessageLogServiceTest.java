@@ -56,7 +56,7 @@ class MessageLogServiceTest {
 
         doThrow(new RuntimeException("Test Exception")).when(messageLogRepository).save(any(MessageLog.class));
 
-        assertThrows(DataProcessingException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             messageLogService.saveMessageLog(messageLogDtoCollection);
         });
     }

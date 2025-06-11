@@ -94,7 +94,7 @@ class ObservationSummaryServiceTest {
         when(observationSummaryRepository.findAllActiveLabReportUidListForManage(10L, where))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.findAllActiveLabReportUidListForManage(investUid, where);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -141,7 +141,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getPatientPersonInfo(10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getPatientPersonInfo(uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -164,7 +164,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getProviderInfo(10L, "Type"))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getProviderInfo(uid, "Type");
         });
         assertEquals("TEST", thrown.getMessage());
@@ -187,7 +187,7 @@ class ObservationSummaryServiceTest {
         when(customRepository.getActIdDetails(10L))
                 .thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getActIdDetails(uid);
         });
         assertEquals("TEST", thrown.getMessage());
@@ -439,7 +439,7 @@ class ObservationSummaryServiceTest {
 
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             observationSummaryService.getAssociatedInvList(uid, sourceClassCode);
         });
         assertEquals("TEST", thrown.getMessage());

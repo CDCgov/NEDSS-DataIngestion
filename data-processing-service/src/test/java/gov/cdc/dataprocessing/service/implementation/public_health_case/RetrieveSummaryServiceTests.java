@@ -229,7 +229,7 @@ class RetrieveSummaryServiceTests {
 
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.DOCUMENT, "VIEW", ""))
                 .thenThrow(new RuntimeException("TEST"));
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             retrieveSummaryService.getAssociatedDocumentList(uid, targetClassCd, sourceClassCd);
         });
 
@@ -294,7 +294,7 @@ class RetrieveSummaryServiceTests {
 
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             retrieveSummaryService.updateNotification(notificationUid,
                     businessTriggerCd, phcCd, phcClassCd, progAreaCd, jurisdictionCd, sharedInd);
         });

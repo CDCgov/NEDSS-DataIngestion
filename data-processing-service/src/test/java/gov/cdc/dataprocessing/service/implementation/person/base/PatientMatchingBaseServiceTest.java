@@ -715,7 +715,7 @@ class PatientMatchingBaseServiceTest {
         doThrow(new RuntimeException("Outer exception")).when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             patientMatchingBaseService.setPersonHashCdNok(personContainer);
         });
 

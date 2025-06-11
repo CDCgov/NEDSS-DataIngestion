@@ -80,7 +80,7 @@ class CdaPhcProcessorTest {
         when(phcDT.getPublicHealthCaseUid()).thenThrow(new RuntimeException("Test exception"));
 
         // Act & Assert
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             CdaPhcProcessor.setStandardNBSCaseAnswerVals(phcDT, nbsCaseAnswerDT);
         });
 

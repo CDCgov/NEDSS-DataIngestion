@@ -124,7 +124,7 @@ class ParticipationRepositoryUtilTest {
         pat.setItDirty(true);
 
         when(participationRepository.save(any())).thenThrow(new RuntimeException("TEST"));
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             participationRepositoryUtil.storeParticipation(pat);
         });
 

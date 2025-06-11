@@ -6,10 +6,7 @@ import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.exception.EdxLogException;
-import gov.cdc.dataprocessing.exception.RtiCacheException;
+import gov.cdc.dataprocessing.exception.*;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
@@ -116,7 +113,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, RtiCacheException {
+    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, RtiCacheException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -158,7 +155,7 @@ class ManagerServiceTest {
 
 
         when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
@@ -678,7 +675,7 @@ class ManagerServiceTest {
         when(investigationNotificationService.sendNotification(any(), any()))
                 .thenReturn(detailLog);
 
-        assertThrows(DataProcessingException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
+        assertThrows(NullPointerException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
 
     }
 
@@ -732,12 +729,12 @@ class ManagerServiceTest {
         when(investigationNotificationService.sendNotification(any(), any()))
                 .thenReturn(detailLog);
 
-        assertThrows(DataProcessingException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
+        assertThrows(NullPointerException.class, () ->managerService.initiatingLabProcessing(publicHealthCaseFlowContainer));
 
     }
 
     @Test
-    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -777,13 +774,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -821,13 +818,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -866,13 +863,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -913,13 +910,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -959,13 +956,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1005,13 +1002,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
 
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
+    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1051,13 +1048,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
 
         when(nbsInterfaceRepository.findByNbsInterfaceUid(any())).thenReturn(Optional.ofNullable(labData));
-        managerService.processDistribution(123);
+        managerService.processingELR(123);
 
         verify(kafkaManagerProducer, times(1)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void initiateStep1KafkaFailed() throws EdxLogException {
+    void initiateStep1KafkaFailed() throws EdxLogException, DataProcessingDBException {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
@@ -1071,7 +1068,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep1KafkaFailed_ResetCache() throws EdxLogException {
+    void initiateStep1KafkaFailed_ResetCache() throws EdxLogException, DataProcessingDBException {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep1 = 100000;
         var nbs = new NbsInterfaceModel();

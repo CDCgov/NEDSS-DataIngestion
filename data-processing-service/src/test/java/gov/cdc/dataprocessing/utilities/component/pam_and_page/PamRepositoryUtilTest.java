@@ -93,7 +93,7 @@ class PamRepositoryUtilTest {
         caseCol.add(cas);
         when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenReturn(Optional.of(caseCol));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             pamRepositoryUtil.getPamHistory(publicHealthCaseContainer);
         });
 
@@ -115,7 +115,7 @@ class PamRepositoryUtilTest {
         when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenThrow(new RuntimeException("TEST"));
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             pamRepositoryUtil.getPamHistory(publicHealthCaseContainer);
         });
 

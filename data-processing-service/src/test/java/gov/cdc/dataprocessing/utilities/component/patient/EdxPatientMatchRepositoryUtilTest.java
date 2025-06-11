@@ -120,7 +120,7 @@ class EdxPatientMatchRepositoryUtilTest {
 
         when(edxPatientMatchStoreProcRepository.getEdxEntityMatch(any(), any())).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(typeCd, matchString);
         });
         assertNotNull(thrown);

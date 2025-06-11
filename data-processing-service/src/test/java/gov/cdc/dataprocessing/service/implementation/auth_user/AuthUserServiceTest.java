@@ -66,7 +66,7 @@ class AuthUserServiceTest {
         var roleCol = new ArrayList<AuthUserRealizedRole>();
         var role = new AuthUserRealizedRole();
         roleCol.add(role);
-        when(customAuthUserRepository.getAuthUserRealizedRole(authUserId)).thenReturn(roleCol);
+        when(customAuthUserRepository.getAuthUserRealizedRole(any())).thenReturn(roleCol);
         when(jdbcTemplateOdse.query(anyString(), any(Object[].class), (ResultSetExtractor<Object>) any()))
                 .thenAnswer(invocation -> {
                     return Optional.of(authUser);
@@ -88,7 +88,7 @@ class AuthUserServiceTest {
                     return Optional.of(Optional.empty());
                 });
 
-        ClassCastException thrown = assertThrows(ClassCastException.class, () -> {
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             authUserService.getAuthUserInfo(authUserId);
         });
         assertNotNull(thrown.getMessage());

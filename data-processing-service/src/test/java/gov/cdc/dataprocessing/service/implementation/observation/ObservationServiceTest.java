@@ -614,7 +614,7 @@ class ObservationServiceTest {
 
         when(observationRepositoryUtil.loadObject(observationUid)).thenThrow(new RuntimeException("Test Exception"));
 
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt)
         );
 

@@ -84,7 +84,7 @@ class ManagerUtilTest {
     }
 
     @Test
-    void testPersonAggregationAsync() throws DataProcessingException {
+    void testPersonAggregationAsync() throws DataProcessingException, DataProcessingConsumerException {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         PersonContainer personContainer = new PersonContainer();
@@ -95,7 +95,7 @@ class ManagerUtilTest {
 
         when(personService.processingNextOfKin(labResultProxyContainer, personContainer)).thenReturn(null);
 
-        PersonAggContainer result = managerUtil.personAggregationAsync(labResultProxyContainer, edxLabInformationDto);
+        PersonAggContainer result = managerUtil.patientAggregation(labResultProxyContainer, edxLabInformationDto);
 
         assertNull(result.getPersonContainer());
         verify(personService, times(1)).processingNextOfKin(labResultProxyContainer, personContainer);
@@ -175,7 +175,7 @@ class ManagerUtilTest {
         when(personService.processingPatient(any(), any(), eq(patientPersonContainer))).thenReturn(processedPatient);
 
         // Act
-        PersonAggContainer result = managerUtil.personAggregationAsync(labResult, edxLabInformationDto);
+        PersonAggContainer result = managerUtil.patientAggregation(labResult, edxLabInformationDto);
 
         // Assert
         assertNotNull(result);
@@ -212,7 +212,7 @@ class ManagerUtilTest {
         when(personService.processingPatient(any(), any(), eq(patientPersonContainer))).thenReturn(processedPatient);
 
         // Act
-        PersonAggContainer result = managerUtil.personAggregationAsync(labResult, edxLabInformationDto);
+        PersonAggContainer result = managerUtil.patientAggregation(labResult, edxLabInformationDto);
 
         // Assert
         assertNotNull(result);
@@ -235,8 +235,8 @@ class ManagerUtilTest {
         doThrow(new RuntimeException("Test Exception")).when(personService).processingNextOfKin(any(), any());
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            managerUtil.patientAggregation(labResult, new EdxLabInformationDto());
         });
 
         assertTrue(exception.getMessage().contains("Error processing lab results"));
@@ -254,7 +254,7 @@ class ManagerUtilTest {
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+            managerUtil.patientAggregation(labResult, new EdxLabInformationDto());
         });
 
         assertTrue(exception.getMessage().contains("Test Data Processing Exception"));
@@ -272,8 +272,8 @@ class ManagerUtilTest {
         when(personService.processingPatient(any(), any(), any())).thenThrow(new DataProcessingConsumerException("Test Data Processing Consumer Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        DataProcessingConsumerException exception = assertThrows(DataProcessingConsumerException.class, () -> {
+            managerUtil.patientAggregation(labResult, new EdxLabInformationDto());
         });
 
         assertTrue(exception.getMessage().contains("Error processing lab results"));
@@ -292,8 +292,8 @@ class ManagerUtilTest {
         when(personService.processingProvider(any(), any(), any(), anyBoolean())).thenThrow(new DataProcessingConsumerException("Test Data Processing Consumer Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        DataProcessingConsumerException exception = assertThrows(DataProcessingConsumerException.class, () -> {
+            managerUtil.patientAggregation(labResult, new EdxLabInformationDto());
         });
 
         assertTrue(exception.getMessage().contains("Error processing lab results"));
@@ -312,7 +312,7 @@ class ManagerUtilTest {
 
         // Act & Assert
         DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
-            managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+            managerUtil.patientAggregation(labResult, new EdxLabInformationDto());
         });
 
         assertTrue(exception.getMessage().contains("Test Data Processing Exception"));
@@ -331,7 +331,7 @@ class ManagerUtilTest {
         when(personService.processingProvider(any(), any(), any(), anyBoolean())).thenReturn(expectedProviderContainer);
 
         // Act
-        PersonAggContainer result = managerUtil.personAggregationAsync(labResult, new EdxLabInformationDto());
+        PersonAggContainer result = managerUtil.patientAggregation(labResult, new EdxLabInformationDto());
 
         // Assert
         assertNotNull(result);

@@ -69,7 +69,7 @@ class LdfServiceTests {
         when(customRepository.getLdfCollection(any(), any(), any())).thenThrow(
                 new RuntimeException("TEST")
         );
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             ldfService.getLDFCollection(busObjUid, condCode);
         });
 

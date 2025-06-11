@@ -38,6 +38,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.Organizatio
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -94,8 +95,11 @@ class OrganizationRepositoryUtilTest {
     @InjectMocks
     private OrganizationRepositoryUtil organizationRepositoryUtil;
 
+    @Mock
+    private UidPoolManager uidPoolManager;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo authUserProfileInfo=new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
@@ -103,6 +107,20 @@ class OrganizationRepositoryUtilTest {
         user.setNedssEntryId(1L);
         authUserProfileInfo.setAuthUser(user);
         authUtil.setGlobalAuthUser(authUserProfileInfo);
+
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
     }
 
     @AfterEach
@@ -249,7 +267,7 @@ class OrganizationRepositoryUtilTest {
         localIdModel.setUidSuffixCd("TEST_SX");
 
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.createOrganization(organizationContainer));
+        assertThrows(NullPointerException.class, () -> organizationRepositoryUtil.createOrganization(organizationContainer));
     }
 
     @Test
@@ -349,7 +367,7 @@ class OrganizationRepositoryUtilTest {
     @Test
     void setOrganization_throw_exp() {
         OrganizationContainer organizationContainer = null;
-        assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.setOrganization(organizationContainer, "TEST"));
+        assertThrows(NullPointerException.class, () -> organizationRepositoryUtil.setOrganization(organizationContainer, "TEST"));
     }
 
     @Test

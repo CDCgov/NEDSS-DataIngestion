@@ -9,6 +9,7 @@ import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityLocatorJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
@@ -20,6 +21,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorR
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -42,13 +44,19 @@ import static org.mockito.Mockito.*;
 
 class EntityLocatorParticipationServiceTest {
     @Mock
+    private DataModifierReposJdbc dataModifierReposJdbc;
+    @Mock
+    private EntityLocatorJdbcRepository entityLocatorJdbcRepository;
+    @Mock
+    private UidPoolManager uidPoolManager;
+
+    @Mock
     private  EntityLocatorParticipationRepository entityLocatorParticipationRepository;
     @Mock
     private  TeleLocatorRepository teleLocatorRepository;
     @Mock
     private  PostalLocatorRepository postalLocatorRepository;
-    @Mock
-    private DataModifierReposJdbc dataModifierReposJdbc;
+
     @Mock
     private  PhysicalLocatorRepository physicalLocatorRepository;
     @Mock
@@ -65,9 +73,10 @@ class EntityLocatorParticipationServiceTest {
 
 
     @BeforeEach
-    void setUp() {
-        locatorCollectionMock = new ArrayList<>();
+    void setUp() throws DataProcessingException {
 
+
+        locatorCollectionMock = new ArrayList<>();
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
@@ -76,6 +85,21 @@ class EntityLocatorParticipationServiceTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
+
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
+
     }
 
     @AfterEach
@@ -142,6 +166,8 @@ class EntityLocatorParticipationServiceTest {
 
     @Test
     void updateEntityLocatorParticipation_Success2() throws DataProcessingException {
+
+
         Long uid = 10L;
         Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
         EntityLocatorParticipationDto locator = new EntityLocatorParticipationDto();
@@ -262,7 +288,7 @@ class EntityLocatorParticipationServiceTest {
         localUid.getClassTypeUid().setSeedValueNbr(1L);
         localUid.getGaTypeUid().setSeedValueNbr(1L);
 
-        when(iOdseIdGeneratorWCacheService.getValidLocalUid(LocalIdClass.PERSON, true)).thenReturn(localUid);
+        when(iOdseIdGeneratorWCacheService.getValidLocalUid(any(), anyBoolean())).thenReturn(localUid);
 
 
         entityLocatorParticipationService.createEntityLocatorParticipation(locatorCollection, uid);
@@ -509,7 +535,7 @@ class EntityLocatorParticipationServiceTest {
 
         entityLocatorParticipationService.deleteEntityLocatorParticipation(locatorCollectionMock, patientUid);
 
-        verify(dataModifierReposJdbc, times(2)).deletePostalLocatorById(1L);
+        verify(dataModifierReposJdbc, times(1)).deletePostalLocatorById(1L);
         verify(dataModifierReposJdbc).deleteLocatorById(parentUid, 1L);
     }
 

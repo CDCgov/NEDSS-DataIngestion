@@ -99,7 +99,7 @@ class ConcurrentCheckTest {
         RootDtoInterface rootDto = mock(RootDtoInterface.class);
         doThrow(new RuntimeException("Test Exception")).when(rootDto).getVersionCtrlNbr();
 
-        assertThrows(DataProcessingException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             concurrentCheck.dataConcurrenceCheck(rootDto, "Person", 1);
         });
     }
