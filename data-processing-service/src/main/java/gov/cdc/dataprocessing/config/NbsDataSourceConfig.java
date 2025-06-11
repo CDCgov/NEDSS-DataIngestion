@@ -76,7 +76,7 @@ public class NbsDataSourceConfig {
     @Value("${spring.datasource.hikari.connection-timeout:300000}")
     private long connectionTimeout;
 
-    @Value("${spring.datasource.hikari.pool-name:OdseHikariCP}")
+    @Value("${spring.datasource.hikari.pool-name-msg:HIKARI_POOL_DP_MSG}")
     private String poolName;
 
 

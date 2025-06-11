@@ -78,7 +78,7 @@ public class OdseDataSourceConfig {
     @Value("${spring.datasource.hikari.connection-timeout:300000}")
     private long connectionTimeout;
 
-    @Value("${spring.datasource.hikari.pool-name:OdseHikariCP}")
+    @Value("${spring.datasource.hikari.pool-name-odse:HIKARI_POOL_DP_ODSE}")
     private String poolName;
 
     @Bean(name = "odseDataSource")
