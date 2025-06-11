@@ -71,7 +71,8 @@ public class UidPoolManager {
 
         if (pool.isEmpty()) {
             triggerAsyncRefill(idClass, gaApplied, key);
-            throw new DataProcessingException("UID pool temporarily empty, please retry.");
+            getNextUid(idClass, gaApplied);
+            //throw new DataProcessingException("UID pool temporarily empty, please retry.");
         }
 
         if (pool.size() < LOW_WATERMARK) {

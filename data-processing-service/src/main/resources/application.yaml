@@ -49,6 +49,7 @@ kafka:
     elr_unprocessed: dp_elr_unprocessed
     elr_reprocessing_step_1: dp_elr_reprocessing_step_1
     elr_reprocessing_step_2: dp_elr_reprocessing_step_2
+    elr_reprocessing_step_3: dp_elr_reprocessing_step_3
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
     elr_nnd: dp_elr_handle_nnd
@@ -66,13 +67,13 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:20}               # Increase for higher parallelism (adjust per CPU & DB limits)
-      minimum-idle: ${HIKARI_MINIMUM_IDLE:5}                  # Let unused connections be removed
-      idle-timeout: ${HIKARI_IDLE_TIMEOUT:30000}              # Close idle connections quickly (30s)
-      connection-timeout: ${HIKARI_CON_TIMEOUT:5000}         # Fail fast if no connection within 30s
-      max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}             # Retire connections after 5 minutes (avoid stale connections)
+      maximum-pool-size: ${HIKARI_POOL_SIZE:50}               # Increase for higher parallelism (adjust per CPU & DB limits)
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:10}                  # Let unused connections be removed
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:60000}              # Close idle connections quickly (30s)
+      connection-timeout: ${HIKARI_CON_TIMEOUT:10000}         # Fail fast if no connection within 30s
+      max-lifetime: ${HIKARI_MAX_LIFETIME:900000}             # Retire connections after 5 minutes (avoid stale connections)
       pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP_DP}
-      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:10000}  # Log warnings if connection not returned in 20s (debug leaks)
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:15000}  # Log warnings if connection not returned in 20s (debug leaks)
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -129,7 +130,7 @@ feature:
   thread-pool-size: ${THREAD_POOL_SIZE:5}
   thread-batch-size: ${THREAD_BATCH_SIZE:50}
 processor:
-  delay_ms: ${PROCESSOR_DELAY:1000}
+  delay_ms: ${PROCESSOR_DELAY:10000}
 uid:
   pool_size: ${UID_POOL_SIZE:5000}
   min_pool_size: ${UID_MIN_POOL_SIZE:1000}
