@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.constant.data_field.ADD_USER_ID_JAVA;
+
 @Repository
 
 public class PrepareEntityStoredProcRepository {

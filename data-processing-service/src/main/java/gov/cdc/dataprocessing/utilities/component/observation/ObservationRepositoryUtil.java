@@ -19,12 +19,14 @@ import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManage
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
-
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_UPDATE;
 
 @Component
 
@@ -203,7 +205,7 @@ public class ObservationRepositoryUtil {
         addObsValueTxts(obsId, observationContainer.getTheObsValueTxtDtoCollection());
         addObsValueDates(obsId, observationContainer.getTheObsValueDateDtoCollection());
         addObsValueNumeric(obsId, observationContainer.getTheObsValueNumericDtoCollection());
-        addActivityLocatorParticipations(obsId, observationContainer.getTheActivityLocatorParticipationDtoCollection(), "CREATE");
+        addActivityLocatorParticipations(obsId, observationContainer.getTheActivityLocatorParticipationDtoCollection(), OPERATION_CREATE);
         return obsId;
     }
 
@@ -248,7 +250,7 @@ public class ObservationRepositoryUtil {
         }
 
         if (observationContainer.getTheActivityLocatorParticipationDtoCollection() != null) {
-            addActivityLocatorParticipations(uid, observationContainer.getTheActivityLocatorParticipationDtoCollection(), "UPDATE");
+            addActivityLocatorParticipations(uid, observationContainer.getTheActivityLocatorParticipationDtoCollection(), OPERATION_UPDATE);
         }
 
         return uid;
@@ -628,17 +630,16 @@ public class ObservationRepositoryUtil {
                 item.setItNew(false);
                 item.setItDirty(false);
                 item.setItDelete(false);
-                saveObservationReason(item, "CREATE");
+                saveObservationReason(item, OPERATION_CREATE);
             }
         }
     }
 
     private void saveObservationReason(ObservationReasonDto item, String operation) {
         var data = new ObservationReason(item);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObservationReason(data);
-        }
-        else if (operation.equalsIgnoreCase("UPDATE")) {
+        } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
             observationJdbcRepository.updateObservationReason(data);
         }
     }
@@ -648,7 +649,7 @@ public class ObservationRepositoryUtil {
         for(var item: arr) {
             if (!item.isItDelete()) {
                 item.setObservationUid(obsUid);
-                saveObservationReason(item, "UPDATE");
+                saveObservationReason(item, OPERATION_UPDATE);
             } else {
                 observationJdbcRepository.deleteObservationReason(new ObservationReason(item));
             }
@@ -656,34 +657,40 @@ public class ObservationRepositoryUtil {
     }
 
     private void addActivityId(Long obsUid, Collection<ActIdDto> actIdDtoCollection, boolean updateApplied) throws DataProcessingException {
-        if (actIdDtoCollection != null) {
-            int maxSegId = 0;
-            if (!updateApplied) {
-                var res = actIdJdbcRepository.findRecordsByActUid(obsUid);
-                if (res != null && !res.isEmpty()) {
-                    var existingAct = new ArrayList<>(res);
-                    if (!existingAct.isEmpty()) {
-                        maxSegId = existingAct.stream().mapToInt(ActId::getActIdSeq).max().orElseThrow(() -> new DataProcessingException("List is empty"));
-                    }
-                }
-            }
-
-            ArrayList<ActIdDto> arr = new ArrayList<>(actIdDtoCollection);
-            for(var item: arr) {
-                item.setItNew(false);
-                item.setItDirty(false);
-                item.setItDelete(false);
-                item.setActUid(obsUid);
-                if (!updateApplied) {
-                    item.setActIdSeq(++maxSegId);
-                }
-                var reason = new ActId(item);
-                actIdJdbcRepository.mergeActId(reason);
-            }
+        if (actIdDtoCollection == null || actIdDtoCollection.isEmpty()) {
+            return;
         }
 
+        int maxSegId = updateApplied ? 0 : getMaxSegId(obsUid);
 
+        for (ActIdDto item : actIdDtoCollection) {
+            prepareActIdDto(item, obsUid, updateApplied, ++maxSegId);
+            actIdJdbcRepository.mergeActId(new ActId(item));
+        }
     }
+
+    private int getMaxSegId(Long obsUid) throws DataProcessingException {
+        var res = actIdJdbcRepository.findRecordsByActUid(obsUid);
+        if (res == null || res.isEmpty()) {
+            return 0;
+        }
+
+        return res.stream()
+                .mapToInt(ActId::getActIdSeq)
+                .max()
+                .orElseThrow(() -> new DataProcessingException("List is empty"));
+    }
+
+    private void prepareActIdDto(ActIdDto item, Long obsUid, boolean updateApplied, int actIdSeq) {
+        item.setItNew(false);
+        item.setItDirty(false);
+        item.setItDelete(false);
+        item.setActUid(obsUid);
+        if (!updateApplied) {
+            item.setActIdSeq(actIdSeq);
+        }
+    }
+
 
     private void addObservationInterps(Long obsUid, Collection<ObservationInterpDto> observationInterpDtoCollection)   {
         if (observationInterpDtoCollection != null) {
@@ -693,17 +700,16 @@ public class ObservationRepositoryUtil {
                 item.setItDirty(false);
                 item.setItDelete(false);
                 item.setObservationUid(obsUid);
-                saveObservationInterp(item, "CREATE");
+                saveObservationInterp(item, OPERATION_CREATE);
             }
         }
     }
 
     private void saveObservationInterp(ObservationInterpDto item, String operation) {
         var reason = new ObservationInterp(item);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObservationInterp(reason);
-        }
-        else if (operation.equalsIgnoreCase("UPDATE")) {
+        } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
             observationJdbcRepository.updateObservationInterp(reason);
         }
     }
@@ -713,7 +719,7 @@ public class ObservationRepositoryUtil {
         for(var item: arr) {
             if (!item.isItDelete()) {
                 item.setObservationUid(obsUid);
-                saveObservationInterp(item, "UPDATE");
+                saveObservationInterp(item, OPERATION_UPDATE);
             } else {
                 observationJdbcRepository.deleteObservationInterp(new ObservationInterp(item));
             }
@@ -728,7 +734,7 @@ public class ObservationRepositoryUtil {
                 item.setItDirty(false);
                 item.setItDelete(false);
                 item.setObservationUid(obsUid);
-                saveObsValueCoded(item, "CREATE");
+                saveObsValueCoded(item, OPERATION_CREATE);
             }
         }
 
@@ -736,10 +742,9 @@ public class ObservationRepositoryUtil {
 
     private void saveObsValueCoded(ObsValueCodedDto item, String operation) {
         var reason = new ObsValueCoded(item);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueCoded(reason);
-        }
-        else if (operation.equalsIgnoreCase("UPDATE")) {
+        } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
             observationJdbcRepository.updateObsValueCoded(reason);
         }
     }
@@ -749,7 +754,7 @@ public class ObservationRepositoryUtil {
         for(var item: arr) {
             if (!item.isItDelete()) {
                 item.setObservationUid(obsUid);
-                saveObsValueCoded(item, "UPDATE");
+                saveObsValueCoded(item, OPERATION_UPDATE);
 
             } else {
                 observationJdbcRepository.deleteObsValueCoded(new ObsValueCoded(item));
@@ -766,17 +771,16 @@ public class ObservationRepositoryUtil {
                 item.setItDirty(false);
                 item.setItDelete(false);
                 item.setObservationUid(obsUid);
-                saveObsValueTxt(item, "CREATE");
+                saveObsValueTxt(item, OPERATION_CREATE);
             }
         }
     }
 
     private void saveObsValueTxt(ObsValueTxtDto item, String operation) {
         var reason = new ObsValueTxt(item);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueTxt(reason);
-        }
-        else if (operation.equalsIgnoreCase("UPDATE")) {
+        } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
             observationJdbcRepository.updateObsValueTxt(reason);
         }
     }
@@ -786,7 +790,7 @@ public class ObservationRepositoryUtil {
         for(var item: arr) {
             if (!item.isItDelete()) {
                 item.setObservationUid(obsUid);
-                saveObsValueTxt(item, "UPDATE");
+                saveObsValueTxt(item, OPERATION_UPDATE);
 
             } else {
                 observationJdbcRepository.deleteObsValueTxt(new ObsValueTxt(item));
@@ -802,17 +806,16 @@ public class ObservationRepositoryUtil {
                 item.setItDirty(false);
                 item.setItDelete(false);
                 item.setObservationUid(obsUid);
-                saveObsValueDate(item, "CREATE");
+                saveObsValueDate(item, OPERATION_CREATE);
             }
         }
     }
 
     private void saveObsValueDate(ObsValueDateDto item, String operation) {
         var reason = new ObsValueDate(item);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueDate(reason);
-        }
-        else if (operation.equalsIgnoreCase("UPDATE")) {
+        } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
             observationJdbcRepository.updateObsValueDate(reason);
         }
     }
@@ -822,7 +825,7 @@ public class ObservationRepositoryUtil {
         for(var item: arr) {
             if (!item.isItDelete()) {
                 item.setObservationUid(obsUid);
-                saveObsValueDate(item, "UPDATE");
+                saveObsValueDate(item, OPERATION_UPDATE);
 
             } else {
                 observationJdbcRepository.deleteObsValueDate(new ObsValueDate(item));
@@ -838,17 +841,16 @@ public class ObservationRepositoryUtil {
                 item.setItDirty(false);
                 item.setItDelete(false);
                 item.setObservationUid(obsUid);
-                saveObsValueNumeric(item, "CREATE");
+                saveObsValueNumeric(item, OPERATION_CREATE);
             }
         }
     }
 
     private void saveObsValueNumeric(ObsValueNumericDto item, String operation)  {
         var reason = new ObsValueNumeric(item);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueNumeric(reason);
-        }
-        else if (operation.equalsIgnoreCase("UPDATE")) {
+        } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
             observationJdbcRepository.updateObsValueNumeric(reason);
         }
     }
@@ -858,7 +860,7 @@ public class ObservationRepositoryUtil {
         for(var item: arr) {
             if (!item.isItDelete()) {
                 item.setObservationUid(obsUid);
-                saveObsValueNumeric(item, "UPDATE");
+                saveObsValueNumeric(item, OPERATION_UPDATE);
 
             } else {
                 observationJdbcRepository.deleteObsValueNumeric(new ObsValueNumeric(item));
@@ -876,10 +878,9 @@ public class ObservationRepositoryUtil {
                 item.setItDelete(false);
                 item.setActUid(obsUid);
                 var reason = new ActLocatorParticipation(item);
-                if (operation.equalsIgnoreCase("CREATE")) {
+                if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
                     actLocatorParticipationJdbcRepository.insertActLocatorParticipation(reason);
-                }
-                else if (operation.equalsIgnoreCase("UPDATE")) {
+                } else if (operation.equalsIgnoreCase(OPERATION_UPDATE)) {
                     actLocatorParticipationJdbcRepository.updateActLocatorParticipation(reason);
                 }
             }

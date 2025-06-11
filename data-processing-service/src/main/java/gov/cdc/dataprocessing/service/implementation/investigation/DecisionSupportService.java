@@ -150,45 +150,8 @@ public class DecisionSupportService implements IDecisionSupportService {
     }
 
 
-    @SuppressWarnings("java:S3776")
-    protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
-                                              List<DsmLabMatchHelper> activeElrAlgorithmList) throws DataProcessingException {
-        Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
-        if (algorithmCollection == null || algorithmCollection.isEmpty()) {
-            edxLabInformationDT.getWdsReports().add(new WdsReport(false, "No WDS Algorithm found"));
-            return false;
-        }
-
-        boolean found = false;
-
-        for (DsmAlgorithm dsmAlgorithm : algorithmCollection) {
-            String statusCd = dsmAlgorithm.getStatusCd();
-            String eventType = dsmAlgorithm.getEventType();
-
-            // Fast skip for inactive or PHC_236
-            if ("INACTIVE".equals(statusCd) || "PHC236".equals(eventType)) continue;
-
-            String xmlPayload = dsmAlgorithm.getAlgorithmPayload();
-            if (xmlPayload == null) continue;
-
-            try {
-                Algorithm algo = parseAlgorithmXml(xmlPayload);
-                if (algo != null) {
-                    activeElrAlgorithmList.add(new DsmLabMatchHelper(algo));
-                    found = true;
-                }
-            } catch (Exception ex) {
-                logger.error("Failed to parse WDS Algorithm XML: {}", ex.getMessage());
-            }
-        }
-
-        if (!found) {
-            edxLabInformationDT.getWdsReports().add(new WdsReport(false, "No active WDS Algorithm found"));
-            return false;
-        }
-
-        return true;
-    }
+    @SuppressWarnings("java:S3008")
+    private static JAXBContext ALGORITHM_JAXB_CONTEXT;
 
 
 
@@ -283,9 +246,54 @@ public class DecisionSupportService implements IDecisionSupportService {
         ) && applyAdvInvLogic;
     }
 
+    @SuppressWarnings({"java:S3776", "java:S135"})
+    protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
+                                              List<DsmLabMatchHelper> activeElrAlgorithmList) {
+        Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
+        if (algorithmCollection == null || algorithmCollection.isEmpty()) {
+            edxLabInformationDT.getWdsReports().add(new WdsReport(false, "No WDS Algorithm found"));
+            return false;
+        }
+
+        boolean found = false;
+
+        for (DsmAlgorithm dsmAlgorithm : algorithmCollection) {
+            String statusCd = dsmAlgorithm.getStatusCd();
+            String eventType = dsmAlgorithm.getEventType();
+
+            // Fast skip for inactive or PHC_236
+            if ("INACTIVE".equals(statusCd) || "PHC236".equals(eventType)) continue;
+
+            String xmlPayload = dsmAlgorithm.getAlgorithmPayload();
+            if (xmlPayload == null) continue;
+
+            try {
+                Algorithm algo = parseAlgorithmXml(xmlPayload);
+                if (algo != null) {
+                    activeElrAlgorithmList.add(new DsmLabMatchHelper(algo));
+                    found = true;
+                }
+            } catch (Exception ex) {
+                logger.error("Failed to parse WDS Algorithm XML: {}", ex.getMessage());
+            }
+        }
+
+        if (!found) {
+            edxLabInformationDT.getWdsReports().add(new WdsReport(false, "No active WDS Algorithm found"));
+            return false;
+        }
+
+        return true;
+    }
 
 
-    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541", "java:S3776"})
+    private Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection()  {
+        Collection<DsmAlgorithm> algorithmList;
+        algorithmList = dsmAlgorithmService.findActiveDsmAlgorithm();
+        return algorithmList;
+    }
+
+    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541", "java:S3776", "java:S6201"})
     protected void updateObservationBasedOnAction(Algorithm algorithmDocument,
                                                 boolean criteriaMatch,
                                                 String conditionCode,
@@ -357,7 +365,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 if (conditionCode != null)
                 {
 
-                    ConditionCode condCode = (ConditionCode) cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode);//GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                    ConditionCode condCode = (ConditionCode) cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode);
                     if (condCode == null) {
                         condCode = new ConditionCode();
                     }
@@ -487,7 +495,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                     edxLabInformationDT.setPamContainer((PamProxyContainer) obj);
                 }
 
-                ConditionCode condCode = (ConditionCode) cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode);//GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                ConditionCode condCode = (ConditionCode) cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode);
                 if (condCode == null) {
                     condCode = new ConditionCode();
                 }
@@ -504,16 +512,6 @@ public class DecisionSupportService implements IDecisionSupportService {
             edxLabInformationDT.setMatchingAlgorithm(false);
         }
     }
-
-
-    private Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection()  {
-        Collection<DsmAlgorithm> algorithmList;
-        algorithmList = dsmAlgorithmService.findActiveDsmAlgorithm();
-        return algorithmList;
-    }
-
-
-    private static JAXBContext ALGORITHM_JAXB_CONTEXT;
 
     @SuppressWarnings("java:S5164")
     private static final ThreadLocal<Unmarshaller> ALGORITHM_UNMARSHALLER = ThreadLocal.withInitial(() -> {
@@ -664,7 +662,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     @SuppressWarnings({"java:S6541", "java:S3776"})
     protected boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
-                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
+                                             Map<Object, Object> questionIdentifierMap) {
         boolean isAdvancedInvCriteriaMet = false;
 
 
@@ -813,7 +811,7 @@ public class DecisionSupportService implements IDecisionSupportService {
     protected boolean checkAdvancedInvCriteriaForCreateInvNoti(
             Algorithm algorithmDocument,
             EdxLabInformationDto edxLabInformationDT,
-            Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
+            Map<Object, Object> questionIdentifierMap) {
 
         Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
 

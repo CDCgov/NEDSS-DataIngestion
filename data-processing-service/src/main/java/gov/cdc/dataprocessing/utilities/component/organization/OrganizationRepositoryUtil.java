@@ -42,6 +42,9 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_UPDATE;
+
 @Component
 
 public class OrganizationRepositoryUtil {
@@ -115,10 +118,10 @@ public class OrganizationRepositoryUtil {
         organizationContainer.getTheOrganizationDto().setOrganizationUid(organizationUid);
         organizationContainer.getTheOrganizationDto().setLocalId(localUid);
         organizationContainer.getTheOrganizationDto().setVersionCtrlNbr(1);
-        insertOrganization(organizationContainer, "CREATE");
+        insertOrganization(organizationContainer, OPERATION_CREATE);
 
         if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
-            insertOrganizationNames(organizationContainer, "CREATE");
+            insertOrganizationNames(organizationContainer, OPERATION_CREATE);
         }
         //NOTE: Upsert EntityID
         if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
@@ -126,11 +129,11 @@ public class OrganizationRepositoryUtil {
         }
         //NOTE: Create Entity Locator Participation
         if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-            createEntityLocatorParticipation(organizationContainer, "CREATE");
+            createEntityLocatorParticipation(organizationContainer, OPERATION_CREATE);
         }
         //NOTE: Create Role
         if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
-            createRole(organizationContainer, "CREATE");
+            createRole(organizationContainer, OPERATION_CREATE);
         }
 
         organizationContainer.getTheOrganizationDto().setOrganizationUid(oldOrgUid);
@@ -146,10 +149,10 @@ public class OrganizationRepositoryUtil {
         if (organizationContainer == null) {
             throw new DataProcessingException("Organization Container Is Null");
         }
-        insertOrganization(organizationContainer, "UPDATE");
+        insertOrganization(organizationContainer, OPERATION_UPDATE);
 
         if (organizationContainer.getTheOrganizationNameDtoCollection() != null && !organizationContainer.getTheOrganizationNameDtoCollection().isEmpty()) {
-            insertOrganizationNames(organizationContainer, "UPDATE");
+            insertOrganizationNames(organizationContainer, OPERATION_UPDATE);
         }
         //NOTE: Upsert EntityID
         if (organizationContainer.getTheEntityIdDtoCollection() != null && !organizationContainer.getTheEntityIdDtoCollection().isEmpty()) {
@@ -157,11 +160,11 @@ public class OrganizationRepositoryUtil {
         }
         //NOTE: Create Entity Locator Participation
         if (organizationContainer.getTheEntityLocatorParticipationDtoCollection() != null && !organizationContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
-            createEntityLocatorParticipation(organizationContainer, "UPDATE");
+            createEntityLocatorParticipation(organizationContainer, OPERATION_UPDATE);
         }
         //NOTE: Create Role
         if (organizationContainer.getTheRoleDTCollection() != null && !organizationContainer.getTheRoleDTCollection().isEmpty()) {
-            createRole(organizationContainer, "UPDATE");
+            createRole(organizationContainer, OPERATION_UPDATE);
         }
     }
 
@@ -176,7 +179,7 @@ public class OrganizationRepositoryUtil {
         EntityODSE entityModel = new EntityODSE();
         entityModel.setEntityUid(organizationUid);
         entityModel.setClassCd(ORG);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             entityJdbcRepository.createEntity(entityModel);
         }
         else {
@@ -186,7 +189,7 @@ public class OrganizationRepositoryUtil {
         organizationDto.setCd(entityModel.getClassCd());
 
         Organization organization = new Organization(organizationDto);
-        if (operation.equalsIgnoreCase("CREATE")) {
+        if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             organizationJdbcRepository.insertOrganization(organization);
         }
         else {
@@ -220,7 +223,7 @@ public class OrganizationRepositoryUtil {
             orgNameDT.setOrganizationUid(organizationUID);
             OrganizationName orgName = new OrganizationName(orgNameDT);
             // Save Organization Name records
-            if (operation.equalsIgnoreCase("CREATE")) {
+            if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
                 organizationNameJdbcRepository.insertOrganizationName(orgName);
             }
             else {
@@ -245,52 +248,75 @@ public class OrganizationRepositoryUtil {
     }
 
     private void createEntityLocatorParticipation(OrganizationContainer ovo, String operation) throws DataProcessingException {
-        ArrayList<EntityLocatorParticipationDto> entityLocatorList = (ArrayList<EntityLocatorParticipationDto>) ovo.getTheEntityLocatorParticipationDtoCollection();
-        for (EntityLocatorParticipationDto entityLocatorDT : entityLocatorList) {
-            var localUid =  uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
-            if (entityLocatorDT.getClassCd().equals(NEDSSConstant.PHYSICAL) && entityLocatorDT.getThePhysicalLocatorDto() != null) {
-                entityLocatorDT.getThePhysicalLocatorDto().setPhysicalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                var phy = new PhysicalLocator(entityLocatorDT.getThePhysicalLocatorDto());
-                if (operation.equalsIgnoreCase("CREATE")) {
-                    entityLocatorJdbcRepository.createPhysicalLocator(phy);
-                }
-                else {
-                    entityLocatorJdbcRepository.updatePhysicalLocator(phy);
-                }
-            }
-            if (entityLocatorDT.getClassCd().equals(NEDSSConstant.POSTAL) && entityLocatorDT.getThePostalLocatorDto() != null) {
-                entityLocatorDT.getThePostalLocatorDto().setPostalLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                var pos = new PostalLocator(entityLocatorDT.getThePostalLocatorDto());
-                if (operation.equalsIgnoreCase("CREATE")) {
-                    entityLocatorJdbcRepository.createPostalLocator(pos);
-                }
-                else {
-                    entityLocatorJdbcRepository.updatePostalLocator(pos);
-                }
-            }
-            if (entityLocatorDT.getClassCd().equals(NEDSSConstant.TELE) && entityLocatorDT.getTheTeleLocatorDto() != null) {
-                entityLocatorDT.getTheTeleLocatorDto().setTeleLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
-                var tele = new TeleLocator(entityLocatorDT.getTheTeleLocatorDto());
-                if (operation.equalsIgnoreCase("CREATE")) {
-                    entityLocatorJdbcRepository.createTeleLocator(tele);
-                }
-                else {
-                    entityLocatorJdbcRepository.updateTeleLocator(tele);
-                }
-            }
-            entityLocatorDT.setEntityUid(ovo.getTheOrganizationDto().getOrganizationUid());
-            entityLocatorDT.setLocatorUid(localUid.getGaTypeUid().getSeedValueNbr());
+        var entityLocatorList = (ArrayList<EntityLocatorParticipationDto>) ovo.getTheEntityLocatorParticipationDtoCollection();
+        Long organizationUid = ovo.getTheOrganizationDto().getOrganizationUid();
 
+        for (EntityLocatorParticipationDto entityLocatorDT : entityLocatorList) {
+            var localUid = uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
+            long locatorUid = localUid.getGaTypeUid().getSeedValueNbr();
+
+            processLocator(entityLocatorDT, locatorUid, operation);
+
+            entityLocatorDT.setEntityUid(organizationUid);
+            entityLocatorDT.setLocatorUid(locatorUid);
             if (entityLocatorDT.getVersionCtrlNbr() == null) {
                 entityLocatorDT.setVersionCtrlNbr(1);
             }
+
             var data = new EntityLocatorParticipation(entityLocatorDT, tz);
-            if (operation.equalsIgnoreCase("CREATE")) {
-                entityLocatorJdbcRepository.createEntityLocatorParticipation(data);
+            persistEntityLocatorParticipation(data, operation);
+        }
+    }
+
+    private void processLocator(EntityLocatorParticipationDto dto, long locatorUid, String operation) throws DataProcessingException {
+        String classCd = dto.getClassCd();
+
+        if (NEDSSConstant.PHYSICAL.equals(classCd) && dto.getThePhysicalLocatorDto() != null) {
+            dto.getThePhysicalLocatorDto().setPhysicalLocatorUid(locatorUid);
+            var phy = new PhysicalLocator(dto.getThePhysicalLocatorDto());
+            persistLocator(phy, operation);
+        }
+
+        if (NEDSSConstant.POSTAL.equals(classCd) && dto.getThePostalLocatorDto() != null) {
+            dto.getThePostalLocatorDto().setPostalLocatorUid(locatorUid);
+            var pos = new PostalLocator(dto.getThePostalLocatorDto());
+            persistLocator(pos, operation);
+        }
+
+        if (NEDSSConstant.TELE.equals(classCd) && dto.getTheTeleLocatorDto() != null) {
+            dto.getTheTeleLocatorDto().setTeleLocatorUid(locatorUid);
+            var tele = new TeleLocator(dto.getTheTeleLocatorDto());
+            persistLocator(tele, operation);
+        }
+    }
+
+    private void persistLocator(Object locator, String operation) throws DataProcessingException {
+        if (locator instanceof PhysicalLocator physicalLocator) {
+            if (OPERATION_CREATE.equalsIgnoreCase(operation)) {
+                entityLocatorJdbcRepository.createPhysicalLocator(physicalLocator);
+            } else {
+                entityLocatorJdbcRepository.updatePhysicalLocator(physicalLocator);
             }
-            else {
-                entityLocatorJdbcRepository.updateEntityLocatorParticipation(data);
+        } else if (locator instanceof PostalLocator postalLocator) {
+            if (OPERATION_CREATE.equalsIgnoreCase(operation)) {
+                entityLocatorJdbcRepository.createPostalLocator(postalLocator);
+            } else {
+                entityLocatorJdbcRepository.updatePostalLocator(postalLocator);
             }
+        } else if (locator instanceof TeleLocator teleLocator) {
+            if (OPERATION_CREATE.equalsIgnoreCase(operation)) {
+                entityLocatorJdbcRepository.createTeleLocator(teleLocator);
+            } else {
+                entityLocatorJdbcRepository.updateTeleLocator(teleLocator);
+            }
+        }
+    }
+
+    private void persistEntityLocatorParticipation(EntityLocatorParticipation data, String operation) throws DataProcessingException {
+        if (OPERATION_CREATE.equalsIgnoreCase(operation)) {
+            entityLocatorJdbcRepository.createEntityLocatorParticipation(data);
+        } else {
+            entityLocatorJdbcRepository.updateEntityLocatorParticipation(data);
         }
     }
 
@@ -298,7 +324,7 @@ public class OrganizationRepositoryUtil {
         ArrayList<RoleDto> roleList = (ArrayList<RoleDto>) ovo.getTheRoleDTCollection();
         for (RoleDto obj : roleList) {
             var rol = new Role(obj);
-            if (operation.equalsIgnoreCase("CREATE"))
+            if (operation.equalsIgnoreCase(OPERATION_CREATE))
             {
                 roleJdbcRepository.createRole(rol);
             }
