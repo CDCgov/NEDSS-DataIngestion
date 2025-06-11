@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,6 +90,10 @@ public class KafkaConsumerService {
 
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
+
+    @Value("${features.obrSpliting.enabled}")
+    private boolean obrSplitingEnabled;
+
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
     private final IRawElrRepository iRawELRRepository;
@@ -523,11 +528,19 @@ public class KafkaConsumerService {
             boolean dataProcessingApplied = Boolean.parseBoolean(dataProcessingEnable);
 
             HL7ParsedMessage<OruR1> parsedMessageOrig = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
-            List<HL7ParsedMessage<OruR1>> parsedMessageList= splitElrByOBR(parsedMessageOrig);
-            for(HL7ParsedMessage<OruR1> parsedMessageNew:parsedMessageList) {
-                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, parsedMessageNew);
+            List<HL7ParsedMessage<OruR1>> parsedMessageList;
+            log.info("OBR splitting feature flag enabled: {}", obrSplitingEnabled);
+            if(obrSplitingEnabled){
+                parsedMessageList= splitElrByOBR(parsedMessageOrig);
+            }else{
+                parsedMessageList= new ArrayList<>();
+                parsedMessageList.add(parsedMessageOrig);
+            }
+
+            for(HL7ParsedMessage<OruR1> hl7ParsedMessage:parsedMessageList) {
+                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, hl7ParsedMessage);
                 log.debug("phdcXml: {}", phdcXml);
-                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, parsedMessageNew, dataProcessingApplied);
+                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, hl7ParsedMessage, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
