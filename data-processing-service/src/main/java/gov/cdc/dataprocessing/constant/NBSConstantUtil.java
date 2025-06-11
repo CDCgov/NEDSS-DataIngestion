@@ -223,7 +223,6 @@ public class NBSConstantUtil {
 
     public static final String AddVaccination = "AddVaccination";
 
-    public static final String CREATE = "Create";
 
     public static final String ReturnToFileVaccinations = "ReturnToFileVaccinations";
 

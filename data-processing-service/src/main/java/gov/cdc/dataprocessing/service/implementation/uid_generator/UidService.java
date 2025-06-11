@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.NotificationProxyContainer;

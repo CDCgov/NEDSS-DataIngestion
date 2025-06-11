@@ -4,7 +4,6 @@ package gov.cdc.dataprocessing.service.implementation.cache;
 import gov.cdc.dataprocessing.cache.cache_model.SrteCache;
 import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,10 +13,9 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class ManagerCacheServiceTest {
 
@@ -99,5 +97,7 @@ class ManagerCacheServiceTest {
         when(cachingValueService.getAllLoinCodeWithComponentName()).thenReturn(new HashMap<>());
 
         managerCacheService.loadCache();
+
+        assertTrue(cachingValueService.getAllLoinCodeWithComponentName().isEmpty());
     }
 }

@@ -14,7 +14,8 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
-import static gov.cdc.dataprocessing.constant.query.ConfirmationMethodQuery.*;
+import static gov.cdc.dataprocessing.constant.query.ConfirmationMethodQuery.MERGE_CONFIRMATION_METHOD;
+import static gov.cdc.dataprocessing.constant.query.ConfirmationMethodQuery.SELECT_CONFIRMATION_METHOD_BY_UID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

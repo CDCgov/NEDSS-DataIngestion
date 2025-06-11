@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.PUBLIC_HEALTH_CASE_UID_JAVA;
 import static gov.cdc.dataprocessing.constant.query.ConfirmationMethodQuery.MERGE_CONFIRMATION_METHOD;
 import static gov.cdc.dataprocessing.constant.query.ConfirmationMethodQuery.SELECT_CONFIRMATION_METHOD_BY_UID;
 
@@ -22,7 +23,7 @@ public class ConfirmationMethodJdbcRepository {
 
     public void upsertConfirmationMethod(ConfirmationMethod entity) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("publicHealthCaseUid", entity.getPublicHealthCaseUid())
+                .addValue(PUBLIC_HEALTH_CASE_UID_JAVA, entity.getPublicHealthCaseUid())
                 .addValue("confirmationMethodCd", entity.getConfirmationMethodCd())
                 .addValue("confirmationMethodDescTxt", entity.getConfirmationMethodDescTxt())
                 .addValue("confirmationMethodTime", entity.getConfirmationMethodTime());

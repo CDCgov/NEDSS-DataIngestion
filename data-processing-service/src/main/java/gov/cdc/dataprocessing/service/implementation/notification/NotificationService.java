@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CREATE_PERM;
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
+
 
 @Service
 
@@ -140,7 +141,7 @@ public class NotificationService implements INotificationService {
         {
             throw new DataProcessingException("notificationproxyVO is null ");
         }
-        permissionFlag = CREATE_PERM;
+        permissionFlag = OPERATION_CREATE;
 
 
 
@@ -155,7 +156,7 @@ public class NotificationService implements INotificationService {
         notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd());
         notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 
-        if (permissionFlag.equals(CREATE_PERM))
+        if (permissionFlag.equals(OPERATION_CREATE))
         {
             notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
         }
@@ -164,7 +165,7 @@ public class NotificationService implements INotificationService {
         {
             String boLookup = NBSBOLookup.NOTIFICATION;
             String triggerCd = "";
-            if (permissionFlag.equals(CREATE_PERM))
+            if (permissionFlag.equals(OPERATION_CREATE))
             {
                 triggerCd = NEDSSConstant.NOT_CR_APR;
             }

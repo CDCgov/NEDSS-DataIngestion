@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.NbsActQuery.*;
 
 @Component
@@ -22,15 +23,15 @@ public class NbsActJdbcRepository {
 
     public void mergeNbsActEntity(NbsActEntity nbsActEntity) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("actUid", nbsActEntity.getActUid());
-        params.addValue("addTime", nbsActEntity.getAddTime());
-        params.addValue("addUserId", nbsActEntity.getAddUserId());
-        params.addValue("entityUid", nbsActEntity.getEntityUid());
+        params.addValue(ACT_UID_JAVA, nbsActEntity.getActUid());
+        params.addValue(ADD_TIME_JAVA, nbsActEntity.getAddTime());
+        params.addValue(ADD_USER_ID_JAVA, nbsActEntity.getAddUserId());
+        params.addValue(ENTITY_UID_JAVA, nbsActEntity.getEntityUid());
         params.addValue("entityVersionCtrlNbr", nbsActEntity.getEntityVersionCtrlNbr());
-        params.addValue("lastChgTime", nbsActEntity.getLastChgTime());
-        params.addValue("lastChgUserId", nbsActEntity.getLastChgUserId());
-        params.addValue("recordStatusCd", nbsActEntity.getRecordStatusCd());
-        params.addValue("recordStatusTime", nbsActEntity.getRecordStatusTime());
+        params.addValue(LAST_CHG_TIME_JAVA, nbsActEntity.getLastChgTime());
+        params.addValue(LAST_CHG_USER_ID_JAVA, nbsActEntity.getLastChgUserId());
+        params.addValue(RECORD_STATUS_CD_JAVA, nbsActEntity.getRecordStatusCd());
+        params.addValue(RECORD_STATUS_TIME_JAVA, nbsActEntity.getRecordStatusTime());
         params.addValue("typeCd", nbsActEntity.getTypeCd());
 
         jdbcTemplateOdse.update(MERGE_NBS_ACT_ENTITY, params);
@@ -39,15 +40,15 @@ public class NbsActJdbcRepository {
     public void mergeNbsActEntityHist(NbsActEntityHist hist) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("nbsActEntityUid", hist.getNbsActEntityUid());
-        params.addValue("actUid", hist.getActUid());
-        params.addValue("addTime", hist.getAddTime());
-        params.addValue("addUserId", hist.getAddUserId());
-        params.addValue("entityUid", hist.getEntityUid());
+        params.addValue(ACT_UID_JAVA, hist.getActUid());
+        params.addValue(ADD_TIME_JAVA, hist.getAddTime());
+        params.addValue(ADD_USER_ID_JAVA, hist.getAddUserId());
+        params.addValue(ENTITY_UID_JAVA, hist.getEntityUid());
         params.addValue("entityVersionCtrlNbr", hist.getEntityVersionCtrlNbr());
-        params.addValue("lastChgTime", hist.getLastChgTime());
-        params.addValue("lastChgUserId", hist.getLastChgUserId());
-        params.addValue("recordStatusCd", hist.getRecordStatusCd());
-        params.addValue("recordStatusTime", hist.getRecordStatusTime());
+        params.addValue(LAST_CHG_TIME_JAVA, hist.getLastChgTime());
+        params.addValue(LAST_CHG_USER_ID_JAVA, hist.getLastChgUserId());
+        params.addValue(RECORD_STATUS_CD_JAVA, hist.getRecordStatusCd());
+        params.addValue(RECORD_STATUS_TIME_JAVA, hist.getRecordStatusTime());
         params.addValue("typeCd", hist.getTypeCd());
 
         jdbcTemplateOdse.update(MERGE_NBS_ACT_ENTITY_HIST, params);

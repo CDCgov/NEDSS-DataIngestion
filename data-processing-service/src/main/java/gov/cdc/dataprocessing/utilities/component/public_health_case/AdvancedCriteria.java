@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dsma_algorithm.Algorithm;
 import gov.cdc.dataprocessing.model.dsma_algorithm.CodedType;
 import gov.cdc.dataprocessing.model.dsma_algorithm.InvCriteriaType;

@@ -23,12 +23,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonEthnicRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
@@ -47,7 +41,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

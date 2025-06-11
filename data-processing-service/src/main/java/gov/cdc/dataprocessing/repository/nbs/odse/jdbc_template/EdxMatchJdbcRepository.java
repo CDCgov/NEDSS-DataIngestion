@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import static gov.cdc.dataprocessing.constant.data_field.ENTITY_UID_JAVA;
 import static gov.cdc.dataprocessing.constant.query.EdxMatchQuery.MERGE_EDX_ENTITY_MATCH;
 import static gov.cdc.dataprocessing.constant.query.EdxMatchQuery.MERGE_EDX_PATIENT_MATCH;
 
@@ -30,7 +31,7 @@ public class EdxMatchJdbcRepository {
 
     public void mergeEdxEntityMatch(EdxEntityMatch match) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("entityUid", match.getEntityUid())
+                .addValue(ENTITY_UID_JAVA, match.getEntityUid())
                 .addValue("matchString", match.getMatchString())
                 .addValue("typeCd", match.getTypeCd())
                 .addValue("matchStringHashcode", match.getMatchStringHashcode());

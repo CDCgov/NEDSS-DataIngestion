@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings({"java:S125", "java:S1118", "java:S1104", "java:S1319", "java:S1444", "java:S2386"})
 public class SrteCache {
     // usage: SrteCache.loinCodeWithComponentNameMap.get(resVO.getResultedTestCd());
     public static HashMap<String, String> loinCodeWithComponentNameMap = new HashMap<>();

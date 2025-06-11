@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.act;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActJdbcRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

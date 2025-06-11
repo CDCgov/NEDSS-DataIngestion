@@ -15,7 +15,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 class NNDActivityLogServiceTest {

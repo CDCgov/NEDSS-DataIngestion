@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.PublicHealthCaseQuery.*;
 
 @Component
@@ -19,7 +20,7 @@ public class PublicHealthCaseJdbcRepository {
 
     public PublicHealthCase findById(Long publicHealthCaseUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("publicHealthCaseUid", publicHealthCaseUid);
+                .addValue(PUBLIC_HEALTH_CASE_UID_JAVA, publicHealthCaseUid);
 
         return jdbcTemplateOdse.queryForObject(
                 SELECT_PHC_BY_UID,
@@ -30,14 +31,14 @@ public class PublicHealthCaseJdbcRepository {
 
     public void insertPublicHealthCase(PublicHealthCase phc) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("publicHealthCaseUid", phc.getPublicHealthCaseUid());
+        params.addValue(PUBLIC_HEALTH_CASE_UID_JAVA, phc.getPublicHealthCaseUid());
         params.addValue("activityDurationAmt", phc.getActivityDurationAmt());
         params.addValue("activityDurationUnitCd", phc.getActivityDurationUnitCd());
         params.addValue("activityFromTime", phc.getActivityFromTime());
         params.addValue("activityToTime", phc.getActivityToTime());
-        params.addValue("addReasonCd", phc.getAddReasonCd());
-        params.addValue("addTime", phc.getAddTime());
-        params.addValue("addUserId", phc.getAddUserId());
+        params.addValue(ADD_REASON_CD_JAVA, phc.getAddReasonCd());
+        params.addValue(ADD_TIME_JAVA, phc.getAddTime());
+        params.addValue(ADD_USER_ID_JAVA, phc.getAddUserId());
         params.addValue("caseClassCd", phc.getCaseClassCd());
         params.addValue("caseTypeCd", phc.getCaseTypeCd());
         params.addValue("cd", phc.getCd());
@@ -58,9 +59,9 @@ public class PublicHealthCaseJdbcRepository {
         params.addValue("groupCaseCnt", phc.getGroupCaseCnt());
         params.addValue("investigationStatusCd", phc.getInvestigationStatusCd());
         params.addValue("jurisdictionCd", phc.getJurisdictionCd());
-        params.addValue("lastChgReasonCd", phc.getLastChgReasonCd());
-        params.addValue("lastChgTime", phc.getLastChgTime());
-        params.addValue("lastChgUserId", phc.getLastChgUserId());
+        params.addValue(LAST_CHG_REASON_CD_JAVA, phc.getLastChgReasonCd());
+        params.addValue(LAST_CHG_TIME_JAVA, phc.getLastChgTime());
+        params.addValue(LAST_CHG_USER_ID_JAVA, phc.getLastChgUserId());
         params.addValue("localId", phc.getLocalId());
         params.addValue("mmwrWeek", phc.getMmwrWeek());
         params.addValue("mmwrYear", phc.getMmwrYear());
@@ -73,8 +74,8 @@ public class PublicHealthCaseJdbcRepository {
         params.addValue("patAgeAtOnsetUnitCd", phc.getPatAgeAtOnsetUnitCd());
         params.addValue("patientGroupId", phc.getPatientGroupId());
         params.addValue("progAreaCd", phc.getProgAreaCd());
-        params.addValue("recordStatusCd", phc.getRecordStatusCd());
-        params.addValue("recordStatusTime", phc.getRecordStatusTime());
+        params.addValue(RECORD_STATUS_CD_JAVA, phc.getRecordStatusCd());
+        params.addValue(RECORD_STATUS_TIME_JAVA, phc.getRecordStatusTime());
         params.addValue("repeatNbr", phc.getRepeatNbr());
         params.addValue("rptCntyCd", phc.getRptCntyCd());
         params.addValue("rptFormCmpltTime", phc.getRptFormCmpltTime());
@@ -82,12 +83,12 @@ public class PublicHealthCaseJdbcRepository {
         params.addValue("rptSourceCdDescTxt", phc.getRptSourceCdDescTxt());
         params.addValue("rptToCountyTime", phc.getRptToCountyTime());
         params.addValue("rptToStateTime", phc.getRptToStateTime());
-        params.addValue("statusCd", phc.getStatusCd());
-        params.addValue("statusTime", phc.getStatusTime());
+        params.addValue(STATUS_CD_JAVA, phc.getStatusCd());
+        params.addValue(STATUS_TIME_JAVA, phc.getStatusTime());
         params.addValue("transmissionModeCd", phc.getTransmissionModeCd());
         params.addValue("transmissionModeDescTxt", phc.getTransmissionModeDescTxt());
         params.addValue("txt", phc.getTxt());
-        params.addValue("userAffiliationTxt", phc.getUserAffiliationTxt());
+        params.addValue(USER_AFFILIATION_TXT_JAVA, phc.getUserAffiliationTxt());
         params.addValue("programJurisdictionOid", phc.getProgramJurisdictionOid());
         params.addValue("sharedInd", phc.getSharedInd());
         params.addValue("versionCtrlNbr", phc.getVersionCtrlNbr());
@@ -121,14 +122,14 @@ public class PublicHealthCaseJdbcRepository {
 
     public int updatePublicHealthCase(PublicHealthCase phc) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("publicHealthCaseUid", phc.getPublicHealthCaseUid());
+        params.addValue(PUBLIC_HEALTH_CASE_UID_JAVA, phc.getPublicHealthCaseUid());
         params.addValue("activityDurationAmt", phc.getActivityDurationAmt());
         params.addValue("activityDurationUnitCd", phc.getActivityDurationUnitCd());
         params.addValue("activityFromTime", phc.getActivityFromTime());
         params.addValue("activityToTime", phc.getActivityToTime());
-        params.addValue("addReasonCd", phc.getAddReasonCd());
-        params.addValue("addTime", phc.getAddTime());
-        params.addValue("addUserId", phc.getAddUserId());
+        params.addValue(ADD_REASON_CD_JAVA, phc.getAddReasonCd());
+        params.addValue(ADD_TIME_JAVA, phc.getAddTime());
+        params.addValue(ADD_USER_ID_JAVA, phc.getAddUserId());
         params.addValue("caseClassCd", phc.getCaseClassCd());
         params.addValue("caseTypeCd", phc.getCaseTypeCd());
         params.addValue("cd", phc.getCd());
@@ -149,9 +150,9 @@ public class PublicHealthCaseJdbcRepository {
         params.addValue("groupCaseCnt", phc.getGroupCaseCnt());
         params.addValue("investigationStatusCd", phc.getInvestigationStatusCd());
         params.addValue("jurisdictionCd", phc.getJurisdictionCd());
-        params.addValue("lastChgReasonCd", phc.getLastChgReasonCd());
-        params.addValue("lastChgTime", phc.getLastChgTime());
-        params.addValue("lastChgUserId", phc.getLastChgUserId());
+        params.addValue(LAST_CHG_REASON_CD_JAVA, phc.getLastChgReasonCd());
+        params.addValue(LAST_CHG_TIME_JAVA, phc.getLastChgTime());
+        params.addValue(LAST_CHG_USER_ID_JAVA, phc.getLastChgUserId());
         params.addValue("localId", phc.getLocalId());
         params.addValue("mmwrWeek", phc.getMmwrWeek());
         params.addValue("mmwrYear", phc.getMmwrYear());
@@ -164,8 +165,8 @@ public class PublicHealthCaseJdbcRepository {
         params.addValue("patAgeAtOnsetUnitCd", phc.getPatAgeAtOnsetUnitCd());
         params.addValue("patientGroupId", phc.getPatientGroupId());
         params.addValue("progAreaCd", phc.getProgAreaCd());
-        params.addValue("recordStatusCd", phc.getRecordStatusCd());
-        params.addValue("recordStatusTime", phc.getRecordStatusTime());
+        params.addValue(RECORD_STATUS_CD_JAVA, phc.getRecordStatusCd());
+        params.addValue(RECORD_STATUS_TIME_JAVA, phc.getRecordStatusTime());
         params.addValue("repeatNbr", phc.getRepeatNbr());
         params.addValue("rptCntyCd", phc.getRptCntyCd());
         params.addValue("rptFormCmpltTime", phc.getRptFormCmpltTime());
@@ -173,12 +174,12 @@ public class PublicHealthCaseJdbcRepository {
         params.addValue("rptSourceCdDescTxt", phc.getRptSourceCdDescTxt());
         params.addValue("rptToCountyTime", phc.getRptToCountyTime());
         params.addValue("rptToStateTime", phc.getRptToStateTime());
-        params.addValue("statusCd", phc.getStatusCd());
-        params.addValue("statusTime", phc.getStatusTime());
+        params.addValue(STATUS_CD_JAVA, phc.getStatusCd());
+        params.addValue(STATUS_TIME_JAVA, phc.getStatusTime());
         params.addValue("transmissionModeCd", phc.getTransmissionModeCd());
         params.addValue("transmissionModeDescTxt", phc.getTransmissionModeDescTxt());
         params.addValue("txt", phc.getTxt());
-        params.addValue("userAffiliationTxt", phc.getUserAffiliationTxt());
+        params.addValue(USER_AFFILIATION_TXT_JAVA, phc.getUserAffiliationTxt());
         params.addValue("programJurisdictionOid", phc.getProgramJurisdictionOid());
         params.addValue("sharedInd", phc.getSharedInd());
         params.addValue("versionCtrlNbr", phc.getVersionCtrlNbr());

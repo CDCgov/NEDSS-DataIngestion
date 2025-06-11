@@ -16,7 +16,8 @@ import java.sql.Timestamp;
 import static gov.cdc.dataprocessing.constant.query.CaseManagementQuery.MERGE_CASE_MANAGEMENT;
 import static gov.cdc.dataprocessing.constant.query.CaseManagementQuery.SELECT_CASE_MANAGEMENT_BY_PH_CASE_UID;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CaseManagementJdbcRepositoryTest {

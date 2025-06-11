@@ -12,10 +12,6 @@ import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsAnswerJdbcRep
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswer;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;

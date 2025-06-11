@@ -50,6 +50,3 @@ public class NNDActivityLogService implements INNDActivityLogService {
 
     }
 }
-
-// uidPoolManager.getNextUid(LocalIdClass.ORGANIZATION, true);
-//     private final UidPoolManager uidPoolManager;

@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.utilities.component.act;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActIdJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,7 +12,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

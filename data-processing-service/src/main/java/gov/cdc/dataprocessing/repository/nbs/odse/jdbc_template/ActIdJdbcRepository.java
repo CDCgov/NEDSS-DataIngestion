@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.ActIdQuery.MERGE_SQL_ACT_ID;
 import static gov.cdc.dataprocessing.constant.query.ActIdQuery.SELECT_BY_ACT_UID_SQL;
 
@@ -22,26 +23,26 @@ public class ActIdJdbcRepository {
 
     public void mergeActId(ActId a) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("act_uid", a.getActUid())
+                .addValue(ACT_UID_DB, a.getActUid())
                 .addValue("act_id_seq", a.getActIdSeq())
-                .addValue("add_reason_cd", a.getAddReasonCd())
-                .addValue("add_time", a.getAddTime())
-                .addValue("add_user_id", a.getAddUserId())
+                .addValue(ADD_REASON_CD_DB, a.getAddReasonCd())
+                .addValue(ADD_TIME_DB, a.getAddTime())
+                .addValue(ADD_USER_ID_DB, a.getAddUserId())
                 .addValue("assigning_authority_cd", a.getAssigningAuthorityCd())
                 .addValue("assigning_authority_desc_txt", a.getAssigningAuthorityDescTxt())
                 .addValue("duration_amt", a.getDurationAmt())
                 .addValue("duration_unit_cd", a.getDurationUnitCd())
-                .addValue("last_chg_reason_cd", a.getLastChgReasonCd())
-                .addValue("last_chg_time", a.getLastChgTime())
-                .addValue("last_chg_user_id", a.getLastChgUserId())
-                .addValue("record_status_cd", a.getRecordStatusCd())
-                .addValue("record_status_time", a.getRecordStatusTime())
+                .addValue(LAST_CHG_REASON_CD_DB, a.getLastChgReasonCd())
+                .addValue(LAST_CHG_TIME_DB, a.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_DB, a.getLastChgUserId())
+                .addValue(RECORD_STATUS_CD_DB, a.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, a.getRecordStatusTime())
                 .addValue("root_extension_txt", a.getRootExtensionTxt())
-                .addValue("status_cd", a.getStatusCd())
-                .addValue("status_time", a.getStatusTime())
+                .addValue(STATUS_CD_DB, a.getStatusCd())
+                .addValue(STATUS_TIME_DB, a.getStatusTime())
                 .addValue("type_cd", a.getTypeCd())
                 .addValue("type_desc_txt", a.getTypeDescTxt())
-                .addValue("user_affiliation_txt", a.getUserAffiliationTxt())
+                .addValue(USER_AFFILIATION_TXT_DB, a.getUserAffiliationTxt())
                 .addValue("valid_from_time", a.getValidFromTime())
                 .addValue("valid_to_time", a.getValidToTime());
 
@@ -50,7 +51,7 @@ public class ActIdJdbcRepository {
 
     public List<ActId> findRecordsByActUid(Long actUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("act_uid", actUid);
+                .addValue(ACT_UID_DB, actUid);
         return jdbcTemplateOdse.query(
                 SELECT_BY_ACT_UID_SQL,
                 params,

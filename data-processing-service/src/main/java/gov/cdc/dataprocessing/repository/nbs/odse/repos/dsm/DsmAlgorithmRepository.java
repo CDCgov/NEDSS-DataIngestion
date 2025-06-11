@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 
 
+@SuppressWarnings("java:S125")
 public interface DsmAlgorithmRepository  extends JpaRepository<DsmAlgorithm, Long> {
 
 //            	SELECT_DSM_ALGORITHM_LIST ="SELECT dsm_algorithm_uid \"dsmAlgorithmUid\",  algorithm_nm \"algorithmNm\", event_type \"eventType\", condition_list \"conditionList\", frequency \"frequency\" , apply_to \"applyTo\", sending_system_list \"sendingSystemList\", reporting_system_list \"reportingSystemList\", event_action \"eventAction\","

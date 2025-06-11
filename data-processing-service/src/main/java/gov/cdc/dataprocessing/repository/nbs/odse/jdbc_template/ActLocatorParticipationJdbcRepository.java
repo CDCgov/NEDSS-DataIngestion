@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.ActLocatorParticipationQuery.*;
 
 @Component
@@ -33,31 +34,31 @@ public class ActLocatorParticipationJdbcRepository {
 
     private MapSqlParameterSource buildParamsActLocatorPat(ActLocatorParticipation a) {
         return new MapSqlParameterSource()
-                .addValue("entity_uid", a.getEntityUid())
-                .addValue("act_uid", a.getActUid())
+                .addValue(ENTITY_UID_DB, a.getEntityUid())
+                .addValue(ACT_UID_DB, a.getActUid())
                 .addValue("locator_uid", a.getLocatorUid())
-                .addValue("add_reason_cd", a.getAddReasonCd())
-                .addValue("add_time", a.getAddTime())
-                .addValue("add_user_id", a.getAddUserId())
+                .addValue(ADD_REASON_CD_DB, a.getAddReasonCd())
+                .addValue(ADD_TIME_DB, a.getAddTime())
+                .addValue(ADD_USER_ID_DB, a.getAddUserId())
                 .addValue("duration_amt", a.getDurationAmount())
                 .addValue("duration_unit_cd", a.getDurationUnitCd())
                 .addValue("from_time", a.getFromTime())
-                .addValue("last_chg_reason_cd", a.getLastChangeReasonCd())
-                .addValue("last_chg_time", a.getLastChangeTime())
-                .addValue("last_chg_user_id", a.getLastChangeUserId())
-                .addValue("record_status_cd", a.getRecordStatusCd())
-                .addValue("record_status_time", a.getRecordStatusTime())
+                .addValue(LAST_CHG_REASON_CD_DB, a.getLastChangeReasonCd())
+                .addValue(LAST_CHG_TIME_DB, a.getLastChangeTime())
+                .addValue(LAST_CHG_USER_ID_DB, a.getLastChangeUserId())
+                .addValue(RECORD_STATUS_CD_DB, a.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, a.getRecordStatusTime())
                 .addValue("to_time", a.getToTime())
-                .addValue("status_cd", a.getStatusCd())
-                .addValue("status_time", a.getStatusTime())
+                .addValue(STATUS_CD_DB, a.getStatusCd())
+                .addValue(STATUS_TIME_DB, a.getStatusTime())
                 .addValue("type_cd", a.getTypeCd())
                 .addValue("type_desc_txt", a.getTypeDescTxt())
-                .addValue("user_affiliation_txt", a.getUserAffiliationTxt());
+                .addValue(USER_AFFILIATION_TXT_DB, a.getUserAffiliationTxt());
     }
 
     public List<ActLocatorParticipation> findByActUid(Long actUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("act_uid", actUid);
+                .addValue(ACT_UID_DB, actUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_ACT_UID,

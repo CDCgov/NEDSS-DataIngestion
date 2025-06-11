@@ -9,9 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import static gov.cdc.dataprocessing.constant.query.ActQuery.INSERT_SQL_ACT;
-import static gov.cdc.dataprocessing.constant.query.ActQuery.UPDATE_SQL_ACT;
-import static gov.cdc.dataprocessing.constant.query.ActQuery.MERGE_SQL_ACT;
+import static gov.cdc.dataprocessing.constant.query.ActQuery.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;

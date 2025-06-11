@@ -142,12 +142,10 @@ public class JurisdictionService implements IJurisdictionService {
         }
         if (orderingFacilityUid != null)
         {
-            // orderingFacilityVO = getOrganization(orderingFacilityUid);
             orderingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
         }
         if(reportingFacilityUid!=null)
         {
-            // reportingFacilityVO = getOrganization(reportingFacilityUid);
             //it was assigned to orderingFacilityVO in the first implementation.not sure if it was correct.
             reportingFacilityVO = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
         }
@@ -285,7 +283,6 @@ public class JurisdictionService implements IJurisdictionService {
             }
         }
 
-//        detailError= new StringBuilder();
         return map;
 
     }

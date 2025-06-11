@@ -22,9 +22,6 @@ public interface ConditionCodeRepository extends JpaRepository<BaseConditionCode
             @Param("labResultCd") String labResultCd
     );
 
-//    	public static final String COINFECTION_CONDITION_SQL =
-//    	"SELECT condition_cd , coinfection_grp_cd from nbs_srte..condition_code where coinfection_grp_cd is not null" ;
-
     @Query(value = "SELECT c.* FROM Condition_code c where c.coinfection_grp_cd is not null", nativeQuery = true)
     Optional<List<ConditionCode>> findCoInfectionConditionCode();
 

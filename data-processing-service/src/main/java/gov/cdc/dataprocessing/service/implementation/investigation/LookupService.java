@@ -33,8 +33,6 @@ public class LookupService implements ILookupService {
     private final WAQuestionRepository waQuestionRepository;
     private final ICatchingValueDpService catchingValueService;
 
-    private static final String EXCEPTION_APPENDING_MSG = " in form cd :";
-
     public LookupService(LookupMappingRepository lookupMappingRepository,
                          NbsUiMetaDataRepository nbsUiMetaDataRepository,
                          WAQuestionRepository waQuestionRepository,

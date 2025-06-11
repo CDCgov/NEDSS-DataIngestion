@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EdxEventProcessJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
@@ -18,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class EdxEventProcessRepositoryUtilTest {

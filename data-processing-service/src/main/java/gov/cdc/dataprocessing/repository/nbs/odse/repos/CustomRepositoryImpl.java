@@ -19,6 +19,8 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
+import static gov.cdc.dataprocessing.constant.data_field.ACT_UID_JAVA;
+import static gov.cdc.dataprocessing.constant.data_field.PERSON_UID_JAVA;
 import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
 
 @Repository
@@ -205,7 +207,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         Map<Object,Object> assocoiatedInvMap= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("ClassCd", sourceClassCd);
-        query.setParameter("ActUid",uid);
+        query.setParameter(ACT_UID_JAVA, uid);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -622,7 +624,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL);
 
         query.setParameter("CoInfect", coInfectionId);
-        query.setParameter("PersonUid", mprUid);
+        query.setParameter(PERSON_UID_JAVA, mprUid);
 
 
         List<Object[]> results = query.getResultList();

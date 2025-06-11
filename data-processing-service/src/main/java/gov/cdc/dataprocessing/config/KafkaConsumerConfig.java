@@ -53,7 +53,7 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10000); // Wait up to 500ms for data
         config.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10 * 1024 * 1024); // Fetch up to 10MB per partition
         config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecord); // Max 500 records per poll
-//        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000); // Allow 5 minutes for processing
+        //config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000); // Allow 5 minutes for processing
         config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000); // 30-second session timeout
         config.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000); // Heartbeat every 10 seconds
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false); // Manual commit

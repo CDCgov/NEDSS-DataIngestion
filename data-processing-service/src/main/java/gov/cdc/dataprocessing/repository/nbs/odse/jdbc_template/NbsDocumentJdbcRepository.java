@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.NbsDocumentQuery.MERGE_NBS_DOC;
 import static gov.cdc.dataprocessing.constant.query.NbsDocumentQuery.MERGE_NBS_DOC_HIST;
 
@@ -24,10 +25,10 @@ public class NbsDocumentJdbcRepository {
                 .addValue("doc_payload", doc.getDocPayload())
                 .addValue("doc_type_cd", doc.getDocTypeCd())
                 .addValue("local_id", doc.getLocalId())
-                .addValue("record_status_cd", doc.getRecordStatusCd())
-                .addValue("record_status_time", doc.getRecordStatusTime())
-                .addValue("add_user_id", doc.getAddUserId())
-                .addValue("add_time", doc.getAddTime())
+                .addValue(RECORD_STATUS_CD_DB, doc.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, doc.getRecordStatusTime())
+                .addValue(ADD_USER_ID_DB, doc.getAddUserId())
+                .addValue(ADD_TIME_DB, doc.getAddTime())
                 .addValue("prog_area_cd", doc.getProgAreaCd())
                 .addValue("jurisdiction_cd", doc.getJurisdictionCd())
                 .addValue("txt", doc.getTxt())
@@ -35,8 +36,8 @@ public class NbsDocumentJdbcRepository {
                 .addValue("shared_ind", doc.getSharedInd())
                 .addValue("version_ctrl_nbr", doc.getVersionCtrlNbr())
                 .addValue("cd", doc.getCd())
-                .addValue("last_chg_time", doc.getLastChgTime())
-                .addValue("last_chg_user_id", doc.getLastChgUserId())
+                .addValue(LAST_CHG_TIME_DB, doc.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_DB, doc.getLastChgUserId())
                 .addValue("doc_purpose_cd", doc.getDocPurposeCd())
                 .addValue("doc_status_cd", doc.getDocStatusCd())
                 .addValue("cd_desc_txt", doc.getCdDescTxt())
@@ -59,10 +60,10 @@ public class NbsDocumentJdbcRepository {
                 .addValue("doc_payload", hist.getDocPayload())
                 .addValue("doc_type_cd", hist.getDocTypeCd())
                 .addValue("local_id", hist.getLocalId())
-                .addValue("record_status_cd", hist.getRecordStatusCd())
-                .addValue("record_status_time", hist.getRecordStatusTime())
-                .addValue("add_user_id", hist.getAddUserId())
-                .addValue("add_time", hist.getAddTime())
+                .addValue(RECORD_STATUS_CD_DB, hist.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, hist.getRecordStatusTime())
+                .addValue(ADD_USER_ID_DB, hist.getAddUserId())
+                .addValue(ADD_TIME_DB, hist.getAddTime())
                 .addValue("prog_area_cd", hist.getProgAreaCd())
                 .addValue("jurisdiction_cd", hist.getJurisdictionCd())
                 .addValue("txt", hist.getTxt())
@@ -70,8 +71,8 @@ public class NbsDocumentJdbcRepository {
                 .addValue("shared_ind", hist.getSharedInd())
                 .addValue("version_ctrl_nbr", hist.getVersionCtrlNbr())
                 .addValue("cd", hist.getCd())
-                .addValue("last_chg_time", hist.getLastChgTime())
-                .addValue("last_chg_user_id", hist.getLastChgUserId())
+                .addValue(LAST_CHG_TIME_DB, hist.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_DB, hist.getLastChgUserId())
                 .addValue("doc_purpose_cd", hist.getDocPurposeCd())
                 .addValue("doc_status_cd", hist.getDocStatusCd())
                 .addValue("cd_desc_txt", hist.getCdDescTxt())

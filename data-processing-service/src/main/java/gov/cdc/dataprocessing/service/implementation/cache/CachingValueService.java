@@ -176,7 +176,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid()  {
-        //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getNbsUid);
         HashMap<String, Integer> result = new HashMap<>();
         List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
         for (JurisdictionCode jurisdictionCode : jurisdictionCodes) {

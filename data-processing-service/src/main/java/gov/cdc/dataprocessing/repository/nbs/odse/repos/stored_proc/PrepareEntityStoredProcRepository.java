@@ -31,7 +31,7 @@ public class PrepareEntityStoredProcRepository {
             storedProcedure.registerStoredProcedureParameter("objectUid", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("className", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("localId", String.class, ParameterMode.OUT);
-            storedProcedure.registerStoredProcedureParameter("addUserId", String.class, ParameterMode.OUT);
+            storedProcedure.registerStoredProcedureParameter(ADD_USER_ID_JAVA, String.class, ParameterMode.OUT);
             storedProcedure.registerStoredProcedureParameter("addUserTime", Timestamp.class, ParameterMode.OUT);
             storedProcedure.registerStoredProcedureParameter("recordStatusState", String.class, ParameterMode.OUT);
             storedProcedure.registerStoredProcedureParameter("objectStatusState", String.class, ParameterMode.OUT);
@@ -47,7 +47,7 @@ public class PrepareEntityStoredProcRepository {
 
             // Get the output parameters
             String localId = (String) storedProcedure.getOutputParameterValue("localId");
-            String addUserId = (String) storedProcedure.getOutputParameterValue("addUserId");
+            String addUserId = (String) storedProcedure.getOutputParameterValue(ADD_USER_ID_JAVA);
             Timestamp addUserTime = (Timestamp) storedProcedure.getOutputParameterValue("addUserTime");
             String recordStatusState = (String) storedProcedure.getOutputParameterValue("recordStatusState");
             String objectStatusState = (String) storedProcedure.getOutputParameterValue("objectStatusState");

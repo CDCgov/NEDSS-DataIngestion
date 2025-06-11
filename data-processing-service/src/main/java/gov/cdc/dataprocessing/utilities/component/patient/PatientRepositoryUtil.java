@@ -34,6 +34,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
+import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_UPDATE;
+
 @Component
 
 public class PatientRepositoryUtil {
@@ -101,7 +104,7 @@ public class PatientRepositoryUtil {
         }
 
         personDto.setPersonUid(personUid);
-        entityRepositoryUtil.preparingEntityReposCallForPerson(personDto, personUid, NEDSSConstant.PERSON, NEDSSConstant.UPDATE);
+        entityRepositoryUtil.preparingEntityReposCallForPerson(personDto, personUid, NEDSSConstant.PERSON, OPERATION_UPDATE);
 
         Person person = new Person(personDto, tz);
         person.setBirthCntryCd(null);
@@ -134,7 +137,7 @@ public class PatientRepositoryUtil {
         }
 
         if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
-            createRole(personContainer, "CREATE");
+            createRole(personContainer, OPERATION_CREATE);
         }
 
 
@@ -185,7 +188,7 @@ public class PatientRepositoryUtil {
         // NOTE: Upsert Role
         var roleCollection = personContainer.getTheRoleDtoCollection();
         if (roleCollection != null && !roleCollection.isEmpty()) {
-            createRole(personContainer, "UPDATE");
+            createRole(personContainer, OPERATION_UPDATE);
         }
 
 
@@ -627,7 +630,7 @@ public class PatientRepositoryUtil {
         var roleDtos = personContainer.getTheRoleDtoCollection();
         if (roleDtos == null || roleDtos.isEmpty()) return;
 
-        boolean isCreateOp = "CREATE".equalsIgnoreCase(operation);
+        boolean isCreateOp = OPERATION_CREATE.equalsIgnoreCase(operation);
 
         for (RoleDto dto : roleDtos) {
             Role role = new Role(dto);

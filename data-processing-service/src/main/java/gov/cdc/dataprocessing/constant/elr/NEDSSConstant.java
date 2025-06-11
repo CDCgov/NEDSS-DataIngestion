@@ -59,7 +59,6 @@ public class NEDSSConstant {
 
     public static final String EDIT = "edit";
 
-    public static final String CREATE = "create";
 
     public static final String DEL = "delete";
 
@@ -921,8 +920,6 @@ public class NEDSSConstant {
     public static final String NBS_APP_EXCEPTION_ROLLBACK = "::[Rollback]::";
 
     public static final String NBS_APP_EXCEPTION_NO_ROLLBACK = "::[No Rollback]::";
-
-    public static final String UPDATE = "UPDATE";
 
     public static final String SELECT = "SELECT";
 
@@ -1938,15 +1935,12 @@ public class NEDSSConstant {
     public static final String LOINC_DISPLAY_MAPPING = "LOINC_DISPLAY_MAPPING";
 
     //SRTFiltering for ReportingSource
-    public static final String CREATE_PERM = "CREATE";
-    public static final String REPORTING_SOURCE_CREATE = "CREATE";
 
     public static final String REPORTING_SOURCE_EDIT = "EDIT";
 
     public static final String REPORTING_SOURCE_VIEW = "VIEW";
 
     //SRTFiltering for Treatment
-    public static final String TREATMENT_SRT_CREATE = "CREATE";
 
     public static final String TREATMENT_SRT_EDIT = "EDIT";
 

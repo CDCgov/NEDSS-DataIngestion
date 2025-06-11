@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

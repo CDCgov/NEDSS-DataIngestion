@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

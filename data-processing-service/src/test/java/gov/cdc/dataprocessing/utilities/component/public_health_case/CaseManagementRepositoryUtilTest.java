@@ -3,17 +3,14 @@ package gov.cdc.dataprocessing.utilities.component.public_health_case;
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.CaseManagementJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.CaseManagement;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.phc.CaseManagementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

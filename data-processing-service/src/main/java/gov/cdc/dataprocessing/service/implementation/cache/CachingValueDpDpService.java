@@ -29,7 +29,7 @@ public class CachingValueDpDpService implements ICatchingValueDpService {
         this.cacheApiService = cacheApiService;
     }
 
-    private final String separator = "~";
+    private static final String separator = "~";
     public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws DataProcessingException {
         String key = fromCodeSetNm + separator + fromCode + separator + toCodeSetNm;
         return cacheApiService.getSrteCacheString(ObjectName.FIND_TO_CODE.name(), key);

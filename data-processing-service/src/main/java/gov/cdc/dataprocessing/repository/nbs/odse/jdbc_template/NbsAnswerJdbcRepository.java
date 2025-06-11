@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.NbsAnswerQuery.*;
 
 @Component
@@ -22,43 +23,43 @@ public class NbsAnswerJdbcRepository {
 
     public void mergeNbsAnswer(NbsAnswer answer) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("nbsAnswerUid", answer.getNbsAnswerUid());
-        params.addValue("actUid", answer.getActUid());
+        params.addValue(NBS_ANSWER_UID_JAVA, answer.getNbsAnswerUid());
+        params.addValue(ACT_UID_JAVA, answer.getActUid());
         params.addValue("answerTxt", answer.getAnswerTxt());
         params.addValue("nbsQuestionUid", answer.getNbsQuestionUid());
         params.addValue("nbsQuestionVersionCtrlNbr", answer.getNbsQuestionVersionCtrlNbr());
         params.addValue("seqNbr", answer.getSeqNbr());
         params.addValue("answerLargeTxt", answer.getAnswerLargeTxt());
         params.addValue("answerGroupSeqNbr", answer.getAnswerGroupSeqNbr());
-        params.addValue("recordStatusCd", answer.getRecordStatusCd());
-        params.addValue("recordStatusTime", answer.getRecordStatusTime());
-        params.addValue("lastChgTime", answer.getLastChgTime());
-        params.addValue("lastChgUserId", answer.getLastChgUserId());
+        params.addValue(RECORD_STATUS_CD_JAVA, answer.getRecordStatusCd());
+        params.addValue(RECORD_STATUS_TIME_JAVA, answer.getRecordStatusTime());
+        params.addValue(LAST_CHG_TIME_JAVA, answer.getLastChgTime());
+        params.addValue(LAST_CHG_USER_ID_JAVA, answer.getLastChgUserId());
 
         jdbcTemplateOdse.update(MERGE_NBS_ANSWER, params);
     }
 
     public void mergeNbsAnswerHist(NbsAnswerHist hist) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("nbsAnswerUid", hist.getNbsAnswerUid());
-        params.addValue("actUid", hist.getActUid());
+        params.addValue(NBS_ANSWER_UID_JAVA, hist.getNbsAnswerUid());
+        params.addValue(ACT_UID_JAVA, hist.getActUid());
         params.addValue("answerTxt", hist.getAnswerTxt());
         params.addValue("nbsQuestionUid", hist.getNbsQuestionUid());
         params.addValue("nbsQuestionVersionCtrlNbr", hist.getNbsQuestionVersionCtrlNbr());
         params.addValue("seqNbr", hist.getSeqNbr());
         params.addValue("answerLargeTxt", hist.getAnswerLargeTxt());
         params.addValue("answerGroupSeqNbr", hist.getAnswerGroupSeqNbr());
-        params.addValue("recordStatusCd", hist.getRecordStatusCd());
-        params.addValue("recordStatusTime", hist.getRecordStatusTime());
-        params.addValue("lastChgTime", hist.getLastChgTime());
-        params.addValue("lastChgUserId", hist.getLastChgUserId());
+        params.addValue(RECORD_STATUS_CD_JAVA, hist.getRecordStatusCd());
+        params.addValue(RECORD_STATUS_TIME_JAVA, hist.getRecordStatusTime());
+        params.addValue(LAST_CHG_TIME_JAVA, hist.getLastChgTime());
+        params.addValue(LAST_CHG_USER_ID_JAVA, hist.getLastChgUserId());
 
         jdbcTemplateOdse.update(MERGE_NBS_ANSWER_HIST, params);
     }
 
     public void deleteByNbsAnswerUid(Long nbsAnswerUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("nbsAnswerUid", nbsAnswerUid);
+                .addValue(NBS_ANSWER_UID_JAVA, nbsAnswerUid);
         jdbcTemplateOdse.update(DELETE_NBS_ANSWER_BY_UID, params);
     }
 

@@ -661,6 +661,11 @@ public class ObservationRequestHandler {
                     participationDto.setTypeCd(EdxELRConstant.ELR_LAB_ASSISTANT_CD);
                     participationDto.setTypeDescTxt(EdxELRConstant.ELR_LAB_ASSISTANT_DESC);
                 }
+                default -> {
+                    participationDto.setCd("UKN");
+                    participationDto.setTypeCd("UKN");
+                    participationDto.setTypeDescTxt("DEFAULT UNKNOWN");
+                }
             }
             nbsObjectConverter.defaultParticipationDT(participationDto, edxLabInformationDto);
 

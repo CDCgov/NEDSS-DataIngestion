@@ -3,7 +3,6 @@ package gov.cdc.dataprocessing.utilities.component.act;
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActLocatorParticipationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

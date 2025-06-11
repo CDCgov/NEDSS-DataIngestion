@@ -250,10 +250,8 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDto().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
 
         phcVO.getThePublicHealthCaseDto().setPublicHealthCaseUid((long) (edxLabInformationDT.getNextUid() - 1));
-        //edxLabInformationDT.setNextUid(edxLabInformationDT.getNextUid());
         phcVO.getThePublicHealthCaseDto().setJurisdictionCd((observationVO.getTheObservationDto().getJurisdictionCd()));
         phcVO.getThePublicHealthCaseDto().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
-        //phcVO.getThePublicHealthCaseDto().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
 
         phcVO.getThePublicHealthCaseDto().setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         phcVO.getThePublicHealthCaseDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());

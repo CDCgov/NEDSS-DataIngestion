@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.OrganizationQuery.*;
 
 @Component
@@ -42,26 +43,26 @@ public class OrganizationJdbcRepository {
         return new MapSqlParameterSource()
                 .addValue("organizationUid", org.getOrganizationUid())
                 .addValue("addReasonCode", org.getAddReasonCode())
-                .addValue("addTime", org.getAddTime())
-                .addValue("addUserId", org.getAddUserId())
+                .addValue(ADD_TIME_JAVA, org.getAddTime())
+                .addValue(ADD_USER_ID_JAVA, org.getAddUserId())
                 .addValue("code", org.getCode())
                 .addValue("codeDescTxt", org.getCodeDescTxt())
                 .addValue("description", org.getDescription())
                 .addValue("durationAmt", org.getDurationAmt())
                 .addValue("durationUnitCd", org.getDurationUnitCd())
                 .addValue("fromTime", org.getFromTime())
-                .addValue("lastChgReasonCd", org.getLastChgReasonCd())
-                .addValue("lastChgTime", org.getLastChgTime())
-                .addValue("lastChgUserId", org.getLastChgUserId())
+                .addValue(LAST_CHG_REASON_CD_JAVA, org.getLastChgReasonCd())
+                .addValue(LAST_CHG_TIME_JAVA, org.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_JAVA, org.getLastChgUserId())
                 .addValue("localId", org.getLocalId())
-                .addValue("recordStatusCd", org.getRecordStatusCd())
-                .addValue("recordStatusTime", org.getRecordStatusTime())
+                .addValue(RECORD_STATUS_CD_JAVA, org.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_JAVA, org.getRecordStatusTime())
                 .addValue("standardIndustryClassCd", org.getStandardIndustryClassCd())
                 .addValue("standardIndustryDescTxt", org.getStandardIndustryDescTxt())
-                .addValue("statusCd", org.getStatusCd())
-                .addValue("statusTime", org.getStatusTime())
+                .addValue(STATUS_CD_JAVA, org.getStatusCd())
+                .addValue(STATUS_TIME_JAVA, org.getStatusTime())
                 .addValue("toTime", org.getToTime())
-                .addValue("userAffiliationTxt", org.getUserAffiliationTxt())
+                .addValue(USER_AFFILIATION_TXT_JAVA, org.getUserAffiliationTxt())
                 .addValue("displayNm", org.getDisplayNm())
                 .addValue("streetAddr1", org.getStreetAddr1())
                 .addValue("streetAddr2", org.getStreetAddr2())

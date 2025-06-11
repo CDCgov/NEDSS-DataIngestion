@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static gov.cdc.dataprocessing.constant.data_field.PERSON_PARENT_UID_JAVA;
+
 @Repository
 
 public class Observation_SummaryRepositoryImpl implements Observation_SummaryRepository // NOSONAR
@@ -76,7 +78,7 @@ public class Observation_SummaryRepositoryImpl implements Observation_SummaryRep
     public Optional<Collection<Observation_Lab_Summary_ForWorkUp_New>> findLabSummaryForWorkupNew(Long personParentUid, String whereClause) {
         var sql = SELECT_LABSUMMARY_FORWORKUPNEW + whereClause;
         var res =  entityManager.createQuery(sql, Observation_Lab_Summary_ForWorkUp_New.class)
-                .setParameter("personParentUid", personParentUid)
+                .setParameter(PERSON_PARENT_UID_JAVA, personParentUid)
                 .getResultList();
         return Optional.ofNullable(res);
     }

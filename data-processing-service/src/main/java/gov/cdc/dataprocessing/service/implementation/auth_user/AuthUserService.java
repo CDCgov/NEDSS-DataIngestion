@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
+
 @Service
 
 public class AuthUserService implements IAuthUserService {
@@ -95,12 +97,12 @@ public class AuthUserService implements IAuthUserService {
         authUser.setExternalOrgUid(rs.getLong("external_org_uid"));
         authUser.setUserPassword(rs.getString("user_password"));
         authUser.setUserComments(rs.getString("user_comments"));
-        authUser.setAddTime(rs.getTimestamp("add_time"));
-        authUser.setAddUserId(rs.getLong("add_user_id"));
-        authUser.setLastChgTime(rs.getTimestamp("last_chg_time"));
-        authUser.setLastChgUserId(rs.getLong("last_chg_user_id"));
-        authUser.setRecordStatusCd(rs.getString("record_status_cd"));
-        authUser.setRecordStatusTime(rs.getTimestamp("record_status_time"));
+        authUser.setAddTime(rs.getTimestamp(ADD_TIME_DB));
+        authUser.setAddUserId(rs.getLong(ADD_USER_ID_DB));
+        authUser.setLastChgTime(rs.getTimestamp(LAST_CHG_TIME_DB));
+        authUser.setLastChgUserId(rs.getLong(LAST_CHG_USER_ID_DB));
+        authUser.setRecordStatusCd(rs.getString(RECORD_STATUS_CD_DB));
+        authUser.setRecordStatusTime(rs.getTimestamp(RECORD_STATUS_TIME_DB));
         authUser.setJurisdictionDerivationInd(rs.getString("jurisdiction_derivation_ind"));
         authUser.setProviderUid(rs.getLong("provider_uid"));
         return authUser;

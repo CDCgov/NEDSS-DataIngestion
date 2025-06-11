@@ -22,7 +22,6 @@ import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocMod
 import gov.cdc.dataprocessing.utilities.component.nbs.NbsNoteRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

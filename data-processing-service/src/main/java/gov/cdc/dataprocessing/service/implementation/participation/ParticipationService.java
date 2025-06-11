@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.participation;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.ParticipationHist;

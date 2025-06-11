@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.log;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.MessageLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.MessageLogRepository;

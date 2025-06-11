@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
-import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsNoteJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsNote;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.generic_helper;
 
 import gov.cdc.dataprocessing.constant.elr.DataTables;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;

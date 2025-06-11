@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import static gov.cdc.dataprocessing.constant.data_field.PUBLIC_HEALTH_CASE_UID_JAVA;
 import static gov.cdc.dataprocessing.constant.query.CaseManagementQuery.MERGE_CASE_MANAGEMENT;
 import static gov.cdc.dataprocessing.constant.query.CaseManagementQuery.SELECT_CASE_MANAGEMENT_BY_PH_CASE_UID;
 
@@ -21,7 +22,7 @@ public class CaseManagementJdbcRepository {
 
     public CaseManagement findByPublicHealthCaseUid(Long publicHealthCaseUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("publicHealthCaseUid", publicHealthCaseUid);
+                .addValue(PUBLIC_HEALTH_CASE_UID_JAVA, publicHealthCaseUid);
 
         try {
             return jdbcTemplateOdse.queryForObject(
@@ -40,7 +41,7 @@ public class CaseManagementJdbcRepository {
     public void mergeCaseManagement(CaseManagement caseManagement) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("caseManagementUid", caseManagement.getCaseManagementUid());
-        params.addValue("publicHealthCaseUid", caseManagement.getPublicHealthCaseUid());
+        params.addValue(PUBLIC_HEALTH_CASE_UID_JAVA, caseManagement.getPublicHealthCaseUid());
         params.addValue("status900", caseManagement.getStatus900());
         params.addValue("eharsId", caseManagement.getEharsId());
         params.addValue("epiLinkId", caseManagement.getEpiLinkId());

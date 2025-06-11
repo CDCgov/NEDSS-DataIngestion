@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
-import gov.cdc.dataprocessing.model.container.interfaces.ReportSummaryInterface;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
@@ -48,6 +47,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.data_field.PERSON_PARENT_UID_DB;
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LABORATORY_UID;
 
@@ -872,7 +872,7 @@ public class InvestigationService implements IInvestigationService {
                 Timestamp fromTime = null;
                 Iterator<UidSummaryContainer> itLabId = uidList.iterator();
                 while (itLabId.hasNext()) {
-                    if(uidType.equals("PERSON_PARENT_UID")){
+                    if (uidType.equalsIgnoreCase(PERSON_PARENT_UID_DB)) {
                         Long uid = itLabId.next().getUid();
                         var res = observationSummaryRepository.findLabSummaryForWorkupNew(uid, dataAccessWhereClause);
                         if (res.isPresent()) {
@@ -881,7 +881,7 @@ public class InvestigationService implements IInvestigationService {
 
                         }
                     }
-                    else if(uidType.equals(LABORATORY_UID))
+                    else if(uidType.equalsIgnoreCase(LABORATORY_UID))
                     {
                         UidSummaryContainer vo =  itLabId.next();
                         Long observationUid = vo.getUid();

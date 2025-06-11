@@ -7,10 +7,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Types;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.ObservationQuery.*;
 
 @Component
@@ -24,7 +24,7 @@ public class ObservationJdbcRepository {
 
     public Observation findObservationByUid(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
         return  jdbcTemplateOdse.queryForObject(
                 SELECT_OBSERVATION_BY_UID,
                 params,
@@ -42,14 +42,14 @@ public class ObservationJdbcRepository {
 
     public void insertObservation(Observation observation) {
         jdbcTemplateOdse.update(INSERT_OBSERVATION, new MapSqlParameterSource()
-                .addValue("observation_uid", observation.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, observation.getObservationUid())
                 .addValue("activity_duration_amt", observation.getActivityDurationAmt())
                 .addValue("activity_duration_unit_cd", observation.getActivityDurationUnitCd())
                 .addValue("activity_from_time", observation.getActivityFromTime())
                 .addValue("activity_to_time", observation.getActivityToTime())
-                .addValue("add_reason_cd", observation.getAddReasonCd())
-                .addValue("add_time", observation.getAddTime())
-                .addValue("add_user_id", observation.getAddUserId())
+                .addValue(ADD_REASON_CD_DB, observation.getAddReasonCd())
+                .addValue(ADD_TIME_DB, observation.getAddTime())
+                .addValue(ADD_USER_ID_DB, observation.getAddUserId())
                 .addValue("cd", observation.getCd())
                 .addValue("cd_desc_txt", observation.getCdDescTxt())
                 .addValue("cd_system_cd", observation.getCdSystemCd())
@@ -70,9 +70,9 @@ public class ObservationJdbcRepository {
                 .addValue("group_level_cd", observation.getGroupLevelCd())
                 .addValue("jurisdiction_cd", observation.getJurisdictionCd())
                 .addValue("lab_condition_cd", observation.getLabConditionCd())
-                .addValue("last_chg_reason_cd", observation.getLastChgReasonCd())
-                .addValue("last_chg_time", observation.getLastChgTime())
-                .addValue("last_chg_user_id", observation.getLastChgUserId())
+                .addValue(LAST_CHG_REASON_CD_DB, observation.getLastChgReasonCd())
+                .addValue(LAST_CHG_TIME_DB, observation.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_DB, observation.getLastChgUserId())
                 .addValue("local_id", observation.getLocalId())
                 .addValue("method_cd", observation.getMethodCd())
                 .addValue("method_desc_txt", observation.getMethodDescTxt())
@@ -82,25 +82,25 @@ public class ObservationJdbcRepository {
                 .addValue("priority_cd", observation.getPriorityCd())
                 .addValue("priority_desc_txt", observation.getPriorityDescTxt())
                 .addValue("prog_area_cd", observation.getProgAreaCd())
-                .addValue("record_status_cd", observation.getRecordStatusCd())
-                .addValue("record_status_time", observation.getRecordStatusTime())
+                .addValue(RECORD_STATUS_CD_DB, observation.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, observation.getRecordStatusTime())
                 .addValue("repeat_nbr", observation.getRepeatNbr())
-                .addValue("status_cd", observation.getStatusCd())
-                .addValue("status_time", observation.getStatusTime())
+                .addValue(STATUS_CD_DB, observation.getStatusCd())
+                .addValue(STATUS_TIME_DB, observation.getStatusTime())
                 .addValue("subject_person_uid", observation.getSubjectPersonUid())
                 .addValue("target_site_cd", observation.getTargetSiteCd())
                 .addValue("target_site_desc_txt", observation.getTargetSiteDescTxt())
                 .addValue("txt", observation.getTxt())
-                .addValue("user_affiliation_txt", observation.getUserAffiliationTxt())
+                .addValue(USER_AFFILIATION_TXT_DB, observation.getUserAffiliationTxt())
                 .addValue("value_cd", observation.getValueCd())
                 .addValue("ynu_cd", observation.getYnuCd())
                 .addValue("program_jurisdiction_oid", observation.getProgramJurisdictionOid())
                 .addValue("shared_ind", observation.getSharedInd())
                 .addValue("version_ctrl_nbr", observation.getVersionCtrlNbr())
-                .addValue("alt_cd", observation.getAltCd())
-                .addValue("alt_cd_desc_txt", observation.getAltCdDescTxt())
-                .addValue("alt_cd_system_cd", observation.getAltCdSystemCd())
-                .addValue("alt_cd_system_desc_txt", observation.getAltCdSystemDescTxt())
+                .addValue(ALT_CD_DB, observation.getAltCd())
+                .addValue(ALT_CD_DESC_TXT_DB, observation.getAltCdDescTxt())
+                .addValue(ALT_CD_SYSTEM_CD_DB, observation.getAltCdSystemCd())
+                .addValue(ALT_CD_SYSTEM_DESC_TXT_DB, observation.getAltCdSystemDescTxt())
                 .addValue("cd_derived_ind", observation.getCdDerivedInd())
                 .addValue("rpt_to_state_time", observation.getRptToStateTime())
                 .addValue("cd_version", observation.getCdVersion())
@@ -113,14 +113,14 @@ public class ObservationJdbcRepository {
 
     public void updateObservation(Observation observation) {
         jdbcTemplateOdse.update(UPDATE_OBSERVATION, new MapSqlParameterSource()
-                .addValue("observation_uid", observation.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, observation.getObservationUid())
                 .addValue("activity_duration_amt", observation.getActivityDurationAmt())
                 .addValue("activity_duration_unit_cd", observation.getActivityDurationUnitCd())
                 .addValue("activity_from_time", observation.getActivityFromTime())
                 .addValue("activity_to_time", observation.getActivityToTime())
-                .addValue("add_reason_cd", observation.getAddReasonCd())
-                .addValue("add_time", observation.getAddTime())
-                .addValue("add_user_id", observation.getAddUserId())
+                .addValue(ADD_REASON_CD_DB, observation.getAddReasonCd())
+                .addValue(ADD_TIME_DB, observation.getAddTime())
+                .addValue(ADD_USER_ID_DB, observation.getAddUserId())
                 .addValue("cd", observation.getCd())
                 .addValue("cd_desc_txt", observation.getCdDescTxt())
                 .addValue("cd_system_cd", observation.getCdSystemCd())
@@ -141,9 +141,9 @@ public class ObservationJdbcRepository {
                 .addValue("group_level_cd", observation.getGroupLevelCd())
                 .addValue("jurisdiction_cd", observation.getJurisdictionCd())
                 .addValue("lab_condition_cd", observation.getLabConditionCd())
-                .addValue("last_chg_reason_cd", observation.getLastChgReasonCd())
-                .addValue("last_chg_time", observation.getLastChgTime())
-                .addValue("last_chg_user_id", observation.getLastChgUserId())
+                .addValue(LAST_CHG_REASON_CD_DB, observation.getLastChgReasonCd())
+                .addValue(LAST_CHG_TIME_DB, observation.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_DB, observation.getLastChgUserId())
                 .addValue("local_id", observation.getLocalId())
                 .addValue("method_cd", observation.getMethodCd())
                 .addValue("method_desc_txt", observation.getMethodDescTxt())
@@ -153,25 +153,25 @@ public class ObservationJdbcRepository {
                 .addValue("priority_cd", observation.getPriorityCd())
                 .addValue("priority_desc_txt", observation.getPriorityDescTxt())
                 .addValue("prog_area_cd", observation.getProgAreaCd())
-                .addValue("record_status_cd", observation.getRecordStatusCd())
-                .addValue("record_status_time", observation.getRecordStatusTime())
+                .addValue(RECORD_STATUS_CD_DB, observation.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, observation.getRecordStatusTime())
                 .addValue("repeat_nbr", observation.getRepeatNbr())
-                .addValue("status_cd", observation.getStatusCd())
-                .addValue("status_time", observation.getStatusTime())
+                .addValue(STATUS_CD_DB, observation.getStatusCd())
+                .addValue(STATUS_TIME_DB, observation.getStatusTime())
                 .addValue("subject_person_uid", observation.getSubjectPersonUid())
                 .addValue("target_site_cd", observation.getTargetSiteCd())
                 .addValue("target_site_desc_txt", observation.getTargetSiteDescTxt())
                 .addValue("txt", observation.getTxt())
-                .addValue("user_affiliation_txt", observation.getUserAffiliationTxt())
+                .addValue(USER_AFFILIATION_TXT_DB, observation.getUserAffiliationTxt())
                 .addValue("value_cd", observation.getValueCd())
                 .addValue("ynu_cd", observation.getYnuCd())
                 .addValue("program_jurisdiction_oid", observation.getProgramJurisdictionOid())
                 .addValue("shared_ind", observation.getSharedInd())
                 .addValue("version_ctrl_nbr", observation.getVersionCtrlNbr())
-                .addValue("alt_cd", observation.getAltCd())
-                .addValue("alt_cd_desc_txt", observation.getAltCdDescTxt())
-                .addValue("alt_cd_system_cd", observation.getAltCdSystemCd())
-                .addValue("alt_cd_system_desc_txt", observation.getAltCdSystemDescTxt())
+                .addValue(ALT_CD_DB, observation.getAltCd())
+                .addValue(ALT_CD_DESC_TXT_DB, observation.getAltCdDescTxt())
+                .addValue(ALT_CD_SYSTEM_CD_DB, observation.getAltCdSystemCd())
+                .addValue(ALT_CD_SYSTEM_DESC_TXT_DB, observation.getAltCdSystemDescTxt())
                 .addValue("cd_derived_ind", observation.getCdDerivedInd())
                 .addValue("rpt_to_state_time", observation.getRptToStateTime())
                 .addValue("cd_version", observation.getCdVersion())
@@ -192,7 +192,7 @@ public class ObservationJdbcRepository {
 
     public void deleteObservationReason(ObservationReason reason) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", reason.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, reason.getObservationUid())
                 .addValue("reason_cd", reason.getReasonCd());
 
         jdbcTemplateOdse.update(DELETE_SQL_OBS_REASON, params);
@@ -200,7 +200,7 @@ public class ObservationJdbcRepository {
 
     private MapSqlParameterSource buildParamsObsReason(ObservationReason r) {
         return new MapSqlParameterSource()
-                .addValue("observation_uid", r.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, r.getObservationUid())
                 .addValue("reason_cd", r.getReasonCd())
                 .addValue("reason_desc_txt", r.getReasonDescTxt());
     }
@@ -215,7 +215,7 @@ public class ObservationJdbcRepository {
 
     public void deleteObservationInterp(ObservationInterp interp) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", interp.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, interp.getObservationUid())
                 .addValue("interpretation_cd", interp.getInterpretationCd());
 
         jdbcTemplateOdse.update(DELETE_SQL_OBS_INTERP, params);
@@ -223,7 +223,7 @@ public class ObservationJdbcRepository {
 
     private MapSqlParameterSource buildParamsObsInterp(ObservationInterp interp) {
         return new MapSqlParameterSource()
-                .addValue("observation_uid", interp.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, interp.getObservationUid())
                 .addValue("interpretation_cd", interp.getInterpretationCd())
                 .addValue("interpretation_desc_txt", interp.getInterpretationDescTxt());
     }
@@ -238,24 +238,24 @@ public class ObservationJdbcRepository {
 
     public void deleteObsValueCoded(ObsValueCoded obs) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("code", obs.getCode());
         jdbcTemplateOdse.update(DELETE_SQL_OBS_VALUE_CODED, params);
     }
 
     private MapSqlParameterSource buildParamsObsValueCoded(ObsValueCoded obs) {
         return new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("code", obs.getCode())
                 .addValue("code_system_cd", obs.getCodeSystemCd())
                 .addValue("code_system_desc_txt", obs.getCodeSystemDescTxt())
                 .addValue("code_version", obs.getCodeVersion())
                 .addValue("display_name", obs.getDisplayName())
                 .addValue("original_txt", obs.getOriginalTxt())
-                .addValue("alt_cd", obs.getAltCd())
-                .addValue("alt_cd_desc_txt", obs.getAltCdDescTxt())
-                .addValue("alt_cd_system_cd", obs.getAltCdSystemCd())
-                .addValue("alt_cd_system_desc_txt", obs.getAltCdSystemDescTxt())
+                .addValue(ALT_CD_DB, obs.getAltCd())
+                .addValue(ALT_CD_DESC_TXT_DB, obs.getAltCdDescTxt())
+                .addValue(ALT_CD_SYSTEM_CD_DB, obs.getAltCdSystemCd())
+                .addValue(ALT_CD_SYSTEM_DESC_TXT_DB, obs.getAltCdSystemDescTxt())
                 .addValue("code_derived_ind", obs.getCodeDerivedInd());
     }
 
@@ -269,14 +269,14 @@ public class ObservationJdbcRepository {
 
     public void deleteObsValueTxt(ObsValueTxt obs) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("obs_value_txt_seq", obs.getObsValueTxtSeq());
         jdbcTemplateOdse.update(DELETE_SQL_OBS_VALUE_TXT, params);
     }
 
     private MapSqlParameterSource buildParamsObsValueTxt(ObsValueTxt obs) {
         return new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("obs_value_txt_seq", obs.getObsValueTxtSeq())
                 .addValue("data_subtype_cd", obs.getDataSubtypeCd())
                 .addValue("encoding_type_cd", obs.getEncodingTypeCd())
@@ -295,14 +295,14 @@ public class ObservationJdbcRepository {
 
     public void deleteObsValueDate(ObsValueDate obs) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("obs_value_date_seq", obs.getObsValueDateSeq());
         jdbcTemplateOdse.update(DELETE_SQL_OBS_VALUE_DATE, params);
     }
 
     private MapSqlParameterSource buildParamsObsValueDate(ObsValueDate obs) {
         return new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("obs_value_date_seq", obs.getObsValueDateSeq())
                 .addValue("duration_amt", obs.getDurationAmt())
                 .addValue("duration_unit_cd", obs.getDurationUnitCd())
@@ -320,14 +320,14 @@ public class ObservationJdbcRepository {
 
     public void deleteObsValueNumeric(ObsValueNumeric obs) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("obs_value_numeric_seq", obs.getObsValueNumericSeq());
         jdbcTemplateOdse.update(DELETE_SQL_OBS_VALUE_NUMERIC, params);
     }
 
     private MapSqlParameterSource buildParamsObsValueNumeric(ObsValueNumeric obs) {
         return new MapSqlParameterSource()
-                .addValue("observation_uid", obs.getObservationUid())
+                .addValue(OBSERVATION_UID_DB, obs.getObservationUid())
                 .addValue("obs_value_numeric_seq", obs.getObsValueNumericSeq())
                 .addValue("high_range", obs.getHighRange())
                 .addValue("low_range", obs.getLowRange())
@@ -342,7 +342,7 @@ public class ObservationJdbcRepository {
 
     public List<ObservationReason> findByObservationReasons(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_OBS_REASONS,
@@ -353,7 +353,7 @@ public class ObservationJdbcRepository {
 
     public List<ObservationInterp> findByObservationInterp(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_OBS_INTERP_UID,
@@ -364,7 +364,7 @@ public class ObservationJdbcRepository {
 
     public List<ObsValueCoded> findByObservationCodedUid(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_OBS_CODED_UID,
@@ -375,7 +375,7 @@ public class ObservationJdbcRepository {
 
     public List<ObsValueTxt> findByObservationTxtUid(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_OBS_TXT,
@@ -386,7 +386,7 @@ public class ObservationJdbcRepository {
 
     public List<ObsValueDate> findByObservationDateUid(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_OBS_DATE_UID,
@@ -397,7 +397,7 @@ public class ObservationJdbcRepository {
 
     public List<ObsValueNumeric> findByObservationNumericUid(Long observationUid) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("observation_uid", observationUid);
+                .addValue(OBSERVATION_UID_DB, observationUid);
 
         return jdbcTemplateOdse.query(
                 SELECT_BY_OBS_NUMERIC_UID,

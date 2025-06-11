@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.ActRelationshipQuery.*;
 
 @Component
@@ -34,62 +35,62 @@ public class ActRelationshipJdbcRepository {
 
     private MapSqlParameterSource buildParams(ActRelationship a) {
         return new MapSqlParameterSource()
-                .addValue("source_act_uid", a.getSourceActUid())
+                .addValue(SOURCE_ACT_UID_DB, a.getSourceActUid())
                 .addValue("target_act_uid", a.getTargetActUid())
                 .addValue("type_cd", a.getTypeCd())
-                .addValue("add_reason_cd", a.getAddReasonCd())
-                .addValue("add_time", a.getAddTime())
-                .addValue("add_user_id", a.getAddUserId())
+                .addValue(ADD_REASON_CD_DB, a.getAddReasonCd())
+                .addValue(ADD_TIME_DB, a.getAddTime())
+                .addValue(ADD_USER_ID_DB, a.getAddUserId())
                 .addValue("duration_amt", a.getDurationAmt())
                 .addValue("duration_unit_cd", a.getDurationUnitCd())
                 .addValue("from_time", a.getFromTime())
-                .addValue("last_chg_reason_cd", a.getLastChgReasonCd())
-                .addValue("last_chg_time", a.getLastChgTime())
-                .addValue("last_chg_user_id", a.getLastChgUserId())
-                .addValue("record_status_cd", a.getRecordStatusCd())
-                .addValue("record_status_time", a.getRecordStatusTime())
+                .addValue(LAST_CHG_REASON_CD_DB, a.getLastChgReasonCd())
+                .addValue(LAST_CHG_TIME_DB, a.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_DB, a.getLastChgUserId())
+                .addValue(RECORD_STATUS_CD_DB, a.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_DB, a.getRecordStatusTime())
                 .addValue("sequence_nbr", a.getSequenceNbr())
                 .addValue("source_class_cd", a.getSourceClassCd())
-                .addValue("status_cd", a.getStatusCd())
-                .addValue("status_time", a.getStatusTime())
+                .addValue(STATUS_CD_DB, a.getStatusCd())
+                .addValue(STATUS_TIME_DB, a.getStatusTime())
                 .addValue("target_class_cd", a.getTargetClassCd())
                 .addValue("to_time", a.getToTime())
                 .addValue("type_desc_txt", a.getTypeDescTxt())
-                .addValue("user_affiliation_txt", a.getUserAffiliationTxt());
+                .addValue(USER_AFFILIATION_TXT_DB, a.getUserAffiliationTxt());
     }
 
     public void insertActRelationshipHistory(ActRelationshipHistory history) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("sourceActUid", history.getSourceActUid())
+                .addValue(SOURCE_ACT_UID_JAVA, history.getSourceActUid())
                 .addValue("targetActUid", history.getTargetActUid())
                 .addValue("typeCd", history.getTypeCd())
                 .addValue("versionCrl", history.getVersionCrl())
-                .addValue("addReasonCd", history.getAddReasonCd())
-                .addValue("addTime", history.getAddTime())
-                .addValue("addUserId", history.getAddUserId())
+                .addValue(ADD_REASON_CD_JAVA, history.getAddReasonCd())
+                .addValue(ADD_TIME_JAVA, history.getAddTime())
+                .addValue(ADD_USER_ID_JAVA, history.getAddUserId())
                 .addValue("durationAmt", history.getDurationAmt())
                 .addValue("durationUnitCd", history.getDurationUnitCd())
                 .addValue("fromTime", history.getFromTime())
-                .addValue("lastChgReasonCd", history.getLastChgReasonCd())
-                .addValue("lastChgTime", history.getLastChgTime())
-                .addValue("lastChgUserId", history.getLastChgUserId())
-                .addValue("recordStatusCd", history.getRecordStatusCd())
-                .addValue("recordStatusTime", history.getRecordStatusTime())
+                .addValue(LAST_CHG_REASON_CD_JAVA, history.getLastChgReasonCd())
+                .addValue(LAST_CHG_TIME_JAVA, history.getLastChgTime())
+                .addValue(LAST_CHG_USER_ID_JAVA, history.getLastChgUserId())
+                .addValue(RECORD_STATUS_CD_JAVA, history.getRecordStatusCd())
+                .addValue(RECORD_STATUS_TIME_JAVA, history.getRecordStatusTime())
                 .addValue("sequenceNbr", history.getSequenceNbr())
-                .addValue("statusCd", history.getStatusCd())
-                .addValue("statusTime", history.getStatusTime())
+                .addValue(STATUS_CD_JAVA, history.getStatusCd())
+                .addValue(STATUS_TIME_JAVA, history.getStatusTime())
                 .addValue("sourceClassCd", history.getSourceClassCd())
                 .addValue("targetClassCd", history.getTargetClassCd())
                 .addValue("toTime", history.getToTime())
                 .addValue("typeDescTxt", history.getTypeDescTxt())
-                .addValue("userAffiliationTxt", history.getUserAffiliationTxt());
+                .addValue(USER_AFFILIATION_TXT_JAVA, history.getUserAffiliationTxt());
 
         jdbcTemplateOdse.update(CREATE_ACT_RELATIONSHIP_HISTORY, params);
     }
 
     public void deleteActRelationship(ActRelationship act) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("source_act_uid", act.getSourceActUid())
+                .addValue(SOURCE_ACT_UID_DB, act.getSourceActUid())
                 .addValue("target_act_uid", act.getTargetActUid())
                 .addValue("type_cd", act.getTypeCd());
 
@@ -97,7 +98,7 @@ public class ActRelationshipJdbcRepository {
     }
 
     public List<ActRelationship> findBySourceActUid(Long sourceActUid) {
-        MapSqlParameterSource params = new MapSqlParameterSource("sourceActUid", sourceActUid);
+        MapSqlParameterSource params = new MapSqlParameterSource(SOURCE_ACT_UID_JAVA, sourceActUid);
         return jdbcTemplateOdse.query(
                 SELECT_BY_SOURCE,
                 params,
@@ -107,7 +108,7 @@ public class ActRelationshipJdbcRepository {
 
     public List<ActRelationship> findBySourceActUidAndTypeCode(Long sourceActUid, String typeCode) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("sourceActUid", sourceActUid)
+                .addValue(SOURCE_ACT_UID_JAVA, sourceActUid)
                 .addValue("typeCd", typeCode);
         return jdbcTemplateOdse.query(
                 SELECT_BY_SOURCE_AND_TYPE_CODE,
