@@ -2,6 +2,7 @@ package gov.cdc.srtedataservice.service;
 
 import gov.cdc.srtedataservice.cache_model.SrteCache;
 import gov.cdc.srtedataservice.constant.ELRConstant;
+import gov.cdc.srtedataservice.exception.DataProcessingException;
 import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.repository.nbs.srte.model.*;
 import gov.cdc.srtedataservice.repository.nbs.srte.repository.*;
@@ -66,7 +67,7 @@ public class CachingValueService implements ICatchingValueService {
         this.srteCustomRepository = srteCustomRepository;
     }
 
-    public HashMap<String, String> getAllLoinCodeWithComponentName() throws DataProcessingException {
+    public HashMap<String, String> getAllLoinCodeWithComponentName()  {
        // return loadCache(loincCodeRepository::findAll, LOINCCode::getLoincCode, LOINCCode::getComponentName);
         HashMap<String, String> result = new HashMap<>();
 
@@ -79,7 +80,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd() throws DataProcessingException {
+    public HashMap<String, String> getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd()  {
     //    return loadCache(srteCustomRepository::getAllLabResultJoinWithLabCodingSystemWithOrganismNameInd, LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
@@ -92,7 +93,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getAllSnomedCode() throws DataProcessingException {
+    public HashMap<String, String> getAllSnomedCode()  {
        // return loadCache(snomedCodeRepository::findAll, SnomedCode::getSnomedCd, SnomedCode::getSnomedDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
@@ -105,7 +106,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getLabResultDesc() throws DataProcessingException {
+    public HashMap<String, String> getLabResultDesc()  {
        // return loadCache(() -> labResultRepository.findLabResultByDefaultLabAndOrgNameN().orElse(Collections.emptyList()), LabResult::getLabResultCd, LabResult::getLabResultDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
@@ -119,7 +120,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getAOELOINCCodes() throws DataProcessingException {
+    public HashMap<String, String> getAOELOINCCodes()  {
        // return loadCache(() -> loincCodeRepository.findLoincCodes().orElse(Collections.emptyList()), LOINCCode::getLoincCode, LOINCCode::getLoincCode);
         HashMap<String, String> result = new HashMap<>();
 
@@ -133,7 +134,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getRaceCodes() throws DataProcessingException {
+    public HashMap<String, String> getRaceCodes()  {
       //  return loadCache(() -> raceCodeRepository.findAllActiveRaceCodes().orElse(Collections.emptyList()), RaceCode::getCode, RaceCode::getCodeShortDescTxt);
         HashMap<String, String> result = new HashMap<>();
 
@@ -147,7 +148,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getAllProgramAreaCodes() throws DataProcessingException {
+    public HashMap<String, String> getAllProgramAreaCodes()  {
     //    return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getProgAreaDescTxt);
         HashMap<String, String> result = new HashMap<>();
         List<ProgramAreaCode> programAreaCodes = programAreaService.getAllProgramAreaCode();
@@ -158,7 +159,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid() throws DataProcessingException {
+    public HashMap<String, Integer> getAllProgramAreaCodesWithNbsUid()  {
      //   return loadCache(programAreaService::getAllProgramAreaCode, ProgramAreaCode::getProgAreaCd, ProgramAreaCode::getNbsUid);
         HashMap<String, Integer> result = new HashMap<>();
         List<ProgramAreaCode> programAreaCodes = programAreaService.getAllProgramAreaCode();
@@ -169,7 +170,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, String> getAllJurisdictionCode() throws DataProcessingException {
+    public HashMap<String, String> getAllJurisdictionCode()  {
         //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
         HashMap<String, String> result = new HashMap<>();
         List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
@@ -182,7 +183,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid() throws DataProcessingException {
+    public HashMap<String, Integer> getAllJurisdictionCodeWithNbsUid()  {
         //return loadCache(jurisdictionService::getJurisdictionCode, JurisdictionCode::getCode, JurisdictionCode::getNbsUid);
         HashMap<String, Integer> result = new HashMap<>();
         List<JurisdictionCode> jurisdictionCodes = jurisdictionService.getJurisdictionCode();
@@ -195,15 +196,12 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public List<ElrXref> getAllElrXref() throws DataProcessingException {
-        try {
-            return elrXrefRepository.findAll();
-        } catch (Exception e) {
-            throw new RtiCacheException(e.getMessage(), e);
-        }
+    public List<ElrXref> getAllElrXref()  {
+        return elrXrefRepository.findAll();
+
     }
 
-    public HashMap<String, String> getAllOnInfectionConditionCode() throws DataProcessingException {
+    public HashMap<String, String> getAllOnInfectionConditionCode()  {
         //return loadCache(() -> conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList()), ConditionCode::getConditionCd, ConditionCode::getCoinfectionGrpCd);
         HashMap<String, String> result = new HashMap<>();
         List<ConditionCode> conditionCodes = conditionCodeRepository.findCoInfectionConditionCode().orElse(Collections.emptyList());
@@ -215,16 +213,12 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    public List<ConditionCode> getAllConditionCode() throws DataProcessingException {
-        try {
-            return conditionCodeRepository.findAllConditionCode().orElse(Collections.emptyList());
-        } catch (Exception e) {
-            throw new RtiCacheException(e.getMessage(), e);
-        }
+    public List<ConditionCode> getAllConditionCode()  {
+        return conditionCodeRepository.findAllConditionCode().orElse(Collections.emptyList());
     }
 
     @SuppressWarnings("java:S2696")
-    public HashMap<String, String> getCodedValues(String pType, String key) throws DataProcessingException {
+    public HashMap<String, String> getCodedValues(String pType, String key)  {
         if (!SrteCache.codedValuesMap.containsKey(key) || SrteCache.codedValuesMap.get(key).isEmpty()) {
             SrteCache.codedValuesMap.putAll(getCodedValuesCallRepos(pType));
         }
@@ -232,7 +226,7 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     @SuppressWarnings("java:S2696")
-    public String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
+    public String getCodeDescTxtForCd(String code, String codeSetNm)  {
         if ( SrteCache.codeDescTxtMap.get(code) == null || SrteCache.codeDescTxtMap.get(code).isEmpty()) {
             SrteCache.codeDescTxtMap.putAll(getCodedValuesCallRepos(codeSetNm));
         }
@@ -241,15 +235,12 @@ public class CachingValueService implements ICatchingValueService {
 
 
 
-    public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws DataProcessingException {
-        try {
+    public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm)  {
             return elrXrefRepository.findToCodeByConditions(fromCodeSetNm, fromCode, toCodeSetNm).map(ElrXref::getToCode).orElse("");
-        } catch (Exception e) {
-            throw new RtiCacheException(e.getMessage(), e);
-        }
+
     }
 
-    public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
+    public String getCountyCdByDesc(String county, String stateCd)  {
         if (county == null || stateCd == null) {
             return null;
         }
@@ -279,7 +270,7 @@ public class CachingValueService implements ICatchingValueService {
 
 
 
-    public HashMap<String, String> getCodedValuesCallRepos(String pType) throws DataProcessingException {
+    public HashMap<String, String> getCodedValuesCallRepos(String pType)  {
         if ("S_JURDIC_C".equals(pType)) {
             return getJurisdictionCode();
         } else {
@@ -287,28 +278,25 @@ public class CachingValueService implements ICatchingValueService {
         }
     }
 
-    public HashMap<String, String> getCodedValue(String code) throws DataProcessingException {
+    public HashMap<String, String> getCodedValue(String code)  {
         HashMap<String, String> map = new HashMap<>();
-        try {
-            List<CodeValueGeneral> codeValueGeneralList;
-            if (ELRConstant.ELR_LOG_PROCESS.equals(code)) {
-                codeValueGeneralList = codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code).orElse(Collections.emptyList());
-                for (CodeValueGeneral obj : codeValueGeneralList) {
-                    map.put(obj.getCode(), obj.getCodeDescTxt());
-                }
-            } else {
-                codeValueGeneralList = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code).orElse(Collections.emptyList());
-                for (CodeValueGeneral obj : codeValueGeneralList) {
-                    map.put(obj.getCode(), obj.getCodeShortDescTxt());
-                }
+        List<CodeValueGeneral> codeValueGeneralList;
+        if (ELRConstant.ELR_LOG_PROCESS.equals(code)) {
+            codeValueGeneralList = codeValueGeneralRepository.findCodeDescriptionsByCodeSetNm(code).orElse(Collections.emptyList());
+            for (CodeValueGeneral obj : codeValueGeneralList) {
+                map.put(obj.getCode(), obj.getCodeDescTxt());
             }
-        } catch (Exception e) {
-            throw new RtiCacheException(e.getMessage(), e);
+        } else {
+            codeValueGeneralList = codeValueGeneralRepository.findCodeValuesByCodeSetNm(code).orElse(Collections.emptyList());
+            for (CodeValueGeneral obj : codeValueGeneralList) {
+                map.put(obj.getCode(), obj.getCodeShortDescTxt());
+            }
         }
+
         return map;
     }
 
-    private HashMap<String, String> getJurisdictionCode() throws DataProcessingException {
+    private HashMap<String, String> getJurisdictionCode()  {
 //        return loadCache(() -> jurisdictionCodeRepository.findJurisdictionCodeValues().orElse(Collections.emptyList()), JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
 
         HashMap<String, String> result = new HashMap<>();
@@ -324,7 +312,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-    protected HashMap<String, String> getCountyCdByDescCallRepos(String stateCd) throws DataProcessingException {
+    protected HashMap<String, String> getCountyCdByDescCallRepos(String stateCd)  {
 //        return loadCache(() -> {
 //            if (stateCd == null || stateCd.trim().isEmpty()) {
 //                return stateCountyCodeValueRepository.findByIndentLevelNbr().orElse(Collections.emptyList());
@@ -352,7 +340,7 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-//    private <T, K, V> HashMap<K, V> loadCache(CacheLoader<T> loader, KeyExtractor<T, K> keyExtractor, ValueExtractor<T, V> valueExtractor) throws DataProcessingException {
+//    private <T, K, V> HashMap<K, V> loadCache(CacheLoader<T> loader, KeyExtractor<T, K> keyExtractor, ValueExtractor<T, V> valueExtractor)  {
 //        HashMap<K, V> map = new HashMap<>();
 //        try {
 //            List<T> result = loader.load();
@@ -367,7 +355,7 @@ public class CachingValueService implements ICatchingValueService {
 
 //    @FunctionalInterface
 //    private interface CacheLoader<T> {
-//        List<T> load() throws DataProcessingException;
+//        List<T> load() ;
 //    }
 //
 //    @FunctionalInterface

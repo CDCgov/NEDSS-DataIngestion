@@ -2,6 +2,7 @@ package gov.cdc.srtedataservice.service;
 
 import gov.cdc.srtedataservice.cache_model.SrteCache;
 import gov.cdc.srtedataservice.constant.ObjectName;
+import gov.cdc.srtedataservice.exception.DataProcessingException;
 import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.repository.nbs.srte.model.ConditionCode;
 import gov.cdc.srtedataservice.service.interfaces.ICatchingValueService;
@@ -151,7 +152,7 @@ public class ManagerCacheService implements IManagerCacheService {
     }
 
     @PostConstruct
-    public void loadCache() throws DataProcessingException {
+    public void loadCache() throws DataProcessingException, RtiCacheException {
         SrteCache.loincCodesMap = cachingValueService.getAOELOINCCodes();
         SrteCache.raceCodesMap = cachingValueService.getRaceCodes();
         SrteCache.programAreaCodesMap = cachingValueService.getAllProgramAreaCodes();
