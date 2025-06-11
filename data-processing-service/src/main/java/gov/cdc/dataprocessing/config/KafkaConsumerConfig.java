@@ -68,9 +68,20 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(createConsumerFactory(groupId));
         factory.setConcurrency(thread);
+        factory.setBatchListener(true);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
+
+    private ConcurrentKafkaListenerContainerFactory<String, String> createContainerFactoryNonBatch(String groupId) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(createConsumerFactory(groupId));
+        factory.setConcurrency(1); // Usually, DLTs are handled serially
+        factory.setBatchListener(false);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        return factory;
+    }
+
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryStep1() {
@@ -91,4 +102,15 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryStep4() {
         return createContainerFactory(groupIdEdx);
     }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryDltStep1() {
+        return createContainerFactoryNonBatch("dlt-step-1");
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryDltStep2() {
+        return createContainerFactoryNonBatch("dlt-step-2");
+    }
+
 }
