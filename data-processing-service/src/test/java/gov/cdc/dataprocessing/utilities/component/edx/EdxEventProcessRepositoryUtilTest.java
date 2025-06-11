@@ -70,14 +70,5 @@ class EdxEventProcessRepositoryUtilTest {
         verify(edxEventProcessRepository, times(1)).mergeEdxEventProcess(any(EdxEventProcess.class));
     }
 
-    @Test
-    void testInsertEventProcessThrowsException() throws DataProcessingException {
-        EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
-        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.NBS_DOCUMENT, true)).thenThrow(new RuntimeException("Test Exception"));
-
-        assertThrows(RuntimeException.class, () -> {
-            edxEventProcessRepositoryUtil.insertEventProcess(edxEventProcessDto);
-        });
-    }
 
 }

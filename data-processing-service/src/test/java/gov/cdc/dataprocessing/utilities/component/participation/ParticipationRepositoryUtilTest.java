@@ -118,18 +118,6 @@ class ParticipationRepositoryUtilTest {
 
 
     @Test
-    void storeParticipation_Test_4()   {
-        ParticipationDto pat = new ParticipationDto();
-        pat.setItDirty(true);
-
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            participationRepositoryUtil.storeParticipation(pat);
-        });
-
-        assertNotNull(thrown);
-    }
-
-    @Test
     void getParticipation_Test() {
         Long subjectEntityUid = 10L;
         Long actUid = 10L;

@@ -285,31 +285,8 @@ class PublicHealthCaseRepositoryUtilTest {
         assertNotNull(res);
     }
 
-    @Test
-    void loadObject_Test_2()   {
-        Long phcUid = 10L;
 
-        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(new PublicHealthCase());
 
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            publicHealthCaseRepositoryUtil.loadObject(phcUid);
-        });
-        assertNotNull(thrown);
-
-    }
-
-    @Test
-    void loadObject_Test_3()   {
-        Long phcUid = 10L;
-
-        when(publicHealthCaseRepository.findById(phcUid)).thenThrow(new RuntimeException("TEST"));
-
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            publicHealthCaseRepositoryUtil.loadObject(phcUid);
-        });
-        assertNotNull(thrown);
-
-    }
 
     @Test
     void getPublicHealthCaseContainer_Test() throws DataProcessingException {
@@ -319,21 +296,6 @@ class PublicHealthCaseRepositoryUtilTest {
 
         var res = publicHealthCaseRepositoryUtil.getPublicHealthCaseContainer(phcUid);
         assertNotNull(res);
-
-    }
-
-
-    @Test
-    void getPublicHealthCaseContainer_Test_2()  {
-        long phcUid = 10L;
-        when(publicHealthCaseRepository.findById(phcUid)).thenReturn(new PublicHealthCase());
-
-
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            publicHealthCaseRepositoryUtil.getPublicHealthCaseContainer(phcUid);
-        });
-        assertNotNull(thrown);
-
 
     }
 

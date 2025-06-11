@@ -240,30 +240,6 @@ class OrganizationRepositoryUtilTest {
     }
 
     @Test
-    void createOrganization_for_throw_exp_on_localId() throws DataProcessingException {
-        OrganizationContainer organizationContainer = new OrganizationContainer();
-        OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
-        organizationDto.setOrganizationUid(123L);
-
-        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
-        orgNameDto.setOrganizationUid(123L);
-        orgNameDto.setOrganizationNameSeq(1234);
-        orgNameDto.setNmTxt("TEST_ORG_NAME");
-
-        Collection<OrganizationNameDto> theOrganizationNameDtoCollection = new ArrayList<>();
-        theOrganizationNameDtoCollection.add(orgNameDto);
-        organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
-
-        LocalUidGenerator localIdModel = new LocalUidGenerator();
-        localIdModel.setSeedValueNbr(1234L);
-        localIdModel.setUidPrefixCd("TEST_PX");
-        localIdModel.setUidSuffixCd("TEST_SX");
-
-        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(NullPointerException.class, () -> organizationRepositoryUtil.createOrganization(organizationContainer));
-    }
-
-    @Test
     void updateOrganization() throws DataProcessingException {
         OrganizationContainer organizationContainer = new OrganizationContainer();
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();

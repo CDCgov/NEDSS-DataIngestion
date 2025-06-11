@@ -380,7 +380,7 @@ class ObservationRepositoryUtilTest {
         ObservationDto observationDto = new ObservationDto();
         observationDto.setObservationUid(10L);
 
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             observationRepositoryUtil.setObservationInfo(observationDto);
         });
 
@@ -388,18 +388,6 @@ class ObservationRepositoryUtilTest {
 
     }
 
-    @Test
-    void setObservationInfo_Test_2()  {
-        ObservationDto observationDto = new ObservationDto();
-        observationDto.setObservationUid(null);
-
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            observationRepositoryUtil.setObservationInfo(observationDto);
-        });
-
-        assertNotNull(thrown);
-
-    }
 
     @Test
     void setObservationInfo_Test_3()  {

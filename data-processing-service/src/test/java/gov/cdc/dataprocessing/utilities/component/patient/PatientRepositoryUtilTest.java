@@ -459,7 +459,7 @@ class PatientRepositoryUtilTest {
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
-        verify(dataModifierReposJdbc, times(0)).deletePersonRaceByUid(eq(11L),any());
+        verify(dataModifierReposJdbc, times(1)).deletePersonRaceByUid(eq(11L),any());
     }
 
 

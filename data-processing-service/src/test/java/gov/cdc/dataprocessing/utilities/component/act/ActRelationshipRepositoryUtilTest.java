@@ -99,7 +99,7 @@ class ActRelationshipRepositoryUtilTest {
         long actUid = 1L;
         when(actRelationshipRepository.findByTargetActUid(actUid)).thenThrow(new RuntimeException("Test Exception"));
 
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(actUid);
         });
     }
