@@ -302,10 +302,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
             Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
             for (PersonNameDto personNameDto : personNameDtoColl) {
-                if (personNameDto.getNmUseCd() == null) {
-                    String Message = "personNameDT.getNmUseCd() is null";
-                    logger.debug(Message);
-                }
                 if (personNameDto.getNmUseCd() != null && personNameDto.getNmUseCd().equals(NEDSSConstant.LEGAL) &&
                         personNameDto.getLastNm() != null || personNameDto.getFirstNm() != null) {
                     nameStr = personNameDto.getLastNm() + personNameDto.getFirstNm();

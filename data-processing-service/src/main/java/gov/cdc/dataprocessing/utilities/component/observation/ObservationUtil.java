@@ -116,9 +116,9 @@ public class ObservationUtil {
         Collection<ObservationContainer>  obsColl = null;
         boolean isLabReport = false;
 
-        if (proxy instanceof LabResultProxyContainer)
+        if (proxy instanceof LabResultProxyContainer labResultProxyContainer)
         {
-            obsColl = ( (LabResultProxyContainer) proxy).getTheObservationContainerCollection();
+            obsColl = labResultProxyContainer.getTheObservationContainerCollection();
             isLabReport = true;
         }
 

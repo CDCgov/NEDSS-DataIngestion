@@ -386,9 +386,9 @@ public class ObservationService implements IObservationService {
         mapper.put(DataProcessingMapKey.INTERVENTION, retrieveInterventionFromActRelationship(actRelColl));
 
         //Retrieve associated observations and performing labs of any resulted tests
-        Map<DataProcessingMapKey, Object> obs_org = retrieveObservationFromActRelationship(actRelColl);
-        mapper.put(DataProcessingMapKey.OBSERVATION, obs_org.get(DataProcessingMapKey.OBSERVATION));
-        mapper.put(DataProcessingMapKey.ORGANIZATION, obs_org.get(DataProcessingMapKey.ORGANIZATION));
+        Map<DataProcessingMapKey, Object> obsOrg = retrieveObservationFromActRelationship(actRelColl);
+        mapper.put(DataProcessingMapKey.OBSERVATION, obsOrg.get(DataProcessingMapKey.OBSERVATION));
+        mapper.put(DataProcessingMapKey.ORGANIZATION, obsOrg.get(DataProcessingMapKey.ORGANIZATION));
 
 
         return mapper;
@@ -1047,6 +1047,7 @@ public class ObservationService implements IObservationService {
         return returnVal;
     }
 
+    @SuppressWarnings("java:S135")
     protected ObservationContainer findObservationByCode(Collection<ObservationContainer> coll, String strCode)
     {
         if (coll == null)
@@ -1078,10 +1079,10 @@ public class ObservationService implements IObservationService {
      * Processing observation collection
      * Original Name: processObservationVOCollection
      * */
-    private Map<Object, Object> processObservationContainerCollection(BaseContainer proxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
-        if (proxyVO instanceof LabResultProxyContainer)
+    private Map<Object, Object> processObservationContainerCollection(BaseContainer proxyVO, boolean elrProcessing) throws DataProcessingException {
+        if (proxyVO instanceof LabResultProxyContainer labResultProxyContainer)
         {
-            return processLabReportObsContainerCollection( (LabResultProxyContainer) proxyVO, ELR_PROCESSING);
+            return processLabReportObsContainerCollection( labResultProxyContainer, elrProcessing);
         }
         else
         {
@@ -1093,7 +1094,7 @@ public class ObservationService implements IObservationService {
     /**
      * Original Name: processLabReportObsVOCollection
      * */
-    private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean ELR_PROCESSING) throws DataProcessingException {
+    private Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean elrProcessing) throws DataProcessingException {
         Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
         ObservationContainer observationContainer;
         Map<Object, Object> returnObsVal;
@@ -1131,7 +1132,7 @@ public class ObservationService implements IObservationService {
         }
 
         //Process the ordered test further
-        returnObsVal = processLabReportOrderTest(labResultProxyVO, ELR_PROCESSING);
+        returnObsVal = processLabReportOrderTest(labResultProxyVO, elrProcessing);
 
         //Then, persist the observations
         Long observationUid = storeObservationVOCollection(labResultProxyVO);
@@ -1279,9 +1280,9 @@ public class ObservationService implements IObservationService {
         //Iterates the observation collection and process each observation vo
         Collection<ObservationContainer>  obsVOColl = null;
         boolean isLabResultProxyVO = false;
-        if (proxyVO instanceof LabResultProxyContainer)
+        if (proxyVO instanceof LabResultProxyContainer labResultProxyContainer)
         {
-            obsVOColl = ( (LabResultProxyContainer) proxyVO).getTheObservationContainerCollection();
+            obsVOColl = labResultProxyContainer.getTheObservationContainerCollection();
             isLabResultProxyVO = true;
         }
 

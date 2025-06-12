@@ -19,8 +19,6 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
-import static gov.cdc.dataprocessing.constant.data_field.ACT_UID_JAVA;
-import static gov.cdc.dataprocessing.constant.data_field.PERSON_UID_JAVA;
 import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
 
 @Repository

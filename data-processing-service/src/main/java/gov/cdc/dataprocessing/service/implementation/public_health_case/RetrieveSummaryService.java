@@ -355,7 +355,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
         }
 
-        String ASSOCIATED_DOC_QUERY =
+        String assocQuery =
                 "select nbs_document.local_id \"localId\", " +
                         "nbs_document.nbs_document_uid \"uid\" " +
                         "from nbs_document  with (nolock) " +
@@ -366,9 +366,9 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                         "and target_class_cd = :TargetClassCd " +
                         "and nbs_document.record_status_cd!='LOG_DEL' ";
 
-        ASSOCIATED_DOC_QUERY=ASSOCIATED_DOC_QUERY+dataAccessWhereClause;
+        assocQuery=assocQuery+dataAccessWhereClause;
 
-        assocoiatedDocMap = customRepository.getAssociatedDocumentList(uid, targetClassCd, sourceClassCd, ASSOCIATED_DOC_QUERY);
+        assocoiatedDocMap = customRepository.getAssociatedDocumentList(uid, targetClassCd, sourceClassCd, assocQuery);
 
 
         return assocoiatedDocMap;

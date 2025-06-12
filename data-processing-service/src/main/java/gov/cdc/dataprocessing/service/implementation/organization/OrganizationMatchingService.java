@@ -48,8 +48,8 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             Long entityUid;
             Collection<EdxEntityMatchDto> coll = new ArrayList<>();
             EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
-            String DET_MSG_ENTITY_EXISTS_SUCCESS = "Organization entity found with entity uid : ";
-            String DET_MSG_ENTITY_EXISTS_FAIL_NEW = "Organization not found. New Organization created with organization uid: ";
+            String entityExistSuccess = "Organization entity found with entity uid : ";
+            String entityExistFail = "Organization not found. New Organization created with organization uid: ";
 
             EdxEntityMatchDto localEdxEntityMatchDT = null;
             String localId;
@@ -65,7 +65,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 if (edxEntityMatchingDT != null
                         && edxEntityMatchingDT.getEntityUid() != null) {
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                    edxActivityDetailLogDto.setComment(entityExistSuccess
                             + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto
                             .setRecordType(String.valueOf(MsgType.Organization));
@@ -105,7 +105,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         }
                         edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto
-                                .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                                .setComment(entityExistSuccess
                                         + edxEntityMatchingDT.getEntityUid());
                         edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
                         edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -143,7 +143,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                     edxActivityDetailLogDto
-                            .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                            .setComment(entityExistSuccess
                                     + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
                     edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -171,7 +171,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                     edxActivityDetailLogDto
-                            .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                            .setComment(entityExistSuccess
                                     + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
                     edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -214,7 +214,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 }
             }
             edxActivityDetailLogDto.setRecordId(String.valueOf(entityUid));
-            edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_FAIL_NEW
+            edxActivityDetailLogDto.setComment(entityExistFail
                     + edxActivityDetailLogDto.getRecordId());
             edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
             edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);

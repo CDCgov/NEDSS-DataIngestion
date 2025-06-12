@@ -193,15 +193,15 @@ public class ObservationSummaryService implements IObservationSummaryService {
 
 
     @SuppressWarnings("java:S2589")
-    private void setSusceptibility(ResultedTestSummaryContainer RVO, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
+    private void setSusceptibility(ResultedTestSummaryContainer rvo, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm)
     {
         int countSus = 0;
         ArrayList<UidSummaryContainer>  susList;
 
-        Long sourceActUid = RVO.getSourceActUid();
+        Long sourceActUid = rvo.getSourceActUid();
 
 
-        susList = customRepository.getSusceptibilityUidSummary(RVO, labRepEvent, labRepSumm, "REFR", sourceActUid);
+        susList = customRepository.getSusceptibilityUidSummary(rvo, labRepEvent, labRepSumm, "REFR", sourceActUid);
 
         if (susList != null) {
             Iterator<UidSummaryContainer> susIter = susList.iterator();

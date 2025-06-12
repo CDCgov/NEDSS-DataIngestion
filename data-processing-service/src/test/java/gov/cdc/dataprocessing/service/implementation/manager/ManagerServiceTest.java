@@ -1,12 +1,16 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
 //import gov.cdc.dataprocessing.cache.SrteCache;
+
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.*;
+import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
+import gov.cdc.dataprocessing.exception.DataProcessingDBException;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.kafka.producer.KafkaManagerProducer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
@@ -123,7 +127,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, RtiCacheException, DataProcessingDBException {
+    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);

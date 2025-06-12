@@ -105,7 +105,7 @@ class DecisionSupportServiceTest {
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
         assertNotNull(res);
-        assertEquals("MARK_AS_REVIEWED", res.getWdsReports().get(0).getAction());
+        assertEquals("MARK_AS_REVIEWED", res.getWdsReports().getFirst().getAction());
 
     }
 
@@ -134,7 +134,7 @@ class DecisionSupportServiceTest {
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
         assertNotNull(res);
-        assertEquals("CREATE_INVESTIGATION", res.getWdsReports().get(0).getAction());
+        assertEquals("CREATE_INVESTIGATION", res.getWdsReports().getFirst().getAction());
 
     }
 
@@ -163,7 +163,7 @@ class DecisionSupportServiceTest {
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
         assertNotNull(res);
-        assertEquals("CREATE_INVESTIGATION_WITH_NOTIFICATION", res.getWdsReports().get(0).getAction());
+        assertEquals("CREATE_INVESTIGATION_WITH_NOTIFICATION", res.getWdsReports().getFirst().getAction());
 
     }
 
@@ -235,7 +235,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkActiveWdsAlgorithm_Test() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test()   {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -251,7 +251,7 @@ class DecisionSupportServiceTest {
 
 
     @Test
-    void checkActiveWdsAlgorithm_Test_2() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test_2()   {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -263,7 +263,7 @@ class DecisionSupportServiceTest {
 
 
     @Test
-    void checkActiveWdsAlgorithm_Test_3() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test_3()   {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -279,7 +279,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkActiveWdsAlgorithm_Test_4() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test_4()  {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -579,7 +579,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkAdvancedInvCriteria_Test() throws DataProcessingException {
+    void checkAdvancedInvCriteria_Test()  {
         Algorithm algorithmDocument = new Algorithm();
         var elrAdv = new ElrAdvancedCriteriaType();
         var invCrite = new InvCriteriaType();
@@ -617,7 +617,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkAdvancedInvCriteria_Test_2() throws DataProcessingException {
+    void checkAdvancedInvCriteria_Test_2()  {
         Algorithm algorithmDocument = new Algorithm();
         var elrAdv = new ElrAdvancedCriteriaType();
         var invCrite = new InvCriteriaType();
@@ -656,7 +656,7 @@ class DecisionSupportServiceTest {
 
 
     @Test
-    void checkAdvancedInvCriteriaForCreateInvNoti_Test() throws DataProcessingException {
+    void checkAdvancedInvCriteriaForCreateInvNoti_Test()  {
         Algorithm algorithmDocument = new Algorithm();
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         Map<Object, Object> questionIdentifierMap = new HashMap<>();

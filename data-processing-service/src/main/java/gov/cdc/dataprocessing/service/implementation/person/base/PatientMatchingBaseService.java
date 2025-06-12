@@ -353,11 +353,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     while (personNameIterator.hasNext())
                     {
                         PersonNameDto personNameDto =  personNameIterator.next();
-                        if (personNameDto.getNmUseCd() == null)
-                        {
-                            String Message = "personNameDT.getNmUseCd() is null";
-                            logger.debug(Message);
-                        }
                         if (personNameDto.getNmUseCd() != null
                                 && personNameDto.getNmUseCd().equalsIgnoreCase("L")
                                 && personNameDto.getRecordStatusCd() != null

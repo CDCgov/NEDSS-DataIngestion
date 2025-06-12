@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
-import static gov.cdc.dataprocessing.constant.data_field.OBSERVATION_UID_DB;
 
 @Repository
 

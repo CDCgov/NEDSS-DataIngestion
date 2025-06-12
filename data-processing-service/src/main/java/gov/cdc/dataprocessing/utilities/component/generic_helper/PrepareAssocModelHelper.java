@@ -433,17 +433,17 @@ public class PrepareAssocModelHelper {
         theRootDTInterface.setLastChgReasonCd(null);
 
         if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals(PAT_NO_MERGER)) &&
-                theRootDTInterface instanceof PersonDto)
+                theRootDTInterface instanceof PersonDto personDto)
         {
-            ((PersonDto)theRootDTInterface).setDedupMatchInd(null);
-            ((PersonDto)theRootDTInterface).setGroupNbr(null);
-            ((PersonDto)theRootDTInterface).setGroupTime(null);
+            personDto.setDedupMatchInd(null);
+            personDto.setGroupNbr(null);
+            personDto.setGroupTime(null);
         }
 
-        if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals(PAT_NO_MERGER) && theRootDTInterface instanceof PersonDto)
+        if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals(PAT_NO_MERGER) && theRootDTInterface instanceof PersonDto personDto)
         {
-            ((PersonDto)theRootDTInterface).setGroupNbr(null);
-            ((PersonDto)theRootDTInterface).setGroupTime(null);
+            personDto.setGroupNbr(null);
+            personDto.setGroupTime(null);
         }
 
         return theRootDTInterface;
@@ -534,17 +534,17 @@ public class PrepareAssocModelHelper {
         theRootDTInterface.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
         theRootDTInterface.setLastChgReasonCd(null);
 
-        if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals(PAT_NO_MERGER)) && theRootDTInterface instanceof PersonDto)
+        if(tableName.equals(NEDSSConstant.PATIENT) && (!businessTriggerCd.equals(PAT_NO_MERGER)) && theRootDTInterface instanceof PersonDto personDto)
         {
-            ((PersonDto)theRootDTInterface).setDedupMatchInd(null);
-            ((PersonDto)theRootDTInterface).setGroupNbr(null);
-            ((PersonDto)theRootDTInterface).setGroupTime(null);
+            personDto.setDedupMatchInd(null);
+            personDto.setGroupNbr(null);
+            personDto.setGroupTime(null);
         }
 
-        if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals(PAT_NO_MERGER) && theRootDTInterface instanceof PersonDto)
+        if(tableName.equals(NEDSSConstant.PATIENT) && businessTriggerCd.equals(PAT_NO_MERGER) && theRootDTInterface instanceof PersonDto personDto)
         {
-            ((PersonDto)theRootDTInterface).setGroupNbr(null);
-            ((PersonDto)theRootDTInterface).setGroupTime(null);
+            personDto.setGroupNbr(null);
+            personDto.setGroupTime(null);
         }
 
         return theRootDTInterface;

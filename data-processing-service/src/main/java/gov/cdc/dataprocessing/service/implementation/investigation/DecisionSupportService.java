@@ -709,9 +709,8 @@ public class DecisionSupportService implements IDecisionSupportService {
                                 break;
                             }
                         }
-                        else if (object instanceof Collection<?>)
+                        else if (object instanceof Collection<?> collection)
                         {
-                            Collection<?> collection = (ArrayList<?>) object;
                             for (Object o : collection) {
                                 EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) o;
                                 NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);

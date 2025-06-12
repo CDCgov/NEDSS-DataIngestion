@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.participation;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
@@ -50,7 +49,7 @@ class ParticipationServiceTest {
     }
 
     @Test
-    void saveParticipationHist() throws DataProcessingException {
+    void saveParticipationHist()  {
         List<Integer> numbers = new ArrayList<>();
         numbers.add(1);
         numbers.add(2);
@@ -68,7 +67,7 @@ class ParticipationServiceTest {
     }
 
     @Test
-    void saveParticipation() throws DataProcessingException {
+    void saveParticipation() {
         ParticipationDto participationDto = new ParticipationDto();
         participationDto.setItNew(true);
         participationDto.setSubjectEntityUid(1L);
@@ -82,7 +81,7 @@ class ParticipationServiceTest {
     }
 
     @Test
-    void saveParticipationDelete() throws DataProcessingException {
+    void saveParticipationDelete() {
         ParticipationDto participationDto = new ParticipationDto();
         participationDto.setItDelete(true);
         participationDto.setSubjectEntityUid(1L);

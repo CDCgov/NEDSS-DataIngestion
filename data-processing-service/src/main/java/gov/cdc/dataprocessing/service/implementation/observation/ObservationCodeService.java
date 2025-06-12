@@ -42,12 +42,12 @@ public class ObservationCodeService implements IObservationCodeService {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S135"})
     public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
         Collection<ParticipationDto>  partColl = null;
-        if (proxy instanceof LabResultProxyContainer)
+        if (proxy instanceof LabResultProxyContainer labResultProxyContainer)
         {
-            partColl = ( (LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
+            partColl =  labResultProxyContainer.getTheParticipationDtoCollection();
         }
 
         //Get the reporting lab

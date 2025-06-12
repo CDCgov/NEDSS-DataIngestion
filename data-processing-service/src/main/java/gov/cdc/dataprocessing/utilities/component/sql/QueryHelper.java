@@ -58,8 +58,8 @@ public class QueryHelper {
                 Collection<Object> pajCds = progAreaJurisdictionUtil.getPAJHashList(paCd, jCd);
 
                 for (Object pajCd : pajCds) {
-                    if (pajCd instanceof Long) {
-                        allPAJList.add((Long) pajCd);
+                    if (pajCd instanceof Long lg) {
+                        allPAJList.add(lg);
                     }
                 }
             }
@@ -79,10 +79,10 @@ public class QueryHelper {
 
 
     public String buildWhereClause(String ownerList, String guestList,
-                                   String columnName, String alias, boolean OIDFlag, String businessObjLookupName) {
+                                   String columnName, String alias, boolean oIdFlag, String businessObjLookupName) {
 
-        String whereClauseOwner = buildOwnerWhereClause(ownerList, columnName, alias, OIDFlag, businessObjLookupName);
-        String whereClauseGuest = buildGuestWhereClause(guestList, columnName, alias, OIDFlag, businessObjLookupName);
+        String whereClauseOwner = buildOwnerWhereClause(ownerList, columnName, alias, oIdFlag, businessObjLookupName);
+        String whereClauseGuest = buildGuestWhereClause(guestList, columnName, alias, oIdFlag, businessObjLookupName);
 
         boolean isOwnerClauseValid = whereClauseOwner != null && !whereClauseOwner.trim().isEmpty();
         boolean isGuestClauseValid = whereClauseGuest != null && !whereClauseGuest.trim().isEmpty();
@@ -103,7 +103,7 @@ public class QueryHelper {
 
     @SuppressWarnings("java:S1172")
    protected String buildOwnerWhereClause(String ownerList, String columnName,
-                                 String alias, boolean OIDFlag, String businessObjLookupName) {
+                                 String alias, boolean oIdFlag, String businessObjLookupName) {
         String whereClauseOwner = "";
 
 
@@ -128,7 +128,7 @@ public class QueryHelper {
 
     @SuppressWarnings("java:S1172")
     protected String buildGuestWhereClause(String guestList, String columnName,
-                                         String alias, boolean OIDFlag, String businessObjLookupName) {
+                                         String alias, boolean oIdFlag, String businessObjLookupName) {
 
         String whereClauseGuest = "";
 

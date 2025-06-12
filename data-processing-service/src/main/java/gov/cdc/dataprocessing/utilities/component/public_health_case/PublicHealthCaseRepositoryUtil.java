@@ -449,7 +449,7 @@ public class PublicHealthCaseRepositoryUtil {
     }
 
 
-    public BasePamContainer getPamVO(Long publicHealthCaseUID) throws DataProcessingException {
+    public BasePamContainer getPamVO(Long publicHealthCaseUID)  {
         BasePamContainer pamVO = new BasePamContainer();
         Map<Object,Object> pamAnswerDTReturnMap = getPamAnswerDTMaps(publicHealthCaseUID);
         Map<Object, Object> nbsAnswerMap =new HashMap<>();
@@ -483,7 +483,7 @@ public class PublicHealthCaseRepositoryUtil {
     }
     @SuppressWarnings("java:S3776")
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID)   {
-        ArrayList<Object> PamAnswerDTCollection;
+        ArrayList<Object> pamAnswerDTCollection;
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
         Map<Object, Object> nbsAnswerMap = new HashMap<>();
         Map<Object, Object> nbsRepeatingAnswerMap = new HashMap<>();
@@ -494,9 +494,9 @@ public class PublicHealthCaseRepositoryUtil {
             return new HashMap<>();
         }
 
-        PamAnswerDTCollection = new ArrayList<>(pamAnsCol);
+        pamAnswerDTCollection = new ArrayList<>(pamAnsCol);
 
-        Iterator<Object> it = PamAnswerDTCollection.iterator();
+        Iterator<Object> it = pamAnswerDTCollection.iterator();
         Long nbsQuestionUid = 0L;
         Collection<Object> coll = new ArrayList<>();
         while (it.hasNext())

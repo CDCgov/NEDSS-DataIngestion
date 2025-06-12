@@ -376,7 +376,7 @@ class PatientRepositoryUtilTest {
     }
 
     @Test
-    void preparePersonNameBeforePersistence_Test() throws DataProcessingException {
+    void preparePersonNameBeforePersistence_Test()  {
         PersonContainer personContainer = new PersonContainer();
         var perNameCol = new ArrayList<PersonNameDto>();
         var perName = new PersonNameDto();

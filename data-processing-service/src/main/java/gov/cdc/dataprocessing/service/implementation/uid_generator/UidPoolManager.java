@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
+@SuppressWarnings("java:S116")
 public class UidPoolManager {
     private static final Logger logger = LoggerFactory.getLogger(UidPoolManager.class);
     private final LocalUidGeneratorRepository localUidGeneratorRepository;

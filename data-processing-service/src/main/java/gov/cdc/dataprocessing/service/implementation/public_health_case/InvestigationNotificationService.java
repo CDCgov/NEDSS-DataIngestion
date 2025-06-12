@@ -468,7 +468,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         }
     }
     @SuppressWarnings({"java:S3776","java:S3626"})
-    private PersonContainer getPersonVO(String type_cd, Collection<ParticipationDto> participationDTCollection,
+    private PersonContainer getPersonVO(String typeCd, Collection<ParticipationDto> participationDTCollection,
                                         Collection<PersonContainer> personVOCollection)  {
         ParticipationDto participationDT;
         PersonContainer personVO;
@@ -477,7 +477,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Iterator<PersonContainer> anIterator2 ;
             for (anIterator1 = participationDTCollection.iterator(); anIterator1.hasNext();) {
                 participationDT =  anIterator1.next();
-                if (participationDT.getTypeCd() != null && (participationDT.getTypeCd()).compareTo(type_cd) == 0) {
+                if (participationDT.getTypeCd() != null && (participationDT.getTypeCd()).compareTo(typeCd) == 0) {
                     for (anIterator2 = personVOCollection.iterator(); anIterator2.hasNext();) {
                         personVO =  anIterator2.next();
                         if (personVO.getThePersonDto().getPersonUid().longValue() == participationDT

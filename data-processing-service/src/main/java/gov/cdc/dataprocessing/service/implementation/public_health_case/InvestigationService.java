@@ -263,7 +263,7 @@ public class InvestigationService implements IInvestigationService {
         updateAutoResendNotifications(v);
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S135"})
     public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 
@@ -373,19 +373,19 @@ public class InvestigationService implements IInvestigationService {
             labReportViewClause = labReportViewClause != null ? AND_UPPERCASE
                     + labReportViewClause : "";
 
-            Collection<UidSummaryContainer> LabReportUidSummarVOs =  observationSummaryService
+            Collection<UidSummaryContainer> labReportUidSummarVOs =  observationSummaryService
                     .findAllActiveLabReportUidListForManage(
                             publicHealthCaseUID, labReportViewClause);
 
             String uidType = LABORATORY_UID;
             Collection<?> labReportSummaryVOCollection;
             LabReportSummaryContainer labReportSummaryVOs;
-            if (LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty()) {
+            if (labReportUidSummarVOs != null && !labReportUidSummarVOs.isEmpty()) {
                 boolean isCDCFormPrintCase;
                 if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
                     isCDCFormPrintCase = true;
-                    if(LabReportUidSummarVOs!=null && !LabReportUidSummarVOs.isEmpty()){
-                        for (UidSummaryContainer uidSummaryVO : LabReportUidSummarVOs) {
+                    if(labReportUidSummarVOs!=null && !labReportUidSummarVOs.isEmpty()){
+                        for (UidSummaryContainer uidSummaryVO : labReportUidSummarVOs) {
                             uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
                         }
                     }
@@ -394,7 +394,7 @@ public class InvestigationService implements IInvestigationService {
                     isCDCFormPrintCase= false;
                 }
                 labSumVOMap = retrieveLabReportSummaryRevisited(
-                        LabReportUidSummarVOs,isCDCFormPrintCase,
+                        labReportUidSummarVOs,isCDCFormPrintCase,
                         uidType);
 
                 if (labSumVOMap.containsKey(LAB_EVENT_LIST)) {
@@ -467,11 +467,10 @@ public class InvestigationService implements IInvestigationService {
                             || vo instanceof PamProxyContainer
                             ||  vo instanceof PageActProxyContainer
             ){
-                if(vo instanceof InvestigationContainer)
+                if(vo instanceof InvestigationContainer investigationContainer)
                 {
-                    InvestigationContainer invVO = (InvestigationContainer)vo;
-                    phcDT = invVO.thePublicHealthCaseContainer.getThePublicHealthCaseDto();
-                    notSumVOColl = invVO.getTheNotificationSummaryVOCollection();
+                    phcDT = investigationContainer.thePublicHealthCaseContainer.getThePublicHealthCaseDto();
+                    notSumVOColl = investigationContainer.getTheNotificationSummaryVOCollection();
                 }
                 if(
                         vo instanceof InvestigationContainer
@@ -565,7 +564,7 @@ public class InvestigationService implements IInvestigationService {
 
         return getInvestigationProxyLite(publicHealthCaseUID, false);
     }
-    @SuppressWarnings({"java:S3776", "java:S1141"})
+    @SuppressWarnings({"java:S3776", "java:S1141", "java:S135"})
     private InvestigationContainer getInvestigationProxyLite(Long publicHealthCaseUID, boolean lite) throws DataProcessingException {
         var investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseDto thePublicHealthCaseDto;
@@ -592,8 +591,8 @@ public class InvestigationService implements IInvestigationService {
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
             thePublicHealthCaseDto = thePublicHealthCaseContainer.getThePublicHealthCaseDto();
-            Long PatientGroupID = thePublicHealthCaseDto.getPatientGroupId();
-            if (PatientGroupID != null) {
+            Long patientGroupID = thePublicHealthCaseDto.getPatientGroupId();
+            if (patientGroupID != null) {
                 var entityGrp = publicHealthCaseRepositoryUtil.getEntityGroup(thePublicHealthCaseDto.getPatientGroupId());
                 if (entityGrp != null) {
                     EntityGroupContainer entityGroupContainer = new EntityGroupContainer();
@@ -601,7 +600,7 @@ public class InvestigationService implements IInvestigationService {
                     theEntityGroupVOCollection.add(entityGroupContainer);
                 }
             }
-            logger.debug("PatientGroupID = {}", PatientGroupID);
+            logger.debug("PatientGroupID = {}", patientGroupID);
             String strTypeCd;
             String strClassCd;
             String recordStatusCd;
@@ -780,14 +779,14 @@ public class InvestigationService implements IInvestigationService {
                 String labReportViewClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs");
                 labReportViewClause = labReportViewClause != null? AND_UPPERCASE + labReportViewClause:"";
 
-                Collection<UidSummaryContainer>  LabReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
+                Collection<UidSummaryContainer>  labReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
                 String uidType = LABORATORY_UID;
                 Collection<?>  labReportSummaryVOCollection;
                 LabReportSummaryContainer labReportSummaryVOs;
 
-                if(LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty())
+                if(labReportUidSummarVOs != null && !labReportUidSummarVOs.isEmpty())
                 {
-                    labSumVOMap = retrieveLabReportSummaryRevisited(LabReportUidSummarVOs,false, uidType);
+                    labSumVOMap = retrieveLabReportSummaryRevisited(labReportUidSummarVOs,false, uidType);
                     if(labSumVOMap.containsKey(LAB_EVENT_LIST))
                     {
                         labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get(LAB_EVENT_LIST);
@@ -865,7 +864,7 @@ public class InvestigationService implements IInvestigationService {
 
 
             Collection<Observation_Lab_Summary_ForWorkUp_New> labList = new ArrayList<> ();
-            Long LabAsSourceForInvestigation = null;
+            Long labAsSourceForInvestigation = null;
             try {
 
                 Timestamp fromTime = null;
@@ -886,7 +885,7 @@ public class InvestigationService implements IInvestigationService {
                         Long observationUid = vo.getUid();
                         fromTime = vo.getAddTime();
                         if(vo.getStatusTime()!=null && vo.getStatusTime().compareTo(fromTime)==0){
-                            LabAsSourceForInvestigation=vo.getUid();
+                            labAsSourceForInvestigation=vo.getUid();
                         }
 
                         var res = observationRepository.findById(observationUid);
@@ -948,7 +947,7 @@ public class InvestigationService implements IInvestigationService {
 
                             providerUid = observationSummaryService.getProviderInformation(providerDetails, labRepEvent);
 
-                            if (isCDCFormPrintCase && providerUid != null && LabAsSourceForInvestigation != null) {
+                            if (isCDCFormPrintCase && providerUid != null && labAsSourceForInvestigation != null) {
                                 ProviderDataForPrintContainer providerDataForPrintVO = null;
                                 if (labRepEvent != null && labRepEvent.getProviderDataForPrintVO() == null) {
                                     providerDataForPrintVO = new ProviderDataForPrintContainer();
@@ -995,8 +994,8 @@ public class InvestigationService implements IInvestigationService {
                             if (labRepSumm != null)
                                 labSummList.add(labRepSumm);
 
-                            Long ObservationUID = labRepVO.getObservationUid();
-                            observationSummaryService.getTestAndSusceptibilities("COMP", ObservationUID, labRepEvent, labRepSumm);
+                            Long observationUID = labRepVO.getObservationUid();
+                            observationSummaryService.getTestAndSusceptibilities("COMP", observationUID, labRepEvent, labRepSumm);
                         }
 
                     }

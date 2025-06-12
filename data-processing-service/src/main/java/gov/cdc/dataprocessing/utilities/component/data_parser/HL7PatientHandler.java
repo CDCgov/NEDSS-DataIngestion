@@ -109,13 +109,13 @@ public class HL7PatientHandler {
                     entityIdDto.setAssigningAuthorityIdType(edxLabInformationDto.getUniversalIdType());
                 }
                 if( entityIdDto.getTypeCd()!=null &&  entityIdDto.getTypeCd().equals(EdxELRConstant.ELR_SS_TYPE)){
-                    String SSNNumberinit = entityIdDto.getRootExtensionTxt().replace("-", "");
-                    String SSNNumber =SSNNumberinit.replace(" ", "");
+                    String ssnNumberinit = entityIdDto.getRootExtensionTxt().replace("-", "");
+                    String ssnNumber =ssnNumberinit.replace(" ", "");
                     try {
-                        if(SSNNumber.length()!=9) {
+                        if(ssnNumber.length()!=9) {
                             edxLabInformationDto.setSsnInvalid(true);
                         }
-                        Integer.parseInt(SSNNumber);
+                        Integer.parseInt(ssnNumber);
                     }
                     catch (NumberFormatException e) {
                         edxLabInformationDto.setSsnInvalid(true);

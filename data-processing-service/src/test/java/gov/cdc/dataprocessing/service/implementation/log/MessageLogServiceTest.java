@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.log;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.MessageLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.MessageLogRepository;
@@ -31,7 +30,7 @@ class MessageLogServiceTest {
     }
 
     @Test
-    void testSaveMessageLogSuccess() throws DataProcessingException {
+    void testSaveMessageLogSuccess()  {
         Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
         MessageLogDto messageLogDto = new MessageLogDto();
         messageLogDtoCollection.add(messageLogDto);
@@ -42,7 +41,7 @@ class MessageLogServiceTest {
     }
 
     @Test
-    void testSaveMessageLogNullCollection() throws DataProcessingException {
+    void testSaveMessageLogNullCollection()  {
         messageLogService.saveMessageLog(null);
 
         verify(messageLogRepository, times(0)).save(any(MessageLog.class));
@@ -62,7 +61,7 @@ class MessageLogServiceTest {
     }
 
     @Test
-    void testSaveMessageLogEmptyCollection() throws DataProcessingException {
+    void testSaveMessageLogEmptyCollection()  {
         Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
 
         messageLogService.saveMessageLog(messageLogDtoCollection);

@@ -77,17 +77,17 @@ public class JurisdictionService implements IJurisdictionService {
 
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S135"})
     public String deriveJurisdictionCd(BaseContainer proxyVO, ObservationDto rootObsDT) throws DataProcessingException {
         //Retieve provider uid and patient uid
         Collection<ParticipationDto>  partColl = null;
         boolean isLabReport = false;
         String jurisdictionDerivationInd = AuthUtil.authUser.getJurisdictionDerivationInd();
 
-        if (proxyVO instanceof LabResultProxyContainer)
+        if (proxyVO instanceof LabResultProxyContainer labResultProxyContainer)
         {
             isLabReport = true;
-            partColl = ( (LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
+            partColl = labResultProxyContainer.getTheParticipationDtoCollection();
         }
         if (partColl == null || partColl.isEmpty())
         {

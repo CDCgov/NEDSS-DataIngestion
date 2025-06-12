@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
 import com.google.gson.Gson;
-import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -120,7 +119,6 @@ public class ManagerService implements IManagerService {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
-        boolean kafkaFailedCheck = false;
         boolean dltLockError = false;
         try
         {
@@ -129,20 +127,6 @@ public class ManagerService implements IManagerService {
             nbsInterfaceModel = nbsInterfaceJdbcRepository.getNbsInterfaceByUid(data);
             if (nbsInterfaceModel == null) {
                 throw new DataProcessingException("NBS Interface Not Exist");
-            }
-
-            // Short-circuit if already processed
-            synchronized (PropertyUtilCache.class) {
-                String status = nbsInterfaceModel.getRecordStatusCd();
-                if (status != null && status.toUpperCase().contains("SUCCESS")) {
-                    if (PropertyUtilCache.kafkaFailedCheckStep1 == 100000) {
-                        PropertyUtilCache.kafkaFailedCheckStep1 = 0;
-                    }
-                    ++PropertyUtilCache.kafkaFailedCheckStep1;
-                    logger.info("Kafka failed check : {}", PropertyUtilCache.kafkaFailedCheckStep1);
-                    kafkaFailedCheck = true;
-                    return null;
-                }
             }
 
             // Prepare DTO

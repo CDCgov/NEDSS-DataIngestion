@@ -517,7 +517,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonHashCdPatient_RecordStatusActive() throws DataProcessingException {
+    void testSetPersonHashCdPatient_RecordStatusActive()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -666,7 +666,7 @@ class PatientMatchingBaseServiceTest {
 
 
     @Test
-    void testSetPersonHashCdNok_RecordStatusActive() throws DataProcessingException {
+    void testSetPersonHashCdNok_RecordStatusActive()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -685,7 +685,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonHashCdNok_InnerExceptionHandling() throws DataProcessingException {
+    void testSetPersonHashCdNok_InnerExceptionHandling()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();

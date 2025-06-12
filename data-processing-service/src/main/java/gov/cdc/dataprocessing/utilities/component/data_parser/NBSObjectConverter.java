@@ -246,11 +246,11 @@ public class NBSObjectConverter {
             pl.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
 
             pl.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-            HL7SADType HL7StreetAddress = hl7XADType.getHL7StreetAddress();
+            HL7SADType hl7StreetAddress = hl7XADType.getHL7StreetAddress();
             /** Optional maxOccurs="1 */
             /** length"184 */
-            if(HL7StreetAddress!=null){
-                pl = nbsStreetAddressType(HL7StreetAddress, pl);
+            if(hl7StreetAddress!=null){
+                pl = nbsStreetAddressType(hl7StreetAddress, pl);
             }
             if(hl7XADType.getHL7OtherDesignation()!=null && (pl.getStreetAddr2()==null || pl.getStreetAddr2().trim().equalsIgnoreCase(""))) {
                 pl.setStreetAddr2(hl7XADType.getHL7OtherDesignation());
@@ -294,10 +294,10 @@ public class NBSObjectConverter {
             else {
                 pl.setCntyCd(cnty);
             }
-            String HL7CensusTract = hl7XADType.getHL7CensusTract();
+            String hl7CensusTract = hl7XADType.getHL7CensusTract();
             /** Optional maxOccurs="1 */
             /** length"20 */
-            pl.setCensusTrackCd(HL7CensusTract);
+            pl.setCensusTrackCd(hl7CensusTract);
 
             elp.setThePostalLocatorDto(pl);
         } catch (Exception e) {
@@ -644,15 +644,15 @@ public class NBSObjectConverter {
     }
 
     @SuppressWarnings("java:S1319")
-    public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType HL7Type){
+    public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType hl7Type){
 
 
         boolean incorrectLength = false;
         String areaCode;
         String number;
 
-        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
-            String areaCodeString = HL7Type.getHL7Numeric().toString();
+        if (hl7Type != null && hl7Type.getHL7Numeric() != null) {
+            String areaCodeString = hl7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>10){//Phone number more than 10 digits
                 int length = areaCodeString.length();
@@ -703,14 +703,14 @@ public class NBSObjectConverter {
     }// End of formatPhoneNbr
 
     @SuppressWarnings("java:S1319")
-    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
+    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType hl7Type){
 
         boolean incorrectLength = false;
         String areaCode;
         String number;
-        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
+        if (hl7Type != null && hl7Type.getHL7Numeric() != null) {
 
-            String areaCodeString =HL7Type.getHL7Numeric().toString();
+            String areaCodeString =hl7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>3){//Area code more than 3 digits
                 incorrectLength= true;

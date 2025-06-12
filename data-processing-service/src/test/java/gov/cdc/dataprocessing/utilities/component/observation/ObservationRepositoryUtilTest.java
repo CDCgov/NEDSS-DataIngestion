@@ -425,7 +425,7 @@ class ObservationRepositoryUtilTest {
 
 
     @Test
-    void addActivityLocatorParticipations_Test() throws DataProcessingException {
+    void addActivityLocatorParticipations_Test()  {
         Long obsUid = 10L;
         ArrayList<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection = new ArrayList<>();
         ActivityLocatorParticipationDto activityLocatorParticipationDto = new ActivityLocatorParticipationDto();

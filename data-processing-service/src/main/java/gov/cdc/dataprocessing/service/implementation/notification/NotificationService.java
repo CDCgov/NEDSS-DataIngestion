@@ -84,7 +84,6 @@ public class NotificationService implements INotificationService {
         }
 
         if (vo instanceof LabResultProxyContainer) {
-            // return "OBS"
             return NEDSSConstant.CLASS_CD_OBS;
         }
 
@@ -99,10 +98,10 @@ public class NotificationService implements INotificationService {
             return null;
         }
 
-        if (vo instanceof LabResultProxyContainer) {
+        if (vo instanceof LabResultProxyContainer labResultProxyContainer) {
         // the root Lab observation UID out of the observation collection
         Collection<ObservationContainer> obsColl =
-                ((LabResultProxyContainer) vo).getTheObservationContainerCollection();
+                labResultProxyContainer.getTheObservationContainerCollection();
             for (ObservationContainer observationContainer : obsColl) {
                 String obsDomainCdSt1 =
                         observationContainer.getTheObservationDto().getObsDomainCdSt1();

@@ -268,7 +268,7 @@ public class OrganizationRepositoryUtil {
         }
     }
 
-    private void processLocator(EntityLocatorParticipationDto dto, long locatorUid, String operation) throws DataProcessingException {
+    private void processLocator(EntityLocatorParticipationDto dto, long locatorUid, String operation)  {
         String classCd = dto.getClassCd();
 
         if (NEDSSConstant.PHYSICAL.equals(classCd) && dto.getThePhysicalLocatorDto() != null) {
@@ -290,7 +290,7 @@ public class OrganizationRepositoryUtil {
         }
     }
 
-    private void persistLocator(Object locator, String operation) throws DataProcessingException {
+    private void persistLocator(Object locator, String operation)  {
         if (locator instanceof PhysicalLocator physicalLocator) {
             if (OPERATION_CREATE.equalsIgnoreCase(operation)) {
                 entityLocatorJdbcRepository.createPhysicalLocator(physicalLocator);
@@ -312,7 +312,7 @@ public class OrganizationRepositoryUtil {
         }
     }
 
-    private void persistEntityLocatorParticipation(EntityLocatorParticipation data, String operation) throws DataProcessingException {
+    private void persistEntityLocatorParticipation(EntityLocatorParticipation data, String operation)  {
         if (OPERATION_CREATE.equalsIgnoreCase(operation)) {
             entityLocatorJdbcRepository.createEntityLocatorParticipation(data);
         } else {
@@ -653,12 +653,12 @@ public class OrganizationRepositoryUtil {
     /**
      * Loads a partcipation record based on the actUid and subjectEntityUid.
      */
-    private Collection<ParticipationDto> selectParticipationDTCollection(Long uid, Long act_uid)
+    private Collection<ParticipationDto> selectParticipationDTCollection(Long uid, Long actUid)
               {
         List<Participation> participationList = new ArrayList<>();
 
-        if (act_uid != null) {
-            var result = participationJdbcRepository.selectParticipationBySubjectAndActUid(uid, act_uid);
+        if (actUid != null) {
+            var result = participationJdbcRepository.selectParticipationBySubjectAndActUid(uid, actUid);
             if (result != null && !result.isEmpty()) {
                 participationList = result;
             }

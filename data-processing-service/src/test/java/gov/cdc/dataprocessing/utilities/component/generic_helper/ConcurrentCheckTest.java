@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.generic_helper;
 
 import gov.cdc.dataprocessing.constant.elr.DataTables;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
@@ -24,7 +23,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckPersonWithMatchingVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckPersonWithMatchingVersion()  {
         PersonDto personDto = mock(PersonDto.class);
         when(personDto.getVersionCtrlNbr()).thenReturn(1);
 
@@ -34,7 +33,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckPersonWithNonMatchingVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckPersonWithNonMatchingVersion()   {
         PersonDto personDto = mock(PersonDto.class);
         when(personDto.getVersionCtrlNbr()).thenReturn(2);
 
@@ -44,7 +43,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckPersonWithNullVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckPersonWithNullVersion()  {
         PersonDto personDto = mock(PersonDto.class);
         when(personDto.getVersionCtrlNbr()).thenReturn(null);
 
@@ -55,7 +54,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckOrganizationWithMatchingVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckOrganizationWithMatchingVersion()  {
         OrganizationDto organizationDto = mock(OrganizationDto.class);
         when(organizationDto.getVersionCtrlNbr()).thenReturn(1);
 
@@ -65,7 +64,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckOrganizationWithNonMatchingVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckOrganizationWithNonMatchingVersion()  {
         OrganizationDto organizationDto = mock(OrganizationDto.class);
         when(organizationDto.getVersionCtrlNbr()).thenReturn(2);
 
@@ -75,7 +74,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckObservationWithMatchingVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckObservationWithMatchingVersion()  {
         ObservationDto observationDto = mock(ObservationDto.class);
         when(observationDto.getVersionCtrlNbr()).thenReturn(1);
 
@@ -85,7 +84,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckObservationWithNonMatchingVersion() throws DataProcessingException {
+    void testDataConcurrenceCheckObservationWithNonMatchingVersion()  {
         ObservationDto observationDto = mock(ObservationDto.class);
         when(observationDto.getVersionCtrlNbr()).thenReturn(2);
 
@@ -105,7 +104,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheck_1() throws DataProcessingException {
+    void testDataConcurrenceCheck_1()  {
         PersonDto personDto = mock(PersonDto.class);
         when(personDto.getVersionCtrlNbr()).thenReturn(2);
 
@@ -117,7 +116,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckOrganization_1() throws DataProcessingException {
+    void testDataConcurrenceCheckOrganization_1()  {
         OrganizationDto organizationDto = mock(OrganizationDto.class);
         when(organizationDto.getVersionCtrlNbr()).thenReturn(null);
 
@@ -127,7 +126,7 @@ class ConcurrentCheckTest {
     }
 
     @Test
-    void testDataConcurrenceCheckObs_1() throws DataProcessingException {
+    void testDataConcurrenceCheckObs_1()  {
         ObservationDto organizationDto = mock(ObservationDto.class);
         when(organizationDto.getVersionCtrlNbr()).thenReturn(null);
 

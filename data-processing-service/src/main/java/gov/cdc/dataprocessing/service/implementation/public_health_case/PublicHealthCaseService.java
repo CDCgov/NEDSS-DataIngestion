@@ -29,7 +29,7 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
 
     public Long setPublicHealthCase(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
 
-        Long PubHealthCaseUid;
+        Long pubHealthCaseUid;
 
         PublicHealthCaseDto publicHealthCase;
 
@@ -62,15 +62,15 @@ public class PublicHealthCaseService implements IPublicHealthCaseService {
         {
             publicHealthCaseRepositoryUtil.create(publicHealthCaseContainer);
             publicHealthCase =  publicHealthCaseContainer.getThePublicHealthCaseDto();
-            PubHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
+            pubHealthCaseUid = publicHealthCase.getPublicHealthCaseUid();
         }
         else
         {
             publicHealthCaseRepositoryUtil.update(publicHealthCaseContainer);
-            PubHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
+            pubHealthCaseUid = publicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid();
         }
 
 
-        return PubHealthCaseUid;
+        return pubHealthCaseUid;
     }
 }

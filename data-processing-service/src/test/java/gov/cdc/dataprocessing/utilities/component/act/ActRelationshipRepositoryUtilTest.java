@@ -63,7 +63,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    void testSelectActRelationshipDTCollectionFromActUid() throws DataProcessingException {
+    void testSelectActRelationshipDTCollectionFromActUid()  {
         long actUid = 1L;
         List<ActRelationship> actRelationships = new ArrayList<>();
         ActRelationship actRelationship = new ActRelationship();
@@ -81,7 +81,7 @@ class ActRelationshipRepositoryUtilTest {
     }
 
     @Test
-    void testSelectActRelationshipDTCollectionFromActUidEmpty() throws DataProcessingException {
+    void testSelectActRelationshipDTCollectionFromActUidEmpty()  {
         long actUid = 1L;
         when(actRelationshipRepository.findByTargetActUid(actUid)).thenReturn(new ArrayList<>());
 

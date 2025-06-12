@@ -202,7 +202,7 @@ public class ValidateDecisionSupport {
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S135"})
     public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;

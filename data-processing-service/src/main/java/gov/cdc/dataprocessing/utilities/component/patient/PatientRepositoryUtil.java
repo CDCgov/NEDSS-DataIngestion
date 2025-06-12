@@ -79,8 +79,7 @@ public class PatientRepositoryUtil {
     }
 
     public Person findExistingPersonByUid(Long personUid) {
-        var result = personJdbcRepository.selectByPersonUid(personUid);
-        return result;
+        return personJdbcRepository.selectByPersonUid(personUid);
     }
 
     public Person createPerson(PersonContainer personContainer) throws DataProcessingException {

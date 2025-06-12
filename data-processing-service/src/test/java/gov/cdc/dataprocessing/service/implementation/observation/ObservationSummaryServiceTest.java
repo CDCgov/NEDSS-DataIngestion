@@ -2,7 +2,6 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabReportSummaryContainer;
 import gov.cdc.dataprocessing.model.container.model.ProviderDataForPrintContainer;
 import gov.cdc.dataprocessing.model.container.model.ResultedTestSummaryContainer;
@@ -61,7 +60,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void findAllActiveLabReportUidListForManage_Success() throws DataProcessingException {
+    void findAllActiveLabReportUidListForManage_Success()  {
         long investUid = 10L;
         String where = "";
 
@@ -102,7 +101,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getLabParticipations_Success() throws DataProcessingException {
+    void getLabParticipations_Success()  {
         long uid = 10L;
         when(customRepository.getLabParticipations(10L))
                 .thenReturn(new HashMap<>());
@@ -125,7 +124,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getPatientPersonInfo_Success() throws DataProcessingException {
+    void getPatientPersonInfo_Success()  {
         long uid = 10L;
         when(customRepository.getPatientPersonInfo(10L))
                 .thenReturn(new ArrayList<>());
@@ -148,7 +147,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getProviderInfo_Success() throws DataProcessingException {
+    void getProviderInfo_Success()  {
         long uid = 10L;
         when(customRepository.getProviderInfo(10L, "Type"))
                 .thenReturn(new ArrayList<>());
@@ -171,7 +170,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getActIdDetails_Success() throws DataProcessingException {
+    void getActIdDetails_Success() {
         long uid = 10L;
         when(customRepository.getActIdDetails(10L))
                 .thenReturn(new ArrayList<>());
@@ -194,7 +193,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getReportingFacilityName_Success() throws DataProcessingException {
+    void getReportingFacilityName_Success()  {
         long uid = 10L;
         when(customRepository.getReportingFacilityName(10L))
                 .thenReturn("");
@@ -217,7 +216,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getSpecimanSource_Success() throws DataProcessingException {
+    void getSpecimanSource_Success()  {
         long uid = 10L;
         when(customRepository.getSpecimanSource(10L))
                 .thenReturn("");
@@ -240,7 +239,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getOrderingFacilityAddress_Success() throws DataProcessingException {
+    void getOrderingFacilityAddress_Success()  {
         long uid = 10L;
         var prodConn = new ProviderDataForPrintContainer();
         when(customRepository.getOrderingFacilityAddress(prodConn, 10L))
@@ -266,7 +265,7 @@ class ObservationSummaryServiceTest {
 
 
     @Test
-    void getOrderingFacilityPhone_Success() throws DataProcessingException {
+    void getOrderingFacilityPhone_Success()  {
         long uid = 10L;
         var prodConn = new ProviderDataForPrintContainer();
         when(customRepository.getOrderingFacilityPhone(prodConn, 10L))
@@ -291,7 +290,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getOrderingPersonAddress_Success() throws DataProcessingException {
+    void getOrderingPersonAddress_Success()  {
         long uid = 10L;
         var prodConn = new ProviderDataForPrintContainer();
         when(customRepository.getOrderingPersonAddress(prodConn, 10L))
@@ -316,7 +315,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getOrderingPersonPhone_Success() throws DataProcessingException {
+    void getOrderingPersonPhone_Success() {
         long uid = 10L;
         var prodConn = new ProviderDataForPrintContainer();
         when(customRepository.getOrderingPersonPhone(prodConn, 10L))
@@ -396,7 +395,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getAssociatedInvList_Success() throws DataProcessingException {
+    void getAssociatedInvList_Success()  {
         long uid = 10L;
         String sourceClassCode = "TEST";
 
@@ -413,7 +412,7 @@ class ObservationSummaryServiceTest {
     }
 
     @Test
-    void getAssociatedInvList_Success_2() throws DataProcessingException {
+    void getAssociatedInvList_Success_2()  {
         long uid = 10L;
         String sourceClassCode = "TEST";
 

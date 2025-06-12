@@ -70,11 +70,11 @@ public class ContactSummaryService implements IContactSummaryService {
             dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, "contact.program_jurisdiction_oid");
             dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, "contact.shared_ind");
         }
-        Collection<Object>  PHCcTContactNameByPatientSummDTColl;
+        Collection<Object>  phcTContactNameByPatientSummDTColl;
         String sql  =SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1 + dataAccessWhereClause1
                 + SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION3 + publicHealthCaseUID+ dataAccessWhereClause;
-        PHCcTContactNameByPatientSummDTColl = getContactNamedByPatientDTColl(sql);
-        return PHCcTContactNameByPatientSummDTColl;
+        phcTContactNameByPatientSummDTColl = getContactNamedByPatientDTColl(sql);
+        return phcTContactNameByPatientSummDTColl;
     }
 
     @SuppressWarnings("java:S5361")
@@ -97,11 +97,11 @@ public class ContactSummaryService implements IContactSummaryService {
             dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
             dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
         }
-        Collection<Object>  PHCcTContactNameByPatientSummDTColl;
+        Collection<Object>  phcTContactNameByPatientSummDTColl;
         String sql  = SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION +publicHealthCaseUID
                 + dataAccessWhereClause + dataAccessWhereClause1;
-        PHCcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, false);
-        return PHCcTContactNameByPatientSummDTColl;
+        phcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, false);
+        return phcTContactNameByPatientSummDTColl;
     }
 
     @SuppressWarnings("java:S5361")
@@ -125,11 +125,11 @@ public class ContactSummaryService implements IContactSummaryService {
             dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
             dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
         }
-        Collection<Object>  PHCcTContactNameByPatientSummDTColl;
+        Collection<Object>  phcTContactNameByPatientSummDTColl;
         String sql  =SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION + publicHealthCaseUID
                 + dataAccessWhereClause+dataAccessWhereClause1;
-        PHCcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, true);
-        return PHCcTContactNameByPatientSummDTColl;
+        phcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, true);
+        return phcTContactNameByPatientSummDTColl;
     }
 
     @SuppressWarnings("java:S3776")

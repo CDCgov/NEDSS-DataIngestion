@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.page_and_pam;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
@@ -25,7 +24,7 @@ public class PamRepositoryUtil {
         this.nbsActJdbcRepository = nbsActJdbcRepository;
         this.nbsCaseAnswerJdbcRepository = nbsCaseAnswerJdbcRepository;
     }
-    public PublicHealthCaseContainer getPamHistory(PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
+    public PublicHealthCaseContainer getPamHistory(PublicHealthCaseContainer publicHealthCaseContainer)  {
             Collection<NbsActEntityDto> pamEntityColl = getPamCaseEntityDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());
             publicHealthCaseContainer.setNbsCaseEntityCollection(pamEntityColl);
             Collection<NbsCaseAnswerDto>  pamAnswerColl = getPamAnswerDTCollection(publicHealthCaseContainer.getThePublicHealthCaseDto());

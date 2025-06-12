@@ -99,7 +99,7 @@ class RetrieveSummaryServiceTests {
 
 
     @Test
-    void retrieveDocumentSummaryVOForInv_Success() throws DataProcessingException {
+    void retrieveDocumentSummaryVOForInv_Success() {
         long uid = 10L;
         when(customRepository.retrieveDocumentSummaryVOForInv(10L)).thenReturn(
                 new HashMap<>()
@@ -193,7 +193,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void getAssociatedDocumentList_Success() throws DataProcessingException {
+    void getAssociatedDocumentList_Success()  {
         long uid = 10L;
         String targetClassCd= "CODE";
         String sourceClassCd = "CODE";
@@ -207,7 +207,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void getAssociatedDocumentList_Success_2() throws DataProcessingException {
+    void getAssociatedDocumentList_Success_2()  {
         long uid = 10L;
         String targetClassCd= "CODE";
         String sourceClassCd = "CODE";

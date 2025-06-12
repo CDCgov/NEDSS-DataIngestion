@@ -45,11 +45,11 @@ public class UidService implements IUidService {
         Collection<ActRelationshipDto>  actRelationShipColl = null;
         Collection<RoleDto>  roleColl = null;
 
-        if (proxyVO instanceof LabResultProxyContainer)
+        if (proxyVO instanceof LabResultProxyContainer labresultproxycontainer)
         {
-            participationColl =  ((LabResultProxyContainer) proxyVO).getTheParticipationDtoCollection();
-            actRelationShipColl = ((LabResultProxyContainer) proxyVO).getTheActRelationshipDtoCollection();
-            roleColl = ((LabResultProxyContainer) proxyVO).getTheRoleDtoCollection();
+            participationColl =  labresultproxycontainer.getTheParticipationDtoCollection();
+            actRelationShipColl = labresultproxycontainer.getTheActRelationshipDtoCollection();
+            roleColl = labresultproxycontainer.getTheRoleDtoCollection();
         }
 
         if (participationColl != null)

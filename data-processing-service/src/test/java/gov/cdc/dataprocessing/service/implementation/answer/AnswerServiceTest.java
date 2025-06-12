@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.answer;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PageContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
@@ -154,7 +153,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void insertPageVo_Success_PageConNotNull() throws DataProcessingException {
+    void insertPageVo_Success_PageConNotNull()  {
         PageContainer pageContainer = new PageContainer();
         var answerMap = new HashMap<Object, NbsAnswerDto>();
         var ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
@@ -246,7 +245,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void storePageAnswer_Success() throws DataProcessingException {
+    void storePageAnswer_Success()   {
         PageContainer pageContainer = new PageContainer();
         var answerMap = new HashMap<Object, NbsAnswerDto>();
         var ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
@@ -542,7 +541,7 @@ class AnswerServiceTest {
 
     @Test
     @SuppressWarnings("java:S2699")
-    void insertPageVO_Test() throws DataProcessingException {
+    void insertPageVO_Test()   {
         PageContainer pageContainer = null;
         ObservationDto rootDTInterface = new ObservationDto();
         answerService.insertPageVO(pageContainer, rootDTInterface);
@@ -611,7 +610,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testInsertPageVOAnswerDTMapSizeZero() throws DataProcessingException {
+    void testInsertPageVOAnswerDTMapSizeZero() {
         PageContainer pageContainer = new PageContainer();
         Map<Object, NbsAnswerDto> answerDTMap = new HashMap<>();
         pageContainer.setAnswerDTMap(answerDTMap);
@@ -625,7 +624,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertPageVORepeatingAnswerDTMapSizeZero() throws DataProcessingException {
+    void testInsertPageVORepeatingAnswerDTMapSizeZero() {
         PageContainer pageContainer = new PageContainer();
         Map<Object, NbsAnswerDto> answerDTMap = new HashMap<>();
         answerDTMap.put("key", new NbsAnswerDto());
@@ -643,7 +642,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testStorePageAnswerElseCase() throws DataProcessingException {
+    void testStorePageAnswerElseCase() {
         ObservationDto observationDto = new ObservationDto();
 
         // Call the method with pageContainer set to null
