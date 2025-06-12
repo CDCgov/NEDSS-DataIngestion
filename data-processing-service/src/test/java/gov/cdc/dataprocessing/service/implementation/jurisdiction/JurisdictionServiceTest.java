@@ -373,7 +373,7 @@ class JurisdictionServiceTest {
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         verify(organizationRepositoryUtil).loadObject(any(), any());
     }
-    
+
     @Test
     void deriveJurisdictionCd_reportingFacility() throws DataProcessingException {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();

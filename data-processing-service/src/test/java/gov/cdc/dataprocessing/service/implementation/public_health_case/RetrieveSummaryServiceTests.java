@@ -69,34 +69,6 @@ class RetrieveSummaryServiceTests {
                 catchingValueService, prepareAssocModelHelper, notificationRepositoryUtil, authUtil);
     }
 
-    @Test
-    void checkBeforeCreateAndStoreMessageLogDTCollection_Success() {
-        long uid = 10L;
-        var col = new ArrayList<LabReportSummaryContainer>();
-        var phc = new PublicHealthCaseDto();
-        phc.setStdHivProgramAreaCode(true);
-        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(10L)).thenReturn(
-                phc
-        );
-        retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(uid, col);
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
-    }
-
-    @Test
-    void checkBeforeCreateAndStoreMessageLogDTCollection_Exception_HIT() {
-        long uid = 10L;
-        var col = new ArrayList<LabReportSummaryContainer>();
-        var phc = new PublicHealthCaseDto();
-        phc.setStdHivProgramAreaCode(true);
-        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(10L)).thenThrow(
-                new RuntimeException("TEST")
-        );
-
-        retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(uid, col);
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
-    }
-
-
 
     @Test
     void retrieveDocumentSummaryVOForInv_Success() {

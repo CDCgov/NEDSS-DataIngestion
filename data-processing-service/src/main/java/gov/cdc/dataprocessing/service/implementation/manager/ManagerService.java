@@ -229,6 +229,8 @@ public class ManagerService implements IManagerService {
             backoff = @Backoff(delay = 1000, multiplier = 2),
             retryFor = {DataProcessingDBException.class}
     )
+
+    @SuppressWarnings("java:S1135")
     public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
         boolean dltLockError = false;

@@ -130,9 +130,6 @@ public class InvestigationService implements IInvestigationService {
              var invVO = getInvestigationProxy(investigationUID);
             updateAutoResendNotificationsAsync(invVO);
         }
-        if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty()){
-            retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(investigationUID, reportSumVOCollection);
-        }
 
     }
 

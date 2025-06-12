@@ -278,7 +278,6 @@ class InvestigationServiceTests {
 
         verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(investigationUid);
         verify(observationRepositoryUtil, times(1)).loadObject(10006210L);
-        verify(retrieveSummaryService, times(1)).checkBeforeCreateAndStoreMessageLogDTCollection(any(), any());
 
     }
 

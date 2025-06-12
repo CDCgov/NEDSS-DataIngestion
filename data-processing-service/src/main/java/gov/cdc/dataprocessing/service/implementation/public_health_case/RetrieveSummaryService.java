@@ -49,18 +49,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         this.notificationRepositoryUtil = notificationRepositoryUtil;
     }
 
-    public void checkBeforeCreateAndStoreMessageLogDTCollection(Long investigationUID,
-                                                                Collection<LabReportSummaryContainer> reportSumVOCollection){
-
-        try {
-            PublicHealthCaseDto publicHealthCaseDto;
-
-            publicHealthCaseDto = publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-    }
-
     /**
      * This method will access the HashMap<Object,Object> of TreatmentSummaryVO for passed investigationUID
      * to papulate the Treatment summary on Investigation page

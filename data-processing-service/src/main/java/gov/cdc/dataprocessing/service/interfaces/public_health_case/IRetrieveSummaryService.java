@@ -9,8 +9,6 @@ import java.util.Map;
 
 
 public interface IRetrieveSummaryService {
-    void checkBeforeCreateAndStoreMessageLogDTCollection(Long investigationUID,
-                                                                Collection<LabReportSummaryContainer> reportSumVOCollection);
     Collection<Object>  notificationSummaryOnInvestigation(PublicHealthCaseContainer publicHealthCaseContainer, Object object) throws DataProcessingException;
     Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException;
     Map<Object,Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) throws DataProcessingException;
