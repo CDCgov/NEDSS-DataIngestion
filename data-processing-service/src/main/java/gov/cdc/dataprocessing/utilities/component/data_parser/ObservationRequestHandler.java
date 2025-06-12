@@ -567,7 +567,7 @@ public class ObservationRequestHandler {
                 personNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
             }
             personNameDto.setAddTime(edxLabInformationDto.getAddTime());
-            personNameDto.setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
+            personNameDto.setLastChgTime(edxLabInformationDto.getAddTime());
             personNameDto.setAddUserId(edxLabInformationDto.getUserId());
             personNameDto.setLastChgUserId(edxLabInformationDto.getUserId());
             personContainer.getThePersonNameDtoCollection().add(personNameDto);
@@ -734,7 +734,7 @@ public class ObservationRequestHandler {
             personNameDto.setNmUseCd(orderingProvider.getHL7NameTypeCode());
 
             personNameDto.setAddTime(edxLabInformationDto.getAddTime());
-            personNameDto.setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
+            personNameDto.setLastChgTime(edxLabInformationDto.getAddTime());
             personNameDto.setAddUserId(edxLabInformationDto.getUserId());
             personNameDto.setPersonNameSeq(1);
             personNameDto.setLastChgUserId(edxLabInformationDto.getUserId());

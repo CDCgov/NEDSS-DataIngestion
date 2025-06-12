@@ -101,7 +101,7 @@ public class NBSObjectConverter {
         personNameDto.setAddUserId(personContainer.getThePersonDto().getAddUserId());
         personNameDto.setItNew(true);
         personNameDto.setItDirty(false);
-        personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime()); // TODO: CHECK_LAST_TS
+        personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime());
         personNameDto.setLastChgUserId(personContainer.getThePersonDto()
                 .getLastChgUserId());
         int seq = 0;
@@ -731,7 +731,7 @@ public class NBSObjectConverter {
 
     public ParticipationDto defaultParticipationDT(ParticipationDto participationDto, EdxLabInformationDto edxLabInformationDto) {
         participationDto.setAddTime(edxLabInformationDto.getAddTime());
-        participationDto.setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
+        participationDto.setLastChgTime(edxLabInformationDto.getAddTime());
         participationDto.setAddUserId(edxLabInformationDto.getUserId());
         participationDto.setAddReasonCd(EdxELRConstant.ELR_ROLE_REASON);
         participationDto.setAddTime(edxLabInformationDto.getAddTime());
@@ -780,7 +780,7 @@ public class NBSObjectConverter {
         personNameDto.setAddUserId(personContainer.getThePersonDto().getAddUserId());
         personNameDto.setItNew(true);
         personNameDto.setItDirty(false);
-        personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime()); // TODO: CHECK_LAST_TS
+        personNameDto.setLastChgTime(personContainer.getThePersonDto().getLastChgTime());
         personNameDto.setLastChgUserId(personContainer.getThePersonDto().getLastChgUserId());
         int seq = 0;
         if (!personContainer.getThePersonNameDtoCollection().isEmpty()) {

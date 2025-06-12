@@ -56,10 +56,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             PublicHealthCaseDto publicHealthCaseDto;
 
             publicHealthCaseDto = publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
-
-            if(publicHealthCaseDto.isStdHivProgramAreaCode()){
-                //TODO: LOGGING PIPELINE
-            }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

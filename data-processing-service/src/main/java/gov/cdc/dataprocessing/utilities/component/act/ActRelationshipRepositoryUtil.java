@@ -67,7 +67,7 @@ public class ActRelationshipRepositoryUtil {
         if (dt.isItNew())
         {
             data.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
-            data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp(tz)); // TODO: CHECK_LAST_TS
+            data.setLastChgTime(TimeStampUtil.getCurrentTimeStamp(tz));
             actRelationshipJdbcRepository.insertActRelationship(data);
         }
         else if (dt.isItDelete())

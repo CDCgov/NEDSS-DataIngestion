@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.utilities.component.entity;
 
-import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityODSE;
@@ -28,18 +27,7 @@ public class EntityRepositoryUtil {
 
         entityJdbcRepository.createEntity(entityODSE); // Consider batching if called repeatedly
 
-        switch (event) {
-            case NEDSSConstant.SELECT -> {
-                // TODO
-            }
-            case NEDSSConstant.SELECT_COUNT -> {
-                // TODO
-            }
-            default -> {
-                return entityODSE;
-            }
-        }
-
         return entityODSE;
+
     }
 }

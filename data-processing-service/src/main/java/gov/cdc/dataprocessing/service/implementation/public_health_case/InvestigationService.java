@@ -844,7 +844,7 @@ public class InvestigationService implements IInvestigationService {
     private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         return getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
     }
-    @SuppressWarnings({"java:S3776","java:S3776"})
+    @SuppressWarnings({"java:S3776","java:S3776", "java:S6541"})
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         ArrayList<Object>  labSummList = new ArrayList<> ();
         ArrayList<Object>  labEventList = new ArrayList<> ();

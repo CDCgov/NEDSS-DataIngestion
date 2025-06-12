@@ -373,24 +373,7 @@ class JurisdictionServiceTest {
         jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT);
         verify(organizationRepositoryUtil).loadObject(any(), any());
     }
-
-    @Test
-    void deriveJurisdictionCd_orderingFacility_throw_exp() throws DataProcessingException {
-        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
-        ObservationDto rootObsDT = new ObservationDto();
-
-        ParticipationDto partDT = new ParticipationDto();
-        partDT.setTypeCd(NEDSSConstant.PAR102_TYP_CD);
-        partDT.setSubjectEntityUid(123L);
-
-        Collection<ParticipationDto> partColl = new ArrayList<>();
-        partColl.add(partDT);
-        labResultProxyContainer.setTheParticipationDtoCollection(partColl);
-
-        when(organizationRepositoryUtil.loadObject(any(), any())).thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(DataProcessingException.class, () -> jurisdictionService.deriveJurisdictionCd(labResultProxyContainer, rootObsDT));
-    }
-
+    
     @Test
     void deriveJurisdictionCd_reportingFacility() throws DataProcessingException {
         LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();

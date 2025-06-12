@@ -66,7 +66,7 @@ class ObservationCodeServiceTest {
 
 
     @Test
-    void getReportingLabCLIA_Success() throws DataProcessingException {
+    void getReportingLabCLIA_Success()  {
         TestData.createLabResultContainer();
         LabResultProxyContainer labResultProxyContainer = TestData.labResultProxyContainer;
 

@@ -214,7 +214,7 @@ public class ObservationService implements IObservationService {
      * Retrieving assoc data from Participation: PERSON, ORG, MATERIAL, ROLE
      * */
     @SuppressWarnings("java:S1640")
-    private Map<DataProcessingMapKey, Object>  retrieveEntityFromParticipationForContainer(Collection<ParticipationDto> partColl) throws DataProcessingException {
+    private Map<DataProcessingMapKey, Object>  retrieveEntityFromParticipationForContainer(Collection<ParticipationDto> partColl)  {
         Map<DataProcessingMapKey, Object> entityHolder = new HashMap<>();
 
         //Retrieve associated persons
@@ -757,12 +757,9 @@ public class ObservationService implements IObservationService {
 
     private Map<Object, Object> setLabResultProxy(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
 
-            //saving LabResultProxyVO before updating auto resend notifications
             Map<Object, Object> returnVal = setLabResultProxyWithoutNotificationAutoResend(labResultProxyVO);
 
             updateLabResultWithAutoResendNotification(labResultProxyVO);
-
-            //TODO: EMAIL NOTIFICATION IS FLAGGED HERE
 
             if(labResultProxyVO.getMessageLogDCollection()!=null
                     && !labResultProxyVO.getMessageLogDCollection().isEmpty()){

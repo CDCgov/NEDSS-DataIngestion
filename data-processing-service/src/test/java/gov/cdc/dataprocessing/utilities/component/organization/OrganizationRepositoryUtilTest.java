@@ -512,7 +512,7 @@ class OrganizationRepositoryUtilTest {
     }
 
     @Test
-    void loadObject() throws DataProcessingException {
+    void loadObject()  {
         //Select Org
         Organization organization = new Organization();
         organization.setOrganizationUid(123L);

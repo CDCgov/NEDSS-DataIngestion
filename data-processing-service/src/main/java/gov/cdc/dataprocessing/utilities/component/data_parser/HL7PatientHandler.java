@@ -423,7 +423,7 @@ public class HL7PatientHandler {
 
             personContainer.getThePersonDto().setVersionCtrlNbr(1);
             personContainer.getThePersonDto().setItNew(true);
-            personContainer.getThePersonDto().setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
+            personContainer.getThePersonDto().setLastChgTime(edxLabInformationDto.getAddTime());
             personContainer.getThePersonDto().setAddTime(edxLabInformationDto.getAddTime());
             personContainer.getThePersonDto().setLastChgUserId(edxLabInformationDto.getUserId());
             personContainer.getThePersonDto().setAddUserId(edxLabInformationDto.getUserId());
@@ -431,7 +431,7 @@ public class HL7PatientHandler {
             personContainer.getThePersonDto().setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
             personContainer.getThePersonDto().setStatusTime(personContainer.getThePersonDto().getLastChgTime());
 
-            personDto.setLastChgTime(edxLabInformationDto.getAddTime()); // TODO: CHECK_LAST_TS
+            personDto.setLastChgTime(edxLabInformationDto.getAddTime());
             personDto.setLastChgUserId(edxLabInformationDto.getUserId());
             personDto.setAsOfDateAdmin(edxLabInformationDto.getAddTime());
             personDto.setAsOfDateEthnicity(edxLabInformationDto.getAddTime());

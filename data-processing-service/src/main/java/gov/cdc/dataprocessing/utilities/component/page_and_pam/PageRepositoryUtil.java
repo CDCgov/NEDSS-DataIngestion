@@ -109,7 +109,7 @@ public class PageRepositoryUtil {
                 // update auto resend notifications
                 investigationService.updateAutoResendNotificationsAsync(pageProxyVO);
             } catch (Exception e) {
-                //TODO: LOGGING NND LOG
+                //IGNORE THIS EXCEPTION
             }
         }
 
@@ -131,7 +131,6 @@ public class PageRepositoryUtil {
         phcUid = pageActPhc.getPhcUid();
 
 
-        //TODO: LOGGING
         if (pageProxyVO.getMessageLogDTMap() != null && !pageProxyVO.getMessageLogDTMap().isEmpty())
         {
 
@@ -693,10 +692,6 @@ public class PageRepositoryUtil {
                 && !pageActProxyContainer.isMergeCase() && !NEDSSConstant.INVESTIGATION_STATUS_CODE_CLOSED.equals(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd()))
         {
             updatForConInfectionId(pageActProxyContainer, mprUid, actualUid);
-        }
-
-        if(pageActProxyContainer.getPublicHealthCaseContainer().getTheCaseManagementDto()!=null) {
-            //TODO: NBS STD OR HIV PROG
         }
     }
 
