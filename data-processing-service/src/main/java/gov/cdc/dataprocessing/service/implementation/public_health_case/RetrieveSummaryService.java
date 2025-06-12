@@ -10,7 +10,6 @@ import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
-import gov.cdc.dataprocessing.utilities.component.public_health_case.PublicHealthCaseRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
