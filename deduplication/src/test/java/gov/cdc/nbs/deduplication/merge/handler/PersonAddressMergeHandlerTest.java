@@ -1,79 +1,147 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class PersonAddressMergeHandlerTest {
+@Component
+@Order(4)
+public class PersonAddressMergeHandler implements SectionMergeHandler {
 
-  @Mock
-  private NamedParameterJdbcTemplate nbsTemplate;
+  private final NamedParameterJdbcTemplate nbsTemplate;
 
-  private PersonAddressMergeHandler handler;
 
-  @BeforeEach
-  void setUp() {
-    handler = new PersonAddressMergeHandler(nbsTemplate);
+  static final String UPDATE_UN_SELECTED_ADDRESS_INACTIVE = """
+      UPDATE Entity_locator_participation
+      SET record_status_cd = 'INACTIVE',
+         last_chg_time = GETDATE()
+      WHERE entity_uid = :survivingId
+        AND locator_uid NOT IN (:selectedLocators)
+        AND use_cd NOT IN ('BIR', 'DTH')
+        AND class_cd = 'PST';
+      """;
+
+  static final String INSERT_NEW_LOCATORS  = """
+      INSERT INTO Entity_locator_participation (
+          entity_uid,
+          locator_uid,
+          version_ctrl_nbr,
+          add_reason_cd,
+          add_time,
+          add_user_id,
+          cd,
+          cd_desc_txt,
+          class_cd,
+          duration_amt,
+          duration_unit_cd,
+          from_time,
+          last_chg_reason_cd,
+          last_chg_time,
+          last_chg_user_id,
+          locator_desc_txt,
+          record_status_cd,
+          record_status_time,
+          status_cd,
+          status_time,
+          to_time,
+          use_cd,
+          user_affiliation_txt,
+          valid_time_txt,
+          as_of_date
+      )
+      SELECT
+          :survivingId,
+          locator_uid,
+          version_ctrl_nbr,
+          add_reason_cd,
+          add_time,
+          add_user_id,
+          cd,
+          cd_desc_txt,
+          class_cd,
+          duration_amt,
+          duration_unit_cd,
+          from_time,
+          last_chg_reason_cd,
+          GETDATE(),
+          last_chg_user_id,
+          locator_desc_txt,
+          record_status_cd,
+          record_status_time,
+          status_cd,
+          status_time,
+          to_time,
+          use_cd,
+          user_affiliation_txt,
+          valid_time_txt,
+          as_of_date
+      FROM Entity_locator_participation
+      WHERE locator_uid IN (:selectedLocators)
+        AND entity_uid != :survivingId
+        AND use_cd NOT IN ('BIR', 'DTH')
+        AND class_cd = 'PST';
+      """;
+
+  static final String UPDATE_LOCATORS_HIST_TO_SURVIVING = """
+      UPDATE Entity_loc_participation_hist
+      SET entity_uid = :survivingId,
+          last_chg_time = GETDATE()
+      WHERE locator_uid IN (:selectedLocators)
+        AND entity_uid != :survivingId
+        AND use_cd NOT IN ('BIR', 'DTH')
+        AND class_cd = 'PST';
+      """;
+
+  static final String DELETE_OLD_LOCATORS = """
+      DELETE FROM Entity_locator_participation
+      WHERE locator_uid IN (:selectedLocators)
+        AND entity_uid != :survivingId
+        AND use_cd NOT IN ('BIR', 'DTH')
+        AND class_cd = 'PST';
+      """;
+
+  public PersonAddressMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
+    this.nbsTemplate = nbsTemplate;
   }
 
-  @Test
-  @SuppressWarnings("unchecked")
-  void handleMerge_shouldPerformAllPersonAddressesRelatedDatabaseOperations() {
-    String survivingId = "survivorId1";
-    String matchId = "match123";
-    PatientMergeRequest request = getPatientMergeRequest(survivingId);
-
-    handler.handleMerge(matchId, request);
-
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.UPDATE_UN_SELECTED_ADDRESS_INACTIVE),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.INSERT_NEW_LOCATORS),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.UPDATE_LOCATORS_HIST_TO_SURVIVING),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.DELETE_OLD_LOCATORS),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
+  @Override
+  public void handleMerge(String matchId, PatientMergeRequest request) {
+    mergePersonAddress(request);
   }
 
-  private PatientMergeRequest getPatientMergeRequest(String survivingId) {
-    List<PatientMergeRequest.AddressId> addressIds = Arrays.asList(
-        new PatientMergeRequest.AddressId("locator1"),
-        new PatientMergeRequest.AddressId("locator2")
-    );
-    return new PatientMergeRequest(survivingId, null,
-        null, addressIds, null, null, null);
+  private void mergePersonAddress(PatientMergeRequest request) {
+    String survivingId = request.survivingRecord();
+    List<String> selectedLocatorIds = request.addresses().stream()
+        .map(PatientMergeRequest.AddressId::locatorId)
+        .toList();
+
+    if (!selectedLocatorIds.isEmpty()) {
+      markUnselectedAddressInactive(survivingId, selectedLocatorIds);
+      updateSelectedAddress(survivingId, selectedLocatorIds);
+    }
+  }
+
+  private void markUnselectedAddressInactive(String survivingId, List<String> selectedLocators) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("survivingId", survivingId);
+    params.put("selectedLocators", selectedLocators);
+
+    nbsTemplate.update(UPDATE_UN_SELECTED_ADDRESS_INACTIVE, params);
+  }
+
+  private void updateSelectedAddress(String survivingId, List<String> selectedLocators) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("survivingId", survivingId);
+    params.put("selectedLocators", selectedLocators);
+
+    nbsTemplate.update(INSERT_NEW_LOCATORS, params);
+    nbsTemplate.update(UPDATE_LOCATORS_HIST_TO_SURVIVING, params);
+    nbsTemplate.update(DELETE_OLD_LOCATORS, params);
   }
 
 
