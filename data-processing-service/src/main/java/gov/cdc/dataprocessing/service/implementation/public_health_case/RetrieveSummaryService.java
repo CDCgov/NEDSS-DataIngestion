@@ -5,7 +5,6 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
-import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IRetrieveSummaryService;
@@ -28,7 +27,6 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_
 public class RetrieveSummaryService implements IRetrieveSummaryService {
     private static final Logger logger = LoggerFactory.getLogger(RetrieveSummaryService.class); // NOSONAR
 
-    private final PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil;
     private final QueryHelper queryHelper;
     private final CustomRepository customRepository;
     private final ICatchingValueDpService catchingValueService;
@@ -41,7 +39,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                                   ICatchingValueDpService catchingValueService,
                                   PrepareAssocModelHelper prepareAssocModelHelper,
                                   NotificationRepositoryUtil notificationRepositoryUtil) {
-        this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
         this.queryHelper = queryHelper;
         this.customRepository = customRepository;
         this.catchingValueService = catchingValueService;
