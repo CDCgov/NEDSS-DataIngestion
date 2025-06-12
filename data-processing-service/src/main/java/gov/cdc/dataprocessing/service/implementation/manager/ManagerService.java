@@ -491,8 +491,13 @@ public class ManagerService implements IManagerService {
             dto.setEthnicityCodeTranslated(true);
 
             String trace = sw.toString();
-            String tableName = trace.contains("Table Name : ") ?
-                    trace.substring(trace.indexOf("Table Name : ") + 13).split(" ")[0] : "Unknown";
+            String tableName = "Unknown";
+            if (trace.contains("Table Name : ")) {
+                String[] parts = trace.substring(trace.indexOf("Table Name : ") + 13).split(" ");
+                if (parts.length > 0 && parts[0] != null && !parts[0].isBlank()) {
+                    tableName = parts[0];
+                }
+            }
             return truncateMessage(String.format("SQLException while inserting into %s %s %s", tableName, accessionNumber, trace));
         }
 

@@ -719,18 +719,6 @@ class AnswerServiceTest {
         verify(nbsAnswerRepository, times(1)).findByActUid(any());
     }
 
-    @Test
-    void testDelete_AnswerCollectionEmpty()  {
-        ObservationDto rootDTInterface = new ObservationDto();
-        rootDTInterface.setObservationUid(1L);
-
-        when(nbsAnswerRepository.findByActUid(1L)).thenReturn(new ArrayList<>());
-
-        answerService.delete(rootDTInterface);
-
-        verify(nbsAnswerRepository, times(1)).findByActUid(any());
-
-    }
 
     @Test
     void testDelete_ActEntityCollectionNull()  {

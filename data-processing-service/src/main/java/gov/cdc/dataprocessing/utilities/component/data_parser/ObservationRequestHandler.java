@@ -287,8 +287,7 @@ public class ObservationRequestHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getObservationRequest: {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationRequest.getObservationRequest:"+ e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
 

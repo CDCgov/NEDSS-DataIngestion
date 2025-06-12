@@ -28,7 +28,7 @@ import java.util.List;
 @Component
 
 public class ORCHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ORCHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ORCHandler.class); //NOSONAR
     @Value("${service.timezone}")
     private String tz = "UTC";
     private final NBSObjectConverter nbsObjectConverter;

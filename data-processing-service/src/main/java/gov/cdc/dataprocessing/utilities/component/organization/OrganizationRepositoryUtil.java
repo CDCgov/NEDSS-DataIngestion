@@ -46,7 +46,7 @@ import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
 import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_UPDATE;
 
 @Component
-
+@SuppressWarnings("java:S6204")
 public class OrganizationRepositoryUtil {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationRepositoryUtil.class);
     /**

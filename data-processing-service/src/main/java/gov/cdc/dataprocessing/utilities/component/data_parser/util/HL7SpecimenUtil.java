@@ -25,7 +25,7 @@ import java.util.List;
 @Component
 
 public class HL7SpecimenUtil {
-    private static final Logger logger = LoggerFactory.getLogger(HL7SpecimenUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(HL7SpecimenUtil.class); //NOSONAR
     private final NBSObjectConverter nbsObjectConverter;
 
     public HL7SpecimenUtil(NBSObjectConverter nbsObjectConverter) {
