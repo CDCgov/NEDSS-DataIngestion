@@ -6,6 +6,8 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class UidPoolManager {
-
+    private static final Logger logger = LoggerFactory.getLogger(UidPoolManager.class);
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
     protected final Map<String, Queue<LocalUidModel>> uidPools = new ConcurrentHashMap<>();
     private final Map<String, AtomicBoolean> refillInProgress = new ConcurrentHashMap<>();
@@ -43,7 +45,7 @@ public class UidPoolManager {
             preloadPool(idClass, false);
             preloadPool(idClass, true);
         }
-        System.out.println("All UID pools initialized.");
+        logger.info("All UID pools initialized.");
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -91,6 +93,7 @@ public class UidPoolManager {
                 try {
                     preloadPool(idClass, gaApplied);
                 } catch (Exception ignored) {
+                    // IGNORE THIS EXCEPTION
                 } finally {
                     refillInProgress.get(key).set(false);
                 }

@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-
+@SuppressWarnings("java:S3740")
 public class ProgramAreaContainer implements Serializable, Comparable
 {
 

@@ -252,7 +252,7 @@ public class PageRepositoryUtil {
         return coinfectionInvList;
     }
 
-    @SuppressWarnings({"java:S1172","java:S1854", "java:S1481", "java:S125"})
+    @SuppressWarnings({"java:S1172","java:S1854", "java:S1481", "java:S125", "java:S107"})
     private  void updateCoInfectionInvest(Map<Object, Object> mappedCoInfectionQuestions, Map<Object, Object>  fromMapQuestions,
                                           PageActProxyContainer pageActProxyContainer, PublicHealthCaseContainer publicHealthCaseContainer,
                                           PublicHealthCaseContainer supersededPublicHealthCaseContainer,

@@ -442,8 +442,6 @@ public class ManagerService implements IManagerService {
     }
 
     private void processKnownErrorPatterns(Exception e, EdxLabInformationDto dto) {
-        String msg = e.getMessage();
-
         if (e.toString().contains("Invalid XML")) {
             dto.setInvalidXML(true);
             dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
@@ -495,7 +493,7 @@ public class ManagerService implements IManagerService {
             String trace = sw.toString();
             String tableName = trace.contains("Table Name : ") ?
                     trace.substring(trace.indexOf("Table Name : ") + 13).split(" ")[0] : "Unknown";
-            return truncateMessage(String.format("SQLException while inserting into %s\n%s\n%s", tableName, accessionNumber, trace));
+            return truncateMessage(String.format("SQLException while inserting into %s %s %s", tableName, accessionNumber, trace));
         }
 
         if (msg.contains(EdxELRConstant.DATE_VALIDATION)) {
@@ -506,7 +504,7 @@ public class ManagerService implements IManagerService {
             dto.setEthnicityCodeTranslated(true);
 
             String extracted = extractDateValidation(msg);
-            return truncateMessage(String.format("%s\n%s\n%s", extracted, accessionNumber, msg));
+            return truncateMessage(String.format("%s %s %s", extracted, accessionNumber, msg));
         }
 
         dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_16);

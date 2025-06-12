@@ -1164,7 +1164,9 @@ class ManagerServiceTest {
         assertDoesNotThrow(() -> {
             try {
                 spyManager.handlingWdsAndLab(container);
-            } catch (DataProcessingException | DataProcessingDBException | EdxLogException ignored) {}
+            } catch (DataProcessingException | DataProcessingDBException | EdxLogException ignored) {
+                //IGNORE THIS
+            }
         });
     }
 

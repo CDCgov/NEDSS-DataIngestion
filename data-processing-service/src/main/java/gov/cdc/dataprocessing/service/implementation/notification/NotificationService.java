@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
-
 
 @Service
 
@@ -134,15 +132,12 @@ public class NotificationService implements INotificationService {
     {
 
         Long notificationUid = null;
-        String permissionFlag;
         Collection<Object> act2 = new ArrayList<>();
 
         if (notificationProxyVO == null)
         {
             throw new DataProcessingException("notificationproxyVO is null ");
         }
-        permissionFlag = OPERATION_CREATE;
-
 
 
         NotificationContainer notifVO = notificationProxyVO.getTheNotificationContainer();

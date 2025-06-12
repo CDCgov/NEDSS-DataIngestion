@@ -61,18 +61,12 @@ public class ObservationResultRequestHandler {
                                                                EdxLabInformationDto edxLabInformationDto) throws DataProcessingException{
         try {
             for (HL7OBSERVATIONType hl7OBSERVATIONType : observationRequestArray) {
-                try {
-                    ObservationContainer observationContainer = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyContainer, edxLabInformationDto);
-                    getObsReqNotes(hl7OBSERVATIONType.getNotesAndComments(), observationContainer);
-                    labResultProxyContainer.getTheObservationContainerCollection().add(observationContainer);
-                } catch (Exception e) {
-                    logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while processing observationRequestArray. Please check!!! {}", e.getMessage());
-                    throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest while oricessing observationRequestArray:" + e.getMessage());
-                }
+                ObservationContainer observationContainer = getObservationResult(hl7OBSERVATIONType.getObservationResult(), labResultProxyContainer, edxLabInformationDto);
+                getObsReqNotes(hl7OBSERVATIONType.getNotesAndComments(), observationContainer);
+                labResultProxyContainer.getTheObservationContainerCollection().add(observationContainer);
             }
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getObservationResultRequest Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResultRequest:"+ e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return labResultProxyContainer;
     }
@@ -308,8 +302,7 @@ public class ObservationResultRequestHandler {
             observationContainer = processingObservationMethod(methodArray, edxLabInformationDto, observationContainer);
 
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getObservationResult Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObservationResult:"+ e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         return observationContainer;
@@ -418,14 +411,13 @@ public class ObservationResultRequestHandler {
             }
 
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getPerformingFacility Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationResultRequest.getPerformingFacility:"+ e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
 
         }
         return organizationContainer;
     }
 
-    @SuppressWarnings({"java:S3776", "java:S6541", "java:S125", "java:S1854"})
+    @SuppressWarnings({"java:S3776", "java:S6541", "java:S125", "java:S1854", "java:S6916"})
     protected void formatValue(String text, HL7OBXType hl7OBXType, ObservationContainer observationContainer, EdxLabInformationDto edxLabInformationDto, String elementName) throws DataProcessingException{
         String type = "";
         try {
@@ -576,8 +568,7 @@ public class ObservationResultRequestHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.formatValue Exception thrown while observation value. Please check!!! {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationResultRequest.formatValue for text:\""+text+"\" and for type:\""+ type+"\"."+e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }
@@ -622,8 +613,7 @@ public class ObservationResultRequestHandler {
 
             }
         } catch (Exception e) {
-            logger.error("ObservationResultRequest.getObsReqNotes Exception thrown while parsing XML document. Please check!!! {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationResultRequest.getObsReqNotes:"+ e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
 
         }
         return observationContainer;

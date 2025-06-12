@@ -1,6 +1,6 @@
 package gov.cdc.srtedataservice.constant;
 
-
+@SuppressWarnings("java:S1118")
 public class ELRConstant {
     public static final String PROGRAM_ASSIGN_1 = "PROGRAM_ASSIGN_1";
     public static final String PROGRAM_ASSIGN_2 = "PROGRAM_ASSIGN_2";

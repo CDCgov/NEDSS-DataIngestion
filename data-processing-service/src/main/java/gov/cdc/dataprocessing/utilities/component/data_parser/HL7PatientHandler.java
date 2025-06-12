@@ -368,9 +368,7 @@ public class HL7PatientHandler {
                         }
                         raceColl.add(raceDT);
                     } catch (Exception e) {
-                        logger.error("Exception thrown by HL7PatientProcessor.getPatientVO  getting race information {}", e.getMessage());
-                        throw new DataProcessingException(
-                                "Exception thrown at HL7PatientProcessor.getPatientVO getting race information:" + e);
+                        throw new DataProcessingException(e.getMessage(),e);
                     }// end of catch
                 }
                 personContainer.setThePersonRaceDtoCollection(raceColl);
@@ -538,8 +536,7 @@ public class HL7PatientHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessor.personVO {}", e.getMessage()  );
-            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.personVO: {}"+ e.getMessage());
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return personContainer;
     }
@@ -583,8 +580,7 @@ public class HL7PatientHandler {
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7PatientProcessor.getNextOfKinVO {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7PatientProcessor.getNextOfKinVO:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
         return labResultProxyContainer;
     }

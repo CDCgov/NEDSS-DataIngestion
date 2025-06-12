@@ -506,7 +506,7 @@ public class InvestigationService implements IInvestigationService {
 
 
     }
-    @SuppressWarnings({"java:S1172", "java:S2589"})
+    @SuppressWarnings({"java:S1172", "java:S2589", "java:S107"})
     private  void updateNotification(boolean isSummaryCase, Long notificationUid, String phcCd,
                                    String phcClassCd, String progAreaCd, String jurisdictionCd,
                                    String sharedInd, boolean caseStatusChange) throws DataProcessingException {
@@ -565,7 +565,7 @@ public class InvestigationService implements IInvestigationService {
 
         return getInvestigationProxyLite(publicHealthCaseUID, false);
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1141"})
     private InvestigationContainer getInvestigationProxyLite(Long publicHealthCaseUID, boolean lite) throws DataProcessingException {
         var investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseDto thePublicHealthCaseDto;

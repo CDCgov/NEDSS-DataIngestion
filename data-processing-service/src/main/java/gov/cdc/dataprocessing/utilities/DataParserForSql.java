@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
-
+@SuppressWarnings("java:S1118")
 public class DataParserForSql {
 
     public static  <T> T parseValue(Object value, Class<T> type) {

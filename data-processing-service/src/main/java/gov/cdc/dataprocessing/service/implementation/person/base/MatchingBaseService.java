@@ -128,9 +128,7 @@ public class MatchingBaseService  {
             returnList = new ArrayList<>(hashSet) ;
         }
         catch (Exception ex) {
-            String errorMessage = "Exception while creating hashcode for patient entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
-            throw new DataProcessingException(errorMessage, ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return returnList;
     }

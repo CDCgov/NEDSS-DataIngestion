@@ -18,7 +18,7 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
 
 @Service
-
+@SuppressWarnings("java:S1149")
 public class SrteCodeObsService implements ISrteCodeObsService {
     private static final Logger logger = LoggerFactory.getLogger(SrteCodeObsService.class); // NOSONAR
 
@@ -170,7 +170,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1149"})
     public HashMap<Object, Object> getProgramArea(String reportingLabCLIA,
                                                   Collection<ObservationContainer> observationContainerCollection,
                                                   String electronicInd) throws DataProcessingException {
@@ -254,7 +254,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return Vector
      */
     // AK - 7/25/04
-    @SuppressWarnings({"java:S3776","java:S135"})
+    @SuppressWarnings({"java:S3776","java:S135", "java:S135"})
 
     public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
         Vector<Object> snomedVector = new Vector<>();

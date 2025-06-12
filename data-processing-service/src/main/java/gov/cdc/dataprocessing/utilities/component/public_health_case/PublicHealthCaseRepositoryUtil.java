@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
-
+@SuppressWarnings("java:S3740")
 public class PublicHealthCaseRepositoryUtil {
     private final PublicHealthCaseJdbcRepository publicHealthCaseJdbcRepository;
     private final SupportForPhcJdbcRepository supportForPhcJdbcRepository;

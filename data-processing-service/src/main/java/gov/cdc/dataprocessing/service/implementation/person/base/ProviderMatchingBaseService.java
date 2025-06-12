@@ -291,9 +291,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
 
         }catch (Exception ex) {
-            String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
-            throw new DataProcessingException(errorMessage, ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return identifierList;
 

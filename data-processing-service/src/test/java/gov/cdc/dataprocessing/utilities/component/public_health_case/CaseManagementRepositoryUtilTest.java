@@ -9,9 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Collection;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
@@ -43,7 +40,6 @@ class CaseManagementRepositoryUtilTest {
     void getCaseManagementPhc_shouldReturnDto_whenRepositoryReturnsNonEmpty() {
         Long phcUid = 1L;
         CaseManagement dto = new CaseManagement();
-        Collection<CaseManagement> lst = List.of(dto);
         when(caseManagementRepository.findByPublicHealthCaseUid(phcUid)).thenReturn(dto);
 
         CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);

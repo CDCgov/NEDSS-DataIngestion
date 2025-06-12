@@ -67,7 +67,9 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             case PamProxyContainer pamProxyContainer -> pamProxyContainer.getPublicHealthCaseContainer();
             case PublicHealthCaseContainer healthCaseContainer -> healthCaseContainer;
             case null, default -> {
-                assert pageObj != null;
+                if (pageObj == null) {
+                    throw new DataProcessingException("Cannot create Notification: pageObj is null");
+                }
                 throw new DataProcessingException("Cannot create Notification for unknown page type: " + pageObj.getClass().getCanonicalName());
             }
         };

@@ -34,11 +34,11 @@ class CodeValueJdbcRepositoryTest {
 
     @Test
     void testFindCodeDescriptionsByCodeSetNm_shouldReturnResults() {
-        CodeValueGeneral record = new CodeValueGeneral();
-        record.setCodeSetNm("example");
+        CodeValueGeneral recordCode = new CodeValueGeneral();
+        recordCode.setCodeSetNm("example");
 
         when(jdbcTemplateOdse.query(eq(SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_NM), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
-                .thenReturn(List.of(record));
+                .thenReturn(List.of(recordCode));
 
         List<CodeValueGeneral> result = repository.findCodeDescriptionsByCodeSetNm("example");
 
@@ -48,11 +48,11 @@ class CodeValueJdbcRepositoryTest {
 
     @Test
     void testFindCodeValuesByCodeSetNm_shouldReturnResults() {
-        CodeValueGeneral record = new CodeValueGeneral();
-        record.setCodeSetNm("another");
+        CodeValueGeneral recordCode = new CodeValueGeneral();
+        recordCode.setCodeSetNm("another");
 
         when(jdbcTemplateOdse.query(eq(SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_NM_ORDERED), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
-                .thenReturn(List.of(record));
+                .thenReturn(List.of(recordCode));
 
         List<CodeValueGeneral> result = repository.findCodeValuesByCodeSetNm("another");
 
@@ -62,11 +62,11 @@ class CodeValueJdbcRepositoryTest {
 
     @Test
     void testFindCodeValuesByCodeSetNmAndCode_shouldReturnResults() {
-        CodeValueGeneral record = new CodeValueGeneral();
-        record.setCode("TEST_CODE");
+        CodeValueGeneral recordCode = new CodeValueGeneral();
+        recordCode.setCode("TEST_CODE");
 
         when(jdbcTemplateOdse.query(eq(SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_AND_CODE), any(MapSqlParameterSource.class), any(BeanPropertyRowMapper.class)))
-                .thenReturn(List.of(record));
+                .thenReturn(List.of(recordCode));
 
         List<CodeValueGeneral> result = repository.findCodeValuesByCodeSetNmAndCode("testSet", "TEST_CODE");
 

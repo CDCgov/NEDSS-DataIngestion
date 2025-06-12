@@ -678,7 +678,6 @@ class AnswerServiceTest {
     @Test
     void testInsertActEntityDTCollection_EmptyCollection() {
         Collection<NbsActEntityDto> actEntityDTCollection = new ArrayList<>();
-        ObservationDto observationDto = new ObservationDto();
 
         answerService.insertActEntityDTCollection(actEntityDTCollection);
 
@@ -688,7 +687,6 @@ class AnswerServiceTest {
 
     @Test
     void testStoreAnswerDTCollection_NullCollection()  {
-        ObservationDto interfaceDT = new ObservationDto();
 
         answerService.storeAnswerDTCollection(null);
 
@@ -703,7 +701,6 @@ class AnswerServiceTest {
         when(answerDT.getNbsAnswerUid()).thenReturn(1L);
         answerDTColl.add(answerDT);
 
-        ObservationDto interfaceDT = new ObservationDto();
 
         answerService.storeAnswerDTCollection(answerDTColl);
 
@@ -737,20 +734,6 @@ class AnswerServiceTest {
 
     @Test
     void testDelete_ActEntityCollectionNull()  {
-        ObservationDto rootDTInterface = new ObservationDto();
-        rootDTInterface.setObservationUid(1L);
-
-        when(nbsAnswerRepository.findByActUid(1L)).thenReturn(new ArrayList<>());
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(new ArrayList<>());
-
-        answerService.delete(rootDTInterface);
-
-        verify(nbsAnswerRepository, times(1)).findByActUid(any());
-
-    }
-
-    @Test
-    void testDelete_ActEntityCollectionEmpty()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 

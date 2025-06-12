@@ -50,8 +50,7 @@ public class ORCHandler {
                                 hl7ORCType.getOrderEffectiveDateTime(), EdxELRConstant.DATE_VALIDATION_ORC_ORDER_EFFECTIVE_TIME_MSG));
             }
         } catch (Exception e) {
-            logger.error("Exception thrown at HL7ORCProcessorget.getORCProcessing: {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getORCProcessing:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -84,8 +83,7 @@ public class ORCHandler {
                 edxLabInformationDto.setMissingOrderingProvider(true);
             }
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessor.getOrderingProvider {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessor.getOrderingProvider:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         return labResultProxyContainer;
@@ -182,8 +180,7 @@ public class ORCHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessorget.getOrderingFacility {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getOrderingFacility:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
         edxLabInformationDto.setMultipleOrderingFacility(false);
 

@@ -182,21 +182,19 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                         }
                     }
                 }
-                else if (object instanceof PageActProxyContainer pageProxy) // NOSONAR
+                else if (object instanceof PageActProxyContainer pageProxy && notificationSummaryVO.isCaseReport()) // NOSONAR
                 {
-                    if (notificationSummaryVO.isCaseReport()) {
-                        if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
-                            pageProxy.setOOSystemInd(true);
-                        }
+                    if (notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_APPROVED_CODE)) {
+                        pageProxy.setOOSystemInd(true);
+                    }
 
-                        if (notificationSummaryVO.isHistory != null &&
-                                !notificationSummaryVO.isHistory.equals("T") &&
-                                notificationSummaryVO.getCdNotif() != null &&
-                                (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
-                                !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE)
-                                        || notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
-                            pageProxy.setOOSystemPendInd(true);
-                        }
+                    if (notificationSummaryVO.isHistory != null &&
+                            !notificationSummaryVO.isHistory.equals("T") &&
+                            notificationSummaryVO.getCdNotif() != null &&
+                            (notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF) || notificationSummaryVO.getCdNotif().equals(NEDSSConstant.CLASS_CD_EXP_NOTF_PHDC)) &&
+                            !(notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_REJECTED_CODE)
+                                    || notificationSummaryVO.getRecordStatusCd().trim().equals(NEDSSConstant.NOTIFICATION_MESSAGE_FAILED))) {
+                        pageProxy.setOOSystemPendInd(true);
                     }
                 }
             }

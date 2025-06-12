@@ -28,7 +28,7 @@ import java.util.HashMap;
                 "gov.cdc.srtedataservice.repository.nbs.srte",
         }
 )
-
+@SuppressWarnings("java:S3740")
 public class SrteDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;

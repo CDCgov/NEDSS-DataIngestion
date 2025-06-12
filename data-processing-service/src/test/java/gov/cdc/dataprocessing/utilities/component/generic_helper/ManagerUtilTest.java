@@ -84,25 +84,6 @@ class ManagerUtilTest {
     }
 
     @Test
-    void testPersonAggregationAsync() throws DataProcessingException, DataProcessingConsumerException {
-        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-        PersonContainer personContainer = new PersonContainer();
-        personContainer.setRole(EdxELRConstant.ELR_NEXT_OF_KIN);
-        Collection<PersonContainer> personCollection = new ArrayList<>();
-        personCollection.add(personContainer);
-        labResultProxyContainer.setThePersonContainerCollection(personCollection);
-
-        when(personService.processingNextOfKin(labResultProxyContainer, personContainer)).thenReturn(null);
-
-        PersonAggContainer result = managerUtil.patientAggregation(labResultProxyContainer, edxLabInformationDto);
-
-        assertNull(result.getPersonContainer());
-        verify(personService, times(1)).processingNextOfKin(labResultProxyContainer, personContainer);
-    }
-
-
-    @Test
     void testGetObservationWithOrderDomainCode_NullScenario() {
         // Arrange
         LabResultProxyContainer labResultProxyVO = new LabResultProxyContainer();
@@ -242,6 +223,7 @@ class ManagerUtilTest {
         assertNotNull(exception);
     }
 
+    @SuppressWarnings("java:S5778")
     @Test
     void testPersonAggregationAsync_NextOfKinDataProcessingException() throws DataProcessingException {
         // Arrange

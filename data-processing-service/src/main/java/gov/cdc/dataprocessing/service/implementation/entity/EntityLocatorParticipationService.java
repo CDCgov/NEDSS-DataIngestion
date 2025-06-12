@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-
+@SuppressWarnings("java:S6204")
 public class EntityLocatorParticipationService implements IEntityLocatorParticipationService {
     @Value("${service.timezone}")
     private String tz = "UTC";

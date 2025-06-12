@@ -102,8 +102,7 @@ public class HL7SpecimenUtil {
                 }
             }
         } catch (Exception e) {
-            logger.error("HL7SpecimenProcessor.process251Specimen error thrown {}", e.getMessage());
-            throw new DataProcessingException( "HL7SpecimenProcessor.process251Specimen error thrown "+ e.getMessage() + e);
+            throw new DataProcessingException(e.getMessage() + e);
         }
     }
 
@@ -178,8 +177,7 @@ public class HL7SpecimenUtil {
             labResultProxyContainer.getTheParticipationDtoCollection().add(participationDto);
             labResultProxyContainer.getTheMaterialContainerCollection().add(materialContainer);
         } catch (Exception e) {
-            logger.error("HL7SpecimenProcessor.processSpecimen error thrown {}", e.getMessage());
-            throw new DataProcessingException("HL7SpecimenProcessor.processSpecimen error thrown "+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }

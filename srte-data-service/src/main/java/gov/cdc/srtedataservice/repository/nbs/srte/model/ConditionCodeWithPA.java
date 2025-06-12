@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
-
+@SuppressWarnings("java:S3740")
 public class ConditionCodeWithPA extends BaseConditionCode implements Serializable, Comparable {
 
     // Constructors, getters, and setters

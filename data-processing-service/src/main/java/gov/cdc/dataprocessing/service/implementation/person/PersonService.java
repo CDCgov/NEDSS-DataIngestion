@@ -26,7 +26,7 @@ import java.util.*;
 
 @Service
 @Slf4j
-
+@SuppressWarnings("java:S3740")
 public class PersonService implements IPersonService {
     private final IPatientMatchingService patientMatchingService;
     private final INokMatchingService nokMatchingService;

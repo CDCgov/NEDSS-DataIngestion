@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@SuppressWarnings("java:S1118")
 public class CdaPhcProcessor {
     private static final Logger logger = LoggerFactory.getLogger(CdaPhcProcessor.class); //NOSONAR
 

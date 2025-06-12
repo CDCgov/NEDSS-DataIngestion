@@ -129,7 +129,7 @@ class LabServiceTest {
 
         when(investigationNotificationService.sendNotification(phc, "error")).thenReturn(logDto);
 
-        DataProcessingException ex = assertThrows(DataProcessingException.class, () -> labService.handleNndNotification(phc, edxDto));
+        assertThrows(DataProcessingException.class, () -> labService.handleNndNotification(phc, edxDto));
         assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_10, edxDto.getErrorText());
     }
 }

@@ -407,8 +407,7 @@ public class ObservationRequestHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.processSusOBR: {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationRequest.processSusOBR:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }
@@ -522,8 +521,7 @@ public class ObservationRequestHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error(" Exception thrown at ObservationRequest.processRootOBR: {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationRequest.processRootOBR:"+ e.getMessage() +e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
     }
@@ -592,8 +590,7 @@ public class ObservationRequestHandler {
             labResultProxyContainer.getTheRoleDtoCollection().add(roleDto);
             
         } catch (Exception e) {
-            logger.error("{} {}" , LOG_OBSERVATION_COLLECTION_ERROR, e.getMessage());
-            throw new DataProcessingException(LOG_OBSERVATION_COLLECTION_ERROR+ e);
+            throw new DataProcessingException(LOG_OBSERVATION_COLLECTION_ERROR + e.getMessage(), e);
         }
 
         return personContainer;
@@ -680,8 +677,7 @@ public class ObservationRequestHandler {
             }
             labResultProxyContainer.getThePersonContainerCollection().add(personContainer);
         } catch (Exception e) {
-            logger.error("{} {}", LOG_OBSERVATION_COLLECTION_ERROR, e.getMessage());
-            throw new DataProcessingException(LOG_OBSERVATION_COLLECTION_ERROR+ e);
+            throw new DataProcessingException(LOG_OBSERVATION_COLLECTION_ERROR + e.getMessage(), e);
         }
         return personContainer;
     }
@@ -748,8 +744,7 @@ public class ObservationRequestHandler {
             personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
         } catch (Exception e) {
-            logger.error("Exception thrown at ObservationRequest.getOrderingProviderVO: {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at ObservationRequest.getOrderingProviderVO:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
 
         }
 
