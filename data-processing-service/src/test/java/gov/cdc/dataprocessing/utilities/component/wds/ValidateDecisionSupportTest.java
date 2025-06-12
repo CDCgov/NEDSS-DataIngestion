@@ -17,10 +17,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -735,15 +732,21 @@ class ValidateDecisionSupportTest {
         // Arrange
         when(edxRuleManageDTMock.getDefaultStringValue()).thenReturn(NEDSSConstant.USE_CURRENT_DATE);
 
-        // Act
-        validateDecisionSupport.getCurrentDateValue(edxRuleManageDTMock);
+        Timestamp fixedTimestamp = Timestamp.valueOf("2024-06-11 12:00:00");
+        String expectedDate = StringUtils.formatDate(fixedTimestamp);
 
-        // Assert
-        verify(edxRuleManageDTMock).setDefaultStringValue(anyString());
-        Timestamp now = new Timestamp((new Date()).getTime());
-        String expectedDate = StringUtils.formatDate(now);
-        verify(edxRuleManageDTMock).setDefaultStringValue(expectedDate);
+        // Use mockStatic if TimeStampUtil is static
+        try (MockedStatic<TimeStampUtil> mockedStatic = Mockito.mockStatic(TimeStampUtil.class)) {
+            mockedStatic.when(() -> TimeStampUtil.getCurrentTimeStamp(any())).thenReturn(fixedTimestamp);
+
+            // Act
+            validateDecisionSupport.getCurrentDateValue(edxRuleManageDTMock);
+
+            // Assert
+            verify(edxRuleManageDTMock).setDefaultStringValue(expectedDate);
+        }
     }
+
 
     @Test
     void testGetCurrentDateValue_NotUseCurrentDate() {

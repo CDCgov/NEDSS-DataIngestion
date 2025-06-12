@@ -536,8 +536,9 @@ public class ValidateDecisionSupport {
                 && edxRuleManageDT.getDefaultStringValue().equals(
                 NEDSSConstant.USE_CURRENT_DATE))
         {
-            edxRuleManageDT.setDefaultStringValue(StringUtils
-                    .formatDate(TimeStampUtil.getCurrentTimeStamp(tz)));
+            var ts = StringUtils
+                    .formatDate(TimeStampUtil.getCurrentTimeStamp(tz));
+            edxRuleManageDT.setDefaultStringValue(ts);
         }
     }
 }

@@ -207,7 +207,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         Map<Object,Object> assocoiatedInvMap= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("ClassCd", sourceClassCd);
-        query.setParameter(ACT_UID_JAVA, uid);
+        query.setParameter("ActUid", uid);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -624,7 +624,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         Query query = entityManager.createNativeQuery(COINFECTION_INV_LIST_FOR_GIVEN_COINFECTION_ID_SQL);
 
         query.setParameter("CoInfect", coInfectionId);
-        query.setParameter(PERSON_UID_JAVA, mprUid);
+        query.setParameter("PersonUid", mprUid);
 
 
         List<Object[]> results = query.getResultList();

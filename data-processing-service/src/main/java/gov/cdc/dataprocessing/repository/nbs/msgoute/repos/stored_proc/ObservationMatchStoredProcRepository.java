@@ -53,7 +53,7 @@ public class ObservationMatchStoredProcRepository {
             storedProcedure.registerStoredProcedureParameter("orderedTestCd", String.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("specimenCollectionDate", Timestamp.class, ParameterMode.IN);
             storedProcedure.registerStoredProcedureParameter("numberOfGoBackYears", Integer.class, ParameterMode.IN);
-            storedProcedure.registerStoredProcedureParameter(OBSERVATION_UID_DB, Long.class, ParameterMode.OUT);
+            storedProcedure.registerStoredProcedureParameter("Observation_uid", Long.class, ParameterMode.OUT);
 
             // Set the parameter values
             storedProcedure.setParameter("fillerNbr", fillerNumber);
@@ -66,7 +66,7 @@ public class ObservationMatchStoredProcRepository {
             storedProcedure.execute();
 
             // Get the output parameters
-            Long observationUid = (Long) storedProcedure.getOutputParameterValue(OBSERVATION_UID_DB);
+            Long observationUid = (Long) storedProcedure.getOutputParameterValue("Observation_uid");
 
 
             if (observationUid != null && observationUid > 0) {
