@@ -69,12 +69,12 @@ class PersonPhoneEmailMergeHandlerTest {
   }
 
   private PatientMergeRequest getPatientMergeRequest(String survivingId) {
-    List<PatientMergeRequest.PhoneEmailId> PhoneEmailIds = Arrays.asList(
+    List<PatientMergeRequest.PhoneEmailId> phoneEmailIds = Arrays.asList(
         new PatientMergeRequest.PhoneEmailId("locator1"),
         new PatientMergeRequest.PhoneEmailId("locator2")
     );
     return new PatientMergeRequest(survivingId, null,
-        null, null, PhoneEmailIds, null, null);
+        null, null, phoneEmailIds, null, null);
   }
 
 
