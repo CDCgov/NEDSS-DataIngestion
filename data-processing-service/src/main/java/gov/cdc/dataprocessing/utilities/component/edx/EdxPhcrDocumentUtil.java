@@ -66,7 +66,6 @@ public class EdxPhcrDocumentUtil {
                 }
                 else if(!OdseCache.dmbMap.containsKey(invFormCd))
                 {
-//                    Map<Object, Object> questions = (Map<Object, Object> )lookupService.getDMBQuestionMapAfterPublish().get(invFormCd);
                     Map<Object, Object> questions = (Map<Object, Object> ) OdseCache.DMB_QUESTION_MAP.get(invFormCd);
 
                     if(questions != null)
@@ -164,9 +163,7 @@ public class EdxPhcrDocumentUtil {
         nbsCaseAnswerDT.setRecordStatusTime(publicHealthCaseContainer
                 .getThePublicHealthCaseDto().getRecordStatusTime());
         nbsCaseAnswerDT.setItNew(true);
-        // if (nbsCaseAnswerDT.getNbsQuestionUid() == null) {
-        // logger.error("There is no question identifier");
-        // }
+
         return nbsCaseAnswerDT;
     }
 

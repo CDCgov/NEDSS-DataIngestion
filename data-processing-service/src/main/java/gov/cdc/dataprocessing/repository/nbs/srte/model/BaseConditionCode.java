@@ -115,11 +115,4 @@ public class BaseConditionCode {
     @Column(name = "coinfection_grp_cd")
     private String coinfectionGrpCd;
 
-//    @Column(name = "rhap_parse_nbs_ind")
-//    private String rhapParseNbsInd;
-
-//    @Column(name = "rhap_action_value")
-//    private String rhapActionValue;
-
-    // Constructors, getters, and setters
 }

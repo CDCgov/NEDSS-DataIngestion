@@ -50,12 +50,6 @@ public class TestData {
         actIdDTCollection.add(actIdDT);
         labResultProxyContainer.setTheActIdDTCollection(actIdDTCollection);
 
-        // Intervention Conn
-//        var interventionVOCollection = new ArrayList<>();
-//        Object interventionVO = new Object();
-//        interventionVOCollection.add(interventionVO);
-//        labResultProxyContainer.setTheInterventionVOCollection(interventionVOCollection);
-
         // Edx Doc
         var edxDocumentCollection = new ArrayList<EDXDocumentDto>();
         EDXDocumentDto edxDocumentDto = new EDXDocumentDto();

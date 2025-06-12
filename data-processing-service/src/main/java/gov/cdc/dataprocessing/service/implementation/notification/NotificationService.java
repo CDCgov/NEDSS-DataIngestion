@@ -156,23 +156,13 @@ public class NotificationService implements INotificationService {
         notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd());
         notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 
-        if (permissionFlag.equals(OPERATION_CREATE))
-        {
-            notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
-        }
+        notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
 
         if ((notifVO.isItDirty()) || (notifVO.isItNew()))
         {
             String boLookup = NBSBOLookup.NOTIFICATION;
             String triggerCd = "";
-            if (permissionFlag.equals(OPERATION_CREATE))
-            {
-                triggerCd = NEDSSConstant.NOT_CR_APR;
-            }
-            if (permissionFlag.equals("CREATENEEDSAPPROVAL"))
-            {
-                triggerCd = NEDSSConstant.NOT_CR_PEND_APR;
-            }
+            triggerCd = NEDSSConstant.NOT_CR_APR;
             String tableName = "Notification";
             String moduleCd = NEDSSConstant.BASE;
 

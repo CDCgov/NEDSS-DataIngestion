@@ -171,7 +171,6 @@ public class InvestigationService implements IInvestigationService {
                 }
                 actRelationshipDT.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
                 actRelationshipDT.setTargetClassCd(NEDSSConstant.PUBLIC_HEALTH_CASE_CLASS_CODE);
-                //actRelationshipDT.setStatusTime(new Timestamp(new java.util.Date().getTime()));
                 boolean reportFromDoc = false;
                 actRelationshipDT.setTypeCd(NEDSSConstant.LAB_DISPALY_FORM);
                 if (reportSumVO.isLabFromDoc()) {
@@ -511,7 +510,7 @@ public class InvestigationService implements IInvestigationService {
     private  void updateNotification(boolean isSummaryCase, Long notificationUid, String phcCd,
                                    String phcClassCd, String progAreaCd, String jurisdictionCd,
                                    String sharedInd, boolean caseStatusChange) throws DataProcessingException {
-        boolean checkNotificationPermission1 = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL,progAreaCd,jurisdictionCd,sharedInd);
+        boolean checkNotificationPermission1 = true;
         String businessTriggerCd;
         businessTriggerCd = NEDSSConstant.NOT_CR_APR;
 

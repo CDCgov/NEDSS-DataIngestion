@@ -39,7 +39,6 @@ public class ConcurrentCheck {
         }
         if(tableName.equalsIgnoreCase(DataTables.ORGANIZATION_TABLE))
         {
-           // OrganizationDto organizationDT  = organizationRepositoryUtil.loadObject(theRootDTInterface.getUid(), null).getTheOrganizationDto();
             if(theRootDTInterface.getVersionCtrlNbr() == null)
             {
                 ((OrganizationDto)theRootDTInterface).setVersionCtrlNbr(1);
@@ -51,7 +50,6 @@ public class ConcurrentCheck {
         }
         if(tableName.equalsIgnoreCase("Observation"))
         {
-            //ObservationDto observationDT  = observationRepositoryUtil.loadObject(theRootDTInterface.getUid()).getTheObservationDto();
             if(theRootDTInterface.getVersionCtrlNbr() == null)
             {
                 ((ObservationDto)theRootDTInterface).setVersionCtrlNbr(1);

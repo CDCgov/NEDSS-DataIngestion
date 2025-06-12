@@ -243,10 +243,6 @@ public class PublicHealthCaseRepositoryUtil {
                     .getTime());
             var epicUid = uidPoolManager.getNextUid(LocalIdClass.EPILINK, false);
             String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
-//                TODO: ENV VARIABLE
-//                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
-//                        + epiLinkId.substring(2, epiLinkId.length()-2)
-//                        + twoDigitYear;
             String lotNum = "NBS_STATE_CODE"
                     + epiLinkId.substring(2, epiLinkId.length()-2)
                     + twoDigitYear;
@@ -260,10 +256,6 @@ public class PublicHealthCaseRepositoryUtil {
                     .getTime());
             var epicUid = uidPoolManager.getNextUid(LocalIdClass.EPILINK, false);
             String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
-            //                TODO: ENV VARIABLE
-//                String lotNum = PropertyUtil.getInstance().getNBS_STATE_CODE()
-//                        + epiLinkId.substring(2, epiLinkId.length()-2)
-//                        + twoDigitYear;
             String fieldRecordNumber =  "NBS_STATE_CODE"
                     + epiLinkId.substring(2, epiLinkId.length()-2)
                     + twoDigitYear;
@@ -363,7 +355,6 @@ public class PublicHealthCaseRepositoryUtil {
 
         container.setThePublicHealthCaseDto(new PublicHealthCaseDto(phcDt));
 
-        //  phcDt.setStdHivProgramAreaCode(isStdHivProgramAreaCode);
         container.getThePublicHealthCaseDto().setStdHivProgramAreaCode(false);
 
         var confirmLst = confirmationMethodRepositoryUtil.getConfirmationMethodByPhc(phcUid);
@@ -400,19 +391,6 @@ public class PublicHealthCaseRepositoryUtil {
 
         boolean isStdHivProgramAreaCode= false;
 
-
-        //TODO: ENV VARIABLE - STD_PROGRAM_AREAS = STD
-//        if(properties.getSTDProgramAreas()!=null){
-//            StringTokenizer st2 = new StringTokenizer(properties.getSTDProgramAreas(), ",");
-//            if (st2 != null) {
-//                while (st2.hasMoreElements()) {
-//                    if (st2.nextElement().equals(phc.getProgAreaCd())) {
-//                        isStdHivProgramAreaCode= true;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
         phc.setStdHivProgramAreaCode(isStdHivProgramAreaCode);
 
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();

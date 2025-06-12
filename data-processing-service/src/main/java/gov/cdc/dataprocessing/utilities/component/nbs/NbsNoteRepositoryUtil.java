@@ -23,7 +23,6 @@ public class NbsNoteRepositoryUtil {
             NbsNote data = new NbsNote(item);
             data.setNoteParentUid(phcUid);
             nbsNoteJdbcRepository.mergeNbsNote(data);
-//            nbsNoteRepository.save(data);
         }
     }
 }

@@ -2,8 +2,6 @@ package gov.cdc.srtedataservice.service;
 
 import gov.cdc.srtedataservice.cache_model.SrteCache;
 import gov.cdc.srtedataservice.constant.ELRConstant;
-import gov.cdc.srtedataservice.exception.DataProcessingException;
-import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.repository.nbs.srte.model.*;
 import gov.cdc.srtedataservice.repository.nbs.srte.repository.*;
 import gov.cdc.srtedataservice.repository.nbs.srte.repository.custom.SrteCustomRepository;
@@ -11,8 +9,6 @@ import gov.cdc.srtedataservice.service.interfaces.ICatchingValueService;
 import gov.cdc.srtedataservice.service.interfaces.IJurisdictionService;
 import gov.cdc.srtedataservice.service.interfaces.IProgramAreaService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -285,7 +281,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     private HashMap<String, String> getJurisdictionCode()  {
-//        return loadCache(() -> jurisdictionCodeRepository.findJurisdictionCodeValues().orElse(Collections.emptyList()), JurisdictionCode::getCode, JurisdictionCode::getCodeDescTxt);
 
         HashMap<String, String> result = new HashMap<>();
         List<JurisdictionCode> jurisdictionCodes = jurisdictionCodeRepository.findJurisdictionCodeValues()
@@ -301,13 +296,6 @@ public class CachingValueService implements ICatchingValueService {
     }
 
     protected HashMap<String, String> getCountyCdByDescCallRepos(String stateCd)  {
-//        return loadCache(() -> {
-//            if (stateCd == null || stateCd.trim().isEmpty()) {
-//                return stateCountyCodeValueRepository.findByIndentLevelNbr().orElse(Collections.emptyList());
-//            } else {
-//                return stateCountyCodeValueRepository.findByIndentLevelNbrAndParentIsCdOrderByCodeDescTxt(stateCd).orElse(Collections.emptyList());
-//            }
-//        }, stateCountyCodeValue -> stateCountyCodeValue.getCode() + " COUNTY", StateCountyCodeValue::getAssigningAuthorityDescTxt);
 
         HashMap<String, String> result = new HashMap<>();
 
@@ -328,31 +316,4 @@ public class CachingValueService implements ICatchingValueService {
         return result;
     }
 
-//    private <T, K, V> HashMap<K, V> loadCache(CacheLoader<T> loader, KeyExtractor<T, K> keyExtractor, ValueExtractor<T, V> valueExtractor)  {
-//        HashMap<K, V> map = new HashMap<>();
-//        try {
-//            List<T> result = loader.load();
-//            for (T obj : result) {
-//                map.put(keyExtractor.extract(obj), valueExtractor.extract(obj));
-//            }
-//        } catch (Exception e) {
-//            throw new RtiCacheException(e.getMessage(), e);
-//        }
-//        return map;
-//    }
-
-//    @FunctionalInterface
-//    private interface CacheLoader<T> {
-//        List<T> load() ;
-//    }
-//
-//    @FunctionalInterface
-//    private interface KeyExtractor<T, K> {
-//        K extract(T obj);
-//    }
-//
-//    @FunctionalInterface
-//    private interface ValueExtractor<T, V> {
-//        V extract(T obj);
-//    }
 }

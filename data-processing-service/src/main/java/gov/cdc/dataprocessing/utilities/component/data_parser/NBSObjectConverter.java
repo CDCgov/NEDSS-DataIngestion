@@ -614,17 +614,6 @@ public class NBSObjectConverter {
             /*If the float is too long, like 10 digits, the float format would be somethign line 11.1F, and trying to convert it to String, in some cases, the precision
              * is not great, and the number changes. That is the reason I am treating the local number as String. NBSCentral defect related is #2758*/
             if (hl7LocalNumber != null && hl7LocalNumber.getHL7Numeric() != null) {
-
-//                String localNumberString = hl7LocalNumber.toString();
-//                int begin = localNumberString.indexOf(">");
-//                if(begin!=-1){
-//                    String subString1 = localNumberString.substring(begin+1);
-//                    int end = subString1.indexOf("<");
-//                    if(end!=-1)
-//                        number = subString1.substring(0,end);
-//                }
-                //number = (String.format ("%.0f", hl7LocalNumber.getHL7Numeric()));
-
                 number = hl7LocalNumber.getHL7Numeric().toString();
 
             }
@@ -647,7 +636,6 @@ public class NBSObjectConverter {
         /** Optional maxOccurs="1 */
         /** length"5 */
 
-        // teleDT.setExtensionTxt(extension.getHL7Numeric().getValue1()+"");
         String anyText = hl7XTNType.getHL7AnyText();
         /** Optional maxOccurs="1 */
         /** length"199 */
@@ -691,7 +679,6 @@ public class NBSObjectConverter {
         // eg, 1234567 -> 123-4567, 1234567890 -> 123-456-7890
         String newFormatedNbr = "";
         if (phoneNbrTxt != null) {
-            // String phoneNbr = dt.getPhoneNbrTxt();
             phoneNbrTxt =phoneNbrTxt.trim();
             int nbrSize = phoneNbrTxt.length();
 

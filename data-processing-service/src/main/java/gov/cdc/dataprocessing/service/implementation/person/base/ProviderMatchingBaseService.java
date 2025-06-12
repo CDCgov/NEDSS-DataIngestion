@@ -264,12 +264,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                             coded.setCodesetName(NEDSSConstant.EI_AUTH);
                             coded.setCodesetTableName("Code_value_general");
 
-                            //TODO: This call out to code value general Repos and Caching the recrod
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
-
-
-
                             if (entityIdDto.getRootExtensionTxt() != null
                                     && entityIdDto.getTypeCd() != null
                                     && coded.getCode() != null

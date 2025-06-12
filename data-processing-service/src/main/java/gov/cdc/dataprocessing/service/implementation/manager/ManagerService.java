@@ -351,10 +351,6 @@ public class ManagerService implements IManagerService {
             tracker.setPublicHealthCase(edxDto.getPamContainer().getPublicHealthCaseContainer().getThePublicHealthCaseDto());
         }
 
-
-//        interfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_2);
-//        interfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
-//        nbsInterfaceRepository.save(interfaceModel);
         return phcContainer;
     }
 
@@ -414,88 +410,119 @@ public class ManagerService implements IManagerService {
     }
 
     private String handleProcessingELRError(Exception e, EdxLabInformationDto dto, NbsInterfaceModel model) {
-        String detailedMsg = "";
-        e.printStackTrace();
-        logger.error("DP ERROR: {}", e.getMessage());
-
-        if (model != null) {
-            model.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
-            model.setRecordStatusTime(getCurrentTimeStamp(tz));
-            nbsInterfaceRepository.save(model);
-        }
+        logException(e);
+        updateModelStatus(model);
 
         String accessionNumber = "Accession Number:" + dto.getFillerNumber();
         dto.setStatus(NbsInterfaceStatus.Failure);
         dto.setSystemException(true);
 
         try {
-            if (e.toString().contains("Invalid XML")) {
-                dto.setInvalidXML(true);
-                dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
-            }
-
-            if ((dto.getPageActContainer() != null || dto.getPamContainer() != null) && !dto.isInvestigationSuccessfullyCreated()) {
-                dto.setErrorText(dto.isInvestigationMissingFields()
-                        ? EdxELRConstant.ELR_MASTER_LOG_ID_5
-                        : EdxELRConstant.ELR_MASTER_LOG_ID_9);
-            } else if (dto.getPageActContainer() != null || dto.getPamContainer() != null) {
-                dto.setErrorText(dto.isNotificationMissingFields()
-                        ? EdxELRConstant.ELR_MASTER_LOG_ID_8
-                        : EdxELRConstant.ELR_MASTER_LOG_ID_10);
-            }
-
-            logger.error("Exception EdxLabHelper.getUnProcessedELR processing exception: {}", e.getMessage());
-
-            if (dto.getErrorText() == null) {
-                String msg = e.getMessage();
-                if (msg.contains(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG) || msg.contains(EdxELRConstant.ORACLE_FIELD_TRUNCATION_ERROR_MSG)) {
-                    dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_18);
-                    dto.setFieldTruncationError(true);
-                    dto.setSystemException(false);
-                    dto.setPersonParentUid(0);
-                    dto.setEthnicityCodeTranslated(true);
-
-                    String exceptionMessage = new StringWriter().toString();
-                    e.printStackTrace(new PrintWriter(new StringWriter()));
-                    String tableName = exceptionMessage.substring(exceptionMessage.indexOf("Table Name : ") + 13).split(" ")[0];
-                    detailedMsg = String.format("SQLException while inserting into %s\n %s\n %s", tableName, accessionNumber, exceptionMessage);
-                } else if (msg.contains(EdxELRConstant.DATE_VALIDATION)) {
-                    dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_20);
-                    dto.setInvalidDateError(true);
-                    dto.setSystemException(false);
-                    dto.setPersonParentUid(0);
-                    dto.setEthnicityCodeTranslated(true);
-
-                    String substring = msg.substring(msg.indexOf(EdxELRConstant.DATE_VALIDATION));
-                    substring = substring.substring(0, substring.indexOf(EdxELRConstant.DATE_VALIDATION_END_DELIMITER1));
-                    detailedMsg = String.format("%s\n %s\n%s", substring, accessionNumber, msg);
-                } else {
-                    dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_16);
-                    dto.setPersonParentUid(0);
-                    dto.setEthnicityCodeTranslated(true);
-                    StringWriter sw = new StringWriter();
-                    e.printStackTrace(new PrintWriter(sw));
-                    detailedMsg = accessionNumber + "\n" + sw;
-                }
-            }
-
-            if (dto.isInvestigationMissingFields() || dto.isNotificationMissingFields()
-                    || EdxELRConstant.ELR_MASTER_LOG_ID_10.equals(dto.getErrorText())) {
-                dto.setSystemException(false);
-            }
-
-            if (dto.isReflexResultedTestCdMissing() || dto.isResultedTestNameMissing()
-                    || dto.isOrderTestNameMissing() || dto.isReasonforStudyCdMissing()) {
-                String text = e.getMessage();
-                if (text.contains("XMLElementName: ")) {
-                    detailedMsg = "Blank identifiers in segments " + text.substring(text.indexOf("XMLElementName: ") + 16) + "\n\n" + accessionNumber;
-                }
-            }
+            processKnownErrorPatterns(e, dto);
+            processFieldErrors(dto);
+            return buildDetailedErrorMessage(e, dto, accessionNumber);
         } catch (Exception ex) {
             logger.error("Exception while formatting detailed error: {}", ex.getMessage());
         }
 
-        return detailedMsg.length() > 2000 ? detailedMsg.substring(0, 2000) : detailedMsg;
+        return "";
+    }
+
+    private void logException(Exception e) {
+        e.printStackTrace();
+        logger.error("DP ERROR: {}", e.getMessage());
+    }
+
+    private void updateModelStatus(NbsInterfaceModel model) {
+        if (model != null) {
+            model.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
+            model.setRecordStatusTime(getCurrentTimeStamp(tz));
+            nbsInterfaceRepository.save(model);
+        }
+    }
+
+    private void processKnownErrorPatterns(Exception e, EdxLabInformationDto dto) {
+        String msg = e.getMessage();
+
+        if (e.toString().contains("Invalid XML")) {
+            dto.setInvalidXML(true);
+            dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
+        }
+
+        boolean hasContainers = dto.getPageActContainer() != null || dto.getPamContainer() != null;
+
+        if (hasContainers && !dto.isInvestigationSuccessfullyCreated()) {
+            dto.setErrorText(dto.isInvestigationMissingFields()
+                    ? EdxELRConstant.ELR_MASTER_LOG_ID_5
+                    : EdxELRConstant.ELR_MASTER_LOG_ID_9);
+        } else if (hasContainers) {
+            dto.setErrorText(dto.isNotificationMissingFields()
+                    ? EdxELRConstant.ELR_MASTER_LOG_ID_8
+                    : EdxELRConstant.ELR_MASTER_LOG_ID_10);
+        }
+
+        if (dto.isInvestigationMissingFields() || dto.isNotificationMissingFields()
+                || EdxELRConstant.ELR_MASTER_LOG_ID_10.equals(dto.getErrorText())) {
+            dto.setSystemException(false);
+        }
+    }
+
+    private void processFieldErrors(EdxLabInformationDto dto) {
+        if (dto.isReflexResultedTestCdMissing() || dto.isResultedTestNameMissing()
+                || dto.isOrderTestNameMissing() || dto.isReasonforStudyCdMissing()) {
+            String msg = dto.getErrorText();
+            if (msg != null && msg.contains("XMLElementName: ")) {
+                String segment = msg.substring(msg.indexOf("XMLElementName: ") + 16);
+                dto.setErrorText("Blank identifiers in segments " + segment);
+            }
+        }
+    }
+
+    private String buildDetailedErrorMessage(Exception e, EdxLabInformationDto dto, String accessionNumber) {
+        if (dto.getErrorText() != null) return "";
+
+        String msg = e.getMessage();
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+
+        if (msg.contains(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG) || msg.contains(EdxELRConstant.ORACLE_FIELD_TRUNCATION_ERROR_MSG)) {
+            dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_18);
+            dto.setFieldTruncationError(true);
+            dto.setSystemException(false);
+            dto.setPersonParentUid(0);
+            dto.setEthnicityCodeTranslated(true);
+
+            String trace = sw.toString();
+            String tableName = trace.contains("Table Name : ") ?
+                    trace.substring(trace.indexOf("Table Name : ") + 13).split(" ")[0] : "Unknown";
+            return truncateMessage(String.format("SQLException while inserting into %s\n%s\n%s", tableName, accessionNumber, trace));
+        }
+
+        if (msg.contains(EdxELRConstant.DATE_VALIDATION)) {
+            dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_20);
+            dto.setInvalidDateError(true);
+            dto.setSystemException(false);
+            dto.setPersonParentUid(0);
+            dto.setEthnicityCodeTranslated(true);
+
+            String extracted = extractDateValidation(msg);
+            return truncateMessage(String.format("%s\n%s\n%s", extracted, accessionNumber, msg));
+        }
+
+        dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_16);
+        dto.setPersonParentUid(0);
+        dto.setEthnicityCodeTranslated(true);
+        return truncateMessage(accessionNumber + "\n" + sw);
+    }
+
+    private String extractDateValidation(String msg) {
+        int start = msg.indexOf(EdxELRConstant.DATE_VALIDATION);
+        int end = msg.indexOf(EdxELRConstant.DATE_VALIDATION_END_DELIMITER1, start);
+        return (start >= 0 && end > start) ? msg.substring(start, end) : msg;
+    }
+
+    private String truncateMessage(String message) {
+        return message.length() > 2000 ? message.substring(0, 2000) : message;
     }
 
     private void requiredFieldError(String errorTxt, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
@@ -506,11 +533,6 @@ public class ManagerService implements IManagerService {
                 edxLabInformationDT.getEdxActivityLogDto().setEDXActivityLogDTWithVocabDetails(
                         new ArrayList<>());
             }
-
-            //TODO: LOGGING
-//            setActivityDetailLog((ArrayList<Object>) edxLabInformationDT.getEdxActivityLogDto().getEDXActivityLogDTWithVocabDetails(),
-//                    String.valueOf(edxLabInformationDT.getLocalId()),
-//                    EdxRuleAlgorothmManagerDto.STATUS_VAL.Failure, errorTxt);
 
             edxLabInformationDT.setInvestigationMissingFields(true);
             throw new DataProcessingException("MISSING REQUIRED FIELDS: "+errorTxt);

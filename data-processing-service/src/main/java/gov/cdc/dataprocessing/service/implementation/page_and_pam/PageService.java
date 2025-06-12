@@ -59,19 +59,7 @@ public class PageService implements IPageService {
             observationColl.add(labSumVO);
 
         }
-        else
-        {
-//                MorbReportSummaryVO morbSumVO = new MorbReportSummaryVO();
-//                morbSumVO.setItTouched(true);
-//                morbSumVO.setItAssociated(true);
-//                morbSumVO.setObservationUid(observationUid);
-//                //set the add_reason_code(processing decision) for act_relationship  from initial follow-up(pre-populated from Morb report processing decision) field in case management
-//                if(pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto()!=null && pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().getInitFollUp()!=null)
-//                    morbSumVO.setProcessingDecisionCd(pageProxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().getInitFollUp());
-//                else
-//                    morbSumVO.setProcessingDecisionCd(processingDecision);
-//                observationColl.add(morbSumVO);
-        }
+
 
         investigationService.setObservationAssociationsImpl(publicHealthCaseUID, observationColl, true);
         return publicHealthCaseUID;

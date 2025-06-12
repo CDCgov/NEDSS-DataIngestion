@@ -53,6 +53,14 @@ public class ManagerCacheService{
             case LAB_RESULT_DESC_WITH_ORGANISM_NAME -> SrteCache.labResultWithOrganismNameIndMap.get(key);
             case LOIN_CODE_WITH_COMPONENT_NAME -> SrteCache.loinCodeWithComponentNameMap.get(key);
             case INVESTIGATION_FORM_CONDITION_CODE -> SrteCache.investigationFormConditionCode.get(key);
+            case JURISDICTION_CODE_MAP_WITH_NBS_UID_KEY_SET ->
+                    String.join(", ", SrteCache.jurisdictionCodeMapWithNbsUid.keySet());
+            default -> handleComplexCacheTypes(objectName, key);
+        };
+    }
+
+    private String handleComplexCacheTypes(ObjectName objectName, String key) throws DataProcessingException {
+        return switch (objectName) {
             case FIND_TO_CODE -> {
                 String[] parts = splitKey(key, 3);
                 yield cachingValueService.findToCode(parts[0], parts[1], parts[2]);
@@ -65,18 +73,19 @@ public class ManagerCacheService{
                 String[] parts = splitKey(key, 2);
                 yield cachingValueService.getCountyCdByDesc(parts[0], parts[1]);
             }
-            case CODED_VALUE -> {
-                String[] parts = splitKey(key, 2);
-                var res = cachingValueService.getCodedValues(parts[0], parts[1]);
-                yield res.get(parts[1]);
-            }
+            case CODED_VALUE -> getCodedValueFromMap(key);
             case GET_CODED_VALUES_CALL_REPOS -> cachingValueService.getCodedValuesCallRepos(key).get(key);
             case GET_CODED_VALUE -> cachingValueService.getCodedValue(key).get(key);
-            case JURISDICTION_CODE_MAP_WITH_NBS_UID_KEY_SET ->
-                    String.join(", ", SrteCache.jurisdictionCodeMapWithNbsUid.keySet());
             default -> "";
         };
     }
+
+    private String getCodedValueFromMap(String key) throws DataProcessingException {
+        String[] parts = splitKey(key, 2);
+        var res = cachingValueService.getCodedValues(parts[0], parts[1]);
+        return res.get(parts[1]);
+    }
+
 
     private String[] splitKey(String key, int expectedParts) {
         String[] parts = key.split("~", -1);

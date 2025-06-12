@@ -6,5 +6,4 @@ import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
 
 public interface IOdseIdGeneratorWCacheService {
     LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException;
-//    LocalUidModel getValidLocalUidByApi(LocalIdClass localIdClass, boolean gaApplied);
 }

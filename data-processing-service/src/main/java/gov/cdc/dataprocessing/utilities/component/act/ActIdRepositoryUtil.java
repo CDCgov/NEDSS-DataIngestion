@@ -19,7 +19,6 @@ public class ActIdRepositoryUtil {
     }
 
     public Collection<ActIdDto> getActIdCollection(Long actUid) {
-//        var actIds = actIdRepository.findRecordsById(actUid);
         var actIds = actIdJdbcRepository.findRecordsByActUid(actUid);
         Collection<ActIdDto> actIdCollection = new ArrayList<>();
         if (actIds != null && !actIds.isEmpty()) {
@@ -39,7 +38,6 @@ public class ActIdRepositoryUtil {
             ActId data = new ActId(item);
             data.setActUid(uid);
             actIdJdbcRepository.mergeActId(data);
-//            actIdRepository.save(data);
             item.setItDirty(false);
             item.setItNew(false);
             item.setItDelete(false);

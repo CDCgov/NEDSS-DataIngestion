@@ -57,11 +57,6 @@ public class ValidateDecisionSupport {
             isOverwrite = false; // NOSONAR
         }
         String dataLocation = metaData.getDataLocation();
-        /*
-         * String setMethodName = dataLocation.replaceAll("_", "");
-         * setMethodName = "SET"+ setMethodName.substring(
-         * setMethodName.indexOf(".")+1, setMethodName.length());
-         */
 
         String getMethodName = dataLocation.replaceAll("_", "");
         getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1, getMethodName.length());

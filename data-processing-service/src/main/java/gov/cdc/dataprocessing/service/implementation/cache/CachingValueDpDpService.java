@@ -29,19 +29,19 @@ public class CachingValueDpDpService implements ICatchingValueDpService {
         this.cacheApiService = cacheApiService;
     }
 
-    private static final String separator = "~";
+    private static final String SEPARATOR = "~";
     public String findToCode(String fromCodeSetNm, String fromCode, String toCodeSetNm) throws DataProcessingException {
-        String key = fromCodeSetNm + separator + fromCode + separator + toCodeSetNm;
+        String key = fromCodeSetNm + SEPARATOR + fromCode + SEPARATOR + toCodeSetNm;
         return cacheApiService.getSrteCacheString(ObjectName.FIND_TO_CODE.name(), key);
     }
 
     public String getCodeDescTxtForCd(String code, String codeSetNm) throws DataProcessingException {
-        String key = code + separator + codeSetNm;
+        String key = code + SEPARATOR + codeSetNm;
         return cacheApiService.getSrteCacheString(ObjectName.GET_CODE_DESC_TXT_FOR_CD.name(), key);
     }
 
     public String getCountyCdByDesc(String county, String stateCd) throws DataProcessingException {
-        String key = county + separator + stateCd;
+        String key = county + SEPARATOR + stateCd;
         return cacheApiService.getSrteCacheString(ObjectName.GET_COUNTY_CD_BY_DESC.name(), key);
 
     }
@@ -51,11 +51,11 @@ public class CachingValueDpDpService implements ICatchingValueDpService {
     }
 
     public String getCodedValue(String pType, String pKey) throws DataProcessingException {
-        return cacheApiService.getSrteCacheString(String.valueOf(ObjectName.CODED_VALUE), pType + separator + pKey);
+        return cacheApiService.getSrteCacheString(String.valueOf(ObjectName.CODED_VALUE), pType + SEPARATOR + pKey);
     }
 
     public boolean checkCodedValue(String pType, String pKey) throws DataProcessingException {
-        return cacheApiService.getSrteCacheBool(String.valueOf(ObjectName.CODED_VALUE), pType + separator + pKey);
+        return cacheApiService.getSrteCacheBool(String.valueOf(ObjectName.CODED_VALUE), pType + SEPARATOR + pKey);
     }
 
     public String getCodedValuesCallRepos(String pType) throws DataProcessingException {

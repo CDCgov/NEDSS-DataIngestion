@@ -106,13 +106,6 @@ public class ObservationCodeService implements IObservationCodeService {
 
         ArrayList<String> derivedConditionList = new ArrayList<>();
 
-        //if this is not an STD Program Area - we can skip this overhead
-        //TODO: CACHING
-//        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-//        if ((programAreaCd == null) || (!propertyUtil.isStdOrHivProgramArea(programAreaCd))) {
-//            return derivedConditionList;
-//        }
-
         // Get the result tests
         Collection<ObservationContainer> resultTests = new ArrayList<>();
         for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
@@ -413,7 +406,6 @@ public class ObservationCodeService implements IObservationCodeService {
 
         for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtoColl) {
             String code = obsValueCodedDto.getCode();
-            //String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
             if (code != null) {
                 String defaultCondition = srteCodeObsService.getDefaultConditionForLocalResultCode(code, reportingLabCLIA);
                 if (defaultCondition != null && !defaultCondition.isEmpty()) {

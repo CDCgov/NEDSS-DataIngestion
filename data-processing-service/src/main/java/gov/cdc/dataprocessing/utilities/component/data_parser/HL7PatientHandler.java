@@ -140,7 +140,6 @@ public class HL7PatientHandler {
             participationDto.setItNew(true);
             participationDto.setItDirty(false);
             participationDto.setCd(EdxELRConstant.ELR_PATIENT_CD);
-            //participationDto.setAddUserId(EdxELRConstant.ELR_ADD_USER_ID);
             participationDto.setAddUserId(AuthUtil.authUser.getNedssEntryId());
             participationDto.setSubjectClassCd(EdxELRConstant.ELR_PERSON_CD);
             participationDto.setTypeCd(EdxELRConstant.ELR_PATIENT_SUBJECT_CD);
@@ -175,7 +174,7 @@ public class HL7PatientHandler {
             // Setup Person Sex Code
             ElrXref elrXref;
             String key = "ELR_LCA_SEX_" + personContainer.getThePersonDto().getCurrSexCd() + "_P_SEX";
-            ElrXref result = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key),ElrXref.class);
+            ElrXref result = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), key);
             if (result == null) {
                 result = new ElrXref();
             }
@@ -211,7 +210,7 @@ public class HL7PatientHandler {
                 PersonEthnicGroupDto personEthnicGroupDto = nbsObjectConverter.ethnicGroupType(ethnicType, personContainer);
                 ElrXref elrXrefForEthnic;
                 String keyEthnic = "ELR_LCA_ETHN_GRP_" + personEthnicGroupDto.getEthnicGroupCd() + "_P_ETHN_GRP";
-                ElrXref resultEthnic = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic),ElrXref.class);
+                ElrXref resultEthnic = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyEthnic);
                 if ( resultEthnic == null) {
                     resultEthnic = new ElrXref();
                 }
@@ -352,7 +351,7 @@ public class HL7PatientHandler {
                         ElrXref elrXrefForRace;
 
                         String keyRace = "ELR_LCA_RACE_" + raceDT.getRaceCategoryCd() + "_P_RACE_CAT";
-                        ElrXref resultRace = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace); //GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace),ElrXref.class);
+                        ElrXref resultRace = (ElrXref) cacheApiService.getSrteCacheObject(ObjectName.ELR_XREF.name(), keyRace);
                         if (resultRace == null) {
                             resultRace = new ElrXref();
                         }

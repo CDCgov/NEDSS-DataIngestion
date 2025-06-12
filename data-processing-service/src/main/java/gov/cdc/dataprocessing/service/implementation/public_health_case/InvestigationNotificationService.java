@@ -212,7 +212,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             PamProxyContainer proxyVO = new PamProxyContainer();
             if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
             {
-                // proxyVO =  pamproxy.getPamProxy(publicHealthCaseUid);
+                // This should be empty
             }
             else
             {

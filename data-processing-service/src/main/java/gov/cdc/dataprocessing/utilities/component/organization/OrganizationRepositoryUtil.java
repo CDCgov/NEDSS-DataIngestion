@@ -383,7 +383,6 @@ public class OrganizationRepositoryUtil {
                     .getTheRoleDTCollection();
             Collection<ParticipationDto> pDTCol = organizationContainer
                     .getTheParticipationDtoCollection();
-            //Collection<EntityLocatorParticipationDto> col = null;
             if (elpDTCol != null) {
                 Collection<EntityLocatorParticipationDto> col = entityHelper.iterateELPDTForEntityLocatorParticipation(elpDTCol);
                 organizationContainer

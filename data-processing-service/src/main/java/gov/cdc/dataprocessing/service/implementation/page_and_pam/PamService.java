@@ -130,8 +130,6 @@ public class PamService implements IPamService {
                     nndActivityLogDT.setLocalId("N/A");
                 }
                 //catch & store auto resend notifications exceptions in NNDActivityLog table
-                //TODO: LOGGING
-                //nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
@@ -221,14 +219,13 @@ public class PamService implements IPamService {
                     } // end of else
                 }
             } // end of for
-        } // end of if(pamProxyVO.getThePersonVOCollection() != null)
+        }
 
         if (pamProxyVO.getPublicHealthCaseContainer() != null) {
             String businessTriggerCd = null;
             PublicHealthCaseContainer publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
             publicHealthCaseContainer.getThePublicHealthCaseDto().setPamCase(true);
-            //TODO: PAM HISTORY
-//                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseContainer());
+
             PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
             RootDtoInterface rootDTInterface = publicHealthCaseDto;
             String businessObjLookupName = NBSBOLookup.INVESTIGATION;
@@ -343,18 +340,7 @@ public class PamService implements IPamService {
                 participationRepositoryUtil.storeParticipation(participationDT);
             }
         }
-        //TODO: NBS PAM
-//            if (pamProxyVO.getPamVO() != null && pamProxyVO.isItNew()) {
-//                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
-//            } else if (pamProxyVO.getPamVO() != null && pamProxyVO.isItDirty()) {
-//                pamRootDAO.editPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
-//
-//            }
-//            else
-//                logger.error("There is error in setPamProxyVO as pamProxyVO.getPamVO() is null");
-//
-//            logger.debug("the actual Uid for PamProxy Publichealthcase is "
-//                    + actualUid);
+
         return actualUid;
     }
 

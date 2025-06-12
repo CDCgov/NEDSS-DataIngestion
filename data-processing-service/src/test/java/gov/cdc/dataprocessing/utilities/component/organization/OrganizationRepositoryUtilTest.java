@@ -161,21 +161,12 @@ class OrganizationRepositoryUtilTest {
         localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
 
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
-        //Insert Organization
-        Organization organization = new Organization(organizationDto);
-//        when(organizationRepository.save(organization)).thenReturn(organization);
-        //Insert OrganizationName
-        OrganizationName orgName = new OrganizationName(orgNameDto);
-//        when(organizationNameRepository.save(orgName)).thenReturn(orgName);
 
         //EntityID
         EntityIdDto entityIdDto = getEntityIdDto();
         ArrayList<EntityIdDto> entityList = new ArrayList<>();
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
-
-        EntityId entityId = new EntityId(entityIdDto, "UTC");
-//        when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -188,17 +179,12 @@ class OrganizationRepositoryUtilTest {
 
         LocalUidModel  localUidGenerator = getLocalUidGenerator();
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localUidGenerator);
-//
-//        when(entityLocatorParticipationRepository.createPhysicalLocator(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
-//        when(entityLocatorParticipationRepository.createPostalLocator(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
-//        when(entityLocatorParticipationRepository.createTeleLocator(new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto())));
 
         //Role
         RoleDto roleDto = getRoleDto();
         Collection<RoleDto> theRoleDTCollection = new ArrayList<>();
         theRoleDTCollection.add(roleDto);
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
-//        when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
         organizationRepositoryUtil.createOrganization(organizationContainer);
         verify(roleRepository, times(1)).createRole(new Role(roleDto));
@@ -254,12 +240,6 @@ class OrganizationRepositoryUtilTest {
         localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
 
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
-        //Insert Organization
-        Organization organization = new Organization(organizationDto);
-//        when(organizationRepository.save(organization)).thenReturn(organization);
-        //Insert OrganizationName
-        OrganizationName orgName = new OrganizationName(orgNameDto);
-//        when(organizationNameRepository.save(orgName)).thenReturn(orgName);
 
         //EntityID
         EntityIdDto entityIdDto = getEntityIdDto();
@@ -267,8 +247,6 @@ class OrganizationRepositoryUtilTest {
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
 
-        EntityId entityId = new EntityId(entityIdDto, "UTC");
-//        when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -282,16 +260,11 @@ class OrganizationRepositoryUtilTest {
         var localUidGenerator = getLocalUidGenerator();
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localUidGenerator);
 
-//        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
-//        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
-//        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto())));
-
         //Role
         RoleDto roleDto = getRoleDto();
         Collection<RoleDto> theRoleDTCollection = new ArrayList<>();
         theRoleDTCollection.add(roleDto);
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
-//        when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
         organizationRepositoryUtil.updateOrganization(organizationContainer);
         verify(roleRepository, times(1)).updateRole(new Role(roleDto));

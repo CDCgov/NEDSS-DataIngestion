@@ -85,7 +85,6 @@ public class ObservationRequestHandler {
                 edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_13);
                 throw new DataProcessingException(EdxELRConstant.TRANSLATE_OBS_STATUS);
             }
-            //observationDto.setStatusCd(EdxELRConstant.ELR_OBS_STATUS_CD);
             observationDto.setElectronicInd(EdxELRConstant.ELR_ELECTRONIC_IND);
 
             if(hl7OBRType.getSetIDOBR()!=null && hl7OBRType.getSetIDOBR().getHL7SequenceID()!=null

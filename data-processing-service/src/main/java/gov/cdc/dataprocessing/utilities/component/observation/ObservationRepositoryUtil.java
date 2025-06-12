@@ -176,7 +176,6 @@ public class ObservationRepositoryUtil {
 
         if (observationContainer.isItNew())
         {
-            //observation = home.create(observationContainer);
             observationUid = this.createNewObservation(observationContainer);
         }
         else

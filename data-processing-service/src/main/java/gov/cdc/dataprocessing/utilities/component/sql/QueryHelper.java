@@ -130,7 +130,6 @@ public class QueryHelper {
     protected String buildGuestWhereClause(String guestList, String columnName,
                                          String alias, boolean OIDFlag, String businessObjLookupName) {
 
-        //logger.debug("alias = " + alias);
         String whereClauseGuest = "";
 
         if (guestList != null && !guestList.trim().isEmpty()) {

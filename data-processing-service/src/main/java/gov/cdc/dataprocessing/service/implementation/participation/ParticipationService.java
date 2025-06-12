@@ -64,6 +64,7 @@ public class ParticipationService implements IParticipationService {
         }
     }
 
+    @SuppressWarnings("java:S6204")
     public void saveParticipationByBatch(List<ParticipationDto> toSave) {
         if (toSave == null || toSave.isEmpty()) return;
 

@@ -285,8 +285,6 @@ public class PageRepositoryUtil {
             proxyVO.setMergeCase(true);
         }
 
-        // Updates coinfection question's values in tables other than NBS_Case_Answer
-        updateCoInfectionInvestForOtherTables(proxyVO, updateValueInOtherTablesMap, pageActProxyContainer, publicHealthCaseContainer);
 
         if(coinfectionIdToUpdate==null
                 || (supersededPublicHealthCaseContainer != null // NOSONAR
@@ -375,41 +373,6 @@ public class PageRepositoryUtil {
         return returnMap;
     }
 
-
-    /**
-     *
-     * Updates coinfection question's values in tables other than NBS_Case_Answer
-     */
-    @SuppressWarnings({"java:S1172", "java:S1871","java:S2864"})
-    private  void updateCoInfectionInvestForOtherTables(PageActProxyContainer pageActProxyVOofCoinfection,
-                                                        Map<Object, Object> updateValueInOtherTablesMap,
-                                                        PageActProxyContainer pageActProxyContainer,
-                                                        PublicHealthCaseContainer publicHealthCaseContainer)   {
-            for (Object key : updateValueInOtherTablesMap.keySet()) {
-                String dbLocation = (String) updateValueInOtherTablesMap.get(key);
-                if(dbLocation!=null && dbLocation.contains("PERSON.")){
-                    //Commented out as its tries to update MPR concurrently within same transaction.
-                    // First for current investigation's patient and then coinfection investigation's patient.
-                }else if(dbLocation!=null && dbLocation.contains("CASE_MANAGEMENT.")){
-//                    String columnName = dbLocation.substring(dbLocation.indexOf(".")+1,dbLocation.length());
-//                    String getterMethod = DynamicBeanBinding.getGetterName(columnName);
-//
-//                    if(getterMethod!=null){
-//                        String value = DynamicBeanBinding.getValueForMethod(publicHealthCaseContainer.getTheCaseManagementDto(),getterMethod,publicHealthCaseContainer.getTheCaseManagementDto().getClass().getName());
-//
-//                        if(value!=null){
-//                            DynamicBeanBinding.populateBean(pageActProxyVOofCoinfection.getPublicHealthCaseContainer().getTheCaseManagementDto(), columnName, value);
-//
-//                            pageActProxyVOofCoinfection.getPublicHealthCaseContainer().getTheCaseManagementDto().setItDelete(true);
-//                            pageActProxyVOofCoinfection.getPublicHealthCaseContainer().getTheCaseManagementDto().setItNew(false);
-//                        }
-//                    }else{
-//                        logger.debug("getterMethod does not found from columnName: "+columnName +", not updating coinfection questions.");
-//                    }
-                }
-            }
-
-    }
 
     @SuppressWarnings("java:S3776")
     private void processingParticipationPatTypeForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {

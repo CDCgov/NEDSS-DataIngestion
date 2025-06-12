@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 
 public class EdxPatientMatchRepositoryUtil {
-    private static final Logger logger = LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class); //NOSONAR
     private final EdxMatchJdbcRepository edxMatchJdbcRepository;
     private final EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
     private final DataModifierReposJdbc dataModifierReposJdbc;

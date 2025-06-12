@@ -116,7 +116,6 @@ public class LabResultUtil {
         role.setLastChgTime(edxELRLabMap.getAddTime());
         role.setCdDescTxt(edxELRLabMap.getRoleCdDescTxt());
         role.setSubjectClassCd(edxELRLabMap.getRoleSubjectClassCd());
-        //role.setSubjectEntityUid(edxELRLabMap.getEntityUid());
         role.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
         role.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
         role.setItNew(true);

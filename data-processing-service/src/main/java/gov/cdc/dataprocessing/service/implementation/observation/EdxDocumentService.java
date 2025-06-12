@@ -41,6 +41,7 @@ public class EdxDocumentService implements IEdxDocumentService {
         return new EDXDocumentDto(res);
     }
 
+    @SuppressWarnings("java:S6204")
     public List<EDXDocumentDto> saveEdxDocumentBatch(List<EDXDocumentDto> dtos) {
         List<EdxDocument> entities = dtos.stream()
                 .map(EdxDocument::new)

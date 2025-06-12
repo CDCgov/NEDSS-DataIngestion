@@ -46,15 +46,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     {
 
             Long entityUid;
-            //	String orgRole = organizationContainer.getRole();
             Collection<EdxEntityMatchDto> coll = new ArrayList<>();
-//            EdxEntityMatchDAO edxDao1 = new EdxEntityMatchDAO();
             EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
             String DET_MSG_ENTITY_EXISTS_SUCCESS = "Organization entity found with entity uid : ";
             String DET_MSG_ENTITY_EXISTS_FAIL_NEW = "Organization not found. New Organization created with organization uid: ";
-            /*
-             * Creating new DT for localID for // local identifier
-             */
+
             EdxEntityMatchDto localEdxEntityMatchDT = null;
             String localId;
             int localIdhshCd = 0;
@@ -105,7 +101,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         if (localEdxEntityMatchDT != null) {
                             localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                     .getEntityUid());
-//                                edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                             edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                         }
                         edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
@@ -144,7 +139,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     if (localEdxEntityMatchDT != null) {
                         localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                 .getEntityUid());
-//                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                         edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
@@ -173,7 +167,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     if (localEdxEntityMatchDT != null) {
                         localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                 .getEntityUid());
-//                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                         edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
@@ -198,7 +191,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT.setTypeCd(NEDSSConstant.ORGANIZATION);
                 edxEntityMatchDT.setMatchString(nameAddStrSt1);
                 edxEntityMatchDT.setMatchStringHashCode((long) nameAddStrSt1hshCd);
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                 edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
             }
 
@@ -272,10 +264,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             coded.setCode(entityIdDT.getAssigningAuthorityCd());
                             coded.setCodesetName(NEDSSConstant.EI_AUTH_ORG);
                             coded.setCodesetTableName("CODE_VALUE_GENERAL");//DataTables.CODE_VALUE_GENERAL
-
-                            //TODO: This call out to code value general Repos and Caching the recrod
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
 
                             if (entityIdDT.getRootExtensionTxt() != null
                                     && entityIdDT.getTypeCd() != null

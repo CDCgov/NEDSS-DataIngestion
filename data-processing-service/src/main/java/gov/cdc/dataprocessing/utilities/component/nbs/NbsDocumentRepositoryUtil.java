@@ -100,12 +100,10 @@ public class NbsDocumentRepositoryUtil {
     public void insertNBSDocumentHist(NBSDocumentDto nbsDocumentDto) {
         var nbs = new NbsDocumentHist(nbsDocumentDto);
         nbsDocumentJdbcRepository.mergeNbsDocumentHist(nbs);
-//        nbsDocumentHistRepository.save(nbs);
     }
     public Long updateNbsDocument(NBSDocumentDto nbsDocumentDto) {
         var nbs = new NbsDocument(nbsDocumentDto);
         nbsDocumentJdbcRepository.mergeNbsDocument(nbs);
-//        nbsDocumentRepository.save(nbs);
         return nbs.getNbsDocumentUid();
     }
 
