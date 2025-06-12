@@ -33,7 +33,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final NotificationRepositoryUtil notificationRepositoryUtil;
 
-    public RetrieveSummaryService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
+    public RetrieveSummaryService(
                                   QueryHelper queryHelper,
                                   CustomRepository customRepository,
                                   ICatchingValueDpService catchingValueService,

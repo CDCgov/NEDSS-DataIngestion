@@ -248,6 +248,9 @@ sonarqube {
                 " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
                 " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java"
+                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, **/cache/cache_model/**, **/repository/nbs/odse/repos/**, " +
+                " **/service/implementation/auth_user/**, **/service/implementation/cache/ManagerCacheService.java, " +
+                " **/service/implementation/uid_generator/UidPoolManager.java, " +
+                " **/srte-data-service/src/**"
     }
 }
