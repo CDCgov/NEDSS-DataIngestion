@@ -116,13 +116,13 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
 
   private void mergePersonAddress(PatientMergeRequest request) {
     String survivingId = request.survivingRecord();
-    List<String> sselectedLocatorIds = request.addresses().stream()
+    List<String> selectedLocatorIds = request.addresses().stream()
         .map(PatientMergeRequest.AddressId::locatorId)
         .toList();
 
-    if (!sselectedLocatorIds.isEmpty()) {
-      markUnselectedAddressInactive(survivingId, sselectedLocatorIds);
-      updateSelectedAddress(survivingId, sselectedLocatorIds);
+    if (!selectedLocatorIds.isEmpty()) {
+      markUnselectedAddressInactive(survivingId, selectedLocatorIds);
+      updateSelectedAddress(survivingId, selectedLocatorIds);
     }
   }
 
