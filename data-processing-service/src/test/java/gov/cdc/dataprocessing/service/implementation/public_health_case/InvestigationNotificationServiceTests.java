@@ -3,12 +3,12 @@ package gov.cdc.dataprocessing.service.implementation.public_health_case;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
-import gov.cdc.dataprocessing.model.container.model.PageActProxyContainer;
-import gov.cdc.dataprocessing.model.container.model.PamProxyContainer;
-import gov.cdc.dataprocessing.model.container.model.PersonContainer;
-import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
+import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
+import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
+import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
@@ -17,6 +17,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.custom_model.QuestionRequiredNnd;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomNbsQuestionRepository;
+import gov.cdc.dataprocessing.service.implementation.cache.CacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
@@ -29,13 +30,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 class InvestigationNotificationServiceTests {
@@ -45,6 +46,8 @@ class InvestigationNotificationServiceTests {
     private INotificationService notificationService;
     @Mock
     private CustomNbsQuestionRepository customNbsQuestionRepository;
+    @Mock
+    private CacheApiService cacheApiService;
     @InjectMocks
     private InvestigationNotificationService investigationNotificationService;
     @Mock
@@ -254,6 +257,40 @@ class InvestigationNotificationServiceTests {
                 publicHealthCaseUid, reqFields, formCd);
 
         assertNull(test);
+    }
+
+
+    @Test
+    void testSendProxyToEJB_ExceptionThrown() throws DataProcessingException {
+        NotificationProxyContainer proxy = createNotificationProxy("INV_FORM_CD", "AREA_CD", 123L);
+        Object dummyPageObj = new Object();
+
+        when(cacheApiService.getSrteCacheString(any(), any())).thenThrow(new RuntimeException("DB error"));
+
+        EDXActivityDetailLogDto result = investigationNotificationService.sendProxyToEJB(proxy, dummyPageObj);
+
+        assertEquals("Failure", result.getLogType());
+        assertTrue(result.getComment().contains("java.lang.RuntimeException"));
+    }
+
+    private NotificationProxyContainer createNotificationProxy(String conditionCd, String progAreaCd, Long phcUid) {
+        NotificationProxyContainer proxy = new NotificationProxyContainer();
+
+        PublicHealthCaseDto phc = new PublicHealthCaseDto();
+        phc.setCd(conditionCd);
+        phc.setProgAreaCd(progAreaCd);
+        phc.setPublicHealthCaseUid(phcUid);
+        PublicHealthCaseContainer phcContainer = new PublicHealthCaseContainer();
+        phcContainer.setThePublicHealthCaseDto(phc);
+
+        NotificationDto notifDto = new NotificationDto();
+        NotificationContainer notifContainer = new NotificationContainer();
+        notifContainer.setTheNotificationDT(notifDto);
+
+        proxy.setThePublicHealthCaseContainer(phcContainer);
+        proxy.setTheNotificationContainer(notifContainer);
+
+        return proxy;
     }
 
 }

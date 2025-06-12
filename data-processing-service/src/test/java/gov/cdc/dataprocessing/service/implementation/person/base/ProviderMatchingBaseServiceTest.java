@@ -4,7 +4,12 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
+import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
+import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
+import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
+import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
+import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
@@ -23,6 +28,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -483,5 +489,216 @@ class ProviderMatchingBaseServiceTest {
         assertNull(result);
     }
 
+    @Test
+    void testTelePhoneTxtProvider_ValidData() {
+        // Mock the PersonContainer and EntityLocatorParticipationDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        EntityLocatorParticipationDto locatorDto = mock(EntityLocatorParticipationDto.class);
+        TeleLocatorDto teleLocatorDto = mock(TeleLocatorDto.class);
+        
+        when(locatorDto.getClassCd()).thenReturn(NEDSSConstant.TELE);
+        when(locatorDto.getCd()).thenReturn(NEDSSConstant.PHONE);
+        when(locatorDto.getTheTeleLocatorDto()).thenReturn(teleLocatorDto);
+        when(teleLocatorDto.getPhoneNbrTxt()).thenReturn("1234567890");
+        
+        locatorCollection.add(locatorDto);
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(locatorCollection);
+        
+        // Mock getNameStringForProvider
+        ProviderMatchingBaseService spyService = spy(providerMatchingBaseService);
+        doReturn("JohnDoe").when(spyService).getNameStringForProvider(any(PersonContainer.class));
+        
+        // Call the method under test
+        String result = spyService.telePhoneTxtProvider(personContainer);
+        
+        // Verify result
+        assertEquals("JohnDoe^1234567890", result);
+    }
+
+    @Test
+    void testTelePhoneTxtProvider_EmptyPhoneNumber() {
+        // Mock the PersonContainer and EntityLocatorParticipationDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        EntityLocatorParticipationDto locatorDto = mock(EntityLocatorParticipationDto.class);
+        TeleLocatorDto teleLocatorDto = mock(TeleLocatorDto.class);
+        
+        when(locatorDto.getClassCd()).thenReturn(NEDSSConstant.TELE);
+        when(locatorDto.getCd()).thenReturn(NEDSSConstant.PHONE);
+        when(locatorDto.getTheTeleLocatorDto()).thenReturn(teleLocatorDto);
+        when(teleLocatorDto.getPhoneNbrTxt()).thenReturn("");
+        
+        locatorCollection.add(locatorDto);
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(locatorCollection);
+        
+        // Call the method under test
+        String result = providerMatchingBaseService.telePhoneTxtProvider(personContainer);
+        
+        // Verify result
+        assertNull(result);
+    }
+
+    @Test
+    void testNameAddressStreetOneProvider_ValidData() {
+        // Mock the PersonContainer and EntityLocatorParticipationDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        EntityLocatorParticipationDto locatorDto = mock(EntityLocatorParticipationDto.class);
+        PostalLocatorDto postalLocatorDto = mock(PostalLocatorDto.class);
+        
+        when(locatorDto.getClassCd()).thenReturn(NEDSSConstant.POSTAL);
+        when(locatorDto.getCd()).thenReturn(NEDSSConstant.OFFICE_CD);
+        when(locatorDto.getUseCd()).thenReturn(NEDSSConstant.WORK_PLACE);
+        when(locatorDto.getThePostalLocatorDto()).thenReturn(postalLocatorDto);
+        when(postalLocatorDto.getStreetAddr1()).thenReturn("123 Main St");
+        when(postalLocatorDto.getCityDescTxt()).thenReturn("Atlanta");
+        when(postalLocatorDto.getStateCd()).thenReturn("GA");
+        when(postalLocatorDto.getZipCd()).thenReturn("30303");
+        
+        locatorCollection.add(locatorDto);
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(locatorCollection);
+        
+        // Mock getNameStringForProvider
+        ProviderMatchingBaseService spyService = spy(providerMatchingBaseService);
+        doReturn("JohnDoe").when(spyService).getNameStringForProvider(any(PersonContainer.class));
+        
+        // Call the method under test
+        String result = spyService.nameAddressStreetOneProvider(personContainer);
+        
+        // Verify result
+        assertEquals("JohnDoe^123 Main St^Atlanta^GA^30303", result);
+    }
+
+    @Test
+    void testNameAddressStreetOneProvider_MissingAddressComponents() {
+        // Mock the PersonContainer and EntityLocatorParticipationDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        EntityLocatorParticipationDto locatorDto = mock(EntityLocatorParticipationDto.class);
+        PostalLocatorDto postalLocatorDto = mock(PostalLocatorDto.class);
+        
+        when(locatorDto.getClassCd()).thenReturn(NEDSSConstant.POSTAL);
+        when(locatorDto.getCd()).thenReturn(NEDSSConstant.OFFICE_CD);
+        when(locatorDto.getUseCd()).thenReturn(NEDSSConstant.WORK_PLACE);
+        when(locatorDto.getThePostalLocatorDto()).thenReturn(postalLocatorDto);
+        when(postalLocatorDto.getStreetAddr1()).thenReturn("123 Main St");
+        when(postalLocatorDto.getCityDescTxt()).thenReturn(null);
+        when(postalLocatorDto.getStateCd()).thenReturn("GA");
+        when(postalLocatorDto.getZipCd()).thenReturn("30303");
+        
+        locatorCollection.add(locatorDto);
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(locatorCollection);
+        
+        // Call the method under test
+        String result = providerMatchingBaseService.nameAddressStreetOneProvider(personContainer);
+        
+        // Verify result
+        assertNull(result);
+    }
+
+    @Test
+    void testPersistingProvider_ExistingPerson() throws DataProcessingException {
+        // Mock the PersonContainer and PersonDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        PersonDto personDto = mock(PersonDto.class);
+        when(personContainer.getThePersonDto()).thenReturn(personDto);
+        when(personContainer.isItNew()).thenReturn(false);
+        when(personDto.getPersonUid()).thenReturn(1L);
+        
+        // Mock collections
+        Collection<EntityLocatorParticipationDto> locatorCollection = new ArrayList<>();
+        Collection<RoleDto> roleCollection = new ArrayList<>();
+        Collection<ParticipationDto> participationCollection = new ArrayList<>();
+        
+        when(personContainer.getTheEntityLocatorParticipationDtoCollection()).thenReturn(locatorCollection);
+        when(personContainer.getTheRoleDtoCollection()).thenReturn(roleCollection);
+        when(personContainer.getTheParticipationDtoCollection()).thenReturn(participationCollection);
+        
+        // Call the method under test
+        Long result = providerMatchingBaseService.persistingProvider(personContainer, "PROVIDER", "BUSINESS_TRIGGER");
+        
+        // Verify interactions and results
+        assertEquals(1L, result);
+        verify(patientRepositoryUtil, times(1)).updateExistingPerson(personContainer);
+        verify(entityHelper, times(1)).iterateELPDTForEntityLocatorParticipation(locatorCollection);
+        verify(entityHelper, times(1)).iterateRDT(roleCollection);
+        verify(entityHelper, times(1)).iteratePDTForParticipation(participationCollection);
+    }
+
+    @Test
+    void testPersistingProvider_WithLocalId() throws DataProcessingException {
+        // Mock the PersonContainer and PersonDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        PersonDto personDto = mock(PersonDto.class);
+        when(personContainer.getThePersonDto()).thenReturn(personDto);
+        when(personContainer.isItNew()).thenReturn(true);
+        when(personDto.getLocalId()).thenReturn("LOCAL123");
+        
+        // Mock the Person object
+        Person person = mock(Person.class);
+        when(person.getPersonUid()).thenReturn(1L);
+        when(patientRepositoryUtil.createPerson(any(PersonContainer.class))).thenReturn(person);
+        
+        // Call the method under test
+        Long result = providerMatchingBaseService.persistingProvider(personContainer, "PROVIDER", "BUSINESS_TRIGGER");
+        
+        // Verify interactions and results
+        assertEquals(1L, result);
+        verify(personDto, never()).setEdxInd(anyString());
+        verify(patientRepositoryUtil, times(1)).createPerson(personContainer);
+    }
+
+    @Test
+    void testGetIdentifierForProvider_WithCoded() throws DataProcessingException {
+        // Mock the PersonContainer and EntityIdDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        Collection<EntityIdDto> entityIdCollection = new ArrayList<>();
+        EntityIdDto entityIdDto = mock(EntityIdDto.class);
+        
+        when(entityIdDto.getStatusCd()).thenReturn(NEDSSConstant.STATUS_ACTIVE);
+        when(entityIdDto.getRootExtensionTxt()).thenReturn("EXT123");
+        when(entityIdDto.getTypeCd()).thenReturn("TYPE1");
+        when(entityIdDto.getAssigningAuthorityCd()).thenReturn("AUTH1");
+        when(entityIdDto.getAssigningAuthorityDescTxt()).thenReturn("Auth Description");
+        when(entityIdDto.getAssigningAuthorityIdType()).thenReturn("SYSTEM1");
+        
+        entityIdCollection.add(entityIdDto);
+        when(personContainer.getTheEntityIdDtoCollection()).thenReturn(entityIdCollection);
+        
+        // Call the method under test
+        List<String> result = providerMatchingBaseService.getIdentifierForProvider(personContainer);
+        
+        // Verify result
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals("EXT123^TYPE1^AUTH1^Auth Description^SYSTEM1", result.get(0));
+    }
+
+    @Test
+    void testGetIdentifierForProvider_WithLRType() throws DataProcessingException {
+        // Mock the PersonContainer and EntityIdDto
+        PersonContainer personContainer = mock(PersonContainer.class);
+        Collection<EntityIdDto> entityIdCollection = new ArrayList<>();
+        EntityIdDto entityIdDto = mock(EntityIdDto.class);
+        
+        when(entityIdDto.getStatusCd()).thenReturn(NEDSSConstant.STATUS_ACTIVE);
+        when(entityIdDto.getRootExtensionTxt()).thenReturn("EXT123");
+        when(entityIdDto.getTypeCd()).thenReturn("LR");
+        when(entityIdDto.getAssigningAuthorityCd()).thenReturn("AUTH1");
+        when(entityIdDto.getAssigningAuthorityDescTxt()).thenReturn("Auth Desc");
+        when(entityIdDto.getAssigningAuthorityIdType()).thenReturn("IDTYPE1");
+        
+        entityIdCollection.add(entityIdDto);
+        when(personContainer.getTheEntityIdDtoCollection()).thenReturn(entityIdCollection);
+        
+        // Call the method under test
+        List<String> result = providerMatchingBaseService.getIdentifierForProvider(personContainer);
+        
+        // Verify result
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals("EXT123^LR^AUTH1^Auth Desc^IDTYPE1", result.get(0));
+    }
 
 }

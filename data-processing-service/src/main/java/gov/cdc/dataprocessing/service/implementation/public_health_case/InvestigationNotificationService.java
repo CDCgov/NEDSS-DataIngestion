@@ -117,7 +117,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     }
 
     @SuppressWarnings("java:S3776")
-    private EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)
+    protected EDXActivityDetailLogDto  sendProxyToEJB(NotificationProxyContainer notificationProxyVO, Object pageObj)
     {
         EDXActivityDetailLogDto eDXActivityDetailLogDT = new EDXActivityDetailLogDto();
 

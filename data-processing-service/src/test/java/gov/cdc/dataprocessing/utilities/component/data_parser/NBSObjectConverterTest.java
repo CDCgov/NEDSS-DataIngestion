@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -572,6 +573,93 @@ class NBSObjectConverterTest {
 
 
     }
+
+    @Test
+    void formatPhoneNbr_Test_WithNull() {
+        String result = nbsObjectConverter.formatPhoneNbr(null);
+        assertEquals("", result);
+    }
+
+    @Test
+    void formatPhoneNbr_Test_WithEmpty() {
+        String result = nbsObjectConverter.formatPhoneNbr("");
+        assertEquals("", result);
+    }
+
+    @Test
+    void formatPhoneNbr_Test_WithSpaces() {
+        String result = nbsObjectConverter.formatPhoneNbr("  1234567890  ");
+        assertEquals("123-456-7890", result);
+    }
+
+    @Test
+    void checkIfAreaCodeMoreThan3Digits_Test() {
+        ArrayList<String> areaAndNumber = new ArrayList<>();
+        HL7NMType hl7Type = new HL7NMType();
+        hl7Type.setHL7Numeric(BigInteger.valueOf(1234567890L));
+        
+        boolean result = nbsObjectConverter.checkIfAreaCodeMoreThan3Digits(areaAndNumber, hl7Type);
+        
+        assertTrue(result);
+        assertEquals("123", areaAndNumber.get(0));
+        assertEquals("4567890", areaAndNumber.get(1));
+    }
+
+    @Test
+    void checkIfAreaCodeMoreThan3Digits_Test_WithNull() {
+        ArrayList<String> areaAndNumber = new ArrayList<>();
+        boolean result = nbsObjectConverter.checkIfAreaCodeMoreThan3Digits(areaAndNumber, null);
+        assertFalse(result);
+        assertTrue(areaAndNumber.isEmpty());
+    }
+
+    @Test
+    void processEntityData_Test_WithNullHL7CXType() throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
+        var personDt = new PersonDto();
+        personContainer.setThePersonDto(personDt);
+        
+        EntityIdDto result = nbsObjectConverter.processEntityData(null, personContainer, "TEST", 1);
+        assertNotNull(result);
+    }
+
+    @Test
+    void processEntityData_Test_WithEmptyIdentifierTypeCode() throws DataProcessingException {
+        PersonContainer personContainer = new PersonContainer();
+        var personDt = new PersonDto();
+        personContainer.setThePersonDto(personDt);
+        
+        HL7CXType hl7CXType = new HL7CXType();
+        hl7CXType.setHL7IDNumber("123");
+        hl7CXType.setHL7IdentifierTypeCode("");
+        
+        when(checkingValueService.getCodeDescTxtForCd(any(), eq(EdxELRConstant.EI_TYPE)))
+            .thenReturn(null);
+        
+        EntityIdDto result = nbsObjectConverter.processEntityData(hl7CXType, personContainer, "TEST", 1);
+        assertNotNull(result);
+        assertEquals(EdxELRConstant.ELR_CLIA_DESC, result.getTypeDescTxt());
+    }
+
+    @Test
+    void processHL7TSType_Test_WithNullTime() throws DataProcessingException {
+        Timestamp result = nbsObjectConverter.processHL7TSType(null, "Test Description");
+        assertNull(result);
+    }
+
+    @Test
+    void processHL7TSTypeWithMillis_Test_WithNullTime() throws DataProcessingException {
+        Timestamp result = nbsObjectConverter.processHL7TSTypeWithMillis(null, "Test Description");
+        assertNull(result);
+    }
+
+    @Test
+    void processHL7TSTypeForDOBWithoutTime_Test_WithNullTime() throws DataProcessingException {
+        Timestamp result = nbsObjectConverter.processHL7TSTypeForDOBWithoutTime(null);
+        assertNull(result);
+    }
+
+
 
     @Test
     void defaultParticipationDT_Test() {
