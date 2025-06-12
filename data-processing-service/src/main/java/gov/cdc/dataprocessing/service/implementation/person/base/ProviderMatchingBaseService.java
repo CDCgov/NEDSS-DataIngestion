@@ -29,7 +29,7 @@ import java.util.List;
 @Service
 
 public class ProviderMatchingBaseService extends MatchingBaseService{
-    private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class); //NOSONAR
 
     public ProviderMatchingBaseService(
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,

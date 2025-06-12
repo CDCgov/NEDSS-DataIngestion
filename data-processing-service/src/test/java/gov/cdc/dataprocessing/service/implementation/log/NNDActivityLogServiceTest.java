@@ -35,7 +35,7 @@ class NNDActivityLogServiceTest {
 
 
     @BeforeEach
-    public void setUp() throws DataProcessingException {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
         var model = new LocalUidModel();
         LocalUidGeneratorDto dto = new LocalUidGeneratorDto();

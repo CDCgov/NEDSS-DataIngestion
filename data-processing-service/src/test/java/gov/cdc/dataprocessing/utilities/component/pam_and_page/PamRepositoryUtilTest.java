@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.pam_and_page;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsActJdbcRepository;
@@ -56,7 +55,7 @@ class PamRepositoryUtilTest {
     }
 
     @Test
-    void getPamHistory_Test() throws DataProcessingException {
+    void getPamHistory_Test()  {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         PublicHealthCaseDto publicHealthCaseDto = new PublicHealthCaseDto();
         publicHealthCaseDto.setPublicHealthCaseUid(1L);

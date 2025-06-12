@@ -242,7 +242,7 @@ public class ObservationService implements IObservationService {
     /**
      * Was: retrieveOrganizationVOsForProxyVO
      * */
-    Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) throws DataProcessingException {
+    Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) {
         Collection<Object>  theOrganizationVOCollection  = null;
         for (ParticipationDto partDT : partColl) {
             if (partDT == null) {
@@ -582,7 +582,7 @@ public class ObservationService implements IObservationService {
      * was: retrievePerformingLab
      * */
     @SuppressWarnings("java:S135")
-    private OrganizationContainer retrievePerformingLabAkaOrganizationFromParticipation(Collection<ParticipationDto> partColl) throws DataProcessingException
+    private OrganizationContainer retrievePerformingLabAkaOrganizationFromParticipation(Collection<ParticipationDto> partColl)
     {
         OrganizationContainer lab = null;
 
@@ -811,7 +811,7 @@ public class ObservationService implements IObservationService {
         return nndActivityLogDto;
     }
 
-    @SuppressWarnings({"java:S3776", "java:S1199"})
+    @SuppressWarnings({"java:S3776", "java:S1199", "java:S6541"})
     private Map<Object, Object> setLabResultProxyWithoutNotificationAutoResend(LabResultProxyContainer labResultProxyVO) throws DataProcessingException {
         //All well to proceed
         Map<Object, Object> returnVal = new HashMap<>();

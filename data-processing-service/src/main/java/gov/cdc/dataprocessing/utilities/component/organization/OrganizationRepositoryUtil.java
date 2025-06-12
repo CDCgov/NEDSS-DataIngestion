@@ -446,7 +446,7 @@ public class OrganizationRepositoryUtil {
      * the participation to have a substantial amount of Reporting labs with the same
      * subjectEntityUid, therefore need to select based on teh actUid for the observation also.
      */
-    public OrganizationContainer loadObject(Long organizationUID, Long actUid) throws DataProcessingException {
+    public OrganizationContainer loadObject(Long organizationUID, Long actUid)  {
         OrganizationContainer ovo = new OrganizationContainer();
 
 

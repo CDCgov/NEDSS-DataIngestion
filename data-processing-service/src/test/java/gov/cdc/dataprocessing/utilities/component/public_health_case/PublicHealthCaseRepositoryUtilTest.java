@@ -293,7 +293,7 @@ class PublicHealthCaseRepositoryUtilTest {
     }
 
     @Test
-    void getPamVO_Test() throws DataProcessingException {
+    void getPamVO_Test()  {
         Long phcUid = 10L;
 
         var nbsCaseAnCol = new ArrayList<NbsCaseAnswer>();

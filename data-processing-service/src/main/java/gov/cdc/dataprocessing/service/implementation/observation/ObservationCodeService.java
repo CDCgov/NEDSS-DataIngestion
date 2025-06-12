@@ -43,7 +43,7 @@ public class ObservationCodeService implements IObservationCodeService {
 
 
     @SuppressWarnings({"java:S3776", "java:S135"})
-    public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
+    public String getReportingLabCLIA(BaseContainer proxy) {
         Collection<ParticipationDto>  partColl = null;
         if (proxy instanceof LabResultProxyContainer labResultProxyContainer)
         {
@@ -232,7 +232,7 @@ public class ObservationCodeService implements IObservationCodeService {
 
     @SuppressWarnings({"java:S3776", "java:S135"})
 
-    private String getReportingLabCLIAId(Collection<ParticipationDto> partColl) throws DataProcessingException {
+    private String getReportingLabCLIAId(Collection<ParticipationDto> partColl) {
         // Get the reporting lab
         Long reportingLabUid = observationUtil.getUid(
                 partColl,

@@ -564,7 +564,7 @@ public class InvestigationService implements IInvestigationService {
 
         return getInvestigationProxyLite(publicHealthCaseUID, false);
     }
-    @SuppressWarnings({"java:S3776", "java:S1141", "java:S135"})
+    @SuppressWarnings({"java:S3776", "java:S1141", "java:S135", "java:S6541"})
     private InvestigationContainer getInvestigationProxyLite(Long publicHealthCaseUID, boolean lite) throws DataProcessingException {
         var investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseDto thePublicHealthCaseDto;
@@ -844,7 +844,7 @@ public class InvestigationService implements IInvestigationService {
     private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         return getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S3776"})
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         ArrayList<Object>  labSummList = new ArrayList<> ();
         ArrayList<Object>  labEventList = new ArrayList<> ();
