@@ -221,7 +221,7 @@ public class ObservationSummaryService implements IObservationSummaryService {
             }
 
             if (multipleSusceptArray != null) {
-                RVO.setTheSusTestSummaryVOColl(multipleSusceptArray);
+                rvo.setTheSusTestSummaryVOColl(multipleSusceptArray);
             }
 
         }
