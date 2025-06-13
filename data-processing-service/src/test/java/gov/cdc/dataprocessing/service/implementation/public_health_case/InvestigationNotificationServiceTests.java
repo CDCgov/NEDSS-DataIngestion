@@ -910,7 +910,7 @@ class InvestigationNotificationServiceTests {
             pageObj, publicHealthCaseUid, reqFields, "TEST_FORM");
 
         // Verify
-        assertNotNull(result); // Invalid data location should be ignored
+        assertNull(result); // Invalid data location should be ignored
     }
 
     @Test
