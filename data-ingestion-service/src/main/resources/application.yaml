@@ -157,6 +157,9 @@ sftp:
 diserver:
   host: ${DI_SERVER_HOST:localhost:8081}
 
-
 service:
   timezone: ${SERVICE_TZ:UTC}
+
+features:
+  obrSpliting:
+    enabled: ${OBR_SPLITTING_ENABLED:false}
