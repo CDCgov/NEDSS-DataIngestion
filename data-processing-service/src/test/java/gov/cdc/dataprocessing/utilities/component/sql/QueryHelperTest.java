@@ -16,7 +16,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -52,11 +55,13 @@ class QueryHelperTest {
         userInfo.setAuthUserRealizedRoleCollection(roleCol);
 
         authUtil.setGlobalAuthUser(userInfo);
+        AuthUtil.authUserRealizedRoleCollection = new ArrayList<>();
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(progAreaJurisdictionUtil, authUtil);
+        AuthUtil.authUserRealizedRoleCollection = null;
     }
 
     @Test
@@ -185,5 +190,103 @@ class QueryHelperTest {
         AuthUtil.authUserRealizedRoleCollection = new HashSet<>();
         String result = queryHelper.getHashedPAJList(true);
         assertEquals("", result);
+    }
+
+    @Test
+    void getHashedPAJList_EmptyCollection_ReturnsEmptyString() throws DataProcessingException {
+        // Setup
+        AuthUtil.authUserRealizedRoleCollection = new ArrayList<>();
+
+        // Execute
+        String result = queryHelper.getHashedPAJList(false);
+
+        // Verify
+        assertEquals("", result);
+    }
+
+    @Test
+    void getHashedPAJList_WithGuestRoles_ReturnsCorrectList() throws DataProcessingException {
+        // Setup
+        AuthUserRealizedRole guestRole1 = new AuthUserRealizedRole();
+        guestRole1.setRoleGuestInd("Y");
+        guestRole1.setProgAreaCd("PA1");
+        guestRole1.setJurisdictionCd("J1");
+
+        AuthUserRealizedRole guestRole2 = new AuthUserRealizedRole();
+        guestRole2.setRoleGuestInd("Y");
+        guestRole2.setProgAreaCd("PA2");
+        guestRole2.setJurisdictionCd("J2");
+
+        AuthUserRealizedRole nonGuestRole = new AuthUserRealizedRole();
+        nonGuestRole.setRoleGuestInd("N");
+        nonGuestRole.setProgAreaCd("PA3");
+        nonGuestRole.setJurisdictionCd("J3");
+
+        AuthUtil.authUserRealizedRoleCollection = Arrays.asList(guestRole1, guestRole2, nonGuestRole);
+
+        // Mock PAJ hash list responses
+        when(progAreaJurisdictionUtil.getPAJHashList("PA1", "J1")).thenReturn(Arrays.asList(1L, 2L));
+        when(progAreaJurisdictionUtil.getPAJHashList("PA2", "J2")).thenReturn(Arrays.asList(3L, 4L));
+        when(progAreaJurisdictionUtil.getPAJHashList("PA3", "J3")).thenReturn(Arrays.asList(5L, 6L));
+
+        // Execute
+        String result = queryHelper.getHashedPAJList(true);
+
+        // Verify
+        assertEquals("", result);
+    }
+
+    @Test
+    void getHashedPAJList_WithNonGuestRoles_ReturnsCorrectList() throws DataProcessingException {
+        // Setup
+        AuthUserRealizedRole guestRole = new AuthUserRealizedRole();
+        guestRole.setRoleGuestInd("Y");
+        guestRole.setProgAreaCd("PA1");
+        guestRole.setJurisdictionCd("J1");
+
+        AuthUserRealizedRole nonGuestRole1 = new AuthUserRealizedRole();
+        nonGuestRole1.setRoleGuestInd("N");
+        nonGuestRole1.setProgAreaCd("PA2");
+        nonGuestRole1.setJurisdictionCd("J2");
+
+        AuthUserRealizedRole nonGuestRole2 = new AuthUserRealizedRole();
+        nonGuestRole2.setRoleGuestInd("N");
+        nonGuestRole2.setProgAreaCd("PA3");
+        nonGuestRole2.setJurisdictionCd("J3");
+
+        AuthUtil.authUserRealizedRoleCollection = Arrays.asList(guestRole, nonGuestRole1, nonGuestRole2);
+
+        // Mock PAJ hash list responses
+        when(progAreaJurisdictionUtil.getPAJHashList("PA1", "J1")).thenReturn(Arrays.asList(1L, 2L));
+        when(progAreaJurisdictionUtil.getPAJHashList("PA2", "J2")).thenReturn(Arrays.asList(3L, 4L));
+        when(progAreaJurisdictionUtil.getPAJHashList("PA3", "J3")).thenReturn(Arrays.asList(5L, 6L));
+
+        // Execute
+        String result = queryHelper.getHashedPAJList(false);
+
+        // Verify
+        assertEquals("1, 2, 3, 4, 5, 6", result);
+    }
+
+
+    @Test
+    void getHashedPAJList_WithNonLongPAJHashList_HandlesGracefully() throws DataProcessingException {
+        // Setup
+        AuthUserRealizedRole role = new AuthUserRealizedRole();
+        role.setRoleGuestInd("N");
+        role.setProgAreaCd("PA1");
+        role.setJurisdictionCd("J1");
+
+        AuthUtil.authUserRealizedRoleCollection = List.of(role);
+
+        // Mock PAJ hash list response with non-Long objects
+        Collection<Object> pajCds = Arrays.asList("not a long", 123, 456L);
+        when(progAreaJurisdictionUtil.getPAJHashList("PA1", "J1")).thenReturn(pajCds);
+
+        // Execute
+        String result = queryHelper.getHashedPAJList(false);
+
+        // Verify
+        assertEquals("456", result);
     }
 }
