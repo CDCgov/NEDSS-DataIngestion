@@ -39,6 +39,9 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.group-id-edx}")
     private String groupIdEdx;
 
+    @Value("${spring.kafka.max-poll-record}")
+    private Integer maxPollRecord;
+
     private Map<String, Object> baseConsumerConfigs(String groupId) {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -47,10 +50,10 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
         config.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1024 * 1024); // Fetch at least 1MB of data
-        config.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 500); // Wait up to 500ms for data
+        config.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10000); // Wait up to 500ms for data
         config.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10 * 1024 * 1024); // Fetch up to 10MB per partition
-        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 500); // Max 500 records per poll
-        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 600000); // Allow 5 minutes for processing
+        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecord); // Max 500 records per poll
+        //config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000); // Allow 5 minutes for processing
         config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000); // 30-second session timeout
         config.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000); // Heartbeat every 10 seconds
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false); // Manual commit
@@ -65,9 +68,20 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(createConsumerFactory(groupId));
         factory.setConcurrency(thread);
+        factory.setBatchListener(true);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
+
+    private ConcurrentKafkaListenerContainerFactory<String, String> createContainerFactoryNonBatch(String groupId) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(createConsumerFactory(groupId));
+        factory.setConcurrency(1); // Usually, DLTs are handled serially
+        factory.setBatchListener(false);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        return factory;
+    }
+
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryStep1() {
@@ -88,4 +102,15 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryStep4() {
         return createContainerFactory(groupIdEdx);
     }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryDltStep1() {
+        return createContainerFactoryNonBatch("dlt-step-1");
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryDltStep2() {
+        return createContainerFactoryNonBatch("dlt-step-2");
+    }
+
 }

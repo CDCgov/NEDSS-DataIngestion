@@ -7,15 +7,13 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleAlgorothmManagerDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.implementation.person.base.ProviderMatchingBaseService;
 import gov.cdc.dataprocessing.service.interfaces.person.IProviderMatchingService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,38 +23,16 @@ import java.util.List;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class ProviderMatchingService extends ProviderMatchingBaseService implements IProviderMatchingService {
-    private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingService.class); // NOSONAR
 
     public ProviderMatchingService(
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService,
+            CachingValueDpDpService cachingValueDpService,
             PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
 
     @SuppressWarnings("java:S3776")
@@ -64,8 +40,8 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
         Collection<EdxEntityMatchDto> coll = new ArrayList<>();
         EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
-        String DET_MSG_ENTITY_EXISTS_SUCCESS = "Provider entity found with entity uid : ";
-        String DET_MSG_ENTITY_EXISTS_FAIL_NEW = "Provider not found. New Provider created with person uid : ";
+        String successMsg = "Provider entity found with entity uid : ";
+        String failMsg = "Provider not found. New Provider created with person uid : ";
         // creating new localID DT for
         // local identifier
         EdxEntityMatchDto theEdxEntityMatchDto = null;
@@ -79,7 +55,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             EdxEntityMatchDto edxEntityMatchingDT = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, localId);
             if (edxEntityMatchingDT != null && edxEntityMatchingDT.getEntityUid() != null) {
                 edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
+                edxActivityDetailLogDto.setComment(successMsg + edxEntityMatchingDT.getEntityUid());
                 edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                 edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                 edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
@@ -97,11 +73,11 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         // Matching the Identifier (i.e. NPI)
         String identifier;
         int identifierHshCd = 0;
-        List identifierList ;
+        List<String> identifierList ;
         identifierList = getIdentifier(personContainer);
         if (identifierList != null && !identifierList.isEmpty()) {
-            for (Object o : identifierList) {
-                identifier = (String) o;
+            for (String o : identifierList) {
+                identifier = o;
                 if (identifier != null) {
                     identifier = identifier.toUpperCase();
                     identifierHshCd = identifier.hashCode();
@@ -116,7 +92,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                         }
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
+                    edxActivityDetailLogDto.setComment(successMsg + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                     edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                     edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
@@ -152,7 +128,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                         }
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
+                    edxActivityDetailLogDto.setComment(successMsg + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                     edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                     edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
@@ -178,7 +154,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
                     }
                 }
                 edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS + edxEntityMatchingDT.getEntityUid());
+                edxActivityDetailLogDto.setComment(successMsg + edxEntityMatchingDT.getEntityUid());
                 edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
                 edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
                 edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
@@ -231,7 +207,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         }
         // returnung the entity Uid which is just created
         edxActivityDetailLogDto.setRecordId(String.valueOf(entityUid));
-        edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_FAIL_NEW + edxActivityDetailLogDto.getRecordId());
+        edxActivityDetailLogDto.setComment(failMsg + edxActivityDetailLogDto.getRecordId());
         edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Provider));
         edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
         edxActivityDetailLogDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));

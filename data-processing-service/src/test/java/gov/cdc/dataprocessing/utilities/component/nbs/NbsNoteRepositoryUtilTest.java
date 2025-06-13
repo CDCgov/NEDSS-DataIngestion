@@ -2,8 +2,8 @@ package gov.cdc.dataprocessing.utilities.component.nbs;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsNoteDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsNoteJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsNoteRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 
 class NbsNoteRepositoryUtilTest {
     @Mock
-    private NbsNoteRepository nbsNoteRepository;
+    private NbsNoteJdbcRepository nbsNoteRepository;
     @InjectMocks
     private NbsNoteRepositoryUtil nbsNoteRepositoryUtil;
     @Mock
@@ -54,7 +54,7 @@ class NbsNoteRepositoryUtilTest {
 
         nbsNoteRepositoryUtil.storeNotes(uid, noteCol);
 
-        verify(nbsNoteRepository, times(1)).save(any());
+        verify(nbsNoteRepository, times(1)).mergeNbsNote(any());
     }
 
 }

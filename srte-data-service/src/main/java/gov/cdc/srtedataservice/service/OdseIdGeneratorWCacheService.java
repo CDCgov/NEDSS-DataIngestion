@@ -2,6 +2,7 @@ package gov.cdc.srtedataservice.service;
 
 import gov.cdc.srtedataservice.cache_model.LocalUidCacheModel;
 import gov.cdc.srtedataservice.constant.LocalIdClass;
+import gov.cdc.srtedataservice.exception.DataProcessingException;
 import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.model.dto.LocalUidGeneratorDto;
 import gov.cdc.srtedataservice.model.dto.LocalUidModel;
@@ -26,11 +27,11 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
     }
 
     @Transactional
-    public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
+    public LocalUidModel getValidLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         return createNewLocalUid(localIdClass, gaApplied);
     }
 
-    private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws RtiCacheException {
+    private LocalUidModel createNewLocalUid(LocalIdClass localIdClass, boolean gaApplied) throws DataProcessingException {
         LocalUidGeneratorDto localId = fetchLocalId(localIdClass);
 
 
@@ -43,7 +44,7 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
         return localUidModel;
     }
 
-    private LocalUidGeneratorDto fetchLocalId(LocalIdClass localIdClass) throws RtiCacheException {
+    private LocalUidGeneratorDto fetchLocalId(LocalIdClass localIdClass) throws DataProcessingException {
         try {
             Optional<LocalUidGenerator> localUidOpt = localUidGeneratorRepository.findByIdForUpdate(localIdClass.name());
             if (localUidOpt.isPresent()) {
@@ -61,10 +62,10 @@ public class OdseIdGeneratorWCacheService implements IOdseIdGeneratorWCacheServi
 
                 return localId;
             } else {
-                throw new RtiCacheException("Local UID not found for class: " + localIdClass.name());
+                throw new DataProcessingException("Local UID not found for class: " + localIdClass.name());
             }
         } catch (Exception e) {
-            throw new RtiCacheException("Error fetching local UID for class: " + localIdClass.name(), e);
+            throw new DataProcessingException("Error fetching local UID for class: " + localIdClass.name(), e);
         }
     }
 }

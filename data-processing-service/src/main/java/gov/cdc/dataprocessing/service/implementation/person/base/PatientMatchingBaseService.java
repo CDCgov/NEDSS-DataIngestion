@@ -16,7 +16,7 @@ import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.model.person.PersonId;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -34,28 +34,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class PatientMatchingBaseService extends MatchingBaseService{
     private static final Logger logger = LoggerFactory.getLogger(PatientMatchingBaseService.class);
 
@@ -63,9 +42,9 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService,
+            CachingValueDpDpService cachingValueDpService,
             PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
 
     @SuppressWarnings("java:S125")
@@ -90,7 +69,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                 this.updateWithRevision(personVO, personType);
             }
 
-            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().length() == 0)
+            if (personVO.getThePersonDto().getLocalId() == null || personVO.getThePersonDto().getLocalId().trim().isEmpty())
             {
                 mprPersonUid = personVO.getThePersonDto().getPersonParentUid();
                 mprPersonVO = getPatientRepositoryUtil().loadPerson(mprPersonUid);
@@ -98,23 +77,8 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             }
         }
 
-
         personUid = this.setPersonInternal(personVO, NBSBOLookup.PATIENT, businessTriggerCd, personType);
 
-        /*
-        // NOTE: SHOULD NOT HIT THIS ONE EITHER
-        if (personVO.getThePersonDto() != null && (personVO.getThePersonDto().getElectronicInd() != null
-                && !personVO.getThePersonDto().getElectronicInd().equals(NEDSSConstant.ELECTRONIC_IND_ELR)))
-        {
-            // ldf code
-            // begin
-//                LDFHelper ldfHelper = LDFHelper.getInstance();
-//                ldfHelper.setLDFCollection(personVO.getTheStateDefinedFieldDataDTCollection(), personVO.getLdfUids(),
-//                        NEDSSConstant.PATIENT_LDF, null, personUid, nbsSecurityObj);
-        }
-        */
-
-        // ldf code end
         return personUid;
     }
 
@@ -180,11 +144,9 @@ public class PatientMatchingBaseService extends MatchingBaseService{
             if (personVO.isItNew()) {
                 var res =   getPatientRepositoryUtil().createPerson(personVO);
                 personUID = res.getPersonUid();
-                logger.debug(" EntityControllerEJB.setProvider() Person Created");
             } else {
                 if (!personVO.isNewPersonCreated()) {
                     getPatientRepositoryUtil().updateExistingPerson(personVO);
-                    logger.debug(" EntityControllerEJB.setProvider() Person Updated");
                 }
                 personUID = personVO.getThePersonDto()
                         .getPersonUid();
@@ -212,7 +174,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         Long mprUID = null;
         if(newRevision == null)
         {
-            throw new DataProcessingException("Please provide a not null person object, newRevision is: "+ newRevision);
+            throw new DataProcessingException("Please provide a not null person object, newRevision is Null");
         }
         else
         {
@@ -230,9 +192,15 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
 
         //Retrieve a mpr with the mprUID
-        PersonContainer mpr = getPatientRepositoryUtil().loadPerson(mprUID);
-
-        logger.debug("mpr is: {}", mpr);
+        PersonContainer mpr;
+        if (newRevision.isNewPersonCreated()) {
+            mpr = newRevision.deepClone();
+            mpr.setRole(null);
+            mpr.setPatientMatchedFound(null);
+        }
+        else {
+            mpr = getPatientRepositoryUtil().loadPerson(mprUID);
+        }
 
         if(mpr != null) //With the MPR, update...
         {
@@ -385,11 +353,6 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     while (personNameIterator.hasNext())
                     {
                         PersonNameDto personNameDto =  personNameIterator.next();
-                        if (personNameDto.getNmUseCd() == null)
-                        {
-                            String Message = "personNameDT.getNmUseCd() is null";
-                            logger.debug(Message);
-                        }
                         if (personNameDto.getNmUseCd() != null
                                 && personNameDto.getNmUseCd().equalsIgnoreCase("L")
                                 && personNameDto.getRecordStatusCd() != null
@@ -398,12 +361,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                             if (asofDate == null
                                     || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) {
                                 if (personNameDto.getLastNm() != null
-                                        && !personNameDto.getLastNm().trim().equals("")
+                                        && !personNameDto.getLastNm().trim().isEmpty()
                                         && personNameDto.getFirstNm() != null
-                                        && !personNameDto.getFirstNm().trim().equals("")
+                                        && !personNameDto.getFirstNm().trim().isEmpty()
                                         && personDto.getBirthTime() != null
                                         && personDto.getCurrSexCd() != null
-                                        && !personDto.getCurrSexCd().trim().equals("")
+                                        && !personDto.getCurrSexCd().trim().isEmpty()
                                 )
                                 {
                                     namedobcursexStr = personNameDto.getLastNm()
@@ -432,12 +395,12 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                                         Timestamp asofDate, String namedobcursexStr) {
         String caret = "^";
         if (personNameDto.getLastNm() != null
-                && !personNameDto.getLastNm().trim().equals("")
+                && !personNameDto.getLastNm().trim().isEmpty()
                 && personNameDto.getFirstNm() != null
-                && !personNameDto.getFirstNm().trim().equals("")
+                && !personNameDto.getFirstNm().trim().isEmpty()
                 && personDto.getBirthTime() != null
                 && personDto.getCurrSexCd() != null
-                && !personDto.getCurrSexCd().trim().equals("")
+                && !personDto.getCurrSexCd().trim().isEmpty()
         )
         {
             namedobcursexStr = personNameDto.getLastNm()
@@ -452,7 +415,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         return namedobcursexStr;
     }
 
-    protected void setPersonHashCdPatient(PersonContainer personContainer) throws DataProcessingException {
+    protected void setPersonHashCdPatient(PersonContainer personContainer)   {
         long personUid = personContainer.getThePersonDto().getPersonParentUid();
         getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
         try {
@@ -522,7 +485,7 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
 
         if (!personList.isEmpty()) {
-            revision = personList.get(0);
+            revision = personList.getFirst();
         }
 
         if (mpr != null)
@@ -630,20 +593,16 @@ public class PatientMatchingBaseService extends MatchingBaseService{
         }
     }
 
-    protected void setPersonHashCdNok(PersonContainer personContainer) throws DataProcessingException {
+    protected void setPersonHashCdNok(PersonContainer personContainer)   {
+        long personUid = personContainer.getThePersonDto().getPersonParentUid();
+        getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
         try {
-            long personUid = personContainer.getThePersonDto().getPersonParentUid();
-            getEdxPatientMatchRepositoryUtil().deleteEdxPatientMatchDTColl(personUid);
-            try {
-                if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
-                    personContainer.getThePersonDto().setPersonUid(personUid);
-                    setPersonToMatchEntityNok(personContainer);
-                }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
+            if(personContainer.getThePersonDto().getRecordStatusCd().equalsIgnoreCase(NEDSSConstant.RECORD_STATUS_ACTIVE)){
+                personContainer.getThePersonDto().setPersonUid(personUid);
+                setPersonToMatchEntityNok(personContainer);
             }
         } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -712,13 +671,13 @@ public class PatientMatchingBaseService extends MatchingBaseService{
                     PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
                     if (postLocDT != null
                             && (postLocDT.getStreetAddr1() != null
-                            && !postLocDT.getStreetAddr1().equals(""))
+                            && !postLocDT.getStreetAddr1().isEmpty())
                             && (postLocDT.getCityDescTxt() != null
-                            && !postLocDT.getCityDescTxt().equals(""))
+                            && !postLocDT.getCityDescTxt().isEmpty())
                             && (postLocDT.getStateCd() != null
-                            && !postLocDT.getStateCd().equals(""))
+                            && !postLocDT.getStateCd().isEmpty())
                             && (postLocDT.getZipCd() != null
-                            && !postLocDT.getZipCd().equals("")))
+                            && !postLocDT.getZipCd().isEmpty()))
                     {
                         nameAddStr = carrot + postLocDT.getStreetAddr1() + carrot + postLocDT.getCityDescTxt() + carrot
                                 + postLocDT.getStateCd() + carrot + postLocDT.getZipCd();

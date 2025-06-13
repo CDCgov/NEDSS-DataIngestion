@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
@@ -49,7 +48,7 @@ class CdaPhcProcessorTest {
         Mockito.reset(authUtil);
     }
     @Test
-    void testSetStandardNBSCaseAnswerVals_Success() throws DataProcessingException {
+    void testSetStandardNBSCaseAnswerVals_Success()  {
         // Arrange
         when(phcDT.getPublicHealthCaseUid()).thenReturn(1L);
         when(phcDT.getAddTime()).thenReturn(new Timestamp(System.currentTimeMillis()));
@@ -80,7 +79,7 @@ class CdaPhcProcessorTest {
         when(phcDT.getPublicHealthCaseUid()).thenThrow(new RuntimeException("Test exception"));
 
         // Act & Assert
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             CdaPhcProcessor.setStandardNBSCaseAnswerVals(phcDT, nbsCaseAnswerDT);
         });
 

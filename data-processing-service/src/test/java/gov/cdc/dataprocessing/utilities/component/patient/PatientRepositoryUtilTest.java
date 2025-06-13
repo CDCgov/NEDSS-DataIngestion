@@ -12,6 +12,9 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EntityIdJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.PersonJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.RoleJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
@@ -20,12 +23,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonEthnicGroup;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonName;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.PersonRace;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonEthnicRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonNameRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRaceRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.entity.IEntityLocatorParticipationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
@@ -43,7 +41,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -52,21 +49,17 @@ import static org.mockito.Mockito.*;
 
 class PatientRepositoryUtilTest {
     @Mock
-    private PersonRepository personRepository;
+    private PersonJdbcRepository personRepository;
     @Mock
     private EntityRepositoryUtil entityRepositoryUtil;
-    @Mock
-    private PersonNameRepository personNameRepository;
-    @Mock
-    private PersonRaceRepository personRaceRepository;
+
     @Mock
     private DataModifierReposJdbc dataModifierReposJdbc;
+
     @Mock
-    private PersonEthnicRepository personEthnicRepository;
+    private EntityIdJdbcRepository entityIdRepository;
     @Mock
-    private EntityIdRepository entityIdRepository;
-    @Mock
-    private RoleRepository roleRepository;
+    private RoleJdbcRepository roleRepository;
     @Mock
     private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
@@ -76,8 +69,11 @@ class PatientRepositoryUtilTest {
     @Mock
     AuthUtil authUtil;
 
+    @Mock
+    UidPoolManager uidPoolManager;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
@@ -85,33 +81,46 @@ class PatientRepositoryUtilTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
+
         authUtil.setGlobalAuthUser(userInfo);
     }
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(personRepository, entityRepositoryUtil, personNameRepository, personRaceRepository,
-                personEthnicRepository, entityIdRepository, roleRepository,
+        Mockito.reset(personRepository, entityRepositoryUtil, entityIdRepository, roleRepository,
                 odseIdGeneratorService, entityLocatorParticipationService, authUtil, dataModifierReposJdbc);
     }
 
     @Test
     void updateExistingPersonEdxIndByUid_Test() {
-        when(personRepository.findById(10L)).thenReturn(Optional.of(new Person()));
+        when(dataModifierReposJdbc.updateExistingPersonEdxIndByUid(10L)).thenReturn(1);
         var res = patientRepositoryUtil.updateExistingPersonEdxIndByUid(10L);
         assertNotNull(res);
     }
 
     @Test
     void findExistingPersonByUid_Null() {
-        when(personRepository.findById(10L)).thenReturn(Optional.empty());
+        when(personRepository.selectByPersonUid(10L)).thenReturn(null);
         var res = patientRepositoryUtil.findExistingPersonByUid(10L);
         assertNull(res);
     }
 
     @Test
     void findExistingPersonByUid_Test() {
-        when(personRepository.findById(10L)).thenReturn(Optional.of(new Person()));
+        when(personRepository.selectByPersonUid(10L)).thenReturn(new Person());
         var res = patientRepositoryUtil.findExistingPersonByUid(10L);
         assertNotNull(res);
     }
@@ -225,7 +234,7 @@ class PatientRepositoryUtilTest {
         name.setNmSuffix("TEST");
         name.setPersonNameSeq(1);
         nameCol.add(name);
-        when(personNameRepository.findBySeqIdByParentUid(10L)).thenReturn(nameCol);
+        when(personRepository.findBySeqIdByParentUid(10L)).thenReturn(nameCol);
 
 
         var patRaceCol = new ArrayList<PersonRaceDto>();
@@ -272,9 +281,11 @@ class PatientRepositoryUtilTest {
         roleCol.add(role);
         perCon.setTheRoleDtoCollection(roleCol);
 
+        when(personRepository.selectByPersonUid(any())).thenReturn(new Person(perCon.getThePersonDto(), "UTC"));
+
         patientRepositoryUtil.updateExistingPerson(perCon);
 
-        verify(personRepository, times(1)).save(any());
+        verify(personRepository, times(2)).updatePerson(any());
 
 
     }
@@ -286,7 +297,7 @@ class PatientRepositoryUtilTest {
         var perCol = new ArrayList<Person>();
         var per = new Person();
         perCol.add(per);
-        when(personRepository.findByParentUid(parentUid)).thenReturn(Optional.of(perCol));
+        when(personRepository.findPersonsByParentUid(parentUid)).thenReturn(perCol);
 
         var res = patientRepositoryUtil.findPersonByParentUid(parentUid);
 
@@ -299,27 +310,27 @@ class PatientRepositoryUtilTest {
     void loadPerson_Test() {
         Long uid = 10L;
         var person = new Person();
-        when(personRepository.findById(uid)).thenReturn(Optional.of(person));
+        when(personRepository.findByPersonUid(uid)).thenReturn(person);
 
         var perNameCol = new ArrayList<PersonName>();
         var perName = new PersonName();
         perNameCol.add(perName);
-        when(personNameRepository.findByParentUid(uid)).thenReturn(Optional.of(perNameCol));
+        when(personRepository.findPersonNameByPersonUid(uid)).thenReturn(perNameCol);
 
         var perRaceCol = new ArrayList<PersonRace>();
         var perRace = new PersonRace();
         perRaceCol.add(perRace);
-        when(personRaceRepository.findByParentUid(uid)).thenReturn(Optional.of(perRaceCol));
+        when(personRepository.findPersonRaceByPersonUid(uid)).thenReturn(perRaceCol);
 
         var perEthCol = new ArrayList<PersonEthnicGroup>();
         var perEth = new PersonEthnicGroup();
         perEthCol.add(perEth);
-        when(personEthnicRepository.findByParentUid(uid)).thenReturn(Optional.of(perEthCol));
+        when(personRepository.findPersonEthnicByPersonUid(uid)).thenReturn(perEthCol);
 
         var entiCol =new ArrayList<EntityId>();
         var enti = new EntityId();
         entiCol.add(enti);
-        when(entityIdRepository.findByParentUid(uid)).thenReturn(Optional.of(entiCol));
+        when(entityIdRepository.findEntityIds(uid)).thenReturn(entiCol);
 
         var loCol = new ArrayList<EntityLocatorParticipation>();
         var lo = new EntityLocatorParticipation();
@@ -329,7 +340,7 @@ class PatientRepositoryUtilTest {
         var rolCol = new ArrayList<Role>();
         var role =new Role();
         rolCol.add(role);
-        when(roleRepository.findByParentUid(uid)).thenReturn(Optional.of(rolCol));
+        when(roleRepository.findRolesByParentUid(uid)).thenReturn(rolCol);
 
         var res = patientRepositoryUtil.loadPerson(uid);
 
@@ -345,7 +356,7 @@ class PatientRepositoryUtilTest {
         var uid = 10L;
         var ids = new ArrayList<Long>();
         ids.add(10L);
-        when(personRepository.findPatientParentUidByUid(uid)).thenReturn(Optional.of(ids));
+        when(personRepository.findMprUid(uid)).thenReturn(uid);
 
         var res = patientRepositoryUtil.findPatientParentUidByUid(uid);
 
@@ -356,7 +367,7 @@ class PatientRepositoryUtilTest {
     @Test
     void findPatientParentUidByUid_Test_2() {
         var uid = 10L;
-        when(personRepository.findPatientParentUidByUid(uid)).thenReturn(Optional.empty());
+        when(personRepository.findMprUid(uid)).thenReturn(null);
 
         var res = patientRepositoryUtil.findPatientParentUidByUid(uid);
 
@@ -365,7 +376,7 @@ class PatientRepositoryUtilTest {
     }
 
     @Test
-    void preparePersonNameBeforePersistence_Test() throws DataProcessingException {
+    void preparePersonNameBeforePersistence_Test()  {
         PersonContainer personContainer = new PersonContainer();
         var perNameCol = new ArrayList<PersonNameDto>();
         var perName = new PersonNameDto();
@@ -400,7 +411,7 @@ class PatientRepositoryUtilTest {
         var personRaceCol = new ArrayList<PersonRace>();
         personRaceCol.add(new PersonRace());
         personRaceCol.add(new PersonRace());
-        when(personRaceRepository.findByParentUid(11L)).thenReturn(Optional.of(personRaceCol));
+        when(personRepository.findByPersonRaceUid(11L)).thenReturn(personRaceCol);
 
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
@@ -418,7 +429,7 @@ class PatientRepositoryUtilTest {
 
 
         doThrow(new RuntimeException("TEST")).when(dataModifierReposJdbc).deletePersonRaceByUid(eq(10L), any());
-        when(personRaceRepository.findByParentUid(11L)).thenThrow(new RuntimeException("TEST"));
+        when(personRepository.findByPersonRaceUid(11L)).thenThrow(new RuntimeException("TEST"));
 
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
@@ -436,12 +447,12 @@ class PatientRepositoryUtilTest {
 
         var personRaceCol = new ArrayList<PersonRace>();
         personRaceCol.add(new PersonRace());
-        when(personRaceRepository.findByParentUid(11L)).thenReturn(Optional.of(personRaceCol));
+        when(personRepository.findByPersonRaceUid(11L)).thenReturn(personRaceCol);
 
 
         patientRepositoryUtil.deleteInactivePersonRace(retainingRaceCodeList, patientUid, parentUid);
 
-        verify(dataModifierReposJdbc, times(0)).deletePersonRaceByUid(eq(11L),any());
+        verify(dataModifierReposJdbc, times(1)).deletePersonRaceByUid(eq(11L),any());
     }
 
 

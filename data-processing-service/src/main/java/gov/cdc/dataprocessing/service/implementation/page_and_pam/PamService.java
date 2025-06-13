@@ -22,8 +22,6 @@ import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocMod
 import gov.cdc.dataprocessing.utilities.component.nbs.NbsNoteRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.participation.ParticipationRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,30 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class PamService implements IPamService {
-    private static final Logger logger = LoggerFactory.getLogger(PamService.class);
 
     private final IInvestigationService investigationService;
     private final PatientRepositoryUtil patientRepositoryUtil;
@@ -116,7 +92,7 @@ public class PamService implements IPamService {
     }
 
 
-    @SuppressWarnings({"java:S1135", "java:S3776", "java:S1871"})
+    @SuppressWarnings({"java:S6541","java:S1135", "java:S3776", "java:S1871"})
     private Long setPamProxy(PamProxyContainer pamProxyVO) throws DataProcessingException {
 
         PublicHealthCaseDto phcDT = pamProxyVO.getPublicHealthCaseContainer()
@@ -154,8 +130,6 @@ public class PamService implements IPamService {
                     nndActivityLogDT.setLocalId("N/A");
                 }
                 //catch & store auto resend notifications exceptions in NNDActivityLog table
-                //TODO: LOGGING
-                //nndMessageSenderHelper.persistNNDActivityLog(nndActivityLogDT);
                 throw new DataProcessingException(e.getMessage(), e);
             }
         }
@@ -245,14 +219,13 @@ public class PamService implements IPamService {
                     } // end of else
                 }
             } // end of for
-        } // end of if(pamProxyVO.getThePersonVOCollection() != null)
+        }
 
         if (pamProxyVO.getPublicHealthCaseContainer() != null) {
             String businessTriggerCd = null;
             PublicHealthCaseContainer publicHealthCaseContainer = pamProxyVO.getPublicHealthCaseContainer();
             publicHealthCaseContainer.getThePublicHealthCaseDto().setPamCase(true);
-            //TODO: PAM HISTORY
-//                nbsHistoryDAO.getPamHistory(pamProxyVO.getPublicHealthCaseContainer());
+
             PublicHealthCaseDto publicHealthCaseDto = publicHealthCaseContainer.getThePublicHealthCaseDto();
             RootDtoInterface rootDTInterface = publicHealthCaseDto;
             String businessObjLookupName = NBSBOLookup.INVESTIGATION;
@@ -271,13 +244,11 @@ public class PamService implements IPamService {
                     .getThePublicHealthCaseDto().getPublicHealthCaseUid();
             actualUid = publicHealthCaseService.setPublicHealthCase(
                     publicHealthCaseContainer);
-            logger.debug("actualUid.intValue() = {}", actualUid.intValue());
             if (falsePublicHealthCaseUid.intValue() < 0) {
                 uidService.setFalseToNewForPam(pamProxyVO, falsePublicHealthCaseUid, actualUid);
                 publicHealthCaseContainer.getThePublicHealthCaseDto()
                         .setPublicHealthCaseUid(actualUid);
             }
-            logger.debug("falsePublicHealthCaseUid.intValue() = {}", falsePublicHealthCaseUid.intValue());
         }
         if( pamProxyVO.isUnsavedNote() && pamProxyVO.getNbsNoteDTColl()!=null && !pamProxyVO.getNbsNoteDTColl().isEmpty()){
             nbsNoteRepositoryUtil.storeNotes(actualUid, pamProxyVO.getNbsNoteDTColl());
@@ -369,18 +340,7 @@ public class PamService implements IPamService {
                 participationRepositoryUtil.storeParticipation(participationDT);
             }
         }
-        //TODO: NBS PAM
-//            if (pamProxyVO.getPamVO() != null && pamProxyVO.isItNew()) {
-//                pamRootDAO.insertPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
-//            } else if (pamProxyVO.getPamVO() != null && pamProxyVO.isItDirty()) {
-//                pamRootDAO.editPamVO(pamProxyVO.getPamVO(), pamProxyVO.getPublicHealthCaseContainer());
-//
-//            }
-//            else
-//                logger.error("There is error in setPamProxyVO as pamProxyVO.getPamVO() is null");
-//
-//            logger.debug("the actual Uid for PamProxy Publichealthcase is "
-//                    + actualUid);
+
         return actualUid;
     }
 

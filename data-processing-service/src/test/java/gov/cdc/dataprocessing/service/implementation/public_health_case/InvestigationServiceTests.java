@@ -21,7 +21,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_
 import gov.cdc.dataprocessing.repository.nbs.srte.model.LabTest;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
@@ -90,7 +90,7 @@ class InvestigationServiceTests {
     @Mock
     private IContactSummaryService contactSummaryService;
     @Mock
-    private CachingValueService cachingValueService;
+    private CachingValueDpDpService cachingValueDpService;
     @Mock
     private ILdfService ldfService;
     @Mock
@@ -278,7 +278,6 @@ class InvestigationServiceTests {
 
         verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(investigationUid);
         verify(observationRepositoryUtil, times(1)).loadObject(10006210L);
-        verify(retrieveSummaryService, times(1)).checkBeforeCreateAndStoreMessageLogDTCollection(any(), any());
 
     }
 
@@ -764,12 +763,12 @@ class InvestigationServiceTests {
 //        SrteCache.loinCodeWithComponentNameMap.put("TEST", "TEST");
 
 
-        when(cachingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
+        when(cachingValueDpService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
         var labLst = new ArrayList<LabTest>();
         var labTs = new LabTest();
         labLst.add(labTs);
         when(labTestRepository.findLabTestByLabIdAndLabTestCode(any(), eq("TEST"))).thenReturn(Optional.of(labLst));
-        when(cachingValueService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
+        when(cachingValueDpService.getCodeDescTxtForCd(any(), eq("TEST"))).thenReturn("TEST");
 
         when(cacheApiService.getSrteCacheString(anyString(), any())).thenReturn("TEST");
 
@@ -784,6 +783,6 @@ class InvestigationServiceTests {
 //        SrteCache.loinCodeWithComponentNameMap.clear();
 
 
-        verify(cachingValueService, times(2)).getCodeDescTxtForCd(any(), any());
+        verify(cachingValueDpService, times(2)).getCodeDescTxtForCd(any(), any());
     }
 }

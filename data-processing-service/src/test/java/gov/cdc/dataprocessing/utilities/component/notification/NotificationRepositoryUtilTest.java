@@ -10,9 +10,10 @@ import gov.cdc.dataprocessing.model.dto.notification.UpdatedNotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NotificationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.notification.NotificationRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -31,17 +32,15 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 class NotificationRepositoryUtilTest {
     @Mock
-    private NotificationRepository notificationRepository;
+    private NotificationJdbcRepository notificationRepository;
     @Mock
     private ActIdRepositoryUtil actIdRepositoryUtil;
     @Mock
@@ -61,14 +60,31 @@ class NotificationRepositoryUtilTest {
     @Mock
     AuthUtil authUtil;
 
+    @Mock
+    UidPoolManager uidPoolManager;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
         user.setAuthUserUid(1L);
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
+
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
 
         authUtil.setGlobalAuthUser(userInfo);
     }
@@ -85,7 +101,7 @@ class NotificationRepositoryUtilTest {
     void getNotificationContainer_Test(){
         Long uid = 10L;
         var noti = new Notification();
-        when(notificationRepository.findById(uid)).thenReturn(Optional.of(noti));
+        when(notificationRepository.findById(uid)).thenReturn(noti);
 
         var actIdCol = new ArrayList<ActIdDto>();
         var actId = new ActIdDto();
@@ -115,10 +131,10 @@ class NotificationRepositoryUtilTest {
     @Test
     void getNotificationContainer_Test_2(){
         Long uid = 10L;
-        when(notificationRepository.findById(uid)).thenReturn(Optional.empty());
+        when(notificationRepository.findById(uid)).thenReturn(new Notification());
 
         var res = notificationRepositoryUtil.getNotificationContainer(uid);
-        assertNull(res);
+        assertNotNull(res);
 
     }
 
@@ -196,7 +212,7 @@ class NotificationRepositoryUtilTest {
 
         notificationContainer.getTheNotificationDT().setNotificationUid(10L);
 
-        when(notificationRepository.findById(any())).thenReturn(Optional.of(new Notification(notificationContainer.getTheNotificationDT())));
+        when(notificationRepository.findById(any())).thenReturn(new Notification(notificationContainer.getTheNotificationDT()));
 
 
         var res = notificationRepositoryUtil.setNotification(notificationContainer);

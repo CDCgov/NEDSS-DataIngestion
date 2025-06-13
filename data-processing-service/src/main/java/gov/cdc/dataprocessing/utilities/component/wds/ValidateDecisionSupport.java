@@ -29,28 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class ValidateDecisionSupport {
     private static final Logger logger = LoggerFactory.getLogger(ValidateDecisionSupport.class);
     @Value("${service.timezone}")
@@ -78,11 +57,6 @@ public class ValidateDecisionSupport {
             isOverwrite = false; // NOSONAR
         }
         String dataLocation = metaData.getDataLocation();
-        /*
-         * String setMethodName = dataLocation.replaceAll("_", "");
-         * setMethodName = "SET"+ setMethodName.substring(
-         * setMethodName.indexOf(".")+1, setMethodName.length());
-         */
 
         String getMethodName = dataLocation.replaceAll("_", "");
         getMethodName = "GET" + getMethodName.substring(getMethodName.indexOf(".") + 1, getMethodName.length());
@@ -228,7 +202,7 @@ public class ValidateDecisionSupport {
         }
         pamVO.setPamAnswerDTMap(answerMap);
     }
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S135"})
     public  void processConfirmationMethodCodeDT(EdxRuleManageDto edxRuleManageDT, PublicHealthCaseContainer publicHealthCaseContainer, NbsQuestionMetadata metaData) {
         String behavior = edxRuleManageDT.getBehavior();
         boolean isOverwrite = false;
@@ -305,7 +279,7 @@ public class ValidateDecisionSupport {
                             ConfirmationMethodDto confirmDT =  cofirmIt.next();
                             if (confirmDT.getConfirmationMethodTime() != null)
                                 time = confirmDT.getConfirmationMethodTime();
-                            if (confirmDT.getConfirmationMethodCd() == null || confirmDT.getConfirmationMethodCd().trim().equals("")) {
+                            if (confirmDT.getConfirmationMethodCd() == null || confirmDT.getConfirmationMethodCd().trim().isEmpty()) {
                                 break;
                             } else {
                                 if (confirmDT.getConfirmationMethodCd().equals(code)) {
@@ -342,9 +316,9 @@ public class ValidateDecisionSupport {
                     else
                         setMethod.invoke(nbsObject, new BigDecimal(edxRuleManageDT.getDefaultStringValue()));
                 } else if (object.toString().equalsIgnoreCase("class java.lang.String")) {
-                    if (edxRuleManageDT.getDefaultStringValue() != null && !edxRuleManageDT.getDefaultStringValue().trim().equals(""))
+                    if (edxRuleManageDT.getDefaultStringValue() != null && !edxRuleManageDT.getDefaultStringValue().trim().isEmpty())
                         setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultStringValue());
-                    else if (edxRuleManageDT.getDefaultCommentValue() != null && !edxRuleManageDT.getDefaultCommentValue().trim().equals(""))
+                    else if (edxRuleManageDT.getDefaultCommentValue() != null && !edxRuleManageDT.getDefaultCommentValue().trim().isEmpty())
                         setMethod.invoke(nbsObject, edxRuleManageDT.getDefaultCommentValue());
                 } else if (object.toString().equalsIgnoreCase("class java.sql.Timestamp")) {
                     setMethod.invoke(nbsObject, StringUtils.stringToStrutsTimestamp(edxRuleManageDT.getDefaultStringValue()));
@@ -557,8 +531,9 @@ public class ValidateDecisionSupport {
                 && edxRuleManageDT.getDefaultStringValue().equals(
                 NEDSSConstant.USE_CURRENT_DATE))
         {
-            edxRuleManageDT.setDefaultStringValue(StringUtils
-                    .formatDate(TimeStampUtil.getCurrentTimeStamp(tz)));
+            var ts = StringUtils
+                    .formatDate(TimeStampUtil.getCurrentTimeStamp(tz));
+            edxRuleManageDT.setDefaultStringValue(ts);
         }
     }
 }

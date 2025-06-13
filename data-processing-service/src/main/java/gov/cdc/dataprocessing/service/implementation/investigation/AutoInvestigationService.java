@@ -25,7 +25,7 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvestigationService;
 import gov.cdc.dataprocessing.utilities.DynamicBeanBinding;
@@ -37,6 +37,7 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -45,39 +46,18 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHC_PHYSICIAN;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class AutoInvestigationService implements IAutoInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(AutoInvestigationService.class);
     private final ConditionCodeRepository conditionCodeRepository;
     private final ICacheApiService cacheApiService;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     private final ILookupService lookupService;
     @Value("${service.timezone}")
     private String tz = "UTC";
 
     public AutoInvestigationService(ConditionCodeRepository conditionCodeRepository,
-                                    ICacheApiService cacheApiService, ICatchingValueService catchingValueService, ILookupService lookupService) {
+                                    @Lazy ICacheApiService cacheApiService, ICatchingValueDpService catchingValueService, ILookupService lookupService) {
         this.conditionCodeRepository = conditionCodeRepository;
         this.cacheApiService = cacheApiService;
         this.catchingValueService = catchingValueService;
@@ -141,7 +121,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
                                              Collection<Object> entities,
-                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException{
+                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
         PersonContainer patientVO;
         boolean isOrgAsReporterOfPHCPartDT=false;
         boolean isPhysicianOfPHCDT=false;
@@ -270,10 +250,8 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.getThePublicHealthCaseDto().setLastChgTime(new java.sql.Timestamp(new Date().getTime()));
 
         phcVO.getThePublicHealthCaseDto().setPublicHealthCaseUid((long) (edxLabInformationDT.getNextUid() - 1));
-        //edxLabInformationDT.setNextUid(edxLabInformationDT.getNextUid());
         phcVO.getThePublicHealthCaseDto().setJurisdictionCd((observationVO.getTheObservationDto().getJurisdictionCd()));
         phcVO.getThePublicHealthCaseDto().setRptFormCmpltTime(observationVO.getTheObservationDto().getRptToStateTime());
-        //phcVO.getThePublicHealthCaseDto().setCaseClassCd(EdxELRConstant.ELR_CONFIRMED_CD);
 
         phcVO.getThePublicHealthCaseDto().setAddTime(TimeStampUtil.getCurrentTimeStamp(tz));
         phcVO.getThePublicHealthCaseDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());
@@ -282,7 +260,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         var res = conditionCodeRepository.findProgramAreaConditionCodeByConditionCode(edxLabInformationDT.getConditionCode());
         ConditionCodeWithPA programAreaVO = new ConditionCodeWithPA();
         if (res.isPresent()) {
-            programAreaVO = res.get().get(0);
+            programAreaVO = res.get().getFirst();
         }
         phcVO.getThePublicHealthCaseDto().setCd(programAreaVO.getConditionCd());
         phcVO.getThePublicHealthCaseDto().setProgAreaCd(programAreaVO.getStateProgAreaCode());
@@ -318,17 +296,14 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         phcVO.setItNew(true);
         phcVO.setItDirty(false);
 
-        try{
-            boolean isSTDProgramArea = cacheApiService.getSrteCacheBool(ObjectName.CHECK_PAI_FOR_STD_OR_HIV.name(), phcVO.getThePublicHealthCaseDto().getProgAreaCd());
-            if (isSTDProgramArea) {
-                CaseManagementDto caseMgtDT = new CaseManagementDto();
-                caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid());
-                caseMgtDT.setCaseManagementDTPopulated(true);
-                phcVO.setTheCaseManagementDto(caseMgtDT);
-            }
-        } catch(Exception ex){
-            throw new DataProcessingException("Unexpected exception setting CaseManagementDto to PHC -->" +ex);
+        boolean isSTDProgramArea = cacheApiService.getSrteCacheBool(ObjectName.CHECK_PAI_FOR_STD_OR_HIV.name(), phcVO.getThePublicHealthCaseDto().getProgAreaCd());
+        if (isSTDProgramArea) {
+            CaseManagementDto caseMgtDT = new CaseManagementDto();
+            caseMgtDT.setPublicHealthCaseUid(phcVO.getThePublicHealthCaseDto().getPublicHealthCaseUid());
+            caseMgtDT.setCaseManagementDTPopulated(true);
+            phcVO.setTheCaseManagementDto(caseMgtDT);
         }
+
 
         return phcVO;
     }
@@ -356,10 +331,10 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             {
 
                 List<ObsValueNumericDto> obsValueNumList = new ArrayList<>(obs.getTheObsValueNumericDtoCollection());
-                String value = obsValueNumList.get(0).getNumericUnitCd() == null
-                        ? String.valueOf(obsValueNumList.get(0).getNumericValue1())
-                        : obsValueNumList.get(0).getNumericValue1() + "^"
-                        + obsValueNumList.get(0).getNumericUnitCd();
+                String value = obsValueNumList.getFirst().getNumericUnitCd() == null
+                        ? String.valueOf(obsValueNumList.getFirst().getNumericValue1())
+                        : obsValueNumList.getFirst().getNumericValue1() + "^"
+                        + obsValueNumList.getFirst().getNumericUnitCd();
                 prePopMap.put(obs.getTheObservationDto().getCd(), value);
             }
             else if (obs.getTheObsValueDateDtoCollection() != null
@@ -368,7 +343,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
             {
                 List<ObsValueDateDto> obsValueDateList = new ArrayList<>(obs.getTheObsValueDateDtoCollection());
 
-                String value = StringUtils.formatDate(obsValueDateList.get(0).getFromTime());
+                String value = StringUtils.formatDate(obsValueDateList.getFirst().getFromTime());
                 prePopMap.put(obs.getTheObservationDto().getCd(), value);
             }
             else if (obs.getTheObsValueCodedDtoCollection() != null
@@ -377,18 +352,18 @@ public class AutoInvestigationService implements IAutoInvestigationService {
 
                 List<ObsValueCodedDto> obsValueCodeList = new ArrayList<>(obs.getTheObsValueCodedDtoCollection());
 
-                String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.get(0).getCode();
+                String key = obs.getTheObservationDto().getCd() + "$" + obsValueCodeList.getFirst().getCode();
                 if (fromPrePopMap.containsKey(key)) {
-                    prePopMap.put(key, obsValueCodeList.get(0).getCode());
+                    prePopMap.put(key, obsValueCodeList.getFirst().getCode());
                 } else if (fromPrePopMap.containsKey(obs.getTheObservationDto().getCd())) {
-                    prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.get(0).getCode());
+                    prePopMap.put(obs.getTheObservationDto().getCd(), obsValueCodeList.getFirst().getCode());
                 }
             }
             else if (obs.getTheObsValueTxtDtoCollection() != null && !obs.getTheObsValueTxtDtoCollection().isEmpty()
                     && fromPrePopMap.containsKey(obs.getTheObservationDto().getCd()))
             {
                 for (ObsValueTxtDto obsValueTxtDT : obs.getTheObsValueTxtDtoCollection()) {
-                    if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().equals("")
+                    if (obsValueTxtDT.getTxtTypeCd() == null || obsValueTxtDT.getTxtTypeCd().trim().isEmpty()
                             || obsValueTxtDT.getTxtTypeCd().equalsIgnoreCase("O")) {
                         prePopMap.put(obs.getTheObservationDto().getCd(), obsValueTxtDT.getValueTxt());
                         break;

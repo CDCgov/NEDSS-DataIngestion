@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.public_health_case;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.generic_helper.StateDefinedFieldDataDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
@@ -48,7 +47,7 @@ class LdfServiceTests {
     }
 
     @Test
-    void getLDFCollection_Success() throws DataProcessingException {
+    void getLDFCollection_Success()  {
         long  busObjUid = 10L;
         String condCode = "COND";
 
@@ -69,7 +68,7 @@ class LdfServiceTests {
         when(customRepository.getLdfCollection(any(), any(), any())).thenThrow(
                 new RuntimeException("TEST")
         );
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             ldfService.getLDFCollection(busObjUid, condCode);
         });
 

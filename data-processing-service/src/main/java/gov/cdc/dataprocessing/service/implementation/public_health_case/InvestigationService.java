@@ -6,7 +6,6 @@ import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
-import gov.cdc.dataprocessing.model.container.interfaces.ReportSummaryInterface;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
@@ -23,7 +22,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.Observation_
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.LabTestRepository;
 import gov.cdc.dataprocessing.service.implementation.act.ActRelationshipService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.material.IMaterialService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.observation.IObservationSummaryService;
@@ -42,37 +41,18 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.*;
 
+import static gov.cdc.dataprocessing.constant.data_field.PERSON_PARENT_UID_DB;
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LABORATORY_UID;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class InvestigationService implements IInvestigationService {
     private static final Logger logger = LoggerFactory.getLogger(InvestigationService.class);
 
@@ -98,7 +78,7 @@ public class InvestigationService implements IInvestigationService {
     private static final String LAB_EVENT_LIST = "labEventList";
 
     private final ICacheApiService cacheApiService;
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
     @Value("${service.timezone}")
     private String tz = "UTC";
     public InvestigationService(PublicHealthCaseRepositoryUtil publicHealthCaseRepositoryUtil,
@@ -115,7 +95,7 @@ public class InvestigationService implements IInvestigationService {
                                 Observation_SummaryRepository observationSummaryRepository,
                                 IContactSummaryService contactSummaryService,
                                 ILdfService ldfService,
-                                LabTestRepository labTestRepository, ICacheApiService cacheApiService, ICatchingValueService catchingValueService) {
+                                LabTestRepository labTestRepository, @Lazy ICacheApiService cacheApiService, ICatchingValueDpService catchingValueService) {
         this.publicHealthCaseRepositoryUtil = publicHealthCaseRepositoryUtil;
         this.organizationRepositoryUtil = organizationRepositoryUtil;
         this.patientRepositoryUtil = patientRepositoryUtil;
@@ -150,9 +130,6 @@ public class InvestigationService implements IInvestigationService {
              var invVO = getInvestigationProxy(investigationUID);
             updateAutoResendNotificationsAsync(invVO);
         }
-        if(reportSumVOCollection!=null && !reportSumVOCollection.isEmpty()){
-            retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(investigationUID, reportSumVOCollection);
-        }
 
     }
 
@@ -165,99 +142,91 @@ public class InvestigationService implements IInvestigationService {
     public void setObservationAssociationsImpl(Long investigationUID, Collection<LabReportSummaryContainer>  reportSumVOCollection, boolean invFromEvent) throws DataProcessingException
     {
         PublicHealthCaseDto phcDT =  publicHealthCaseRepositoryUtil.findPublicHealthCase(investigationUID);
-        try
+
+        //For each report summary vo
+        if(!reportSumVOCollection.isEmpty())
         {
-            //For each report summary vo
-            if(!reportSumVOCollection.isEmpty())
-            {
-                for (LabReportSummaryContainer reportSumVO : reportSumVOCollection) {
-                    ActRelationshipDto actRelationshipDT;
-                    RootDtoInterface rootDT = null;
+            for (LabReportSummaryContainer reportSumVO : reportSumVOCollection) {
+                ActRelationshipDto actRelationshipDT;
+                RootDtoInterface rootDT = null;
 
-                    //Gets and checks whether any association change; if changed, do something, else go next one
-                    boolean isTouched = reportSumVO.getIsTouched();
-                    if (!isTouched) {
-                        continue;
-                    }
+                //Gets and checks whether any association change; if changed, do something, else go next one
+                boolean isTouched = reportSumVO.getIsTouched();
+                if (!isTouched) {
+                    continue;
+                }
 
-                    actRelationshipDT = new ActRelationshipDto();
-                    //Sets the properties of ActRelationshipDT object
-                    actRelationshipDT.setTargetActUid(investigationUID);
-                    actRelationshipDT.setSourceActUid(reportSumVO.getObservationUid());
-                    actRelationshipDT.setFromTime(reportSumVO.getActivityFromTime());
-                    actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
-                    //Set from time same as investigation create time if act relationship is created while creating investigation from lab or morbidity report
-                    if (invFromEvent) {
-                        actRelationshipDT.setFromTime(phcDT.getAddTime());
-                    }
-                    actRelationshipDT.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
-                    actRelationshipDT.setTargetClassCd(NEDSSConstant.PUBLIC_HEALTH_CASE_CLASS_CODE);
-                    //actRelationshipDT.setStatusTime(new Timestamp(new java.util.Date().getTime()));
-                    boolean reportFromDoc = false;
-                    actRelationshipDT.setTypeCd(NEDSSConstant.LAB_DISPALY_FORM);
-                    if (reportSumVO.isLabFromDoc()) {
-                        reportFromDoc = true;
-                    }
-                    if (invFromEvent) {
-                        actRelationshipDT.setAddReasonCd(reportSumVO.getProcessingDecisionCd());
-                    }
+                actRelationshipDT = new ActRelationshipDto();
+                //Sets the properties of ActRelationshipDT object
+                actRelationshipDT.setTargetActUid(investigationUID);
+                actRelationshipDT.setSourceActUid(reportSumVO.getObservationUid());
+                actRelationshipDT.setFromTime(reportSumVO.getActivityFromTime());
+                actRelationshipDT.setLastChgUserId(AuthUtil.authUser.getNedssEntryId());
+                //Set from time same as investigation create time if act relationship is created while creating investigation from lab or morbidity report
+                if (invFromEvent) {
+                    actRelationshipDT.setFromTime(phcDT.getAddTime());
+                }
+                actRelationshipDT.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
+                actRelationshipDT.setTargetClassCd(NEDSSConstant.PUBLIC_HEALTH_CASE_CLASS_CODE);
+                boolean reportFromDoc = false;
+                actRelationshipDT.setTypeCd(NEDSSConstant.LAB_DISPALY_FORM);
+                if (reportSumVO.isLabFromDoc()) {
+                    reportFromDoc = true;
+                }
+                if (invFromEvent) {
+                    actRelationshipDT.setAddReasonCd(reportSumVO.getProcessingDecisionCd());
+                }
 
 
-                    if (reportSumVO.getIsAssociated()) {
-                        actRelationshipDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
-                        actRelationshipDT.setStatusCd(NEDSSConstant.A);
-                    } else {
-                        actRelationshipDT.setRecordStatusCd(NEDSSConstant.INACTIVE);
-                        actRelationshipDT.setStatusCd(NEDSSConstant.I);
-                    }
+                if (reportSumVO.getIsAssociated()) {
+                    actRelationshipDT.setRecordStatusCd(NEDSSConstant.ACTIVE);
+                    actRelationshipDT.setStatusCd(NEDSSConstant.A);
+                } else {
+                    actRelationshipDT.setRecordStatusCd(NEDSSConstant.INACTIVE);
+                    actRelationshipDT.setStatusCd(NEDSSConstant.I);
+                }
 
-                    actRelationshipDT = prepareAssocModelHelper.prepareAssocDTForActRelationship(actRelationshipDT);
-                    // needs to be done here as prepareAssocDT will always set dirty flag true
+                actRelationshipDT = prepareAssocModelHelper.prepareAssocDTForActRelationship(actRelationshipDT);
+                // needs to be done here as prepareAssocDT will always set dirty flag true
+                if (reportSumVO.getIsAssociated())
+                {
+                    actRelationshipDT.setItNew(true);
+                    actRelationshipDT.setItDirty(false);
+                }
+                else
+                {
+                    actRelationshipDT.setItDelete(true);
+                    actRelationshipDT.setItDirty(false);
+                }
+                observationRepositoryUtil.saveActRelationship(actRelationshipDT);
+
+                if (!reportFromDoc) {
+                    //Obtains the core observation object
+                    var obs = observationRepositoryUtil.loadObject(reportSumVO.getObservationUid());
+                    ObservationDto obsDT = obs.getTheObservationDto();
+                    //Starts persist observationDT
                     if (reportSumVO.getIsAssociated())
                     {
-                        actRelationshipDT.setItNew(true);
-                        actRelationshipDT.setItDirty(false);
+                        obsDT.setItDirty(true);
+                        String businessObjLookupName;
+                        String businessTriggerCd ;
+                        String tableName = NEDSSConstant.OBSERVATION;
+                        String moduleCd = NEDSSConstant.BASE;
+                        businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
+                        businessTriggerCd = NEDSSConstant.OBS_LAB_ASC;
+
+                        rootDT = prepareAssocModelHelper.prepareVO(obsDT, businessObjLookupName, businessTriggerCd, tableName, moduleCd, obsDT.getVersionCtrlNbr());
                     }
-                    else
-                    {
-                        actRelationshipDT.setItDelete(true);
-                        actRelationshipDT.setItDirty(false);
-                    }
-                    observationRepositoryUtil.saveActRelationship(actRelationshipDT);
 
-                    if (!reportFromDoc) {
-                        //Obtains the core observation object
-                        var obs = observationRepositoryUtil.loadObject(reportSumVO.getObservationUid());
-                        ObservationDto obsDT = obs.getTheObservationDto();
-                        //Starts persist observationDT
-                        if (reportSumVO.getIsAssociated())
-                        {
-                            obsDT.setItDirty(true);
-                            String businessObjLookupName = "";
-                            String businessTriggerCd = "";
-                            String tableName = NEDSSConstant.OBSERVATION;
-                            String moduleCd = NEDSSConstant.BASE;
-                            businessObjLookupName = NEDSSConstant.OBSERVATIONLABREPORT;
-                            businessTriggerCd = NEDSSConstant.OBS_LAB_ASC;
+                    // processing non associate report summary
+                    rootDT = this.processingNonAssociatedReportSummaryContainer(reportSumVO, obsDT, rootDT);
 
-                            rootDT = prepareAssocModelHelper.prepareVO(obsDT, businessObjLookupName, businessTriggerCd, tableName, moduleCd, obsDT.getVersionCtrlNbr());
-                        }
-
-                        // processing non associate report summary
-                        rootDT = this.processingNonAssociatedReportSummaryContainer(reportSumVO, obsDT, rootDT);
-
-                        obsDT = (ObservationDto) rootDT;
-                        //set the previous entered processing decision to null
-                        obsDT.setProcessingDecisionCd(null);
-                        observationRepositoryUtil.setObservationInfo(obsDT);
-                    }
+                    obsDT = (ObservationDto) rootDT;
+                    //set the previous entered processing decision to null
+                    obsDT.setProcessingDecisionCd(null);
+                    observationRepositoryUtil.setObservationInfo(obsDT);
                 }
             }
-        }
-        catch(Exception e)
-        {
-            logger.info(e.getMessage());
-            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -267,8 +236,8 @@ public class InvestigationService implements IInvestigationService {
         if (!reportSumVO.getIsAssociated())
         {
             obsDT.setItDirty(true);
-            String businessObjLookupName = "";
-            String businessTriggerCd = "";
+            String businessObjLookupName;
+            String businessTriggerCd;
             String tableName = NEDSSConstant.OBSERVATION;
             String moduleCd = NEDSSConstant.BASE;
             Collection<ActRelationshipDto> actRelColl = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(reportSumVO.getObservationUid(), "LabReport");
@@ -291,7 +260,7 @@ public class InvestigationService implements IInvestigationService {
         updateAutoResendNotifications(v);
     }
 
-    @SuppressWarnings({"java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S6541", "java:S3776", "java:S135"})
     public PageActProxyContainer getPageProxyVO(String typeCd, Long publicHealthCaseUID) throws DataProcessingException {
         PageActProxyContainer pageProxyVO = new PageActProxyContainer();
 
@@ -401,19 +370,19 @@ public class InvestigationService implements IInvestigationService {
             labReportViewClause = labReportViewClause != null ? AND_UPPERCASE
                     + labReportViewClause : "";
 
-            Collection<UidSummaryContainer> LabReportUidSummarVOs =  observationSummaryService
+            Collection<UidSummaryContainer> labReportUidSummarVOs =  observationSummaryService
                     .findAllActiveLabReportUidListForManage(
                             publicHealthCaseUID, labReportViewClause);
 
             String uidType = LABORATORY_UID;
             Collection<?> labReportSummaryVOCollection;
             LabReportSummaryContainer labReportSummaryVOs;
-            if (LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty()) {
+            if (labReportUidSummarVOs != null && !labReportUidSummarVOs.isEmpty()) {
                 boolean isCDCFormPrintCase;
                 if(typeCd.equalsIgnoreCase(NEDSSConstant.PRINT_CDC_CASE)){
                     isCDCFormPrintCase = true;
-                    if(LabReportUidSummarVOs!=null && !LabReportUidSummarVOs.isEmpty()){
-                        for (UidSummaryContainer uidSummaryVO : LabReportUidSummarVOs) {
+                    if(labReportUidSummarVOs!=null && !labReportUidSummarVOs.isEmpty()){
+                        for (UidSummaryContainer uidSummaryVO : labReportUidSummarVOs) {
                             uidSummaryVO.setStatusTime(thePublicHealthCaseContainer.getThePublicHealthCaseDto().getAddTime());
                         }
                     }
@@ -422,7 +391,7 @@ public class InvestigationService implements IInvestigationService {
                     isCDCFormPrintCase= false;
                 }
                 labSumVOMap = retrieveLabReportSummaryRevisited(
-                        LabReportUidSummarVOs,isCDCFormPrintCase,
+                        labReportUidSummarVOs,isCDCFormPrintCase,
                         uidType);
 
                 if (labSumVOMap.containsKey(LAB_EVENT_LIST)) {
@@ -495,11 +464,10 @@ public class InvestigationService implements IInvestigationService {
                             || vo instanceof PamProxyContainer
                             ||  vo instanceof PageActProxyContainer
             ){
-                if(vo instanceof InvestigationContainer)
+                if(vo instanceof InvestigationContainer investigationContainer)
                 {
-                    InvestigationContainer invVO = (InvestigationContainer)vo;
-                    phcDT = invVO.thePublicHealthCaseContainer.getThePublicHealthCaseDto();
-                    notSumVOColl = invVO.getTheNotificationSummaryVOCollection();
+                    phcDT = investigationContainer.thePublicHealthCaseContainer.getThePublicHealthCaseDto();
+                    notSumVOColl = investigationContainer.getTheNotificationSummaryVOCollection();
                 }
                 if(
                         vo instanceof InvestigationContainer
@@ -534,11 +502,11 @@ public class InvestigationService implements IInvestigationService {
 
 
     }
-    @SuppressWarnings({"java:S1172", "java:S2589"})
+    @SuppressWarnings({"java:S1172", "java:S2589", "java:S107"})
     private  void updateNotification(boolean isSummaryCase, Long notificationUid, String phcCd,
                                    String phcClassCd, String progAreaCd, String jurisdictionCd,
                                    String sharedInd, boolean caseStatusChange) throws DataProcessingException {
-        boolean checkNotificationPermission1 = true;//nbsSecurityObj.getPermission(NBSBOLookup.NOTIFICATION, NBSOperationLookup.CREATENEEDSAPPROVAL,progAreaCd,jurisdictionCd,sharedInd);
+        boolean checkNotificationPermission1 = true;
         String businessTriggerCd;
         businessTriggerCd = NEDSSConstant.NOT_CR_APR;
 
@@ -593,7 +561,7 @@ public class InvestigationService implements IInvestigationService {
 
         return getInvestigationProxyLite(publicHealthCaseUID, false);
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1141", "java:S135", "java:S6541"})
     private InvestigationContainer getInvestigationProxyLite(Long publicHealthCaseUID, boolean lite) throws DataProcessingException {
         var investigationProxyVO = new InvestigationContainer();
         PublicHealthCaseDto thePublicHealthCaseDto;
@@ -620,8 +588,8 @@ public class InvestigationService implements IInvestigationService {
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setAddUserName(AuthUtil.authUser.getUserId());
             thePublicHealthCaseContainer.getThePublicHealthCaseDto().setLastChgUserName(AuthUtil.authUser.getUserId());
             thePublicHealthCaseDto = thePublicHealthCaseContainer.getThePublicHealthCaseDto();
-            Long PatientGroupID = thePublicHealthCaseDto.getPatientGroupId();
-            if (PatientGroupID != null) {
+            Long patientGroupID = thePublicHealthCaseDto.getPatientGroupId();
+            if (patientGroupID != null) {
                 var entityGrp = publicHealthCaseRepositoryUtil.getEntityGroup(thePublicHealthCaseDto.getPatientGroupId());
                 if (entityGrp != null) {
                     EntityGroupContainer entityGroupContainer = new EntityGroupContainer();
@@ -629,7 +597,7 @@ public class InvestigationService implements IInvestigationService {
                     theEntityGroupVOCollection.add(entityGroupContainer);
                 }
             }
-            logger.debug("PatientGroupID = {}", PatientGroupID);
+            logger.debug("PatientGroupID = {}", patientGroupID);
             String strTypeCd;
             String strClassCd;
             String recordStatusCd;
@@ -808,14 +776,14 @@ public class InvestigationService implements IInvestigationService {
                 String labReportViewClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.OBSERVATIONLABREPORT, "VIEW", "obs");
                 labReportViewClause = labReportViewClause != null? AND_UPPERCASE + labReportViewClause:"";
 
-                Collection<UidSummaryContainer>  LabReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
+                Collection<UidSummaryContainer>  labReportUidSummarVOs = observationSummaryService.findAllActiveLabReportUidListForManage(publicHealthCaseUID,labReportViewClause);
                 String uidType = LABORATORY_UID;
                 Collection<?>  labReportSummaryVOCollection;
                 LabReportSummaryContainer labReportSummaryVOs;
 
-                if(LabReportUidSummarVOs != null && !LabReportUidSummarVOs.isEmpty())
+                if(labReportUidSummarVOs != null && !labReportUidSummarVOs.isEmpty())
                 {
-                    labSumVOMap = retrieveLabReportSummaryRevisited(LabReportUidSummarVOs,false, uidType);
+                    labSumVOMap = retrieveLabReportSummaryRevisited(labReportUidSummarVOs,false, uidType);
                     if(labSumVOMap.containsKey(LAB_EVENT_LIST))
                     {
                         labReportSummaryVOCollection  = (ArrayList<?> )labSumVOMap.get(LAB_EVENT_LIST);
@@ -873,7 +841,7 @@ public class InvestigationService implements IInvestigationService {
     private HashMap<Object, Object> retrieveLabReportSummaryRevisited(Collection<UidSummaryContainer> labReportUids, boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         return getObservationSummaryListForWorkupRevisited(labReportUids, isCDCFormPrintCase, uidType);
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S3776", "java:S6541"})
     private HashMap<Object, Object> getObservationSummaryListForWorkupRevisited(Collection<UidSummaryContainer> uidList,boolean isCDCFormPrintCase, String uidType) throws DataProcessingException {
         ArrayList<Object>  labSummList = new ArrayList<> ();
         ArrayList<Object>  labEventList = new ArrayList<> ();
@@ -893,13 +861,13 @@ public class InvestigationService implements IInvestigationService {
 
 
             Collection<Observation_Lab_Summary_ForWorkUp_New> labList = new ArrayList<> ();
-            Long LabAsSourceForInvestigation = null;
+            Long labAsSourceForInvestigation = null;
             try {
 
                 Timestamp fromTime = null;
                 Iterator<UidSummaryContainer> itLabId = uidList.iterator();
                 while (itLabId.hasNext()) {
-                    if(uidType.equals("PERSON_PARENT_UID")){
+                    if (uidType.equalsIgnoreCase(PERSON_PARENT_UID_DB)) {
                         Long uid = itLabId.next().getUid();
                         var res = observationSummaryRepository.findLabSummaryForWorkupNew(uid, dataAccessWhereClause);
                         if (res.isPresent()) {
@@ -908,13 +876,13 @@ public class InvestigationService implements IInvestigationService {
 
                         }
                     }
-                    else if(uidType.equals(LABORATORY_UID))
+                    else if(uidType.equalsIgnoreCase(LABORATORY_UID))
                     {
                         UidSummaryContainer vo =  itLabId.next();
                         Long observationUid = vo.getUid();
                         fromTime = vo.getAddTime();
                         if(vo.getStatusTime()!=null && vo.getStatusTime().compareTo(fromTime)==0){
-                            LabAsSourceForInvestigation=vo.getUid();
+                            labAsSourceForInvestigation=vo.getUid();
                         }
 
                         var res = observationRepository.findById(observationUid);
@@ -976,7 +944,7 @@ public class InvestigationService implements IInvestigationService {
 
                             providerUid = observationSummaryService.getProviderInformation(providerDetails, labRepEvent);
 
-                            if (isCDCFormPrintCase && providerUid != null && LabAsSourceForInvestigation != null) {
+                            if (isCDCFormPrintCase && providerUid != null && labAsSourceForInvestigation != null) {
                                 ProviderDataForPrintContainer providerDataForPrintVO = null;
                                 if (labRepEvent != null && labRepEvent.getProviderDataForPrintVO() == null) {
                                     providerDataForPrintVO = new ProviderDataForPrintContainer();
@@ -989,7 +957,7 @@ public class InvestigationService implements IInvestigationService {
                                 if (orderingFacilityUid != null) {
                                     var org = organizationRepositoryUtil.loadObject(orderingFacilityUid, null);
                                     if (org != null && !org.getTheOrganizationNameDtoCollection().isEmpty()) {
-                                        OrganizationNameDto dt = null;
+                                        OrganizationNameDto dt;
                                         dt = org.getTheOrganizationNameDtoCollection().stream().findFirst().get();
                                         providerDataForPrintVO.setFacilityName(dt.getNmTxt());
                                     }
@@ -1023,8 +991,8 @@ public class InvestigationService implements IInvestigationService {
                             if (labRepSumm != null)
                                 labSummList.add(labRepSumm);
 
-                            Long ObservationUID = labRepVO.getObservationUid();
-                            observationSummaryService.getTestAndSusceptibilities("COMP", ObservationUID, labRepEvent, labRepSumm);
+                            Long observationUID = labRepVO.getObservationUid();
+                            observationSummaryService.getTestAndSusceptibilities("COMP", observationUID, labRepEvent, labRepSumm);
                         }
 
                     }
@@ -1076,7 +1044,7 @@ public class InvestigationService implements IInvestigationService {
 
     @SuppressWarnings({"java:S3776","java:S6541", "java:S1066"})
     protected void populateDescTxtFromCachedValues(Collection<Object> reportSummaryVOCollection) throws DataProcessingException {
-        ReportSummaryInterface sumVO ;
+        LabReportSummaryContainer sumVO ;
         LabReportSummaryContainer labVO;
         ResultedTestSummaryContainer resVO;
         Iterator<ResultedTestSummaryContainer> resItor;
@@ -1088,7 +1056,7 @@ public class InvestigationService implements IInvestigationService {
         for (Object o : reportSummaryVOCollection) {
             sumVO = (LabReportSummaryContainer) o;
             if (sumVO instanceof LabReportSummaryContainer) {
-                labVO = (LabReportSummaryContainer) sumVO;
+                labVO = sumVO;
                 labVO.setType(NEDSSConstant.LAB_REPORT_DESC);
                 if (labVO.getProgramArea() != null) {
                     tempStr = cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES.name(), labVO.getProgramArea());
@@ -1114,7 +1082,7 @@ public class InvestigationService implements IInvestigationService {
                         if (resVO.getCtrlCdUserDefined1() != null) {
                             if (resVO.getCtrlCdUserDefined1().equals("N") &&
                                     resVO.getCodedResultValue() != null &&
-                                    !resVO.getCodedResultValue().equals("")) {
+                                    !resVO.getCodedResultValue().isEmpty()) {
                                 tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC.name(),resVO.getCodedResultValue());
                                 resVO.setCodedResultValue(tempStr);
                             } else if (resVO.getCtrlCdUserDefined1().equals("Y") &&
@@ -1161,31 +1129,31 @@ public class InvestigationService implements IInvestigationService {
                         }
 
                         if ((resVO.getCdSystemCd() != null) &&
-                                (!(resVO.getCdSystemCd().equals("")))) {
+                                (!(resVO.getCdSystemCd().isEmpty()))) {
                             if (resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
-                                        !resVO.getResultedTestCd().equals("")) {
+                                        !resVO.getResultedTestCd().isEmpty()) {
                                     tempStr = cacheApiService.getSrteCacheString(ObjectName.LOIN_CODE_WITH_COMPONENT_NAME.name(),resVO.getResultedTestCd());
-                                    if (tempStr != null && !tempStr.equals(""))
+                                    if (tempStr != null && !tempStr.isEmpty())
                                         resVO.setResultedTest(tempStr);
                                 }
                             } else if (!resVO.getCdSystemCd().equals("LN")) {
                                 if (resVO.getResultedTestCd() != null &&
-                                        !resVO.getResultedTestCd().equals("")) {
+                                        !resVO.getResultedTestCd().isEmpty()) {
                                     var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                     if (res.isPresent()) {
-                                        tempStr = res.get().get(0).getLabResultDescTxt();
+                                        tempStr = res.get().getFirst().getLabResultDescTxt();
                                     }
-                                    if (tempStr != null && !tempStr.equals(""))
+                                    if (tempStr != null && !tempStr.isEmpty())
                                         resVO.setResultedTest(tempStr);
 
                                 }
                             }
                         }
                         // Added this for ER16368
-                        if ((resVO.getResultedTestStatusCd() != null) && (!(resVO.getResultedTestStatusCd().equals("")))) {
+                        if ((resVO.getResultedTestStatusCd() != null) && (!(resVO.getResultedTestStatusCd().isEmpty()))) {
                             tempStr = catchingValueService.getCodeDescTxtForCd("ACT_OBJ_ST", resVO.getResultedTestStatusCd());
-                            if (tempStr != null && !tempStr.equals(""))
+                            if (tempStr != null && !tempStr.isEmpty())
                                 resVO.setResultedTestStatus(tempStr);
                         }
                         // End  ER16368
@@ -1196,30 +1164,30 @@ public class InvestigationService implements IInvestigationService {
                                 susVO = (ResultedTestSummaryContainer) susItor.next();
 
                                 if (susVO.getCodedResultValue() != null &&
-                                        !susVO.getCodedResultValue().equals("")) {
+                                        !susVO.getCodedResultValue().isEmpty()) {
                                     tempStr = cacheApiService.getSrteCacheString(ObjectName.LAB_RESULT_DESC.name(),susVO.getCodedResultValue());
-                                    if (tempStr != null && !tempStr.equals(""))
+                                    if (tempStr != null && !tempStr.isEmpty())
                                         susVO.setCodedResultValue(tempStr);
                                 }
                                 if (susVO.getCdSystemCd() != null &&
-                                        !susVO.getCdSystemCd().equals("")) {
+                                        !susVO.getCdSystemCd().isEmpty()) {
                                     if (susVO.getCdSystemCd().equals("LN")) {
                                         if (susVO.getResultedTestCd() != null &&
-                                                !susVO.getResultedTestCd().equals("")) {
+                                                !susVO.getResultedTestCd().isEmpty()) {
                                             tempStr = cacheApiService.getSrteCacheString(ObjectName.LOIN_CODE_WITH_COMPONENT_NAME.name(),susVO.getResultedTestCd());
-                                            if (tempStr != null && !tempStr.equals("")) {
+                                            if (tempStr != null && !tempStr.isEmpty()) {
                                                 susVO.setResultedTest(tempStr);
                                             }
                                         }
                                     } else {
-                                        if (susVO.getResultedTestCd() != null && !susVO.getResultedTestCd().equals(""))
+                                        if (susVO.getResultedTestCd() != null && !susVO.getResultedTestCd().isEmpty())
                                         {
                                             var res = labTestRepository.findLabTestByLabIdAndLabTestCode(resVO.getCdSystemCd(), resVO.getResultedTestCd());
                                             if (res.isPresent()) {
-                                                tempStr = res.get().get(0).getLabResultDescTxt();
+                                                tempStr = res.get().getFirst().getLabResultDescTxt();
                                             }
 
-                                            if (tempStr != null && !tempStr.equals("")) {
+                                            if (tempStr != null && !tempStr.isEmpty()) {
                                                 susVO.setResultedTest(tempStr);
                                             }
                                         }

@@ -24,28 +24,7 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class ObservationCodeService implements IObservationCodeService {
     private static final Logger logger = LoggerFactory.getLogger(ObservationCodeService.class); // NOSONAR
 
@@ -63,12 +42,12 @@ public class ObservationCodeService implements IObservationCodeService {
     }
 
 
-    @SuppressWarnings("java:S3776")
-    public String getReportingLabCLIA(BaseContainer proxy) throws DataProcessingException {
+    @SuppressWarnings({"java:S3776", "java:S135"})
+    public String getReportingLabCLIA(BaseContainer proxy) {
         Collection<ParticipationDto>  partColl = null;
-        if (proxy instanceof LabResultProxyContainer)
+        if (proxy instanceof LabResultProxyContainer labResultProxyContainer)
         {
-            partColl = ( (LabResultProxyContainer) proxy).getTheParticipationDtoCollection();
+            partColl =  labResultProxyContainer.getTheParticipationDtoCollection();
         }
 
         //Get the reporting lab
@@ -127,13 +106,6 @@ public class ObservationCodeService implements IObservationCodeService {
 
         ArrayList<String> derivedConditionList = new ArrayList<>();
 
-        //if this is not an STD Program Area - we can skip this overhead
-        //TODO: CACHING
-//        String programAreaCd = orderTest.getTheObservationDto().getProgAreaCd();
-//        if ((programAreaCd == null) || (!propertyUtil.isStdOrHivProgramArea(programAreaCd))) {
-//            return derivedConditionList;
-//        }
-
         // Get the result tests
         Collection<ObservationContainer> resultTests = new ArrayList<>();
         for (ObservationContainer obsVO : labResultProxyVO.getTheObservationContainerCollection()) {
@@ -153,7 +125,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 reportingLabCLIA = getReportingLabCLIAId(orderTest.getTheParticipationDtoCollection());
             }
         }
-        if (reportingLabCLIA == null || reportingLabCLIA.trim().equals(""))
+        if (reportingLabCLIA == null || reportingLabCLIA.trim().isEmpty())
         {
             reportingLabCLIA = NEDSSConstant.DEFAULT;
         }
@@ -260,7 +232,7 @@ public class ObservationCodeService implements IObservationCodeService {
 
     @SuppressWarnings({"java:S3776", "java:S135"})
 
-    private String getReportingLabCLIAId(Collection<ParticipationDto> partColl) throws DataProcessingException {
+    private String getReportingLabCLIAId(Collection<ParticipationDto> partColl) {
         // Get the reporting lab
         Long reportingLabUid = observationUtil.getUid(
                 partColl,
@@ -321,12 +293,12 @@ public class ObservationCodeService implements IObservationCodeService {
                 String conditionCd = "";
                 String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
 
-                if (codeSystemCd == null || codeSystemCd.trim().equals("")) {
+                if (codeSystemCd == null || codeSystemCd.trim().isEmpty()) {
                     continue;
                 }
 
                 String obsCode = obsValueCodedDto.getCode();
-                if (obsCode == null || obsCode.trim().equals("")) {
+                if (obsCode == null || obsCode.trim().isEmpty()) {
                     continue;
                 }
 
@@ -378,13 +350,13 @@ public class ObservationCodeService implements IObservationCodeService {
         }
 
         String cdSystemCd = obsDt.getCdSystemCd();
-        if (cdSystemCd == null || cdSystemCd.trim().equals(""))
+        if (cdSystemCd == null || cdSystemCd.trim().isEmpty())
         {
             return null;
         }
 
         String obsCode = obsDt.getCd();
-        if (obsCode == null || obsCode.trim().equals(""))
+        if (obsCode == null || obsCode.trim().isEmpty())
         {
             return null;
         }
@@ -434,7 +406,6 @@ public class ObservationCodeService implements IObservationCodeService {
 
         for (ObsValueCodedDto obsValueCodedDto : obsValueCodedDtoColl) {
             String code = obsValueCodedDto.getCode();
-            //String codeSystemCd = obsValueCodedDto.getCodeSystemCd();
             if (code != null) {
                 String defaultCondition = srteCodeObsService.getDefaultConditionForLocalResultCode(code, reportingLabCLIA);
                 if (defaultCondition != null && !defaultCondition.isEmpty()) {
@@ -443,7 +414,7 @@ public class ObservationCodeService implements IObservationCodeService {
                 }
             }
         }
-        if (conditionMap.size() > 1 || conditionMap.isEmpty())
+        if (conditionMap.size() != 1)
         {
             return("");
         }
@@ -466,7 +437,7 @@ public class ObservationCodeService implements IObservationCodeService {
             return null;
         }
         ObservationDto obsDt = resultTestVO.getTheObservationDto();
-        if (obsDt.getCd() == null || obsDt.getCd().equals("") || obsDt.getCd().equals(" ") || obsDt.getCdSystemCd() == null)
+        if (obsDt.getCd() == null || obsDt.getCd().isEmpty() || obsDt.getCd().equals(" ") || obsDt.getCdSystemCd() == null)
         {
             return null;
         }

@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dsma_algorithm.*;
-import gov.cdc.dataprocessing.model.dto.dsm.DSMAlgorithmDto;
 import gov.cdc.dataprocessing.model.dto.edx.EdxRuleManageDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -21,15 +20,16 @@ import gov.cdc.dataprocessing.service.interfaces.public_health_case.IAutoInvesti
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IDecisionSupportService;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.service.model.wds.WdsReport;
-import gov.cdc.dataprocessing.utilities.GsonUtil;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
 import gov.cdc.dataprocessing.utilities.component.wds.ValidateDecisionSupport;
 import gov.cdc.dataprocessing.utilities.component.wds.WdsObjectChecker;
 import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -41,28 +41,7 @@ import java.util.*;
 import static gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil.REQUIRED;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class DecisionSupportService implements IDecisionSupportService {
     private static final Logger logger = LoggerFactory.getLogger(DecisionSupportService.class);
 
@@ -80,7 +59,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                                   ValidateDecisionSupport validateDecisionSupport,
                                   PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
                                   DsmAlgorithmService dsmAlgorithmService, AdvancedCriteria advancedCriteria,
-                                  WdsObjectChecker wdsObjectChecker, ICacheApiService cacheApiService) {
+                                  WdsObjectChecker wdsObjectChecker, @Lazy ICacheApiService cacheApiService) {
         this.edxPhcrDocumentUtil = edxPhcrDocumentUtil;
         this.autoInvestigationService = autoInvestigationService;
         this.validateDecisionSupport = validateDecisionSupport;
@@ -97,42 +76,34 @@ public class DecisionSupportService implements IDecisionSupportService {
     @SuppressWarnings({"java:S3776", "java:S135"})
     // Was: validateProxyVO
     public EdxLabInformationDto validateProxyContainer(LabResultProxyContainer labResultProxyVO,
-                                                       EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
+                                                       EdxLabInformationDto edxLabInformationDT)
+            throws DataProcessingException {
+
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
-        var wdsExist = checkActiveWdsAlgorithm( edxLabInformationDT, activeElrAlgorithmList );
-        if (!wdsExist) {
+        if (!checkActiveWdsAlgorithm(edxLabInformationDT, activeElrAlgorithmList)) {
             return edxLabInformationDT;
-
         }
-        Collection<ObservationContainer>  resultedTestColl=new ArrayList<>();
-        Collection<String> resultedTestCodeColl =  new ArrayList<>();
-        ObservationContainer orderedTestObservationVO;
 
-        Map<Object, Object> questionIdentifierMap = null;
-
-        Collection<PersonContainer> personVOCollection=new ArrayList<>();
-        if (labResultProxyVO.getThePersonContainerCollection() != null)
-        {
-            personVOCollection=labResultProxyVO.getThePersonContainerCollection();
+        Collection<ObservationContainer> resultedTestColl = new ArrayList<>();
+        Collection<String> resultedTestCodeColl = new ArrayList<>();
+        Collection<PersonContainer> personVOCollection = labResultProxyVO.getThePersonContainerCollection();
+        if (personVOCollection == null) {
+            personVOCollection = new ArrayList<>();
         }
-        orderedTestObservationVO = setupObservationValuesForWds(edxLabInformationDT, labResultProxyVO, resultedTestColl, resultedTestCodeColl);
 
-        //See if we have a matching algorithm for this lab in the order of Algorithm Names
+        ObservationContainer orderedTestObservationVO = setupObservationValuesForWds(
+                edxLabInformationDT,
+                labResultProxyVO,
+                resultedTestColl,
+                resultedTestCodeColl
+        );
+
         activeElrAlgorithmList.sort(AlGORITHM_NM_ORDER);
-
-
-        List<WdsReport> wdsReports = new ArrayList<>();
+        List<WdsReport> wdsReports = new ArrayList<>(activeElrAlgorithmList.size());
 
         for (DsmLabMatchHelper dsmLabMatchHelper : activeElrAlgorithmList) {
-            boolean criteriaMatch;
-
-
-            //Was AlgorithmDocument
-            Algorithm algorithmDocument;
-            //reset for every algorithm processing
             edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
             edxLabInformationDT.setMatchingPublicHealthCaseDtoColl(null);
-            //if returns true, lab matched algorithm, continue with the investigation criteria match is one exists.
 
             WdsReport wdsReport = dsmLabMatchHelper.isThisLabAMatch(
                     resultedTestCodeColl,
@@ -140,122 +111,48 @@ public class DecisionSupportService implements IDecisionSupportService {
                     edxLabInformationDT.getSendingFacilityClia(),
                     edxLabInformationDT.getSendingFacilityName()
             );
-            boolean isLabMatched = wdsReport.isAlgorithmMatched();
-            if (isLabMatched)
-            {
-                algorithmDocument = dsmLabMatchHelper.getAlgorithmDocument();
-                criteriaMatch = true;
-            }
-            else
-            {
-                // IF NOT MATCH FOUND CONTINUE and skip the comparing logic
+
+            if (!wdsReport.isAlgorithmMatched()) {
                 wdsReports.add(wdsReport);
                 continue;
             }
 
+            Algorithm algorithmDocument = dsmLabMatchHelper.getAlgorithmDocument();
             String conditionCode = null;
-            if (algorithmDocument != null && algorithmDocument.getApplyToConditions() != null)
-            {
-                List<CodedType> conditionArray = algorithmDocument.getApplyToConditions().getCondition();
-                for (CodedType codeType : conditionArray) {
-                    conditionCode = codeType.getCode();
+
+            if (algorithmDocument != null && algorithmDocument.getApplyToConditions() != null) {
+                for (CodedType codeType : algorithmDocument.getApplyToConditions().getCondition()) {
+                    conditionCode = codeType.getCode(); // Last value will persist
                 }
             }
 
-
-            // Determine next step based on ACTION
             updateObservationBasedOnAction(
                     algorithmDocument,
-                    criteriaMatch,
+                    true,
                     conditionCode,
                     orderedTestObservationVO,
                     personVOCollection,
                     edxLabInformationDT,
                     wdsReport,
-                    questionIdentifierMap
+                    null // questionIdentifierMap is never assigned
             );
-
-            if (edxLabInformationDT.isMatchingAlgorithm() && algorithmDocument != null)
-            {
-                wdsReports.add(wdsReport);
-                edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
-                break;
-            }
 
             wdsReports.add(wdsReport);
 
+            if (edxLabInformationDT.isMatchingAlgorithm() && algorithmDocument != null) {
+                edxLabInformationDT.setDsmAlgorithmName(algorithmDocument.getAlgorithmName());
+                break; // Exit early on match
+            }
         }
 
         edxLabInformationDT.getWdsReports().addAll(wdsReports);
         return edxLabInformationDT;
-
-
     }
 
-    @SuppressWarnings("java:S3776")
-    protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
-                                                             List<DsmLabMatchHelper> activeElrAlgorithmList ) throws DataProcessingException {
-        boolean elrAlgorithmsPresent;
-        // Validating existing WDS Algorithm
-        WdsReport report = new WdsReport();
-        Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
-        if (algorithmCollection == null || algorithmCollection.isEmpty())  {
-            //no algorithms defined
-            report.setAlgorithmMatched(false);
-            report.setMessage("No WDS Algorithm found");
-            edxLabInformationDT.getWdsReports().add(report);
-            return false;
-        }
 
-        elrAlgorithmsPresent = false; //could be only inactive algorithms or only Case reports
-        for (DsmAlgorithm dsmAlgorithm : algorithmCollection)
-        {
-            DSMAlgorithmDto algorithmDT = new DSMAlgorithmDto(dsmAlgorithm);
-            String algorithmString = algorithmDT.getAlgorithmPayload();
-            //skip inactive and case reports
-            if (algorithmDT.getStatusCd() != null
-                    && algorithmDT.getStatusCd().equals(NEDSSConstant.INACTIVE) ||
-                    algorithmDT.getEventType() != null
-                            && algorithmDT.getEventType().equals(NEDSSConstant.PHC_236))
-            {
-                continue; //skip inactive
-            }
+    @SuppressWarnings("java:S3008")
+    private static JAXBContext ALGORITHM_JAXB_CONTEXT;
 
-            // Suppose to be Algorithm
-            Algorithm algorithmDocument = null;
-
-            if (algorithmString != null) {
-                algorithmDocument = parseAlgorithmXml(algorithmString);
-            }
-            //helper class DSMLabMatchHelper will assist with algorithm matching
-            DsmLabMatchHelper dsmLabMatchHelper = null;
-            try {
-                if (algorithmDocument != null)
-                {
-                    dsmLabMatchHelper = new DsmLabMatchHelper(algorithmDocument);
-                }
-            } catch (Exception e) {
-                //if one fails to parse - continue processing with error
-                logger.error(e.getMessage());
-            }
-
-
-            if (dsmLabMatchHelper != null) {
-                activeElrAlgorithmList.add(dsmLabMatchHelper);
-                elrAlgorithmsPresent = true;
-            }
-            //parseXmDocument(algorithmDocument);
-        } //hasNext
-        //didn't find any?
-
-        if (!elrAlgorithmsPresent) {
-            report.setAlgorithmMatched(false);
-            report.setMessage("No active WDS Algorithm found");
-            edxLabInformationDT.getWdsReports().add(report);
-            return false;
-        }
-        return true;
-    }
 
 
     protected ObservationContainer setupObservationValuesForWds(
@@ -349,7 +246,54 @@ public class DecisionSupportService implements IDecisionSupportService {
         ) && applyAdvInvLogic;
     }
 
-    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541", "java:S3776"})
+    @SuppressWarnings({"java:S3776", "java:S135"})
+    protected boolean checkActiveWdsAlgorithm(EdxLabInformationDto edxLabInformationDT,
+                                              List<DsmLabMatchHelper> activeElrAlgorithmList) {
+        Collection<DsmAlgorithm> algorithmCollection = selectDSMAlgorithmDTCollection();
+        if (algorithmCollection == null || algorithmCollection.isEmpty()) {
+            edxLabInformationDT.getWdsReports().add(new WdsReport(false, "No WDS Algorithm found"));
+            return false;
+        }
+
+        boolean found = false;
+
+        for (DsmAlgorithm dsmAlgorithm : algorithmCollection) {
+            String statusCd = dsmAlgorithm.getStatusCd();
+            String eventType = dsmAlgorithm.getEventType();
+
+            // Fast skip for inactive or PHC_236
+            if ("INACTIVE".equals(statusCd) || "PHC236".equals(eventType)) continue;
+
+            String xmlPayload = dsmAlgorithm.getAlgorithmPayload();
+            if (xmlPayload == null) continue;
+
+            try {
+                Algorithm algo = parseAlgorithmXml(xmlPayload);
+                if (algo != null) {
+                    activeElrAlgorithmList.add(new DsmLabMatchHelper(algo));
+                    found = true;
+                }
+            } catch (Exception ex) {
+                logger.error("Failed to parse WDS Algorithm XML: {}", ex.getMessage());
+            }
+        }
+
+        if (!found) {
+            edxLabInformationDT.getWdsReports().add(new WdsReport(false, "No active WDS Algorithm found"));
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection()  {
+        Collection<DsmAlgorithm> algorithmList;
+        algorithmList = dsmAlgorithmService.findActiveDsmAlgorithm();
+        return algorithmList;
+    }
+
+    @SuppressWarnings({"java:S107", "java:S6541", "java:S6541", "java:S3776", "java:S6201"})
     protected void updateObservationBasedOnAction(Algorithm algorithmDocument,
                                                 boolean criteriaMatch,
                                                 String conditionCode,
@@ -421,7 +365,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                 if (conditionCode != null)
                 {
 
-                    ConditionCode condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                    ConditionCode condCode = (ConditionCode) cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode);
                     if (condCode == null) {
                         condCode = new ConditionCode();
                     }
@@ -486,7 +430,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                             metaData = new NbsQuestionMetadata();
                         }
                         else {
-                            logger.error("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
+                            logger.debug("DecisionSupportService.updateObservationBasedOnAction: metaData is Null");
                         }
                         if (metaData.getDataLocation() != null
                                 && metaData.getDataLocation().trim().toUpperCase().startsWith("PUBLIC_HEALTH_CASE"))
@@ -551,7 +495,7 @@ public class DecisionSupportService implements IDecisionSupportService {
                     edxLabInformationDT.setPamContainer((PamProxyContainer) obj);
                 }
 
-                ConditionCode condCode = GsonUtil.GSON.fromJson(cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode), ConditionCode.class);
+                ConditionCode condCode = (ConditionCode) cacheApiService.getSrteCacheObject(ObjectName.CONDITION_CODE.name(), conditionCode);
                 if (condCode == null) {
                     condCode = new ConditionCode();
                 }
@@ -569,35 +513,29 @@ public class DecisionSupportService implements IDecisionSupportService {
         }
     }
 
-
-    private Collection<DsmAlgorithm> selectDSMAlgorithmDTCollection() throws DataProcessingException {
-        Collection<DsmAlgorithm> algorithmList;
-        try
-        {
-            algorithmList = dsmAlgorithmService.findActiveDsmAlgorithm();
-        } catch(Exception se2) {
-            throw new DataProcessingException(se2.getMessage(), se2);
+    @SuppressWarnings("java:S5164")
+    private static final ThreadLocal<Unmarshaller> ALGORITHM_UNMARSHALLER = ThreadLocal.withInitial(() -> {
+        try {
+            return ALGORITHM_JAXB_CONTEXT.createUnmarshaller();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to create JAXB Unmarshaller", e);
         }
-        return algorithmList;
+    });
+
+    static {
+        try {
+            ALGORITHM_JAXB_CONTEXT = JAXBContext.newInstance("gov.cdc.dataprocessing.model.dsma_algorithm");
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError("Failed to initialize JAXBContext: " + e.getMessage());
+        }
     }
 
-
-    private Algorithm parseAlgorithmXml(String xmlPayLoadContent)
-            throws DataProcessingException {
-        Algorithm algorithmDocument;
-        try {
-
-            JAXBContext contextObj = JAXBContext.newInstance("gov.cdc.dataprocessing.model.dsma_algorithm");
-            Unmarshaller unmarshaller = contextObj.createUnmarshaller();
-
-            InputStream inputStream = new ByteArrayInputStream(xmlPayLoadContent.getBytes(StandardCharsets.UTF_8));
-            algorithmDocument = (Algorithm) unmarshaller.unmarshal(inputStream);
-
+    private Algorithm parseAlgorithmXml(String xmlPayloadContent) throws DataProcessingException {
+        try (InputStream inputStream = new ByteArrayInputStream(xmlPayloadContent.getBytes(StandardCharsets.UTF_8))) {
+            return (Algorithm) ALGORITHM_UNMARSHALLER.get().unmarshal(inputStream);
         } catch (Exception e) {
-            throw new DataProcessingException("HL7ELRValidateDecisionSupport.parseAlgorithmXml Invalid XML "+e);
+            throw new DataProcessingException("Invalid Algorithm XML: " + e.getMessage(), e);
         }
-
-        return algorithmDocument;
     }
 
     /**
@@ -646,7 +584,7 @@ public class DecisionSupportService implements IDecisionSupportService {
             Timestamp specimenCollectionDate= edxLabInformationDT.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime();
             long specimenCollectionDays = specimenCollectionDate.getTime()/(1000 * 60 * 60 * 24);
 
-            if(comparatorCode.length() > 0 && mprUid > 0)
+            if(!comparatorCode.isEmpty() && mprUid > 0)
             {
                 Collection<PublicHealthCaseDto> associatedPhcDTCollection = publicHealthCaseStoredProcRepository
                         .associatedPublicHealthCaseForMprForCondCd(mprUid, edxLabInformationDT.getConditionCode());
@@ -688,9 +626,9 @@ public class DecisionSupportService implements IDecisionSupportService {
         if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
                 && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
         {
-            List phclist = new ArrayList<Object>(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl());
+            List<PublicHealthCaseDto> phclist = new ArrayList<>(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl());
             phclist.sort(ADDTIME_ORDER);
-            associatedPHCUid = ((PublicHealthCaseDto)phclist.get(0)).getPublicHealthCaseUid();
+            associatedPHCUid = phclist.getFirst().getPublicHealthCaseUid();
             isdateLogicValidForNewInv= false;
         }
         else
@@ -724,46 +662,57 @@ public class DecisionSupportService implements IDecisionSupportService {
     @SuppressWarnings({"java:S6541", "java:S3776"})
     protected boolean checkAdvancedInvCriteria(Algorithm algorithmDocument,
                                              EdxLabInformationDto edxLabInformationDT,
-                                             Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
+                                             Map<Object, Object> questionIdentifierMap) {
         boolean isAdvancedInvCriteriaMet = false;
 
-        try{
 
-            Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
-            /*
-             * return match as true if there is no investigation is compare and
-             * advanceInvCriteriaMap is empty
-             */
-            if ((edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null
-                    || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
-                    && advanceInvCriteriaMap == null
-                    || advanceInvCriteriaMap.isEmpty())
-            {
-                isAdvancedInvCriteriaMet = true;
-            }
+        Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
+        /*
+         * return match as true if there is no investigation is compare and
+         * advanceInvCriteriaMap is empty
+         */
+        if ((edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null
+                || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
+                && advanceInvCriteriaMap == null
+                || advanceInvCriteriaMap.isEmpty())
+        {
+            isAdvancedInvCriteriaMet = true;
+        }
 
-            /*
-             * for each matched PHC see if the advanced criteria matches. for mark
-             * as reviewed, if the match is found break and use that PHC for
-             * association and mark the lab as reviewed. for create Investigation
-             * and/or Notification actions to succeed, the advanced criteria should
-             * return false, so that new investigation can be created.
-             */
-            if(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
-                    && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
-            {
-                for (PublicHealthCaseDto phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
+        /*
+         * for each matched PHC see if the advanced criteria matches. for mark
+         * as reviewed, if the match is found break and use that PHC for
+         * association and mark the lab as reviewed. for create Investigation
+         * and/or Notification actions to succeed, the advanced criteria should
+         * return false, so that new investigation can be created.
+         */
+        if(edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
+                && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
+        {
+            for (PublicHealthCaseDto phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
 
-                    if (advanceInvCriteriaMap != null
-                            && !advanceInvCriteriaMap.isEmpty())
-                    {
-                        Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
+                if (advanceInvCriteriaMap != null && !advanceInvCriteriaMap.isEmpty())
+                {
+                    Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
 
-                        for (String questionId : criteriaSet) {
-                            Object object = advanceInvCriteriaMap.get(questionId);
-                            if (object instanceof EdxRuleManageDto)
+                    for (String questionId : criteriaSet) {
+                        Object object = advanceInvCriteriaMap.get(questionId);
+                        if (object instanceof EdxRuleManageDto edxRuleManageDT)
+                        {
+                            NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
+                            if (criteriaMetaData != null)
                             {
-                                EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) object;
+                                isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
+                            }
+                            if (!isAdvancedInvCriteriaMet)
+                            {
+                                break;
+                            }
+                        }
+                        else if (object instanceof Collection<?> collection)
+                        {
+                            for (Object o : collection) {
+                                EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) o;
                                 NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
                                 if (criteriaMetaData != null)
                                 {
@@ -774,48 +723,31 @@ public class DecisionSupportService implements IDecisionSupportService {
                                     break;
                                 }
                             }
-                            else if (object instanceof Collection<?>)
-                            {
-                                Collection<?> collection = (ArrayList<?>) object;
-                                for (Object o : collection) {
-                                    EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) o;
-                                    NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
-                                    if (criteriaMetaData != null)
-                                    {
-                                        isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
-                                    }
-                                    if (!isAdvancedInvCriteriaMet)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
                         }
-                        /*
-                         * If one of the investigation matches break and get out of the
-                         * loop
-                         */
-                        if (isAdvancedInvCriteriaMet){
-                            edxLabInformationDT.setAssociatedPublicHealthCaseUid(phcDT.getPublicHealthCaseUid());
-                            break;
-                        }
-                    } else {// There is no advanced investigation criteria selected to be matched
-                        isAdvancedInvCriteriaMet = true;
                     }
+                    /*
+                     * If one of the investigation matches break and get out of the
+                     * loop
+                     */
+                    if (isAdvancedInvCriteriaMet){
+                        edxLabInformationDT.setAssociatedPublicHealthCaseUid(phcDT.getPublicHealthCaseUid());
+                        break;
+                    }
+                } else {// There is no advanced investigation criteria selected to be matched
+                    isAdvancedInvCriteriaMet = true;
                 }
             }
-            /*
-             * if the advanced criteria is not met reset the associated
-             * PublicHealthCaseUid to -1, it might have been set by time criteria
-             */
-            if(!isAdvancedInvCriteriaMet && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
-                    && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
-            {
-                edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
-            }
-        }catch(Exception ex){
-            throw new DataProcessingException ("Exception while checking advanced Investigation Criteria for Lab mark as reviewed: ", ex);
         }
+        /*
+         * if the advanced criteria is not met reset the associated
+         * PublicHealthCaseUid to -1, it might have been set by time criteria
+         */
+        if(!isAdvancedInvCriteriaMet && edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()!=null
+                && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
+        {
+            edxLabInformationDT.setAssociatedPublicHealthCaseUid(-1L);
+        }
+
         return isAdvancedInvCriteriaMet;
     }
 
@@ -878,92 +810,88 @@ public class DecisionSupportService implements IDecisionSupportService {
     protected boolean checkAdvancedInvCriteriaForCreateInvNoti(
             Algorithm algorithmDocument,
             EdxLabInformationDto edxLabInformationDT,
-            Map<Object, Object> questionIdentifierMap) throws DataProcessingException {
+            Map<Object, Object> questionIdentifierMap) {
 
-        try{
-            Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
+        Map<String, Object> advanceInvCriteriaMap = advancedCriteria.getAdvancedInvCriteriaMap(algorithmDocument);
 
-            /*
-             * return match as true if there is no investigation to compare and
-             * advanceInvCriteriaMap is empty
-             */
-            if (
-                    (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null
-                            || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
-                    && (advanceInvCriteriaMap == null
-                            || advanceInvCriteriaMap.isEmpty())
-            )
-            {
-                return true;
-            }
+        /*
+         * return match as true if there is no investigation to compare and
+         * advanceInvCriteriaMap is empty
+         */
+        if (
+                (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() == null
+                        || edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
+                && (advanceInvCriteriaMap == null
+                        || advanceInvCriteriaMap.isEmpty())
+        )
+        {
+            return true;
+        }
 
-            /*
-             * return match as false if there are investigation to compare and
-             * advanceInvCriteriaMap is empty
-             */
-            if (
-                    (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
-                            && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
-                    && (advanceInvCriteriaMap == null || advanceInvCriteriaMap.isEmpty())
-            )
-            {
-                return false;
-            }
+        /*
+         * return match as false if there are investigation to compare and
+         * advanceInvCriteriaMap is empty
+         */
+        if (
+                (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
+                        && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty())
+                && (advanceInvCriteriaMap == null || advanceInvCriteriaMap.isEmpty())
+        )
+        {
+            return false;
+        }
 
-            /*
-             * for each PHC see if the advanced criteria matches. the matching will
-             * be exclusive (e.g., if the algorithm says investigation status not
-             * equals open and there is investigation with open status, it should
-             * return true)
-             */
-            if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
-                    && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty()
-            )
-            {
-                for (Object phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
+        /*
+         * for each PHC see if the advanced criteria matches. the matching will
+         * be exclusive (e.g., if the algorithm says investigation status not
+         * equals open and there is investigation with open status, it should
+         * return true)
+         */
+        if (edxLabInformationDT.getMatchingPublicHealthCaseDtoColl() != null
+                && !edxLabInformationDT.getMatchingPublicHealthCaseDtoColl().isEmpty()
+        )
+        {
+            for (Object phcDT : edxLabInformationDT.getMatchingPublicHealthCaseDtoColl()) {
 
-                    if (advanceInvCriteriaMap != null
-                            && !advanceInvCriteriaMap.isEmpty()) {
-                        Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
-                        Iterator<String> criteriaIterator = criteriaSet.iterator();
+                if (!advanceInvCriteriaMap.isEmpty()) {
+                    Set<String> criteriaSet = advanceInvCriteriaMap.keySet();
+                    Iterator<String> criteriaIterator = criteriaSet.iterator();
 
-                        boolean isInvCriteriaValidForAllelements = false;
+                    boolean isInvCriteriaValidForAllelements = false;
 
-                        while (criteriaIterator.hasNext()) {
+                    while (criteriaIterator.hasNext()) {
 
-                            String questionId = criteriaIterator.next();
-                            Object object = advanceInvCriteriaMap.get(questionId);
-                            boolean isAdvancedInvCriteriaMet = false;
+                        String questionId = criteriaIterator.next();
+                        Object object = advanceInvCriteriaMap.get(questionId);
+                        boolean isAdvancedInvCriteriaMet = false;
 
-                            EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) object;
-                            NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
-                            if (criteriaMetaData != null)
-                            {
-                                isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
-                            }
-
-                            if (!isAdvancedInvCriteriaMet)
-                            {
-                                isInvCriteriaValidForAllelements = true;
-                            }
+                        EdxRuleManageDto edxRuleManageDT = (EdxRuleManageDto) object;
+                        NbsQuestionMetadata criteriaMetaData = (NbsQuestionMetadata) questionIdentifierMap.get(questionId);
+                        if (criteriaMetaData != null)
+                        {
+                            isAdvancedInvCriteriaMet = wdsObjectChecker.checkNbsObject(edxRuleManageDT, phcDT, criteriaMetaData);
                         }
 
-                        if(isInvCriteriaValidForAllelements)
+                        if (!isAdvancedInvCriteriaMet)
                         {
-                            return false;
+                            isInvCriteriaValidForAllelements = true;
                         }
                     }
+
+                    if(isInvCriteriaValidForAllelements)
+                    {
+                        return false;
+                    }
                 }
-                /*
-                 * all the investigations were scanned to match the criteria, no
-                 * existing investigation found return true to create new
-                 * investigation.
-                 */
-                return true;
             }
-        }catch(Exception ex){
-            throw new DataProcessingException ("Exception while checking advanced Investigation Criteria for creating Investigation and/or Notification: ", ex);
+            /*
+             * all the investigations were scanned to match the criteria, no
+             * existing investigation found return true to create new
+             * investigation.
+             */
+            return true;
         }
+
         return false;
     }
 

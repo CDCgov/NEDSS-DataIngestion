@@ -142,7 +142,7 @@ class PublicHealthCaseServiceTests {
         );
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             publicHealthCaseService.setPublicHealthCase(phcConn);
         });
 

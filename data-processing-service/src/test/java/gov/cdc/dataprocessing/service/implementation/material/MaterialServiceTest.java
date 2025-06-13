@@ -24,6 +24,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.material.MaterialReposit
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.implementation.entity.EntityLocatorParticipationService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -77,9 +77,25 @@ class MaterialServiceTest {
     @Mock
     ManufacturedMaterialRepository manufacturedMaterialRepository;
 
+    @Mock
+    UidPoolManager uidPoolManager;
+
     @BeforeEach
-    void setup() {
+    void setup() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
     }
 
     @Test

@@ -100,3 +100,12 @@ test {
         systemProperty "testing.database.mssql.image", System.getProperty("testing.database.mssql.image")
     }
 }
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
+        property "sonar.organization", "cdcgov"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.exclusions",  "**/srtedataservice/**"
+    }
+}

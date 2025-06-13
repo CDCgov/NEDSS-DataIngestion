@@ -26,30 +26,9 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class ORCHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ORCHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ORCHandler.class); //NOSONAR
     @Value("${service.timezone}")
     private String tz = "UTC";
     private final NBSObjectConverter nbsObjectConverter;
@@ -71,8 +50,7 @@ public class ORCHandler {
                                 hl7ORCType.getOrderEffectiveDateTime(), EdxELRConstant.DATE_VALIDATION_ORC_ORDER_EFFECTIVE_TIME_MSG));
             }
         } catch (Exception e) {
-            logger.error("Exception thrown at HL7ORCProcessorget.getORCProcessing: {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getORCProcessing:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
     }
 
@@ -92,7 +70,7 @@ public class ORCHandler {
                 PersonContainer personContainer = new PersonContainer();
                 personContainer.getThePersonDto().setAddUserId(AuthUtil.authUser.getNedssEntryId());
                 //Only need first index
-                address = addressArray.get(0);
+                address = addressArray.getFirst();
                 if (address != null) {
                     nbsObjectConverter.personAddressType(address, EdxELRConstant.ELR_OP_CD, personContainer);
                 }
@@ -105,8 +83,7 @@ public class ORCHandler {
                 edxLabInformationDto.setMissingOrderingProvider(true);
             }
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessor.getOrderingProvider {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessor.getOrderingProvider:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
 
         return labResultProxyContainer;
@@ -169,7 +146,7 @@ public class ORCHandler {
 
                 Collection<EntityLocatorParticipationDto> addressCollection = new ArrayList<>();
                 if (!addressArray.isEmpty()) {
-                    HL7XADType addressType = addressArray.get(0);
+                    HL7XADType addressType = addressArray.getFirst();
                     EntityLocatorParticipationDto elpDT = nbsObjectConverter.organizationAddressType(addressType, EdxELRConstant.ELR_OP_CD, organizationContainer);
                     addressCollection.add(elpDT);
                 }
@@ -177,7 +154,7 @@ public class ORCHandler {
 
                 List<HL7XTNType> phoneArray = hl7ORCType.getOrderingFacilityPhoneNumber();
                 if (!phoneArray.isEmpty()) {
-                    HL7XTNType phone = phoneArray.get(0);
+                    HL7XTNType phone = phoneArray.getFirst();
                     if (phone != null) {
                         EntityLocatorParticipationDto elpdt = nbsObjectConverter.orgTelePhoneType(phone, EdxELRConstant.ELR_OP_CD, organizationContainer);
                         elpdt.setUseCd(EdxELRConstant.ELR_WORKPLACE_CD);
@@ -188,7 +165,7 @@ public class ORCHandler {
                 Collection<OrganizationNameDto> orgNameColl = new ArrayList<>();
                 List<HL7XONType> nameArray = hl7ORCType.getOrderingFacilityName();
                 if (nameArray != null && !nameArray.isEmpty()) {
-                    HL7XONType orgName = nameArray.get(0);
+                    HL7XONType orgName = nameArray.getFirst();
                     OrganizationNameDto organizationNameDto = new OrganizationNameDto(tz);
                     organizationNameDto.setNmTxt(orgName.getHL7OrganizationName());
                     organizationNameDto.setNmUseCd(EdxELRConstant.ELR_LEGAL_NAME);
@@ -203,8 +180,7 @@ public class ORCHandler {
             }
 
         } catch (Exception e) {
-            logger.error("Exception thrown by HL7ORCProcessorget.getOrderingFacility {}", e.getMessage());
-            throw new DataProcessingException("Exception thrown at HL7ORCProcessorget.getOrderingFacility:"+ e);
+            throw new DataProcessingException(e.getMessage(), e);
         }
         edxLabInformationDto.setMultipleOrderingFacility(false);
 

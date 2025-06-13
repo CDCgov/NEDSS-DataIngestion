@@ -2,11 +2,10 @@ package gov.cdc.dataprocessing.utilities.component.act;
 
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActRelationshipJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationshipHistory;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipHistoryRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,10 +25,8 @@ class ActRelationshipRepositoryUtilTest {
     private ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
     @Mock
-    private ActRelationshipRepository actRelationshipRepository;
+    private ActRelationshipJdbcRepository actRelationshipRepository;
 
-    @Mock
-    private ActRelationshipHistoryRepository actRelationshipHistoryRepository;
 
     @BeforeEach
     public void setUp() {
@@ -43,7 +39,7 @@ class ActRelationshipRepositoryUtilTest {
         List<ActRelationship> actRelationships = new ArrayList<>();
         ActRelationship actRelationship = new ActRelationship();
         actRelationships.add(actRelationship);
-        when(actRelationshipRepository.findRecordsBySourceId(actUid)).thenReturn(Optional.of(actRelationships));
+        when(actRelationshipRepository.findBySourceActUid(actUid)).thenReturn(actRelationships);
 
         Collection<ActRelationshipDto> result = actRelationshipRepositoryUtil.getActRelationshipCollectionFromSourceId(actUid);
 
@@ -52,27 +48,27 @@ class ActRelationshipRepositoryUtilTest {
             assertFalse(dto.isItNew());
             assertFalse(dto.isItDirty());
         }
-        verify(actRelationshipRepository, times(1)).findRecordsBySourceId(actUid);
+        verify(actRelationshipRepository, times(1)).findBySourceActUid(actUid);
     }
 
     @Test
     void testGetActRelationshipCollectionFromSourceIdEmpty() {
         Long actUid = 1L;
-        when(actRelationshipRepository.findRecordsBySourceId(actUid)).thenReturn(Optional.empty());
+        when(actRelationshipRepository.findBySourceActUid(actUid)).thenReturn(new ArrayList<>());
 
         Collection<ActRelationshipDto> result = actRelationshipRepositoryUtil.getActRelationshipCollectionFromSourceId(actUid);
 
         assertTrue(result.isEmpty());
-        verify(actRelationshipRepository, times(1)).findRecordsBySourceId(actUid);
+        verify(actRelationshipRepository, times(1)).findBySourceActUid(actUid);
     }
 
     @Test
-    void testSelectActRelationshipDTCollectionFromActUid() throws DataProcessingException {
+    void testSelectActRelationshipDTCollectionFromActUid()  {
         long actUid = 1L;
         List<ActRelationship> actRelationships = new ArrayList<>();
         ActRelationship actRelationship = new ActRelationship();
         actRelationships.add(actRelationship);
-        when(actRelationshipRepository.findRecordsByActUid(actUid)).thenReturn(Optional.of(actRelationships));
+        when(actRelationshipRepository.findByTargetActUid(actUid)).thenReturn(actRelationships);
 
         Collection<ActRelationshipDto> result = actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(actUid);
 
@@ -81,26 +77,26 @@ class ActRelationshipRepositoryUtilTest {
             assertFalse(dto.isItNew());
             assertFalse(dto.isItDirty());
         }
-        verify(actRelationshipRepository, times(1)).findRecordsByActUid(actUid);
+        verify(actRelationshipRepository, times(1)).findByTargetActUid(actUid);
     }
 
     @Test
-    void testSelectActRelationshipDTCollectionFromActUidEmpty() throws DataProcessingException {
+    void testSelectActRelationshipDTCollectionFromActUidEmpty()  {
         long actUid = 1L;
-        when(actRelationshipRepository.findRecordsByActUid(actUid)).thenReturn(Optional.empty());
+        when(actRelationshipRepository.findByTargetActUid(actUid)).thenReturn(new ArrayList<>());
 
         Collection<ActRelationshipDto> result = actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(actUid);
 
         assertTrue(result.isEmpty());
-        verify(actRelationshipRepository, times(1)).findRecordsByActUid(actUid);
+        verify(actRelationshipRepository, times(1)).findByTargetActUid(actUid);
     }
 
     @Test
     void testSelectActRelationshipDTCollectionFromActUidException() {
         long actUid = 1L;
-        when(actRelationshipRepository.findRecordsByActUid(actUid)).thenThrow(new RuntimeException("Test Exception"));
+        when(actRelationshipRepository.findByTargetActUid(actUid)).thenThrow(new RuntimeException("Test Exception"));
 
-        assertThrows(DataProcessingException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             actRelationshipRepositoryUtil.selectActRelationshipDTCollectionFromActUid(actUid);
         });
     }
@@ -111,7 +107,7 @@ class ActRelationshipRepositoryUtilTest {
 
         actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDto);
 
-        verify(actRelationshipHistoryRepository, times(1)).save(any(ActRelationshipHistory.class));
+        verify(actRelationshipRepository, times(1)).insertActRelationshipHistory(any(ActRelationshipHistory.class));
     }
 
     @Test
@@ -123,7 +119,7 @@ class ActRelationshipRepositoryUtilTest {
 
         actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(1)).save(any(ActRelationship.class));
+        verify(actRelationshipRepository, times(1)).insertActRelationship(any(ActRelationship.class));
     }
 
     @Test
@@ -133,7 +129,7 @@ class ActRelationshipRepositoryUtilTest {
 
         actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(1)).delete(any(ActRelationship.class));
+        verify(actRelationshipRepository, times(1)).deleteActRelationship(any(ActRelationship.class));
     }
 
     @Test
@@ -146,7 +142,7 @@ class ActRelationshipRepositoryUtilTest {
 
         actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(1)).save(any(ActRelationship.class));
+        verify(actRelationshipRepository, times(1)).updateActRelationship(any(ActRelationship.class));
     }
 
     @Test
@@ -163,6 +159,6 @@ class ActRelationshipRepositoryUtilTest {
 
         actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(0)).save(any(ActRelationship.class));
+        verify(actRelationshipRepository, times(0)).updateActRelationship(any(ActRelationship.class));
     }
 }

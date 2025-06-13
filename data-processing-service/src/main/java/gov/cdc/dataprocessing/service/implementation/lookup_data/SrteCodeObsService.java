@@ -18,28 +18,7 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.SELECT_COUNT;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+@SuppressWarnings("java:S1149")
 public class SrteCodeObsService implements ISrteCodeObsService {
     private static final Logger logger = LoggerFactory.getLogger(SrteCodeObsService.class); // NOSONAR
 
@@ -83,7 +62,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         var result = snomedConditionRepository.getConditionForSnomedCode(snomedCd);
 
         if (result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         return "";
     }
@@ -91,7 +70,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getConditionForLoincCode(String loinCd) {
         var result = loincCodeRepository.findConditionForLoincCode(loinCd);
         if(result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         else {
             return "";
@@ -101,7 +80,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getDefaultConditionForLocalResultCode(String labResultCd, String laboratoryId) {
         var result = labResultRepository.findDefaultConditionCdByLabResultCdAndLaboratoryId(labResultCd, laboratoryId);
         if (result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         else {
             return "";
@@ -111,7 +90,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     public String getDefaultConditionForLabTest(String labTestCd, String laboratoryId) {
         var result = labTestRepository.findDefaultConditionForLabTest(labTestCd, laboratoryId);
         if (result.isPresent()) {
-            return result.get().get(0);
+            return result.get().getFirst();
         }
         else {
             return "";
@@ -154,7 +133,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                 loincCdList = result.get();
                 if (loincCdList.size() == 1) {
                     obsDT.setAltCdSystemCd("LN");
-                    obsDT.setAltCd(loincCdList.get(0));
+                    obsDT.setAltCd(loincCdList.getFirst());
                     obsDT.setCdDerivedInd("Y");
                 }
             }
@@ -181,7 +160,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
                     //If only one snomed cd found, use it, otherwise discard
                     if (snomedCdList.size() == 1) {
                         obsValueCodedDto.setAltCdSystemCd("SNM");
-                        obsValueCodedDto.setAltCd(snomedCdList.get(0));
+                        obsValueCodedDto.setAltCd(snomedCdList.getFirst());
                         obsValueCodedDto.setCodeDerivedInd("Y");
                     }
                 }
@@ -191,7 +170,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     }
 
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S1149"})
     public HashMap<Object, Object> getProgramArea(String reportingLabCLIA,
                                                   Collection<ObservationContainer> observationContainerCollection,
                                                   String electronicInd) throws DataProcessingException {
@@ -275,7 +254,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
      * @return Vector
      */
     // AK - 7/25/04
-    @SuppressWarnings({"java:S3776","java:S135"})
+    @SuppressWarnings({"java:S3776","java:S135", "java:S135"})
 
     public String getPAFromSNOMEDCodes(String reportingLabCLIA, Collection<ObsValueCodedDto> obsValueCodedDtoColl) throws DataProcessingException {
         Vector<Object> snomedVector = new Vector<>();
@@ -434,13 +413,13 @@ public class SrteCodeObsService implements ISrteCodeObsService {
         }
 
         String cdSystemCd = obsDt.getCdSystemCd();
-        if (cdSystemCd == null || cdSystemCd.trim().equals(""))
+        if (cdSystemCd == null || cdSystemCd.trim().isEmpty())
         {
             return null;
         }
 
         String obsCode = obsDt.getCd();
-        if (obsCode == null || obsCode.trim().equals(""))
+        if (obsCode == null || obsCode.trim().isEmpty())
         {
             return null;
         }
@@ -633,7 +612,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
         String code = getLocalTestCode(obsDt);
 
-        if (reportingLabCLIA == null || code == null || code.trim().equals(""))
+        if (reportingLabCLIA == null || code == null || code.trim().isEmpty())
         {
             return null;
         }
@@ -733,7 +712,7 @@ public class SrteCodeObsService implements ISrteCodeObsService {
     private String getLocalTestCode(ObservationDto obsDt)
     {
         String code = null;
-        if (obsDt != null && obsDt.getCdSystemCd() != null && (obsDt.getCd() != null && !obsDt.getCd().equals("") &&
+        if (obsDt != null && obsDt.getCdSystemCd() != null && (obsDt.getCd() != null && !obsDt.getCd().isEmpty() &&
                 !obsDt.getCd().equals(" ")))
         {
             code = obsDt.getCd();

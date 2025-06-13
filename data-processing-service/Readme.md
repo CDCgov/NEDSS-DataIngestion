@@ -39,3 +39,10 @@ docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topi
 docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_processing_public_health_case --partitions 50
 docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_edx_log --partitions 50
 docker exec -t broker kafka-topics -alter --bootstrap-server broker:29092 --topic dp_elr_action_tracker --partitions 50
+
+
+| Setting                                            | Behavior                                         | Risk Level  |
+| -------------------------------------------------- | ------------------------------------------------ | ----------- |
+| `fixedRate = 1000`                                 | Runs every 1s regardless of completion           | High        |
+| `fixedDelay = 1000`                                | Waits 1s **after method completes** before rerun | Safer       |
+| `fixedRate = 1000` + semaphore != hikari pool size | Will likely exhaust DB pool                      | Very high |

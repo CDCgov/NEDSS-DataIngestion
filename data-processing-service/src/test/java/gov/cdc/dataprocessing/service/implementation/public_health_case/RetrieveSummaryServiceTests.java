@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -41,7 +41,7 @@ class RetrieveSummaryServiceTests {
     @Mock
     private CustomRepository customRepository;
     @Mock
-    private ICatchingValueService catchingValueService;
+    private ICatchingValueDpService catchingValueService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
@@ -69,37 +69,9 @@ class RetrieveSummaryServiceTests {
                 catchingValueService, prepareAssocModelHelper, notificationRepositoryUtil, authUtil);
     }
 
-    @Test
-    void checkBeforeCreateAndStoreMessageLogDTCollection_Success() {
-        long uid = 10L;
-        var col = new ArrayList<LabReportSummaryContainer>();
-        var phc = new PublicHealthCaseDto();
-        phc.setStdHivProgramAreaCode(true);
-        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(10L)).thenReturn(
-                phc
-        );
-        retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(uid, col);
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
-    }
 
     @Test
-    void checkBeforeCreateAndStoreMessageLogDTCollection_Exception_HIT() {
-        long uid = 10L;
-        var col = new ArrayList<LabReportSummaryContainer>();
-        var phc = new PublicHealthCaseDto();
-        phc.setStdHivProgramAreaCode(true);
-        when(publicHealthCaseRepositoryUtil.findPublicHealthCase(10L)).thenThrow(
-                new RuntimeException("TEST")
-        );
-
-        retrieveSummaryService.checkBeforeCreateAndStoreMessageLogDTCollection(uid, col);
-        verify(publicHealthCaseRepositoryUtil, times(1)).findPublicHealthCase(10L);
-    }
-
-
-
-    @Test
-    void retrieveDocumentSummaryVOForInv_Success() throws DataProcessingException {
+    void retrieveDocumentSummaryVOForInv_Success() {
         long uid = 10L;
         when(customRepository.retrieveDocumentSummaryVOForInv(10L)).thenReturn(
                 new HashMap<>()
@@ -193,7 +165,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void getAssociatedDocumentList_Success() throws DataProcessingException {
+    void getAssociatedDocumentList_Success()  {
         long uid = 10L;
         String targetClassCd= "CODE";
         String sourceClassCd = "CODE";
@@ -207,7 +179,7 @@ class RetrieveSummaryServiceTests {
     }
 
     @Test
-    void getAssociatedDocumentList_Success_2() throws DataProcessingException {
+    void getAssociatedDocumentList_Success_2()  {
         long uid = 10L;
         String targetClassCd= "CODE";
         String sourceClassCd = "CODE";
@@ -229,7 +201,7 @@ class RetrieveSummaryServiceTests {
 
         when(queryHelper.getDataAccessWhereClause(NBSBOLookup.DOCUMENT, "VIEW", ""))
                 .thenThrow(new RuntimeException("TEST"));
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             retrieveSummaryService.getAssociatedDocumentList(uid, targetClassCd, sourceClassCd);
         });
 
@@ -294,13 +266,13 @@ class RetrieveSummaryServiceTests {
 
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             retrieveSummaryService.updateNotification(notificationUid,
                     businessTriggerCd, phcCd, phcClassCd, progAreaCd, jurisdictionCd, sharedInd);
         });
 
         assertNotNull(thrown);
-        assertEquals("Error in calling ActControllerEJB.setNotification() TEST", thrown.getMessage());
+        assertEquals("TEST", thrown.getMessage());
     }
 
     @Test

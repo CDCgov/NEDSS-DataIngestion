@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -39,7 +39,7 @@ class PatientMatchingBaseServiceTest {
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
     @Mock
-    private CachingValueService cachingValueService;
+    private CachingValueDpDpService cachingValueDpService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
 
@@ -58,7 +58,7 @@ class PatientMatchingBaseServiceTest {
         Mockito.reset(edxPatientMatchRepositoryUtil);
         Mockito.reset(entityHelper);
         Mockito.reset(patientRepositoryUtil);
-        Mockito.reset(cachingValueService);
+        Mockito.reset(cachingValueDpService);
         Mockito.reset(prepareAssocModelHelper);
     }
     @SuppressWarnings("java:S2699")
@@ -517,7 +517,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonHashCdPatient_RecordStatusActive() throws DataProcessingException {
+    void testSetPersonHashCdPatient_RecordStatusActive()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -666,7 +666,7 @@ class PatientMatchingBaseServiceTest {
 
 
     @Test
-    void testSetPersonHashCdNok_RecordStatusActive() throws DataProcessingException {
+    void testSetPersonHashCdNok_RecordStatusActive()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -685,7 +685,7 @@ class PatientMatchingBaseServiceTest {
     }
 
     @Test
-    void testSetPersonHashCdNok_InnerExceptionHandling() throws DataProcessingException {
+    void testSetPersonHashCdNok_InnerExceptionHandling()  {
         // Arrange
         PersonContainer personContainer = new PersonContainer();
         PersonDto personDto = new PersonDto();
@@ -715,7 +715,7 @@ class PatientMatchingBaseServiceTest {
         doThrow(new RuntimeException("Outer exception")).when(edxPatientMatchRepositoryUtil).deleteEdxPatientMatchDTColl(personDto.getPersonParentUid());
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             patientMatchingBaseService.setPersonHashCdNok(personContainer);
         });
 
