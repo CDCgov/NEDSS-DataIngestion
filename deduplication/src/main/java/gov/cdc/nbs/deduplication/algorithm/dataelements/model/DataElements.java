@@ -16,8 +16,8 @@ public record DataElements(
     DataElement county,
     DataElement telephone,
     DataElement email,
-    DataElement identifier,
     // Identification Details
+    DataElement identifier,
     DataElement accountNumber,
     DataElement driversLicenseNumber,
     DataElement medicaidNumber,
