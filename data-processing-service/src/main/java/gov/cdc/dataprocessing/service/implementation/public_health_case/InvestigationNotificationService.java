@@ -248,7 +248,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             }
             PageActProxyContainer pageActProxyContainer =pageProxyVO;
 
-            answerMap = (pageProxyVO).getPageVO().getPamAnswerDTMap();
+            answerMap = pageProxyVO.getPageVO().getPamAnswerDTMap();
             if(pageObj == null || pageObj instanceof PublicHealthCaseContainer)
             {
                 participationDTCollection  = pageActProxyContainer.getPublicHealthCaseContainer().getTheParticipationDTCollection();
