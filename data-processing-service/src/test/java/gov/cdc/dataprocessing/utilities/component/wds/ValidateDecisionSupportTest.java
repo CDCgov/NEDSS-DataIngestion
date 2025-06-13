@@ -827,6 +827,7 @@ class ValidateDecisionSupportTest {
         assertFalse(result.getTheConfirmationMethodDTCollection().isEmpty());
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void processActIds_Test_WithNullActIdCollection() {
         // Arrange
@@ -846,6 +847,7 @@ class ValidateDecisionSupportTest {
         // Assert - no exception should be thrown
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void processActIds_Test_WithEmptyActIdCollection() {
         // Arrange
@@ -865,7 +867,7 @@ class ValidateDecisionSupportTest {
         // Assert - no exception should be thrown
     }
 
-
+    @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodCodeDTRequired_Test_WithNullCollection() {
         // Arrange
@@ -878,6 +880,7 @@ class ValidateDecisionSupportTest {
         // Assert - no exception should be thrown
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void processConfirmationMethodCodeDTRequired_Test_WithEmptyCollection() {
         // Arrange
@@ -890,6 +893,7 @@ class ValidateDecisionSupportTest {
         // Assert - no exception should be thrown
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void processNBSCaseManagementDT_Test_WithNullCaseManagement() {
         // Arrange
