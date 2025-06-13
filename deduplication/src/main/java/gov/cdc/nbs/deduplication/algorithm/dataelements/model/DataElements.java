@@ -16,6 +16,7 @@ public record DataElements(
     DataElement county,
     DataElement telephone,
     DataElement email,
+    DataElement identifier,
     // Identification Details
     DataElement accountNumber,
     DataElement driversLicenseNumber,
@@ -34,6 +35,7 @@ public record DataElements(
 
   public DataElements() {
     this(
+        new DataElement(),
         new DataElement(),
         new DataElement(),
         new DataElement(),

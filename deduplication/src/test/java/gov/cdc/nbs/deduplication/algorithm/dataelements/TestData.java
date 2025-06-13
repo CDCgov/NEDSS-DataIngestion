@@ -13,6 +13,7 @@ public class TestData {
       new DataElement(true, 3.3, 39.74),
       new DataElement(true, 4.4, 49.72),
       new DataElement(true, 5.5, 59.975),
+      new DataElement(true, 20.0, 5.0),
       new DataElement(true, 6.6, 69.23231),
       new DataElement(true, 7.0, 79.552),
       new DataElement(true, 8.8, 89.24),
@@ -31,4 +32,33 @@ public class TestData {
       new DataElement(true, 23.14, 2.4),
       new DataElement(true, 24.15, 3.784),
       new DataElement(true, 25.16, 4.84));
+
+  public static final DataElements SPARSE_DATA_ELEMENTS = new DataElements(
+      new DataElement(true, 240.0, 9.0),
+      new DataElement(true, 20.0, 4.0),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      new DataElement(true, 24.15, 3.784),
+      new DataElement(true, 25.16, 4.84));
+
 }

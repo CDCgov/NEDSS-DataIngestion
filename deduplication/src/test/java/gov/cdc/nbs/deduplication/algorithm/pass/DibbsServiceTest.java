@@ -41,10 +41,8 @@ class DibbsServiceTest {
       "testLabel",
       "testDescription",
       false,
-      true,
-      new ArrayList<>(),
-      0.0,
-      0.0);
+      null,
+      new ArrayList<>());
 
   @Test
   void should_save_new_algorithm() throws JsonProcessingException {
