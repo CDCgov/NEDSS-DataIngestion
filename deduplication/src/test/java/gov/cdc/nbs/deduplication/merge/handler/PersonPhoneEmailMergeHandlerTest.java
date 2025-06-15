@@ -13,38 +13,39 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class PersonAddressMergeHandlerTest {
+class PersonPhoneEmailMergeHandlerTest {
 
   @Mock
   private NamedParameterJdbcTemplate nbsTemplate;
 
-  private PersonAddressMergeHandler handler;
+  private PersonPhoneEmailMergeHandler handler;
 
   @BeforeEach
   void setUp() {
-    handler = new PersonAddressMergeHandler(nbsTemplate);
+    handler = new PersonPhoneEmailMergeHandler(nbsTemplate);
   }
 
   @Test
   @SuppressWarnings("unchecked")
-  void handleMerge_shouldPerformAllPersonAddressesRelatedDatabaseOperations() {
+  void handleMerge_shouldPerformAllPersonPhoneEmailRelatedDatabaseOperations() {
     String survivingId = "survivorId1";
     String matchId = "match123";
     PatientMergeRequest request = getPatientMergeRequest(survivingId);
 
     handler.handleMerge(matchId, request);
 
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.UPDATE_UN_SELECTED_ADDRESS_INACTIVE),
+    verify(nbsTemplate).update(eq(PersonPhoneEmailMergeHandler.UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE),
         (Map<String, Object>) argThat(params -> {
           Map<String, Object> paramMap = (Map<String, Object>) params;
           return survivingId.equals(paramMap.get("survivingId")) &&
               List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
         }));
 
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.INSERT_NEW_LOCATORS),
+    verify(nbsTemplate).update(eq(PersonPhoneEmailMergeHandler.INSERT_NEW_PHONE_EMAIL_LOCATORS),
         (Map<String, Object>) argThat(params -> {
           Map<String, Object> paramMap = (Map<String, Object>) params;
           return survivingId.equals(paramMap.get("survivingId")) &&
@@ -54,12 +55,12 @@ class PersonAddressMergeHandlerTest {
   }
 
   private PatientMergeRequest getPatientMergeRequest(String survivingId) {
-    List<PatientMergeRequest.AddressId> addressIds = Arrays.asList(
-        new PatientMergeRequest.AddressId("locator1"),
-        new PatientMergeRequest.AddressId("locator2")
+    List<PatientMergeRequest.PhoneEmailId> phoneEmailIds = Arrays.asList(
+        new PatientMergeRequest.PhoneEmailId("locator1"),
+        new PatientMergeRequest.PhoneEmailId("locator2")
     );
     return new PatientMergeRequest(survivingId, null,
-        null, addressIds, null, null, null);
+        null, null, phoneEmailIds, null, null);
   }
 
 

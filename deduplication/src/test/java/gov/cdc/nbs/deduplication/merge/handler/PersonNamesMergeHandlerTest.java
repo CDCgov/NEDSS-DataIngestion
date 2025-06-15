@@ -72,7 +72,7 @@ class PersonNamesMergeHandlerTest {
   private void verifySupersededNameMoves() {
     ArgumentCaptor<Map<String, Object>> moveParamsCaptor = ArgumentCaptor.forClass(Map.class);
     verify(nbsTemplate, times(2)).update(
-        eq(PersonNamesMergeHandler.UPDATE_SUPERSEDED_NAME_TO_SURVIVING),
+        eq(PersonNamesMergeHandler.COPY_PERSON_NAME_TO_SURVIVING),
         moveParamsCaptor.capture()
     );
   }
