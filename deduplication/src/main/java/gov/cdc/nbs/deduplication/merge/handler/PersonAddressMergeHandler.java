@@ -87,23 +87,6 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
         AND class_cd = 'PST';
       """;
 
-  static final String UPDATE_LOCATORS_HIST_TO_SURVIVING = """
-      UPDATE Entity_loc_participation_hist
-      SET entity_uid = :survivingId,
-          last_chg_time = GETDATE()
-      WHERE locator_uid IN (:selectedLocators)
-        AND entity_uid != :survivingId
-        AND use_cd NOT IN ('BIR', 'DTH')
-        AND class_cd = 'PST';
-      """;
-
-  static final String DELETE_OLD_LOCATORS = """
-      DELETE FROM Entity_locator_participation
-      WHERE locator_uid IN (:selectedLocators)
-        AND entity_uid != :survivingId
-        AND use_cd NOT IN ('BIR', 'DTH')
-        AND class_cd = 'PST';
-      """;
 
   public PersonAddressMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
@@ -140,8 +123,6 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
     params.put("selectedLocators", selectedLocators);
 
     nbsTemplate.update(INSERT_NEW_LOCATORS, params);
-    nbsTemplate.update(UPDATE_LOCATORS_HIST_TO_SURVIVING, params);
-    nbsTemplate.update(DELETE_OLD_LOCATORS, params);
   }
 
 

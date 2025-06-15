@@ -85,22 +85,6 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE';
       """;
 
-  static final String UPDATE_PHONE_EMAIL_LOCATORS_HIST_TO_SURVIVING = """
-      UPDATE Entity_loc_participation_hist
-      SET entity_uid = :survivingId,
-          last_chg_time = GETDATE()
-      WHERE locator_uid IN (:selectedLocators)
-        AND entity_uid != :survivingId
-        AND class_cd = 'TELE';
-      """;
-
-  static final String DELETE_OLD_PHONE_EMAIL_LOCATORS = """
-      DELETE FROM Entity_locator_participation
-      WHERE locator_uid IN (:selectedLocators)
-        AND entity_uid != :survivingId
-        AND class_cd = 'TELE'';
-      """;
-
 
   public PersonPhoneEmailMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
@@ -137,8 +121,6 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
     params.put("selectedLocators", selectedLocators);
 
     nbsTemplate.update(INSERT_NEW_PHONE_EMAIL_LOCATORS, params);
-    nbsTemplate.update(UPDATE_PHONE_EMAIL_LOCATORS_HIST_TO_SURVIVING, params);
-    nbsTemplate.update(DELETE_OLD_PHONE_EMAIL_LOCATORS, params);
   }
 
 

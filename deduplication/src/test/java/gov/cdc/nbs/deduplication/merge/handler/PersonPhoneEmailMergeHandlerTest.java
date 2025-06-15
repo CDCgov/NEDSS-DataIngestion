@@ -52,20 +52,6 @@ class PersonPhoneEmailMergeHandlerTest {
               List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
         }));
 
-    verify(nbsTemplate).update(eq(PersonPhoneEmailMergeHandler.UPDATE_PHONE_EMAIL_LOCATORS_HIST_TO_SURVIVING),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
-    verify(nbsTemplate).update(eq(PersonPhoneEmailMergeHandler.DELETE_OLD_PHONE_EMAIL_LOCATORS),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
   }
 
   private PatientMergeRequest getPatientMergeRequest(String survivingId) {

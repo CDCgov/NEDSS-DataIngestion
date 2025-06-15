@@ -51,20 +51,6 @@ class PersonAddressMergeHandlerTest {
               List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
         }));
 
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.UPDATE_LOCATORS_HIST_TO_SURVIVING),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
-    verify(nbsTemplate).update(eq(PersonAddressMergeHandler.DELETE_OLD_LOCATORS),
-        (Map<String, Object>) argThat(params -> {
-          Map<String, Object> paramMap = (Map<String, Object>) params;
-          return survivingId.equals(paramMap.get("survivingId")) &&
-              List.of("locator1", "locator2").equals(paramMap.get("selectedLocators"));
-        }));
-
   }
 
   private PatientMergeRequest getPatientMergeRequest(String survivingId) {
