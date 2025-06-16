@@ -388,7 +388,7 @@ public class PatientRepositoryUtil {
 
     protected void createPersonName(PersonContainer personContainer)   {
         var personNameDtos = personContainer.getThePersonNameDtoCollection();
-        if (personNameDtos == null || personNameDtos.isEmpty()) {
+        if (personNameDtos.isEmpty()) {
             return;
         }
 
@@ -417,7 +417,7 @@ public class PatientRepositoryUtil {
     @SuppressWarnings({"java:S3776", "java:S1141"})
     protected void updateEntityId(PersonContainer personContainer)   {
         var entityIdDtos = personContainer.getTheEntityIdDtoCollection();
-        if (entityIdDtos == null || entityIdDtos.isEmpty()) {
+        if (entityIdDtos.isEmpty()) {
             return;
         }
 
@@ -523,8 +523,7 @@ public class PatientRepositoryUtil {
 
         try {
             if (parentUid != null && parentUid > 0) {
-                assert patientUid != null;
-                if (!patientUid.equals(parentUid)) {
+                if (patientUid != null && !patientUid.equals(parentUid)) {
                     var raceParent = personJdbcRepository.findByPersonRaceUid(parentUid);
                     if (raceParent != null && !raceParent.isEmpty()) {
                         dataModifierReposJdbc.deletePersonRaceByUid(parentUid, retainingRaceCodeList);

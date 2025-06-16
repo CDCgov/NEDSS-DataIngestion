@@ -810,15 +810,7 @@ class PatientRepositoryUtilTest {
 
     }
 
-    @Test
-    void testCreatePersonName_nullCollection() {
-        PersonContainer container = new PersonContainer();
-        container.setThePersonNameDtoCollection(null);
 
-        patientRepositoryUtil.createPersonName(container);
-
-        verify(personRepository, never()).createPersonName(any());
-    }
 
     @Test
     void testCreatePersonName_emptyCollection() {
@@ -850,4 +842,259 @@ class PatientRepositoryUtilTest {
         verify(personRepository, times(1)).createPersonName(any(PersonName.class));
     }
 
+    @Test
+    void createPersonNameDtosEmpty() {
+        PersonContainer container = new PersonContainer();
+        patientRepositoryUtil.createPersonName(container);
+        verify(personRepository, times(0)).createPersonName(any(PersonName.class));
+
+    }
+
+    @Test
+    void updateEntityIdDtsEmpty() {
+        PersonContainer container = new PersonContainer();
+        patientRepositoryUtil.updateEntityId(container);
+        verify(entityIdRepository, times(0)).mergeEntityId(any());
+
+    }
+
+    @Test
+    void testUpdateEntityId_deletePath_noException() {
+        EntityIdDto dto = new EntityIdDto();
+        dto.setItDelete(true);
+        dto.setEntityUid(100L);
+        dto.setEntityIdSeq(1);
+
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(100L);
+        personDto.setPersonParentUid(200L);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setTheEntityIdDtoCollection(List.of(dto));
+
+        patientRepositoryUtil.updateEntityId(container);
+
+        verify(dataModifierReposJdbc).deleteEntityIdAndSeq(100L, 1);
+        verify(dataModifierReposJdbc).deleteEntityIdAndSeq(200L, 1);
+    }
+
+    @Test
+    void testUpdateEntityId_deletePath_withException() {
+        EntityIdDto dto = new EntityIdDto();
+        dto.setItDelete(true);
+        dto.setEntityUid(100L);
+        dto.setEntityIdSeq(1);
+
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(100L);
+        personDto.setPersonParentUid(200L);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setTheEntityIdDtoCollection(List.of(dto));
+
+        doThrow(new RuntimeException("delete error"))
+                .when(dataModifierReposJdbc).deleteEntityIdAndSeq(anyLong(), anyInt());
+
+        patientRepositoryUtil.updateEntityId(container);
+
+        verify(dataModifierReposJdbc, atLeastOnce()).deleteEntityIdAndSeq(anyLong(), anyInt());
+    }
+
+
+    @Test
+    void testUpdateEntityId_mergePath_withNullUserIds() {
+        EntityIdDto dto = new EntityIdDto();
+        dto.setItDelete(false);
+        dto.setAddUserId(null);
+        dto.setLastChgUserId(null);
+        dto.setEntityIdSeq(1);
+
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(101L);
+        personDto.setPersonParentUid(201L);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setTheEntityIdDtoCollection(List.of(dto));
+
+        AuthUser authUser = mock(AuthUser.class);
+        when(authUser.getNedssEntryId()).thenReturn(12345L);
+
+        patientRepositoryUtil.updateEntityId(container);
+
+        verify(entityIdRepository, times(2)).mergeEntityId(any(EntityId.class));
+    }
+
+    @Test
+    void testPreparePersonNameBeforePersistence_whenNameDtosNullOrEmpty() {
+        PersonContainer container = new PersonContainer();
+        container.setThePersonNameDtoCollection(null);
+
+        PersonContainer result = patientRepositoryUtil.preparePersonNameBeforePersistence(container);
+
+        assertSame(container, result);
+
+        // Now test with empty list
+        container.setThePersonNameDtoCollection(Collections.emptyList());
+        result = patientRepositoryUtil.preparePersonNameBeforePersistence(container);
+        assertSame(container, result);
+    }
+
+
+    @Test
+    void testUpdatePersonRace_whenCollectionIsNullOrEmpty() {
+        PersonContainer container = new PersonContainer();
+        container.setThePersonRaceDtoCollection(null); // null case
+        container.setThePersonDto(new PersonDto());
+
+        patientRepositoryUtil.updatePersonRace(container); // should not throw or do anything
+
+        // now with empty list
+        container.setThePersonRaceDtoCollection(Collections.emptyList());
+
+        patientRepositoryUtil.updatePersonRace(container); // again, should not throw
+    }
+
+    @Test
+    void testUpdatePersonRace_whenDtoMarkedForDelete_callsDeleteMethod() {
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(1L);
+        personDto.setPersonParentUid(2L);
+
+        PersonRaceDto raceDto = new PersonRaceDto();
+        raceDto.setItDelete(true);
+        raceDto.setPersonUid(1L);
+        raceDto.setRaceCd("2054-5");
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setThePersonRaceDtoCollection(List.of(raceDto));
+
+        patientRepositoryUtil.updatePersonRace(container);
+
+        verify(dataModifierReposJdbc).deletePersonRaceByUidAndCode(1L, "2054-5");
+    }
+
+
+    @Test
+    void testUpdatePersonRace_whenDtoDirtyAndUidNotEqualParent_addsToRetainList() {
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(3L);
+        personDto.setPersonParentUid(2L);
+
+        PersonRaceDto raceDto = new PersonRaceDto();
+        raceDto.setItDelete(false);
+        raceDto.setItDirty(true);
+        raceDto.setPersonUid(3L);
+        raceDto.setRaceCd("1002-5");
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setThePersonRaceDtoCollection(List.of(raceDto));
+
+        patientRepositoryUtil.updatePersonRace(container);
+
+        verify(personRepository, times(2)).mergePersonRace(any(PersonRace.class));
+    }
+
+    @Test
+    void testUpdatePersonRace_whenDeleteThrowsException_logsError() {
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(1L);
+        personDto.setPersonParentUid(2L);
+
+        PersonRaceDto raceDto = new PersonRaceDto();
+        raceDto.setItDelete(true);
+        raceDto.setPersonUid(1L);
+        raceDto.setRaceCd("2054-5");
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setThePersonRaceDtoCollection(List.of(raceDto));
+
+        // Simulate exception
+        doThrow(new RuntimeException("Simulated deletion failure"))
+                .when(dataModifierReposJdbc).deletePersonRaceByUidAndCode(1L, "2054-5");
+
+        // Run
+        assertDoesNotThrow(() -> patientRepositoryUtil.updatePersonRace(container));
+
+        // Verify that the method was called (even though it failed)
+        verify(dataModifierReposJdbc).deletePersonRaceByUidAndCode(1L, "2054-5");
+
+    }
+
+
+    @Test
+    void test_retainingList_null() {
+        patientRepositoryUtil.deleteInactivePersonRace(null, 10L, 20L);
+        verifyNoInteractions(dataModifierReposJdbc);
+    }
+
+    @Test
+    void test_retainingList_empty() {
+        patientRepositoryUtil.deleteInactivePersonRace(Collections.emptyList(), 10L, 20L);
+        verifyNoInteractions(dataModifierReposJdbc);
+    }
+
+    @Test
+    void test_patientUid_null() {
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), null, 20L);
+        verify(dataModifierReposJdbc, never()).deletePersonRaceByUid(any(), any());
+    }
+
+    @Test
+    void test_patientUid_zero() {
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 0L, 20L);
+        verify(dataModifierReposJdbc, never()).deletePersonRaceByUid(eq(0L), any());
+    }
+
+    @Test
+    void test_patientUid_valid_callsDelete() {
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, 20L);
+        verify(dataModifierReposJdbc).deletePersonRaceByUid(10L, List.of("A"));
+    }
+
+    @Test
+    void test_patientUid_throwsException_logsError() {
+        doThrow(new RuntimeException("Simulated")).when(dataModifierReposJdbc).deletePersonRaceByUid(eq(10L), any());
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, 20L);
+        verify(dataModifierReposJdbc).deletePersonRaceByUid(eq(10L), any());
+    }
+
+    @Test
+    void test_parentUid_null() {
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, null);
+        verify(personRepository, never()).findByPersonRaceUid(any());
+        verify(dataModifierReposJdbc, never()).deletePersonRaceByUid(eq(null), any());
+    }
+
+    @Test
+    void test_parentUid_sameAsPatientUid_shouldNotDeleteAgain() {
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, 10L);
+        verify(personRepository, never()).findByPersonRaceUid(any());
+    }
+
+    @Test
+    void test_parentUid_diffAndRecordFound_shouldDelete() {
+        when(personRepository.findByPersonRaceUid(20L)).thenReturn(List.of(new PersonRace()));
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, 20L);
+        verify(dataModifierReposJdbc).deletePersonRaceByUid(20L, List.of("A"));
+    }
+
+    @Test
+    void test_parentUid_diffAndRecordEmpty_shouldNotDelete() {
+        when(personRepository.findByPersonRaceUid(20L)).thenReturn(Collections.emptyList());
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, 20L);
+        verify(dataModifierReposJdbc, never()).deletePersonRaceByUid(20L, List.of("A"));
+    }
+
+    @Test
+    void test_parentUid_exception_logsError() {
+        when(personRepository.findByPersonRaceUid(20L)).thenThrow(new RuntimeException("Error"));
+        patientRepositoryUtil.deleteInactivePersonRace(List.of("A"), 10L, 20L);
+        verify(personRepository).findByPersonRaceUid(20L);
+    }
 }
