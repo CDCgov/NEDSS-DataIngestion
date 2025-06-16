@@ -49,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"java:S6068", "java:S2699"})
 class PatientRepositoryUtilTest {
     @Mock
     private PersonJdbcRepository personRepository;

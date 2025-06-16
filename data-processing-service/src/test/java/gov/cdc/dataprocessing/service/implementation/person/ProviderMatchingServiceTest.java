@@ -464,7 +464,7 @@ class ProviderMatchingServiceTest {
     }
 
     @Test
-    void persistMatchIfNotNull_shouldNotPersist_whenMatchStringIsNull() throws DataProcessingException {
+    void persistMatchIfNotNull_shouldNotPersist_whenMatchStringIsNull(){
         // Arrange
         String matchString = null;
         int hashCode = 0;
@@ -485,7 +485,7 @@ class ProviderMatchingServiceTest {
     }
 
     @Test
-    void persistIfNoRole_shouldCallSaveEdxEntityMatch_whenRoleIsNull() throws DataProcessingException {
+    void persistIfNoRole_shouldCallSaveEdxEntityMatch_whenRoleIsNull() {
         // Arrange
         PersonContainer personContainer = mock(PersonContainer.class);
         when(personContainer.getRole()).thenReturn(null); // role == null

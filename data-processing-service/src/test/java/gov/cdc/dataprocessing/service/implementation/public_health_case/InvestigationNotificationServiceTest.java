@@ -30,7 +30,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@SuppressWarnings("java:S6068")
 @ExtendWith(MockitoExtension.class)
 class InvestigationNotificationServiceTest {
 
@@ -380,6 +380,7 @@ class InvestigationNotificationServiceTest {
         assertTrue(missingFields.isEmpty());
     }
 
+
     @Test
     void validatePostalLocator_shouldCheckObjectWhenPersonVOAndCollectionIsNull() throws Exception {
         // Arrange
@@ -575,7 +576,6 @@ class InvestigationNotificationServiceTest {
         context.answerMap = new HashMap<>();
 
         NbsQuestionMetadata metaData = mock(NbsQuestionMetadata.class);
-//        when(metaData.getQuestionIdentifier()).thenReturn("QID_123");
 
         Map<Object, Object> missingFields = spy(new HashMap<>());
 

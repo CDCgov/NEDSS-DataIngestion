@@ -88,7 +88,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         return false;
     }
 
-    protected void persistMatchIfNotNull(String matchString, int hashCode, Long entityUid, PersonContainer container) throws DataProcessingException {
+    protected void persistMatchIfNotNull(String matchString, int hashCode, Long entityUid, PersonContainer container)  {
         if (matchString != null) {
             EdxEntityMatchDto dto = createMatchDto(matchString, hashCode);
             dto.setEntityUid(entityUid);
@@ -102,7 +102,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         }
     }
 
-    protected void persistIfNoRole(EdxEntityMatchDto dto, PersonContainer container, Long entityUid) throws DataProcessingException {
+    protected void persistIfNoRole(EdxEntityMatchDto dto, PersonContainer container, Long entityUid)  {
         dto.setEntityUid(entityUid);
         persistIfNoRole(dto, container);
     }

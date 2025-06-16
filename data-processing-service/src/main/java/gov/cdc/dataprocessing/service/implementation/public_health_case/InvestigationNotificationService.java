@@ -38,7 +38,7 @@ import java.util.*;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.*;
 
 @Service
-
+@SuppressWarnings("java:S125")
 public class InvestigationNotificationService  implements IInvestigationNotificationService {
     private static final Logger logger = LoggerFactory.getLogger(InvestigationNotificationService.class); // NOSONAR
 
@@ -495,6 +495,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         checkObject(val, missingFields, metaData);
     }
 
+    @SuppressWarnings("java:S112")
     protected void validatePostalLocator(ValidationContext context, String dLocation, NbsQuestionMetadata metaData,
                                        Map<Object, Object> missingFields) throws Exception {
         String attr = dLocation.substring(dLocation.indexOf('.') + 1);
@@ -517,6 +518,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         }
     }
 
+    @SuppressWarnings("java:S112")
     protected void validatePersonRace(ValidationContext context, String dLocation, NbsQuestionMetadata metaData,
                                     Map<Object, Object> missingFields) throws Exception {
         String attr = dLocation.substring(dLocation.indexOf('.') + 1);
@@ -533,6 +535,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         }
     }
 
+    @SuppressWarnings("java:S112")
     protected void validateActId(ValidationContext context, String dLocation, String label, String formCd,
                                NbsQuestionMetadata metaData, Map<Object, Object> missingFields) throws Exception {
         String attr = dLocation.substring(dLocation.indexOf('.') + 1);
@@ -591,14 +594,14 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         String formCd;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6201"})
     protected ValidationContext buildValidationContext(Object pageObj, Long uid, String formCd) throws DataProcessingException {
         ValidationContext ctx = new ValidationContext();
         ctx.formCd = formCd;
 
         if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT)
                 || formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_VAR)) {
-            PamProxyContainer proxy = (pageObj instanceof PamProxyContainer) ? (PamProxyContainer) pageObj : new PamProxyContainer();
+            PamProxyContainer proxy = (pageObj instanceof PamProxyContainer ) ? (PamProxyContainer) pageObj : new PamProxyContainer();
             BasePamContainer pamVO = proxy.getPamVO();
             ctx.answerMap = pamVO != null ? pamVO.getPamAnswerDTMap() : null;
             ctx.participationDTCollection = proxy.getTheParticipationDTCollection() != null ?
@@ -627,6 +630,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         return ctx;
     }
 
+    @SuppressWarnings("java:S112")
     protected Object reflectGet(Object target, String dLocation) throws Exception {
         String attr = dLocation.substring(dLocation.indexOf('.') + 1);
         String getter = createGetterMethod(attr);

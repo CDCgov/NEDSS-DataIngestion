@@ -38,8 +38,8 @@ public class QueryHelper {
         String guestList;
 
         columnName = PROGRAM_JUS_OID;
-        ownerList =  OdseCache.OWNER_LIST_HASHED_PA_J ; //getHashedPAJList(false);
-        guestList = OdseCache.GUEST_LIST_HASHED_PA_J ; //getHashedPAJList(true);
+        ownerList =  OdseCache.OWNER_LIST_HASHED_PA_J ;
+        guestList = OdseCache.GUEST_LIST_HASHED_PA_J ;
         whereClause = buildWhereClause(ownerList, guestList, columnName, alias,true, businessObjLookupName);
 
 

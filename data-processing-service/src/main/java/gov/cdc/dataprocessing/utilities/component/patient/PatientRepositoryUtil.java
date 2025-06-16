@@ -522,12 +522,10 @@ public class PatientRepositoryUtil {
         }
 
         try {
-            if (parentUid != null && parentUid > 0) {
-                if (patientUid != null && !patientUid.equals(parentUid)) {
-                    var raceParent = personJdbcRepository.findByPersonRaceUid(parentUid);
-                    if (raceParent != null && !raceParent.isEmpty()) {
-                        dataModifierReposJdbc.deletePersonRaceByUid(parentUid, retainingRaceCodeList);
-                    }
+            if (parentUid != null && parentUid > 0 && patientUid != null && !patientUid.equals(parentUid)) {
+                var raceParent = personJdbcRepository.findByPersonRaceUid(parentUid);
+                if (raceParent != null && !raceParent.isEmpty()) {
+                    dataModifierReposJdbc.deletePersonRaceByUid(parentUid, retainingRaceCodeList);
                 }
             }
         } catch (Exception e) {
