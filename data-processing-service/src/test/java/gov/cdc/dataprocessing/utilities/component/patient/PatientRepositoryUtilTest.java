@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.utilities.component.patient;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
@@ -39,11 +40,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -470,4 +472,382 @@ class PatientRepositoryUtilTest {
 
         verify(dataModifierReposJdbc, times(0)).deletePersonRaceByUid(eq(10L),any());
     }
+
+    private void mockUidPool(long uidSeed, String prefix, long mid, String suffix) throws DataProcessingException {
+        LocalUidGeneratorDto classType = new LocalUidGeneratorDto();
+        classType.setUidPrefixCd(prefix);
+        classType.setUidSuffixCd(suffix);
+        classType.setSeedValueNbr(mid);
+
+        LocalUidGeneratorDto gaType = new LocalUidGeneratorDto();
+        gaType.setSeedValueNbr(uidSeed);
+
+        LocalUidModel uidModel = new LocalUidModel();
+        uidModel.setClassTypeUid(classType);
+        uidModel.setGaTypeUid(gaType);
+
+        when(uidPoolManager.getNextUid(eq(LocalIdClass.PERSON), eq(true))).thenReturn(uidModel);
+    }
+
+    @Test
+    void testCreatePerson_allFieldsNullOrEmpty() throws Exception {
+        mockUidPool(123L, "PX", 456L, "SUF");
+
+        PersonDto personDto = new PersonDto();
+        personDto.setLocalId(null);
+        personDto.setPersonParentUid(null);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+
+        Person person = patientRepositoryUtil.createPerson(container);
+
+        assertEquals("PX456SUF", person.getLocalId());
+        assertEquals(123L, person.getPersonUid());
+        verify(personRepository).createPerson(any());
+    }
+
+    @Test
+    void testCreatePerson_allCollectionsEmpty() throws Exception {
+        mockUidPool(1L, "P", 100L, "X");
+
+        PersonDto personDto = new PersonDto();
+        personDto.setLocalId(" ");
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+
+        container.setThePersonNameDtoCollection(Collections.emptyList());
+        container.setThePersonRaceDtoCollection(Collections.emptyList());
+        container.setThePersonEthnicGroupDtoCollection(Collections.emptyList());
+        container.setTheEntityIdDtoCollection(Collections.emptyList());
+        container.setTheEntityLocatorParticipationDtoCollection(Collections.emptyList());
+        container.setTheRoleDtoCollection(Collections.emptyList());
+
+        Person person = patientRepositoryUtil.createPerson(container);
+
+        assertNotNull(person);
+        verify(personRepository).createPerson(any());
+    }
+
+    @Test
+    void testCreatePerson_withEachSubEntityCollection() throws Exception {
+        mockUidPool(10L, "P", 20L, "Z");
+
+        PersonDto dto = new PersonDto();
+        dto.setLocalId("EXISTING");
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(dto);
+
+        container.setThePersonNameDtoCollection(List.of(new PersonNameDto()));
+        container.setThePersonRaceDtoCollection(List.of(new PersonRaceDto()));
+        container.setThePersonEthnicGroupDtoCollection(List.of(new PersonEthnicGroupDto()));
+        container.setTheEntityIdDtoCollection(List.of(new EntityIdDto()));
+        container.setTheEntityLocatorParticipationDtoCollection(List.of(new EntityLocatorParticipationDto()));
+        container.setTheRoleDtoCollection(List.of(new RoleDto()));
+
+        patientRepositoryUtil.createPerson(container);
+
+        verify(personRepository).createPerson(any());
+        verify(entityLocatorParticipationService).createEntityLocatorParticipation(any(), anyLong());
+    }
+
+
+    @Test
+    void testCreatePerson_allFieldsNullOrEmpty2() throws Exception {
+        mockUidPool(123L, "PX", 456L, "SUF");
+
+        PersonDto personDto = new PersonDto();
+        personDto.setLocalId(null);
+        personDto.setPersonParentUid(1L);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+
+        Person person = patientRepositoryUtil.createPerson(container);
+
+        assertEquals("PX456SUF", person.getLocalId());
+        assertEquals(123L, person.getPersonUid());
+        verify(personRepository).createPerson(any());
+    }
+
+    @Test
+    void testUpdateExistingPerson_allCollectionsEmpty() throws Exception {
+        PersonDto dto = new PersonDto();
+        dto.setPersonUid(1L);
+        dto.setPersonParentUid(1L);
+        dto.setVersionCtrlNbr(1);
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(dto);
+        container.setThePersonNameDtoCollection(Collections.emptyList());
+        container.setThePersonRaceDtoCollection(Collections.emptyList());
+        container.setThePersonEthnicGroupDtoCollection(Collections.emptyList());
+        container.setTheEntityIdDtoCollection(Collections.emptyList());
+        container.setTheEntityLocatorParticipationDtoCollection(Collections.emptyList());
+        container.setTheRoleDtoCollection(Collections.emptyList());
+
+        when(personRepository.selectByPersonUid(anyLong())).thenReturn(new Person());
+
+        patientRepositoryUtil.updateExistingPerson(container);
+
+        verify(personRepository).updatePerson(any(Person.class));
+    }
+
+    @Test
+    void testUpdateExistingPerson_withCollections() throws Exception {
+        PersonDto dto = new PersonDto();
+        dto.setPersonUid(1L);
+        dto.setPersonParentUid(1L);
+        dto.setVersionCtrlNbr(1);
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(dto);
+        container.setThePersonNameDtoCollection(List.of(new PersonNameDto()));
+        container.setThePersonRaceDtoCollection(List.of(new PersonRaceDto()));
+        container.setThePersonEthnicGroupDtoCollection(List.of(new PersonEthnicGroupDto()));
+        container.setTheEntityIdDtoCollection(List.of(new EntityIdDto()));
+        container.setTheEntityLocatorParticipationDtoCollection(List.of(new EntityLocatorParticipationDto()));
+        container.setTheRoleDtoCollection(List.of(new RoleDto()));
+
+        when(personRepository.selectByPersonUid(anyLong())).thenReturn(new Person());
+
+        patientRepositoryUtil.updateExistingPerson(container);
+
+        verify(personRepository).updatePerson(any(Person.class));
+        verify(entityLocatorParticipationService).updateEntityLocatorParticipation(anyList(), anyLong());
+    }
+
+    @Test
+    void testUpdateExistingPerson_personNotMpr() throws Exception {
+        PersonDto dto = new PersonDto();
+        dto.setPersonUid(2L);
+        dto.setPersonParentUid(1L);
+        dto.setEthnicGroupInd("Hispanic");
+
+        Person mpr = new Person();
+        mpr.setPersonUid(1L);
+        dto.setVersionCtrlNbr(1);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(dto);
+        container.setThePersonNameDtoCollection(Collections.emptyList());
+        container.setThePersonRaceDtoCollection(Collections.emptyList());
+        container.setThePersonEthnicGroupDtoCollection(Collections.emptyList());
+        container.setTheEntityIdDtoCollection(Collections.emptyList());
+        container.setTheEntityLocatorParticipationDtoCollection(Collections.emptyList());
+        container.setTheRoleDtoCollection(Collections.emptyList());
+
+        when(personRepository.selectByPersonUid(1L)).thenReturn(mpr);
+
+        patientRepositoryUtil.updateExistingPerson(container);
+
+        verify(personRepository, times(2)).updatePerson(any(Person.class));
+        assertEquals("Hispanic", mpr.getEthnicGroupInd());
+    }
+
+    @Test
+    void testLoadPerson_personNotFound() {
+        Long personUid = 100L;
+
+        when(personRepository.findByPersonUid(personUid)).thenReturn(null);
+        when(personRepository.findPersonNameByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(personRepository.findPersonRaceByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(personRepository.findPersonEthnicByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(entityIdRepository.findEntityIds(personUid)).thenReturn(Collections.emptyList());
+        when(entityLocatorParticipationService.findEntityLocatorById(personUid)).thenReturn(Collections.emptyList());
+        when(roleRepository.findRolesByParentUid(personUid)).thenReturn(Collections.emptyList());
+
+        PersonContainer result = patientRepositoryUtil.loadPerson(personUid);
+
+        assertTrue(result.getThePersonNameDtoCollection().isEmpty());
+        assertTrue(result.getThePersonRaceDtoCollection().isEmpty());
+        assertTrue(result.getThePersonEthnicGroupDtoCollection().isEmpty());
+        assertTrue(result.getTheEntityIdDtoCollection().isEmpty());
+        assertTrue(result.getTheEntityLocatorParticipationDtoCollection().isEmpty());
+        assertTrue(result.getTheRoleDtoCollection().isEmpty());
+    }
+
+    @Test
+    void testLoadPerson_allRepositoriesReturnEmpty() {
+        Long personUid = 101L;
+
+        when(personRepository.findByPersonUid(personUid)).thenReturn(new Person());
+        when(personRepository.findPersonNameByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(personRepository.findPersonRaceByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(personRepository.findPersonEthnicByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(entityIdRepository.findEntityIds(personUid)).thenReturn(Collections.emptyList());
+        when(entityLocatorParticipationService.findEntityLocatorById(personUid)).thenReturn(Collections.emptyList());
+        when(roleRepository.findRolesByParentUid(personUid)).thenReturn(Collections.emptyList());
+
+        PersonContainer result = patientRepositoryUtil.loadPerson(personUid);
+
+        assertNotNull(result.getThePersonDto());
+        assertTrue(result.getThePersonNameDtoCollection().isEmpty());
+        assertTrue(result.getThePersonRaceDtoCollection().isEmpty());
+        assertTrue(result.getThePersonEthnicGroupDtoCollection().isEmpty());
+        assertTrue(result.getTheEntityIdDtoCollection().isEmpty());
+        assertTrue(result.getTheEntityLocatorParticipationDtoCollection().isEmpty());
+        assertTrue(result.getTheRoleDtoCollection().isEmpty());
+    }
+
+    @Test
+    void testLoadPerson_someCollectionsPopulated() {
+        Long personUid = 102L;
+
+        when(personRepository.findByPersonUid(personUid)).thenReturn(new Person());
+        when(personRepository.findPersonNameByPersonUid(personUid)).thenReturn(List.of(new PersonName()));
+        when(personRepository.findPersonRaceByPersonUid(personUid)).thenReturn(List.of(new PersonRace()));
+        when(personRepository.findPersonEthnicByPersonUid(personUid)).thenReturn(Collections.emptyList());
+        when(entityIdRepository.findEntityIds(personUid)).thenReturn(Collections.emptyList());
+        when(entityLocatorParticipationService.findEntityLocatorById(personUid)).thenReturn(Collections.emptyList());
+        when(roleRepository.findRolesByParentUid(personUid)).thenReturn(Collections.emptyList());
+
+        PersonContainer result = patientRepositoryUtil.loadPerson(personUid);
+
+        assertEquals(1, result.getThePersonNameDtoCollection().size());
+        assertEquals(1, result.getThePersonRaceDtoCollection().size());
+        assertTrue(result.getThePersonEthnicGroupDtoCollection().isEmpty());
+        assertTrue(result.getTheEntityIdDtoCollection().isEmpty());
+        assertTrue(result.getTheEntityLocatorParticipationDtoCollection().isEmpty());
+        assertTrue(result.getTheRoleDtoCollection().isEmpty());
+    }
+
+    @Test
+    void testLoadPerson_allCollectionsHaveOneItem() {
+        Long personUid = 103L;
+
+        when(personRepository.findByPersonUid(personUid)).thenReturn(new Person());
+        when(personRepository.findPersonNameByPersonUid(personUid)).thenReturn(List.of(new PersonName()));
+        when(personRepository.findPersonRaceByPersonUid(personUid)).thenReturn(List.of(new PersonRace()));
+        when(personRepository.findPersonEthnicByPersonUid(personUid)).thenReturn(List.of(new PersonEthnicGroup()));
+        when(entityIdRepository.findEntityIds(personUid)).thenReturn(List.of(new EntityId()));
+        when(entityLocatorParticipationService.findEntityLocatorById(personUid)).thenReturn(List.of(new EntityLocatorParticipation()));
+        when(roleRepository.findRolesByParentUid(personUid)).thenReturn(List.of(new Role()));
+
+        PersonContainer result = patientRepositoryUtil.loadPerson(personUid);
+
+        assertEquals(1, result.getThePersonNameDtoCollection().size());
+        assertEquals(1, result.getThePersonRaceDtoCollection().size());
+        assertEquals(1, result.getThePersonEthnicGroupDtoCollection().size());
+        assertEquals(1, result.getTheEntityIdDtoCollection().size());
+        assertEquals(1, result.getTheEntityLocatorParticipationDtoCollection().size());
+        assertEquals(1, result.getTheRoleDtoCollection().size());
+    }
+
+    @Test
+    void testUpdatePersonName_newNameAndInactivateExisting() {
+        Long personUid = 200L;
+        Long parentUid = 300L;
+
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(personUid);
+        personDto.setPersonParentUid(parentUid);
+        personDto.setFirstNm("John");
+        personDto.setLastNm("Doe");
+        personDto.setMiddleNm("M");
+        personDto.setNmPrefix("Mr");
+        personDto.setNmSuffix("Sr");
+
+        PersonName existingName = new PersonName();
+        existingName.setFirstNm("Jane");
+        existingName.setLastNm("Smith");
+        existingName.setMiddleNm("A");
+        existingName.setNmPrefix("Ms");
+        existingName.setNmSuffix("");
+        existingName.setPersonNameSeq(1);
+
+        PersonNameDto dto = new PersonNameDto();
+        dto.setItDelete(true);
+        dto.setPersonUid(personUid);
+
+        PersonNameDto newDto = new PersonNameDto();
+        newDto.setItDelete(false);
+        newDto.setPersonUid(personUid);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setThePersonNameDtoCollection(List.of(dto, newDto));
+
+        when(personRepository.findBySeqIdByParentUid(personUid)).thenReturn(List.of(existingName));
+        doNothing().when(dataModifierReposJdbc).updatePersonNameStatus(anyLong(), anyInt());
+        doNothing().when(personRepository).mergePersonName(any());
+
+        patientRepositoryUtil.updatePersonName(container);
+
+        verify(personRepository, times(0)).mergePersonName(any());
+    }
+
+    @Test
+    void testUpdatePersonName_exceptionDuringProcessing() {
+        Long personUid = 201L;
+        Long parentUid = 301L;
+
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(personUid);
+        personDto.setPersonParentUid(parentUid);
+        personDto.setFirstNm("John");
+        personDto.setLastNm("Doe");
+
+        PersonName existingName = new PersonName();
+        existingName.setFirstNm("Jane");
+        existingName.setLastNm("Smith");
+        existingName.setPersonNameSeq(5);
+
+        PersonNameDto dto = new PersonNameDto();
+        dto.setItDelete(true);
+        dto.setPersonUid(personUid);
+
+        PersonNameDto newDto = new PersonNameDto();
+        newDto.setItDelete(false);
+        newDto.setPersonUid(personUid);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setThePersonNameDtoCollection(List.of(dto, newDto));
+
+        when(personRepository.findBySeqIdByParentUid(personUid)).thenReturn(List.of(existingName));
+        doThrow(new RuntimeException("DB error")).when(dataModifierReposJdbc).updatePersonNameStatus(anyLong(), anyInt());
+
+        patientRepositoryUtil.updatePersonName(container);
+
+    }
+
+    @Test
+    void testCreatePersonName_nullCollection() {
+        PersonContainer container = new PersonContainer();
+        container.setThePersonNameDtoCollection(null);
+
+        patientRepositoryUtil.createPersonName(container);
+
+        verify(personRepository, never()).createPersonName(any());
+    }
+
+    @Test
+    void testCreatePersonName_emptyCollection() {
+        PersonContainer container = new PersonContainer();
+        container.setThePersonNameDtoCollection(Collections.emptyList());
+
+        patientRepositoryUtil.createPersonName(container);
+
+        verify(personRepository, never()).createPersonName(any());
+    }
+
+    @Test
+    void testCreatePersonName_validDtoWithStatusCdAndTime() {
+        Long personUid = 123L;
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(personUid);
+
+        PersonNameDto dto = new PersonNameDto();
+        dto.setStatusCd("A");
+        dto.setStatusTime(new Timestamp(System.currentTimeMillis()));
+        dto.setItNew(true);
+
+        PersonContainer container = new PersonContainer();
+        container.setThePersonDto(personDto);
+        container.setThePersonNameDtoCollection(List.of(dto));
+
+        patientRepositoryUtil.createPersonName(container);
+
+        verify(personRepository, times(1)).createPersonName(any(PersonName.class));
+    }
+
 }

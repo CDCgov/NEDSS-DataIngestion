@@ -112,30 +112,30 @@ public class PatientRepositoryUtil {
 
 
 
-        if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
+        if (!personContainer.getThePersonNameDtoCollection().isEmpty()) {
             createPersonName(personContainer);
         }
 
-        if (personContainer.getThePersonRaceDtoCollection() != null && !personContainer.getThePersonRaceDtoCollection().isEmpty()) {
+        if (!personContainer.getThePersonRaceDtoCollection().isEmpty()) {
             createPersonRace(personContainer);
         }
 
-        if (personContainer.getThePersonEthnicGroupDtoCollection() != null && !personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
+        if (!personContainer.getThePersonEthnicGroupDtoCollection().isEmpty()) {
             createPersonEthnic(personContainer);
         }
 
-        if (personContainer.getTheEntityIdDtoCollection() != null && !personContainer.getTheEntityIdDtoCollection().isEmpty()) {
+        if (!personContainer.getTheEntityIdDtoCollection().isEmpty()) {
             createEntityId(personContainer);
         }
 
-        if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
+        if (!personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
             // 104ms on this one
             entityLocatorParticipationService.createEntityLocatorParticipation(
                     personContainer.getTheEntityLocatorParticipationDtoCollection(),
                     personDto.getPersonUid());
         }
 
-        if (personContainer.getTheRoleDtoCollection() != null && !personContainer.getTheRoleDtoCollection().isEmpty()) {
+        if (!personContainer.getTheRoleDtoCollection().isEmpty()) {
             createRole(personContainer, OPERATION_CREATE);
         }
 
@@ -156,37 +156,37 @@ public class PatientRepositoryUtil {
 
         // NOTE: Create Person Name
         var nameCollection = personContainer.getThePersonNameDtoCollection();
-        if (nameCollection != null && !nameCollection.isEmpty()) {
+        if (!nameCollection.isEmpty()) {
             updatePersonName(personContainer);
         }
 
         // NOTE: Create Person Race
         var raceCollection = personContainer.getThePersonRaceDtoCollection();
-        if (raceCollection != null && !raceCollection.isEmpty()) {
+        if (!raceCollection.isEmpty()) {
             updatePersonRace(personContainer);
         }
 
         // NOTE: Create Person Ethnic
         var ethnicCollection = personContainer.getThePersonEthnicGroupDtoCollection();
-        if (ethnicCollection != null && !ethnicCollection.isEmpty()) {
+        if (!ethnicCollection.isEmpty()) {
             updatePersonEthnic(personContainer);
         }
 
         // NOTE: Upsert EntityID
         var entityIdCollection = personContainer.getTheEntityIdDtoCollection();
-        if (entityIdCollection != null && !entityIdCollection.isEmpty()) {
+        if (!entityIdCollection.isEmpty()) {
             updateEntityId(personContainer);
         }
 
         // NOTE: Create Entity Locator Participation
         var elpCollection = personContainer.getTheEntityLocatorParticipationDtoCollection();
-        if (elpCollection != null && !elpCollection.isEmpty()) {
+        if (!elpCollection.isEmpty()) {
             entityLocatorParticipationService.updateEntityLocatorParticipation(elpCollection, personUid);
         }
 
         // NOTE: Upsert Role
         var roleCollection = personContainer.getTheRoleDtoCollection();
-        if (roleCollection != null && !roleCollection.isEmpty()) {
+        if (!roleCollection.isEmpty()) {
             createRole(personContainer, OPERATION_UPDATE);
         }
 
@@ -306,7 +306,7 @@ public class PatientRepositoryUtil {
     }
 
     @SuppressWarnings({"java:S3776","java:S1141"})
-    private void updatePersonName(PersonContainer personContainer)   {
+    protected void updatePersonName(PersonContainer personContainer)   {
         List<PersonNameDto> personList = new ArrayList<>(personContainer.getThePersonNameDtoCollection());
 
         Long personUid = personContainer.getThePersonDto().getPersonUid();
@@ -382,11 +382,11 @@ public class PatientRepositoryUtil {
         }
     }
 
-    private String defaultStr(String s) {
+    protected String defaultStr(String s) {
         return s != null ? s : "";
     }
 
-    private void createPersonName(PersonContainer personContainer)   {
+    protected void createPersonName(PersonContainer personContainer)   {
         var personNameDtos = personContainer.getThePersonNameDtoCollection();
         if (personNameDtos == null || personNameDtos.isEmpty()) {
             return;
@@ -415,7 +415,7 @@ public class PatientRepositoryUtil {
     }
 
     @SuppressWarnings({"java:S3776", "java:S1141"})
-    private void updateEntityId(PersonContainer personContainer)   {
+    protected void updateEntityId(PersonContainer personContainer)   {
         var entityIdDtos = personContainer.getTheEntityIdDtoCollection();
         if (entityIdDtos == null || entityIdDtos.isEmpty()) {
             return;
@@ -461,7 +461,7 @@ public class PatientRepositoryUtil {
 
 
     @SuppressWarnings({"java:S1141","java:S3776"})
-    private void updatePersonRace(PersonContainer personContainer)   {
+    protected void updatePersonRace(PersonContainer personContainer)   {
         var personRaceDtos = personContainer.getThePersonRaceDtoCollection();
         if (personRaceDtos == null || personRaceDtos.isEmpty()) {
             return;
@@ -538,7 +538,7 @@ public class PatientRepositoryUtil {
 
 
 
-    private void createPersonRace(PersonContainer personContainer)   {
+    protected void createPersonRace(PersonContainer personContainer)   {
         var personRaceDtos = personContainer.getThePersonRaceDtoCollection();
         if (personRaceDtos == null || personRaceDtos.isEmpty()) {
             return;
@@ -558,7 +558,7 @@ public class PatientRepositoryUtil {
     }
 
 
-    private void createPersonEthnic(PersonContainer personContainer)   {
+    protected void createPersonEthnic(PersonContainer personContainer)   {
         var ethnicGroupDtos = personContainer.getThePersonEthnicGroupDtoCollection();
         if (ethnicGroupDtos == null || ethnicGroupDtos.isEmpty()) {
             return;
@@ -576,7 +576,7 @@ public class PatientRepositoryUtil {
     }
 
 
-    private void updatePersonEthnic(PersonContainer personContainer)   {
+    protected void updatePersonEthnic(PersonContainer personContainer)   {
         var ethnicDtos = personContainer.getThePersonEthnicGroupDtoCollection();
         if (ethnicDtos == null || ethnicDtos.isEmpty()) {
             return;
@@ -601,7 +601,7 @@ public class PatientRepositoryUtil {
 
     }
 
-    private void createEntityId(PersonContainer personContainer)   {
+    protected void createEntityId(PersonContainer personContainer)   {
         var entityIdDtos = personContainer.getTheEntityIdDtoCollection();
         if (entityIdDtos == null || entityIdDtos.isEmpty()) return;
 
@@ -625,7 +625,7 @@ public class PatientRepositoryUtil {
 
 
 
-    private void createRole(PersonContainer personContainer, String operation)   {
+    protected void createRole(PersonContainer personContainer, String operation)   {
         var roleDtos = personContainer.getTheRoleDtoCollection();
         if (roleDtos == null || roleDtos.isEmpty()) return;
 
@@ -679,7 +679,7 @@ public class PatientRepositoryUtil {
 
     }
 
-    private boolean isAfter(Date a, Date b) {
+    protected boolean isAfter(Date a, Date b) {
         return a != null && (b == null || a.after(b));
     }
 
