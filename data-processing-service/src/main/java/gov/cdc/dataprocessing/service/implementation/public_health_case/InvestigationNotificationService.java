@@ -35,8 +35,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.STATE_STR;
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.*;
 
 @Service
 
@@ -545,9 +544,9 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                 String value = safe(adt.getRootExtensionTxt());
 
                 boolean shouldValidate =
-                        (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.isEmpty() && label.toLowerCase().contains("state")) ||
-                                (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains("state")) ||
-                                (typeCd.equalsIgnoreCase("CITY") && value.isEmpty() && label.toLowerCase().contains("city"));
+                        (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.isEmpty() && label.toLowerCase().contains(LOWER_CASE_STATE)) ||
+                                (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains(LOWER_CASE_STATE)) ||
+                                (typeCd.equalsIgnoreCase(UPPER_CASE_CITY) && value.isEmpty() && label.toLowerCase().contains(LOWER_CASE_CITY));
 
                 if (shouldValidate) {
                     Method method = getMethod(adt.getClass(), getter);
@@ -555,7 +554,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
                     checkObject(obj, missingFields, metaData);
                 }
             }
-        } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains("state")) {
+        } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains(LOWER_CASE_STATE)) {
             addMissing(metaData, missingFields);
         }
     }
@@ -571,7 +570,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         }
     }
 
-    protected Method getMethod(Class<?> clazz, String getter) throws Exception {
+    protected Method getMethod(Class<?> clazz, String getter) {
         Map<Object, Object> methodMap = getMethods(clazz);
         return (Method) methodMap.get(getter.toLowerCase());
     }
@@ -592,6 +591,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         String formCd;
     }
 
+    @SuppressWarnings("java:S3776")
     protected ValidationContext buildValidationContext(Object pageObj, Long uid, String formCd) throws DataProcessingException {
         ValidationContext ctx = new ValidationContext();
         ctx.formCd = formCd;

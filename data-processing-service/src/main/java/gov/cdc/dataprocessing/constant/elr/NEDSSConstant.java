@@ -1528,6 +1528,9 @@ public class NEDSSConstant {
     public static final String ACT_ID_CITY_TYPE_CD = "CITY";
 
     public static final String ACT_ID_STATE_TYPE_CD = "STATE";
+    public static final String LOWER_CASE_STATE = "state";
+    public static final String UPPER_CASE_CITY = "CITY";
+    public static final String LOWER_CASE_CITY = "city";
 
     public static final String ACT_ID_LEGACY_TYPE_CD = "LEGACY";
 

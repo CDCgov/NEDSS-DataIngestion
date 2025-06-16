@@ -17,7 +17,6 @@ import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
@@ -35,6 +34,7 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
 
+    @SuppressWarnings("java:S2259")
     public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
         Long entityUid = personContainer.getThePersonDto().getPersonUid();
         List<EdxEntityMatchDto> matchesToPersist = new ArrayList<>();
