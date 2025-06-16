@@ -1,7 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.TestData;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.AlgorithmContext;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.AlgorithmContext.LogOdd;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.DibbsPass;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Evaluator;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Func;
@@ -49,20 +50,33 @@ class AlgorithmMapperTest {
   @Test
   void should_set_multiple_matches() {
     DibbsAlgorithm actual = mapper.map(new Algorithm(new ArrayList<>()), TestData.DATA_ELEMENTS);
-    assertThat(actual.includeMultipleMatches()).isTrue();
+    assertThat(actual.algorithmContext().includeMultipleMatches()).isTrue();
   }
 
   @Test
   void should_set_missing_thresholds() {
     DibbsAlgorithm actual = mapper.map(new Algorithm(new ArrayList<>()), TestData.DATA_ELEMENTS);
-    assertThat(actual.missingAllowedProportion()).isEqualTo(0.0);
-    assertThat(actual.missingPointsProportion()).isEqualTo(0.0);
+    assertThat(actual.algorithmContext().advanced().missingAllowedProportion()).isEqualTo(0.0);
+    assertThat(actual.algorithmContext().advanced().missingPointsProportion()).isEqualTo(0.0);
   }
 
   @Test
   void should_set_passes() {
     DibbsAlgorithm actual = mapper.map(new Algorithm(new ArrayList<>()), TestData.DATA_ELEMENTS);
     assertThat(actual.passes()).isEmpty();
+  }
+
+  @Test
+  void should_map_algorithm_context() {
+    AlgorithmContext context = mapper.mapContext(TestData.SPARSE_DATA_ELEMENTS);
+
+    assertThat(context.advanced().similarityMeasure()).isEqualTo(SimilarityMeasure.JAROWINKLER);
+    assertThat(context.logOdds()).containsExactly(
+        new LogOdd(MatchingAttribute.FIRST_NAME.toString(), TestData.SPARSE_DATA_ELEMENTS.firstName().logOdds()),
+        new LogOdd(MatchingAttribute.LAST_NAME.toString(), TestData.SPARSE_DATA_ELEMENTS.lastName().logOdds()),
+        new LogOdd(MatchingAttribute.VISA_PASSPORT.toString(), TestData.SPARSE_DATA_ELEMENTS.visaPassport().logOdds()),
+        new LogOdd(MatchingAttribute.WIC_IDENTIFIER.toString(),
+            TestData.SPARSE_DATA_ELEMENTS.wicIdentifier().logOdds()));
   }
 
   @Test
@@ -106,12 +120,12 @@ class AlgorithmMapperTest {
             6.5,
             12.0),
         TestData.DATA_ELEMENTS);
-
+    assertThat(pass.label()).isEqualTo("pass name");
     assertThat(pass.blockingKeys()).isEqualTo(List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX));
 
     assertThat(pass.evaluators()).satisfiesExactly(
-        e1 -> assertThat(e1).isEqualTo(new Evaluator(MatchingAttribute.FIRST_NAME, Func.EXACT)),
-        e2 -> assertThat(e2).isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY)));
+        e1 -> assertThat(e1).isEqualTo(new Evaluator(MatchingAttribute.FIRST_NAME, Func.EXACT, 1.0)),
+        e2 -> assertThat(e2).isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY, 0.6)));
 
     assertThat(pass.evaluators().get(0).func())
         .hasToString("COMPARE_PROBABILISTIC_EXACT_MATCH");
@@ -120,16 +134,6 @@ class AlgorithmMapperTest {
 
     assertThat(pass.rule()).isEqualTo(Rule.PROBABILISTIC);
     assertThat(pass.matchWindow()).containsExactly(0.5, .9230769230769231);
-
-    assertThat(pass.kwargs().similarityMeasure()).isEqualTo(SimilarityMeasure.JAROWINKLER);
-    assertThat(pass.kwargs().thresholds()).containsOnly(
-        entry(MatchingAttribute.FIRST_NAME.toString(), 1.0),
-        entry(MatchingAttribute.LAST_NAME.toString(), 0.6));
-
-    assertThat(pass.kwargs().logOdds()).containsOnly(
-        entry(MatchingAttribute.FIRST_NAME.toString(), TestData.DATA_ELEMENTS.firstName().logOdds()),
-        entry(MatchingAttribute.LAST_NAME.toString(), TestData.DATA_ELEMENTS.lastName().logOdds()));
-
   }
 
   @Test
@@ -160,6 +164,8 @@ class AlgorithmMapperTest {
         .isEqualTo(TestData.DATA_ELEMENTS.telephone());
     assertThat(mapper.findDataElement(MatchingAttribute.EMAIL, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.email());
+    assertThat(mapper.findDataElement(MatchingAttribute.IDENTIFIER, TestData.DATA_ELEMENTS))
+        .isEqualTo(TestData.DATA_ELEMENTS.identifier());
     validateIdentifications();
   }
 

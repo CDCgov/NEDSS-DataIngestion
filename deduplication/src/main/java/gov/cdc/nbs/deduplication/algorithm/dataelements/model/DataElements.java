@@ -17,6 +17,7 @@ public record DataElements(
     DataElement telephone,
     DataElement email,
     // Identification Details
+    DataElement identifier,
     DataElement accountNumber,
     DataElement driversLicenseNumber,
     DataElement medicaidNumber,
@@ -34,6 +35,7 @@ public record DataElements(
 
   public DataElements() {
     this(
+        new DataElement(),
         new DataElement(),
         new DataElement(),
         new DataElement(),
