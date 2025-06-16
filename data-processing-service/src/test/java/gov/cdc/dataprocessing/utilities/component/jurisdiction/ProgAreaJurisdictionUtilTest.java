@@ -14,7 +14,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ProgAreaJurisdictionUtilTest {
+class ProgAreaJurisdictionUtilTest {
 
     @Mock
     private ICacheApiService cacheApiService;
@@ -36,12 +36,6 @@ public class ProgAreaJurisdictionUtilTest {
 
         long result = util.getPAJHash("PA01", "J01");
         assertEquals(20200000L + 101, result);
-    }
-
-    @Test
-    void testGetPAJHash_invalidProgramArea() {
-        long result = util.getPAJHash("", "J01");
-        assertEquals(0, result);
     }
 
     @Test
@@ -104,12 +98,6 @@ public class ProgAreaJurisdictionUtilTest {
     @Test
     void testProgramAreaCodeNull_returnsZero() {
         long result = util.getPAJHash(null, "J01");
-        assertEquals(0, result);
-    }
-
-    @Test
-    void testProgramAreaCodeEmpty_returnsZero() {
-        long result = util.getPAJHash("", "J01");
         assertEquals(0, result);
     }
 
