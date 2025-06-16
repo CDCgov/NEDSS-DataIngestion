@@ -323,7 +323,6 @@ class InvestigationNotificationServiceTest {
     }
 
 
-
     @Test
     void validatePAM_shouldThrow_whenReflectionFails() throws Exception {
         // Arrange
@@ -463,5 +462,129 @@ class InvestigationNotificationServiceTest {
         // Assert
         verify(spyService).checkObject(null, missingFields, meta);
     }
+
+
+    @Test
+    void validateActId_shouldCheckObject_whenFormCdIsRvctAndLabelContainsState() throws Exception {
+        ActIdDto actId = new ActIdDto();
+        actId.setTypeCd("STATE");
+        actId.setRootExtensionTxt("someValue");
+
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.actIdColl = List.of(actId);
+
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setQuestionLabel("State name");
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doReturn("getRootExtensionTxt").when(spyService).createGetterMethod("rootExtensionTxt");
+        doReturn(ActIdDto.class.getMethod("getRootExtensionTxt")).when(spyService).getMethod(eq(ActIdDto.class), eq("getRootExtensionTxt"));
+        doReturn("STATE").when(spyService).safe("STATE");
+        doReturn("someValue").when(spyService).safe("someValue");
+
+        doNothing().when(spyService).checkObject(any(), eq(missingFields), eq(meta));
+
+        spyService.validateActId(context, "act_id.rootExtensionTxt", "State name", NEDSSConstant.INV_FORM_RVCT, meta, missingFields);
+
+        verify(spyService).checkObject(any(), eq(missingFields), eq(meta));
+    }
+
+
+    @Test
+    void validateActId_shouldAddMissing_whenActIdCollIsNullAndFormCdRvctAndLabelHasState() throws Exception {
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setQuestionLabel("State Name");
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doNothing().when(spyService).addMissing(meta, missingFields);
+
+        spyService.validateActId(context, "act_id.rootExtensionTxt", "State Name", NEDSSConstant.INV_FORM_RVCT, meta, missingFields);
+
+        verify(spyService).addMissing(meta, missingFields);
+    }
+
+    @Test
+    void validateActId_shouldNotCheckObject_whenShouldValidateIsFalse() throws Exception {
+        ActIdDto actId = new ActIdDto();
+        actId.setTypeCd("OTHER");
+        actId.setRootExtensionTxt("value");
+
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.actIdColl = List.of(actId);
+
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setQuestionLabel("Zip Code");
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doReturn("getRootExtensionTxt").when(spyService).createGetterMethod("rootExtensionTxt");
+        doReturn("OTHER").when(spyService).safe("OTHER");
+        doReturn("value").when(spyService).safe("value");
+
+        spyService.validateActId(context, "act_id.rootExtensionTxt", "Zip Code", "ANY_FORM", meta, missingFields);
+
+        // No validation should occur
+        verify(spyService, never()).checkObject(any(), eq(missingFields), eq(meta));
+        verify(spyService, never()).addMissing(any(), any());
+    }
+
+    @Test
+    void validateNbsCaseAnswer_shouldAddMissing_whenAnswerMapIsNull() {
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.answerMap = null;
+
+        NbsQuestionMetadata metaData = mock(NbsQuestionMetadata.class);
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doNothing().when(spyService).addMissing(metaData, missingFields);
+
+        spyService.validateNbsCaseAnswer(context, 101L, metaData, missingFields);
+
+        verify(spyService).addMissing(metaData, missingFields);
+    }
+
+    @Test
+    void validateNbsCaseAnswer_shouldAddMissing_whenAnswerMapIsEmpty() {
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.answerMap = new HashMap<>();
+
+        NbsQuestionMetadata metaData = mock(NbsQuestionMetadata.class);
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doNothing().when(spyService).addMissing(metaData, missingFields);
+
+        spyService.validateNbsCaseAnswer(context, 101L, metaData, missingFields);
+
+        verify(spyService).addMissing(metaData, missingFields);
+    }
+
+
+    @Test
+    void validateNbsCaseAnswer_shouldAddMissing_whenBothKeysMissing() {
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.answerMap = new HashMap<>();
+
+        NbsQuestionMetadata metaData = mock(NbsQuestionMetadata.class);
+//        when(metaData.getQuestionIdentifier()).thenReturn("QID_123");
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doNothing().when(spyService).addMissing(metaData, missingFields);
+
+        spyService.validateNbsCaseAnswer(context, 200L, metaData, missingFields);
+
+        verify(spyService).addMissing(metaData, missingFields);
+    }
+
 
 } 
