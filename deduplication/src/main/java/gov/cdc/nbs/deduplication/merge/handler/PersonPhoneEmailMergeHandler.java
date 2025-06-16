@@ -6,27 +6,26 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
-@Order(4)
-public class PersonAddressMergeHandler implements SectionMergeHandler {
+@Order(5)
+public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
 
-
-  static final String UPDATE_UN_SELECTED_ADDRESS_INACTIVE = """
+  static final String UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE = """
       UPDATE Entity_locator_participation
       SET record_status_cd = 'INACTIVE',
          last_chg_time = GETDATE()
       WHERE entity_uid = :survivingId
         AND locator_uid NOT IN (:selectedLocators)
-        AND use_cd NOT IN ('BIR', 'DTH')
-        AND class_cd = 'PST';
+        AND class_cd = 'TELE';
       """;
 
-  static final String INSERT_NEW_LOCATORS = """
+  static final String INSERT_NEW_PHONE_EMAIL_LOCATORS = """
       INSERT INTO Entity_locator_participation (
           entity_uid,
           locator_uid,
@@ -83,46 +82,45 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
       FROM Entity_locator_participation
       WHERE locator_uid IN (:selectedLocators)
         AND entity_uid != :survivingId
-        AND use_cd NOT IN ('BIR', 'DTH')
-        AND class_cd = 'PST';
+        AND class_cd = 'TELE';
       """;
 
 
-  public PersonAddressMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
+  public PersonPhoneEmailMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonAddress(request);
+    mergePersonPhoneEmail(request);
   }
 
-  private void mergePersonAddress(PatientMergeRequest request) {
+  private void mergePersonPhoneEmail(PatientMergeRequest request) {
     String survivingId = request.survivingRecord();
-    List<String> selectedLocatorIds = request.addresses().stream()
-        .map(PatientMergeRequest.AddressId::locatorId)
+    List<String> selectedLocatorIds = request.phoneEmails().stream()
+        .map(PatientMergeRequest.PhoneEmailId::locatorId)
         .toList();
 
     if (!selectedLocatorIds.isEmpty()) {
-      markUnselectedAddressInactive(survivingId, selectedLocatorIds);
-      updateSelectedAddress(survivingId, selectedLocatorIds);
+      markUnselectedPhoneEmailInactive(survivingId, selectedLocatorIds);
+      updateSelectedPhoneEmail(survivingId, selectedLocatorIds);
     }
   }
 
-  private void markUnselectedAddressInactive(String survivingId, List<String> selectedLocators) {
+  private void markUnselectedPhoneEmailInactive(String survivingId, List<String> selectedLocators) {
     Map<String, Object> params = new HashMap<>();
     params.put("survivingId", survivingId);
     params.put("selectedLocators", selectedLocators);
 
-    nbsTemplate.update(UPDATE_UN_SELECTED_ADDRESS_INACTIVE, params);
+    nbsTemplate.update(UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE, params);
   }
 
-  private void updateSelectedAddress(String survivingId, List<String> selectedLocators) {
+  private void updateSelectedPhoneEmail(String survivingId, List<String> selectedLocators) {
     Map<String, Object> params = new HashMap<>();
     params.put("survivingId", survivingId);
     params.put("selectedLocators", selectedLocators);
 
-    nbsTemplate.update(INSERT_NEW_LOCATORS, params);
+    nbsTemplate.update(INSERT_NEW_PHONE_EMAIL_LOCATORS, params);
   }
 
 
