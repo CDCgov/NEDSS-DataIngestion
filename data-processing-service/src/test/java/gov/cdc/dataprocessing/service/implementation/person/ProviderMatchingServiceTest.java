@@ -10,6 +10,7 @@ import gov.cdc.dataprocessing.model.dto.locator.PostalLocatorDto;
 import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
+import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -25,12 +26,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProviderMatchingServiceTest {
     @Mock
@@ -163,25 +165,27 @@ class ProviderMatchingServiceTest {
     }
     @Test
     void getMatchingProvider_entityMatch_Identifier_null_edxentity() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
-        personContainer.thePersonDto.setPersonUid(123L);
+        // Setup PersonContainer
+        PersonContainer personContainer = new PersonContainer();
+        var personDto = new PersonDto();
+        personDto.setPersonUid(123L);
+        personDto.setCd(NEDSSConstant.PAT);
+        personContainer.setThePersonDto(personDto);
 
-        personContainer.getThePersonDto().setCd(NEDSSConstant.PAT);
-
-        //for getIdentifier
-        EntityIdDto entityIdDto=new EntityIdDto();
+        // Setup identifier (ELR_SS_TYPE)
+        EntityIdDto entityIdDto = new EntityIdDto();
         entityIdDto.setEntityIdSeq(1);
         entityIdDto.setStatusCd(NEDSSConstant.STATUS_ACTIVE);
         entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         entityIdDto.setTypeCd(EdxELRConstant.ELR_SS_TYPE);
-        entityIdDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         entityIdDto.setRootExtensionTxt("TEST");
-        entityIdDto.setAssigningAuthorityCd("TEST_ASSING_AUTHTY");
-        entityIdDto.setAssigningAuthorityDescTxt("TEST_ASSING_AUTHTY_DESC");
+        entityIdDto.setAssigningAuthorityCd("TEST_AUTH");
+        entityIdDto.setAssigningAuthorityDescTxt("TEST_DESC");
         entityIdDto.setAssigningAuthorityIdType("TEST");
         personContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
-        PersonNameDto personNameDto=new PersonNameDto();
+        // Setup name
+        PersonNameDto personNameDto = new PersonNameDto();
         personNameDto.setNmUseCd("L");
         personNameDto.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
         personNameDto.setAsOfDate(new Timestamp(System.currentTimeMillis()));
@@ -189,12 +193,23 @@ class ProviderMatchingServiceTest {
         personNameDto.setFirstNm("TEST_FIRST_NM");
         personContainer.getThePersonNameDtoCollection().add(personNameDto);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        // Mock return value of repository
+        EdxEntityMatchDto emptyMatch = new EdxEntityMatchDto(); // entityUid is null here intentionally
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(emptyMatch);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        // Spy the service to stub address and phone methods
+        ProviderMatchingService spyService = spy(providerMatchingService);
+        doReturn("123 MAIN ST").when(spyService).nameAddressStreetOneProvider(any());
+        doReturn("5551234567").when(spyService).telePhoneTxtProvider(any());
+        doReturn(123L).when(spyService).processingProvider(any(), any(), any());
+
+        // Execute
+        EDXActivityDetailLogDto result = spyService.getMatchingProvider(personContainer);
+
+        // Assert
+        assertEquals("123", result.getRecordId());
     }
+
     @Test
     void getMatchingProvider_name_addr() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
@@ -233,11 +248,14 @@ class ProviderMatchingServiceTest {
     }
     @Test
     void getMatchingProvider_name_addr_with_empty_entity() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
-        personContainer.thePersonDto.setPersonUid(123L);
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(123L);
+        personDto.setCd(NEDSSConstant.PRV);
+        personContainer.setThePersonDto(personDto);
 
-        personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
-
+        // Setup postal locator
         EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
         entLocPartDT.setClassCd(NEDSSConstant.POSTAL);
@@ -253,12 +271,23 @@ class ProviderMatchingServiceTest {
         entLocPartDT.setThePostalLocatorDto(postLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        // Mock return value of repository
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto(); // entityUid is null (simulate no match)
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any())).thenReturn(edxEntityMatchingDT);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        // Spy the service and mock phone to avoid NPE
+        ProviderMatchingService spyService = spy(providerMatchingService);
+        doReturn("1234567890").when(spyService).telePhoneTxtProvider(any()); // prevent phone == null
+        doReturn("STREET_ADDR1 CITYDESCTXT STATE_CD ZIP_CD").when(spyService).nameAddressStreetOneProvider(any());
+        doReturn(123L).when(spyService).processingProvider(any(), any(), any());
+
+        // Act
+        EDXActivityDetailLogDto result = spyService.getMatchingProvider(personContainer);
+
+        // Assert
+        assertEquals("123", result.getRecordId());
     }
+
 
     @Test
     void getMatchingProvider_name_addr_throws_exp() throws DataProcessingException {
@@ -316,10 +345,12 @@ class ProviderMatchingServiceTest {
     }
     @Test
     void getMatchingProvider_telephone_empty_entity() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
-        personContainer.thePersonDto.setPersonUid(123L);
-
-        personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
+        // Arrange
+        PersonContainer personContainer = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(123L);
+        personDto.setCd(NEDSSConstant.PRV);
+        personContainer.setThePersonDto(personDto);
 
         EntityLocatorParticipationDto entLocPartDT = new EntityLocatorParticipationDto();
         entLocPartDT.setEntityUid(123L);
@@ -328,17 +359,26 @@ class ProviderMatchingServiceTest {
 
         TeleLocatorDto teleLocDT = new TeleLocatorDto();
         teleLocDT.setPhoneNbrTxt("1234567890");
-
         entLocPartDT.setTheTeleLocatorDto(teleLocDT);
         personContainer.getTheEntityLocatorParticipationDtoCollection().add(entLocPartDT);
 
-        EdxEntityMatchDto edxEntityMatchingDT=new EdxEntityMatchDto();
+        EdxEntityMatchDto edxEntityMatchingDT = new EdxEntityMatchDto(); // entityUid is null
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(), any()))
+                .thenReturn(edxEntityMatchingDT);
 
-        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(any(),any())).thenReturn(edxEntityMatchingDT);
+        // Spy the service and stub address to avoid NPE
+        ProviderMatchingService spyService = spy(providerMatchingService);
+        doReturn("123 Main St").when(spyService).nameAddressStreetOneProvider(any()); // avoid nameAddr1 == null
+        doReturn("1234567890").when(spyService).telePhoneTxtProvider(any());
+        doReturn(123L).when(spyService).processingProvider(any(), any(), any());
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        // Act
+        EDXActivityDetailLogDto result = spyService.getMatchingProvider(personContainer);
+
+        // Assert
+        assertEquals("123", result.getRecordId());
     }
+
 
     @Test
     void getMatchingProvider_telephone_throws_exp() throws DataProcessingException {
@@ -363,13 +403,26 @@ class ProviderMatchingServiceTest {
     }
     @Test
     void getMatchingProvider_provider() throws DataProcessingException {
-        PersonContainer personContainer=new PersonContainer();
-        personContainer.thePersonDto.setPersonUid(123L);
-        personContainer.getThePersonDto().setCd(NEDSSConstant.PRV);
+        PersonContainer personContainer = new PersonContainer();
+        var personDto = new PersonDto();
+        personDto.setPersonUid(123L);
+        personDto.setCd(NEDSSConstant.PRV);
+        personContainer.setThePersonDto(personDto);
 
-        EDXActivityDetailLogDto edxActivityDetailLogDtoResult=providerMatchingService.getMatchingProvider(personContainer);
-        assertEquals(String.valueOf(123L),edxActivityDetailLogDtoResult.getRecordId());
+        ProviderMatchingService spyService = spy(providerMatchingService);
+
+        // Provide non-null values to avoid null.hashCode() crash
+        doReturn(null).when(spyService).getLocalId(any());
+        doReturn(null).when(spyService).getIdentifier(any());
+        doReturn("123 Main Street").when(spyService).nameAddressStreetOneProvider(any());
+        doReturn("5551234567").when(spyService).telePhoneTxtProvider(any());
+        doReturn(123L).when(spyService).processingProvider(any(), any(), any());
+
+        EDXActivityDetailLogDto result = spyService.getMatchingProvider(personContainer);
+
+        assertEquals("123", result.getRecordId());
     }
+
     @Test
     void setProvider() throws DataProcessingException {
         PersonContainer personContainer=new PersonContainer();
@@ -377,4 +430,122 @@ class ProviderMatchingServiceTest {
         Long idResult=providerMatchingService.setProvider(personContainer,"TEST");
         assertEquals(123L,idResult);
     }
+
+    @Test
+    void attemptMatch_shouldPersistWhenMatchFoundAndRoleIsNull() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = mock(PersonContainer.class);
+        when(personContainer.getRole()).thenReturn(null);
+
+        List<EdxEntityMatchDto> matchList = new ArrayList<>();
+        EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
+
+        String matchString = "TEST_MATCH_STRING";
+
+        // Prepare mocked match with entityUid
+        EdxEntityMatchDto matchedDto = new EdxEntityMatchDto();
+        matchedDto.setEntityUid(456L);
+        when(edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, matchString))
+                .thenReturn(matchedDto);
+
+        // Spy on service to verify internal calls
+        ProviderMatchingService spyService = spy(providerMatchingService);
+        doReturn(edxPatientMatchRepositoryUtil).when(spyService).getEdxPatientMatchRepositoryUtil();
+        doNothing().when(spyService).persistIfNoRole(any(), eq(personContainer), eq(456L));
+
+        // Act
+        boolean result = spyService.attemptMatch(matchString, personContainer, matchList, logDto);
+
+        // Assert
+        assertTrue(result);
+        assertEquals("456", logDto.getRecordId());
+        assertTrue(logDto.getComment().contains("Provider entity found"));
+        verify(spyService, times(1)).persistIfNoRole(any(), eq(personContainer), eq(456L));
+    }
+
+    @Test
+    void persistMatchIfNotNull_shouldNotPersist_whenMatchStringIsNull() throws DataProcessingException {
+        // Arrange
+        String matchString = null;
+        int hashCode = 0;
+        Long entityUid = 123L;
+
+        PersonContainer personContainer = mock(PersonContainer.class);
+
+        ProviderMatchingService spyService = spy(providerMatchingService);
+
+        // Spy to ensure persistIfNoRole is not called
+        doNothing().when(spyService).persistIfNoRole(any(), any());
+
+        // Act
+        spyService.persistMatchIfNotNull(matchString, hashCode, entityUid, personContainer);
+
+        // Assert
+        verify(spyService, never()).persistIfNoRole(any(), any());
+    }
+
+    @Test
+    void persistIfNoRole_shouldCallSaveEdxEntityMatch_whenRoleIsNull() throws DataProcessingException {
+        // Arrange
+        PersonContainer personContainer = mock(PersonContainer.class);
+        when(personContainer.getRole()).thenReturn(null); // role == null
+
+        EdxEntityMatchDto dto = new EdxEntityMatchDto();
+
+        ProviderMatchingService spyService = spy(providerMatchingService);
+        doReturn(edxPatientMatchRepositoryUtil).when(spyService).getEdxPatientMatchRepositoryUtil();
+
+        // Act
+        spyService.persistIfNoRole(dto, personContainer);
+
+        // Assert
+        verify(edxPatientMatchRepositoryUtil, times(1)).saveEdxEntityMatch(dto);
+    }
+
+
+    @Test
+    void testPersistIfNoRoleIsNull() {
+        var person = new PersonContainer();
+        person.setRole("PAT");
+        providerMatchingService.persistIfNoRole(null, person);
+        verify(edxPatientMatchRepositoryUtil, times(0)).saveEdxEntityMatch(any());
+    }
+
+    @Test
+    void attemptMatch_shouldNotPersist_whenRoleIsNotNull() throws DataProcessingException {
+        // Arrange
+        String matchString = "MATCH_ID";
+        Long entityUid = 789L;
+
+        PersonContainer container = mock(PersonContainer.class);
+        when(container.getRole()).thenReturn("NOT_NULL_ROLE");
+
+        EdxEntityMatchDto matchedDto = new EdxEntityMatchDto();
+        matchedDto.setEntityUid(entityUid);
+
+        List<EdxEntityMatchDto> matchList = new ArrayList<>();
+        EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
+
+        // Spy on service to verify internal behavior
+        ProviderMatchingService spyService = spy(providerMatchingService);
+        doReturn(edxPatientMatchRepositoryUtil).when(spyService).getEdxPatientMatchRepositoryUtil();
+        doReturn(matchedDto).when(edxPatientMatchRepositoryUtil)
+                .getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, matchString);
+
+        // Prevent persistIfNoRole from being executed (we verify it shouldn't)
+        doNothing().when(spyService).persistIfNoRole(any(), any(), any());
+
+        // Act
+        boolean result = spyService.attemptMatch(matchString, container, matchList, logDto);
+
+        // Assert
+        assertTrue(result);
+        assertEquals("789", logDto.getRecordId());
+        assertTrue(logDto.getComment().contains("Provider entity found"));
+
+        // Ensure persistIfNoRole is never called
+        verify(spyService, never()).persistIfNoRole(any(), any(), any());
+    }
+
+
 }

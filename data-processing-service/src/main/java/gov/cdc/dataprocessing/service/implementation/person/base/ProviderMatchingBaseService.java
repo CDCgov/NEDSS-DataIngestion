@@ -40,7 +40,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
     @SuppressWarnings({"java:S3776", "java:S1066"})
-    protected String telePhoneTxtProvider(PersonContainer personContainer) {
+    public String telePhoneTxtProvider(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
 
@@ -65,7 +65,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     }
     @SuppressWarnings({"java:S3776", "java:S1066"})
     // Creating string for name and address for providers
-    protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
+    public String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
@@ -99,7 +99,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     }
 
     @SuppressWarnings("java:S1172")
-    protected Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
+    public Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
         boolean callOrgHashCode= false;
         if(personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
                 && !personContainer.getThePersonDto().isCaseInd()){

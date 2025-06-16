@@ -46,7 +46,7 @@ public class MatchingBaseService  {
         this.prepareAssocModelHelper = prepareAssocModelHelper;
     }
 
-    protected String getLocalId(PersonContainer personContainer) {
+    public String getLocalId(PersonContainer personContainer) {
         String localId = null;
         if (personContainer.getLocalIdentifier() != null) {
             localId = personContainer.getLocalIdentifier();
@@ -55,7 +55,7 @@ public class MatchingBaseService  {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    protected List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
+    public List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> returnList;
         List<String> identifierList = new ArrayList<>();
