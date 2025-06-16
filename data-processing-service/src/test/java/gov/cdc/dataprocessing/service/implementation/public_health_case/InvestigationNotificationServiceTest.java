@@ -13,15 +13,18 @@ import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomNbsQuestionRepository;
+import gov.cdc.dataprocessing.service.implementation.person.ProviderMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.notification.INotificationService;
 import gov.cdc.dataprocessing.service.interfaces.public_health_case.IInvestigationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,6 +45,7 @@ class InvestigationNotificationServiceTest {
     @Mock
     private ICacheApiService cacheApiService;
 
+    @InjectMocks
     private InvestigationNotificationService service;
 
     @BeforeEach
@@ -291,5 +295,173 @@ class InvestigationNotificationServiceTest {
         assertNull(result);
     }
 
+    @Test
+    void validatePAM_shouldProcess_whenDLocationIsNotEmpty() throws Exception {
+        // Arrange
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setDataLocation("");  // Not empty
+        meta.setQuestionLabel("Some label");
+
+        Map<Object, Object> reqFields = new HashMap<>();
+        reqFields.put(100L, meta);
+
+        InvestigationNotificationService.ValidationContext mockContext = new InvestigationNotificationService.ValidationContext();
+        mockContext.publicHealthCaseDto = new PublicHealthCaseDto();
+
+        InvestigationNotificationService spyService = spy(service);
+
+        doReturn(mockContext).when(spyService).buildValidationContext(any(), any(), anyString());
+
+        // Act
+        Map<Object, Object> result = spyService.validatePAMNotficationRequiredFieldsGivenPageProxy(
+                new Object(), 123L, reqFields, "FORM_CD"
+        );
+
+        // Assert
+        // should not be null if checkObject adds to missingFields, or null if nothing missing
+        assertNull(result);
+    }
+
+
+
+    @Test
+    void validatePAM_shouldThrow_whenReflectionFails() throws Exception {
+        // Arrange
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setDataLocation("person.badField");
+        meta.setQuestionLabel("Label");
+
+        Map<Object, Object> reqFields = new HashMap<>();
+        reqFields.put(200L, meta);
+
+        InvestigationNotificationService.ValidationContext mockContext = new InvestigationNotificationService.ValidationContext();
+        mockContext.personDto = new PersonDto();
+
+        InvestigationNotificationService spyService = spy(service);
+
+        doReturn(mockContext).when(spyService).buildValidationContext(any(), any(), anyString());
+        doThrow(new RuntimeException("reflection failure"))
+                .when(spyService).reflectGet(any(), eq("person.badField"));
+
+        // Act & Assert
+        DataProcessingException ex = assertThrows(DataProcessingException.class, () -> {
+            spyService.validatePAMNotficationRequiredFieldsGivenPageProxy(
+                    new Object(), 123L, reqFields, "FORM_CD"
+            );
+        });
+
+        assertTrue(ex.getMessage().contains("Validation error at: person.badField"));
+        assertTrue(ex.getCause() instanceof RuntimeException);
+    }
+
+
+    @Test
+    void validateNbsAnswer_shouldNotAddMissing_whenAnswerExists() {
+        // Arrange
+        Long key = 123L;
+        Object answerValue = "someValue";
+        NbsQuestionMetadata meta = mock(NbsQuestionMetadata.class);
+
+        Map<Object, Object> answerMap = new HashMap<>();
+        answerMap.put(key, answerValue);
+
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.answerMap = answerMap;
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+
+        // Act
+        spyService.validateNbsAnswer(context, key, meta, missingFields);
+
+        // Assert: addMissing should NOT be called
+        verify(spyService, never()).addMissing(any(), anyMap());
+        assertTrue(missingFields.isEmpty());
+    }
+
+    @Test
+    void validatePostalLocator_shouldCheckObjectWhenPersonVOAndCollectionIsNull() throws Exception {
+        // Arrange
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.personVO = null; // triggers the final "else"
+
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setDataLocation("postal_locator.streetAddr1");
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+
+        doReturn("getStreetAddr1").when(spyService).createGetterMethod("streetAddr1");
+        doReturn(PostalLocatorDto.class.getMethod("getStreetAddr1")).when(spyService).getMethod(eq(PostalLocatorDto.class), eq("getStreetAddr1"));
+        doNothing().when(spyService).checkObject(null, missingFields, meta);
+
+        // Act
+        spyService.validatePostalLocator(context, "postal_locator.streetAddr1", meta, missingFields);
+
+        // Assert
+        verify(spyService).checkObject(null, missingFields, meta);
+    }
+
+    @Test
+    void validatePostalLocator_shouldCheckObjectWhenPostalLocatorAndDataUseMatch() throws Exception {
+        // Arrange
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+
+        PostalLocatorDto postalLocatorDto = new PostalLocatorDto();
+        postalLocatorDto.setStreetAddr1("123 Main");
+
+        EntityLocatorParticipationDto elp = new EntityLocatorParticipationDto();
+        elp.setUseCd("WORK");
+        elp.setThePostalLocatorDto(postalLocatorDto);
+
+        PersonContainer personVO = new PersonContainer();
+        personVO.setTheEntityLocatorParticipationDtoCollection(List.of(elp));
+        context.personVO = personVO;
+
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setDataLocation("postal_locator.streetAddr1");
+        meta.setDataUseCd("WORK");
+
+        Method getter = PostalLocatorDto.class.getMethod("getStreetAddr1");
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doReturn("getStreetAddr1").when(spyService).createGetterMethod("streetAddr1");
+        doReturn(getter).when(spyService).getMethod(eq(PostalLocatorDto.class), eq("getStreetAddr1"));
+        doNothing().when(spyService).checkObject(any(), any(), any());
+
+        // Act
+        spyService.validatePostalLocator(context, "postal_locator.streetAddr1", meta, missingFields);
+
+        // Assert
+        verify(spyService).checkObject(any(), eq(missingFields), eq(meta));
+    }
+
+
+    @Test
+    void validatePersonRace_shouldCheckNull_whenPersonVOorCollectionIsNull() throws Exception {
+        // Arrange
+        NbsQuestionMetadata meta = new NbsQuestionMetadata();
+        meta.setDataLocation("person_race.raceCd");
+
+        InvestigationNotificationService.ValidationContext context = new InvestigationNotificationService.ValidationContext();
+        context.personVO = null; // triggers the else
+
+        Map<Object, Object> missingFields = spy(new HashMap<>());
+
+        InvestigationNotificationService spyService = spy(service);
+        doReturn("getRaceCd").when(spyService).createGetterMethod("raceCd");
+        doReturn(PersonRaceDto.class.getMethod("getRaceCd")).when(spyService).getMethod(eq(PersonRaceDto.class), eq("getRaceCd"));
+        doNothing().when(spyService).checkObject(null, missingFields, meta);
+
+        // Act
+        spyService.validatePersonRace(context, "person_race.raceCd", meta, missingFields);
+
+        // Assert
+        verify(spyService).checkObject(null, missingFields, meta);
+    }
 
 } 

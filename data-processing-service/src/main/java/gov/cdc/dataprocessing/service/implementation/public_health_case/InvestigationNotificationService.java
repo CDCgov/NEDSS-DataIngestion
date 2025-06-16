@@ -451,83 +451,29 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
             Long key = (Long) entry.getKey();
             NbsQuestionMetadata metaData = (NbsQuestionMetadata) entry.getValue();
 
-            String dLocation = metaData.getDataLocation() == null ? "" : metaData.getDataLocation();
-            String label = metaData.getQuestionLabel() == null ? "" : metaData.getQuestionLabel();
+            String dLocation = safe(metaData.getDataLocation());
+            String label = safe(metaData.getQuestionLabel());
             Long nbsQueUid = metaData.getNbsQuestionUid();
 
-            if (dLocation.isEmpty()) continue;
+            if (dLocation.isEmpty()) {
+                continue;
+            }
 
             try {
                 if (dLocation.startsWith("NBS_Answer.")) {
-                    if (context.answerMap == null || context.answerMap.get(key) == null) {
-                        addMissing(metaData, missingFields);
-                    }
+                    validateNbsAnswer(context, key, metaData, missingFields);
                 } else if (dLocation.toLowerCase().startsWith("public_health_case.")) {
-                    Object val = reflectGet(context.publicHealthCaseDto, dLocation);
-                    checkObject(val, missingFields, metaData);
+                    validateReflection(context.publicHealthCaseDto, dLocation, metaData, missingFields);
                 } else if (dLocation.toLowerCase().startsWith("person.")) {
-                    Object val = reflectGet(context.personDto, dLocation);
-                    checkObject(val, missingFields, metaData);
+                    validateReflection(context.personDto, dLocation, metaData, missingFields);
                 } else if (dLocation.toLowerCase().startsWith("postal_locator.")) {
-                    String attr = dLocation.substring(dLocation.indexOf('.') + 1);
-                    String getter = createGetterMethod(attr);
-                    PostalLocatorDto postalLocator = new PostalLocatorDto();
-                    Map<Object, Object> methodMap = getMethods(postalLocator.getClass());
-                    Method method = (Method) methodMap.get(getter.toLowerCase());
-                    if (context.personVO != null && context.personVO.getTheEntityLocatorParticipationDtoCollection() != null) {
-                        for (EntityLocatorParticipationDto elp : context.personVO.getTheEntityLocatorParticipationDtoCollection()) {
-                            if (elp.getThePostalLocatorDto() != null
-                                    && elp.getUseCd() != null
-                                    && metaData.getDataUseCd() != null
-                                    && metaData.getDataUseCd().equalsIgnoreCase(elp.getUseCd())) {
-                                postalLocator = elp.getThePostalLocatorDto();
-                                Object obj = method.invoke(postalLocator);
-                                checkObject(obj, missingFields, metaData);
-                            } else if (elp.getClassCd() != null && elp.getClassCd().equals("PST") && elp.getTheTeleLocatorDto() == null) {
-                                checkObject(null, missingFields, metaData);
-                            }
-                        }
-                    } else {
-                        checkObject(null, missingFields, metaData);
-                    }
+                    validatePostalLocator(context, dLocation, metaData, missingFields);
                 } else if (dLocation.toLowerCase().startsWith("person_race.")) {
-                    String attr = dLocation.substring(dLocation.indexOf('.') + 1);
-                    String getter = createGetterMethod(attr);
-                    Map<Object, Object> methodMap = getMethods(PersonRaceDto.class);
-                    Method method = (Method) methodMap.get(getter.toLowerCase());
-                    if (context.personVO != null && context.personVO.getThePersonRaceDtoCollection() != null) {
-                        for (PersonRaceDto race : context.personVO.getThePersonRaceDtoCollection()) {
-                            Object obj = method.invoke(race);
-                            checkObject(obj, missingFields, metaData);
-                        }
-                    } else {
-                        checkObject(null, missingFields, metaData);
-                    }
+                    validatePersonRace(context, dLocation, metaData, missingFields);
                 } else if (dLocation.toLowerCase().startsWith("act_id.")) {
-                    String attr = dLocation.substring(dLocation.indexOf('.') + 1);
-                    String getter = createGetterMethod(attr);
-                    if (context.actIdColl != null) {
-                        for (ActIdDto adt : context.actIdColl) {
-                            String typeCd = adt.getTypeCd() == null ? "" : adt.getTypeCd();
-                            String value = adt.getRootExtensionTxt() == null ? "" : adt.getRootExtensionTxt();
-                            if ((typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.isEmpty() && label.toLowerCase().contains(STATE_STR))
-                                    || (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains(STATE_STR))
-                                    || (typeCd.equalsIgnoreCase("CITY") && value.isEmpty() && label.toLowerCase().contains("city"))) {
-                                Map<Object, Object> methodMap = getMethods(adt.getClass());
-                                Method method = (Method) methodMap.get(getter.toLowerCase());
-                                Object obj = method.invoke(adt);
-                                checkObject(obj, missingFields, metaData);
-                            }
-                        }
-                    } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains(STATE_STR)) {
-                        addMissing(metaData, missingFields);
-                    }
+                    validateActId(context, dLocation, label, formCd, metaData, missingFields);
                 } else if (dLocation.toLowerCase().startsWith("nbs_case_answer.")) {
-                    boolean isMissing = context.answerMap == null || context.answerMap.isEmpty()
-                            || (context.answerMap.get(nbsQueUid) == null && context.answerMap.get(metaData.getQuestionIdentifier()) == null);
-                    if (isMissing) {
-                        addMissing(metaData, missingFields);
-                    }
+                    validateNbsCaseAnswer(context, nbsQueUid, metaData, missingFields);
                 }
             } catch (Exception e) {
                 throw new DataProcessingException("Validation error at: " + dLocation, e);
@@ -537,7 +483,105 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         return missingFields.isEmpty() ? null : missingFields;
     }
 
-    private static class ValidationContext {
+    protected void validateNbsAnswer(ValidationContext context, Long key, NbsQuestionMetadata metaData,
+                                   Map<Object, Object> missingFields) {
+        if (context.answerMap == null || context.answerMap.get(key) == null) {
+            addMissing(metaData, missingFields);
+        }
+    }
+
+    protected void validateReflection(Object target, String dLocation, NbsQuestionMetadata metaData,
+                                    Map<Object, Object> missingFields) throws Exception {
+        Object val = reflectGet(target, dLocation);
+        checkObject(val, missingFields, metaData);
+    }
+
+    protected void validatePostalLocator(ValidationContext context, String dLocation, NbsQuestionMetadata metaData,
+                                       Map<Object, Object> missingFields) throws Exception {
+        String attr = dLocation.substring(dLocation.indexOf('.') + 1);
+        String getter = createGetterMethod(attr);
+        Method method = getMethod(PostalLocatorDto.class, getter);
+
+        if (context.personVO != null && context.personVO.getTheEntityLocatorParticipationDtoCollection() != null) {
+            for (EntityLocatorParticipationDto elp : context.personVO.getTheEntityLocatorParticipationDtoCollection()) {
+                if (elp.getThePostalLocatorDto() != null
+                        && metaData.getDataUseCd() != null
+                        && metaData.getDataUseCd().equalsIgnoreCase(elp.getUseCd())) {
+                    Object obj = method.invoke(elp.getThePostalLocatorDto());
+                    checkObject(obj, missingFields, metaData);
+                } else if ("PST".equals(elp.getClassCd()) && elp.getTheTeleLocatorDto() == null) {
+                    checkObject(null, missingFields, metaData);
+                }
+            }
+        } else {
+            checkObject(null, missingFields, metaData);
+        }
+    }
+
+    protected void validatePersonRace(ValidationContext context, String dLocation, NbsQuestionMetadata metaData,
+                                    Map<Object, Object> missingFields) throws Exception {
+        String attr = dLocation.substring(dLocation.indexOf('.') + 1);
+        String getter = createGetterMethod(attr);
+        Method method = getMethod(PersonRaceDto.class, getter);
+
+        if (context.personVO != null && context.personVO.getThePersonRaceDtoCollection() != null) {
+            for (PersonRaceDto race : context.personVO.getThePersonRaceDtoCollection()) {
+                Object obj = method.invoke(race);
+                checkObject(obj, missingFields, metaData);
+            }
+        } else {
+            checkObject(null, missingFields, metaData);
+        }
+    }
+
+    protected void validateActId(ValidationContext context, String dLocation, String label, String formCd,
+                               NbsQuestionMetadata metaData, Map<Object, Object> missingFields) throws Exception {
+        String attr = dLocation.substring(dLocation.indexOf('.') + 1);
+        String getter = createGetterMethod(attr);
+
+        if (context.actIdColl != null) {
+            for (ActIdDto adt : context.actIdColl) {
+                String typeCd = safe(adt.getTypeCd());
+                String value = safe(adt.getRootExtensionTxt());
+
+                boolean shouldValidate =
+                        (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && value.isEmpty() && label.toLowerCase().contains("state")) ||
+                                (typeCd.equalsIgnoreCase(NEDSSConstant.ACT_ID_STATE_TYPE_CD) && formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains("state")) ||
+                                (typeCd.equalsIgnoreCase("CITY") && value.isEmpty() && label.toLowerCase().contains("city"));
+
+                if (shouldValidate) {
+                    Method method = getMethod(adt.getClass(), getter);
+                    Object obj = method.invoke(adt);
+                    checkObject(obj, missingFields, metaData);
+                }
+            }
+        } else if (formCd.equalsIgnoreCase(NEDSSConstant.INV_FORM_RVCT) && label.toLowerCase().contains("state")) {
+            addMissing(metaData, missingFields);
+        }
+    }
+
+    protected void validateNbsCaseAnswer(ValidationContext context, Long nbsQueUid,
+                                       NbsQuestionMetadata metaData, Map<Object, Object> missingFields) {
+        boolean isMissing = context.answerMap == null || context.answerMap.isEmpty()
+                || (context.answerMap.get(nbsQueUid) == null
+                && context.answerMap.get(metaData.getQuestionIdentifier()) == null);
+
+        if (isMissing) {
+            addMissing(metaData, missingFields);
+        }
+    }
+
+    protected Method getMethod(Class<?> clazz, String getter) throws Exception {
+        Map<Object, Object> methodMap = getMethods(clazz);
+        return (Method) methodMap.get(getter.toLowerCase());
+    }
+
+    protected String safe(String val) {
+        return val == null ? "" : val;
+    }
+
+
+    protected static class ValidationContext {
         Map<Object, Object> answerMap;
         Collection<ParticipationDto> participationDTCollection;
         Collection<PersonContainer> personVOCollection;
@@ -548,7 +592,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         String formCd;
     }
 
-    private ValidationContext buildValidationContext(Object pageObj, Long uid, String formCd) throws DataProcessingException {
+    protected ValidationContext buildValidationContext(Object pageObj, Long uid, String formCd) throws DataProcessingException {
         ValidationContext ctx = new ValidationContext();
         ctx.formCd = formCd;
 
@@ -583,19 +627,19 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
         return ctx;
     }
 
-    private Object reflectGet(Object target, String dLocation) throws Exception {
+    protected Object reflectGet(Object target, String dLocation) throws Exception {
         String attr = dLocation.substring(dLocation.indexOf('.') + 1);
         String getter = createGetterMethod(attr);
         Method method = (Method) getMethods(target.getClass()).get(getter.toLowerCase());
         return method.invoke(target);
     }
 
-    private void addMissing(NbsQuestionMetadata metaData, Map<Object, Object> missingFields) {
+    protected void addMissing(NbsQuestionMetadata metaData, Map<Object, Object> missingFields) {
         missingFields.put(metaData.getQuestionIdentifier(), metaData.getQuestionLabel());
     }
 
 
-    private String createGetterMethod(String attrToChk) {
+    protected String createGetterMethod(String attrToChk) {
         StringTokenizer tokenizer = new StringTokenizer(attrToChk,"_");
         StringBuilder methodName = new StringBuilder();
         while (tokenizer.hasMoreTokens()){
@@ -607,7 +651,7 @@ public class InvestigationNotificationService  implements IInvestigationNotifica
     }
 
     @SuppressWarnings("java:S3740")
-    private  Map<Object, Object>  getMethods(Class beanClass) {
+    protected  Map<Object, Object>  getMethods(Class beanClass) {
         Method[] gettingMethods = beanClass.getMethods();
         Map<Object, Object>  resultMap = new HashMap<>();
         for (Method gettingMethod : gettingMethods) {
