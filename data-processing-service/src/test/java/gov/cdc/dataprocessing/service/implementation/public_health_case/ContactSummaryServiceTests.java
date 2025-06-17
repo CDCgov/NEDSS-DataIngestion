@@ -24,8 +24,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -112,4 +111,124 @@ class ContactSummaryServiceTests {
 
     }
 
+
+    @Test
+    void testApplyDataAccessReplacements_returnsEmptyIfClauseIsNull() {
+        String result = contactSummaryService.applyDataAccessReplacements(null, "X", "Y");
+        assertEquals("", result);
+    }
+
+    @Test
+    void testApplyDataAccessReplacements_returnsEmptyIfClauseIsBlank() {
+        String result = contactSummaryService.applyDataAccessReplacements("   ", "X", "Y");
+        assertEquals("", result);
+    }
+
+    @Test
+    void testResolvePersonName_returnsNullIfEntityUidIsNull() {
+        String result = contactSummaryService.resolvePersonName(null);
+        assertNull(result);
+    }
+
+    @Test
+    void testResolvePersonName_returnsNullIfRepositoryReturnsEmpty() {
+        when(personNameRepository.findByParentUid(123L)).thenReturn(Optional.empty());
+
+        String result = contactSummaryService.resolvePersonName(123L);
+        assertNull(result);
+    }
+
+    @Test
+    void testFormatName_bothNull() {
+        String result = contactSummaryService.formatName(null, null);
+        assertEquals("No Last, No First", result);
+    }
+
+    @Test
+    void testFormatName_firstNull() {
+        String result = contactSummaryService.formatName("Doe", null);
+        assertEquals("Doe, No First", result);
+    }
+
+    @Test
+    void testFormatName_lastNull() {
+        String result = contactSummaryService.formatName(null, "John");
+        assertEquals("No Last, John", result);
+    }
+
+    @Test
+    void testFormatName_noNulls() {
+        String result = contactSummaryService.formatName("Doe", "John");
+        assertEquals("Doe, John", result);
+    }
+
+    @Test
+    void testUpdateDisposition_RSC_A() {
+        CTContactSummaryDto dto = createDto("RSC", "A");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("Z", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_RSC_C() {
+        CTContactSummaryDto dto = createDto("RSC", "C");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("E", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_RSC_OtherDisposition() {
+        CTContactSummaryDto dto = createDto("RSC", "X");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("X", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_SR_A() {
+        CTContactSummaryDto dto = createDto("SR", "A");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("Z", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_SR_C() {
+        CTContactSummaryDto dto = createDto("SR", "C");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("E", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_SR_OtherDisposition() {
+        CTContactSummaryDto dto = createDto("SR", "X");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("X", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_RSC_NullDisposition() {
+        CTContactSummaryDto dto = createDto("RSC", null);
+        contactSummaryService.updateDisposition(dto);
+        assertEquals(null, dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_OtherDecision_A() {
+        CTContactSummaryDto dto = createDto("OTHER", "A");
+        contactSummaryService.updateDisposition(dto);
+        assertEquals("A", dto.getDispositionCd());
+    }
+
+    @Test
+    void testUpdateDisposition_OtherDecision_NullDisposition() {
+        CTContactSummaryDto dto = createDto("OTHER", null);
+        contactSummaryService.updateDisposition(dto);
+        assertEquals(null, dto.getDispositionCd());
+    }
+
+    private CTContactSummaryDto createDto(String decision, String disposition) {
+        CTContactSummaryDto dto = new CTContactSummaryDto();
+        dto.setContactProcessingDecisionCd(decision);
+        dto.setDispositionCd(disposition);
+        return dto;
+    }
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
@@ -39,271 +40,117 @@ public class ContactSummaryService implements IContactSummaryService {
         this.retrieveSummaryService = retrieveSummaryService;
     }
 
-    public Collection<Object> getContactListForInvestigation(Long publicHealthCaseUID) throws DataProcessingException {
-        Collection<Object> coll = new ArrayList<>();
-        coll.addAll(getPHCContactNamedByPatientSummDTColl(publicHealthCaseUID));
-        coll.addAll(getPHCPatientNamedAsContactSummDTColl(publicHealthCaseUID));
-        coll.addAll(getPHCPatientOtherNamedAsContactSummDTColl(publicHealthCaseUID));
-        return coll;
+
+    @Override
+    public Collection<Object> getContactListForInvestigation(Long phcUid) throws DataProcessingException {
+        Collection<Object> contacts = new ArrayList<>();
+        contacts.addAll(getNamedByPatientContacts(phcUid));
+        contacts.addAll(getNamedAsContactContacts(phcUid));
+        contacts.addAll(getOtherNamedAsContactContacts(phcUid));
+        return contacts;
     }
 
-    @SuppressWarnings("java:S5361")
-    private Collection<Object> getPHCContactNamedByPatientSummDTColl(Long publicHealthCaseUID) {
-        String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT,"VIEW", "");
-
-        if (dataAccessWhereClause == null) {
-            dataAccessWhereClause = "";
-        }
-        else {
-            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
-        }
-
-        String dataAccessWhereClause1 = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
-
-        if (dataAccessWhereClause1 == null) {
-            dataAccessWhereClause1 = "";
-        }
-        else {
-            dataAccessWhereClause1 = AND_UPPERCASE + dataAccessWhereClause1;
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, "contact.program_jurisdiction_oid");
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, "contact.shared_ind");
-        }
-        Collection<Object>  phcTContactNameByPatientSummDTColl;
-        String sql  =SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1 + dataAccessWhereClause1
-                + SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION3 + publicHealthCaseUID+ dataAccessWhereClause;
-        phcTContactNameByPatientSummDTColl = getContactNamedByPatientDTColl(sql);
-        return phcTContactNameByPatientSummDTColl;
+    private Collection<Object> getNamedByPatientContacts(Long phcUid) {
+        String sql = buildSql(
+                SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION1,
+                SELECT_PHCPAT_NAMED_BY_PATIENT_COLLECTION3,
+                phcUid,
+                NBSBOLookup.CT_CONTACT, NBSBOLookup.INVESTIGATION,
+                "contact.program_jurisdiction_oid", "contact.shared_ind"
+        );
+        return enhanceContactSummaries(customRepository.getContactByPatientInfo(sql), true);
     }
 
-    @SuppressWarnings("java:S5361")
-    private Collection<Object> getPHCPatientNamedAsContactSummDTColl(Long publicHealthCaseUID) throws DataProcessingException {
-        String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
-        if (dataAccessWhereClause == null) {
-            dataAccessWhereClause = "";
-        }
-        else {
-            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll(PROGRAM_JUS_OID, "subject.program_jurisdiction_oid");
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll(SHARED_IND, "subject.shared_ind");
-        }
-        String dataAccessWhereClause1 = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT, "VIEW", "");
-        if (dataAccessWhereClause1 == null) {
-            dataAccessWhereClause1 = "";
-        }
-        else {
-            dataAccessWhereClause1 = AND_UPPERCASE + dataAccessWhereClause1;
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
-        }
-        Collection<Object>  phcTContactNameByPatientSummDTColl;
-        String sql  = SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION +publicHealthCaseUID
-                + dataAccessWhereClause + dataAccessWhereClause1;
-        phcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, false);
-        return phcTContactNameByPatientSummDTColl;
+    private Collection<Object> getNamedAsContactContacts(Long phcUid) throws DataProcessingException {
+        String sql = buildSql(
+                SELECT_PHCPAT_NAMED_BY_CONTACT_COLLECTION,
+                "",
+                phcUid,
+                NBSBOLookup.INVESTIGATION, NBSBOLookup.CT_CONTACT,
+                "subject.program_jurisdiction_oid", "subject.shared_ind"
+        );
+        return enhanceNamedAsContactSummaries(customRepository.getContactByPatientInfo(sql), false);
     }
 
-    @SuppressWarnings("java:S5361")
-    private Collection<Object> getPHCPatientOtherNamedAsContactSummDTColl(Long publicHealthCaseUID) throws DataProcessingException {
-        String dataAccessWhereClause = queryHelper.getDataAccessWhereClause(NBSBOLookup.INVESTIGATION, "VIEW", "");
-        if (dataAccessWhereClause == null) {
-            dataAccessWhereClause = "";
-        }
-        else {
-            dataAccessWhereClause = AND_UPPERCASE + dataAccessWhereClause;
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll(PROGRAM_JUS_OID, "subject.program_jurisdiction_oid");
-            dataAccessWhereClause = dataAccessWhereClause.replaceAll(SHARED_IND, "subject.shared_ind");
-        }
-        String dataAccessWhereClause1 = queryHelper.getDataAccessWhereClause(NBSBOLookup.CT_CONTACT, "VIEW", "");
-
-        if (dataAccessWhereClause1 == null) {
-            dataAccessWhereClause1 = "";
-        }
-        else {
-            dataAccessWhereClause1 = AND_UPPERCASE + dataAccessWhereClause1;
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(PROGRAM_JUS_OID, CT_PROGRAM_JUS_OID);
-            dataAccessWhereClause1 = dataAccessWhereClause1.replaceAll(SHARED_IND, CT_SHARED_IND_CD);
-        }
-        Collection<Object>  phcTContactNameByPatientSummDTColl;
-        String sql  =SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION + publicHealthCaseUID
-                + dataAccessWhereClause+dataAccessWhereClause1;
-        phcTContactNameByPatientSummDTColl = getPatientNamedAsContactSummDTColl(sql, true);
-        return phcTContactNameByPatientSummDTColl;
+    private Collection<Object> getOtherNamedAsContactContacts(Long phcUid) throws DataProcessingException {
+        String sql = buildSql(
+                SELECT_PHCPAT_OTHER_NAMED_BY_CONTACT_COLLECTION,
+                "",
+                phcUid,
+                NBSBOLookup.INVESTIGATION, NBSBOLookup.CT_CONTACT,
+                "subject.program_jurisdiction_oid", "subject.shared_ind"
+        );
+        return enhanceNamedAsContactSummaries(customRepository.getContactByPatientInfo(sql), true);
     }
 
-    @SuppressWarnings("java:S3776")
-    private  Collection<Object> getContactNamedByPatientDTColl(String sql) {
-        ArrayList<CTContactSummaryDto>  cTContactNameByPatientSummDTColl ;
-        ArrayList<Object>  returnCTContactNameByPatientSummDTColl  = new ArrayList<> ();
-        cTContactNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
-        for (CTContactSummaryDto cTContactSumyDT : cTContactNameByPatientSummDTColl) {
-            cTContactSumyDT.setContactNamedByPatient(true);
-            Long contactEntityUid = cTContactSumyDT.getContactEntityUid();
-            var lst = personNameRepository.findByParentUid(contactEntityUid);
-
-            //add the contact summary dt
-            returnCTContactNameByPatientSummDTColl.add(cTContactSumyDT);
-
-            Collection<PersonName> contactNameColl = new ArrayList<>();
-            if (lst.isPresent()) {
-                contactNameColl = lst.get();
-            }
-
-            if (!contactNameColl.isEmpty()) {
-                for (PersonName o : contactNameColl) {
-                    PersonNameDto personNameDT = new PersonNameDto(o);
-                    if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                        String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
-                        String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
-                        String personName = lastName + ", " + firstName;
-                        cTContactSumyDT.setName(personName);
-                        cTContactSumyDT.setContactName(personName);
-                        break;
-                    }
-                } //name iter
-            }//name coll not null
-            //Other Infected Person is seldom present
-            Long otherEntityUid = cTContactSumyDT.getThirdPartyEntityUid();
-            if (otherEntityUid != null) {
-                Collection<PersonName> ctOtherNameColl = new ArrayList<>();
-                var lst3 = personNameRepository.findByParentUid(otherEntityUid);
-                if (lst3.isPresent()) {
-                    ctOtherNameColl = lst3.get();
-                }
-                if (!ctOtherNameColl.isEmpty()) {
-                    for (PersonName name : ctOtherNameColl) {
-                        PersonNameDto personNameDT = new PersonNameDto(name);
-                        if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                            String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
-                            String personName = lastName + ", " + firstName;
-                            cTContactSumyDT.setOtherInfectedPatientName(personName);
-                            break;
-                        }
-                    }
-                }
-            }
-            //Business rule with convoluted logic, if contact Processing Decision is RSC or SR and the contiact's investigation disposition
-            // is A, the disposition of the Contact Record will be Z.
-            //If the disposition on the Contact�s existing investigation is C, the disposition of the Contact Record will be E.
-            if (cTContactSumyDT.getContactProcessingDecisionCd() != null &&
-                    cTContactSumyDT.getDispositionCd() != null &&
-                    (cTContactSumyDT.getContactProcessingDecisionCd().equals(CTConstants.RecordSearchClosure)
-                            || cTContactSumyDT.getContactProcessingDecisionCd().equals(CTConstants.SecondaryReferral)))
-            {
-                if (cTContactSumyDT.getDispositionCd().equals("A")) //preventative treatment
-                {
-                    cTContactSumyDT.setDispositionCd("Z"); //prev preventative treated
-                }
-                else if (cTContactSumyDT.getDispositionCd().equals("C")) //infected brought to treat
-                {
-                    cTContactSumyDT.setDispositionCd("E"); //prev treated
-                }
-            }
-        } //while
-        return returnCTContactNameByPatientSummDTColl;
+    private String buildSql(String baseSql1, String baseSql2, Long phcUid,
+                            String lookup1, String lookup2, String progJusOidAlias, String sharedIndAlias) {
+        String where1 = applyDataAccessReplacements(queryHelper.getDataAccessWhereClause(lookup1, "VIEW", ""), progJusOidAlias, sharedIndAlias);
+        String where2 = applyDataAccessReplacements(queryHelper.getDataAccessWhereClause(lookup2, "VIEW", ""), CT_PROGRAM_JUS_OID, CT_SHARED_IND_CD);
+        return baseSql1 + where1 + baseSql2 + phcUid + where2;
     }
 
-    @SuppressWarnings("java:S3776")
-
-    private Collection<Object> getPatientNamedAsContactSummDTColl(String sql, boolean otherInfected) throws  DataProcessingException {
-        ArrayList<CTContactSummaryDto>  ctNameByPatientSummDTColl;
-        ArrayList<Object>  returnCTNameByPatientSummDTColl  = new ArrayList<> ();
-
-        ctNameByPatientSummDTColl  = new ArrayList<>(customRepository.getContactByPatientInfo(sql));
-        for (CTContactSummaryDto cTContactSumyDT : ctNameByPatientSummDTColl) {
-            cTContactSumyDT.setContactNamedByPatient(false);
-            cTContactSumyDT.setPatientNamedByContact(true);
-            cTContactSumyDT.setOtherNamedByPatient(otherInfected);
-
-            cTContactSumyDT.setAssociatedMap(retrieveSummaryService.getAssociatedDocumentList(
-                    cTContactSumyDT.getCtContactUid(),
-                    NEDSSConstant.CLASS_CD_CONTACT,
-                    NEDSSConstant.ACT_CLASS_CD_FOR_DOC));
-            //go ahead and add the summary dt into the collection
-            returnCTNameByPatientSummDTColl.add(cTContactSumyDT);
-
-            //get the subject name
-            Long contactSubjectEntityUid = cTContactSumyDT.getSubjectEntityUid();
-
-
-            Collection<PersonName> subjectNameColl = new ArrayList<>();
-
-            var lst = personNameRepository.findByParentUid(contactSubjectEntityUid);
-            if (lst.isPresent()) {
-                subjectNameColl = lst.get();
-            }
-
-            if (!subjectNameColl.isEmpty()) {
-                for (PersonName name : subjectNameColl) {
-                    PersonNameDto personNameDT = new PersonNameDto(name);
-                    if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                        String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
-                        String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
-                        String personName = lastName + ", " + firstName;
-                        cTContactSumyDT.setNamedBy(personName);
-                        cTContactSumyDT.setSubjectName(personName);
-                        break;
-                    }
-                }
-            }
-
-            //get the Contact Name
-            Long contactEntityUid = cTContactSumyDT.getContactEntityUid();
-            if (contactEntityUid != null) {
-                Collection<PersonName> contactNameColl = new ArrayList<>();
-
-                var lst2 = personNameRepository.findByParentUid(contactEntityUid);
-                if (lst2.isPresent() && lst.isPresent()) {
-                    contactNameColl = lst.get();
-                }
-
-
-                if (!contactNameColl.isEmpty()) {
-                    for (PersonName name : contactNameColl) {
-                        PersonNameDto personNameDT = new PersonNameDto(name);
-                        if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                            String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
-                            String personName = lastName + ", " + firstName;
-                            cTContactSumyDT.setContactName(personName);
-                            break;
-                        }
-                    }
-                }
-            } //contact Entity not null
-            //Other Infected Person is seldom present
-            Long otherEntityUid = cTContactSumyDT.getThirdPartyEntityUid();
-            if (otherEntityUid != null) {
-                Collection<PersonName> ctOtherNameColl = new ArrayList<>();
-                var lst3 = personNameRepository.findByParentUid(otherEntityUid);
-                if (lst3.isPresent()) {
-                    ctOtherNameColl = lst3.get();
-                }
-
-                if (!ctOtherNameColl.isEmpty()) {
-                    for (PersonName name : ctOtherNameColl) {
-                        PersonNameDto personNameDT = new PersonNameDto(name);
-                        if (personNameDT.getNmUseCd().equalsIgnoreCase(NEDSSConstant.LEGAL_NAME)) {
-                            String lastName = (personNameDT.getLastNm() == null) ? NO_LAST_NAME_INVESTIGATOR : personNameDT.getLastNm();
-                            String firstName = (personNameDT.getFirstNm() == null) ? NO_FIRST_NAME_INVESTIGATOR : personNameDT.getFirstNm();
-                            String personName = lastName + ", " + firstName;
-                            cTContactSumyDT.setOtherInfectedPatientName(personName);
-                            break;
-                        }
-                    }
-                }
-            } //other entity
-            //Setting the disposition to the source patient's disposition for the section 'patient named by contacts'
-            cTContactSumyDT.setDispositionCd(cTContactSumyDT.getSourceDispositionCd());
-
-        } //has next
-        return returnCTNameByPatientSummDTColl;
+    protected String applyDataAccessReplacements(String clause, String progJusOid, String sharedInd) {
+        if (clause == null || clause.isBlank()) return "";
+        return AND_UPPERCASE + clause
+                .replaceAll(PROGRAM_JUS_OID, progJusOid)
+                .replaceAll(SHARED_IND, sharedInd);
     }
 
+    private Collection<Object> enhanceContactSummaries(Collection<CTContactSummaryDto> contacts, boolean namedByPatient) {
+        List<Object> result = new ArrayList<>();
+        for (CTContactSummaryDto dto : contacts) {
+            dto.setContactNamedByPatient(namedByPatient);
+            dto.setContactName(resolvePersonName(dto.getContactEntityUid()));
+            dto.setOtherInfectedPatientName(resolvePersonName(dto.getThirdPartyEntityUid()));
+            updateDisposition(dto);
+            result.add(dto);
+        }
+        return result;
+    }
 
+    private Collection<Object> enhanceNamedAsContactSummaries(Collection<CTContactSummaryDto> contacts, boolean otherInfected) throws DataProcessingException {
+        List<Object> result = new ArrayList<>();
+        for (CTContactSummaryDto dto : contacts) {
+            dto.setPatientNamedByContact(true);
+            dto.setOtherNamedByPatient(otherInfected);
+            dto.setAssociatedMap(retrieveSummaryService.getAssociatedDocumentList(
+                    dto.getCtContactUid(), CLASS_CD_CONTACT, ACT_CLASS_CD_FOR_DOC
+            ));
+            dto.setSubjectName(resolvePersonName(dto.getSubjectEntityUid()));
+            dto.setContactName(resolvePersonName(dto.getContactEntityUid()));
+            dto.setOtherInfectedPatientName(resolvePersonName(dto.getThirdPartyEntityUid()));
+            dto.setDispositionCd(dto.getSourceDispositionCd());
+            result.add(dto);
+        }
+        return result;
+    }
 
+    protected String resolvePersonName(Long entityUid) {
+        if (entityUid == null) return null;
+        return personNameRepository.findByParentUid(entityUid)
+                .flatMap(names -> names.stream()
+                        .filter(n -> NEDSSConstant.LEGAL_NAME.equalsIgnoreCase(n.getNmUseCd()))
+                        .map(n -> formatName(n.getLastNm(), n.getFirstNm()))
+                        .findFirst())
+                .orElse(null);
+    }
+
+    protected String formatName(String last, String first) {
+        String l = (last == null) ? NO_LAST_NAME_INVESTIGATOR : last;
+        String f = (first == null) ? NO_FIRST_NAME_INVESTIGATOR : first;
+        return l + ", " + f;
+    }
+
+    protected void updateDisposition(CTContactSummaryDto dto) {
+        String decision = dto.getContactProcessingDecisionCd();
+        String disposition = dto.getDispositionCd();
+        if ((CTConstants.RecordSearchClosure.equals(decision) || CTConstants.SecondaryReferral.equals(decision))
+                && disposition != null) {
+            if ("A".equals(disposition)) dto.setDispositionCd("Z");
+            else if ("C".equals(disposition)) dto.setDispositionCd("E");
+        }
+    }
 
 
 }
