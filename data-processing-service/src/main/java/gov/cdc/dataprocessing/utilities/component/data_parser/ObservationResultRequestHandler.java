@@ -743,14 +743,14 @@ public class ObservationResultRequestHandler {
         }
     }
 
-    private void ensureNumericCollectionExists(ObservationContainer container) {
+    protected void ensureNumericCollectionExists(ObservationContainer container) {
         if (container.getTheObsValueNumericDtoCollection() == null) {
             container.setTheObsValueNumericDtoCollection(new ArrayList<>());
         }
     }
 
 
-    private ObsValueNumericDto prepareObsValueNumeric(ObservationContainer container) {
+    protected ObsValueNumericDto prepareObsValueNumeric(ObservationContainer container) {
         if (container.getTheObsValueNumericDtoCollection() != null &&
                 !container.getTheObsValueNumericDtoCollection().isEmpty()) {
             return new ArrayList<>(container.getTheObsValueNumericDtoCollection()).getFirst();

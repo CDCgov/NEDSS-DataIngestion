@@ -962,4 +962,119 @@ class ObservationResultRequestHandlerTest {
         assertEquals("Hello", result.getValueTxt());
         assertEquals(1, result.getObsValueTxtSeq());
     }
+
+    @Test
+    void testProcessingReferringRange_WhenRangeIsNull_ReturnsUnchangedContainer() {
+        // Arrange
+        HL7OBXType obxMock = new HL7OBXType();
+        ObservationContainer originalContainer = new ObservationContainer();
+        ObservationContainer expectedContainer = new ObservationContainer();
+        expectedContainer.setTheObservationDto(new ObservationDto());
+        originalContainer.setTheObservationDto(expectedContainer.getTheObservationDto());
+
+        // Act
+        ObservationContainer result = observationResultRequestHandler.processingReferringRange(obxMock, originalContainer);
+
+        // Assert
+        assertSame(originalContainer, result, "Should return the original container when range is null");
+    }
+
+    @Test
+    void testProcessingReferringRange_WhenRangeDoesNotContainCaret_AddsLowRangeOnly() {
+        // Arrange
+        HL7OBXType obx = new HL7OBXType();
+        obx.setReferencesRange("3.5");  // No "^"
+
+        ObservationContainer container = new ObservationContainer();
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(123L);
+        container.setTheObservationDto(dto);
+
+        // Act
+        ObservationContainer result = observationResultRequestHandler.processingReferringRange(obx, container);
+
+        // Assert
+        Collection<ObsValueNumericDto> numericCollection = result.getTheObsValueNumericDtoCollection();
+        assertNotNull(numericCollection, "Collection should be initialized");
+        assertEquals(1, numericCollection.size(), "Should contain one numeric DTO");
+
+        ObsValueNumericDto numericDto = numericCollection.iterator().next(); // Safe way to access first item
+        assertEquals("3.5", numericDto.getLowRange(), "Low range should match");
+        assertEquals(123L, numericDto.getObservationUid(), "Observation UID should match");
+        assertTrue(numericDto.isItNew());
+        assertFalse(numericDto.isItDirty());
+    }
+
+
+    @Test
+    void testEnsureNumericCollectionExists_WhenCollectionIsNull_InitializesCollection() {
+        // Arrange
+        ObservationContainer container = new ObservationContainer();
+        assertNull(container.getTheObsValueNumericDtoCollection(), "Precondition: collection should be null");
+
+        // Act
+        observationResultRequestHandler.ensureNumericCollectionExists(container);
+
+        // Assert
+        assertNotNull(container.getTheObsValueNumericDtoCollection(), "Collection should be initialized");
+        assertTrue(container.getTheObsValueNumericDtoCollection().isEmpty(), "Collection should be empty initially");
+    }
+
+    @Test
+    void testEnsureNumericCollectionExists_WhenCollectionExists_DoesNotOverwrite() {
+        // Arrange
+        ObservationContainer container = new ObservationContainer();
+        List<ObsValueNumericDto> existingList = new ArrayList<>();
+        ObsValueNumericDto dto = new ObsValueNumericDto();
+        existingList.add(dto);
+        container.setTheObsValueNumericDtoCollection(existingList);
+
+        // Act
+        observationResultRequestHandler.ensureNumericCollectionExists(container);
+
+        // Assert
+        assertSame(existingList, container.getTheObsValueNumericDtoCollection(), "Existing collection should not be replaced");
+        assertEquals(1, container.getTheObsValueNumericDtoCollection().size(), "Collection should retain existing item");
+    }
+
+
+    @Test
+    void testPrepareObsValueNumeric_WhenCollectionExistsAndNotEmpty_ReturnsFirstElement() {
+        // Arrange
+        ObservationContainer container = new ObservationContainer();
+        ObsValueNumericDto existingDto = new ObsValueNumericDto();
+        existingDto.setObsValueNumericSeq(99); // unique value for assertion
+        List<ObsValueNumericDto> numericList = new ArrayList<>();
+        numericList.add(existingDto);
+        container.setTheObsValueNumericDtoCollection(numericList);
+
+        // Act
+        ObsValueNumericDto result = observationResultRequestHandler.prepareObsValueNumeric(container);
+
+        // Assert
+        assertEquals(99, result.getObsValueNumericSeq());
+        assertSame(existingDto, result, "Should return the same instance from the collection");
+    }
+
+    @Test
+    void testPrepareObsValueNumeric_WhenCollectionNullOrEmpty_ReturnsNewInitializedDto() {
+        // Arrange
+        ObservationContainer container = new ObservationContainer();
+        ObservationDto obsDto = new ObservationDto();
+        obsDto.setObservationUid(12345L);
+        container.setTheObservationDto(obsDto);
+        container.setTheObsValueNumericDtoCollection(null); // simulate null list
+
+        // Act
+        ObsValueNumericDto result = observationResultRequestHandler.prepareObsValueNumeric(container);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isItNew());
+        assertFalse(result.isItDirty());
+        assertEquals(1, result.getObsValueNumericSeq());
+        assertEquals(12345L, result.getObservationUid());
+    }
+
+
 }
