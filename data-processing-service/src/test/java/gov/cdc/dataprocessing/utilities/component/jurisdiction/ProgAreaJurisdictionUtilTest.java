@@ -101,6 +101,7 @@ class ProgAreaJurisdictionUtilTest {
         assertEquals(0, result);
     }
 
+    @SuppressWarnings("java:S4144")
     @Test
     void testJurisdictionCodeNull_returnsZero() {
         long result = util.getPAJHash("PA01", null);

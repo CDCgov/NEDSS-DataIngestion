@@ -223,13 +223,12 @@ public class ManagerService implements IManagerService {
         return null;
     }
 
-//    @Transactional()
-//    @Retryable(
-//            maxAttempts = 5,
-//            backoff = @Backoff(delay = 1000, multiplier = 2),
-//            retryFor = {DataProcessingDBException.class}
-//    )
-
+    @Transactional()
+    @Retryable(
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2),
+            retryFor = {DataProcessingDBException.class}
+    )
     @SuppressWarnings("java:S1135")
     public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
