@@ -27,28 +27,7 @@ import java.util.List;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class OrganizationMatchingService implements IOrganizationMatchingService {
     private static final Logger logger = LoggerFactory.getLogger(OrganizationMatchingService.class);
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
@@ -67,15 +46,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
     {
 
             Long entityUid;
-            //	String orgRole = organizationContainer.getRole();
             Collection<EdxEntityMatchDto> coll = new ArrayList<>();
-//            EdxEntityMatchDAO edxDao1 = new EdxEntityMatchDAO();
             EDXActivityDetailLogDto edxActivityDetailLogDto = new EDXActivityDetailLogDto();
-            String DET_MSG_ENTITY_EXISTS_SUCCESS = "Organization entity found with entity uid : ";
-            String DET_MSG_ENTITY_EXISTS_FAIL_NEW = "Organization not found. New Organization created with organization uid: ";
-            /*
-             * Creating new DT for localID for // local identifier
-             */
+            String entityExistSuccess = "Organization entity found with entity uid : ";
+            String entityExistFail = "Organization not found. New Organization created with organization uid: ";
+
             EdxEntityMatchDto localEdxEntityMatchDT = null;
             String localId;
             int localIdhshCd = 0;
@@ -85,15 +60,12 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 localIdhshCd = localId.hashCode();
             }
             if (localId != null) {
-                // Try to get the matching with the match string and type (was hash code)
-    //                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-    //                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
                 EdxEntityMatchDto edxEntityMatchingDT =
                         edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, localId);
                 if (edxEntityMatchingDT != null
                         && edxEntityMatchingDT.getEntityUid() != null) {
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
-                    edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                    edxActivityDetailLogDto.setComment(entityExistSuccess
                             + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto
                             .setRecordType(String.valueOf(MsgType.Organization));
@@ -112,18 +84,16 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             // Matching the Identifier (CLIA)
             String identifier;
             int identifierHshCd = 0;
-            List identifierList;
+            List<String> identifierList;
             identifierList = getIdentifier(organizationContainer);
             if (!identifierList.isEmpty()) {
-                for (Object o : identifierList) {
-                    identifier = (String) o;
+                for (String o : identifierList) {
+                    identifier = o;
                     if (identifier != null) {
                         identifier = identifier.toUpperCase();
                         identifierHshCd = identifier.hashCode();
                     }
                     // Try to get the matching with the type and match string
-//                        EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                                .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
                     EdxEntityMatchDto edxEntityMatchingDT =
                             edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, identifier);
                     if (edxEntityMatchingDT != null
@@ -131,12 +101,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                         if (localEdxEntityMatchDT != null) {
                             localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                     .getEntityUid());
-//                                edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                             edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                         }
                         edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                         edxActivityDetailLogDto
-                                .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                                .setComment(entityExistSuccess
                                         + edxEntityMatchingDT.getEntityUid());
                         edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
                         edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -163,8 +132,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             }
             if (nameAddStrSt1 != null) {
                 // Try to get the matching with the type and match string
-//                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
                 EdxEntityMatchDto edxEntityMatchingDT =
                         edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameAddStrSt1);
                 if (edxEntityMatchingDT != null
@@ -172,12 +139,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     if (localEdxEntityMatchDT != null) {
                         localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                 .getEntityUid());
-//                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                         edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                     edxActivityDetailLogDto
-                            .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                            .setComment(entityExistSuccess
                                     + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
                     edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -194,8 +160,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 nameTelePhonehshCd = nameTelePhone.hashCode();
             }
             if (nameTelePhone != null) {
-//                    EdxEntityMatchDto edxEntityMatchingDT = edxDao
-//                            .getEdxEntityMatch(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
                 EdxEntityMatchDto edxEntityMatchingDT =
                         edxPatientMatchRepositoryUtil.getEdxEntityMatchOnMatchString(NEDSSConstant.ORGANIZATION_CLASS_CODE, nameTelePhone);
                 if (edxEntityMatchingDT != null
@@ -203,12 +167,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                     if (localEdxEntityMatchDT != null) {
                         localEdxEntityMatchDT.setEntityUid(edxEntityMatchingDT
                                 .getEntityUid());
-//                            edxDao.setEdxEntityMatchDT(localEdxEntityMatchDT);
                         edxPatientMatchRepositoryUtil.saveEdxEntityMatch(localEdxEntityMatchDT);
                     }
                     edxActivityDetailLogDto.setRecordId(String.valueOf(edxEntityMatchingDT.getEntityUid()));
                     edxActivityDetailLogDto
-                            .setComment(DET_MSG_ENTITY_EXISTS_SUCCESS
+                            .setComment(entityExistSuccess
                                     + edxEntityMatchingDT.getEntityUid());
                     edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
                     edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -217,14 +180,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 }
 
             }
-            // Create the provider in case if the provider is not there in the DB
-            //Legacy code
-            //EntityController.java
-            //public Long setOrganization    (OrganizationContainer organizationContainer, String businessTriggerCd, NBSSecurityObj nbsSecurityObj)
-//                EntityController entityController = getEntityController();
-//                String businessTriggerCd = NEDSSConstant.ORG_CR;
-//                entityUid = entityController.setOrganization(organizationContainer,
-//                        businessTriggerCd, nbsSecurityObj);
+
             String businessTriggerCd = NEDSSConstant.ORG_CR;
             entityUid=organizationRepositoryUtil.setOrganization(organizationContainer,
                     businessTriggerCd);
@@ -235,7 +191,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                 edxEntityMatchDT.setTypeCd(NEDSSConstant.ORGANIZATION);
                 edxEntityMatchDT.setMatchString(nameAddStrSt1);
                 edxEntityMatchDT.setMatchStringHashCode((long) nameAddStrSt1hshCd);
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                 edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
             }
 
@@ -255,12 +210,11 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
             if (coll != null) {
                 for (EdxEntityMatchDto edxEntityMatchDT : coll) {
                     edxEntityMatchDT.setEntityUid(entityUid);
-//                    edxDao.setEdxEntityMatchDT(edxEntityMatchDT);
                     edxPatientMatchRepositoryUtil.saveEdxEntityMatch(edxEntityMatchDT);
                 }
             }
             edxActivityDetailLogDto.setRecordId(String.valueOf(entityUid));
-            edxActivityDetailLogDto.setComment(DET_MSG_ENTITY_EXISTS_FAIL_NEW
+            edxActivityDetailLogDto.setComment(entityExistFail
                     + edxActivityDetailLogDto.getRecordId());
             edxActivityDetailLogDto.setRecordType(String.valueOf(MsgType.Organization));
             edxActivityDetailLogDto.setRecordName(PHCR_IMPORT_SRT);
@@ -310,10 +264,6 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             coded.setCode(entityIdDT.getAssigningAuthorityCd());
                             coded.setCodesetName(NEDSSConstant.EI_AUTH_ORG);
                             coded.setCodesetTableName("CODE_VALUE_GENERAL");//DataTables.CODE_VALUE_GENERAL
-
-                            //TODO: This call out to code value general Repos and Caching the recrod
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
 
                             if (entityIdDT.getRootExtensionTxt() != null
                                     && entityIdDT.getTypeCd() != null
@@ -368,13 +318,13 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             PostalLocatorDto postLocDT = entLocPartDT
                                     .getThePostalLocatorDto();
                             if ((postLocDT.getStreetAddr1() != null && !postLocDT
-                                    .getStreetAddr1().equals(""))
+                                    .getStreetAddr1().isEmpty())
                                     && (postLocDT.getCityDescTxt() != null && !postLocDT
-                                    .getCityDescTxt().equals(""))
+                                    .getCityDescTxt().isEmpty())
                                     && (postLocDT.getStateCd() != null && !postLocDT
-                                    .getStateCd().equals(""))
+                                    .getStateCd().isEmpty())
                                     && (postLocDT.getZipCd() != null && !postLocDT
-                                    .getZipCd().equals(""))) {
+                                    .getZipCd().isEmpty())) {
                                 nameAddStr = carrot
                                         + postLocDT.getStreetAddr1() + carrot
                                         + postLocDT.getCityDescTxt() + carrot
@@ -431,7 +381,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
                             TeleLocatorDto teleLocDT = entLocPartDT
                                     .getTheTeleLocatorDto();
                             if (teleLocDT.getPhoneNbrTxt() != null
-                                    && !teleLocDT.getPhoneNbrTxt().equals(""))
+                                    && !teleLocDT.getPhoneNbrTxt().isEmpty())
                                 nameTeleStr = carrot
                                         + teleLocDT.getPhoneNbrTxt();
 

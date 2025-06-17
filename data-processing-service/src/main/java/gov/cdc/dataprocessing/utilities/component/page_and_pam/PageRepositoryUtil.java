@@ -41,28 +41,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class PageRepositoryUtil {
 
     private final IInvestigationService investigationService;
@@ -114,127 +93,113 @@ public class PageRepositoryUtil {
 
     @SuppressWarnings({"java:S6541","java:S3776", "java:S1854"})
     public Long setPageActProxyVO(PageActProxyContainer pageProxyVO) throws DataProcessingException {
-        try {
-            PublicHealthCaseDto phcDT = pageProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
-            boolean isCoInfectionCondition = pageProxyVO.getPublicHealthCaseContainer().isCoinfectionCondition();
-            Long mprUid;
+        PublicHealthCaseDto phcDT = pageProxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto();
+        boolean isCoInfectionCondition = pageProxyVO.getPublicHealthCaseContainer().isCoinfectionCondition();
+        Long mprUid;
 
-            // if both are false throw exception
-            if ((!pageProxyVO.isItNew()) && (!pageProxyVO.isItDirty())) {
-                throw new DataProcessingException("pageProxyVO.isItNew() = " + pageProxyVO.isItNew() + " and pageProxyVO.isItDirty() = " + pageProxyVO.isItDirty() + " for setPageProxy");
-            }
-
-
-            if (pageProxyVO.isItDirty() && !pageProxyVO.isConversionHasModified())
-            {
-                try {
-                    // update auto resend notifications
-                    investigationService.updateAutoResendNotificationsAsync(pageProxyVO);
-                } catch (Exception e) {
-                    //TODO: LOGGING NND LOG
-                }
-            }
-
-            processingParticipationPatTypeForPageAct(pageProxyVO);
-
-            Long actualUid;
-
-            try
-            {
-                Long patientRevisionUid;
-                Long phcUid;
-
-                var pageActPatient = processingPersonContainerForPageAct(pageProxyVO, phcDT);
-                phcDT = pageActPatient.getPhcDT();
-                mprUid = pageActPatient.getMprUid();
-                patientRevisionUid = pageActPatient.getPatientRevisionUid();
-
-
-                var pageActPhc = processingPhcContainerForPageAct(pageProxyVO, isCoInfectionCondition);
-                actualUid = pageActPhc.getActualUid();
-                phcUid = pageActPhc.getPhcUid();
-
-
-                //TODO: LOGGING
-                if (pageProxyVO.getMessageLogDTMap() != null && !pageProxyVO.getMessageLogDTMap().isEmpty())
-                {
-
-                    Set<String> set = pageProxyVO.getMessageLogDTMap().keySet();
-                    for (String key : set) {
-                        if (key.contains(MessageConstants.DISPOSITION_SPECIFIED_KEY))
-                        {
-                            //Investigator of Named by contact will get message for Named by contact and contact's investigation id.
-                            continue;
-                        }
-                        MessageLogDto messageLogDT = pageProxyVO.getMessageLogDTMap().get(key);
-
-                        messageLogDT.setPersonUid(patientRevisionUid);
-                        if (messageLogDT.getEventUid() == null || messageLogDT.getEventUid() <= 0) {
-                            messageLogDT.setEventUid(phcUid);
-                        }
-
-
-                    }
-                }
-
-
-                // this collection should only be populated in edit scenario, xz
-                // defect 11861 (10/01/04)
-                processingNotificationSummaryForPageAct(pageProxyVO, phcDT);
-
-
-                Long docUid;
-                docUid = processingPhcActRelationshipForPageAct(pageProxyVO);
-
-                processingEventProcessForPageAct(pageProxyVO, phcUid);
-
-                /*
-                 * Updating the Document table
-                 */
-                // Getting the DocumentEJB reference
-                processingNbsDocumentForPageAct(pageProxyVO, docUid);
-
-                processingParticipationForPageAct(pageProxyVO);
-
-
-                if( pageProxyVO.isUnsavedNote() && pageProxyVO.getNbsNoteDTColl()!=null
-                        && !pageProxyVO.getNbsNoteDTColl().isEmpty()){
-                    nbsNoteRepositoryUtil.storeNotes(actualUid, pageProxyVO.getNbsNoteDTColl());
-                }
-
-                if (pageProxyVO.getPageVO() != null && pageProxyVO.isItNew()) {
-                    pamService.insertPamVO(pageProxyVO.getPageVO(), pageProxyVO.getPublicHealthCaseContainer());
-
-                } else if (pageProxyVO.getPageVO() != null && pageProxyVO.isItDirty()) {
-                    //pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer()); //NOSONAR
-                    logger.info("test");
-                } else
-                {
-                    logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
-                }
-
-            }
-            catch (Exception e)
-            {
-                throw new DataProcessingException("ActControllerEJB Create : "+e.getMessage(), e);
-            }
-
-            handlingCoInfectionAndContactDisposition(pageProxyVO, mprUid, actualUid);
-
-
-            return actualUid;
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+        // if both are false throw exception
+        if ((!pageProxyVO.isItNew()) && (!pageProxyVO.isItDirty())) {
+            throw new DataProcessingException("pageProxyVO.isItNew() = " + pageProxyVO.isItNew() + " and pageProxyVO.isItDirty() = " + pageProxyVO.isItDirty() + " for setPageProxy");
         }
+
+
+        if (pageProxyVO.isItDirty() && !pageProxyVO.isConversionHasModified())
+        {
+            try {
+                // update auto resend notifications
+                investigationService.updateAutoResendNotificationsAsync(pageProxyVO);
+            } catch (Exception e) {
+                //IGNORE THIS EXCEPTION
+            }
+        }
+
+        processingParticipationPatTypeForPageAct(pageProxyVO);
+
+        Long actualUid;
+
+        Long patientRevisionUid;
+        Long phcUid;
+
+        var pageActPatient = processingPersonContainerForPageAct(pageProxyVO, phcDT);
+        phcDT = pageActPatient.getPhcDT();
+        mprUid = pageActPatient.getMprUid();
+        patientRevisionUid = pageActPatient.getPatientRevisionUid();
+
+
+        var pageActPhc = processingPhcContainerForPageAct(pageProxyVO, isCoInfectionCondition);
+        actualUid = pageActPhc.getActualUid();
+        phcUid = pageActPhc.getPhcUid();
+
+
+        if (pageProxyVO.getMessageLogDTMap() != null && !pageProxyVO.getMessageLogDTMap().isEmpty())
+        {
+
+            Set<String> set = pageProxyVO.getMessageLogDTMap().keySet();
+            for (String key : set) {
+                if (key.contains(MessageConstants.DISPOSITION_SPECIFIED_KEY))
+                {
+                    //Investigator of Named by contact will get message for Named by contact and contact's investigation id.
+                    continue;
+                }
+                MessageLogDto messageLogDT = pageProxyVO.getMessageLogDTMap().get(key);
+
+                messageLogDT.setPersonUid(patientRevisionUid);
+                if (messageLogDT.getEventUid() == null || messageLogDT.getEventUid() <= 0) {
+                    messageLogDT.setEventUid(phcUid);
+                }
+
+
+            }
+        }
+
+
+        // this collection should only be populated in edit scenario, xz
+        // defect 11861 (10/01/04)
+        processingNotificationSummaryForPageAct(pageProxyVO, phcDT);
+
+
+        Long docUid;
+        docUid = processingPhcActRelationshipForPageAct(pageProxyVO);
+
+        processingEventProcessForPageAct(pageProxyVO, phcUid);
+
+        /*
+         * Updating the Document table
+         */
+        // Getting the DocumentEJB reference
+        processingNbsDocumentForPageAct(pageProxyVO, docUid);
+
+        processingParticipationForPageAct(pageProxyVO);
+
+
+        if( pageProxyVO.isUnsavedNote() && pageProxyVO.getNbsNoteDTColl()!=null
+                && !pageProxyVO.getNbsNoteDTColl().isEmpty()){
+            nbsNoteRepositoryUtil.storeNotes(actualUid, pageProxyVO.getNbsNoteDTColl());
+        }
+
+        if (pageProxyVO.getPageVO() != null && pageProxyVO.isItNew()) {
+            pamService.insertPamVO(pageProxyVO.getPageVO(), pageProxyVO.getPublicHealthCaseContainer());
+
+        } else if (pageProxyVO.getPageVO() != null && pageProxyVO.isItDirty()) {
+            //pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer()); //NOSONAR
+            logger.info("test");
+        } else
+        {
+            logger.error("There is error in setPageActProxyVO as pageProxyVO.getPageVO() is null");
+        }
+
+
+
+        handlingCoInfectionAndContactDisposition(pageProxyVO, mprUid, actualUid);
+
+
+        return actualUid;
+
     }
 
 
     public void updatForConInfectionId(PageActProxyContainer pageActProxyContainer, Long mprUid, Long currentPhclUid) throws DataProcessingException {
-        try{
-            updateForConInfectionId(pageActProxyContainer, null, mprUid,  null, currentPhclUid, null, null);
-        }catch (Exception ex) {
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
+        updateForConInfectionId(pageActProxyContainer, null, mprUid,  null, currentPhclUid, null, null);
     }
 
     /**
@@ -249,37 +214,34 @@ public class PageRepositoryUtil {
                                         Map<Object, Object> coInSupersededEpliLinkIdMap, Long currentPhclUid,
                                         Collection<Object> coinfectionSummaryVOCollection, String coinfectionIdToUpdate)
             throws DataProcessingException {
-        try {
-            String coninfectionId= pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCoinfectionId();
-            if(coinfectionSummaryVOCollection==null)
-                coinfectionSummaryVOCollection = getInvListForCoInfectionId(mprUid,coninfectionId);
+        String coninfectionId= pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCoinfectionId();
+        if(coinfectionSummaryVOCollection==null)
+            coinfectionSummaryVOCollection = getInvListForCoInfectionId(mprUid,coninfectionId);
 
-            Map<Object, Object> mapFromQuestions = new HashMap<>();
-            Map<Object,Object> updatedValuesMap = new HashMap<>();
+        Map<Object, Object> mapFromQuestions = new HashMap<>();
+        Map<Object,Object> updatedValuesMap = new HashMap<>();
 
-            Map<Object,Object> updateValueInOtherTablesMap = new HashMap<>(); // Map is to update values in other table then NBS_CASE_Answer
+        Map<Object,Object> updateValueInOtherTablesMap = new HashMap<>(); // Map is to update values in other table then NBS_CASE_Answer
 
-            if(coinfectionSummaryVOCollection!=null && !coinfectionSummaryVOCollection.isEmpty()) {
-                /**Update for closed/open cases that are part of any co-infection groups */
-                for (Object o : coinfectionSummaryVOCollection) {
-                    CoinfectionSummaryContainer coninfectionSummaryVO = (CoinfectionSummaryContainer) o;
-                    if (coninfectionSummaryVO.getPublicHealthCaseUid().compareTo(currentPhclUid) != 0) {
-                        if (coinfectionIdToUpdate != null) {//Merge Case investigation scenario
-                            updateCoInfectionInvest(updatedValuesMap, mapFromQuestions, pageActProxyContainer, pageActProxyContainer.getPublicHealthCaseContainer(),
-                                    supersededProxyVO.getPublicHealthCaseContainer(), coInSupersededEpliLinkIdMap,
-                                    coninfectionSummaryVO, coinfectionIdToUpdate, updateValueInOtherTablesMap);
-                            /**Update for closed/open cases that are part of any co-infection groups */
-                        } else {
-                            updateCoInfectionInvest(updatedValuesMap, mapFromQuestions, pageActProxyContainer, pageActProxyContainer.getPublicHealthCaseContainer(),
-                                    null, null,
-                                    coninfectionSummaryVO, null, updateValueInOtherTablesMap);
-                        }
+        if(coinfectionSummaryVOCollection!=null && !coinfectionSummaryVOCollection.isEmpty()) {
+            /**Update for closed/open cases that are part of any co-infection groups */
+            for (Object o : coinfectionSummaryVOCollection) {
+                CoinfectionSummaryContainer coninfectionSummaryVO = (CoinfectionSummaryContainer) o;
+                if (coninfectionSummaryVO.getPublicHealthCaseUid().compareTo(currentPhclUid) != 0) {
+                    if (coinfectionIdToUpdate != null) {//Merge Case investigation scenario
+                        updateCoInfectionInvest(updatedValuesMap, mapFromQuestions, pageActProxyContainer, pageActProxyContainer.getPublicHealthCaseContainer(),
+                                supersededProxyVO.getPublicHealthCaseContainer(), coInSupersededEpliLinkIdMap,
+                                coninfectionSummaryVO, coinfectionIdToUpdate, updateValueInOtherTablesMap);
+                        /**Update for closed/open cases that are part of any co-infection groups */
+                    } else {
+                        updateCoInfectionInvest(updatedValuesMap, mapFromQuestions, pageActProxyContainer, pageActProxyContainer.getPublicHealthCaseContainer(),
+                                null, null,
+                                coninfectionSummaryVO, null, updateValueInOtherTablesMap);
                     }
                 }
             }
-        } catch (Exception e) {
-            throw new  DataProcessingException(e.getMessage(), e);
         }
+
     }
 
 
@@ -289,7 +251,7 @@ public class PageRepositoryUtil {
         return coinfectionInvList;
     }
 
-    @SuppressWarnings({"java:S1172","java:S1854", "java:S1481", "java:S125"})
+    @SuppressWarnings({"java:S1172","java:S1854", "java:S1481", "java:S125", "java:S107"})
     private  void updateCoInfectionInvest(Map<Object, Object> mappedCoInfectionQuestions, Map<Object, Object>  fromMapQuestions,
                                           PageActProxyContainer pageActProxyContainer, PublicHealthCaseContainer publicHealthCaseContainer,
                                           PublicHealthCaseContainer supersededPublicHealthCaseContainer,
@@ -299,171 +261,117 @@ public class PageRepositoryUtil {
                                           Map<Object, Object> updateValueInOtherTablesMap)
             throws DataProcessingException {
         Long publicHealthCaseUid;
-        try {
-            publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
-            Timestamp lastChgTime = TimeStampUtil.getCurrentTimeStamp(tz);
-            Long lastChgUserId= AuthUtil.authUser.getNedssEntryId();
-            PageActProxyContainer proxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
-            /**
-             * Merge Investigation case issue where the superseded investigation should not allowed to update!!!
-             * 1. Only cases that are not Merge Investigation are allowed to proceed
-             * 2. Only cases that are Merge Investigation that are not superseded are allowed to proceed
-             * 3. Even Closed cases that are part of co-infection are NOW allowed to proceed with updated co-infection id(https://nbsteamdev.atlassian.net/browse/ND-9114
-             * 		Description Losing investigation's Coinfection is not assigned the correct Co-Infection Id when status = Closed)
-             *
-             */
-            //Set the winning investigation's coinfectionId to losing investigation's related co-infection investigations.
-            if(coinfectionIdToUpdate!=null){
-                String survivingEpiLinkId = publicHealthCaseContainer.getTheCaseManagementDto().getEpiLinkId();
+        publicHealthCaseUid=coninfectionSummaryVO.getPublicHealthCaseUid();
+        Timestamp lastChgTime = TimeStampUtil.getCurrentTimeStamp(tz);
+        Long lastChgUserId= AuthUtil.authUser.getNedssEntryId();
+        PageActProxyContainer proxyVO =  investigationService.getPageProxyVO(NEDSSConstant.CASE, publicHealthCaseUid);
+        /**
+         * Merge Investigation case issue where the superseded investigation should not allowed to update!!!
+         * 1. Only cases that are not Merge Investigation are allowed to proceed
+         * 2. Only cases that are Merge Investigation that are not superseded are allowed to proceed
+         * 3. Even Closed cases that are part of co-infection are NOW allowed to proceed with updated co-infection id(https://nbsteamdev.atlassian.net/browse/ND-9114
+         * 		Description Losing investigation's Coinfection is not assigned the correct Co-Infection Id when status = Closed)
+         *
+         */
+        //Set the winning investigation's coinfectionId to losing investigation's related co-infection investigations.
+        if(coinfectionIdToUpdate!=null){
+            String survivingEpiLinkId = publicHealthCaseContainer.getTheCaseManagementDto().getEpiLinkId();
 
-                if(coInSupersededEpliLinkIdMap.get(proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()) !=null) {
-                    proxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().setEpiLinkId(survivingEpiLinkId);
-                }
-                proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setCoinfectionId(coinfectionIdToUpdate);
-                proxyVO.setMergeCase(true);
+            if(coInSupersededEpliLinkIdMap.get(proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getPublicHealthCaseUid()) !=null) {
+                proxyVO.getPublicHealthCaseContainer().getTheCaseManagementDto().setEpiLinkId(survivingEpiLinkId);
             }
-
-            // Updates coinfection question's values in tables other than NBS_Case_Answer
-            updateCoInfectionInvestForOtherTables(proxyVO, updateValueInOtherTablesMap, pageActProxyContainer, publicHealthCaseContainer);
-
-            if(coinfectionIdToUpdate==null
-                    || (supersededPublicHealthCaseContainer != null // NOSONAR
-                    && publicHealthCaseUid.compareTo(supersededPublicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid())!=0))
-            {
-                updatePageProxyVOInterface(proxyVO,lastChgTime,lastChgUserId);
-                setPageActProxyVO( proxyVO);
-                logger.debug("updateCoInfectionInvest method call completed for coinfectionIdToUpdate: {}", coinfectionIdToUpdate);
-            }
-
-        }catch(Exception e) {
-
-            throw new DataProcessingException(e.getMessage() ,e);
+            proxyVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setCoinfectionId(coinfectionIdToUpdate);
+            proxyVO.setMergeCase(true);
         }
+
+
+        if(coinfectionIdToUpdate==null
+                || (supersededPublicHealthCaseContainer != null // NOSONAR
+                && publicHealthCaseUid.compareTo(supersededPublicHealthCaseContainer.getThePublicHealthCaseDto().getPublicHealthCaseUid())!=0))
+        {
+            updatePageProxyVOInterface(proxyVO,lastChgTime,lastChgUserId);
+            setPageActProxyVO( proxyVO);
+            logger.debug("updateCoInfectionInvest method call completed for coinfectionIdToUpdate: {}", coinfectionIdToUpdate);
+        }
+
     }
     @SuppressWarnings("java:S3776")
-    private void updatePageProxyVOInterface(PageActProxyContainer proxyActVO, Timestamp lastChgTime, Long lastChgUserId) throws DataProcessingException {
-        try {
-            proxyActVO.setRenterant(true);
+    private void updatePageProxyVOInterface(PageActProxyContainer proxyActVO, Timestamp lastChgTime, Long lastChgUserId)   {
+        proxyActVO.setRenterant(true);
 
 
-            proxyActVO.setItDirty(true);
-            proxyActVO.getPublicHealthCaseContainer().setItDirty(true);
-            proxyActVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setLastChgTime(lastChgTime);
-            proxyActVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setLastChgUserId((lastChgUserId));
-            proxyActVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setItDirty(true);
+        proxyActVO.setItDirty(true);
+        proxyActVO.getPublicHealthCaseContainer().setItDirty(true);
+        proxyActVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setLastChgTime(lastChgTime);
+        proxyActVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setLastChgUserId((lastChgUserId));
+        proxyActVO.getPublicHealthCaseContainer().getThePublicHealthCaseDto().setItDirty(true);
 
-            if (proxyActVO.getThePersonContainerCollection() != null) {
-                for (PersonContainer personVO : proxyActVO.getThePersonContainerCollection()) {
-                    if (personVO.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) {
-                        personVO.getThePersonDto().setLastChgTime(lastChgTime);
-                        personVO.getThePersonDto().setLastChgUserId(lastChgUserId);
-                        personVO.getThePersonDto().setItDirty(true);
-                        personVO.getThePersonDto().setItNew(false);
+        if (proxyActVO.getThePersonContainerCollection() != null) {
+            for (PersonContainer personVO : proxyActVO.getThePersonContainerCollection()) {
+                if (personVO.getThePersonDto().getCd().equals(NEDSSConstant.PAT)) {
+                    personVO.getThePersonDto().setLastChgTime(lastChgTime);
+                    personVO.getThePersonDto().setLastChgUserId(lastChgUserId);
+                    personVO.getThePersonDto().setItDirty(true);
+                    personVO.getThePersonDto().setItNew(false);
 
-                    }
-                }
-
-                if (proxyActVO.getPageVO() != null) {
-                    Map<Object, Object> map = proxyActVO.getPageVO().getPamAnswerDTMap();
-                    if(map!=null) {
-                        updateNbsCaseAnswerInterfaceValues(map, lastChgTime, lastChgUserId);
-                    }
-                    Map<Object, Object> repeatingMap = proxyActVO.getPageVO().getPageRepeatingAnswerDTMap();
-                    if(repeatingMap!=null) {
-                        updateNbsCaseAnswerInterfaceValues(repeatingMap, lastChgTime, lastChgUserId);
-                    }
-                    if(proxyActVO.getPageVO().getActEntityDTCollection()!=null) {
-                        for (NbsActEntityDto actEntityDT : proxyActVO.getPageVO().getActEntityDTCollection()) {
-                            actEntityDT.setLastChgTime(lastChgTime);
-                            actEntityDT.setLastChgUserId(lastChgUserId);
-                            actEntityDT.setItDirty(true);
-                            actEntityDT.setItNew(false);
-                        }
-
-                    }
                 }
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
+
+            if (proxyActVO.getPageVO() != null) {
+                Map<Object, Object> map = proxyActVO.getPageVO().getPamAnswerDTMap();
+                if(map!=null) {
+                    updateNbsCaseAnswerInterfaceValues(map, lastChgTime, lastChgUserId);
+                }
+                Map<Object, Object> repeatingMap = proxyActVO.getPageVO().getPageRepeatingAnswerDTMap();
+                if(repeatingMap!=null) {
+                    updateNbsCaseAnswerInterfaceValues(repeatingMap, lastChgTime, lastChgUserId);
+                }
+                if(proxyActVO.getPageVO().getActEntityDTCollection()!=null) {
+                    for (NbsActEntityDto actEntityDT : proxyActVO.getPageVO().getActEntityDTCollection()) {
+                        actEntityDT.setLastChgTime(lastChgTime);
+                        actEntityDT.setLastChgUserId(lastChgUserId);
+                        actEntityDT.setItDirty(true);
+                        actEntityDT.setItNew(false);
+                    }
+
+                }
+            }
         }
     }
 
 
     private Map<Object, Object> updateNbsCaseAnswerInterfaceValues(
-            Map<Object, Object> map, Timestamp lastChgTime, Long lastChgUserId) throws DataProcessingException {
+            Map<Object, Object> map, Timestamp lastChgTime, Long lastChgUserId)   {
         Map<Object, Object> returnMap = new HashMap<>();
 
-        try {
-            for (Object key : map.keySet()) // NOSONAR
-            {
-                Object object = map.get(key);
-                if (object instanceof NbsCaseAnswerDto) {
-                    NbsCaseAnswerDto caseAnswerDT = (NbsCaseAnswerDto) object;
+        for (Object key : map.keySet()) // NOSONAR
+        {
+            Object object = map.get(key);
+            if (object instanceof NbsCaseAnswerDto caseAnswerDT) {
+                caseAnswerDT.setLastChgTime(lastChgTime);
+                caseAnswerDT.setLastChgUserId(lastChgUserId);
+                if (!caseAnswerDT.isItDelete() && !caseAnswerDT.isItDirty() && !caseAnswerDT.isItNew()) {
+                    caseAnswerDT.setItDirty(true);
+                    caseAnswerDT.setItNew(false);
+                }
+                returnMap.put(key, caseAnswerDT);
+            } else if (object instanceof ArrayList) {
+                @SuppressWarnings("unchecked")
+                ArrayList<Object> list = (ArrayList<Object>) object;
+                ArrayList<NbsAnswerDto> returnList = new ArrayList<>();
+                for (Object o : list) {
+                    NbsCaseAnswerDto caseAnswerDT = (NbsCaseAnswerDto) o;
                     caseAnswerDT.setLastChgTime(lastChgTime);
                     caseAnswerDT.setLastChgUserId(lastChgUserId);
-                    if (!caseAnswerDT.isItDelete() && !caseAnswerDT.isItDirty() && !caseAnswerDT.isItNew()) {
-                        caseAnswerDT.setItDirty(true);
-                        caseAnswerDT.setItNew(false);
-                    }
-                    returnMap.put(key, caseAnswerDT);
-                } else if (object instanceof ArrayList) {
-                    @SuppressWarnings("unchecked")
-                    ArrayList<Object> list = (ArrayList<Object>) object;
-                    ArrayList<NbsAnswerDto> returnList = new ArrayList<>();
-                    for (Object o : list) {
-                        NbsCaseAnswerDto caseAnswerDT = (NbsCaseAnswerDto) o;
-                        caseAnswerDT.setLastChgTime(lastChgTime);
-                        caseAnswerDT.setLastChgUserId(lastChgUserId);
-                        returnList.add(caseAnswerDT);
-                    }
-                    returnMap.put(key, returnList);
+                    returnList.add(caseAnswerDT);
                 }
+                returnMap.put(key, returnList);
             }
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
         }
+
         return returnMap;
     }
 
-
-    /**
-     *
-     * Updates coinfection question's values in tables other than NBS_Case_Answer
-     */
-    @SuppressWarnings({"java:S1172", "java:S1871","java:S2864"})
-    private  void updateCoInfectionInvestForOtherTables(PageActProxyContainer pageActProxyVOofCoinfection,
-                                                        Map<Object, Object> updateValueInOtherTablesMap,
-                                                        PageActProxyContainer pageActProxyContainer,
-                                                        PublicHealthCaseContainer publicHealthCaseContainer) throws DataProcessingException {
-        try {
-            for (Object key : updateValueInOtherTablesMap.keySet()) {
-                String dbLocation = (String) updateValueInOtherTablesMap.get(key);
-                if(dbLocation!=null && dbLocation.contains("PERSON.")){
-                    //Commented out as its tries to update MPR concurrently within same transaction.
-                    // First for current investigation's patient and then coinfection investigation's patient.
-                }else if(dbLocation!=null && dbLocation.contains("CASE_MANAGEMENT.")){
-//                    String columnName = dbLocation.substring(dbLocation.indexOf(".")+1,dbLocation.length());
-//                    String getterMethod = DynamicBeanBinding.getGetterName(columnName);
-//
-//                    if(getterMethod!=null){
-//                        String value = DynamicBeanBinding.getValueForMethod(publicHealthCaseContainer.getTheCaseManagementDto(),getterMethod,publicHealthCaseContainer.getTheCaseManagementDto().getClass().getName());
-//
-//                        if(value!=null){
-//                            DynamicBeanBinding.populateBean(pageActProxyVOofCoinfection.getPublicHealthCaseContainer().getTheCaseManagementDto(), columnName, value);
-//
-//                            pageActProxyVOofCoinfection.getPublicHealthCaseContainer().getTheCaseManagementDto().setItDelete(true);
-//                            pageActProxyVOofCoinfection.getPublicHealthCaseContainer().getTheCaseManagementDto().setItNew(false);
-//                        }
-//                    }else{
-//                        logger.debug("getterMethod does not found from columnName: "+columnName +", not updating coinfection questions.");
-//                    }
-                }
-            }
-
-        }catch(Exception ex){
-            throw new DataProcessingException(ex.getMessage(), ex);
-        }
-    }
 
     @SuppressWarnings("java:S3776")
     private void processingParticipationPatTypeForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {
@@ -525,27 +433,21 @@ public class PageRepositoryUtil {
                     {
                         // Patient
                         String businessTriggerCd = NEDSSConstant.PAT_CR;
-                        try {
-                            var fakeId = personVO.getThePersonDto().getPersonUid();
-                            personVO.getThePersonDto().setPersonUid(personVO.getThePersonDto().getPersonParentUid());
+                        var fakeId = personVO.getThePersonDto().getPersonUid();
+                        personVO.getThePersonDto().setPersonUid(personVO.getThePersonDto().getPersonParentUid());
 
-                            patientRevisionUid= patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                            realUid = patientRevisionUid;
-                            pageActPatient.setPatientRevisionUid(patientRevisionUid);
-                            personVO.getThePersonDto().setPersonUid(fakeId);
-                        } catch (Exception ex) {
-                            throw new DataProcessingException("Error in entityController.setPatientRevision : " + ex.getMessage(), ex);
-                        }
+                        patientRevisionUid= patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
+                        realUid = patientRevisionUid;
+                        pageActPatient.setPatientRevisionUid(patientRevisionUid);
+                        personVO.getThePersonDto().setPersonUid(fakeId);
+
                     }
                     else if (personVO.getThePersonDto().getCd() != null && personVO.getThePersonDto().getCd().equals(NEDSSConstant.PRV))
                     {
                         // Provider
-                        try {
-                            var data = patientRepositoryUtil.createPerson(personVO);
-                            realUid = data.getPersonParentUid();
-                        } catch (Exception ex) {
-                            throw new DataProcessingException("Error in entityController.setProvider : " + ex.getMessage(), ex);
-                        }
+                        var data = patientRepositoryUtil.createPerson(personVO);
+                        realUid = data.getPersonParentUid();
+
 
                     } // end of else if
 
@@ -563,22 +465,16 @@ public class PageRepositoryUtil {
                     if (personVO.getThePersonDto().getCd() != null && personVO.getThePersonDto().getCd().equals(NEDSSConstant.PAT))
                     {
                         String businessTriggerCd = NEDSSConstant.PAT_EDIT;
-                        try {
-                            realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
-                            patientRevisionUid= realUid;
-                            pageActPatient.setPatientRevisionUid(patientRevisionUid);
-                        }  catch (Exception ex) {
-                            throw new DataProcessingException("Error in entityController.setPatientRevision : " + ex.getMessage(), ex);
-                        }
+                        realUid = patientMatchingBaseService.setPatientRevision(personVO, businessTriggerCd, NEDSSConstant.PAT);
+                        patientRevisionUid= realUid;
+                        pageActPatient.setPatientRevisionUid(patientRevisionUid);
+
                     }
                     else if (personVO.getThePersonDto().getCd() != null && personVO.getThePersonDto().getCd().equals(NEDSSConstant.PRV))
                     {
-                        try {
-                            patientRepositoryUtil.updateExistingPerson(personVO);
-                            realUid = personVO.getThePersonDto().getPersonParentUid();
-                        }  catch (Exception ex) {
-                            throw new DataProcessingException("Error in entityController.setProvider : " + ex.getMessage(), ex);
-                        }
+                        patientRepositoryUtil.updateExistingPerson(personVO);
+                        realUid = personVO.getThePersonDto().getPersonParentUid();
+
                     }
                 }
             }
@@ -675,15 +571,12 @@ public class PageRepositoryUtil {
                 logger.debug("the actRelationshipDT statusCode is {}", actRelationshipDT.getStatusCd());
                 logger.debug("Got into The ActRelationship loop");
 
-                try {
-                    if (actRelationshipDT.isItDelete()) {
-                        actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
-                    }
-                    actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
-                    logger.debug("Got into The ActRelationship, The ActUid is {}", actRelationshipDT.getTargetActUid());
-                } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage(), e);
+                if (actRelationshipDT.isItDelete()) {
+                    actRelationshipRepositoryUtil.insertActRelationshipHist(actRelationshipDT);
                 }
+                actRelationshipRepositoryUtil.storeActRelationship(actRelationshipDT);
+                logger.debug("Got into The ActRelationship, The ActUid is {}", actRelationshipDT.getTargetActUid());
+
             }
         }
 
@@ -695,14 +588,11 @@ public class PageRepositoryUtil {
         {
             for (var item : pageActProxyContainer.getTheParticipationDtoCollection())
             {
-                try {
-                    if (item.isItDelete()) {
-                        participationRepositoryUtil.insertParticipationHist(item);
-                    }
-                    participationRepositoryUtil.storeParticipation(item);
-                } catch (Exception e) {
-                    throw new DataProcessingException(e.getMessage(), e);
+                if (item.isItDelete()) {
+                    participationRepositoryUtil.insertParticipationHist(item);
                 }
+                participationRepositoryUtil.storeParticipation(item);
+
             }
         }
     }
@@ -778,24 +668,20 @@ public class PageRepositoryUtil {
     private void processingNbsDocumentForPageAct(PageActProxyContainer pageActProxyContainer, Long docUid) throws DataProcessingException {
         if (docUid != null)
         {
-            try {
 
-                // get the
-                NbsDocumentContainer nbsDocVO = nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(docUid);
-                if (nbsDocVO.getNbsDocumentDT()!= null
-                        && (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() == null
-                        || nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals(""))
-                )
-                {
-                    nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pageActProxyContainer.getPublicHealthCaseContainer()
-                            .getThePublicHealthCaseDto()
-                            .getJurisdictionCd());
-                }
-                nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(nbsDocVO);
+            // get the
+            NbsDocumentContainer nbsDocVO = nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(docUid);
+            if (nbsDocVO.getNbsDocumentDT()!= null
+                    && (nbsDocVO.getNbsDocumentDT().getJurisdictionCd() == null
+                    || nbsDocVO.getNbsDocumentDT().getJurisdictionCd().equals(""))
+            )
+            {
+                nbsDocVO.getNbsDocumentDT().setJurisdictionCd(pageActProxyContainer.getPublicHealthCaseContainer()
+                        .getThePublicHealthCaseDto()
+                        .getJurisdictionCd());
             }
-            catch (Exception e) {
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(nbsDocVO);
+
         }
 
     }
@@ -806,10 +692,6 @@ public class PageRepositoryUtil {
                 && !pageActProxyContainer.isMergeCase() && !NEDSSConstant.INVESTIGATION_STATUS_CODE_CLOSED.equals(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd()))
         {
             updatForConInfectionId(pageActProxyContainer, mprUid, actualUid);
-        }
-
-        if(pageActProxyContainer.getPublicHealthCaseContainer().getTheCaseManagementDto()!=null) {
-            //TODO: NBS STD OR HIV PROG
         }
     }
 

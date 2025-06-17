@@ -1,7 +1,8 @@
 server:
-  port: 8082
-  servlet:
-    context-path: /rti
+#  Designated PORT Is 8082
+#  port: 8082
+#  servlet:
+#    context-path: /rti
 
 info:
   app:
@@ -16,8 +17,6 @@ management:
     java:
       enabled: true
   endpoint:
-    prometheus:
-      enabled: true
     health:
       show-details: always
       roles: ADMIN
@@ -26,19 +25,11 @@ management:
       base-path: /actuator
       exposure:
         include: "health,info"
-  prometheus:
-    metrics:
-      export:
-        enabled: true
 
 cache:
   clientId: ${RC_CLIENT_ID}
   secret: ${RC_CLIENT_SECRET}
   token: ${RC_URL}${RC_EP_TOKEN:/data/api/auth/token}
-  srte:
-    cacheString: ${RC_URL}${RC_EP_CACHE_STR:/data/srte/cache/string}
-    cacheContain: ${RC_URL}${RC_EP_CACHE_CONTAIN:/data/srte/cache/contain}
-    cacheObject: ${RC_URL}${RC_EP_CACHE_OBJ:/data/srte/cache/object}
   odse:
     localId: ${RC_URL}${EP_CACHE_LOCALID:/data/odse/localId}
 
@@ -48,22 +39,18 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
-#  main:
-#    web-application-type: none
+  main:
+    web-application-type: none
   application:
     name: data-processing-service
-  cache:
-    cache-names: srte
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterAccess=0
 
 kafka:
   topic:
-    elr_micro_transaction: elr_unprocessed_transaction
-    elr_micro: dp_elr_unprocessed
+    elr_unprocessed: dp_elr_unprocessed
+    elr_reprocessing_locking: dp_elr_reprocess_locking
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
+    elr_nnd: dp_elr_handle_nnd
     elr_edx_log: dp_elr_edx_log
     elr_action_tracker: dp_elr_action_tracker
 nbs:
@@ -78,13 +65,15 @@ spring:
       on-profile: default
   datasource:
     hikari:
-      maximum-pool-size: ${HIKARI_POOL_SIZE:40}
-      connection-timeout: ${HIKARI_CON_TIMEOUT:300000}
-      minimum-idle: ${HIKARI_MINIMUM_IDLE:20}
-      idle-timeout: ${HIKARI_IDLE_TIMEOUT:120000}
-      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
-      pool-name: ${HIKARI_POOL_NAME:SQLServerHikariCP}
-      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:300000}
+      maximum-pool-size: ${HIKARI_POOL_SIZE:20}               # Increase for higher parallelism (adjust per CPU & DB limits)
+      minimum-idle: ${HIKARI_MINIMUM_IDLE:10}                  # Let unused connections be removed
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:60000}              # Close idle connections quickly (30s)
+      connection-timeout: ${HIKARI_CON_TIMEOUT:10000}         # Fail fast if no connection within 30s
+      max-lifetime: ${HIKARI_MAX_LIFETIME:900000}             # Retire connections after 5 minutes (avoid stale connections)
+      pool-name-odse: ${HIKARI_POOL_NAME_ODSE:HIKARI_POOL_DP_ODSE}
+      pool-name-msg: ${HIKARI_POOL_NAME_MSG:HIKARI_POOL_DP_MSG}
+      pool-name-srte: ${HIKARI_POOL_NAME_SRTE:HIKARI_POOL_DP_SRTE}
+      leak-detection-threshold: ${LEAK_DETECTION_THRESHOLD:15000}  # Log warnings if connection not returned in 20s (debug leaks)
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -95,20 +84,54 @@ spring:
     srte:
       url: jdbc:sqlserver://${NBS_DBSERVER};databaseName=${NBS_SRTE_DB_NAME:NBS_SRTE};encrypt=true;trustServerCertificate=true;
   jpa:
+    properties:
+      hibernate:
+        format_sql: true
     show-sql: true
     hibernate:
       ddl-auto: none
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
     thread: ${KAFKA_THREAD:1}
+    max-poll-record: ${KAFKA_MAX_POLL_RECORD:1000}
     group-id: data-processing-group-init
     group-id-phc: data-processing-group-phc
     group-id-lab: data-processing-group-lab
     group-id-edx: data-processing-group-edx
-    consumer:
-      maxPollIntervalMs: 30000
-#K8S Profile goes here
 
 service:
   timezone: ${SERVICE_TZ:UTC}
-#logging.level.org.apache.kafka.clients.consumer: DEBUG
+
+logging:
+  level:
+    root: WARN
+    # Retain INFO logs for your own class
+    gov.cdc.dataprocessing: INFO
+    gov.cdc.dataprocessing.service.implementation.manager.ManagerService: DEBUG
+    # Kafka internals
+    org.apache.kafka: WARN
+    # JPA / Hibernate
+    org.hibernate: WARN
+    org.springframework.orm.jpa: WARN
+    org.springframework.transaction: WARN
+    # HikariCP
+    com.zaxxer.hikari: WARN
+    # Spring Data JPA repositories
+    org.springframework.data.jpa.repository: WARN
+#    org.springframework.retry: DEBUG
+    # JDBC (optional)
+#    org.springframework.jdbc.core: WARN
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql: TRACE
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+
+feature:
+  thread-enabled: ${THREAD_FLAG:false}
+  thread-pool-size: ${THREAD_POOL_SIZE:10}
+  thread-batch-size: ${THREAD_BATCH_SIZE:50}
+processor:
+  delay_ms: ${PROCESSOR_DELAY:100}
+uid:
+  pool_size: ${UID_POOL_SIZE:5000}
+  min_pool_size: ${UID_MIN_POOL_SIZE:1000}

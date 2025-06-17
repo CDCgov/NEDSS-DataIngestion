@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.utilities.component.edx;
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.NBSConstantUtil;
+import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsCaseAnswerDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsQuestionMetadata;
@@ -100,7 +101,7 @@ class EdxPhcrDocumentUtilTest {
 
 
     @Test
-    void loadQuestion_Test() {
+    void loadQuestion_Test() throws DataProcessingException {
         NbsQuestionMetadata ques = new NbsQuestionMetadata();
 
         var condCode = NBSConstantUtil.INV_FORM_RVCT;
@@ -122,7 +123,7 @@ class EdxPhcrDocumentUtilTest {
     }
 
     @Test
-    void loadQuestion_Test_2() {
+    void loadQuestion_Test_2() throws DataProcessingException {
         NbsQuestionMetadata ques = new NbsQuestionMetadata();
 
         var condCode = NBSConstantUtil.INV_FORM_RVCT;

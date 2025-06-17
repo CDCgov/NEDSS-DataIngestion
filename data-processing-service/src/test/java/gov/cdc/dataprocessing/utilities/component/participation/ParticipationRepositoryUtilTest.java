@@ -3,10 +3,9 @@ package gov.cdc.dataprocessing.utilities.component.participation;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ParticipationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -18,7 +17,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,9 +24,7 @@ import static org.mockito.Mockito.*;
 
 class ParticipationRepositoryUtilTest {
     @Mock
-    private ParticipationRepository participationRepository;
-    @Mock
-    private ParticipationHistRepository participationHistRepository;
+    private ParticipationJdbcRepository participationRepository;
     @InjectMocks
     private ParticipationRepositoryUtil participationRepositoryUtil;
     @Mock
@@ -48,7 +44,7 @@ class ParticipationRepositoryUtilTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(participationRepository, participationHistRepository, authUtil);
+        Mockito.reset(participationRepository, authUtil);
     }
 
     @Test
@@ -57,7 +53,7 @@ class ParticipationRepositoryUtilTest {
         var patCol = new ArrayList<Participation>();
         var pat = new Participation();
         patCol.add(pat);
-        when(participationRepository.findByActUid(any())).thenReturn(Optional.of(patCol));
+        when(participationRepository.findByActUid(any())).thenReturn(patCol);
 
         var res = participationRepositoryUtil.getParticipationCollection(uid);
 
@@ -69,7 +65,7 @@ class ParticipationRepositoryUtilTest {
         ParticipationDto pat = new ParticipationDto();
         participationRepositoryUtil.insertParticipationHist(pat);
 
-        verify(participationHistRepository, times(1)).save(any());
+        verify(participationRepository, times(1)).mergeParticipationHist(any());
     }
 
     @Test
@@ -91,7 +87,7 @@ class ParticipationRepositoryUtilTest {
 
         participationRepositoryUtil.storeParticipation(pat);
 
-        verify(participationRepository, times(1)).save(any());
+        verify(participationRepository, times(1)).createParticipation(any());
 
     }
 
@@ -102,7 +98,7 @@ class ParticipationRepositoryUtilTest {
 
         participationRepositoryUtil.storeParticipation(pat);
 
-        verify(participationRepository, times(1)).delete(any());
+        verify(participationRepository, times(1)).deleteParticipation(any(), any(), any());
 
     }
 
@@ -113,23 +109,10 @@ class ParticipationRepositoryUtilTest {
 
         participationRepositoryUtil.storeParticipation(pat);
 
-        verify(participationRepository, times(1)).save(any());
+        verify(participationRepository, times(1)).updateParticipation(any());
 
     }
 
-
-    @Test
-    void storeParticipation_Test_4()   {
-        ParticipationDto pat = new ParticipationDto();
-        pat.setItDirty(true);
-
-        when(participationRepository.save(any())).thenThrow(new RuntimeException("TEST"));
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            participationRepositoryUtil.storeParticipation(pat);
-        });
-
-        assertNotNull(thrown);
-    }
 
     @Test
     void getParticipation_Test() {
@@ -140,7 +123,7 @@ class ParticipationRepositoryUtilTest {
         var pat = new Participation();
         pat.setActUid(10L);
         patCol.add(pat);
-        when(participationRepository.findByParentUid(any())).thenReturn(Optional.of(patCol));
+        when(participationRepository.findBySubjectUid(any())).thenReturn(patCol);
 
         var res = participationRepositoryUtil.getParticipation(subjectEntityUid, actUid);
 
@@ -155,7 +138,7 @@ class ParticipationRepositoryUtilTest {
         var pat = new Participation();
         pat.setActUid(10L);
         patCol.add(pat);
-        when(participationRepository.findByParentUid(any())).thenReturn(Optional.of(patCol));
+        when(participationRepository.findBySubjectUid(any())).thenReturn(patCol);
 
         var res = participationRepositoryUtil.getParticipation(subjectEntityUid, actUid);
 
@@ -168,7 +151,7 @@ class ParticipationRepositoryUtilTest {
         var patCol = new ArrayList<Participation>();
         var pat = new Participation();
         patCol.add(pat);
-        when(participationRepository.findByActUid(any())).thenReturn(Optional.of(patCol));
+        when(participationRepository.findByActUid(any())).thenReturn(patCol);
 
         var res = participationRepositoryUtil.getParticipationsByActUid(actUid);
         assertNotNull(res);

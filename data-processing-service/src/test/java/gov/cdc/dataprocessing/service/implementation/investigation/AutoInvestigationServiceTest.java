@@ -19,7 +19,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ConditionCodeWithPA;
 import gov.cdc.dataprocessing.repository.nbs.srte.repository.ConditionCodeRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestData;
@@ -45,7 +45,7 @@ class AutoInvestigationServiceTest {
     @Mock
     private ConditionCodeRepository conditionCodeRepository;
     @Mock
-    private ICatchingValueService catchingValueService;
+    private ICatchingValueDpService catchingValueService;
     @Mock
     private ILookupService lookupService;
 

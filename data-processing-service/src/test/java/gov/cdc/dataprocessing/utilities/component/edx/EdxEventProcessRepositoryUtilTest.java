@@ -6,8 +6,9 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.edx.EDXEventProcessDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.EdxEventProcessJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.edx.EdxEventProcess;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.edx.EdxEventProcessRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.act.ActRepositoryUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class EdxEventProcessRepositoryUtilTest {
@@ -24,7 +24,7 @@ class EdxEventProcessRepositoryUtilTest {
     private EdxEventProcessRepositoryUtil edxEventProcessRepositoryUtil;
 
     @Mock
-    private EdxEventProcessRepository edxEventProcessRepository;
+    private EdxEventProcessJdbcRepository edxEventProcessRepository;
 
     @Mock
     private ActRepositoryUtil actRepositoryUtil;
@@ -32,9 +32,25 @@ class EdxEventProcessRepositoryUtilTest {
     @Mock
     private IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
+    @Mock
+    UidPoolManager uidPoolManager;
+
     @BeforeEach
-    public void setUp() {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
     }
 
     @Test
@@ -48,18 +64,9 @@ class EdxEventProcessRepositoryUtilTest {
 
         edxEventProcessRepositoryUtil.insertEventProcess(edxEventProcessDto);
 
-        verify(actRepositoryUtil, times(1)).insertActivityId(uidObj.getGaTypeUid().getSeedValueNbr(), edxEventProcessDto.getDocEventTypeCd(), NEDSSConstant.EVENT_MOOD_CODE);
-        verify(edxEventProcessRepository, times(1)).save(any(EdxEventProcess.class));
+        verify(actRepositoryUtil, times(1)).insertActivityId(any(), eq(edxEventProcessDto.getDocEventTypeCd()), eq(NEDSSConstant.EVENT_MOOD_CODE));
+        verify(edxEventProcessRepository, times(1)).mergeEdxEventProcess(any(EdxEventProcess.class));
     }
 
-    @Test
-    void testInsertEventProcessThrowsException() throws DataProcessingException {
-        EDXEventProcessDto edxEventProcessDto = new EDXEventProcessDto();
-        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.NBS_DOCUMENT, true)).thenThrow(new RuntimeException("Test Exception"));
-
-        assertThrows(RuntimeException.class, () -> {
-            edxEventProcessRepositoryUtil.insertEventProcess(edxEventProcessDto);
-        });
-    }
 
 }

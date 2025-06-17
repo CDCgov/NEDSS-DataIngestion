@@ -161,7 +161,7 @@ class EntityHelperTest {
                 new RuntimeException("TEST")
         );
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             entityHelper.iterateALPDTActivityLocatorParticipation(dtCol);
         });
 
@@ -192,7 +192,7 @@ class EntityHelperTest {
 
         when(prepareAssocModel.prepareAssocDTForActRelationship(any(ActRelationshipDto.class))).thenThrow(new RuntimeException("TEST"));
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             entityHelper.iterateARDTActRelationship(dtCol);
         });
 

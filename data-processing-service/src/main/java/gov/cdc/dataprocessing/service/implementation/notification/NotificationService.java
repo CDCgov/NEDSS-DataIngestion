@@ -23,31 +23,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CREATE_PERM;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class NotificationService implements INotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -101,70 +79,45 @@ public class NotificationService implements INotificationService {
     private String getActClassCd(BaseContainer vo)
     {
         if (vo == null)
+        {
             return null;
-
-        /*Both lab and morb class codes are OBS */
-//        if (vo instanceof MorbidityProxyVO) {
-//            // return "OBS"
-//            return NEDSSConstant.CLASS_CD_OBS;
-//        }
+        }
 
         if (vo instanceof LabResultProxyContainer) {
-            // return "OBS"
             return NEDSSConstant.CLASS_CD_OBS;
         }
 
-//        else if (vo instanceof VaccinationProxyVO) {
-//            // return "INTV"
-//            return NEDSSConstant.CLASS_CD_INTV;
-//        }
+
         return null;
     }
 
     private Long getRootUid(BaseContainer vo)
     {
         if (vo == null)
+        {
             return null;
+        }
 
-//        // for now only implement three
-//        if (vo instanceof MorbidityProxyVO) {
-//            // the root Morb observation UID out of the observation collection
-//            Collection<ObservationContainer>  obsColl =
-//                    ((MorbidityProxyVO) vo).getTheObservationContainerCollection();
-//            Iterator<ObservationContainer> iter = obsColl.iterator();
-//            while (iter.hasNext()) {
-//                ObservationContainer observationVO = (ObservationContainer) iter.next();
-//                String ctrlCdDisplayForm =
-//                        observationVO.getTheObservationDto().getCtrlCdDisplayForm();
-//                if (ctrlCdDisplayForm != null
-//                        && ctrlCdDisplayForm.equalsIgnoreCase(
-//                        NEDSSConstant.MOB_CTRLCD_DISPLAY))
-//                    return observationVO
-//                            .getTheObservationDto()
-//                            .getObservationUid();
-//            }
-//        } else
-
-            if (vo instanceof LabResultProxyContainer) {
-            // the root Lab observation UID out of the observation collection
-            Collection<ObservationContainer> obsColl =
-                    ((LabResultProxyContainer) vo).getTheObservationContainerCollection();
-                for (ObservationContainer observationContainer : obsColl) {
-                    String obsDomainCdSt1 =
-                            observationContainer.getTheObservationDto().getObsDomainCdSt1();
-                    String obsCtrlCdDisplayForm =
-                            observationContainer.getTheObservationDto().getCtrlCdDisplayForm();
-                    if (obsDomainCdSt1 != null
-                            && obsDomainCdSt1.equalsIgnoreCase(
-                            NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
-                            && obsCtrlCdDisplayForm != null
-                            && obsCtrlCdDisplayForm.equalsIgnoreCase(
-                            NEDSSConstant.LAB_REPORT)) {
-                        return observationContainer
-                                .getTheObservationDto()
-                                .getObservationUid();
-                    }
+        if (vo instanceof LabResultProxyContainer labResultProxyContainer) {
+        // the root Lab observation UID out of the observation collection
+        Collection<ObservationContainer> obsColl =
+                labResultProxyContainer.getTheObservationContainerCollection();
+            for (ObservationContainer observationContainer : obsColl) {
+                String obsDomainCdSt1 =
+                        observationContainer.getTheObservationDto().getObsDomainCdSt1();
+                String obsCtrlCdDisplayForm =
+                        observationContainer.getTheObservationDto().getCtrlCdDisplayForm();
+                if (obsDomainCdSt1 != null
+                        && obsDomainCdSt1.equalsIgnoreCase(
+                        NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD)
+                        && obsCtrlCdDisplayForm != null
+                        && obsCtrlCdDisplayForm.equalsIgnoreCase(
+                        NEDSSConstant.LAB_REPORT)) {
+                    return observationContainer
+                            .getTheObservationDto()
+                            .getObservationUid();
                 }
+            }
 
         }
         return null;
@@ -178,21 +131,11 @@ public class NotificationService implements INotificationService {
     {
 
         Long notificationUid = null;
-        String permissionFlag;
         Collection<Object> act2 = new ArrayList<>();
 
-        try
+        if (notificationProxyVO == null)
         {
-            if (notificationProxyVO == null)
-            {
-                throw new DataProcessingException("notificationproxyVO is null ");
-            }
-            permissionFlag = CREATE_PERM;
-
-        }
-        catch (Exception e)
-        {
-            throw new DataProcessingException(e.getMessage(), e);
+            throw new DataProcessingException("notificationproxyVO is null ");
         }
 
 
@@ -207,23 +150,13 @@ public class NotificationService implements INotificationService {
         notifDT.setProgAreaCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getProgAreaCd());
         notifDT.setJurisdictionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getJurisdictionCd());
 
-        if (permissionFlag.equals(CREATE_PERM))
-        {
-            notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
-        }
+        notifDT.setCaseConditionCd(notificationProxyVO.getThePublicHealthCaseContainer().getThePublicHealthCaseDto().getCd());
 
         if ((notifVO.isItDirty()) || (notifVO.isItNew()))
         {
             String boLookup = NBSBOLookup.NOTIFICATION;
             String triggerCd = "";
-            if (permissionFlag.equals(CREATE_PERM))
-            {
-                triggerCd = NEDSSConstant.NOT_CR_APR;
-            }
-            if (permissionFlag.equals("CREATENEEDSAPPROVAL"))
-            {
-                triggerCd = NEDSSConstant.NOT_CR_PEND_APR;
-            }
+            triggerCd = NEDSSConstant.NOT_CR_APR;
             String tableName = "Notification";
             String moduleCd = NEDSSConstant.BASE;
 
@@ -237,41 +170,38 @@ public class NotificationService implements INotificationService {
             }
 
 
-            try
-            {
-                notifDT = (NotificationDto) prepareAssocModelHelper.prepareVO(notifDT, boLookup, triggerCd, tableName, moduleCd, notifDT.getVersionCtrlNbr());
 
-                if (notifDT.getCd() == null || notifDT.getCd().isEmpty())
-                {
-                    notifDT.setCd(NEDSSConstant.CLASS_CD_NOTIFICATION);
-                }
+            notifDT = (NotificationDto) prepareAssocModelHelper.prepareVO(notifDT, boLookup, triggerCd, tableName, moduleCd, notifDT.getVersionCtrlNbr());
+
+            if (notifDT.getCd() == null || notifDT.getCd().isEmpty())
+            {
+                notifDT.setCd(NEDSSConstant.CLASS_CD_NOTIFICATION);
+            }
+
+            notifVO.setTheNotificationDT(notifDT);
+
+
+            Long falseUid;
+            Long realUid;
+
+            // Create Act Here
+            realUid = notificationRepositoryUtil.setNotification(notifVO);
+            notificationUid = realUid;
+            falseUid = notifVO.getTheNotificationDT().getNotificationUid();
+
+            if (notifVO.isItNew())
+            {
+                ActRelationshipDto actRelDT;
+                actRelDT = iUidService.setFalseToNewForNotification(notificationProxyVO, falseUid, realUid);
+                notifDT.setNotificationUid(realUid);
 
                 notifVO.setTheNotificationDT(notifDT);
-
-
-                Long falseUid;
-                Long realUid;
-                realUid = notificationRepositoryUtil.setNotification(notifVO);
-                notificationUid = realUid;
-                falseUid = notifVO.getTheNotificationDT().getNotificationUid();
-
-                if (notifVO.isItNew())
-                {
-                    ActRelationshipDto actRelDT;
-                    actRelDT = iUidService.setFalseToNewForNotification(notificationProxyVO, falseUid, realUid);
-                    notifDT.setNotificationUid(realUid);
-
-                    notifVO.setTheNotificationDT(notifDT);
-                    notificationProxyVO.setTheNotificationContainer(notifVO);
-                    act2.add(actRelDT);
-                    notificationProxyVO.setTheActRelationshipDTCollection(act2);
-                    actRelationshipRepositoryUtil.storeActRelationship(actRelDT);
-                }
+                notificationProxyVO.setTheNotificationContainer(notifVO);
+                act2.add(actRelDT);
+                notificationProxyVO.setTheActRelationshipDTCollection(act2);
+                actRelationshipRepositoryUtil.storeActRelationship(actRelDT);
             }
-            catch (Exception e)
-            {
-                throw new DataProcessingException(" : " + e);
-            }
+
         } // end of if new or dirty
         return notificationUid;
     } // end of setNotificationProxy

@@ -13,7 +13,7 @@ import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.ElrXref;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 
 class HL7PatientHandlerTest {
     @Mock
-    private ICatchingValueService checkingValueService;
+    private ICatchingValueDpService checkingValueService;
     @Mock
     private NBSObjectConverter nbsObjectConverter;
     @Mock
@@ -182,7 +182,7 @@ class HL7PatientHandlerTest {
         // NOK
         when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");
 
-        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn("{}");
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(new ElrXref());
 
         var res = hl7PatientHandler.getPatientAndNextOfKin(hl7PatientResult, labResultProxyContainer, edxLabInformationDto);
 

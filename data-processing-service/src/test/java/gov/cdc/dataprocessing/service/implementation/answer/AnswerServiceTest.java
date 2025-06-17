@@ -1,19 +1,16 @@
 package gov.cdc.dataprocessing.service.implementation.answer;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PageContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsActEntityDto;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsAnswerDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsActJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsAnswerJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsAnswer;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsAnswerRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
@@ -33,13 +30,9 @@ import static org.mockito.Mockito.*;
 
 class AnswerServiceTest {
     @Mock
-    private NbsAnswerRepository nbsAnswerRepository;
+    private NbsAnswerJdbcRepository nbsAnswerRepository;
     @Mock
-    private NbsActEntityRepository nbsActEntityRepository;
-    @Mock
-    private NbsAnswerHistRepository nbsAnswerHistRepository;
-    @Mock
-    private NbsActEntityHistRepository nbsActEntityHistRepository;
+    private NbsActJdbcRepository nbsActEntityRepository;
     @InjectMocks
     private AnswerService answerService;
     @Mock
@@ -59,7 +52,7 @@ class AnswerServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(nbsAnswerRepository, nbsActEntityRepository, nbsAnswerHistRepository, nbsActEntityHistRepository, authUtil);
+        Mockito.reset(nbsAnswerRepository, nbsActEntityRepository, authUtil);
     }
 
     private NbsAnswer buildNbsAnswer(long uid, long nbsUid, int seqNbsNum, int seqNum) {
@@ -94,7 +87,7 @@ class AnswerServiceTest {
         nbsAnsCol.add(buildNbsAnswer(-1L, -1L, -1, -1));
 
 
-        when(nbsAnswerRepository.getPageAnswerByActUid(uid)).thenReturn(Optional.of(nbsAnsCol));
+        when(nbsAnswerRepository.findByActUid(uid)).thenReturn(nbsAnsCol);
 
         var result = answerService.getPageAnswerDTMaps(uid);
 
@@ -107,7 +100,7 @@ class AnswerServiceTest {
     void testGetNbsAnswerAndAssociationResultNotPresent()  {
         Long uid = 1L;
 
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(uid)).thenReturn(Optional.empty());
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(uid)).thenReturn(new ArrayList<>());
 
         PageContainer result = answerService.getNbsAnswerAndAssociation(uid);
 
@@ -131,7 +124,7 @@ class AnswerServiceTest {
         nbsAnsCol.add(buildNbsAnswer(13L, 1L, 1, 1));
         nbsAnsCol.add(buildNbsAnswer(13L, 1L, -1, 1));
         nbsAnsCol.add(buildNbsAnswer(-1L, -1L, -1, -1));
-        when(nbsAnswerRepository.getPageAnswerByActUid(uid)).thenReturn(Optional.of(nbsAnsCol));
+        when(nbsAnswerRepository.findByActUid(uid)).thenReturn(nbsAnsCol);
 
 
         var actEntityCol = new ArrayList<NbsActEntity>();
@@ -148,7 +141,7 @@ class AnswerServiceTest {
         actEntity.setTypeCd("TEST");
         actEntity.setActUid(11L);
         actEntityCol.add(actEntity);
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(10L)).thenReturn(Optional.of(actEntityCol));
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(10L)).thenReturn(actEntityCol);
 
         var test = answerService.getNbsAnswerAndAssociation(uid);
 
@@ -160,7 +153,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void insertPageVo_Success_PageConNotNull() throws DataProcessingException {
+    void insertPageVo_Success_PageConNotNull()  {
         PageContainer pageContainer = new PageContainer();
         var answerMap = new HashMap<Object, NbsAnswerDto>();
         var ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
@@ -246,13 +239,13 @@ class AnswerServiceTest {
 
         answerService.insertPageVO(pageContainer, observationDto);
 
-        verify(nbsActEntityRepository, times(2)).save(any());
+        verify(nbsActEntityRepository, times(2)).mergeNbsActEntity(any());
         verify(nbsActEntityRepository, times(1)).deleteNbsEntityAct(any());
 
     }
 
     @Test
-    void storePageAnswer_Success() throws DataProcessingException {
+    void storePageAnswer_Success()   {
         PageContainer pageContainer = new PageContainer();
         var answerMap = new HashMap<Object, NbsAnswerDto>();
         var ansDto = new NbsAnswerDto(buildNbsAnswer(11L, 11L, 1, 1));
@@ -338,18 +331,18 @@ class AnswerServiceTest {
         var nbsAnswerForDeleteCol = new ArrayList<NbsAnswer>();
         var nbsAnswerForDelete = buildNbsAnswer(19L, 19L, 1, 1);
         nbsAnswerForDeleteCol.add(nbsAnswerForDelete);
-        when(nbsAnswerRepository.getPageAnswerByActUid(15L))
-                .thenReturn(Optional.of(nbsAnswerForDeleteCol));
+        when(nbsAnswerRepository.findByActUid(15L))
+                .thenReturn(nbsAnswerForDeleteCol);
 
         var nbsActForDeleteCol = new ArrayList<NbsActEntity>();
         var nbsActForDelete = new NbsActEntity();
         nbsActForDeleteCol.add(nbsActForDelete);
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(15L))
-                .thenReturn(Optional.of(nbsActForDeleteCol));
+                .thenReturn(nbsActForDeleteCol);
 
         answerService.storePageAnswer(pageContainer, observationDto);
 
-        verify(nbsActEntityRepository, times(3)).save(any());
+        verify(nbsActEntityRepository, times(3)).mergeNbsActEntity(any());
 
     }
 
@@ -441,8 +434,8 @@ class AnswerServiceTest {
         var nbsAnswerForDeleteCol = new ArrayList<NbsAnswer>();
         var nbsAnswerForDelete = buildNbsAnswer(19L, 19L, 1, 1);
         nbsAnswerForDeleteCol.add(nbsAnswerForDelete);
-        when(nbsAnswerRepository.getPageAnswerByActUid(15L))
-                .thenReturn(Optional.of(nbsAnswerForDeleteCol));
+        when(nbsAnswerRepository.findByActUid(15L))
+                .thenReturn(nbsAnswerForDeleteCol);
 
 
         when(nbsActEntityRepository.getNbsActEntitiesByActUid(15L))
@@ -539,64 +532,28 @@ class AnswerServiceTest {
         ans.setSeqNbr(1);
         ans.setNbsQuestionUid(10L);
         ansCol.add(ans);
-        when(nbsAnswerRepository.getPageAnswerByActUid(any())).thenReturn(Optional.of(ansCol));
+        when(nbsAnswerRepository.findByActUid(any())).thenReturn(ansCol);
 
         answerService.getPageAnswerDTMaps(uid);
 
-        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+        verify(nbsAnswerRepository, times(1)).findByActUid(any());
     }
 
     @Test
     @SuppressWarnings("java:S2699")
-    void insertPageVO_Test() throws DataProcessingException {
+    void insertPageVO_Test()   {
         PageContainer pageContainer = null;
         ObservationDto rootDTInterface = new ObservationDto();
         answerService.insertPageVO(pageContainer, rootDTInterface);
     }
 
-    @Test
-    void storeAnswerDTCollection_Test_Exp() {
-        ArrayList<Object> answerDTColl = new ArrayList<>();
-        ObservationDto interfaceDt = new ObservationDto();
-
-        NbsAnswerDto an = new NbsAnswerDto();
-        an.setItDirty(true);
-        answerDTColl.add(an);
-
-        when(nbsAnswerRepository.save(any())).thenThrow(new RuntimeException());
-
-
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            answerService.storeAnswerDTCollection(answerDTColl, interfaceDt);
-        });
-
-        assertNotNull(thrown);
-    }
 
     @Test
     void delete_Exp() {
         ObservationDto observationDto = new ObservationDto();
-        when(nbsAnswerRepository.getPageAnswerByActUid(any())).thenThrow(new RuntimeException());
+        when(nbsAnswerRepository.findByActUid(any())).thenThrow(new RuntimeException());
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             answerService.delete(observationDto);
-        });
-
-        assertNotNull(thrown);
-    }
-
-    @Test
-    void insertAnswerHistoryDTCollection_Test_1()  {
-        var anCol1 = new ArrayList<>();
-        var an1 = new NbsAnswerDto();
-        anCol1.add(an1);
-
-        var anCol = new ArrayList<>();
-        anCol.add(anCol1);
-        when(nbsAnswerHistRepository.save(any())).thenThrow(new RuntimeException());
-
-
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            answerService.insertAnswerHistoryDTCollection(anCol);
         });
 
         assertNotNull(thrown);
@@ -615,26 +572,10 @@ class AnswerServiceTest {
 
         answerService.insertAnswerHistoryDTCollection(anCol);
 
-        verify(nbsAnswerHistRepository, times(1)).save(any());
+        verify(nbsAnswerRepository, times(1)).mergeNbsAnswerHist(any());
 
     }
 
-    @Test
-    void insertPageEntityHistoryDTCollection_Exp() {
-        ArrayList<NbsActEntityDto> nbsCaseEntityDTColl = new ArrayList<>();
-        ObservationDto oldrootDTInterface = new ObservationDto();
-
-        NbsActEntityDto entityDto = new NbsActEntityDto();
-        nbsCaseEntityDTColl.add(entityDto);
-
-        when(nbsActEntityHistRepository.save(any())).thenThrow(new RuntimeException());
-
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            answerService.insertPageEntityHistoryDTCollection(nbsCaseEntityDTColl, oldrootDTInterface);
-        });
-
-        assertNotNull(thrown);
-    }
 
     @Test
     void testProcessingPageAnswerMapSeqNbrGreaterThanZeroCollSizeGreaterThanZero() {
@@ -669,7 +610,7 @@ class AnswerServiceTest {
 
 
     @Test
-    void testInsertPageVOAnswerDTMapSizeZero() throws DataProcessingException {
+    void testInsertPageVOAnswerDTMapSizeZero() {
         PageContainer pageContainer = new PageContainer();
         Map<Object, NbsAnswerDto> answerDTMap = new HashMap<>();
         pageContainer.setAnswerDTMap(answerDTMap);
@@ -683,7 +624,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testInsertPageVORepeatingAnswerDTMapSizeZero() throws DataProcessingException {
+    void testInsertPageVORepeatingAnswerDTMapSizeZero() {
         PageContainer pageContainer = new PageContainer();
         Map<Object, NbsAnswerDto> answerDTMap = new HashMap<>();
         answerDTMap.put("key", new NbsAnswerDto());
@@ -701,7 +642,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    void testStorePageAnswerElseCase() throws DataProcessingException {
+    void testStorePageAnswerElseCase() {
         ObservationDto observationDto = new ObservationDto();
 
         // Call the method with pageContainer set to null
@@ -719,7 +660,7 @@ class AnswerServiceTest {
         answerService.storeActEntityDTCollectionWithPublicHealthCase(pamDTCollection, rootDTInterface);
 
         verify(nbsActEntityRepository, never()).deleteNbsEntityAct(anyLong());
-        verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
+        verify(nbsActEntityRepository, never()).mergeNbsActEntity(any(NbsActEntity.class));
     }
 
     @Test
@@ -730,27 +671,25 @@ class AnswerServiceTest {
         answerService.storeActEntityDTCollection(pamDTCollection, rootDTInterface);
 
         verify(nbsActEntityRepository, never()).deleteNbsEntityAct(anyLong());
-        verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
+        verify(nbsActEntityRepository, never()).mergeNbsActEntity(any(NbsActEntity.class));
     }
 
     @Test
     void testInsertActEntityDTCollection_EmptyCollection() {
         Collection<NbsActEntityDto> actEntityDTCollection = new ArrayList<>();
-        ObservationDto observationDto = new ObservationDto();
 
-        answerService.insertActEntityDTCollection(actEntityDTCollection, observationDto);
+        answerService.insertActEntityDTCollection(actEntityDTCollection);
 
-        verify(nbsActEntityRepository, never()).save(any(NbsActEntity.class));
+        verify(nbsActEntityRepository, never()).mergeNbsActEntity(any(NbsActEntity.class));
     }
 
 
     @Test
     void testStoreAnswerDTCollection_NullCollection()  {
-        ObservationDto interfaceDT = new ObservationDto();
 
-        answerService.storeAnswerDTCollection(null, interfaceDT);
+        answerService.storeAnswerDTCollection(null);
 
-        verify(nbsAnswerRepository, never()).save(any(NbsAnswer.class));
+        verify(nbsAnswerRepository, never()).mergeNbsAnswer(any(NbsAnswer.class));
     }
 
     @Test
@@ -761,11 +700,10 @@ class AnswerServiceTest {
         when(answerDT.getNbsAnswerUid()).thenReturn(1L);
         answerDTColl.add(answerDT);
 
-        ObservationDto interfaceDT = new ObservationDto();
 
-        answerService.storeAnswerDTCollection(answerDTColl, interfaceDT);
+        answerService.storeAnswerDTCollection(answerDTColl);
 
-        verify(nbsAnswerRepository, never()).save(any(NbsAnswer.class));
+        verify(nbsAnswerRepository, never()).mergeNbsAnswer(any(NbsAnswer.class));
     }
 
     @Test
@@ -773,51 +711,25 @@ class AnswerServiceTest {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
-        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.empty());
+        when(nbsAnswerRepository.findByActUid(1L)).thenReturn(new ArrayList<>());
 
         answerService.delete(rootDTInterface);
 
-        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+        verify(nbsAnswerRepository, times(1)).findByActUid(any());
     }
 
-    @Test
-    void testDelete_AnswerCollectionEmpty()  {
-        ObservationDto rootDTInterface = new ObservationDto();
-        rootDTInterface.setObservationUid(1L);
-
-        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
-
-        answerService.delete(rootDTInterface);
-
-        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
-
-    }
 
     @Test
     void testDelete_ActEntityCollectionNull()  {
         ObservationDto rootDTInterface = new ObservationDto();
         rootDTInterface.setObservationUid(1L);
 
-        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(Optional.empty());
+        when(nbsAnswerRepository.findByActUid(1L)).thenReturn(new ArrayList<>());
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(new ArrayList<>());
 
         answerService.delete(rootDTInterface);
 
-        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
-
-    }
-
-    @Test
-    void testDelete_ActEntityCollectionEmpty()  {
-        ObservationDto rootDTInterface = new ObservationDto();
-        rootDTInterface.setObservationUid(1L);
-
-        when(nbsAnswerRepository.getPageAnswerByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(Optional.of(new ArrayList<>()));
-
-        answerService.delete(rootDTInterface);
-
-        verify(nbsAnswerRepository, times(1)).getPageAnswerByActUid(any());
+        verify(nbsAnswerRepository, times(1)).findByActUid(any());
 
     }
 
@@ -825,16 +737,16 @@ class AnswerServiceTest {
     void testInsertAnswerHistoryDTCollection_NullCollection()  {
         answerService.insertAnswerHistoryDTCollection(null);
 
-        verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
-        verify(nbsAnswerHistRepository, never()).save(any());
+        verify(nbsAnswerRepository, never()).deleteByNbsAnswerUid(any());
+        verify(nbsActEntityRepository, never()).mergeNbsActEntityHist(any());
     }
 
     @Test
     void testInsertAnswerHistoryDTCollection_EmptyCollection()  {
         answerService.insertAnswerHistoryDTCollection(Collections.emptyList());
 
-        verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
-        verify(nbsAnswerHistRepository, never()).save(any());
+        verify(nbsAnswerRepository, never()).deleteByNbsAnswerUid(any());
+        verify(nbsAnswerRepository, never()).mergeNbsAnswerHist(any());
     }
 
     @Test
@@ -844,8 +756,8 @@ class AnswerServiceTest {
 
         answerService.insertAnswerHistoryDTCollection(invalidCollection);
 
-        verify(nbsAnswerRepository, never()).deleteNbsAnswer(any());
-        verify(nbsAnswerHistRepository, never()).save(any());
+        verify(nbsAnswerRepository, never()).deleteByNbsAnswerUid(any());
+        verify(nbsAnswerRepository, never()).mergeNbsAnswerHist(any());
     }
 
 
@@ -855,7 +767,7 @@ class AnswerServiceTest {
         answerService.insertPageEntityHistoryDTCollection(null, oldRootDTInterface);
 
         verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
-        verify(nbsActEntityHistRepository, never()).save(any());
+        verify(nbsActEntityRepository, never()).mergeNbsActEntityHist(any());
     }
 
     @Test
@@ -864,7 +776,7 @@ class AnswerServiceTest {
         answerService.insertPageEntityHistoryDTCollection(Collections.emptyList(), oldRootDTInterface);
 
         verify(nbsActEntityRepository, never()).deleteNbsEntityAct(any());
-        verify(nbsActEntityHistRepository, never()).save(any());
+        verify(nbsActEntityRepository, never()).mergeNbsActEntityHist(any());
     }
 
 }
