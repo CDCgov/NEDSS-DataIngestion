@@ -223,12 +223,12 @@ public class ManagerService implements IManagerService {
         return null;
     }
 
-    @Transactional()
-    @Retryable(
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 1000, multiplier = 2),
-            retryFor = {DataProcessingDBException.class}
-    )
+//    @Transactional()
+//    @Retryable(
+//            maxAttempts = 5,
+//            backoff = @Backoff(delay = 1000, multiplier = 2),
+//            retryFor = {DataProcessingDBException.class}
+//    )
 
     @SuppressWarnings("java:S1135")
     public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
@@ -355,7 +355,8 @@ public class ManagerService implements IManagerService {
         if (DecisionSupportConstants.MARK_AS_REVIEWED.equalsIgnoreCase(action))
         {
             labService.handleMarkAsReviewed(obsDto, edxDto);
-        } else if (pageAct != null || pamProxy != null)
+        }
+        else if (pageAct != null || pamProxy != null)
         {
             if (pageAct != null) {
                 phcContainerModel = pageAct.getPublicHealthCaseContainer();

@@ -1377,6 +1377,9 @@ public class ObservationService implements IObservationService {
             );
 
             observationVO.setTheObservationDto((ObservationDto) rootDTInterface);
+            // TODO: This broke - mark as reviewed
+            observationVO.setItDirty(true);
+            observationVO.setItNew(false);
             observationRepositoryUtil.saveObservation(observationVO);
             return true;
         }

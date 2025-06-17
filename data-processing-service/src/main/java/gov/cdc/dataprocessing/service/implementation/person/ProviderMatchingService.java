@@ -61,8 +61,12 @@ public class ProviderMatchingService extends ProviderMatchingBaseService impleme
             entityUid = processingProvider(personContainer, "PROVIDER", NEDSSConstant.PRV_CR);
         }
 
-        persistMatchIfNotNull(nameAddr1, nameAddr1.hashCode(), entityUid, personContainer);
-        persistMatchIfNotNull(phone, phone.hashCode(), entityUid, personContainer);
+        if (nameAddr1 != null) {
+            persistMatchIfNotNull(nameAddr1, nameAddr1.hashCode(), entityUid, personContainer);
+        }
+        if (phone != null) {
+            persistMatchIfNotNull(phone, phone.hashCode(), entityUid, personContainer);
+        }
 
         for (EdxEntityMatchDto dto : matchesToPersist) {
             dto.setEntityUid(entityUid);
