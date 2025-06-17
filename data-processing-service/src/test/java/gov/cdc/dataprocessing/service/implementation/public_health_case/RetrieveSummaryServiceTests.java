@@ -23,9 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.CASE_CLASS_CODE_SET_NM;
 import static org.junit.jupiter.api.Assertions.*;
@@ -393,4 +391,245 @@ class RetrieveSummaryServiceTests {
         assertNotNull(test);
         assertEquals(1, test.size());
     }
+
+    @Test
+    void retrieveTreatmentSummaryVOForInv_ReturnsEmptyMap() {
+        Long publicHealthUid = 12345L;
+
+        Map<Object, Object> result = retrieveSummaryService.retrieveTreatmentSummaryVOForInv(publicHealthUid);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+
+
+    @Test
+    void retrieveNotificationSummaryListForInvestigation_DataAccessClauseNull() throws DataProcessingException {
+        Long publicHealthUid = 123L;
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn(null);
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of());
+
+        NotificationSummaryContainer mockContainer = new NotificationSummaryContainer();
+        mockContainer.setCdNotif(NEDSSConstant.CLASS_CD_NOTF);
+        mockContainer.setCd("cd");
+        mockContainer.setCaseClassCd("class");
+        mockContainer.setRecipient("recipient");
+
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("value");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        Collection<Object> result = retrieveSummaryService.retrieveNotificationSummaryListForInvestigation1(publicHealthUid);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void retrieveNotificationSummaryListForInvestigation_SetsRecipientToAdminFlagCDC_WhenNndIndIsYes() throws DataProcessingException {
+        Long publicHealthUid = 789L;
+
+        NotificationSummaryContainer container = new NotificationSummaryContainer();
+        container.setRecipient(null); // trigger the else block
+        container.setNndInd(NEDSSConstant.YES);
+        container.setCdNotif(NEDSSConstant.CLASS_CD_NOTF); // skip setting caseReport
+        container.setCd("someCd");
+        container.setCaseClassCd("someClass");
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn("");
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of(container))  // first SQL returns one row
+                .thenReturn(Collections.emptyList()); // second SQL returns nothing
+
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("label");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        Collection<Object> result = retrieveSummaryService.retrieveNotificationSummaryListForInvestigation1(publicHealthUid);
+
+        assertEquals(1, result.size());
+        NotificationSummaryContainer resultContainer = (NotificationSummaryContainer) result.iterator().next();
+        assertEquals(NEDSSConstant.ADMINFLAGCDC, resultContainer.getRecipient());
+    }
+
+    @Test
+    void retrieveNotificationSummaryListForInvestigation_SetsRecipientToLocalDesc_WhenNndIndIsNotYesAndRecipientIsNull() throws DataProcessingException {
+        Long publicHealthUid = 20250617L;
+
+        NotificationSummaryContainer container = new NotificationSummaryContainer();
+        container.setRecipient(null); // <-- trigger null check
+        container.setNndInd("N");     // <-- not equal to YES
+        container.setCdNotif(NEDSSConstant.CLASS_CD_NOTF); // skip setting caseReport
+        container.setCd("cd");
+        container.setCaseClassCd("caseClass");
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn("");
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of(container)) // First call
+                .thenReturn(Collections.emptyList()); // Second call to break loop
+
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("label");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        Collection<Object> result = retrieveSummaryService.retrieveNotificationSummaryListForInvestigation1(publicHealthUid);
+
+        assertEquals(1, result.size());
+        NotificationSummaryContainer resultContainer = (NotificationSummaryContainer) result.iterator().next();
+        assertEquals(NEDSSConstant.LOCAl_DESC, resultContainer.getRecipient());
+    }
+
+
+
+
+
+
+
+    @Test
+    void retrieveNotificationSummaryListForInvestigation_DataAccessClauseNullOri() throws DataProcessingException {
+        Long publicHealthUid = 123L;
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn(null);
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of());
+
+        NotificationSummaryContainer mockContainer = new NotificationSummaryContainer();
+        mockContainer.setCdNotif(NEDSSConstant.CLASS_CD_NOTF);
+        mockContainer.setCd("cd");
+        mockContainer.setCaseClassCd("class");
+        mockContainer.setRecipient("recipient");
+
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("value");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        Collection<Object> result = retrieveSummaryService.retrieveNotificationSummaryListForInvestigation(publicHealthUid);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void retrieveNotificationSummaryListForInvestigation_SetsRecipientToAdminFlagCDC_WhenNndIndIsYesOri() throws DataProcessingException {
+        Long publicHealthUid = 789L;
+
+        NotificationSummaryContainer container = new NotificationSummaryContainer();
+        container.setRecipient(null); // trigger the else block
+        container.setNndInd(NEDSSConstant.YES);
+        container.setCdNotif(NEDSSConstant.CLASS_CD_NOTF); // skip setting caseReport
+        container.setCd("someCd");
+        container.setCaseClassCd("someClass");
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn("");
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of(container))  // first SQL returns one row
+                .thenReturn(Collections.emptyList()); // second SQL returns nothing
+
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("label");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        Collection<Object> result = retrieveSummaryService.retrieveNotificationSummaryListForInvestigation(publicHealthUid);
+
+        assertEquals(1, result.size());
+        NotificationSummaryContainer resultContainer = (NotificationSummaryContainer) result.iterator().next();
+        assertEquals(NEDSSConstant.ADMINFLAGCDC, resultContainer.getRecipient());
+    }
+
+    @Test
+    void retrieveNotificationSummaryListForInvestigation_SetsRecipientToLocalDesc_WhenNndIndIsNotYesAndRecipientIsNullOri() throws DataProcessingException {
+        Long publicHealthUid = 20250617L;
+
+        NotificationSummaryContainer container = new NotificationSummaryContainer();
+        container.setRecipient(null); // <-- trigger null check
+        container.setNndInd("N");     // <-- not equal to YES
+        container.setCdNotif(NEDSSConstant.CLASS_CD_NOTF); // skip setting caseReport
+        container.setCd("cd");
+        container.setCaseClassCd("caseClass");
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn("");
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of(container)) // First call
+                .thenReturn(Collections.emptyList()); // Second call to break loop
+
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("label");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        Collection<Object> result = retrieveSummaryService.retrieveNotificationSummaryListForInvestigation(publicHealthUid);
+
+        assertEquals(1, result.size());
+        NotificationSummaryContainer resultContainer = (NotificationSummaryContainer) result.iterator().next();
+        assertEquals(NEDSSConstant.LOCAl_DESC, resultContainer.getRecipient());
+    }
+
+    @Test
+    void notificationSummaryOnInvestigation_UsesRetrieveNotificationSummaryListForInvestigation1_WhenCaseClassCdIsNull() throws DataProcessingException {
+        Long publicHealthUid = 999L;
+
+        // Setup DTO with null caseClassCd
+        PublicHealthCaseDto phcDto = new PublicHealthCaseDto();
+        phcDto.setPublicHealthCaseUid(publicHealthUid);
+        phcDto.setCaseClassCd(null); // <-- forces else block
+        phcDto.setCd("123");
+        phcDto.setCdDescTxt("Some Description");
+
+        PublicHealthCaseContainer phcContainer = new PublicHealthCaseContainer();
+        phcContainer.setThePublicHealthCaseDto(phcDto);
+
+        NotificationSummaryContainer notification = new NotificationSummaryContainer();
+        notification.setRecordStatusCd(NEDSSConstant.NOTIFICATION_APPROVED_CODE); // trigger assoc flag
+        notification.setCdNotif(NEDSSConstant.CLASS_CD_NOTF);
+        notification.setCd("cd");
+        notification.setCaseClassCd("caseClass");
+
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(eq(publicHealthUid), any()))
+                .thenReturn(List.of(notification)) // First loop
+                .thenReturn(Collections.emptyList()); // Second loop to exit
+
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn("");
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("label");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        InvestigationContainer proxy = new InvestigationContainer();
+        Collection<Object> result = retrieveSummaryService.notificationSummaryOnInvestigation(phcContainer, proxy);
+
+        assertEquals(1, result.size());
+        assertTrue(proxy.isAssociatedNotificationsInd());
+        verify(queryHelper).getDataAccessWhereClause(any(), any(), any()); // ensure retrieveNotificationSummaryListForInvestigation1 was triggered
+    }
+
+    @Test
+    void notificationSummaryOnInvestigation_AssociatedIndTrue_WhenAutoResendIndTrue_AndPamProxy() throws DataProcessingException {
+        // Setup PublicHealthCaseContainer with no caseClassCd (to trigger retrieveNotificationSummaryListForInvestigation1)
+        PublicHealthCaseDto phcDto = new PublicHealthCaseDto();
+        phcDto.setPublicHealthCaseUid(3L);
+        phcDto.setCd("cd");
+        phcDto.setCdDescTxt("desc");
+
+        PublicHealthCaseContainer phcContainer = new PublicHealthCaseContainer();
+        phcContainer.setThePublicHealthCaseDto(phcDto);
+
+        // Setup NotificationSummaryContainer with autoResendInd = "T"
+        NotificationSummaryContainer summary = new NotificationSummaryContainer();
+        summary.setRecordStatusCd("ANY"); // not APPROVED or PENDING
+        summary.setAutoResendInd("T");    // trigger the third condition
+        summary.setCdNotif(NEDSSConstant.CLASS_CD_NOTF); // skip caseReport logic
+
+        // Mocks
+        when(queryHelper.getDataAccessWhereClause(any(), any(), any())).thenReturn("");
+        when(customRepository.retrieveNotificationSummaryListForInvestigation(anyLong(), any()))
+                .thenReturn(List.of(summary)) // First call returns summary
+                .thenReturn(Collections.emptyList()); // Second call exits loop
+        when(catchingValueService.getCodedValuesCallRepos(any())).thenReturn("label");
+        when(catchingValueService.getCodeDescTxtForCd(any(), any())).thenReturn("desc");
+
+        // PamProxyContainer used instead of InvestigationContainer
+        PamProxyContainer pamProxy = new PamProxyContainer();
+
+        // Act
+        Collection<Object> result = retrieveSummaryService.notificationSummaryOnInvestigation(phcContainer, pamProxy);
+
+        // Assert
+        assertTrue(pamProxy.isAssociatedNotificationsInd(), "PamProxyContainer.associatedNotificationsInd should be true");
+    }
+
+
+
+
 }
