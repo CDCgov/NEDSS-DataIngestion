@@ -133,7 +133,6 @@ task jaxbDsma {
 }
 compileJava.dependsOn jaxbDsma
 
-
 jar {
     manifest {
         attributes(
@@ -143,9 +142,9 @@ jar {
     zip64 true
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+    // Gather all runtime dependencies
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
 }
 
 dependencies {
@@ -231,19 +230,6 @@ test {
 }
 
 
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'gov.cdc.dataprocessing.ServiceApplication'
-        )
-    }
-    zip64 true
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    // Gather all runtime dependencies
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-
-}
 
 sonarqube {
     properties {

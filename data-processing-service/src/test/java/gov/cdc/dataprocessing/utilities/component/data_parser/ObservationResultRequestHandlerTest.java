@@ -17,6 +17,7 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
+import gov.cdc.dataprocessing.test_data.TestDataReader;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
@@ -68,7 +69,10 @@ class ObservationResultRequestHandlerTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
-
+        var test = new TestDataReader();
+        var xmlData = test.readDataFromXmlPath("/xml_payload/payload_1.xml");
+        var xmlConn = test.convertXmlStrToContainer(xmlData);
+        result = xmlConn.getHL7LabReport().getHL7PATIENTRESULT().get(0).getORDEROBSERVATION().get(0).getPatientResultOrderObservation().getOBSERVATION();
 
         edxLabInformationDt = new EdxLabInformationDto();
         edxLabInformationDt.setNextUid(10);
