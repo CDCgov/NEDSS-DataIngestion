@@ -16,9 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_SENT_MESSAGE;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;
@@ -38,93 +40,190 @@ public class ObservationMatchingService implements IObservationMatchingService {
     }
 
     @SuppressWarnings("java:S3776")
+//    public ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+//        String fillerNumber;
+//
+//        ObservationContainer observationContainer = edxLabInformationDto.getRootObservationContainer();
+//        fillerNumber = edxLabInformationDto.getFillerNumber();
+//
+//        ObservationDto obsDT;
+//
+//        if (edxLabInformationDto.getRootObservationContainer() != null) {
+//            obsDT = matchingObservation(edxLabInformationDto);
+//        } else {
+//            edxLabInformationDto.setObservationMatch(false);
+//            logger.error("Error!! masterObsVO not available for fillerNbr: {}", edxLabInformationDto.getFillerNumber());
+//            return null;
+//        }
+//
+//        if (obsDT != null) // find a match is it a correction?
+//        {
+//            String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
+//            String odsStatus = "N";
+//            if (msgStatus == null || odsStatus == null) //NOSONAR
+//            {
+//                edxLabInformationDto.setObservationMatch(false);
+//                logger.error("Error!! null status cd: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
+//                return null;
+//            }
+//
+//
+//            if (
+//                    (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+//                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+//                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+//                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
+//                    )
+//                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+//                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+//                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+//                    )
+//                    )
+//                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+//                            && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+//                    )
+//            ) {
+//                if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getActivityToTime())) {
+//                    edxLabInformationDto.setActivityTimeOutOfSequence(true);
+//                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+//                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
+//                    throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
+//                }
+//                // MATCHED
+//                edxLabInformationDto.setObservationMatch(true);
+//                return obsDT;
+//            }
+//            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+//                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+//            ) {
+//                edxLabInformationDto.setFinalPostCorrected(true);
+//                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+//                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+//                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+//            }
+//            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+//                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+//            ) {
+//                edxLabInformationDto.setPreliminaryPostFinal(true);
+//                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+//                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+//                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+//            }
+//            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+//                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
+//            ) {
+//                edxLabInformationDto.setPreliminaryPostCorrected(true);
+//                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+//                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+//                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
+//            }
+//            else {
+//                edxLabInformationDto.setFinalPostCorrected(true);
+//                edxLabInformationDto.setLocalId(obsDT.getLocalId());
+//                logger.error(" Error!! Invalid status combination: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
+//                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+//                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
+//            }
+//        }
+//
+//        edxLabInformationDto.setObservationMatch(false);
+//        return null;
+//    }
+
+
     public ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
-        String fillerNumber;
+        ObservationContainer obsContainer = edxLabInformationDto.getRootObservationContainer();
+        String fillerNumber = edxLabInformationDto.getFillerNumber();
 
-        ObservationContainer observationContainer = edxLabInformationDto.getRootObservationContainer();
-        fillerNumber = edxLabInformationDto.getFillerNumber();
-
-        ObservationDto obsDT;
-
-        if (edxLabInformationDto.getRootObservationContainer() != null) {
-            obsDT = matchingObservation(edxLabInformationDto);
-        } else {
+        if (obsContainer == null) {
             edxLabInformationDto.setObservationMatch(false);
-            logger.error("Error!! masterObsVO not available for fillerNbr: {}", edxLabInformationDto.getFillerNumber());
+            logger.error("Error!! masterObsVO not available for fillerNbr: {}", fillerNumber);
             return null;
         }
 
-        if (obsDT != null) // find a match is it a correction?
-        {
-            String msgStatus = observationContainer.getTheObservationDto().getStatusCd();
-            String odsStatus = "N";
-            if (msgStatus == null || odsStatus == null) //NOSONAR
-            {
-                edxLabInformationDto.setObservationMatch(false);
-                logger.error("Error!! null status cd: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
-                return null;
-            }
-            if (
-                    (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED))
-                    )
-                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                            && (msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                            || msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                    )
-                    )
-                            || (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                            && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                    )
-            ) {
-                if (obsDT.getActivityToTime() != null && obsDT.getActivityToTime().after(edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getActivityToTime())) {
-                    edxLabInformationDto.setActivityTimeOutOfSequence(true);
-                    edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                    edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                    throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
-                }
-                // MATCHED
-                edxLabInformationDto.setObservationMatch(true);
-                return obsDT;
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-            ) {
-                edxLabInformationDto.setFinalPostCorrected(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
-                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-            ) {
-                edxLabInformationDto.setPreliminaryPostFinal(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
-            }
-            else if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
-                    && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)
-            ) {
-                edxLabInformationDto.setPreliminaryPostCorrected(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Preliminary report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
-            }
-            else {
-                edxLabInformationDto.setFinalPostCorrected(true);
-                edxLabInformationDto.setLocalId(obsDT.getLocalId());
-                logger.error(" Error!! Invalid status combination: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
-                throw new DataProcessingException(LAB_REPORT_STR + obsDT.getLocalId() + " was not updated. Final report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
-            }
+        ObservationDto matchedObs = matchingObservation(edxLabInformationDto);
+
+        if (matchedObs == null) {
+            edxLabInformationDto.setObservationMatch(false);
+            return null;
         }
 
-        edxLabInformationDto.setObservationMatch(false);
-        return null;
+        String msgStatus = obsContainer.getTheObservationDto().getStatusCd();
+        String odsStatus = "N"; // constant in original
+
+        if (msgStatus == null) {
+            edxLabInformationDto.setObservationMatch(false);
+            logger.error("Error!! null status cd: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
+            return null;
+        }
+
+        if (isValidStatusMatch(odsStatus, msgStatus)) {
+            Timestamp msgTime = obsContainer.getTheObservationDto().getActivityToTime();
+            Timestamp odsTime = matchedObs.getActivityToTime();
+
+            if (odsTime != null && odsTime.after(msgTime)) {
+                handleError(edxLabInformationDto, matchedObs, EdxELRConstant.ELR_MASTER_LOG_ID_14, fillerNumber);
+                edxLabInformationDto.setActivityTimeOutOfSequence(true);
+                throw new DataProcessingException("An Observation Lab test match was found for Accession # " + fillerNumber + ", but the activity time is out of sequence.");
+            }
+
+            edxLabInformationDto.setObservationMatch(true);
+            return matchedObs;
+        }
+
+        return handleInvalidCombination(odsStatus, msgStatus, edxLabInformationDto, matchedObs, fillerNumber);
     }
+
+    protected boolean isValidStatusMatch(String ods, String msg) {
+        return
+                (ods.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW) &&
+                        (msg.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW) ||
+                                msg.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED) ||
+                                msg.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)))
+                        || (ods.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED) &&
+                        (msg.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED) ||
+                                msg.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)))
+                        || (ods.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED) &&
+                        msg.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED));
+    }
+
+    protected void handleError(EdxLabInformationDto dto, ObservationDto obs, String errorCode, String fillerNumber) {
+        dto.setErrorText(errorCode);
+        dto.setLocalId(obs.getLocalId());
+    }
+
+    protected ObservationDto handleInvalidCombination(String odsStatus, String msgStatus,
+                                          EdxLabInformationDto dto,
+                                          ObservationDto matchedObs,
+                                          String fillerNumber) throws DataProcessingException {
+        String localId = matchedObs.getLocalId();
+        dto.setLocalId(localId);
+        dto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_14);
+
+        if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)) {
+            dto.setFinalPostCorrected(true);
+            throw new DataProcessingException(LAB_REPORT_STR + localId + " was not updated. Final report with Accession # " + fillerNumber + " was sent after a corrected report was received.");
+        }
+
+        if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED)
+                && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)) {
+            dto.setPreliminaryPostFinal(true);
+            throw new DataProcessingException(LAB_REPORT_STR + localId + " was not updated. Preliminary report with Accession # " + fillerNumber + " was sent after a final report was received.");
+        }
+
+        if (odsStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED)
+                && msgStatus.equals(EdxELRConstant.ELR_OBS_STATUS_CD_NEW)) {
+            dto.setPreliminaryPostCorrected(true);
+            throw new DataProcessingException(LAB_REPORT_STR + localId + " was not updated. Preliminary report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
+        }
+
+        dto.setFinalPostCorrected(true);
+        logger.error("Error!! Invalid status combination: msgInObs status= {} odsObs status= {}", msgStatus, odsStatus);
+        throw new DataProcessingException(LAB_REPORT_STR + localId + " was not updated. Final report with Accession # " + fillerNumber + LOG_SENT_MESSAGE);
+    }
+
+
 
     @SuppressWarnings("java:S3776")
     public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
@@ -297,7 +396,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
         }
     }
 
-    private ObservationDto matchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
+    protected ObservationDto matchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
         Long observationUid = observationMatchStoredProcRepository.getMatchedObservation(edxLabInformationDto);
         if (observationUid == null) {
             return null;

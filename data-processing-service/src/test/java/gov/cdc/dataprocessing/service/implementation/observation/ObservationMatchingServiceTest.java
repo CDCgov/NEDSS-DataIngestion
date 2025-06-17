@@ -25,14 +25,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_SENT_MESSAGE;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ObservationMatchingServiceTest {
     @Mock
@@ -286,5 +289,163 @@ class ObservationMatchingServiceTest {
 
         assertNull(res);
     }
+
+
+
+    private EdxLabInformationDto createDto(String msgStatus, Timestamp msgActivityTime) {
+        ObservationDto obsDto = new ObservationDto();
+        obsDto.setStatusCd(msgStatus);
+        obsDto.setActivityToTime(msgActivityTime);
+
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(obsDto);
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setFillerNumber("F123");
+        dto.setRootObservationContainer(container);
+        return dto;
+    }
+
+    private ObservationDto createMatchedObs(String localId, Timestamp toTime) {
+        ObservationDto match = new ObservationDto();
+        match.setLocalId(localId);
+        match.setActivityToTime(toTime);
+        return match;
+    }
+
+    @Test
+    void testStatusCombination_NewVsNew_MatchSuccess() throws Exception {
+        EdxLabInformationDto dto = createDto(EdxELRConstant.ELR_OBS_STATUS_CD_NEW, new Timestamp(System.currentTimeMillis()));
+        ObservationDto matched = createMatchedObs("LOC1", new Timestamp(System.currentTimeMillis() - 1000));
+        ObservationMatchingService spy = spy(observationMatchingService);
+        doReturn(matched).when(spy).matchingObservation(dto);
+
+        var result = spy.checkingMatchingObservation(dto);
+        assertTrue(dto.isObservationMatch());
+        assertEquals("LOC1", result.getLocalId());
+    }
+
+    @Test
+    void testStatusCombination_NewVsNew_ActivityTimeOutOfSequence() throws DataProcessingException {
+        EdxLabInformationDto dto = createDto(EdxELRConstant.ELR_OBS_STATUS_CD_NEW, new Timestamp(System.currentTimeMillis()));
+        ObservationDto matched = createMatchedObs("LOC5", new Timestamp(System.currentTimeMillis() + 10000));
+        ObservationMatchingService spy = spy(observationMatchingService);
+        doReturn(matched).when(spy).matchingObservation(dto);
+
+        assertThrows(DataProcessingException.class, () -> spy.checkingMatchingObservation(dto));
+        assertTrue(dto.isActivityTimeOutOfSequence());
+        assertEquals("LOC5", dto.getLocalId());
+    }
+
+    @Test
+    void testStatusCombination_Invalid_ThrowsDefaultBranch() throws DataProcessingException {
+        EdxLabInformationDto dto = createDto("INVALID", new Timestamp(System.currentTimeMillis()));
+        ObservationDto matched = createMatchedObs("LOC6", new Timestamp(System.currentTimeMillis() - 1000));
+        ObservationMatchingService spy = spy(observationMatchingService);
+        doReturn(matched).when(spy).matchingObservation(dto);
+
+        assertThrows(DataProcessingException.class, () -> spy.checkingMatchingObservation(dto));
+        assertTrue(dto.isFinalPostCorrected());
+        assertEquals("LOC6", dto.getLocalId());
+    }
+
+    @Test
+    void testCheckingMatchingObservation_WhenMatchedObsIsNull_ReturnsNull() throws DataProcessingException {
+        // Arrange
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        ObservationContainer obsContainer = mock(ObservationContainer.class);
+        ObservationDto obsDto = mock(ObservationDto.class);
+        when(obsDto.getStatusCd()).thenReturn("NEW");
+        when(obsContainer.getTheObservationDto()).thenReturn(obsDto);
+        dto.setRootObservationContainer(obsContainer);
+        dto.setFillerNumber("XYZ123");
+
+        ObservationMatchingService spy = spy(observationMatchingService);
+        doReturn(null).when(spy).matchingObservation(dto); // Force matchedObs == null
+
+        // Act
+        ObservationDto result = spy.checkingMatchingObservation(dto);
+
+        // Assert
+        assertNull(result);
+        assertFalse(dto.isObservationMatch());
+    }
+
+    @Test
+    void testHandleInvalidCombination_SupercededVsCompleted() {
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        ObservationDto matchedObs = new ObservationDto();
+        matchedObs.setLocalId("LOC001");
+
+        String odsStatus = EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED;
+        String msgStatus = EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED;
+        String fillerNumber = "ACC123";
+
+        DataProcessingException ex = assertThrows(DataProcessingException.class,
+                () -> observationMatchingService.handleInvalidCombination(odsStatus, msgStatus, dto, matchedObs, fillerNumber)
+        );
+
+        assertTrue(dto.isFinalPostCorrected());
+        assertEquals("LOC001", dto.getLocalId());
+        assertTrue(ex.getMessage().contains("Final report with Accession # ACC123 was sent after a corrected report"));
+    }
+
+    @Test
+    void testHandleInvalidCombination_CompletedVsNew() {
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        ObservationDto matchedObs = new ObservationDto();
+        matchedObs.setLocalId("LOC002");
+
+        String odsStatus = EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED;
+        String msgStatus = EdxELRConstant.ELR_OBS_STATUS_CD_NEW;
+        String fillerNumber = "ACC456";
+
+        DataProcessingException ex = assertThrows(DataProcessingException.class,
+                () -> observationMatchingService.handleInvalidCombination(odsStatus, msgStatus, dto, matchedObs, fillerNumber)
+        );
+
+        assertTrue(dto.isPreliminaryPostFinal());
+        assertEquals("LOC002", dto.getLocalId());
+        assertTrue(ex.getMessage().contains("Preliminary report with Accession # ACC456 was sent after a final report"));
+    }
+
+    @Test
+    void testHandleInvalidCombination_SupercededVsNew() {
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        ObservationDto matchedObs = new ObservationDto();
+        matchedObs.setLocalId("LOC003");
+
+        String odsStatus = EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED;
+        String msgStatus = EdxELRConstant.ELR_OBS_STATUS_CD_NEW;
+        String fillerNumber = "ACC789";
+
+        DataProcessingException ex = assertThrows(DataProcessingException.class,
+                () -> observationMatchingService.handleInvalidCombination(odsStatus, msgStatus, dto, matchedObs, fillerNumber)
+        );
+
+        assertTrue(dto.isPreliminaryPostCorrected());
+        assertEquals("LOC003", dto.getLocalId());
+    }
+
+    @Test
+    void testHandleInvalidCombination_DefaultInvalidCombo() {
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        ObservationDto matchedObs = new ObservationDto();
+        matchedObs.setLocalId("LOC004");
+
+        String odsStatus = EdxELRConstant.ELR_OBS_STATUS_CD_COMPLETED;
+        String msgStatus = EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED;
+        String fillerNumber = "ACC000";
+
+        DataProcessingException ex = assertThrows(DataProcessingException.class,
+                () -> observationMatchingService.handleInvalidCombination(odsStatus, msgStatus, dto, matchedObs, fillerNumber)
+        );
+
+        assertTrue(dto.isFinalPostCorrected());
+        assertEquals("LOC004", dto.getLocalId());
+    }
+
+
+
 
 }
