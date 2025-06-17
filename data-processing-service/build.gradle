@@ -78,13 +78,7 @@ jacoco {
     reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 
-test {
-    finalizedBy jacocoTestReport // report is always generated after tests run
-    jacoco {
-        // Exclude problematic classes (e.g., JDK internal tools)
-        excludes = ["com/sun/tools/attach/**"]
-    }
-}
+
 jacocoTestReport {
     dependsOn test
     reports {
@@ -221,8 +215,21 @@ dependencies {
 }
 
 test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+    jacoco {
+        // Exclude problematic classes (e.g., JDK internal tools)
+        excludes = ["com/sun/tools/attach/**"]
+    }
     useJUnitPlatform()
+    systemProperty 'junit.platform.configuration.file', "$projectDir/src/test/resources/junit-platform.properties"
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
 }
+
 
 jar {
     manifest {

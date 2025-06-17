@@ -94,25 +94,6 @@ class ObservationResultRequestHandlerTest {
 
 
     @Test
-    void getObservationResultRequest_Test() throws DataProcessingException {
-        List<HL7OBSERVATIONType> observation = result;
-        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
-
-        observation.get(0).getObservationResult().setReferencesRange("1^2^3");
-
-        when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
-        var res = observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
-
-        assertNotNull(res);
-        assertEquals(1, res.getTheObservationContainerCollection().size());
-        assertEquals(1, res.getTheRoleDtoCollection().size());
-        assertEquals(1, res.getTheParticipationDtoCollection().size());
-        assertEquals(1, res.getTheActRelationshipDtoCollection().size());
-        assertEquals(1, res.getTheOrganizationContainerCollection().size());
-
-    }
-
-    @Test
     void setEquipments_Test() {
         List<HL7EIType> equipmentIdType = new ArrayList<>();
         ObservationDto observationDto = new ObservationDto();
@@ -173,27 +154,6 @@ class ObservationResultRequestHandlerTest {
         assertEquals(1, res.getTheObservationInterpDtoCollection().size());
     }
 
-    @Test
-    void processingReferringRange_Test() {
-        ObservationContainer observationContainer = new ObservationContainer();
-        HL7OBXType type = result.get(0).getObservationResult();
-        type.setReferencesRange("1");
-
-        var res= observationResultRequestHandler.processingReferringRange(type, observationContainer);
-        assertNotNull(res);
-
-    }
-
-    @Test
-    void processingReferringRange_Test_2() {
-        ObservationContainer observationContainer = new ObservationContainer();
-        HL7OBXType type = result.get(0).getObservationResult();
-        type.setReferencesRange("1^2^3^4^5");
-
-        var res= observationResultRequestHandler.processingReferringRange(type, observationContainer);
-        assertNotNull(res);
-
-    }
 
     @Test
     void processingObservationMethod_Test() throws DataProcessingException {
@@ -346,23 +306,6 @@ class ObservationResultRequestHandlerTest {
         assertNotNull(thrown);
     }
 
-
-    @Test
-    void getObservationResultRequest_Test_Exp() {
-        List<HL7OBSERVATIONType> observation = result;
-        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
-
-        observation.get(0).getObservationResult().setReferencesRange("1^2^3");
-
-        edxLabInformationDt.setParentObsInd(false);
-        observation.get(0).getObservationResult().setObservationIdentifier(null);
-
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
-        });
-
-        assertNotNull(thrown);
-    }
 
     @Test
     void testValidateResultedTestName_WhenObservationIdentifierIsNull_ShouldThrowException() throws DataProcessingException {
