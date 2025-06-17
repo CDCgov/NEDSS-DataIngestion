@@ -97,6 +97,26 @@ class ObservationResultRequestHandlerTest {
     }
 
 
+
+    @Test
+    void getObservationResultRequest_Test() throws DataProcessingException {
+        List<HL7OBSERVATIONType> observation = result;
+        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+
+        observation.get(0).getObservationResult().setReferencesRange("1^2^3");
+
+        when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
+        var res = observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
+
+        assertNotNull(res);
+        assertEquals(1, res.getTheObservationContainerCollection().size());
+        assertEquals(1, res.getTheRoleDtoCollection().size());
+        assertEquals(1, res.getTheParticipationDtoCollection().size());
+        assertEquals(1, res.getTheActRelationshipDtoCollection().size());
+        assertEquals(1, res.getTheOrganizationContainerCollection().size());
+
+    }
+
     @Test
     void setEquipments_Test() {
         List<HL7EIType> equipmentIdType = new ArrayList<>();
