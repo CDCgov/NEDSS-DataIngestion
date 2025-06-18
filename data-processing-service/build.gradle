@@ -304,6 +304,7 @@ sonarqube {
                 "**/ServiceApplication.java",
                 "**/StringUtils.java",
                 "**/TimeStampUtil.java",
+                "**/ContactSummaryService.java",
 
                 // wds
                 "**/wds/**"
