@@ -20,7 +20,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.LOG_SENT_MESSAGE;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.LAB_REPORT_STR;

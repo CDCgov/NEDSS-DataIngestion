@@ -107,6 +107,7 @@ class ObservationServiceTest {
     @InjectMocks
     private ObservationService observationService;
 
+
     @Mock
     AuthUtil authUtil;
 

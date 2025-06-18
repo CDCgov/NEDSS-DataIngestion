@@ -236,16 +236,33 @@ sonarqube {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "**/config/**, **/constant/**, **/exception/**, **/model/container/**, **/model/dsma_algorithm/**, **/model/dto/**, **/model/phdc/**, " +
-                " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/repository/nbs/srte/model/**, **/security/config/**, **/ServiceApplication.java, " +
-                " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
-                " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, " +
-                " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, **/cache/cache_model/**, **/repository/nbs/odse/repos/**, " +
-                " **/service/implementation/auth_user/**, **/service/implementation/cache/ManagerCacheService.java, " +
-                " **/service/implementation/uid_generator/UidPoolManager.java, **/GsonUtil.java, **/KafkaProducerTransactionService.java, " +
-                " **/LinkResponse.java, **/RelateRequest.java, **/MatchesRequireReviewResponse.java," +
+        property "sonar.exclusions",
+                " **/config/**, " +
+                " **/constant/**, " +
+                " **/exception/**, " +
+                " **/wds/**, " +
+                " **/model/**," +
+                " **/security/**, " +
+                " **/controller/**, " +
+                " **/kafka/**, " +
+                " **/cache/**" +
+                " **/repository/**, " +
+                " **/auth_user/**, " +
+                " **/uid_generator/**, " +
+                " **/AuthUtil.java, " +
+                " **/DynamicBeanBinding.java," +
+                " **/RulesEngineUtil.java, " +
+                " **/StringUtils.java, " +
+                " **/TimeStampUtil.java," +
+                " **/AdvancedCriteria.java, " +
+                " **/ServiceApplication.java, " +
+                " **/GsonUtil.java, " +
+                " **/KafkaProducerTransactionService.java, " +
+                " **/LinkResponse.java, " +
+                " **/RelateRequest.java, " +
+                " **/MatchesRequireReviewResponse.java," +
                 " **/DecisionSupportService.java, **/data_parser/**, " +
-                "  **/PamService.java, **/InvestigationService.java, **/wds/**"
+                " **/PamService.java, " +
+                " **/InvestigationService.java"
     }
 }
