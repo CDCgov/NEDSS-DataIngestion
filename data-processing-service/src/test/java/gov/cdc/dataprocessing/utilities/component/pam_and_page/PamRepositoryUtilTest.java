@@ -1,14 +1,13 @@
 package gov.cdc.dataprocessing.utilities.component.pam_and_page;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsActJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsCaseAnswerJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsActEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsCaseAnswer;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.NbsActEntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsCaseAnswerRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.page_and_pam.PamRepositoryUtil;
@@ -21,7 +20,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,10 +27,10 @@ import static org.mockito.Mockito.when;
 class PamRepositoryUtilTest {
 
     @Mock
-    private NbsActEntityRepository nbsActEntityRepository;
+    private NbsActJdbcRepository nbsActEntityRepository;
 
     @Mock
-    private NbsCaseAnswerRepository nbsCaseAnswerRepository;
+    private NbsCaseAnswerJdbcRepository nbsCaseAnswerRepository;
 
     @InjectMocks
     private PamRepositoryUtil pamRepositoryUtil;
@@ -57,7 +55,7 @@ class PamRepositoryUtilTest {
     }
 
     @Test
-    void getPamHistory_Test() throws DataProcessingException {
+    void getPamHistory_Test()  {
         PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
         PublicHealthCaseDto publicHealthCaseDto = new PublicHealthCaseDto();
         publicHealthCaseDto.setPublicHealthCaseUid(1L);
@@ -66,12 +64,12 @@ class PamRepositoryUtilTest {
         var actEnCol = new ArrayList<NbsActEntity>();
         var actEn = new NbsActEntity();
         actEnCol.add(actEn);
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(Optional.of(actEnCol));
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(actEnCol);
 
         var caseCol = new ArrayList<NbsCaseAnswer>();
         var cas = new NbsCaseAnswer();
         caseCol.add(cas);
-        when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenReturn(Optional.of(caseCol));
+        when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenReturn(caseCol);
 
         var res = pamRepositoryUtil.getPamHistory(publicHealthCaseContainer);
 
@@ -91,9 +89,9 @@ class PamRepositoryUtilTest {
         var caseCol = new ArrayList<NbsCaseAnswer>();
         var cas = new NbsCaseAnswer();
         caseCol.add(cas);
-        when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenReturn(Optional.of(caseCol));
+        when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenReturn(caseCol);
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             pamRepositoryUtil.getPamHistory(publicHealthCaseContainer);
         });
 
@@ -110,12 +108,12 @@ class PamRepositoryUtilTest {
         var actEnCol = new ArrayList<NbsActEntity>();
         var actEn = new NbsActEntity();
         actEnCol.add(actEn);
-        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(Optional.of(actEnCol));
+        when(nbsActEntityRepository.getNbsActEntitiesByActUid(1L)).thenReturn(actEnCol);
 
         when(nbsCaseAnswerRepository.getNbsCaseAnswerByActUid(1L)).thenThrow(new RuntimeException("TEST"));
 
 
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             pamRepositoryUtil.getPamHistory(publicHealthCaseContainer);
         });
 

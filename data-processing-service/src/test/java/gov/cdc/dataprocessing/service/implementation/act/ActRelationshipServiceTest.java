@@ -3,9 +3,9 @@ package gov.cdc.dataprocessing.service.implementation.act;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActRelationshipJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
@@ -19,7 +19,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 
 class ActRelationshipServiceTest {
     @Mock
-    private ActRelationshipRepository actRelationshipRepository;
+    private ActRelationshipJdbcRepository actRelationshipJdbcRepository;
     @Mock
     private DataModifierReposJdbc dataModifierReposJdbc;
     @InjectMocks
@@ -49,7 +48,7 @@ class ActRelationshipServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(dataModifierReposJdbc, actRelationshipRepository, authUtil);
+        Mockito.reset(dataModifierReposJdbc, authUtil, actRelationshipJdbcRepository);
     }
 
     @Test
@@ -60,8 +59,8 @@ class ActRelationshipServiceTest {
         var actCol =  new ArrayList<ActRelationship>();
         var act = new ActRelationship();
         actCol.add(act);
-        when(actRelationshipRepository.loadActRelationshipBySrcIdAndTypeCode(10L, type))
-                .thenReturn(Optional.of(actCol));
+        when(actRelationshipJdbcRepository.findBySourceActUidAndTypeCode(10L, type))
+                .thenReturn(actCol);
 
         var test = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(uid, type);
 
@@ -75,8 +74,8 @@ class ActRelationshipServiceTest {
         String type = "type";
 
 
-        when(actRelationshipRepository.loadActRelationshipBySrcIdAndTypeCode(10L, type))
-                .thenReturn(Optional.empty());
+        when(actRelationshipJdbcRepository.findBySourceActUidAndTypeCode(10L, type))
+                .thenReturn(new ArrayList<>());
 
         var test = actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(uid, type);
 
@@ -90,7 +89,7 @@ class ActRelationshipServiceTest {
 
         actRelationshipService.saveActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(0)).save(any());
+        verify(actRelationshipJdbcRepository, times(0)).mergeActRelationship(any());
     }
 
     @Test
@@ -99,7 +98,7 @@ class ActRelationshipServiceTest {
 
         actRelationshipService.saveActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(0)).save(any());
+        verify(actRelationshipJdbcRepository, times(0)).mergeActRelationship(any());
     }
 
 
@@ -133,7 +132,7 @@ class ActRelationshipServiceTest {
 
         actRelationshipService.saveActRelationship(dto);
 
-        verify(actRelationshipRepository, times(1)).save(any());
+        verify(actRelationshipJdbcRepository, times(1)).mergeActRelationship(any());
 
     }
 
@@ -167,7 +166,7 @@ class ActRelationshipServiceTest {
 
         actRelationshipService.saveActRelationship(dto);
 
-        verify(actRelationshipRepository, times(1)).save(any());
+        verify(actRelationshipJdbcRepository, times(1)).mergeActRelationship(any());
 
     }
 

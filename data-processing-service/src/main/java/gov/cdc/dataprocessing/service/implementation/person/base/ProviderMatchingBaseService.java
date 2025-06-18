@@ -12,7 +12,7 @@ import gov.cdc.dataprocessing.model.dto.matching.EdxEntityMatchDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -27,41 +27,20 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class ProviderMatchingBaseService extends MatchingBaseService{
-    private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProviderMatchingBaseService.class); //NOSONAR
 
     public ProviderMatchingBaseService(
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService,
+            CachingValueDpDpService cachingValueDpService,
             PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueService, prepareAssocModelHelper);
+        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
     }
     @SuppressWarnings({"java:S3776", "java:S1066"})
-    protected String telePhoneTxtProvider(PersonContainer personContainer) {
+    public String telePhoneTxtProvider(PersonContainer personContainer) {
         String nameTeleStr = null;
         String carrot = "^";
 
@@ -71,7 +50,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                 if (entLocPartDT.getClassCd() != null && entLocPartDT.getClassCd().equals(NEDSSConstant.TELE)) {
                     if (entLocPartDT.getCd() != null && entLocPartDT.getCd().equals(NEDSSConstant.PHONE)) {
                         TeleLocatorDto teleLocDT = entLocPartDT.getTheTeleLocatorDto();
-                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().equals(""))
+                        if (teleLocDT != null && teleLocDT.getPhoneNbrTxt() != null && !teleLocDT.getPhoneNbrTxt().isEmpty())
                             nameTeleStr = carrot + teleLocDT.getPhoneNbrTxt();
 
                     }
@@ -86,7 +65,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     }
     @SuppressWarnings({"java:S3776", "java:S1066"})
     // Creating string for name and address for providers
-    protected String nameAddressStreetOneProvider(PersonContainer personContainer) {
+    public String nameAddressStreetOneProvider(PersonContainer personContainer) {
         String nameAddStr = null;
         String carrot = "^";
         if (personContainer.getTheEntityLocatorParticipationDtoCollection() != null && !personContainer.getTheEntityLocatorParticipationDtoCollection().isEmpty()) {
@@ -98,10 +77,10 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                             && entLocPartDT.getUseCd().equals(NEDSSConstant.WORK_PLACE)) {
                         PostalLocatorDto postLocDT = entLocPartDT.getThePostalLocatorDto();
                         if (postLocDT != null) {
-                            if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().equals(""))
-                                    && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().equals(""))
-                                    && (postLocDT.getStateCd() != null && !postLocDT.getStateCd().equals(""))
-                                    && (postLocDT.getZipCd() != null && !postLocDT.getZipCd().equals(""))) {
+                            if ((postLocDT.getStreetAddr1() != null && !postLocDT.getStreetAddr1().isEmpty())
+                                    && (postLocDT.getCityDescTxt() != null && !postLocDT.getCityDescTxt().isEmpty())
+                                    && (postLocDT.getStateCd() != null && !postLocDT.getStateCd().isEmpty())
+                                    && (postLocDT.getZipCd() != null && !postLocDT.getZipCd().isEmpty())) {
                                 nameAddStr = carrot
                                         + postLocDT.getStreetAddr1() + carrot
                                         + postLocDT.getCityDescTxt() + carrot
@@ -120,7 +99,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
     }
 
     @SuppressWarnings("java:S1172")
-    protected Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
+    public Long processingProvider(PersonContainer personContainer, String businessObjLookupName, String businessTriggerCd) throws DataProcessingException {
         boolean callOrgHashCode= false;
         if(personContainer.isItNew() && personContainer.getThePersonDto().isItNew() && personContainer.getThePersonDto().getElectronicInd().equalsIgnoreCase("Y")
                 && !personContainer.getThePersonDto().isCaseInd()){
@@ -279,45 +258,22 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
                                     + entityIdDto.getAssigningAuthorityDescTxt()
                                     + carrot + entityIdDto.getAssigningAuthorityIdType();
                         } else {
-                            try {
 
-//                                Coded coded = new Coded();
-//                                coded.setCode(entityIdDT.getAssigningAuthorityCd());
-//                                coded.setCodesetName(NEDSSConstant.EI_AUTH_PRV);
-//                                coded.setCodesetTableName(DataTable.CODE_VALUE_GENERAL);
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
+                            Coded coded = new Coded();
+                            coded.setCode(entityIdDto.getAssigningAuthorityCd());
+                            coded.setCodesetName(NEDSSConstant.EI_AUTH);
+                            coded.setCodesetTableName("Code_value_general");
 
-                                Coded coded = new Coded();
-                                coded.setCode(entityIdDto.getAssigningAuthorityCd());
-                                coded.setCodesetName(NEDSSConstant.EI_AUTH);
-                                coded.setCodesetTableName("Code_value_general");
-
-                                //TODO: This call out to code value general Repos and Caching the recrod
-//                                NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-//                                lookupDAO.retrieveSRTCodeInfo(coded);
-
-//                                var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
-
-
-                                if (entityIdDto.getRootExtensionTxt() != null
-                                        && entityIdDto.getTypeCd() != null
-                                        && coded.getCode() != null
-                                        && coded.getCodeDescription() != null
-                                        && coded.getCodeSystemCd() != null) {
-                                    identifier = entityIdDto.getRootExtensionTxt()
-                                            + carrot + entityIdDto.getTypeCd() + carrot
-                                            + coded.getCode() + carrot
-                                            + coded.getCodeDescription() + carrot
-                                            + coded.getCodeSystemCd();
-                                }
-
-
-                            } catch (Exception ex) {
-                                String errorMessage = "The assigning authority "
-                                        + entityIdDto.getAssigningAuthorityCd()
-                                        + " does not exists in the system. ";
-                                logger.error("{} {}", ex.getMessage(), errorMessage);
+                            if (entityIdDto.getRootExtensionTxt() != null
+                                    && entityIdDto.getTypeCd() != null
+                                    && coded.getCode() != null
+                                    && coded.getCodeDescription() != null
+                                    && coded.getCodeSystemCd() != null) {
+                                identifier = entityIdDto.getRootExtensionTxt()
+                                        + carrot + entityIdDto.getTypeCd() + carrot
+                                        + coded.getCode() + carrot
+                                        + coded.getCodeDescription() + carrot
+                                        + coded.getCodeSystemCd();
                             }
                         }
                         if (entityIdDto.getTypeCd() != null && !entityIdDto.getTypeCd().equalsIgnoreCase("LR")) {
@@ -335,9 +291,7 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
             personContainer.setTheEntityIdDtoCollection(newEntityIdDtoColl);
 
         }catch (Exception ex) {
-            String errorMessage = "Exception while creating hashcode for Provider entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
-            throw new DataProcessingException(errorMessage, ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return identifierList;
 
@@ -348,10 +302,6 @@ public class ProviderMatchingBaseService extends MatchingBaseService{
         if (personContainer.getThePersonNameDtoCollection() != null && !personContainer.getThePersonNameDtoCollection().isEmpty()) {
             Collection<PersonNameDto> personNameDtoColl = personContainer.getThePersonNameDtoCollection();
             for (PersonNameDto personNameDto : personNameDtoColl) {
-                if (personNameDto.getNmUseCd() == null) {
-                    String Message = "personNameDT.getNmUseCd() is null";
-                    logger.debug(Message);
-                }
                 if (personNameDto.getNmUseCd() != null && personNameDto.getNmUseCd().equals(NEDSSConstant.LEGAL) &&
                         personNameDto.getLastNm() != null || personNameDto.getFirstNm() != null) {
                     nameStr = personNameDto.getLastNm() + personNameDto.getFirstNm();

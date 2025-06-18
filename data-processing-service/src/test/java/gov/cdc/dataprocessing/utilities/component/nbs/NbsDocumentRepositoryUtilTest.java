@@ -6,11 +6,10 @@ import gov.cdc.dataprocessing.model.container.model.NbsDocumentContainer;
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsDocumentJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.CustomRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentHistRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.nbs.NbsDocumentRepository;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
@@ -40,10 +39,8 @@ class NbsDocumentRepositoryUtilTest {
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
-    private NbsDocumentRepository nbsDocumentRepository;
+    private NbsDocumentJdbcRepository nbsDocumentRepository;
 
-    @Mock
-    private NbsDocumentHistRepository nbsDocumentHistRepository;
     @InjectMocks
     private NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil;
     @Mock
@@ -68,7 +65,7 @@ class NbsDocumentRepositoryUtilTest {
     @AfterEach
     void tearDown() {
         Mockito.reset(customRepository, patientRepositoryUtil,participationRepositoryUtil, prepareAssocModelHelper,
-                nbsDocumentRepository,nbsDocumentHistRepository,authUtil);
+                nbsDocumentRepository,authUtil);
     }
 
     @Test
@@ -123,6 +120,6 @@ class NbsDocumentRepositoryUtilTest {
         nbsDocumentRepositoryUtil.insertNBSDocumentHist(nbsDocumentDto);
 
         // Assert
-        verify(nbsDocumentHistRepository).save(any(NbsDocumentHist.class));
+        verify(nbsDocumentRepository).mergeNbsDocumentHist(any(NbsDocumentHist.class));
     }
 }

@@ -22,7 +22,6 @@ import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.service.model.decision_support.DsmLabMatchHelper;
 import gov.cdc.dataprocessing.service.model.wds.WdsReport;
 import gov.cdc.dataprocessing.test_data.TestDataReader;
-import gov.cdc.dataprocessing.utilities.GsonUtil;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.edx.EdxPhcrDocumentUtil;
 import gov.cdc.dataprocessing.utilities.component.public_health_case.AdvancedCriteria;
@@ -106,7 +105,7 @@ class DecisionSupportServiceTest {
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
         assertNotNull(res);
-        assertEquals("MARK_AS_REVIEWED", res.getWdsReports().get(0).getAction());
+        assertEquals("MARK_AS_REVIEWED", res.getWdsReports().getFirst().getAction());
 
     }
 
@@ -135,7 +134,7 @@ class DecisionSupportServiceTest {
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
         assertNotNull(res);
-        assertEquals("CREATE_INVESTIGATION", res.getWdsReports().get(0).getAction());
+        assertEquals("CREATE_INVESTIGATION", res.getWdsReports().getFirst().getAction());
 
     }
 
@@ -164,7 +163,7 @@ class DecisionSupportServiceTest {
         var res = decisionSupportService.validateProxyContainer(labProxyContainer, edxLab);
 
         assertNotNull(res);
-        assertEquals("CREATE_INVESTIGATION_WITH_NOTIFICATION", res.getWdsReports().get(0).getAction());
+        assertEquals("CREATE_INVESTIGATION_WITH_NOTIFICATION", res.getWdsReports().getFirst().getAction());
 
     }
 
@@ -236,7 +235,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkActiveWdsAlgorithm_Test() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test()   {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -252,7 +251,7 @@ class DecisionSupportServiceTest {
 
 
     @Test
-    void checkActiveWdsAlgorithm_Test_2() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test_2()   {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -264,7 +263,7 @@ class DecisionSupportServiceTest {
 
 
     @Test
-    void checkActiveWdsAlgorithm_Test_3() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test_3()   {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -280,7 +279,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkActiveWdsAlgorithm_Test_4() throws DataProcessingException {
+    void checkActiveWdsAlgorithm_Test_4()  {
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         List<DsmLabMatchHelper> activeElrAlgorithmList = new ArrayList<>();
 
@@ -415,8 +414,7 @@ class DecisionSupportServiceTest {
                 .thenReturn(pam);
 
         ConditionCode test = new ConditionCode();
-        var testStr = GsonUtil.GSON.toJson(test, ConditionCode.class);
-        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(testStr);
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(test);
 
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
@@ -476,8 +474,7 @@ class DecisionSupportServiceTest {
         when(advancedCriteria.getAdvancedInvCriteriaMap(any())).thenReturn(new HashMap<>());
 
         ConditionCode test = new ConditionCode();
-        var testStr = GsonUtil.GSON.toJson(test, ConditionCode.class);
-        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(testStr);
+        when(cacheApiService.getSrteCacheObject(any(), any())).thenReturn(test);
 
         decisionSupportService.updateObservationBasedOnAction(algorithmDocument, criteriaMatch, conditionCode,
                 orderedTestObservationVO, personVOCollection, edxLabInformationDT, wdsReport, questionIdentifierMap);
@@ -582,7 +579,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkAdvancedInvCriteria_Test() throws DataProcessingException {
+    void checkAdvancedInvCriteria_Test()  {
         Algorithm algorithmDocument = new Algorithm();
         var elrAdv = new ElrAdvancedCriteriaType();
         var invCrite = new InvCriteriaType();
@@ -620,7 +617,7 @@ class DecisionSupportServiceTest {
     }
 
     @Test
-    void checkAdvancedInvCriteria_Test_2() throws DataProcessingException {
+    void checkAdvancedInvCriteria_Test_2()  {
         Algorithm algorithmDocument = new Algorithm();
         var elrAdv = new ElrAdvancedCriteriaType();
         var invCrite = new InvCriteriaType();
@@ -659,7 +656,7 @@ class DecisionSupportServiceTest {
 
 
     @Test
-    void checkAdvancedInvCriteriaForCreateInvNoti_Test() throws DataProcessingException {
+    void checkAdvancedInvCriteriaForCreateInvNoti_Test()  {
         Algorithm algorithmDocument = new Algorithm();
         EdxLabInformationDto edxLabInformationDT = new EdxLabInformationDto();
         Map<Object, Object> questionIdentifierMap = new HashMap<>();

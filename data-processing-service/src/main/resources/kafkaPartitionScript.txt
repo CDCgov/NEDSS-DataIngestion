@@ -12,7 +12,8 @@ kafka-topics --alter --bootstrap-server localhost:9092 --partitions 10 --topic x
 
 - Data Processing
 
-kafka-topics --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_processing_micro
+./kafka-topics --alter --bootstrap-server localhost:9092 --partitions 3 --topic dp_elr_unprocessed
+kafka-topics --alter --bootstrap-server localhost:9092 --partitions 30 --topic dp_elr_unprocessed
 kafka-topics --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_processing_public_health_case
 kafka-topics --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_processing_handle_lab
 kafka-topics --alter --bootstrap-server localhost:9092 --partitions 10 --topic elr_edx_log

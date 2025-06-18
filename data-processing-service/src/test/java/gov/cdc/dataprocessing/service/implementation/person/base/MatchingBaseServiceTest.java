@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
@@ -36,7 +36,7 @@ class MatchingBaseServiceTest {
     @Mock
     private PatientRepositoryUtil patientRepositoryUtil;
     @Mock
-    private CachingValueService cachingValueService;
+    private CachingValueDpDpService cachingValueDpService;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @InjectMocks
@@ -63,7 +63,7 @@ class MatchingBaseServiceTest {
 
     @AfterEach
     void tearDown() {
-        Mockito.reset(edxPatientMatchRepositoryUtil, coded, entityHelper,patientRepositoryUtil,cachingValueService,prepareAssocModelHelper, personContainer, authUtil);
+        Mockito.reset(edxPatientMatchRepositoryUtil, coded, entityHelper,patientRepositoryUtil, cachingValueDpService,prepareAssocModelHelper, personContainer, authUtil);
     }
 
 

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -28,28 +29,7 @@ import java.util.HashMap;
                 "gov.cdc.dataprocessing.repository.nbs.msgoute",
         }
 )
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class NbsDataSourceConfig {
     @Value("${spring.datasource.driverClassName}")
     private String driverClassName;
@@ -75,7 +55,7 @@ public class NbsDataSourceConfig {
     @Value("${spring.datasource.hikari.connection-timeout:300000}")
     private long connectionTimeout;
 
-    @Value("${spring.datasource.hikari.pool-name:OdseHikariCP}")
+    @Value("${spring.datasource.hikari.pool-name-msg:HIKARI_POOL_DP_MSG}")
     private String poolName;
 
 
@@ -105,6 +85,8 @@ public class NbsDataSourceConfig {
     public EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
+
+
     @Bean(name = "nbsEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean nbsEntityManagerFactory(
             EntityManagerFactoryBuilder nbsEntityManagerFactoryBuilder,
@@ -124,6 +106,12 @@ public class NbsDataSourceConfig {
     @Bean(name = "msgouteJdbcTemplate")
     public JdbcTemplate msgouteJdbcTemplate(@Qualifier("nbsDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean(name = "msgouteNamedParameterJdbcTemplate")
+    public NamedParameterJdbcTemplate msgouteNamedParameterJdbcTemplate(
+            @Qualifier("nbsDataSource") DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
     }
 
 }

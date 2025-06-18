@@ -356,9 +356,6 @@ public class CdaMapper implements ICdaMapper {
         xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:II\"", "xsi:type=\"II\"");// NOSONAR
         xmlOutput = xmlOutput.replaceAll("xsi:type=\"urn:TS\"", "xsi:type=\"TS\"");// NOSONAR
 
-        xmlOutput = xmlOutput.replaceAll("\\^NOT_MAPPED", "");// NOSONAR
-        xmlOutput = xmlOutput.replaceAll("NOT_MAPPED", "");// NOSONAR
-
         xmlOutput = "<?xml version=\"1.0\"?>\n" + xmlOutput;
         return xmlOutput;
     }
