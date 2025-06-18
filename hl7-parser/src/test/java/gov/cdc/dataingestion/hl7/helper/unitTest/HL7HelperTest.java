@@ -36,7 +36,7 @@ class HL7HelperTest {
 
     private String invalidData = "TEST TEST";
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         target = new HL7Helper();
     }
 

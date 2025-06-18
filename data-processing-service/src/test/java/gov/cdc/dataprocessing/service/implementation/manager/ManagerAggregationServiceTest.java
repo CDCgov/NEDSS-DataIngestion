@@ -183,7 +183,7 @@ class ManagerAggregationServiceTest {
 
     @SuppressWarnings("java:S1117")
     @Test
-    void testProgAndJurisdictionAggregationAsync_HappyPath() throws DataProcessingException, ExecutionException, InterruptedException {
+    void testProgAndJurisdictionAggregationAsync_HappyPath() throws DataProcessingException {
         // Prepare mock data
         Collection<ObservationContainer> observationContainerCollection = new ArrayList<>();
         observationContainerCollection.add(observationContainer);

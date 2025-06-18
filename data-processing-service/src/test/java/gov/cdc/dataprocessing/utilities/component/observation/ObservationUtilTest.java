@@ -51,7 +51,7 @@ class ObservationUtilTest {
     }
 
     @Test
-    void getUid_Test() throws DataProcessingException {
+    void getUid_Test() {
         ArrayList<ParticipationDto> participationDtoCollection = new ArrayList<>();
         ArrayList<ActRelationshipDto> actRelationshipDtoCollection = new ArrayList<>();
         String uidListType = "TEST";
@@ -78,7 +78,7 @@ class ObservationUtilTest {
     }
 
     @Test
-    void getUid_Test_2() throws DataProcessingException {
+    void getUid_Test_2()  {
         ArrayList<ParticipationDto> participationDtoCollection = null;
         ArrayList<ActRelationshipDto> actRelationshipDtoCollection = new ArrayList<>();
         String uidListType = NEDSSConstant.ACT_UID_LIST_TYPE;
@@ -104,7 +104,7 @@ class ObservationUtilTest {
     }
 
     @Test
-    void getUid_Test_3() throws DataProcessingException {
+    void getUid_Test_3()  {
         ArrayList<ParticipationDto> participationDtoCollection = null;
         ArrayList<ActRelationshipDto> actRelationshipDtoCollection = new ArrayList<>();
         String uidListType = NEDSSConstant.SOURCE_ACT_UID_LIST_TYPE;

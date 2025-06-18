@@ -39,7 +39,7 @@ class EcrLookUpRepositoryTest {
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
@@ -145,7 +145,7 @@ class EcrLookUpRepositoryTest {
         assertEquals("docTypeVersionTxt1", result.getDocTypeVersionTxt());
         assertEquals("quesCodeSystemCd1", result.getQuesCodeSystemCd());
         assertEquals("quesCodeSystemDescTxt1", result.getQuesCodeSystemDescTxt());
-        assertEquals("dataType2", result.getDataType());  // Note: You're setting this twice in the original method, so you might want to fix that.
+        assertEquals("dataType2", result.getDataType());
         assertEquals("questionIdentifier1", result.getQuestionIdentifier());
         assertEquals("quesDisplayName1", result.getQuesDisplayName());
         assertEquals("sectionNm1", result.getSectionNm());

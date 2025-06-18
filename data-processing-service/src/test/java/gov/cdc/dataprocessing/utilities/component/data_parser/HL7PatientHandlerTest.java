@@ -119,10 +119,6 @@ class HL7PatientHandlerTest {
         exref.setToCodeSetNm("P_ETHN_GRP");
         exref.setToCode("TO_CODE");
 
-//        var map = new HashMap<String, String>();
-//        map.put("TO_CODE", "CODE");
-//        when(checkingValueService.getCodedValues(any(), any())).thenReturn(map);
-
         var martial = new HL7CEType();
         martial.setHL7Identifier("MARTIAL");
         martial.setHL7Text("MARTIAL");
@@ -176,8 +172,6 @@ class HL7PatientHandlerTest {
         exref.setFromCode("CODE");
         exref.setToCodeSetNm("P_RACE_CAT");
         exref.setToCode("TO_CODE");
-//        SrteCache.elrXrefsList.add(exref);
-//        SrteCache.raceCodesMap.put("TO_CODE", "TO_CODE");
 
         // NOK
         when(checkingValueService.getCodeDescTxtForCd(any(),eq( EdxELRConstant.ELR_NEXT_OF_KIN_RL_CLASS))).thenReturn("NOK");

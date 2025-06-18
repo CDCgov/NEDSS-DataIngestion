@@ -22,9 +22,7 @@ public class OruR01Validator {
         var groupName = group.getName();
         var groupNameWithLocation = location.toString();
         if (groupName.equalsIgnoreCase(PATIENT_RESULT)) {
-            /// PATIENT
             patientValidator(group, groupNameWithLocation);
-            // ORDER OBSERVATION
             orderObservationValidator(group, groupNameWithLocation);
         }
     }

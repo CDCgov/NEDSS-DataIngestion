@@ -57,6 +57,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("java:S1640")
 class ObservationServiceTest {
     @Mock
     private INNDActivityLogService nndActivityLogService;

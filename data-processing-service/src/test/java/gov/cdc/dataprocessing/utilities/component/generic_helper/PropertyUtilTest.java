@@ -13,7 +13,7 @@ class PropertyUtilTest {
     private PropertyUtil propertyUtil;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         propertyUtil = new PropertyUtil();
         PropertyUtilCache.cachedHivList.clear();
         ReflectionTestUtils.setField(propertyUtil, "hivProgArea", "PA1,PA2,PA3");

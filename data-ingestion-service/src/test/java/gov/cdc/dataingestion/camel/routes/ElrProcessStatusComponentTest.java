@@ -31,7 +31,7 @@ class ElrProcessStatusComponentTest {
     private static final String MSG_STATUS_FAILED = "FAILED";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

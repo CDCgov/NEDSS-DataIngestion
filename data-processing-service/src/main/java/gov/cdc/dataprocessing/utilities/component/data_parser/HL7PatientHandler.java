@@ -89,7 +89,7 @@ public class HL7PatientHandler {
     }
 
 
-    @SuppressWarnings({"java:S3776","java:S6541"})
+    @SuppressWarnings({"java:S3776","java:S6541", "java:S5411"})
     public LabResultProxyContainer getPatient(HL7PIDType hl7PIDType,
                                               LabResultProxyContainer labResultProxyContainer,
                                               EdxLabInformationDto edxLabInformationDto) throws DataProcessingException {
@@ -220,10 +220,9 @@ public class HL7PatientHandler {
                 if (ethnicGroupCd != null && !ethnicGroupCd.trim().isEmpty()) {
                     personEthnicGroupDto.setEthnicGroupCd(ethnicGroupCd);
                 }
-                if (personEthnicGroupDto.getEthnicGroupCd() != null && !personEthnicGroupDto.getEthnicGroupCd().trim().isEmpty()) {
-                    if (checkingValueService.checkCodedValue("P_ETHN_GRP", personEthnicGroupDto.getEthnicGroupCd())) {
-                        edxLabInformationDto.setEthnicityCodeTranslated(false);
-                    }
+                if (personEthnicGroupDto.getEthnicGroupCd() != null && !personEthnicGroupDto.getEthnicGroupCd().trim().isEmpty() &&
+                        checkingValueService.checkCodedValue("P_ETHN_GRP", personEthnicGroupDto.getEthnicGroupCd())) {
+                    edxLabInformationDto.setEthnicityCodeTranslated(false);
                 }
                 if (personEthnicGroupDto.getEthnicGroupCd() != null
                         && !personEthnicGroupDto.getEthnicGroupCd().trim().isEmpty()

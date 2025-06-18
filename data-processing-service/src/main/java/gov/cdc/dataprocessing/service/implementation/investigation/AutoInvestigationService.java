@@ -244,6 +244,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
+    @SuppressWarnings("java:S5411")
     private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         PublicHealthCaseContainer phcVO = new PublicHealthCaseContainer();
 

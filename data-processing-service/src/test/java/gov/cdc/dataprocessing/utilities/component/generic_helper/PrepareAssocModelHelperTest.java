@@ -60,7 +60,7 @@ class PrepareAssocModelHelperTest {
     @Mock
     private RoleDto roleInterface;
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();

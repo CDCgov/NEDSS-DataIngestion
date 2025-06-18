@@ -40,7 +40,7 @@ class EdxPhcrDocumentUtilTest {
     private ICacheApiService cacheApiService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

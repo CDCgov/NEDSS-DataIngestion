@@ -31,7 +31,7 @@ class ManagerUtilTest {
     private IPersonService personService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

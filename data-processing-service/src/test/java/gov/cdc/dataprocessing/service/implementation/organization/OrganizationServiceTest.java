@@ -44,7 +44,7 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void processingOrganization_with_role_sf() throws DataProcessingConsumerException, DataProcessingException {
+    void processingOrganization_with_role_sf() throws DataProcessingException {
         LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
         Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
         OrganizationContainer organizationContainer= new OrganizationContainer();
@@ -60,7 +60,7 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void processingOrganization_with_role_op() throws DataProcessingConsumerException, DataProcessingException {
+    void processingOrganization_with_role_op() throws DataProcessingException {
         LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
         Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
         OrganizationContainer organizationContainer= new OrganizationContainer();
@@ -78,7 +78,7 @@ class OrganizationServiceTest {
         assertNotNull(organizationContainerResult);
     }
     @Test
-    void processingOrganization_with_role_null() throws DataProcessingConsumerException, DataProcessingException {
+    void processingOrganization_with_role_null() throws DataProcessingException {
         LabResultProxyContainer labResultProxyContainer= new LabResultProxyContainer();
         Collection<OrganizationContainer> theOrganizationContainerCollection= new ArrayList<>();
         OrganizationContainer organizationContainer= new OrganizationContainer();

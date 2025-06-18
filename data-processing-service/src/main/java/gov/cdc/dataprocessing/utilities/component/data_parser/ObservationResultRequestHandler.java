@@ -260,6 +260,7 @@ public class ObservationResultRequestHandler {
     }
 
 
+    @SuppressWarnings("java:S5411")
     protected void processObservationIdentifier(HL7CWEType obsIdentifier,
                                               ObservationDto observationDto,
                                               EdxLabInformationDto edxLabInformationDto,

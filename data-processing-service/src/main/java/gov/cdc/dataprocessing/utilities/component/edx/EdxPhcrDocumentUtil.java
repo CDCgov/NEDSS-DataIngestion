@@ -34,7 +34,7 @@ public class EdxPhcrDocumentUtil {
         this.cacheApiService = cacheApiService;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S5411"})
     public Map<Object, Object> loadQuestions(String conditionCode) throws DataProcessingException {
         String invFormCd = "";
         if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode)) {

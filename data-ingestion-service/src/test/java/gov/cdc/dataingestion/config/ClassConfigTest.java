@@ -17,7 +17,7 @@ class ClassConfigTest {
     private AnnotationConfigApplicationContext context;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         context = new AnnotationConfigApplicationContext(ClassConfig.class);
     }
 

@@ -46,7 +46,7 @@ class KafkaProducerServiceTest {
     private KafkaProducerService kafkaProducerService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
     }
 
     @AfterAll

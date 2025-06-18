@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
-//import gov.cdc.dataprocessing.cache.SrteCache;
 
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
@@ -113,8 +112,6 @@ class ManagerServiceTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
-//        SrteCache.programAreaCodesMap.clear();
-//        SrteCache.jurisdictionCodeMap.clear();
 
     }
 
@@ -161,9 +158,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any())).thenReturn(observationDto);
 
@@ -775,9 +770,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
@@ -819,9 +812,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
@@ -864,9 +855,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
@@ -911,9 +900,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
@@ -957,9 +944,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
@@ -1003,9 +988,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
@@ -1049,9 +1032,7 @@ class ManagerServiceTest {
         observationDto.setLocalId("LOCAL");
         observationDto.setObservationUid(10L);
         observationDto.setProgAreaCd("A");
-//        SrteCache.programAreaCodesMap.put("A", "A");
         observationDto.setJurisdictionCd("A");
-//        SrteCache.jurisdictionCodeMap.put("A", "A");
 
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
 

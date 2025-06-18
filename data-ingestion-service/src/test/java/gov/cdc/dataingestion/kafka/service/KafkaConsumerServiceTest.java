@@ -151,7 +151,7 @@ class KafkaConsumerServiceTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         kafkaConsumerService = new KafkaConsumerService(
                 iValidatedELRRepository,
