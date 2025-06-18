@@ -40,6 +40,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("java:S1117")
 class ObservationResultRequestHandlerTest {
     @Mock
     private ICatchingValueDpService checkingValueService;

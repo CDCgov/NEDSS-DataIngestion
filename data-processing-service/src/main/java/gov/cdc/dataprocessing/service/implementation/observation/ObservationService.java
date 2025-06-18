@@ -875,6 +875,7 @@ public class ObservationService implements IObservationService {
         }
     }
 
+    @SuppressWarnings("java:S3776")
     protected void processMaterials(LabResultProxyContainer proxy) throws DataProcessingException {
         if (proxy.getTheMaterialContainerCollection() == null) return;
 
@@ -1222,6 +1223,7 @@ public class ObservationService implements IObservationService {
         return returnObsVal;
     }
 
+    @SuppressWarnings("java:S1168")
     protected Collection<ObservationContainer> extractObservationCollection(BaseContainer proxyVO) {
         if (proxyVO instanceof LabResultProxyContainer labResultProxyContainer) {
             return labResultProxyContainer.getTheObservationContainerCollection();

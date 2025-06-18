@@ -296,8 +296,7 @@ public class ObservationRepositoryUtil {
         observationVO.setItDirty(true);
         this.saveObservation(observationVO);
     }
-    @SuppressWarnings("java:S3776")
-
+    @SuppressWarnings({"java:S3776","java:S6541"})
     public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
 
         ArrayList<ObservationContainer> theObservationQuestionColl = new ArrayList<> ();

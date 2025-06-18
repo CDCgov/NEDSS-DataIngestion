@@ -114,7 +114,6 @@ class PageRepositoryUtilTest {
                 nbsDocumentRepositoryUtil, participationRepositoryUtil, nbsNoteRepositoryUtil,
                 customRepository, pamService, patientMatchingBaseService, authUtil,
                 pageActProxyContainerMock);
-     //   SrteCache.investigationFormConditionCode.clear();
     }
 
     @Test
@@ -233,10 +232,6 @@ class PageRepositoryUtilTest {
         actNbsCol.add(actNbs);
         page.setActEntityDTCollection(actNbsCol);
         pageActProxyContainer.setPageVO(page);
-
-     // SrteCache.investigationFormConditionCode.put("CODE", "CODE");
-     //   SrteCache.investigationFormConditionCode.put("COND", "COND");
-
 
         CoinfectionSummaryContainer coInfect = new CoinfectionSummaryContainer();
         coInfect.setPublicHealthCaseUid(2L);
@@ -689,7 +684,7 @@ class PageRepositoryUtilTest {
         PublicHealthCaseDto phcDto = new PublicHealthCaseDto();
 
         // Execute
-        PageActPatient result = pageRepositoryUtil.processingPersonContainerForPageAct(pageActProxyContainerMock, phcDto);
+        pageRepositoryUtil.processingPersonContainerForPageAct(pageActProxyContainerMock, phcDto);
 
         // Assertions
         verify(uidService).setFalseToNewForPageAct(pageActProxyContainerMock, -202L, 9999L);
@@ -755,7 +750,7 @@ class PageRepositoryUtilTest {
     }
 
     @Test
-    void testProcessingParticipationPatType_NewNotDirty_SubjectEntityNull_NoException() throws DataProcessingException {
+    void testProcessingParticipationPatType_NewNotDirty_SubjectEntityNull_NoException()  {
         ParticipationDto dto = new ParticipationDto();
         dto.setSubjectEntityUid(null); // edge: null UID
 
@@ -769,7 +764,7 @@ class PageRepositoryUtilTest {
     }
 
     @Test
-    void testProcessingParticipationPatType_NewNotDirty_SubjectEntityZero_NoException() throws DataProcessingException {
+    void testProcessingParticipationPatType_NewNotDirty_SubjectEntityZero_NoException()  {
         ParticipationDto dto = new ParticipationDto();
         dto.setSubjectEntityUid(0L); // edge: 0 UID
 
@@ -820,7 +815,7 @@ class PageRepositoryUtilTest {
     }
 
     @Test
-    void testProcessingParticipationPatType_NewNotDirty_RecordStatusCdNull_NoException() throws DataProcessingException {
+    void testProcessingParticipationPatType_NewNotDirty_RecordStatusCdNull_NoException()  {
         ParticipationDto dto = new ParticipationDto();
         dto.setSubjectEntityUid(101L);
         dto.setSubjectClassCd(NEDSSConstant.PERSON);

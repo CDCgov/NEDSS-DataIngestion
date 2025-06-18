@@ -975,7 +975,6 @@ class ObservationRepositoryUtilTest {
         dto.setSourceActUid(200L);
         dto.setTypeCd("TEST_TYPE");
 
-        ActRelationship expected = new ActRelationship(dto);
 
         // Act
         observationRepositoryUtil.saveActRelationship(dto);

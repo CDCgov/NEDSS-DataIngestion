@@ -158,6 +158,7 @@ class MatchingBaseServiceTest {
         assertEquals("Doe^John", result);
     }
 
+    @SuppressWarnings("java:S5976")
     @Test
     void testProcessingPersonNameBasedOnAsOfDate_LastNameNull() {
         PersonNameDto dto = new PersonNameDto();
@@ -314,7 +315,7 @@ class MatchingBaseServiceTest {
     }
 
 
-
+    @SuppressWarnings("java:S1117")
     @Test
     void testGetIdentifier_TriggersElseBlock() throws DataProcessingException {
         EntityIdDto idDto = new EntityIdDto();

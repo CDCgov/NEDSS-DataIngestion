@@ -417,7 +417,7 @@ class ObservationMatchingServiceTest {
         String msgStatus = EdxELRConstant.ELR_OBS_STATUS_CD_NEW;
         String fillerNumber = "ACC789";
 
-        DataProcessingException ex = assertThrows(DataProcessingException.class,
+        assertThrows(DataProcessingException.class,
                 () -> observationMatchingService.handleInvalidCombination(odsStatus, msgStatus, dto, matchedObs, fillerNumber)
         );
 
@@ -435,7 +435,7 @@ class ObservationMatchingServiceTest {
         String msgStatus = EdxELRConstant.ELR_OBS_STATUS_CD_SUPERCEDED;
         String fillerNumber = "ACC000";
 
-        DataProcessingException ex = assertThrows(DataProcessingException.class,
+        assertThrows(DataProcessingException.class,
                 () -> observationMatchingService.handleInvalidCombination(odsStatus, msgStatus, dto, matchedObs, fillerNumber)
         );
 

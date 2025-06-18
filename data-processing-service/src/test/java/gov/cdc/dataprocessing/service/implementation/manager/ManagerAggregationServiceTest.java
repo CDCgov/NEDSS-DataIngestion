@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+@SuppressWarnings("java:S6068")
 class ManagerAggregationServiceTest {
     @Mock
     private IOrganizationService organizationService;
@@ -402,6 +402,7 @@ class ManagerAggregationServiceTest {
         assertNull(result.getProviderContainer());
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void testPatientAggregation_WhenCdIsProvider_CallsProcessingProvider() throws Exception {
         // Use real objects for critical internal structure

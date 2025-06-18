@@ -623,7 +623,7 @@ class RetrieveSummaryServiceTests {
         PamProxyContainer pamProxy = new PamProxyContainer();
 
         // Act
-        Collection<Object> result = retrieveSummaryService.notificationSummaryOnInvestigation(phcContainer, pamProxy);
+        retrieveSummaryService.notificationSummaryOnInvestigation(phcContainer, pamProxy);
 
         // Assert
         assertTrue(pamProxy.isAssociatedNotificationsInd(), "PamProxyContainer.associatedNotificationsInd should be true");

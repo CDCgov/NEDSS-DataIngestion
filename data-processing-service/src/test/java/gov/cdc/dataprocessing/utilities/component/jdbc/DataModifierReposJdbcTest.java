@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("java:S6068")
 class DataModifierReposJdbcTest {
 
     private JdbcTemplate jdbcTemplate;

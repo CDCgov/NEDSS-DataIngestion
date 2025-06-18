@@ -299,6 +299,7 @@ class ObservationUtilTest {
         assertEquals(123L, result);
     }
 
+    @SuppressWarnings("java:S5976")
     @Test
     void testGetUid_returnsNullWhenSubjectClassCdIsNull() {
         ParticipationDto dto = new ParticipationDto();
