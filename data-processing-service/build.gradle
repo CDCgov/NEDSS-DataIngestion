@@ -236,33 +236,77 @@ sonarqube {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions",
-                " **/config/**, " +
-                " **/constant/**, " +
-                " **/exception/**, " +
-                " **/wds/**, " +
-                " **/model/**," +
-                " **/security/**, " +
-                " **/controller/**, " +
-                " **/kafka/**, " +
-                " **/cache/**" +
-                " **/repository/**, " +
-                " **/auth_user/**, " +
-                " **/uid_generator/**, " +
-                " **/AuthUtil.java, " +
-                " **/DynamicBeanBinding.java," +
-                " **/RulesEngineUtil.java, " +
-                " **/StringUtils.java, " +
-                " **/TimeStampUtil.java," +
-                " **/AdvancedCriteria.java, " +
-                " **/ServiceApplication.java, " +
-                " **/GsonUtil.java, " +
-                " **/KafkaProducerTransactionService.java, " +
-                " **/LinkResponse.java, " +
-                " **/RelateRequest.java, " +
-                " **/MatchesRequireReviewResponse.java," +
-                " **/DecisionSupportService.java, **/data_parser/**, " +
-                " **/PamService.java, " +
-                " **/InvestigationService.java"
+        property "sonar.exclusions", String.join(", ",
+                // cache
+                "**/cache/OdseCache.java",
+                "**/cache/PropertyUtilCache.java",
+                "**/cache/SrteCache.java",
+                "**/cache/cache_model/**",
+
+                // config
+                "**/config/**",
+
+                // constant
+                "**/constant/**",
+
+                // controller
+                "**/controller/**",
+
+                // data_parser
+                "**/data_parser/**",
+
+                // dto/model
+                "**/model/container/**",
+                "**/model/dsma_algorithm/**",
+                "**/model/dto/**",
+                "**/model/phdc/**",
+
+                // exception
+                "**/exception/**",
+
+                // implementation
+                "**/service/implementation/auth_user/**",
+                "**/service/implementation/cache/ManagerCacheService.java",
+                "**/service/implementation/uid_generator/UidPoolManager.java",
+
+                // kafka
+                "**/kafka/consumer/**",
+                "**/kafka/producer/**",
+
+                // model
+                "**/service/model/**",
+                "**/utilities/model/**",
+
+                // repository
+                "**/repository/nbs/msgoute/model/**",
+                "**/repository/nbs/odse/model/**",
+                "**/repository/nbs/odse/repos/**",
+                "**/repository/nbs/srte/model/**",
+
+                // security
+                "**/security/config/**",
+
+                // service
+                "**/PamService.java",
+                "**/DecisionSupportService.java",
+                "**/InvestigationService.java",
+
+                // top-level utility and logic classes
+                "**/AdvancedCriteria.java",
+                "**/AuthUtil.java",
+                "**/DynamicBeanBinding.java",
+                "**/GsonUtil.java",
+                "**/KafkaProducerTransactionService.java",
+                "**/LinkResponse.java",
+                "**/MatchesRequireReviewResponse.java",
+                "**/RelateRequest.java",
+                "**/RulesEngineUtil.java",
+                "**/ServiceApplication.java",
+                "**/StringUtils.java",
+                "**/TimeStampUtil.java",
+
+                // wds
+                "**/wds/**"
+        )
     }
 }
