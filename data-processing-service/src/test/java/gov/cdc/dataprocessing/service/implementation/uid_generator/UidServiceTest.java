@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
@@ -541,7 +540,7 @@ class UidServiceTest {
 
 
     @Test
-    void testSetFalseToNewForNotification_ActRelationShipCollNull() throws DataProcessingException {
+    void testSetFalseToNewForNotification_ActRelationShipCollNull()  {
         NotificationProxyContainer notificationProxyVO = mock(NotificationProxyContainer.class);
         when(notificationProxyVO.getTheActRelationshipDTCollection()).thenReturn(null);
 
@@ -552,7 +551,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForNotification_ActRelationShipCollEmpty() throws DataProcessingException {
+    void testSetFalseToNewForNotification_ActRelationShipCollEmpty() {
         NotificationProxyContainer notificationProxyVO = mock(NotificationProxyContainer.class);
         when(notificationProxyVO.getTheActRelationshipDTCollection()).thenReturn(Collections.emptyList());
 
@@ -563,7 +562,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForNotification_ActRelationShipCollContainsElements() throws DataProcessingException {
+    void testSetFalseToNewForNotification_ActRelationShipCollContainsElements() {
         NotificationProxyContainer notificationProxyVO = mock(NotificationProxyContainer.class);
         ActRelationshipDto actRelationshipDto = new ActRelationshipDto();
         Collection<Object> actRelationShipColl = new ArrayList<>();
@@ -579,7 +578,7 @@ class UidServiceTest {
     }
 
     @Test
-    void testSetFalseToNewForNotification_ActRelationShipCollMultipleElements() throws DataProcessingException {
+    void testSetFalseToNewForNotification_ActRelationShipCollMultipleElements()  {
         NotificationProxyContainer notificationProxyVO = mock(NotificationProxyContainer.class);
         ActRelationshipDto actRelationshipDto1 = new ActRelationshipDto();
         ActRelationshipDto actRelationshipDto2 = new ActRelationshipDto();

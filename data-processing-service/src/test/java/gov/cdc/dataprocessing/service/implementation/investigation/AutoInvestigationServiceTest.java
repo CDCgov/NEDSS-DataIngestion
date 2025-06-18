@@ -68,7 +68,6 @@ class AutoInvestigationServiceTest {
 
         authUtil.setGlobalAuthUser(userInfo);
 
-//        jurisdictionCodeMapWithNbsUid.put("STATE", 1);
         OdseCache.fromPrePopFormMapping.clear();
         OdseCache.dmbMap.clear();
     }
@@ -221,13 +220,6 @@ class AutoInvestigationServiceTest {
         entityEdxRule.setParticipationUid(11L);
         entityEdxRule.setParticipationClassCode("PAT");
         entities.add(entityEdxRule);
-
-        // createActEntityObject 162
-//        var tree =new HashMap<String, String>();
-//        tree.put("PAT", "PAT");
-//        when(catchingValueService.getCodedValue(any()))
-//                .thenReturn(tree);
-
 
         var test = (PageActProxyContainer) autoInvestigationService.transferValuesTOActProxyVO(pageActProxyContainer, pamActProxyVO,
                 personVOCollection, rootObservationVO, entities, questionIdentifierMap);

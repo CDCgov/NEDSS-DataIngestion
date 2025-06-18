@@ -1,75 +1,59 @@
+
 package gov.cdc.dataprocessing.utilities.component.data_parser.util;
 
-import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.PersonContainer;
-import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.phdc.HL7OBRType;
 import gov.cdc.dataprocessing.model.phdc.HL7OBXType;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
-import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CommonLabUtilTest {
 
-
-    @InjectMocks
+    private XmlMapper xmlMapper;
     private CommonLabUtil commonLabUtil;
-
-    private PersonContainer personContainer;
-    @Mock
-    AuthUtil authUtil;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
-        AuthUser user = new AuthUser();
-        user.setAuthUserUid(1L);
-        user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
-        userInfo.setAuthUser(user);
-
-        authUtil.setGlobalAuthUser(userInfo);
-
-        var perDt = new PersonDto();
-        personContainer = new PersonContainer();
-        personContainer.setThePersonDto(perDt);
-    }
-
-    @AfterEach
-    void tearDown() {
-        Mockito.reset(authUtil);
+        xmlMapper = mock(XmlMapper.class);
+        commonLabUtil = new CommonLabUtil(xmlMapper);
     }
 
     @Test
-    void getXMLElementNameForOBR_TEST_1() throws DataProcessingException {
+    void testGetXMLElementNameForOBR_ThrowsException() throws JsonProcessingException {
+        HL7OBRType mockOBR = new HL7OBRType();
 
-        HL7OBRType hl7OBRType = new HL7OBRType();
+        when(xmlMapper.writeValueAsString(mockOBR))
+                .thenThrow(new JsonProcessingException("Failed to serialize OBR") {});
 
-        var res =  commonLabUtil.getXMLElementNameForOBR(hl7OBRType);
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+                commonLabUtil.getXMLElementNameForOBR(mockOBR));
 
-        assertNotNull(res);
+        assertTrue(exception.getMessage().contains("Failed to serialize OBR"));
     }
 
     @Test
-    void getXMLElementNameForOBX_TEST_2() throws DataProcessingException {
+    void testGetXMLElementNameForOBX_ThrowsException() throws JsonProcessingException {
+        HL7OBXType mockOBX = new HL7OBXType();
 
-        HL7OBXType hl7OBRType = new HL7OBXType();
+        when(xmlMapper.writeValueAsString(mockOBX))
+                .thenThrow(new JsonProcessingException("Failed to serialize OBX") {});
 
-        var res = commonLabUtil.getXMLElementNameForOBX(hl7OBRType);
+        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+                commonLabUtil.getXMLElementNameForOBX(mockOBX));
 
+        assertTrue(exception.getMessage().contains("Failed to serialize OBX"));
+    }
 
-        assertNotNull(res);
-
+    @Test
+    void testDefaultConstructor() {
+        CommonLabUtil util = new CommonLabUtil();
+        assertNotNull(util); // Just verifying the object is created
     }
 
 }

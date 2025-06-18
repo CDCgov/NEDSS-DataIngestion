@@ -23,7 +23,7 @@ class EntityRepositoryUtilTest {
     private EntityJdbcRepository entityRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

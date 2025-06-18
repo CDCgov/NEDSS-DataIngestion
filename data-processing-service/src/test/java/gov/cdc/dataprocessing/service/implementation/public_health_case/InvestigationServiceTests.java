@@ -265,7 +265,6 @@ class InvestigationServiceTests {
         when(observationSummaryService.getSpecimanSource(26L)).thenReturn("26");
         var treemap = new HashMap<String, String>();
         treemap.put("26", "BLAH");
-   //     when(cachingValueService.getCodedValues("SPECMN_SRC", "26")).thenReturn(treemap);
 
         when(observationSummaryService.getProviderInformation(any(), any())).thenReturn(27L);
 
@@ -755,14 +754,6 @@ class InvestigationServiceTests {
         report.setTheResultedTestSummaryVOCollection(labCol);
         reportCol.add(report);
 
-//        SrteCache.programAreaCodesMap.put("TEST", "TEST");
-//        SrteCache.jurisdictionCodeMap.put("TEST", "TEST");
-//        SrteCache.labResultByDescMap.put("TEST", "TEST");
-//        SrteCache.snomedCodeByDescMap.put("TEST", "TEST");
-//        SrteCache.labResultWithOrganismNameIndMap.put("TEST", "TEST");
-//        SrteCache.loinCodeWithComponentNameMap.put("TEST", "TEST");
-
-
         when(cachingValueDpService.getCodeDescTxtForCd(any(), any())).thenReturn("TEST");
         var labLst = new ArrayList<LabTest>();
         var labTs = new LabTest();
@@ -774,14 +765,6 @@ class InvestigationServiceTests {
 
 
         investigationService.populateDescTxtFromCachedValues(reportCol);
-
-//        SrteCache.programAreaCodesMap.clear();
-//        SrteCache.jurisdictionCodeMap.clear();
-//        SrteCache.labResultByDescMap.clear();
-//        SrteCache.snomedCodeByDescMap.clear();
-//        SrteCache.labResultWithOrganismNameIndMap.clear();
-//        SrteCache.loinCodeWithComponentNameMap.clear();
-
 
         verify(cachingValueDpService, times(2)).getCodeDescTxtForCd(any(), any());
     }

@@ -2,8 +2,10 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.elr.ProgramAreaJurisdiction;
 import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
@@ -16,6 +18,8 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
@@ -53,6 +57,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("java:S1640")
 class ObservationServiceTest {
     @Mock
     private INNDActivityLogService nndActivityLogService;
@@ -102,6 +107,7 @@ class ObservationServiceTest {
 
     @InjectMocks
     private ObservationService observationService;
+
 
     @Mock
     AuthUtil authUtil;
@@ -1090,4 +1096,305 @@ class ObservationServiceTest {
 
         return observationContainer;
     }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNewAndFalseUidIsNegative_callsUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer(); // or any BaseContainer subclass
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(-99L); // false UID
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(true);
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService).setFalseToNewForObservation(proxyVO, -99L, realUid);
+    }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNewButFalseUidIsPositive_doesNotCallUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer();
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(99L); // valid UID
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(true);
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService, never()).setFalseToNewForObservation(any(), anyLong(), anyLong());
+    }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNewButUidIsNull_doesNotCallUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer();
+        ObservationDto dto = new ObservationDto(); // UID is null
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(true);
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService, never()).setFalseToNewForObservation(any(), any(), anyLong());
+    }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNotNew_doesNotCallUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer();
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(-88L);
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(false); // not new
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService, never()).setFalseToNewForObservation(any(), anyLong(), anyLong());
+    }
+
+    @Test
+    void testIsRootObservation_whenCtrlCdMatchesMobCtrlCdDisplay_returnsTrue() {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setObsDomainCdSt1("not-matching"); // ensure this does not trigger first if
+        dto.setCtrlCdDisplayForm(NEDSSConstant.MOB_CTRLCD_DISPLAY); // triggers return true
+
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+
+        // Act
+        boolean result = observationService.isRootObservation(container, false);
+
+        // Assert
+        assertTrue(result, "Should return true when ctrlCdDisplayForm matches MOB_CTRLCD_DISPLAY");
+    }
+
+    @Test
+    void testExtractObservationCollection_whenNotLabResultProxy_returnsNull() {
+        // Arrange
+        BaseContainer proxyVO = new BaseContainer() {}; // anonymous subclass, not LabResultProxyContainer
+
+        // Act
+        Collection<ObservationContainer> result = observationService.extractObservationCollection(proxyVO);
+
+        // Assert
+        assertNull(result, "Expected null when proxyVO is not a LabResultProxyContainer");
+    }
+
+    @Test
+    void testStoreObservationVOCollection_whenExtractedCollectionIsNull_returnsNull() throws DataProcessingException {
+        // Arrange
+        BaseContainer proxyVO = new BaseContainer() {}; // not a LabResultProxyContainer
+        // No need to mock extractObservationCollection since we want it to return null
+
+        // Act
+        Long result = observationService.storeObservationVOCollection(proxyVO);
+
+        // Assert
+        assertNull(result, "Expected null when extracted ObservationContainer collection is null");
+    }
+
+    @Test
+    void testStoreObservationVOCollection_whenExtractedCollectionIsEmpty_returnsNull() throws DataProcessingException {
+        // Arrange
+        LabResultProxyContainer proxyVO = new LabResultProxyContainer();
+        proxyVO.setTheObservationContainerCollection(Collections.emptyList()); // empty collection
+
+        // Act
+        Long result = observationService.storeObservationVOCollection(proxyVO);
+
+        // Assert
+        assertNull(result, "Expected null when extracted ObservationContainer collection is empty");
+    }
+
+    @Test
+    void testFindLocalUidsFor_observationAndPersonFound_setsExpectedLocalIds() {
+        // Arrange
+        Long obsUid = 100L;
+        Long personUid = 200L;
+
+        // Mock observation repository result
+        Observation obs = new Observation();
+        obs.setLocalId("OBS_LOCAL_ID");
+        when(observationRepository.findById(obsUid)).thenReturn(Optional.of(obs));
+
+        // Mock person repository result
+        Person person = new Person();
+        person.setLocalId("PERSON_LOCAL_ID");
+        when(personRepository.findById(personUid)).thenReturn(Optional.of(person));
+
+        // Act
+        Map<Object, Object> result = observationService.findLocalUidsFor(personUid, obsUid);
+
+        // Assert
+        assertEquals("OBS_LOCAL_ID", result.get(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL));
+        assertTrue(result.get(NEDSSConstant.SETLAB_RETURN_OBSDT) instanceof ObservationDto);
+        assertEquals("PERSON_LOCAL_ID", result.get(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL));
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsNull_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(null);
+        Map<Object, Object> errors = new HashMap<>();
+
+        // Act
+        observationService.handleJurisdictionCode(new LabResultProxyContainer(), dto, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsAnyJurisdiction_addsError() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(ProgramAreaJurisdiction.ANY_JURISDICTION);
+        Map<Object, Object> errors = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        when(jurisdictionService.deriveJurisdictionCd(proxy, dto)).thenReturn("SomeError");
+
+        // Act
+        observationService.handleJurisdictionCode(proxy, dto, errors);
+
+        // Assert
+        assertTrue(errors.containsKey(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+        assertEquals(ProgramAreaJurisdiction.ANY_JURISDICTION, errors.get(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsJurisdictionNone_addsError() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(ProgramAreaJurisdiction.JURISDICTION_NONE);
+        Map<Object, Object> errors = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        when(jurisdictionService.deriveJurisdictionCd(proxy, dto)).thenReturn("SomeError");
+
+        // Act
+        observationService.handleJurisdictionCode(proxy, dto, errors);
+
+        // Assert
+        assertTrue(errors.containsKey(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+        assertEquals(ProgramAreaJurisdiction.JURISDICTION_NONE, errors.get(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsAnyJurisdiction_butNoErrorReturned_doesNotAddToMap() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(ProgramAreaJurisdiction.ANY_JURISDICTION);
+        Map<Object, Object> errors = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        when(jurisdictionService.deriveJurisdictionCd(proxy, dto)).thenReturn(null);
+
+        // Act
+        observationService.handleJurisdictionCode(proxy, dto, errors);
+
+        // Assert
+        assertFalse(errors.containsKey(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+    }
+
+
+
+    @Test
+    void testHandleProgramAreaCode_whenPaCdIsNull_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd(null);
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        Map<Object, Object> errors = new HashMap<>();
+
+        // Act
+        observationService.handleProgramAreaCode(new LabResultProxyContainer(), container, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleProgramAreaCode_whenPaCdIsNotAnyProgramArea_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd("STD"); // Not "ANY"
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        Map<Object, Object> errors = new HashMap<>();
+
+        // Act
+        observationService.handleProgramAreaCode(new LabResultProxyContainer(), container, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleProgramAreaCode_whenDerivedErrorIsNull_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd(ProgramAreaJurisdiction.ANY_PROGRAM_AREA);
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+        Map<Object, Object> errors = new HashMap<>();
+
+        when(programAreaService.deriveProgramAreaCd(proxy, container)).thenReturn(null);
+
+        // Act
+        observationService.handleProgramAreaCode(proxy, container, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleProgramAreaCode_whenDerivedErrorIsPresent_addsToErrors() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd(ProgramAreaJurisdiction.ANY_PROGRAM_AREA);
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+        Map<Object, Object> errors = new HashMap<>();
+
+        when(programAreaService.deriveProgramAreaCd(proxy, container)).thenReturn("SomeError");
+
+        // Act
+        observationService.handleProgramAreaCode(proxy, container, errors);
+
+        // Assert
+        assertEquals("SomeError", errors.get(NEDSSConstant.SETLAB_RETURN_PROGRAM_AREA_ERRORS));
+    }
+
+
+
 }

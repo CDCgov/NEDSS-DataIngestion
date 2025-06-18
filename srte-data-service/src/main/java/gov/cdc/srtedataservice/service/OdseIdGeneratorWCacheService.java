@@ -3,7 +3,6 @@ package gov.cdc.srtedataservice.service;
 import gov.cdc.srtedataservice.cache_model.LocalUidCacheModel;
 import gov.cdc.srtedataservice.constant.LocalIdClass;
 import gov.cdc.srtedataservice.exception.DataProcessingException;
-import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.model.dto.LocalUidGeneratorDto;
 import gov.cdc.srtedataservice.model.dto.LocalUidModel;
 import gov.cdc.srtedataservice.repository.nbs.odse.model.LocalUidGenerator;
@@ -12,7 +11,6 @@ import gov.cdc.srtedataservice.service.interfaces.IOdseIdGeneratorWCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;

@@ -1,7 +1,6 @@
 package gov.cdc.srtedataservice.security;
 
 
-import gov.cdc.srtedataservice.exception.RtiCacheException;
 import gov.cdc.srtedataservice.exception.RtiSecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;

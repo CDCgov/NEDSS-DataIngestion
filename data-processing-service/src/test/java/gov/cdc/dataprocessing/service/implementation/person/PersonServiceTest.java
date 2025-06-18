@@ -167,7 +167,6 @@ class PersonServiceTest {
         PersonContainer personContainerResult=personService.processingProvider(labResultProxyContainer,edxLabInformationDto,personContainer,orderingProviderIndicator);
         assertNull(personContainerResult);
 
-        /// Role null
         personContainer.setRole(null);
         eDXActivityDetailLogDto.setRecordId(null);
         when(providerMatchingServiceMock.getMatchingProvider(personContainer)).thenReturn(eDXActivityDetailLogDto);

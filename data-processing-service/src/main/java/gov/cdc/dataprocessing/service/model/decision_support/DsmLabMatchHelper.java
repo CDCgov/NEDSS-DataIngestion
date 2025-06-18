@@ -278,7 +278,6 @@ public class DsmLabMatchHelper {
             return wdsReport;
         }
 
-        ////All test complete!
         if (algorithmIsOrLogic)
         {
             wdsReport.setAlgorithmMatched(false);

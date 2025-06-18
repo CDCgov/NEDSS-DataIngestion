@@ -10,7 +10,6 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
-import gov.cdc.dataingestion.reportstatus.model.EdxActivityLogStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
@@ -68,18 +67,16 @@ public class ReportStatusService {
     public MessageStatus getMessageStatus(String rawMessageID) {
         MessageStatus msgStatus = new MessageStatus();
         Optional<RawElrModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
-        if (!rawMessageData.isEmpty()) {
+        if (rawMessageData.isPresent()) {
             msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
-            //msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
             msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
             msgStatus.getRawInfo().setRawCreatedOn(TimeStampHelper.convertTimestampToString(rawMessageData.get().getCreatedOn()));
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
 
             if (rawMessageData.get().getType().equalsIgnoreCase(HL7_ELR)) {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
-                if (!validatedMessageData.isEmpty()) {
+                if (validatedMessageData.isPresent()) {
                     msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
-                    //msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
                     msgStatus.getValidatedInfo().setValidatedCreatedOn(TimeStampHelper.convertTimestampToString(validatedMessageData.get().getCreatedOn()));
                     msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
 
@@ -102,7 +99,6 @@ public class ReportStatusService {
                     for(EdxActivityDetailLog edxActivityLogModel:edxActivityStatusList){
                         String logComment = edxActivityLogModel.getLogComment();
                         if (seenComments.add(logComment)) {
-//                            EdxActivityLogStatus edxActivityLogStatus = getEdxActivityLogStatus(edxActivityLogModel);
                             msgStatus.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogModel);
                         }
 
@@ -113,18 +109,9 @@ public class ReportStatusService {
         return msgStatus;
     }
 
-    private static EdxActivityLogStatus getEdxActivityLogStatus(EdxActivityDetailLog edxActivityLogModel) {
-        EdxActivityLogStatus edxActivityLogStatus=new EdxActivityLogStatus();
-        edxActivityLogStatus.setRecordType(edxActivityLogModel.getRecordType());
-        edxActivityLogStatus.setLogType(edxActivityLogModel.getLogType());
-        edxActivityLogStatus.setLogComment(edxActivityLogModel.getLogComment());
-//        edxActivityLogStatus.setRecordStatusTime(edxActivityLogModel.getRecordStatusTime());
-        return edxActivityLogStatus;
-    }
-
     private MessageStatus setDiXmlTransformationInfo(MessageStatus msgStatus) {
         Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(msgStatus.getRawInfo().getRawMessageId());
-        if (!reportStatusIdData.isEmpty()) {
+        if (reportStatusIdData.isPresent()) {
             msgStatus.getNbsInfo().setNbsInterfaceId(reportStatusIdData.get().getNbsInterfaceUid());
             msgStatus.getNbsInfo().setNbsCreatedOn(TimeStampHelper.convertTimestampToString(reportStatusIdData.get().getCreatedOn()));
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_SUCCESS);
@@ -141,9 +128,8 @@ public class ReportStatusService {
 
     private MessageStatus setNbsInfo(MessageStatus msgStatus) {
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(msgStatus.getNbsInfo().getNbsInterfaceId());
-        if (!nbsInterfaceModel.isEmpty()) {
+        if (nbsInterfaceModel.isPresent()) {
             msgStatus.getNbsInfo().setNbsInterfaceStatus(nbsInterfaceModel.get().getRecordStatusCd());
-            //msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
         } else {
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
         }
@@ -152,7 +138,7 @@ public class ReportStatusService {
 
     private MessageStatus setDltInfo(String id, MessageStatus msgStatus, String origin) {
         var dlt = iElrDeadLetterRepository.findById(id);
-        if (!dlt.isEmpty() ) {
+        if (dlt.isPresent()) {
             switch (origin) {
                 case DLT_ORIGIN_RAW:
                     msgStatus.getRawInfo().setDltInfo(new DltMessageStatus());

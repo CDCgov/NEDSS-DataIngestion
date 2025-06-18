@@ -20,7 +20,7 @@ class ActRepositoryUtilTest {
     private ActJdbcRepository actRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

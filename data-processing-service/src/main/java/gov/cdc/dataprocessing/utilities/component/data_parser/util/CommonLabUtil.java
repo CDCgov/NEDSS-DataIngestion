@@ -9,11 +9,19 @@ import org.springframework.stereotype.Component;
 @Component
 
 public class CommonLabUtil {
-    private final XmlMapper xmlMapper = new XmlMapper();
+    private XmlMapper xmlMapper = new XmlMapper();
+
+    public CommonLabUtil() {
+
+    }
+
+    public CommonLabUtil(XmlMapper xmlMapper) {
+        this.xmlMapper = xmlMapper;
+    }
+
     public String getXMLElementNameForOBR(HL7OBRType hl7OBRType) throws DataProcessingException {
         try {
             return xmlMapper.writeValueAsString(hl7OBRType);
-
         } catch (Exception e) {
             throw new DataProcessingException(e.getMessage(), e);
         }
@@ -26,5 +34,6 @@ public class CommonLabUtil {
             throw new DataProcessingException(e.getMessage(), e);
         }
     }
+
 
 }

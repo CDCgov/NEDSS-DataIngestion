@@ -140,7 +140,7 @@ public class ObservationUtil {
      *  - Obs Domain Code St 1 = Order;
      *  - Ctrl Code Display Form = MorbReport;
      **/
-    private ObservationContainer getRootObservationContainerFromObsCollection(Collection<ObservationContainer> obsColl, boolean isLabReport) {
+    protected ObservationContainer getRootObservationContainerFromObsCollection(Collection<ObservationContainer> obsColl, boolean isLabReport) {
         if(obsColl == null){
             return null;
         }

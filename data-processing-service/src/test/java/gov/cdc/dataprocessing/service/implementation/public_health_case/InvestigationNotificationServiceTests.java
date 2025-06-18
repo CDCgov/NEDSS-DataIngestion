@@ -137,7 +137,6 @@ class InvestigationNotificationServiceTests {
         obj.setThePublicHealthCaseDto(phcDt);
         String nndComment = "COM";
 
-   //     SrteCache.investigationFormConditionCode.put("CODE", "investigationFormCd");
 
         var colRetriQuest = new ArrayList<QuestionRequiredNnd>();
         var colRetri = new QuestionRequiredNnd();

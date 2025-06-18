@@ -116,7 +116,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         return obj;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     public Object transferValuesTOActProxyVO(PageActProxyContainer pageActProxyContainer, PamProxyContainer pamActProxyVO,
                                              Collection<PersonContainer> personVOCollection,
                                              ObservationContainer rootObservationVO,
@@ -244,6 +244,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         }
     }
 
+    @SuppressWarnings("java:S5411")
     private PublicHealthCaseContainer createPublicHealthCaseVO(ObservationContainer observationVO, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
         PublicHealthCaseContainer phcVO = new PublicHealthCaseContainer();
 
@@ -374,7 +375,7 @@ public class AutoInvestigationService implements IAutoInvestigationService {
         populateFromPrePopMapping(prePopMap, pageActProxyContainer);
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S6541"})
     private void populateFromPrePopMapping(TreeMap<Object, Object> prePopMap, PageActProxyContainer pageActProxyContainer)
             throws DataProcessingException {
         PublicHealthCaseDto phcDT = pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto();

@@ -24,7 +24,7 @@ class ActLocatorParticipationRepositoryUtilTest {
     private ActLocatorParticipationJdbcRepository actLocatorParticipationRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

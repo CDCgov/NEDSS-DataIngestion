@@ -414,6 +414,7 @@ public class ManagerService implements IManagerService {
         return "";
     }
 
+    @SuppressWarnings("jav:S4507")
     private void logException(Exception e) {
         e.printStackTrace();
         logger.error("DP ERROR: {}", e.getMessage());
