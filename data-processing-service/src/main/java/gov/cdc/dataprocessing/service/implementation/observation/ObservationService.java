@@ -262,6 +262,9 @@ public class ObservationService implements IObservationService {
                 if (theOrganizationVOCollection == null) {
                     theOrganizationVOCollection = new ArrayList<>();
                 }
+                else {
+                    var test = "STRING";
+                }
                 var orgContainer = organizationRepositoryUtil.loadObject(organizationUid, partDT.getActUid());
                 theOrganizationVOCollection.add(orgContainer);
             }
