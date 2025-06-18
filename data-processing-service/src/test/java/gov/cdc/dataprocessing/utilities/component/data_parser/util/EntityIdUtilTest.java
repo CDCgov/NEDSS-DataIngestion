@@ -8,7 +8,7 @@ import gov.cdc.dataprocessing.model.phdc.HL7CXType;
 import gov.cdc.dataprocessing.model.phdc.HL7DTType;
 import gov.cdc.dataprocessing.model.phdc.HL7HDType;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 class EntityIdUtilTest {
     @Mock
-    private ICatchingValueService catchingValueService;
+    private ICatchingValueDpService catchingValueService;
     @InjectMocks
     private EntityIdUtil entityIdUtil;
 

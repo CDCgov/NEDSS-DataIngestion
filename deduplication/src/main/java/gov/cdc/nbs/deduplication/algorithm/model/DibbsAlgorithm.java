@@ -1,7 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.model;
 
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -12,26 +11,35 @@ public record DibbsAlgorithm(
     String label,
     String description,
     @JsonProperty("is_default") boolean isDefault,
-    @JsonProperty("include_multiple_matches") boolean includeMultipleMatches,
-    List<DibbsPass> passes,
-    @JsonProperty("max_missing_allowed_proportion") Double missingAllowedProportion,
-    @JsonProperty("missing_field_points_proportion") Double missingPointsProportion) {
+    @JsonProperty("algorithm_context") AlgorithmContext algorithmContext,
+    List<DibbsPass> passes) {
+
+  public record AlgorithmContext(
+      @JsonProperty("include_multiple_matches") boolean includeMultipleMatches,
+      @JsonProperty("log_odds") List<LogOdd> logOdds,
+      Advanced advanced) {
+    public record LogOdd(String feature, Double value) {
+    }
+
+    public record Advanced(
+        @JsonProperty("fuzzy_match_measure") SimilarityMeasure similarityMeasure,
+        @JsonProperty("max_missing_allowed_proportion") Double missingAllowedProportion,
+        @JsonProperty("missing_field_points_proportion") Double missingPointsProportion) {
+    }
+  }
 
   public record DibbsPass(
+      String label,
       @JsonProperty("blocking_keys") List<BlockingAttribute> blockingKeys,
       List<Evaluator> evaluators,
       Rule rule,
-      @JsonProperty("possible_match_window") List<Double> matchWindow,
-      Kwargs kwargs) {
+      @JsonProperty("possible_match_window") List<Double> matchWindow) {
   }
 
-  public record Evaluator(MatchingAttribute feature, Func func) {
-  }
-
-  public record Kwargs(
-      @JsonProperty("similarity_measure") SimilarityMeasure similarityMeasure,
-      Map<String, Double> thresholds,
-      @JsonProperty("log_odds") Map<String, Double> logOdds) {
+  public record Evaluator(
+      MatchingAttribute feature,
+      Func func,
+      @JsonProperty("fuzzy_match_threshold") Double threshold) {
   }
 
   public enum SimilarityMeasure {

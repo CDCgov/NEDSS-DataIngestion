@@ -17,15 +17,11 @@ import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -735,15 +731,21 @@ class ValidateDecisionSupportTest {
         // Arrange
         when(edxRuleManageDTMock.getDefaultStringValue()).thenReturn(NEDSSConstant.USE_CURRENT_DATE);
 
-        // Act
-        validateDecisionSupport.getCurrentDateValue(edxRuleManageDTMock);
+        Timestamp fixedTimestamp = Timestamp.valueOf("2024-06-11 12:00:00");
+        String expectedDate = StringUtils.formatDate(fixedTimestamp);
 
-        // Assert
-        verify(edxRuleManageDTMock).setDefaultStringValue(anyString());
-        Timestamp now = new Timestamp((new Date()).getTime());
-        String expectedDate = StringUtils.formatDate(now);
-        verify(edxRuleManageDTMock).setDefaultStringValue(expectedDate);
+        // Use mockStatic if TimeStampUtil is static
+        try (MockedStatic<TimeStampUtil> mockedStatic = Mockito.mockStatic(TimeStampUtil.class)) {
+            mockedStatic.when(() -> TimeStampUtil.getCurrentTimeStamp(any())).thenReturn(fixedTimestamp);
+
+            // Act
+            validateDecisionSupport.getCurrentDateValue(edxRuleManageDTMock);
+
+            // Assert
+            verify(edxRuleManageDTMock).setDefaultStringValue(expectedDate);
+        }
     }
+
 
     @Test
     void testGetCurrentDateValue_NotUseCurrentDate() {
@@ -776,6 +778,134 @@ class ValidateDecisionSupportTest {
 
         // Assert
         assertNull( object.getTestField());
+    }
+
+    @Test
+    void processConfirmationMethodTimeDT_Test_WithNullTime() throws DataProcessingException {
+        // Arrange
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(null);
+
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        PublicHealthCaseDto publicHealthCaseDto = new PublicHealthCaseDto();
+        publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCaseDto);
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setNbsUiComponentUid(1013L);
+
+        // Act
+        PublicHealthCaseContainer result = validateDecisionSupport.processConfirmationMethodTimeDT(
+            edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+        // Assert
+        assertNotNull(result);
+        assertNotNull(result.getTheConfirmationMethodDTCollection());
+    }
+
+    @Test
+    void processConfirmationMethodTimeDT_Test_WithCurrentDate() throws DataProcessingException {
+        // Arrange
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue(NEDSSConstant.USE_CURRENT_DATE);
+
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        PublicHealthCaseDto publicHealthCaseDto = new PublicHealthCaseDto();
+        publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCaseDto);
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setNbsUiComponentUid(1013L);
+
+        // Act
+        PublicHealthCaseContainer result = validateDecisionSupport.processConfirmationMethodTimeDT(
+            edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+        // Assert
+        assertNotNull(result);
+        assertNotNull(result.getTheConfirmationMethodDTCollection());
+        assertFalse(result.getTheConfirmationMethodDTCollection().isEmpty());
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processActIds_Test_WithNullActIdCollection() {
+        // Arrange
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue("Test Value");
+
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        publicHealthCaseContainer.setTheActIdDTCollection(null);
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+
+        // Act
+        validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+        // Assert - no exception should be thrown
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processActIds_Test_WithEmptyActIdCollection() {
+        // Arrange
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        edxRuleManageDT.setBehavior("1");
+        edxRuleManageDT.setDefaultStringValue("Test Value");
+
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        publicHealthCaseContainer.setTheActIdDTCollection(new ArrayList<>());
+
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+        metaData.setDataCd(NEDSSConstant.ACT_ID_STATE_TYPE_CD);
+
+        // Act
+        validateDecisionSupport.processActIds(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+        // Assert - no exception should be thrown
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodCodeDTRequired_Test_WithNullCollection() {
+        // Arrange
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(null);
+
+        // Act
+        validateDecisionSupport.processConfirmationMethodCodeDTRequired(publicHealthCaseContainer);
+
+        // Assert - no exception should be thrown
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processConfirmationMethodCodeDTRequired_Test_WithEmptyCollection() {
+        // Arrange
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        publicHealthCaseContainer.setTheConfirmationMethodDTCollection(new ArrayList<>());
+
+        // Act
+        validateDecisionSupport.processConfirmationMethodCodeDTRequired(publicHealthCaseContainer);
+
+        // Assert - no exception should be thrown
+    }
+
+    @SuppressWarnings("java:S2699")
+    @Test
+    void processNBSCaseManagementDT_Test_WithNullCaseManagement() {
+        // Arrange
+        EdxRuleManageDto edxRuleManageDT = new EdxRuleManageDto();
+        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+        publicHealthCaseContainer.setTheCaseManagementDto(null);
+        NbsQuestionMetadata metaData = new NbsQuestionMetadata();
+
+        // Act
+        validateDecisionSupport.processNBSCaseManagementDT(edxRuleManageDT, publicHealthCaseContainer, metaData);
+
+        // Assert - no exception should be thrown
     }
 
 }

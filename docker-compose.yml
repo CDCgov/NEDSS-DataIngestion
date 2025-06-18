@@ -125,6 +125,7 @@ services:
   di-mssql:
     build:
       context: ./containers/db
+#      dockerfile: Dockerfile_windows
       args:
         - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
     container_name: di-mssql
@@ -167,7 +168,7 @@ services:
       - dataingestion
 
   di-record-linker:
-    image: ghcr.io/cdcgov/recordlinker:v25.5.0
+    image: ghcr.io/cdcgov/recordlinker:v25.8.0
     container_name: di-record-linker
     depends_on:
       di-mssql:
@@ -178,6 +179,7 @@ services:
       - dataingestion.env
     environment:
       PORT: 8070
+      API_ROOT_PATH: '/api/record-linker'
     networks:
       - dataingestion
 

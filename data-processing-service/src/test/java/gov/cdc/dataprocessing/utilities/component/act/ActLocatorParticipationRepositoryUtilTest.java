@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.utilities.component.act;
 
 import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActLocatorParticipationJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,7 +21,7 @@ class ActLocatorParticipationRepositoryUtilTest {
     private ActLocatorParticipationRepositoryUtil actLocatorParticipationRepositoryUtil;
 
     @Mock
-    private ActLocatorParticipationRepository actLocatorParticipationRepository;
+    private ActLocatorParticipationJdbcRepository actLocatorParticipationRepository;
 
     @BeforeEach
     public void setUp() {
@@ -34,7 +34,7 @@ class ActLocatorParticipationRepositoryUtilTest {
         List<ActLocatorParticipation> actLocatorParticipations = new ArrayList<>();
         ActLocatorParticipation actLocatorParticipation = new ActLocatorParticipation();
         actLocatorParticipations.add(actLocatorParticipation);
-        when(actLocatorParticipationRepository.findRecordsById(actUid)).thenReturn(actLocatorParticipations);
+        when(actLocatorParticipationRepository.findByActUid(actUid)).thenReturn(actLocatorParticipations);
 
         Collection<ActivityLocatorParticipationDto> result = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(actUid);
 
@@ -43,18 +43,18 @@ class ActLocatorParticipationRepositoryUtilTest {
             assertFalse(dto.isItNew());
             assertFalse(dto.isItDirty());
         }
-        verify(actLocatorParticipationRepository, times(1)).findRecordsById(actUid);
+        verify(actLocatorParticipationRepository, times(1)).findByActUid(actUid);
     }
 
     @Test
     void testGetActLocatorParticipationCollectionEmpty() {
         Long actUid = 1L;
-        when(actLocatorParticipationRepository.findRecordsById(actUid)).thenReturn(new ArrayList<>());
+        when(actLocatorParticipationRepository.findByActUid(actUid)).thenReturn(new ArrayList<>());
 
         Collection<ActivityLocatorParticipationDto> result = actLocatorParticipationRepositoryUtil.getActLocatorParticipationCollection(actUid);
 
         assertTrue(result.isEmpty());
-        verify(actLocatorParticipationRepository, times(1)).findRecordsById(actUid);
+        verify(actLocatorParticipationRepository, times(1)).findByActUid(actUid);
     }
 
     @Test
@@ -66,7 +66,7 @@ class ActLocatorParticipationRepositoryUtilTest {
 
         actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, activityLocatorParticipationDtoCollection);
 
-        verify(actLocatorParticipationRepository, times(1)).save(any(ActLocatorParticipation.class));
+        verify(actLocatorParticipationRepository, times(1)).mergeActLocatorParticipation(any(ActLocatorParticipation.class));
         for (ActivityLocatorParticipationDto dto : activityLocatorParticipationDtoCollection) {
             assertFalse(dto.isItDirty());
             assertFalse(dto.isItNew());
@@ -81,6 +81,6 @@ class ActLocatorParticipationRepositoryUtilTest {
 
         actLocatorParticipationRepositoryUtil.insertActLocatorParticipationCollection(uid, activityLocatorParticipationDtoCollection);
 
-        verify(actLocatorParticipationRepository, times(0)).save(any(ActLocatorParticipation.class));
+        verify(actLocatorParticipationRepository, times(0)).mergeActLocatorParticipation(any(ActLocatorParticipation.class));
     }
 }

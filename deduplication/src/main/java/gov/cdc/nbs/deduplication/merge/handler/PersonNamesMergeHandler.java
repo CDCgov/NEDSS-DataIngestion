@@ -14,7 +14,7 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
 
-  static final String UPDATE_ALL_NAMES_INACTIVE = """
+  static final String UPDATE_ALL_PERSON_NAMES_INACTIVE = """
       UPDATE person_name
       SET record_status_cd = 'INACTIVE',
           last_chg_time = GETDATE()
@@ -35,20 +35,56 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :personUid
       """;
 
-  static final String UPDATE_SUPERSEDED_NAME_TO_SURVIVING = """
-      UPDATE person_name
-      SET person_uid = :survivingId,
-          person_name_seq = :newSeq,
-          last_chg_time = GETDATE()
-      WHERE person_uid = :superseded
-      AND person_name_seq = :oldSeq
+  static final String COPY_PERSON_NAME_TO_SURVIVING = """
+      INSERT INTO person_name (
+          person_uid, person_name_seq, add_reason_cd, add_time, add_user_id,
+          default_nm_ind, duration_amt, duration_unit_cd, first_nm, first_nm_sndx,
+          from_time, last_chg_reason_cd, last_chg_time, last_chg_user_id,
+          last_nm, last_nm_sndx, last_nm2, last_nm2_sndx, middle_nm, middle_nm2,
+          nm_degree, nm_prefix, nm_suffix, nm_use_cd, record_status_cd,
+          record_status_time, status_cd, status_time, to_time, user_affiliation_txt, as_of_date
+      )
+      SELECT
+          :survivingId AS person_uid,
+          :newSeq AS person_name_seq,
+          'MERGE' AS add_reason_cd,
+          GETDATE() AS add_time,
+          add_user_id,
+          default_nm_ind,
+          duration_amt,
+          duration_unit_cd,
+          first_nm,
+          first_nm_sndx,
+          from_time,
+          last_chg_reason_cd,
+          GETDATE() AS last_chg_time,
+          last_chg_user_id,
+          last_nm,
+          last_nm_sndx,
+          last_nm2,
+          last_nm2_sndx,
+          middle_nm,
+          middle_nm2,
+          nm_degree,
+          nm_prefix,
+          nm_suffix,
+          nm_use_cd,
+          'ACTIVE' AS record_status_cd,
+          GETDATE() AS record_status_time,
+          status_cd,
+          status_time,
+          to_time,
+          user_affiliation_txt,
+          as_of_date
+      FROM person_name
+      WHERE person_uid = :supersededUid
+        AND person_name_seq = :oldSeq
       """;
 
   public PersonNamesMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
-  //Merge modifications have been applied to the person names
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonNames(request.survivingRecord(), request.names());
@@ -62,10 +98,8 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     updateSupersededNames(survivorId, supersededNames);
   }
 
-  //split the selected names into surviving names and superseded names
   private void categorizeNames(String survivorId, List<PatientMergeRequest.NameId> names,
       List<Integer> survivingSequences, Map<String, List<Integer>> supersededNames) {
-
     for (PatientMergeRequest.NameId name : names) {
       String personUid = name.personUid();
       Integer seq = Integer.parseInt(name.sequence());
@@ -78,9 +112,9 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     }
   }
 
-
   private void markUnselectedNamesInactive(String survivorId, List<Integer> selectedSequences) {
-    String query = selectedSequences.isEmpty() ? UPDATE_ALL_NAMES_INACTIVE : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
+    String query =
+        selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
     Map<String, Object> params = new HashMap<>();
     params.put("personUid", survivorId);
     if (!selectedSequences.isEmpty()) {
@@ -91,21 +125,22 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
 
   private void updateSupersededNames(String survivorId, Map<String, List<Integer>> supersededNames) {
     for (Map.Entry<String, List<Integer>> entry : supersededNames.entrySet()) {
-      moveSupersededNamesToSurviving(entry.getKey(), entry.getValue(), survivorId);
+      copySupersededNamesToSurviving(entry.getKey(), entry.getValue(), survivorId);
     }
   }
 
-  private void moveSupersededNamesToSurviving(String superseded, List<Integer> sequences, String survivingId) {
+  private void copySupersededNamesToSurviving(String supersededUid, List<Integer> sequences, String survivingId) {
     int survivingMaxSeq = getMaxSequenceForPerson(survivingId);
 
     for (Integer seq : sequences) {
       int newSeq = ++survivingMaxSeq;
       Map<String, Object> params = new HashMap<>();
-      params.put("superseded", superseded);
+      params.put("supersededUid", supersededUid);
       params.put("oldSeq", seq);
       params.put("survivingId", survivingId);
       params.put("newSeq", newSeq);
-      nbsTemplate.update(UPDATE_SUPERSEDED_NAME_TO_SURVIVING, params);
+
+      nbsTemplate.update(COPY_PERSON_NAME_TO_SURVIVING, params);
     }
   }
 
@@ -114,5 +149,4 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     Integer maxSequence = nbsTemplate.queryForObject(FIND_MAX_SEQUENCE_PERSON_NAME, params, Integer.class);
     return maxSequence == null ? 0 : maxSequence;
   }
-
 }

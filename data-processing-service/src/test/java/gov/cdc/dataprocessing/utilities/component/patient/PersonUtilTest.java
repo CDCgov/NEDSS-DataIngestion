@@ -171,7 +171,7 @@ class PersonUtilTest {
         when(providerMatchingService.setProvider(any(), any())).thenThrow(new RuntimeException("TEST"));
 
 
-        DataProcessingException res = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException res = assertThrows(RuntimeException.class, () -> {
             personUtil.processLabPersonContainerCollection(personContainerCollection, morbidityApplied, dataContainer);
         });
         assertNotNull(res);
@@ -196,7 +196,7 @@ class PersonUtilTest {
         when(observationUtil.getRootObservationDto(any())).thenReturn(obsDto);
 
 
-        DataProcessingException res = assertThrows(DataProcessingException.class, () -> {
+        IllegalArgumentException res = assertThrows(IllegalArgumentException.class, () -> {
             personUtil.processLabPersonContainerCollection(personContainerCollection, morbidityApplied, dataContainer);
         });
         assertNotNull(res);

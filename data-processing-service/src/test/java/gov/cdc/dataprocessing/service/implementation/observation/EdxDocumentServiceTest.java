@@ -17,10 +17,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 class EdxDocumentServiceTest {
@@ -84,6 +86,75 @@ class EdxDocumentServiceTest {
         edxDocumentService.saveEdxDocument(edxDto);
 
         verify(edxDocumentRepository, times(1)).save(any(EdxDocument.class));
+    }
+
+    @Test
+    void selectEdxDocumentCollectionByActUid_EmptyResult() {
+        long uid = 10L;
+        when(edxDocumentRepository.selectEdxDocumentCollectionByActUid(10L)).thenReturn(Optional.empty());
+
+        var result = edxDocumentService.selectEdxDocumentCollectionByActUid(uid);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void selectEdxDocumentCollectionByActUid_NullUid() {
+        var result = edxDocumentService.selectEdxDocumentCollectionByActUid(null);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void saveEdxDocument_WithNullFields() {
+        var edxDto = new EDXDocumentDto();
+        var edx = new EdxDocument(edxDto);
+        edx.setId(1L);
+        when(edxDocumentRepository.save(any(EdxDocument.class))).thenReturn(edx);
+
+        var result = edxDocumentService.saveEdxDocument(edxDto);
+
+        assertNotNull(result);
+        verify(edxDocumentRepository, times(1)).save(any(EdxDocument.class));
+    }
+
+    @Test
+    void saveEdxDocumentBatch_EmptyList() {
+        var result = edxDocumentService.saveEdxDocumentBatch(new ArrayList<>());
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+
+    @Test
+    void saveEdxDocumentBatch_Success() {
+        var dtos = new ArrayList<EDXDocumentDto>();
+        var dto = new EDXDocumentDto();
+        dto.setEDXDocumentUid(1L);
+        dto.setActUid(1L);
+        dto.setPayload("TEST");
+        dto.setRecordStatusCd("A");
+        dto.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        dto.setAddTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
+        dto.setDocTypeCd("TEST");
+        dto.setNbsDocumentMetadataUid(1L);
+        dto.setOriginalPayload("TEST");
+        dto.setOriginalDocTypeCd("TEST");
+        dto.setEdxDocumentParentUid(1L);
+        dtos.add(dto);
+
+        var edx = new EdxDocument(dto);
+        edx.setId(1L);
+        when(edxDocumentRepository.saveAll(anyList())).thenReturn(List.of(edx));
+
+        var result = edxDocumentService.saveEdxDocumentBatch(dtos);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(edxDocumentRepository, times(1)).saveAll(anyList());
     }
 
 }

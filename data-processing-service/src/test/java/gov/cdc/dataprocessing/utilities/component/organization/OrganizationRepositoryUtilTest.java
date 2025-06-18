@@ -15,11 +15,11 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationNameDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.EntityLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
-import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.PrepareEntity;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PhysicalLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.PostalLocator;
@@ -27,17 +27,8 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.locator.TeleLocator;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.Organization;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationName;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityIdRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityLocatorParticipationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.entity.EntityRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PhysicalLocatorRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.PostalLocatorRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.TeleLocatorRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationNameRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.organization.OrganizationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.stored_proc.PrepareEntityStoredProcRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -55,36 +46,30 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class OrganizationRepositoryUtilTest {
     @Mock
-    private OrganizationRepository organizationRepository;
+    private OrganizationJdbcRepository organizationRepository;
     @Mock
-    private OrganizationNameRepository organizationNameRepository;
+    private OrganizationNameJdbcRepository organizationNameRepository;
     @Mock
-    private EntityRepository entityRepository;
+    private EntityJdbcRepository entityRepository;
     @Mock
-    private EntityIdRepository entityIdRepository;
+    private EntityIdJdbcRepository entityIdRepository;
     @Mock
-    private EntityLocatorParticipationRepository entityLocatorParticipationRepository;
+    private EntityLocatorJdbcRepository entityLocatorParticipationRepository;
     @Mock
-    private RoleRepository roleRepository;
-    @Mock
-    private TeleLocatorRepository teleLocatorRepository;
-    @Mock
-    private PostalLocatorRepository postalLocatorRepository;
-    @Mock
-    private PhysicalLocatorRepository physicalLocatorRepository;
+    private RoleJdbcRepository roleRepository;
+
     @Mock
     private IOdseIdGeneratorWCacheService odseIdGeneratorService;
     @Mock
     private EntityHelper entityHelper;
     @Mock
-    private ParticipationRepository participationRepository;
+    private ParticipationJdbcRepository participationRepository;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelper;
     @Mock
@@ -94,8 +79,11 @@ class OrganizationRepositoryUtilTest {
     @InjectMocks
     private OrganizationRepositoryUtil organizationRepositoryUtil;
 
+    @Mock
+    private UidPoolManager uidPoolManager;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo authUserProfileInfo=new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
@@ -103,6 +91,20 @@ class OrganizationRepositoryUtilTest {
         user.setNedssEntryId(1L);
         authUserProfileInfo.setAuthUser(user);
         authUtil.setGlobalAuthUser(authUserProfileInfo);
+
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
     }
 
     @AfterEach
@@ -113,9 +115,6 @@ class OrganizationRepositoryUtilTest {
         Mockito.reset(entityIdRepository);
         Mockito.reset(entityLocatorParticipationRepository);
         Mockito.reset(roleRepository);
-        Mockito.reset(teleLocatorRepository);
-        Mockito.reset(postalLocatorRepository);
-        Mockito.reset(physicalLocatorRepository);
         Mockito.reset(odseIdGeneratorService);
         Mockito.reset(entityHelper);
         Mockito.reset(participationRepository);
@@ -129,7 +128,7 @@ class OrganizationRepositoryUtilTest {
         Organization organization = new Organization();
         organization.setOrganizationUid(orgUid);
         organization.setAddReasonCode("TEST");
-        when(organizationRepository.findById(orgUid)).thenReturn(Optional.of(organization));
+        when(organizationRepository.findById(orgUid)).thenReturn(organization);
         Organization organizationResult = organizationRepositoryUtil.findOrganizationByUid(orgUid);
         assertNotNull(organizationResult);
     }
@@ -162,21 +161,12 @@ class OrganizationRepositoryUtilTest {
         localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
 
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
-        //Insert Organization
-        Organization organization = new Organization(organizationDto);
-        when(organizationRepository.save(organization)).thenReturn(organization);
-        //Insert OrganizationName
-        OrganizationName orgName = new OrganizationName(orgNameDto);
-        when(organizationNameRepository.save(orgName)).thenReturn(orgName);
 
         //EntityID
         EntityIdDto entityIdDto = getEntityIdDto();
         ArrayList<EntityIdDto> entityList = new ArrayList<>();
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
-
-        EntityId entityId = new EntityId(entityIdDto, "UTC");
-        when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -190,19 +180,14 @@ class OrganizationRepositoryUtilTest {
         LocalUidModel  localUidGenerator = getLocalUidGenerator();
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localUidGenerator);
 
-        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
-        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
-        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto())));
-
         //Role
         RoleDto roleDto = getRoleDto();
         Collection<RoleDto> theRoleDTCollection = new ArrayList<>();
         theRoleDTCollection.add(roleDto);
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
-        when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
         organizationRepositoryUtil.createOrganization(organizationContainer);
-        verify(roleRepository, times(1)).save(new Role(roleDto));
+        verify(roleRepository, times(1)).createRole(new Role(roleDto));
     }
 
     @Test
@@ -225,31 +210,7 @@ class OrganizationRepositoryUtilTest {
 
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
         long orgIdResult = organizationRepositoryUtil.createOrganization(organizationContainer);
-        assertEquals(1234L, orgIdResult);
-    }
-
-    @Test
-    void createOrganization_for_throw_exp_on_localId() throws DataProcessingException {
-        OrganizationContainer organizationContainer = new OrganizationContainer();
-        OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
-        organizationDto.setOrganizationUid(123L);
-
-        OrganizationNameDto orgNameDto = new OrganizationNameDto("UTC");
-        orgNameDto.setOrganizationUid(123L);
-        orgNameDto.setOrganizationNameSeq(1234);
-        orgNameDto.setNmTxt("TEST_ORG_NAME");
-
-        Collection<OrganizationNameDto> theOrganizationNameDtoCollection = new ArrayList<>();
-        theOrganizationNameDtoCollection.add(orgNameDto);
-        organizationContainer.setTheOrganizationNameDtoCollection(theOrganizationNameDtoCollection);
-
-        LocalUidGenerator localIdModel = new LocalUidGenerator();
-        localIdModel.setSeedValueNbr(1234L);
-        localIdModel.setUidPrefixCd("TEST_PX");
-        localIdModel.setUidSuffixCd("TEST_SX");
-
-        when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenThrow(Mockito.mock(DataProcessingException.class));
-        assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.createOrganization(organizationContainer));
+        assertEquals(1, orgIdResult);
     }
 
     @Test
@@ -279,12 +240,6 @@ class OrganizationRepositoryUtilTest {
         localIdModel.getClassTypeUid().setUidSuffixCd("TEST_SX");
 
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localIdModel);
-        //Insert Organization
-        Organization organization = new Organization(organizationDto);
-        when(organizationRepository.save(organization)).thenReturn(organization);
-        //Insert OrganizationName
-        OrganizationName orgName = new OrganizationName(orgNameDto);
-        when(organizationNameRepository.save(orgName)).thenReturn(orgName);
 
         //EntityID
         EntityIdDto entityIdDto = getEntityIdDto();
@@ -292,8 +247,6 @@ class OrganizationRepositoryUtilTest {
         entityList.add(entityIdDto);
         organizationContainer.setTheEntityIdDtoCollection(entityList);
 
-        EntityId entityId = new EntityId(entityIdDto, "UTC");
-        when(entityIdRepository.save(entityId)).thenReturn(entityId);
 
         //Entity Locator Participation
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -307,19 +260,14 @@ class OrganizationRepositoryUtilTest {
         var localUidGenerator = getLocalUidGenerator();
         when(odseIdGeneratorService.getValidLocalUid(LocalIdClass.ORGANIZATION, true)).thenReturn(localUidGenerator);
 
-        when(physicalLocatorRepository.save(new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto()))).thenReturn((new PhysicalLocator(entityLocatorParticipationDtoPh.getThePhysicalLocatorDto())));
-        when(postalLocatorRepository.save(new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto()))).thenReturn((new PostalLocator(entityLocatorParticipationDtoPo.getThePostalLocatorDto())));
-        when(teleLocatorRepository.save(new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto()))).thenReturn((new TeleLocator(entityLocatorParticipationDtoTel.getTheTeleLocatorDto())));
-
         //Role
         RoleDto roleDto = getRoleDto();
         Collection<RoleDto> theRoleDTCollection = new ArrayList<>();
         theRoleDTCollection.add(roleDto);
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
-        when(roleRepository.save(new Role(roleDto))).thenReturn(new Role(roleDto));
 
         organizationRepositoryUtil.updateOrganization(organizationContainer);
-        verify(roleRepository, times(1)).save(new Role(roleDto));
+        verify(roleRepository, times(1)).updateRole(new Role(roleDto));
     }
 
     @Test
@@ -328,7 +276,7 @@ class OrganizationRepositoryUtilTest {
         OrganizationDto organizationDto = organizationContainer.getTheOrganizationDto();
         organizationDto.setOrganizationUid(123L);
         organizationRepositoryUtil.updateOrganization(organizationContainer);
-        verify(organizationRepository, times(1)).save(any(Organization.class));
+        verify(organizationRepository, times(1)).updateOrganization(any(Organization.class));
     }
 
     @Test
@@ -349,7 +297,7 @@ class OrganizationRepositoryUtilTest {
     @Test
     void setOrganization_throw_exp() {
         OrganizationContainer organizationContainer = null;
-        assertThrows(DataProcessingException.class, () -> organizationRepositoryUtil.setOrganization(organizationContainer, "TEST"));
+        assertThrows(NullPointerException.class, () -> organizationRepositoryUtil.setOrganization(organizationContainer, "TEST"));
     }
 
     @Test
@@ -387,7 +335,7 @@ class OrganizationRepositoryUtilTest {
         organization.setOrganizationUid(123L);
         organization.setAddReasonCode("TEST");
 
-        when(organizationRepository.findById(123L)).thenReturn(Optional.of(organization));
+        when(organizationRepository.findById(123L)).thenReturn(organization);
         //Select Org
         List<OrganizationName> organizationNameList = new ArrayList<>();
         OrganizationName orgName = new OrganizationName();
@@ -395,14 +343,14 @@ class OrganizationRepositoryUtilTest {
         orgName.setOrganizationNameSeq(1234);
         orgName.setNameText("Test org name");
         organizationNameList.add(orgName);
-        when(organizationNameRepository.findByOrganizationUid(123L)).thenReturn(Optional.of(organizationNameList));
+        when(organizationNameRepository.findByOrganizationUid(123L)).thenReturn(organizationNameList);
         //select EntityId
         List<EntityId> entityIdList = new ArrayList<>();
         EntityId entityId = new EntityId();
         entityId.setEntityUid(123L);
         entityId.setAddReasonCode("Test");
         entityIdList.add(entityId);
-        when(entityIdRepository.findByEntityUid(123L)).thenReturn(Optional.of(entityIdList));
+        when(entityIdRepository.findEntityIds(123L)).thenReturn(entityIdList);
         //select EntityLocatorParticipations
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -415,7 +363,7 @@ class OrganizationRepositoryUtilTest {
         entityLocatorParticipations.add(entityLocatorParticipationPh);
         entityLocatorParticipations.add(entityLocatorParticipationPo);
         entityLocatorParticipations.add(entityLocatorParticipationTel);
-        when(entityLocatorParticipationRepository.findByParentUid(123L)).thenReturn(Optional.of(entityLocatorParticipations));
+        when(entityLocatorParticipationRepository.findByEntityUid(123L)).thenReturn(entityLocatorParticipations);
         //
         ArrayList<Participation> participationList = new ArrayList<>();
         Participation participation = new Participation();
@@ -423,13 +371,13 @@ class OrganizationRepositoryUtilTest {
         participation.setSubjectEntityUid(123L);
         participationList.add(participation);
 
-        when(participationRepository.findBySubjectEntityUid(123L)).thenReturn(Optional.of(participationList));
+        when(participationRepository.findBySubjectUid(123L)).thenReturn(participationList);
         //select Role
         List<Role> roleList = new ArrayList<>();
         Role roleModel = new Role();
         roleModel.setRoleSeq(1234L);
         roleList.add(roleModel);
-        when(roleRepository.findBySubjectEntityUid(Long.valueOf(123L))).thenReturn(Optional.of(roleList));
+        when(roleRepository.findActiveBySubjectEntityUid(Long.valueOf(123L))).thenReturn(roleList);
         //
         OrganizationDto newOrganizationDto = new OrganizationDto();
         newOrganizationDto.setOrganizationUid(1234L);
@@ -504,7 +452,7 @@ class OrganizationRepositoryUtilTest {
         organization.setOrganizationUid(123L);
         organization.setAddReasonCode("TEST");
 
-        when(organizationRepository.findById(123L)).thenReturn(Optional.of(organization));
+        when(organizationRepository.findById(123L)).thenReturn(organization);
         //Select Org
         List<OrganizationName> organizationNameList = new ArrayList<>();
         OrganizationName orgName = new OrganizationName();
@@ -512,14 +460,14 @@ class OrganizationRepositoryUtilTest {
         orgName.setOrganizationNameSeq(1234);
         orgName.setNameText("Test org name");
         organizationNameList.add(orgName);
-        when(organizationNameRepository.findByOrganizationUid(123L)).thenReturn(Optional.of(organizationNameList));
+        when(organizationNameRepository.findByOrganizationUid(123L)).thenReturn(organizationNameList);
         //select EntityId
         List<EntityId> entityIdList = new ArrayList<>();
         EntityId entityId = new EntityId();
         entityId.setEntityUid(123L);
         entityId.setAddReasonCode("Test");
         entityIdList.add(entityId);
-        when(entityIdRepository.findByEntityUid(123L)).thenReturn(Optional.of(entityIdList));
+        when(entityIdRepository.findEntityIds(123L)).thenReturn(entityIdList);
         //select EntityLocatorParticipations
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -532,13 +480,13 @@ class OrganizationRepositoryUtilTest {
         entityLocatorParticipations.add(entityLocatorParticipationPh);
         entityLocatorParticipations.add(entityLocatorParticipationPo);
         entityLocatorParticipations.add(entityLocatorParticipationTel);
-        when(entityLocatorParticipationRepository.findByParentUid(123L)).thenReturn(Optional.of(entityLocatorParticipations));
+        when(entityLocatorParticipationRepository.findByEntityUid(123L)).thenReturn(entityLocatorParticipations);
         //select Role
         List<Role> roleList = new ArrayList<>();
         Role roleModel = new Role();
         roleModel.setRoleSeq(1234L);
         roleList.add(roleModel);
-        when(roleRepository.findBySubjectEntityUid(Long.valueOf(123L))).thenReturn(Optional.of(roleList));
+        when(roleRepository.findActiveBySubjectEntityUid(Long.valueOf(123L))).thenReturn(roleList);
         //
         OrganizationDto newOrganizationDto = new OrganizationDto();
         newOrganizationDto.setOrganizationUid(1234L);
@@ -560,17 +508,17 @@ class OrganizationRepositoryUtilTest {
         when(prepareEntityStoredProcRepository.getPrepareEntity(any(), any(), any(), any())).thenReturn(prepareEntity);
 
         Long orgIdResult=organizationRepositoryUtil.setOrganization(organizationContainer, "TEST");
-        assertEquals(1234L,orgIdResult);
+        assertEquals(1,orgIdResult);
     }
 
     @Test
-    void loadObject() throws DataProcessingException {
+    void loadObject()  {
         //Select Org
         Organization organization = new Organization();
         organization.setOrganizationUid(123L);
         organization.setAddReasonCode("TEST");
 
-        when(organizationRepository.findById(123L)).thenReturn(Optional.of(organization));
+        when(organizationRepository.findById(123L)).thenReturn(organization);
         //Select Org
         List<OrganizationName> organizationNameList = new ArrayList<>();
         OrganizationName orgName = new OrganizationName();
@@ -578,14 +526,14 @@ class OrganizationRepositoryUtilTest {
         orgName.setOrganizationNameSeq(1234);
         orgName.setNameText("Test org name");
         organizationNameList.add(orgName);
-        when(organizationNameRepository.findByOrganizationUid(123L)).thenReturn(Optional.of(organizationNameList));
+        when(organizationNameRepository.findByOrganizationUid(123L)).thenReturn(organizationNameList);
         //select EntityId
         List<EntityId> entityIdList = new ArrayList<>();
         EntityId entityId = new EntityId();
         entityId.setEntityUid(123L);
         entityId.setAddReasonCode("Test");
         entityIdList.add(entityId);
-        when(entityIdRepository.findByEntityUid(123L)).thenReturn(Optional.of(entityIdList));
+        when(entityIdRepository.findEntityIds(123L)).thenReturn(entityIdList);
         //select EntityLocatorParticipations
         List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
         EntityLocatorParticipationDto entityLocatorParticipationDtoPh = getEntityLocatorParticipationDto_ph();
@@ -610,18 +558,18 @@ class OrganizationRepositoryUtilTest {
         List<TeleLocator> teleLocatorList = new ArrayList<>();
         teleLocatorList.add(teleLocator);
 
-        when(entityLocatorParticipationRepository.findByParentUid(123L)).thenReturn(Optional.of(entityLocatorParticipations));
+        when(entityLocatorParticipationRepository.findByEntityUid(123L)).thenReturn(entityLocatorParticipations);
 
-        when(physicalLocatorRepository.findByPhysicalLocatorUids(any())).thenReturn(Optional.of(physicalLocatorList));
-        when(postalLocatorRepository.findByPostalLocatorUids(any())).thenReturn(Optional.of(postalLocatorList));
-        when(teleLocatorRepository.findByTeleLocatorUids(any())).thenReturn(Optional.of(teleLocatorList));
+        when(entityLocatorParticipationRepository.findByPhysicalLocatorUids(any())).thenReturn(physicalLocatorList);
+        when(entityLocatorParticipationRepository.findByPostalLocatorUids(any())).thenReturn(postalLocatorList);
+        when(entityLocatorParticipationRepository.findByTeleLocatorUids(any())).thenReturn(teleLocatorList);
 
         //select Role
         List<Role> roleList = new ArrayList<>();
         Role roleModel = new Role();
         roleModel.setRoleSeq(1234L);
         roleList.add(roleModel);
-        when(roleRepository.findBySubjectEntityUid(Long.valueOf(123L))).thenReturn(Optional.of(roleList));
+        when(roleRepository.findActiveBySubjectEntityUid(Long.valueOf(123L))).thenReturn(roleList);
         //
         List<Participation> participationList = new ArrayList<>();
         Participation participation = new Participation();
@@ -630,7 +578,7 @@ class OrganizationRepositoryUtilTest {
         participation.setCode("TEST");
         participationList.add(participation);
 
-        when(participationRepository.findBySubjectEntityUidAndActUid(123L, 123L)).thenReturn(Optional.of(participationList));
+        when(participationRepository.selectParticipationBySubjectAndActUid(123L, 123L)).thenReturn(participationList);
 
         OrganizationContainer organizationContainer = organizationRepositoryUtil.loadObject(123L, 123L);
         assertNotNull(organizationContainer);

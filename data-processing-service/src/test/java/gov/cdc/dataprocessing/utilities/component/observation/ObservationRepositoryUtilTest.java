@@ -11,17 +11,14 @@ import gov.cdc.dataprocessing.model.dto.observation.*;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActLocatorParticipation;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.participation.Participation;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActIdRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActLocatorParticipationRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRelationshipRepository;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.act.ActRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.*;
-import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -36,7 +33,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,11 +41,11 @@ import static org.mockito.Mockito.*;
 
 class ObservationRepositoryUtilTest {
     @Mock
-    private ObservationRepository observationRepository;
+    private ObservationJdbcRepository observationRepository;
     @Mock
     private ObservationReasonRepository observationReasonRepository;
     @Mock
-    private ActIdRepository actIdRepository;
+    private ActIdJdbcRepository actIdRepository;
     @Mock
     private ObservationInterpRepository observationInterpRepository;
     @Mock
@@ -61,11 +57,11 @@ class ObservationRepositoryUtilTest {
     @Mock
     private ObsValueNumericRepository obsValueNumericRepository;
     @Mock
-    private ActLocatorParticipationRepository actLocatorParticipationRepository;
+    private ActLocatorParticipationJdbcRepository actLocatorParticipationRepository;
     @Mock
-    private ActRelationshipRepository actRelationshipRepository;
+    private ActRelationshipJdbcRepository actRelationshipRepository;
     @Mock
-    private ParticipationRepository participationRepository;
+    private ParticipationJdbcRepository participationRepository;
     @Mock
     private EntityHelper entityHelper;
     @Mock
@@ -73,15 +69,18 @@ class ObservationRepositoryUtilTest {
     @Mock
     private ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
     @Mock
-    private ActRepository actRepository;
+    private ActJdbcRepository actRepository;
 
     @InjectMocks
     private ObservationRepositoryUtil observationRepositoryUtil;
     @Mock
     AuthUtil authUtil;
 
+    @Mock
+    UidPoolManager uidPoolManager;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataProcessingException {
         MockitoAnnotations.openMocks(this);
         AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
         AuthUser user = new AuthUser();
@@ -90,6 +89,20 @@ class ObservationRepositoryUtilTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
+
+        var model = new LocalUidModel();
+        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+        dto.setClassNameCd("TEST");
+        dto.setTypeCd("TEST");
+        dto.setUidPrefixCd("TEST");
+        dto.setUidSuffixCd("TEST");
+        dto.setSeedValueNbr(1L);
+        dto.setCounter(3);
+        dto.setUsedCounter(2);
+        model.setClassTypeUid(dto);
+        model.setGaTypeUid(dto);
+        model.setPrimaryClassName("TEST");
+        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
     }
 
     @AfterEach
@@ -107,7 +120,7 @@ class ObservationRepositoryUtilTest {
         long obUid = 10L;
 
         var obs = new Observation();
-        when(observationRepository.findById(obUid)).thenReturn(Optional.of(obs));
+        when(observationRepository.findObservationByUid(obUid)).thenReturn(obs);
 
         var obsReasonCol = new ArrayList<ObservationReason>();
         var obsReason = new ObservationReason();
@@ -117,7 +130,7 @@ class ObservationRepositoryUtilTest {
         var actIdCol = new ArrayList<ActId>();
         var actId = new ActId();
         actIdCol.add(actId);
-        when(actIdRepository.findRecordsById(obUid)).thenReturn(Optional.of(actIdCol));
+        when(actIdRepository.findRecordsByActUid(obUid)).thenReturn(actIdCol);
 
         var interCol = new ArrayList<ObservationInterp>();
         var inter = new ObservationInterp();
@@ -148,7 +161,7 @@ class ObservationRepositoryUtilTest {
         var actLocCol = new ArrayList<ActLocatorParticipation>();
         var actLoc = new ActLocatorParticipation();
         actLocCol.add(actLoc);
-        when(actLocatorParticipationRepository.findRecordsById(obUid)).thenReturn(actLocCol);
+        when(actLocatorParticipationRepository.findByActUid(obUid)).thenReturn(actLocCol);
 
         var actReCol = new ArrayList<ActRelationshipDto>();
         var actRe = new ActRelationshipDto();
@@ -158,7 +171,7 @@ class ObservationRepositoryUtilTest {
         var patCol = new ArrayList<Participation>();
         var pat = new Participation();
         patCol.add(pat);
-        when(participationRepository.findByActUid(obUid)).thenReturn(Optional.of(patCol));
+        when(participationRepository.findByActUid(obUid)).thenReturn(patCol);
 
 
         var res =  observationRepositoryUtil.loadObject(obUid);
@@ -311,7 +324,7 @@ class ObservationRepositoryUtilTest {
         var actId1Col = new ArrayList<ActId>();
         var actId1 = new ActId();
         actId1Col.add(actId1);
-        when(actIdRepository.findRecordsById(any())).thenReturn(Optional.of(actId1Col));
+        when(actIdRepository.findRecordsByActUid(any())).thenReturn(actId1Col);
 
 
         var res = observationRepositoryUtil.saveObservation(observationContainer);
@@ -326,7 +339,7 @@ class ObservationRepositoryUtilTest {
 
         observationRepositoryUtil.saveActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(2)).save(any());
+        verify(actRelationshipRepository, times(1)).insertActRelationship(any());
 
     }
 
@@ -337,8 +350,7 @@ class ObservationRepositoryUtilTest {
 
         observationRepositoryUtil.saveActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(1)).save(any());
-        verify(actRelationshipRepository, times(1)).delete(any());
+        verify(actRelationshipRepository, times(1)).deleteActRelationship(any());
 
     }
 
@@ -352,7 +364,7 @@ class ObservationRepositoryUtilTest {
 
         observationRepositoryUtil.saveActRelationship(actRelationshipDto);
 
-        verify(actRelationshipRepository, times(2)).save(any());
+        verify(actRelationshipRepository, times(1)).updateActRelationship(any());
 
     }
 
@@ -370,18 +382,6 @@ class ObservationRepositoryUtilTest {
 
     }
 
-    @Test
-    void setObservationInfo_Test_2()  {
-        ObservationDto observationDto = new ObservationDto();
-        observationDto.setObservationUid(null);
-
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            observationRepositoryUtil.setObservationInfo(observationDto);
-        });
-
-        assertNotNull(thrown);
-
-    }
 
     @Test
     void setObservationInfo_Test_3()  {
@@ -416,7 +416,7 @@ class ObservationRepositoryUtilTest {
         obsQues.setObsTxtUid(10L);
         obsQuesCol.add(obsQues);
 
-        when(observationRepository.retrieveObservationQuestion(targetUid)).thenReturn(Optional.of(obsQuesCol));
+        when(observationRepository.retrieveObservationQuestion(targetUid)).thenReturn(obsQuesCol);
 
         var res = observationRepositoryUtil.retrieveObservationQuestion(targetUid);
 
@@ -425,14 +425,14 @@ class ObservationRepositoryUtilTest {
 
 
     @Test
-    void addActivityLocatorParticipations_Test() throws DataProcessingException {
+    void addActivityLocatorParticipations_Test()  {
         Long obsUid = 10L;
         ArrayList<ActivityLocatorParticipationDto> activityLocatorParticipationDtoCollection = new ArrayList<>();
         ActivityLocatorParticipationDto activityLocatorParticipationDto = new ActivityLocatorParticipationDto();
         activityLocatorParticipationDtoCollection.add(activityLocatorParticipationDto);
 
-        observationRepositoryUtil.addActivityLocatorParticipations(obsUid, activityLocatorParticipationDtoCollection);
-        verify(actLocatorParticipationRepository, times(1)).save(any());
+        observationRepositoryUtil.addActivityLocatorParticipations(obsUid, activityLocatorParticipationDtoCollection, "CREATE");
+        verify(actLocatorParticipationRepository, times(1)).insertActLocatorParticipation(any());
 
     }
 

@@ -189,7 +189,10 @@ dependencies {
     implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
     implementation 'io.prometheus:simpleclient_pushgateway:0.16.0'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-    
+
+    implementation 'org.springframework.retry:spring-retry'
+
+
     // Code generation from xsd files
     jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.2'
@@ -245,6 +248,8 @@ sonarqube {
                 " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
                 " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
                 " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java"
+                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, **/cache/cache_model/**, **/repository/nbs/odse/repos/**, " +
+                " **/service/implementation/auth_user/**, **/service/implementation/cache/ManagerCacheService.java, " +
+                " **/service/implementation/uid_generator/UidPoolManager.java"
     }
 }

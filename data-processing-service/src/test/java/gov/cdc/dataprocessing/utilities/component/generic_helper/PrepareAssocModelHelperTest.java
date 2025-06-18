@@ -417,7 +417,7 @@ class PrepareAssocModelHelperTest {
         when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareDirtyEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
         });
 
@@ -496,7 +496,7 @@ class PrepareAssocModelHelperTest {
         when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareDirtyActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
         });
 
@@ -612,7 +612,7 @@ class PrepareAssocModelHelperTest {
         when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
         });
 
@@ -712,7 +712,7 @@ class PrepareAssocModelHelperTest {
         when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareNewActVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
         });
 
@@ -833,7 +833,7 @@ class PrepareAssocModelHelperTest {
         when(theRootDTInterface.getUid()).thenThrow(new RuntimeException("Test Exception"));
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareNewEntityVO(theRootDTInterface, businessObjLookupName, businessTriggerCd, tableName, moduleCd);
         });
 
@@ -964,7 +964,7 @@ class PrepareAssocModelHelperTest {
         doThrow(new RuntimeException("Test Exception")).when(assocDTInterface1).setAddUserId(null);
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareAssocDTForEntityLocatorParticipation(assocDTInterface1);
         });
 
@@ -1201,7 +1201,7 @@ class PrepareAssocModelHelperTest {
         doThrow(new RuntimeException("Test Exception")).when(actInterface).setAddUserId(null);
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareActRelationshipDT(actInterface);
         });
 
@@ -1288,7 +1288,7 @@ class PrepareAssocModelHelperTest {
         doThrow(new RuntimeException("Test Exception")).when(activityLocatorParticipationInterface).setAddUserId(null);
 
         // Act & Assert
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             prepareAssocModelHelper.prepareActivityLocatorParticipationDT(activityLocatorParticipationInterface);
         });
 

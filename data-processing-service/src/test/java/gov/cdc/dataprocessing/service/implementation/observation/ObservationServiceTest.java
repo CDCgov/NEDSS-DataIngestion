@@ -614,7 +614,7 @@ class ObservationServiceTest {
 
         when(observationRepositoryUtil.loadObject(observationUid)).thenThrow(new RuntimeException("Test Exception"));
 
-        DataProcessingException exception = assertThrows(DataProcessingException.class, () ->
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 observationService.processObservationWithProcessingDecision(observationUid, processingDecisionCd, processingDecisionTxt)
         );
 
@@ -704,7 +704,7 @@ class ObservationServiceTest {
 
 
     @Test
-    void testRetrieveOrganizationFromParticipation_Continue() throws DataProcessingException {
+    void testRetrieveOrganizationFromParticipation_Continue()  {
         Collection<ParticipationDto> partColl = new ArrayList<>();
         partColl.add(null);  // This should trigger the continue statement
 

@@ -11,7 +11,7 @@ import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.CommonLabUtil;
@@ -29,15 +29,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class ObservationRequestHandlerTest {
     @Mock
-    private ICatchingValueService checkingValueService;
+    private ICatchingValueDpService checkingValueService;
     @Mock
     private CommonLabUtil commonLabUtil;
     @Mock
@@ -679,6 +678,161 @@ class ObservationRequestHandlerTest {
         assertNotNull(result);
     }
 
+    @Test
+    void getObservationRequest_Test_MissingOrderingProviderAndFacility() throws DataProcessingException {
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
 
+        when(hl7OBRType.getResultStatus()).thenReturn("TEST");
+        HL7SIType si = new HL7SIType();
+        si.setHL7SequenceID("1");
+        when(hl7OBRType.getSetIDOBR()).thenReturn(si);
+        HL7CWEType cwe = new HL7CWEType();
+        cwe.setHL7Identifier("TEST");
+        cwe.setHL7NameofCodingSystem(EdxELRConstant.ELR_LOINC_CD);
+        when(hl7OBRType.getDangerCode()).thenReturn(cwe);
+        HL7EIType ei = new HL7EIType();
+        ei.setHL7EntityIdentifier("TEST");
+        when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei);
+        when(hl7OBRType.getParent()).thenReturn(null);
+        when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe);
+        when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationEndDateTime()).thenReturn(new HL7TSType());
+
+        var cweLst = new ArrayList<HL7CWEType>();
+        cweLst.add(cwe);
+        when(hl7OBRType.getReasonforStudy()).thenReturn(cweLst);
+        when(hl7OBRType.getOrderingProvider()).thenReturn(null);
+
+        when(checkingValueService.findToCode(eq("ELR_LCA_STATUS"), any(), eq("ACT_OBJ_ST"))).thenReturn("TEST");
+
+        edxLabInformationDto.setMissingOrderingProvider(true);
+        edxLabInformationDto.setMissingOrderingFacility(true);
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            observationRequestHandler.getObservationRequest(hl7OBRType, hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
+        });
+        assertNotNull(thrown);
+        assertTrue(thrown.getMessage().contains("Both Ordering Provider and Ordering facility are null"));
+    }
+
+    @Test
+    void getObservationRequest_Test_MultipleCollectors() throws DataProcessingException {
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
+
+        when(hl7OBRType.getResultStatus()).thenReturn("TEST");
+        HL7SIType si = new HL7SIType();
+        si.setHL7SequenceID("1");
+        when(hl7OBRType.getSetIDOBR()).thenReturn(si);
+        HL7CWEType cwe = new HL7CWEType();
+        cwe.setHL7Identifier("TEST");
+        cwe.setHL7NameofCodingSystem(EdxELRConstant.ELR_LOINC_CD);
+        when(hl7OBRType.getDangerCode()).thenReturn(cwe);
+        HL7EIType ei = new HL7EIType();
+        ei.setHL7EntityIdentifier("TEST");
+        when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei);
+        when(hl7OBRType.getParent()).thenReturn(null);
+        when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe);
+        when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationEndDateTime()).thenReturn(new HL7TSType());
+
+        var cweLst = new ArrayList<HL7CWEType>();
+        cweLst.add(cwe);
+        when(hl7OBRType.getReasonforStudy()).thenReturn(cweLst);
+
+        var cnLst = new ArrayList<HL7XCNType>();
+        cnLst.add(new HL7XCNType());
+        cnLst.add(new HL7XCNType()); // Multiple collectors
+        when(hl7OBRType.getCollectorIdentifier()).thenReturn(cnLst);
+
+        when(checkingValueService.findToCode(eq("ELR_LCA_STATUS"), any(), eq("ACT_OBJ_ST"))).thenReturn("TEST");
+
+        var perCon = new PersonContainer();
+        when(hl7PatientHandler.parseToPersonObject(any(), any())).thenReturn(perCon);
+
+        var result = observationRequestHandler.getObservationRequest(hl7OBRType, hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
+        assertNotNull(result);
+        assertTrue(edxLabInformationDto.isMultipleCollector());
+    }
+
+    @Test
+    void getObservationRequest_Test_MultipleOrderingProviders() throws DataProcessingException {
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
+
+        when(hl7OBRType.getResultStatus()).thenReturn("TEST");
+        HL7SIType si = new HL7SIType();
+        si.setHL7SequenceID("1");
+        when(hl7OBRType.getSetIDOBR()).thenReturn(si);
+        HL7CWEType cwe = new HL7CWEType();
+        cwe.setHL7Identifier("TEST");
+        cwe.setHL7NameofCodingSystem(EdxELRConstant.ELR_LOINC_CD);
+        when(hl7OBRType.getDangerCode()).thenReturn(cwe);
+        HL7EIType ei = new HL7EIType();
+        ei.setHL7EntityIdentifier("TEST");
+        when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei);
+        when(hl7OBRType.getParent()).thenReturn(null);
+        when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe);
+        when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationEndDateTime()).thenReturn(new HL7TSType());
+
+        var cweLst = new ArrayList<HL7CWEType>();
+        cweLst.add(cwe);
+        when(hl7OBRType.getReasonforStudy()).thenReturn(cweLst);
+
+        var cnLst = new ArrayList<HL7XCNType>();
+        cnLst.add(new HL7XCNType());
+        cnLst.add(new HL7XCNType()); // Multiple ordering providers
+        when(hl7OBRType.getOrderingProvider()).thenReturn(cnLst);
+
+        when(checkingValueService.findToCode(eq("ELR_LCA_STATUS"), any(), eq("ACT_OBJ_ST"))).thenReturn("TEST");
+
+        var perCon = new PersonContainer();
+        when(hl7PatientHandler.parseToPersonObject(any(), any())).thenReturn(perCon);
+
+        var result = observationRequestHandler.getObservationRequest(hl7OBRType, hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
+        assertNotNull(result);
+        assertTrue(edxLabInformationDto.isMultipleOrderingProvider());
+    }
+
+    @Test
+    void getObservationRequest_Test_MissingReasonForStudyCode() throws DataProcessingException {
+        HL7OBRType hl7OBRType = Mockito.mock(HL7OBRType.class);
+        HL7PatientResultSPMType hl7PatientResultSPMType = Mockito.mock(HL7PatientResultSPMType.class);
+
+        when(hl7OBRType.getResultStatus()).thenReturn("TEST");
+        HL7SIType si = new HL7SIType();
+        si.setHL7SequenceID("1");
+        when(hl7OBRType.getSetIDOBR()).thenReturn(si);
+        HL7CWEType cwe = new HL7CWEType();
+        cwe.setHL7Identifier(null);
+        cwe.setHL7AlternateIdentifier(null);
+        when(hl7OBRType.getDangerCode()).thenReturn(cwe);
+        HL7EIType ei = new HL7EIType();
+        ei.setHL7EntityIdentifier("TEST");
+        when(hl7OBRType.getFillerOrderNumber()).thenReturn(ei);
+        when(hl7OBRType.getParent()).thenReturn(null);
+        when(hl7OBRType.getUniversalServiceIdentifier()).thenReturn(cwe);
+        when(hl7OBRType.getResultsRptStatusChngDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationDateTime()).thenReturn(new HL7TSType());
+        when(hl7OBRType.getObservationEndDateTime()).thenReturn(new HL7TSType());
+
+        var cweLst = new ArrayList<HL7CWEType>();
+        cweLst.add(cwe);
+        when(hl7OBRType.getReasonforStudy()).thenReturn(cweLst);
+
+        when(checkingValueService.findToCode(eq("ELR_LCA_STATUS"), any(), eq("ACT_OBJ_ST"))).thenReturn("TEST");
+
+        when(commonLabUtil.getXMLElementNameForOBR(any())).thenReturn("TEST_OBR");
+
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
+            observationRequestHandler.getObservationRequest(hl7OBRType, hl7PatientResultSPMType, labResultProxyContainer, edxLabInformationDto);
+        });
+        assertNotNull(thrown);
+    }
 
 }
