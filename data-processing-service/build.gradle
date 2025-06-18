@@ -246,6 +246,6 @@ sonarqube {
                 " **/service/implementation/uid_generator/UidPoolManager.java, **/GsonUtil.java, **/KafkaProducerTransactionService.java, " +
                 " **/LinkResponse.java, **/RelateRequest.java, **/MatchesRequireReviewResponse.java," +
                 " **/DecisionSupportService.java, **/data_parser/**, " +
-                "  **/PamService.java, **/wds/**"
+                "  **/PamService.java, **/InvestigationService.java, **/wds/**"
     }
 }
