@@ -133,7 +133,7 @@ public class ObservationMatchingService implements IObservationMatchingService {
 
 
 
-    @SuppressWarnings("java:S3776, java:S6541")
+    @SuppressWarnings({"java:S3776","java:S6541"})
     public void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
                                       LabResultProxyContainer matchedlabResultProxyVO,
                                       EdxLabInformationDto edxLabInformationDT) {

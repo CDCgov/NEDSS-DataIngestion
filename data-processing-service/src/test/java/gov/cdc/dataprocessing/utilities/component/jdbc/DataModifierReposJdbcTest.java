@@ -56,7 +56,6 @@ class DataModifierReposJdbcTest {
         verify(jdbcTemplate).update(startsWith("DELETE FROM Person_race WHERE person_uid = ? AND race_cd NOT IN ("), captor.capture());
 
         Object[] actualParams = captor.getValue();
-        Object[] expectedParams = new Object[]{"444", "A", "B", "C"};
         assertArrayEquals(new Object[]{444L, "A", "B", "C"}, actualParams);
     }
 

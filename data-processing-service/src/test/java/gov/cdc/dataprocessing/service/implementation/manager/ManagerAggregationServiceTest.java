@@ -511,6 +511,7 @@ class ManagerAggregationServiceTest {
         ));
     }
 
+    @SuppressWarnings("java:S1117")
     @Test
     void testProgAndJurisdictionAggregationHelper_AssignsProgramAndJurisdiction() throws DataProcessingException {
         // Arrange
