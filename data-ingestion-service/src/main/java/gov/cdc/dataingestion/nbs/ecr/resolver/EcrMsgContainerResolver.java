@@ -1,15 +1,14 @@
 package gov.cdc.dataingestion.nbs.ecr.resolver;
 
-import java.util.List;
-
+import gov.cdc.dataingestion.nbs.ecr.resolver.mapper.EcrContainerMapper;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
-import gov.cdc.dataingestion.nbs.ecr.resolver.mapper.EcrContainerMapper;
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
+import java.util.List;
 
 @Component
 public class EcrMsgContainerResolver {

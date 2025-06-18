@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.organization;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
-import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;

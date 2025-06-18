@@ -1,15 +1,14 @@
 package gov.cdc.dataingestion.nbs.ecr.resolver.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 class EcrContainerMapperTest {
 
