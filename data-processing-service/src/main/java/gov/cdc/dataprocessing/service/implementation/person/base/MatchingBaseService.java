@@ -7,7 +7,7 @@ import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
-import gov.cdc.dataprocessing.service.implementation.cache.CachingValueService;
+import gov.cdc.dataprocessing.service.implementation.cache.CachingValueDpDpService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
@@ -23,35 +23,14 @@ import java.util.*;
 
 @Getter
 @Service
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class MatchingBaseService  {
     private static final Logger logger = LoggerFactory.getLogger(MatchingBaseService.class);
 
     private final EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil;
     private final EntityHelper entityHelper;
     private final PatientRepositoryUtil patientRepositoryUtil;
-    private final CachingValueService cachingValueService;
+    private final CachingValueDpDpService cachingValueDpService;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
 
 
@@ -59,15 +38,15 @@ public class MatchingBaseService  {
             EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
             EntityHelper entityHelper,
             PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueService cachingValueService, PrepareAssocModelHelper prepareAssocModelHelper) {
+            CachingValueDpDpService cachingValueDpService, PrepareAssocModelHelper prepareAssocModelHelper) {
         this.edxPatientMatchRepositoryUtil = edxPatientMatchRepositoryUtil;
         this.entityHelper = entityHelper;
         this.patientRepositoryUtil = patientRepositoryUtil;
-        this.cachingValueService = cachingValueService;
+        this.cachingValueDpService = cachingValueDpService;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
     }
 
-    protected String getLocalId(PersonContainer personContainer) {
+    public String getLocalId(PersonContainer personContainer) {
         String localId = null;
         if (personContainer.getLocalIdentifier() != null) {
             localId = personContainer.getLocalIdentifier();
@@ -76,7 +55,7 @@ public class MatchingBaseService  {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    protected List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
+    public List<String> getIdentifier(PersonContainer personContainer) throws DataProcessingException {
         String carrot = "^";
         List<String> returnList;
         List<String> identifierList = new ArrayList<>();
@@ -119,13 +98,7 @@ public class MatchingBaseService  {
                             Coded coded = new Coded();
                             coded.setCode(idDto.getAssigningAuthorityCd());
                             coded.setCodesetName(NEDSSConstant.EI_AUTH);
-                            //TODO: This call out to code value general Repos and Caching the recrod
-                            //var codedValueGenralList = getCachingValueService().findCodeValuesByCodeSetNmAndCode(coded.getCodesetName(), coded.getCode());
 
-                            /*
-                            NotificationSRTCodeLookupTranslationDAOImpl lookupDAO = new NotificationSRTCodeLookupTranslationDAOImpl();
-                            lookupDAO.retrieveSRTCodeInfo(coded);
-                            * */
                             if (idDto.getRootExtensionTxt() != null
                                     && idDto.getTypeCd() != null
                                     && coded.getCode() != null
@@ -143,7 +116,7 @@ public class MatchingBaseService  {
                             }
                         }
 
-                        if (identifier.length() > 0 && getNamesStr(personContainer) != null) {
+                        if (!identifier.isEmpty() && getNamesStr(personContainer) != null) {
                             identifier.append(carrot).append(getNamesStr(personContainer));
                             identifierList.add(identifier.toString());
                         }
@@ -155,9 +128,7 @@ public class MatchingBaseService  {
             returnList = new ArrayList<>(hashSet) ;
         }
         catch (Exception ex) {
-            String errorMessage = "Exception while creating hashcode for patient entity IDs . ";
-            logger.debug("{} {}", ex.getMessage(), errorMessage);
-            throw new DataProcessingException(errorMessage, ex);
+            throw new DataProcessingException(ex.getMessage(), ex);
         }
         return returnList;
     }
@@ -209,9 +180,9 @@ public class MatchingBaseService  {
     protected String processingPersonNameBasedOnAsOfDate(PersonNameDto personNameDto, String namesStr, Timestamp asofDate) {
         String caret = "^";
         if ((personNameDto.getLastNm() != null)
-                && (!personNameDto.getLastNm().trim().equals(""))
+                && (!personNameDto.getLastNm().trim().isEmpty())
                 && (personNameDto.getFirstNm() != null)
-                && (!personNameDto.getFirstNm().trim().equals("")))
+                && (!personNameDto.getFirstNm().trim().isEmpty()))
         {
             namesStr = personNameDto.getLastNm() + caret + personNameDto.getFirstNm();
             asofDate = personNameDto.getAsOfDate(); // NOSONAR

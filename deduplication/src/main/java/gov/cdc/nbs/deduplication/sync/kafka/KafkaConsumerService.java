@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(value = "deduplication.sync.enabled", havingValue = "true")
 public class KafkaConsumerService {
 
-
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final PersonInsertSyncHandler insertHandler;
   private final PersonUpdateSyncHandler updateHandler;
@@ -31,16 +30,22 @@ public class KafkaConsumerService {
   @KafkaListener(topics = "${kafka.topics.person}", groupId = "mpiDataSyncerGroup")
   public void consumePersonMessage(String message) {
     try {
+      // read message
       JsonNode payloadNode = objectMapper.readTree(message).path("payload");
 
-      String operation = payloadNode.path("op").asText();
-      handlePersonOperation(operation, payloadNode);
+      // check if person record is PAT. if not, do nothing
+      JsonNode afterNode = payloadNode.path("after");
+      String cd = afterNode.get("cd").asText();
+
+      if ("PAT".equals(cd)) {
+        String operation = payloadNode.path("op").asText();
+        handlePersonOperation(operation, payloadNode);
+      }
 
     } catch (Exception e) {
       log.error("Error while processing message from topic: {}: {}", "test.NBS_ODSE.dbo.Person", message, e);
     }
   }
-
 
   private void handlePersonOperation(String operation, JsonNode payloadNode) throws JsonProcessingException {
     if ("c".equals(operation)) {

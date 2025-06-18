@@ -149,9 +149,9 @@ class SeedingTest {
     // Address
     assertThat(mpiData.address()).hasSize(1);
     assertThat(mpiData.address().get(0).line()).hasSize(1);
-    assertThat(mpiData.address().get(0).line().get(0)).isEqualTo("123 Main St.");
+    assertThat(mpiData.address().get(0).line().get(0)).isEqualTo("123 Main ST");
     assertThat(mpiData.address().get(0).city()).isEqualTo("Atlanta");
-    assertThat(mpiData.address().get(0).state()).isEqualTo("Georgia");
+    assertThat(mpiData.address().get(0).state()).isEqualTo("GA");
     assertThat(mpiData.address().get(0).postal_code()).isEqualTo("30024");
     assertThat(mpiData.address().get(0).county()).isEqualTo("Gwinnett County");
 

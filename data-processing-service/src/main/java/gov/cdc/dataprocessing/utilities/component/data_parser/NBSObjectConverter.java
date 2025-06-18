@@ -16,7 +16,7 @@ import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
 import gov.cdc.dataprocessing.model.phdc.*;
 import gov.cdc.dataprocessing.repository.nbs.srte.model.StateCode;
-import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueService;
+import gov.cdc.dataprocessing.service.interfaces.cache.ICatchingValueDpService;
 import gov.cdc.dataprocessing.utilities.component.data_parser.util.EntityIdUtil;
 import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import org.slf4j.Logger;
@@ -30,39 +30,18 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 @Component
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class NBSObjectConverter {
     private static final Logger logger = LoggerFactory.getLogger(NBSObjectConverter.class);
 
     private final EntityIdUtil entityIdUtil;
 
-    private final ICatchingValueService catchingValueService;
+    private final ICatchingValueDpService catchingValueService;
 
     @Value("${service.timezone}")
     private String tz = "UTC";
 
-    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueService catchingValueService) {
+    public NBSObjectConverter(EntityIdUtil entityIdUtil, ICatchingValueDpService catchingValueService) {
         this.entityIdUtil = entityIdUtil;
         this.catchingValueService = catchingValueService;
     }
@@ -168,11 +147,11 @@ public class NBSObjectConverter {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_ACCOUNT_IDENTIFIER);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_ACCOUNT_DESC);
             }
-            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().equals("")) {
+            else if (hl7CXType.getHL7IdentifierTypeCode() == null || hl7CXType.getHL7IdentifierTypeCode().trim().isEmpty()) {
                 entityIdDto.setTypeCd(EdxELRConstant.ELR_PERSON_TYPE);
                 entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_PERSON_TYPE_DESC);
                 String typeCode = catchingValueService.getCodeDescTxtForCd(entityIdDto.getTypeCd(), EdxELRConstant.EI_TYPE);
-                if (typeCode == null || typeCode.trim().equals("")) {
+                if (typeCode == null || typeCode.trim().isEmpty()) {
                     entityIdDto.setTypeDescTxt(EdxELRConstant.ELR_CLIA_DESC);
                 } else {
                     entityIdDto.setTypeDescTxt(typeCode);
@@ -267,11 +246,11 @@ public class NBSObjectConverter {
             pl.setRecordStatusTime(TimeStampUtil.getCurrentTimeStamp(tz));
 
             pl.setRecordStatusCd(NEDSSConstant.RECORD_STATUS_ACTIVE);
-            HL7SADType HL7StreetAddress = hl7XADType.getHL7StreetAddress();
+            HL7SADType hl7StreetAddress = hl7XADType.getHL7StreetAddress();
             /** Optional maxOccurs="1 */
             /** length"184 */
-            if(HL7StreetAddress!=null){
-                pl = nbsStreetAddressType(HL7StreetAddress, pl);
+            if(hl7StreetAddress!=null){
+                pl = nbsStreetAddressType(hl7StreetAddress, pl);
             }
             if(hl7XADType.getHL7OtherDesignation()!=null && (pl.getStreetAddr2()==null || pl.getStreetAddr2().trim().equalsIgnoreCase(""))) {
                 pl.setStreetAddr2(hl7XADType.getHL7OtherDesignation());
@@ -315,10 +294,10 @@ public class NBSObjectConverter {
             else {
                 pl.setCntyCd(cnty);
             }
-            String HL7CensusTract = hl7XADType.getHL7CensusTract();
+            String hl7CensusTract = hl7XADType.getHL7CensusTract();
             /** Optional maxOccurs="1 */
             /** length"20 */
-            pl.setCensusTrackCd(HL7CensusTract);
+            pl.setCensusTrackCd(hl7CensusTract);
 
             elp.setThePostalLocatorDto(pl);
         } catch (Exception e) {
@@ -385,7 +364,7 @@ public class NBSObjectConverter {
 
     public EntityIdDto validateSSN(EntityIdDto entityIdDto) {
         String ssn = entityIdDto.getRootExtensionTxt();
-        if(ssn != null && !ssn.equals("") && !ssn.equals(" ")) {
+        if(ssn != null && !ssn.isEmpty() && !ssn.equals(" ")) {
             ssn =ssn.trim();
             if (ssn.length() > 3) {
                 String newSSN = ssn.substring(0, 3);
@@ -635,17 +614,6 @@ public class NBSObjectConverter {
             /*If the float is too long, like 10 digits, the float format would be somethign line 11.1F, and trying to convert it to String, in some cases, the precision
              * is not great, and the number changes. That is the reason I am treating the local number as String. NBSCentral defect related is #2758*/
             if (hl7LocalNumber != null && hl7LocalNumber.getHL7Numeric() != null) {
-
-//                String localNumberString = hl7LocalNumber.toString();
-//                int begin = localNumberString.indexOf(">");
-//                if(begin!=-1){
-//                    String subString1 = localNumberString.substring(begin+1);
-//                    int end = subString1.indexOf("<");
-//                    if(end!=-1)
-//                        number = subString1.substring(0,end);
-//                }
-                //number = (String.format ("%.0f", hl7LocalNumber.getHL7Numeric()));
-
                 number = hl7LocalNumber.getHL7Numeric().toString();
 
             }
@@ -668,7 +636,6 @@ public class NBSObjectConverter {
         /** Optional maxOccurs="1 */
         /** length"5 */
 
-        // teleDT.setExtensionTxt(extension.getHL7Numeric().getValue1()+"");
         String anyText = hl7XTNType.getHL7AnyText();
         /** Optional maxOccurs="1 */
         /** length"199 */
@@ -677,15 +644,15 @@ public class NBSObjectConverter {
     }
 
     @SuppressWarnings("java:S1319")
-    public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType HL7Type){
+    public boolean  checkIfNumberMoreThan10Digits(ArrayList<String> areaAndNumber,  HL7NMType hl7Type){
 
 
         boolean incorrectLength = false;
         String areaCode;
         String number;
 
-        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
-            String areaCodeString = HL7Type.getHL7Numeric().toString();
+        if (hl7Type != null && hl7Type.getHL7Numeric() != null) {
+            String areaCodeString = hl7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>10){//Phone number more than 10 digits
                 int length = areaCodeString.length();
@@ -712,7 +679,6 @@ public class NBSObjectConverter {
         // eg, 1234567 -> 123-4567, 1234567890 -> 123-456-7890
         String newFormatedNbr = "";
         if (phoneNbrTxt != null) {
-            // String phoneNbr = dt.getPhoneNbrTxt();
             phoneNbrTxt =phoneNbrTxt.trim();
             int nbrSize = phoneNbrTxt.length();
 
@@ -737,14 +703,14 @@ public class NBSObjectConverter {
     }// End of formatPhoneNbr
 
     @SuppressWarnings("java:S1319")
-    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType HL7Type){
+    public boolean checkIfAreaCodeMoreThan3Digits(ArrayList<String> areaAndNumber, HL7NMType hl7Type){
 
         boolean incorrectLength = false;
         String areaCode;
         String number;
-        if (HL7Type != null && HL7Type.getHL7Numeric() != null) {
+        if (hl7Type != null && hl7Type.getHL7Numeric() != null) {
 
-            String areaCodeString =HL7Type.getHL7Numeric().toString();
+            String areaCodeString =hl7Type.getHL7Numeric().toString();
 
             if(areaCodeString.length()>3){//Area code more than 3 digits
                 incorrectLength= true;

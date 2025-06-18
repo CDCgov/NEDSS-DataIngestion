@@ -1,16 +1,17 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements.DataElement;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.AlgorithmContext;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.AlgorithmContext.Advanced;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.AlgorithmContext.LogOdd;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.DibbsPass;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Evaluator;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Func;
-import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Kwargs;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.Rule;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.SimilarityMeasure;
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
@@ -32,44 +33,49 @@ public class AlgorithmMapper {
         algorithmName,
         "Algorithm used by NBS",
         false, // updated to true after initial insert
-        true,
+        mapContext(dataElements),
         algorithm.passes()
             .stream()
             .filter(Pass::active)
             .map(p -> mapPass(p, dataElements))
-            .toList(),
-        0.0, // Default to no allowed missing. Will have to discuss with PO on how to handle
-        0.0);
+            .toList());
+  }
+
+  AlgorithmContext mapContext(DataElements dataElements) {
+    List<LogOdd> logOdds = Arrays.stream(MatchingAttribute.values())
+        .map(a -> {
+          DataElement dataElement = findDataElement(a, dataElements);
+          return new LogOdd(a.toString(), dataElement != null ? dataElement.logOdds() : null);
+        })
+        .filter(lo -> lo.value() != null)
+        .toList();
+
+    return new AlgorithmContext(
+        true,
+        logOdds,
+        new Advanced(
+            SimilarityMeasure.JAROWINKLER,
+            0.0,
+            0.0));
   }
 
   DibbsPass mapPass(Pass pass, DataElements dataElements) {
-    Map<String, Double> thresholds = new HashMap<>();
-    Map<String, Double> logOdds = new HashMap<>();
-
-    pass.matchingCriteria().forEach(m -> {
-      DataElement dataElement = findDataElement(m.attribute(), dataElements);
-      thresholds.put(m.attribute().toString(), m.threshold());
-      logOdds.put(m.attribute().toString(), dataElement.logOdds());
-    });
-
     List<Evaluator> evaluators = pass.matchingCriteria()
         .stream()
         .map(m -> new Evaluator(
             m.attribute(),
-            m.method().equals(MatchingMethod.EXACT) ? Func.EXACT : Func.FUZZY))
+            m.method().equals(MatchingMethod.EXACT) ? Func.EXACT : Func.FUZZY,
+            m.threshold()))
         .toList();
 
     List<Double> bounds = calculateBounds(pass, dataElements);
 
     return new DibbsPass(
+        pass.name(),
         pass.blockingCriteria(),
         evaluators,
         Rule.PROBABILISTIC,
-        bounds,
-        new Kwargs(
-            SimilarityMeasure.JAROWINKLER,
-            thresholds,
-            logOdds));
+        bounds);
   }
 
   // Convert the the lower and upper bound from UI format (0 -> total log odds) to
@@ -100,6 +106,7 @@ public class AlgorithmMapper {
       case COUNTY -> dataElements.county();
       case DRIVERS_LICENSE_NUMBER -> dataElements.driversLicenseNumber();
       case EMAIL -> dataElements.email();
+      case IDENTIFIER -> dataElements.identifier();
       case FIRST_NAME -> dataElements.firstName();
       case LAST_NAME -> dataElements.lastName();
       case MEDICAID_NUMBER -> dataElements.medicaidNumber();

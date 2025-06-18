@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -66,11 +67,13 @@ class AuthUserServiceTest {
         var roleCol = new ArrayList<AuthUserRealizedRole>();
         var role = new AuthUserRealizedRole();
         roleCol.add(role);
-        when(customAuthUserRepository.getAuthUserRealizedRole(authUserId)).thenReturn(roleCol);
-        when(jdbcTemplateOdse.query(anyString(), any(Object[].class), (ResultSetExtractor<Object>) any()))
-                .thenAnswer(invocation -> {
-                    return Optional.of(authUser);
-                });
+        when(customAuthUserRepository.getAuthUserRealizedRole(any())).thenReturn(roleCol);
+        when(jdbcTemplateOdse.queryForObject(
+                anyString(),
+                any(Object[].class),
+                any(RowMapper.class))
+        ).thenReturn(authUser);
+
 
         var test = authUserService.getAuthUserInfo(authUserId);
 
@@ -88,7 +91,7 @@ class AuthUserServiceTest {
                     return Optional.of(Optional.empty());
                 });
 
-        ClassCastException thrown = assertThrows(ClassCastException.class, () -> {
+        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
             authUserService.getAuthUserInfo(authUserId);
         });
         assertNotNull(thrown.getMessage());

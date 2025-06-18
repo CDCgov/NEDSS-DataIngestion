@@ -13,7 +13,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -23,28 +22,7 @@ import static gov.cdc.dataprocessing.constant.ComplexQueries.*;
 import static gov.cdc.dataprocessing.utilities.DataParserForSql.*;
 
 @Repository
-/**
- 125 - Comment complaint
- 3776 - Complex complaint
- 6204 - Forcing convert to stream to list complaint
- 1141 - Nested complaint
-  1118 - Private constructor complaint
- 1186 - Add nested comment for empty constructor complaint
- 6809 - Calling transactional method with This. complaint
- 2139 - exception rethrow complain
- 3740 - parametrized  type for generic complaint
- 1149 - replacing HashTable complaint
- 112 - throwing dedicate exception complaint
- 107 - max parameter complaint
- 1195 - duplicate complaint
- 1135 - Todos complaint
- 6201 - instanceof check
- 1192 - duplicate literal
- 135 - for loop
- 117 - naming
- */
-@SuppressWarnings({"java:S125", "java:S3776", "java:S6204", "java:S1141", "java:S1118", "java:S1186", "java:S6809", "java:S6541", "java:S2139", "java:S3740",
-        "java:S1149", "java:S112", "java:S107", "java:S1195", "java:S1135", "java:S6201", "java:S1192", "java:S135", "java:S117"})
+
 public class CustomRepositoryImpl implements CustomRepository {
     @PersistenceContext(unitName = "odse")
     protected EntityManager entityManager;
@@ -60,7 +38,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
     }
 
-    @Transactional
+//    @Transactional
     public List<StateDefinedFieldDataDto> getLdfCollection(Long busObjectUid, String conditionCode, String theQuery) {
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("businessObjUid", busObjectUid);
@@ -84,7 +62,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-    @Transactional
+//    @Transactional
     public Map<Object, Object> getAssociatedDocumentList(Long uid, String targetClassCd, String sourceClassCd, String theQuery) {
         Map<Object, Object> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
@@ -100,7 +78,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return map;
     }
 
-    @Transactional
+//    @Transactional
     public Map<String, EDXEventProcessDto>getEDXEventProcessMapByCaseId(Long publicHealthCaseUid) {
         String docQuery = " SELECT"
                 + " edx_event_process_uid  \"eDXEventProcessUid\", "
@@ -141,7 +119,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
 
-    @Transactional
+//    @Transactional
     public Map<Object, Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID) {
         Map<Object,Object> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(DOCUMENT_FOR_A_PHC);
@@ -166,7 +144,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return map;
     }
 
-    @Transactional
+//    @Transactional
     public List<NotificationSummaryContainer> retrieveNotificationSummaryListForInvestigation(Long publicHealthUID, String theQuery) {
         List<NotificationSummaryContainer> map= new ArrayList<> ();
         Query query = entityManager.createNativeQuery(theQuery);
@@ -199,7 +177,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return map;
     }
 
-    @Transactional
+//    @Transactional
     public Map<Object, Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID, String theQuery) {
         Map<Object,Object> map= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
@@ -222,12 +200,12 @@ public class CustomRepositoryImpl implements CustomRepository {
         return map;
     }
 
-    @Transactional
+//    @Transactional
     public Map<Object,Object>  getAssociatedInvList(Long uid,String sourceClassCd, String theQuery) {
         Map<Object,Object> assocoiatedInvMap= new HashMap<> ();
         Query query = entityManager.createNativeQuery(theQuery);
         query.setParameter("ClassCd", sourceClassCd);
-        query.setParameter("ActUid",uid);
+        query.setParameter("ActUid", uid);
         List<Object[]> results = query.getResultList();
         if (resultValidCheck(results)) {
             for(var item : results) {
@@ -241,7 +219,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return assocoiatedInvMap;
     }
 
-    @Transactional
+//    @Transactional
     public ArrayList<ResultedTestSummaryContainer> getSusceptibilityResultedTestSummary(String typeCode, Long observationUid) {
         String theSelect = SELECT_LABSUSCEPTIBILITES_REFLEXTEST_SUMMARY_FORWORKUP_SQLSERVER;
         Query query = entityManager.createNativeQuery(theSelect);
@@ -278,7 +256,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-    @Transactional
+//    @Transactional
     public ArrayList<UidSummaryContainer> getSusceptibilityUidSummary(ResultedTestSummaryContainer rvo, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm, String typeCode, Long observationUid)
     {
         String theSelect = GET_SOURCE_ACT_UID_FOR_SUSCEPTIBILITES_SQL;
@@ -297,7 +275,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-    @Transactional
+//    @Transactional
     public ArrayList<ResultedTestSummaryContainer> getTestAndSusceptibilities(String typeCode, Long observationUid, LabReportSummaryContainer labRepEvent, LabReportSummaryContainer labRepSumm) {
         String theSelect = SELECT_LABRESULTED_REFLEXTEST_SUMMARY_FORWORKUP_SQL;
         Query query = entityManager.createNativeQuery(theSelect);
@@ -335,7 +313,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return lst;
     }
 
-    @Transactional
+//    @Transactional
     public ProviderDataForPrintContainer getOrderingPersonPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid) {
         String theSelect = "select phone_nbr_txt \"phoneNbrTxt\", extension_txt \"extensionTxt\" from TELE_locator with (nolock) where TELE_locator_uid in ("
                 +" select locator_uid from Entity_locator_participation with (nolock) where entity_uid= "+ organizationUid + " and cd='O' and class_cd='TELE')  ";
@@ -351,7 +329,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return providerDataForPrintVO;
     }
 
-    @Transactional
+//    @Transactional
     public ProviderDataForPrintContainer getOrderingPersonAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
         String theSelect = "select street_addr1 \"streetAddr1\", city_desc_txt \"cityDescTxt\", state_cd \"stateCd\", zip_cd \"zipCd\" from Postal_locator with (nolock) where postal_locator_uid in ("
@@ -370,7 +348,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return providerDataForPrintVO;
     }
 
-    @Transactional
+//    @Transactional
     public ProviderDataForPrintContainer getOrderingFacilityPhone(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
         String theSelect = "select phone_nbr_txt \"phoneNbrTxt\", extension_txt \"extensionTxt\" from TELE_locator with (nolock) where TELE_locator_uid in ("
@@ -387,7 +365,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return providerDataForPrintVO;
     }
 
-    @Transactional
+//    @Transactional
     public ProviderDataForPrintContainer getOrderingFacilityAddress(ProviderDataForPrintContainer providerDataForPrintVO, Long organizationUid)
     {
 
@@ -409,7 +387,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         return providerDataForPrintVO;
     }
 
-    @Transactional
+//    @Transactional
     public String getSpecimanSource(Long materialUid) {
         String vals = null;
         String theSelect = "SELECT cd \"specimenSource\" "

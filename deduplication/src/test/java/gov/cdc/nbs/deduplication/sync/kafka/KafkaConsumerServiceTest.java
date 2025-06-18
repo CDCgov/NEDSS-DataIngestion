@@ -1,6 +1,5 @@
 package gov.cdc.nbs.deduplication.sync.kafka;
 
-
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,13 +37,22 @@ class KafkaConsumerServiceTest {
     Logger logger = (Logger) LoggerFactory.getLogger(KafkaConsumerService.class);
     listAppender = new ListAppender<>();
     listAppender.start();
-    logger.addAppender(listAppender);  // Attach ListAppender to capture logs
+    logger.addAppender(listAppender); // Attach ListAppender to capture logs
   }
-
 
   @Test
   void testConsumePersonMessage_CreateOperation() throws Exception {
-    String message = "{\"payload\": {\"op\": \"c\"}}"; //  c for adding a new row
+    // c for adding a new row and PAT for patient
+    String message = """
+        {
+          "payload": {
+            "op": "c",
+            "after": {
+              "cd": "PAT"
+            }
+          }
+        }
+        """;
     JsonNode payloadNode = objectMapper.readTree(message).path("payload");
 
     kafkaConsumerService.consumePersonMessage(message);
@@ -55,7 +63,17 @@ class KafkaConsumerServiceTest {
 
   @Test
   void testConsumePersonMessage_UpdateOperation() throws Exception {
-    String message = "{\"payload\": {\"op\": \"u\"}}"; // u for update
+    // u for updating a row and PAT for patient
+    String message = """
+        {
+          "payload": {
+            "op": "u",
+            "after": {
+              "cd": "PAT"
+            }
+          }
+        }
+        """;
     JsonNode payloadNode = objectMapper.readTree(message).path("payload");
 
     kafkaConsumerService.consumePersonMessage(message);
@@ -66,7 +84,36 @@ class KafkaConsumerServiceTest {
 
   @Test
   void testConsumePersonMessage_otherOperation() throws Exception {
-    String message = "{\"payload\": {\"op\": \"d\"}}";
+    // d for delete row and PAT for patient
+    String message = """
+        {
+          "payload": {
+            "op": "d",
+            "after": {
+              "cd": "PAT"
+            }
+          }
+        }
+        """;
+    kafkaConsumerService.consumePersonMessage(message);
+
+    verify(updateHandler, never()).handleUpdate(any());
+    verify(insertHandler, never()).handleInsert(any());
+  }
+
+  @Test
+  void testConsumePersonMessage_create_nonPatient() throws Exception {
+    // c for create and PRV for provider
+    String message = """
+        {
+          "payload": {
+            "op": "c",
+            "after": {
+              "cd": "PRV"
+            }
+          }
+        }
+        """;
     kafkaConsumerService.consumePersonMessage(message);
 
     verify(updateHandler, never()).handleUpdate(any());
@@ -75,14 +122,23 @@ class KafkaConsumerServiceTest {
 
   @Test
   void testConsumePersonMessage_ExceptionHandling() throws Exception {
-    String message = "{\"payload\": {\"op\": \"c\"}}";
+    // c for adding a new row
+    String message = """
+        {
+          "payload": {
+            "op": "c",
+            "after": {
+              "cd": "PAT"
+            }
+          }
+        }
+        """;
     JsonNode payloadNode = objectMapper.readTree(message).path("payload");
     doThrow(new RuntimeException("Test exception")).when(insertHandler).handleInsert(payloadNode);
     kafkaConsumerService.consumePersonMessage(message);
 
     // Verify that error logging is called when an exception occurs
-    boolean logFound = listAppender
-        .list
+    boolean logFound = listAppender.list
         .stream()
         .anyMatch(loggingEvent -> loggingEvent.getMessage().contains("Error while processing message from topic:"));
 

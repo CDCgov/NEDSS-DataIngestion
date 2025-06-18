@@ -905,6 +905,9 @@ public class QueryConstants {
                               FROM
                                   person mp WITH (NOLOCK)
                                   LEFT JOIN Entity_locator_participation elp WITH (NOLOCK) ON elp.entity_uid = mp.person_uid
+                                  AND elp.class_cd = 'PST'
+                                  AND elp.status_cd = 'A'
+                                  AND elp.use_cd = 'DTH'
                                   LEFT JOIN Postal_locator pl WITH (NOLOCK) ON elp.locator_uid = pl.postal_locator_uid
                                   LEFT JOIN NBS_SRTE.dbo.state_code sc WITH (NOLOCK) ON sc.state_cd = pl.state_cd
                                   LEFT JOIN NBS_SRTE.dbo.state_county_code_value scc WITH (NOLOCK) ON scc.code = pl.cnty_cd
@@ -913,9 +916,6 @@ public class QueryConstants {
                                   AND deceasedCode.code_set_nm = 'YNU'
                               WHERE
                                   mp.person_uid = p.person_uid
-                                  AND elp.class_cd = 'PST'
-                                  AND elp.status_cd = 'A'
-                                  AND elp.use_cd = 'DTH'
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES,
@@ -958,7 +958,8 @@ public class QueryConstants {
           ) AS nested
       WHERE
           p.person_uid IN (:ids)
-          AND p.record_status_cd = 'ACTIVE';
+          AND p.record_status_cd = 'ACTIVE'
+          ORDER BY p.add_time asc;
         """;
 
   public static final String FETCH_PATIENT_ADD_TIME_QUERY = """

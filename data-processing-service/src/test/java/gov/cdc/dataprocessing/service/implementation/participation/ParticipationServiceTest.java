@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.participation;
 
-import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationHistRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.participation.ParticipationRepository;
@@ -12,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,7 +49,7 @@ class ParticipationServiceTest {
     }
 
     @Test
-    void saveParticipationHist() throws DataProcessingException {
+    void saveParticipationHist()  {
         List<Integer> numbers = new ArrayList<>();
         numbers.add(1);
         numbers.add(2);
@@ -67,7 +67,7 @@ class ParticipationServiceTest {
     }
 
     @Test
-    void saveParticipation() throws DataProcessingException {
+    void saveParticipation() {
         ParticipationDto participationDto = new ParticipationDto();
         participationDto.setItNew(true);
         participationDto.setSubjectEntityUid(1L);
@@ -81,7 +81,7 @@ class ParticipationServiceTest {
     }
 
     @Test
-    void saveParticipationDelete() throws DataProcessingException {
+    void saveParticipationDelete() {
         ParticipationDto participationDto = new ParticipationDto();
         participationDto.setItDelete(true);
         participationDto.setSubjectEntityUid(1L);
@@ -92,5 +92,43 @@ class ParticipationServiceTest {
         participationService.saveParticipation(participationDto);
 
         verify(dataModifierReposJdbc, times(1)).deleteParticipationByPk(any(), any(), any());
+    }
+
+    @Test
+    void testSaveParticipationByBatch() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectEntityUid(1L);
+        dto.setActUid(2L);
+        List<ParticipationDto> toSave = List.of(dto);
+
+        participationService.saveParticipationByBatch(toSave);
+
+        verify(participationRepository).saveAll(anyList());
+    }
+
+    @Test
+    void testSaveParticipationByBatchWithEmptyList() {
+        participationService.saveParticipationByBatch(Collections.emptyList());
+        verify(participationRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    void testSaveParticipationHistBatch() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectEntityUid(1L);
+        dto.setActUid(2L);
+        dto.setTypeCd("type");
+        when(participationHistRepository.findVerNumberByKey(1L, 2L, "type"))
+                .thenReturn(Optional.of(List.of(1, 2)));
+
+        participationService.saveParticipationHistBatch(List.of(dto));
+
+        verify(participationHistRepository).saveAll(anyList());
+    }
+
+    @Test
+    void testSaveParticipationHistBatchWithEmptyList() {
+        participationService.saveParticipationHistBatch(Collections.emptyList());
+        verify(participationHistRepository, never()).saveAll(anyList());
     }
 }
