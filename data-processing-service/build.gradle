@@ -244,6 +244,6 @@ sonarqube {
                 " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, **/cache/cache_model/**, **/repository/nbs/odse/repos/**, " +
                 " **/service/implementation/auth_user/**, **/service/implementation/cache/ManagerCacheService.java, " +
                 " **/service/implementation/uid_generator/UidPoolManager.java, **/GsonUtil.java, **/KafkaProducerTransactionService.java, " +
-                " **/LinkResponse.java, **/RelateRequest.java, **/MatchesRequireReviewResponse.java"
+                " **/LinkResponse.java, **/RelateRequest.java, **/MatchesRequireReviewResponse.java, **/DecisionSupportService.java"
     }
 }
