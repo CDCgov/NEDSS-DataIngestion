@@ -9,14 +9,15 @@ import java.util.List;
 
 @Slf4j
 public class HL7BatchSplitter {
-
+    private HL7BatchSplitter(){
+    }
     public static List<String> splitHL7Batch(String batchHL7Msg) {
         List<String> hl7Messages = new ArrayList<>();
         StringBuilder currentMessage = new StringBuilder();
-        System.out.println("BTS value:" + StringUtils.substringBetween(batchHL7Msg, "BTS|", "|"));
+        log.info("BTS value:" + StringUtils.substringBetween(batchHL7Msg, "BTS|", "|"));
         //Check if input message has batch - BTS|5|Batch Message Count
         int batchMsgCount = getNumberOfMessages(batchHL7Msg);
-        System.out.println("batchMsgCount:" + batchMsgCount);
+        log.info("batchMsgCount:" + batchMsgCount);
         if (batchMsgCount > 1) {
             String[] msgAllLines = batchHL7Msg.split("\\R");
             for (String line : msgAllLines) {
@@ -33,7 +34,7 @@ public class HL7BatchSplitter {
                 hl7Messages.add(currentMessage.toString());
             }
         }else{
-            System.out.println("Only one HL7 message. No ELR batch split is needed.");
+            log.info("Only one HL7 message. No ELR batch split is needed.");
             hl7Messages.add(batchHL7Msg);
         }
         return hl7Messages;
@@ -41,7 +42,7 @@ public class HL7BatchSplitter {
 
     private static int getNumberOfMessages(String hl7Str) {
         String batchMsgCount = StringUtils.substringBetween(hl7Str, "BTS|", "|");
-        System.out.println("BTS value.HL7 message count:" + batchMsgCount);
+        log.info("BTS value.HL7 message count:" + batchMsgCount);
         if (NumberUtils.isCreatable(batchMsgCount)) {
             return Double.valueOf(batchMsgCount).intValue();
         }

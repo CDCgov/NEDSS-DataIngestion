@@ -66,12 +66,10 @@ public class RawElrService {
             }
             //Split the incoming ELR into multiple messages if it is a hl7 batch.
             List<String> hl7Messages= HL7BatchSplitter.splitHL7Batch(rawElrDto.getPayload());
-            System.out.println("in service split out messages:"+hl7Messages.size());
+            log.info("Number of messages after batch split:"+hl7Messages.size());
             List<RawElrModel> rawElrModels=  createRawElrModelsForBatch(hl7Messages,rawElrDto);
-            System.out.println("in service raw elr models before save:"+rawElrModels.size());
             //JPA batch insert
             List<RawElrModel> savedELRs=rawElrRepository.saveAll(rawElrModels);
-            System.out.println("in service raw elr models after save:"+savedELRs.size());
 
             for(RawElrModel rawElrModel : savedELRs) {
                 rawELRIds.add(rawElrModel.getId());
@@ -91,7 +89,7 @@ public class RawElrService {
                 }
             }
         }
-        System.out.println("Elr Ids:"+String.join(",",rawELRIds));
+        log.info("Elr Ids:"+String.join(",",rawELRIds));
         return String.join(",",rawELRIds);
     }
     public void updateRawMessageAfterRetry(RawElrDto rawElrDto, int dltOccurrence) throws KafkaProducerException {

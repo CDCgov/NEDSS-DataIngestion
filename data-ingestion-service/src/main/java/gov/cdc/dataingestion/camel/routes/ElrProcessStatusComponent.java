@@ -40,7 +40,7 @@ public class ElrProcessStatusComponent {
         this.reportStatusService = reportStatusService;
     }
 
-    @SuppressWarnings({"java:S3776"})
+    @SuppressWarnings({"java:S3776","java:S1119"})
     @Handler
     public String process(String body) {
         String elrProcessStatus = "";
