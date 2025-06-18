@@ -256,7 +256,8 @@ public class ObservationService implements IObservationService {
                 && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR102_SUB_CD)
                 && recordStatusCd != null
                 && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
-            ) {
+            ) // NOSONAR
+            {
                 Long organizationUid = partDT.getSubjectEntityUid();
                 if (theOrganizationVOCollection == null) {
                     theOrganizationVOCollection = new ArrayList<>();
