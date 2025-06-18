@@ -55,7 +55,7 @@ class ElrReportsControllerMockTest {
         String version = "1";
         String expectedResponse = "Submission successful";
 
-        when(rawELRService.submission(any(RawElrDto.class))).thenReturn(expectedResponse);
+        when(rawELRService.submissionElr(any(RawElrDto.class))).thenReturn(expectedResponse);
 
         ResponseEntity<String> response = elrReportsController.save(payload, type, version,"");
 
@@ -71,7 +71,7 @@ class ElrReportsControllerMockTest {
         String version = "1";
         String expectedResponse = "Submission successful";
 
-        when(rawELRService.submission(any(RawElrDto.class))).thenReturn(expectedResponse);
+        when(rawELRService.submissionElrXml(any(RawElrDto.class))).thenReturn(expectedResponse);
 
         ResponseEntity<String> response = elrReportsController.save(payload, type, version,"");
 
