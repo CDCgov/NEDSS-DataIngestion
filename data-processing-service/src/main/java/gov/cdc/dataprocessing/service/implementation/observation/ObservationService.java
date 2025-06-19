@@ -242,7 +242,7 @@ public class ObservationService implements IObservationService {
     /**
      * Was: retrieveOrganizationVOsForProxyVO
      * */
-    Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) {
+    protected Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) {
         Collection<Object>  theOrganizationVOCollection  = null;
         for (ParticipationDto partDT : partColl) {
             if (partDT == null) {
@@ -256,7 +256,8 @@ public class ObservationService implements IObservationService {
                 && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR102_SUB_CD)
                 && recordStatusCd != null
                 && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
-            ) {
+            )
+            {
                 Long organizationUid = partDT.getSubjectEntityUid();
                 if (theOrganizationVOCollection == null) {
                     theOrganizationVOCollection = new ArrayList<>();
@@ -1016,6 +1017,7 @@ public class ObservationService implements IObservationService {
     /**
      * Original Name: processLabReportObsVOCollection
      * */
+    @SuppressWarnings({"java:S1481","java:S1854", "java:S3626"})
     protected Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean elrProcessing) throws DataProcessingException {
         Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
         ObservationContainer observationContainer;
@@ -1035,20 +1037,6 @@ public class ObservationService implements IObservationService {
                 observationContainer = item;
                 if (observationContainer == null) {
                     continue;
-                }
-
-                // NOTE: data toward DP will never be manual lab
-                if (isMannualLab) {
-                    /**
-                    // Removed for Rel 1.1.3 - as we are not doing a reverse translation for ORdered test and Resulted Test
-                    if (isOrderedTest || isResultedTest) {
-                        //Retrieve lab test code
-
-                        //Do loinc and snomed lookups for oredered and resulted tests
-                        observationContainer = srteCodeObsService.labLoincSnomedLookup(observationContainer, labResultProxyVO.getLabClia());
-                    }
-                    logger.debug("observationUID: " + observationContainer.getTheObservationDto().getObservationUid());
-                     **/
                 }
             }
         }

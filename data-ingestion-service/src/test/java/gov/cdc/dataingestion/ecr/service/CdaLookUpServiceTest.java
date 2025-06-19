@@ -29,7 +29,7 @@ class CdaLookUpServiceTest {
     private CdaLookUpService target;
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
         target = new CdaLookUpService(ecrLookUpRepository);
     }

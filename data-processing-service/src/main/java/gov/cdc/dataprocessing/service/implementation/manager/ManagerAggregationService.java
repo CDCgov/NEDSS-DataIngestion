@@ -174,7 +174,7 @@ public class ManagerAggregationService implements IManagerAggregationService {
         }
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     protected void roleAggregation(LabResultProxyContainer labResult) {
         Map<Object, RoleDto> mappedExistingRoleCollection  = new HashMap<>();
         Map<Object, RoleDto> mappedNewRoleCollection  = new HashMap<>();

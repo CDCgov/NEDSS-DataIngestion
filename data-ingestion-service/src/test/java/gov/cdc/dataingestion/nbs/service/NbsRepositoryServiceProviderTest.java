@@ -47,7 +47,7 @@ class NbsRepositoryServiceProviderTest {
     private String testXmlData;
 
     @BeforeEach
-    public void setUpEach() throws IOException {
+    void setUpEach() throws IOException {
         MockitoAnnotations.openMocks(this);
         testXmlData = TestHelper.testFileReading();
     }

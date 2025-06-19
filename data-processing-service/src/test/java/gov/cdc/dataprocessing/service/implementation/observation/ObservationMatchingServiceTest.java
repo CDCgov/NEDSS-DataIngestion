@@ -444,6 +444,62 @@ class ObservationMatchingServiceTest {
     }
 
 
+    @Test
+    void testNewMatchesNew() {
+        assertTrue(observationMatchingService.isValidStatusMatch("N", "N"));
+    }
+
+    @Test
+    void testNewMatchesCompleted() {
+        assertTrue(observationMatchingService.isValidStatusMatch("N", "D"));
+    }
+
+    @Test
+    void testNewMatchesSuperceded() {
+        assertTrue(observationMatchingService.isValidStatusMatch("N", "T"));
+    }
+
+    @Test
+    void testCompletedMatchesCompleted() {
+        assertTrue(observationMatchingService.isValidStatusMatch("D", "D"));
+    }
+
+    @Test
+    void testCompletedMatchesSuperceded() {
+        assertTrue(observationMatchingService.isValidStatusMatch("D", "T"));
+    }
+
+    @Test
+    void testSupercededMatchesSuperceded() {
+        assertTrue(observationMatchingService.isValidStatusMatch("T", "T"));
+    }
+
+    @Test
+    void testInvalidCombinationReturnsFalse() {
+        // e.g., Completed vs New
+        assertFalse(observationMatchingService.isValidStatusMatch("D", "N"));
+    }
+
+    @Test
+    void testNewDoesNotMatchOther() {
+        assertFalse(observationMatchingService.isValidStatusMatch("N", "Z")); // invalid msg
+    }
+
+    @Test
+    void testCompletedDoesNotMatchNew() {
+        assertFalse(observationMatchingService.isValidStatusMatch("D", "N"));
+    }
+
+    @Test
+    void testSupercededDoesNotMatchNewOrCompleted() {
+        assertFalse(observationMatchingService.isValidStatusMatch("T", "N"));
+        assertFalse(observationMatchingService.isValidStatusMatch("T", "D"));
+    }
+
+    @Test
+    void testInvalidOdsDoesNotMatchValidMsg() {
+        assertFalse(observationMatchingService.isValidStatusMatch("X", "N")); // invalid ods
+    }
 
 
 }

@@ -99,7 +99,7 @@ public class ProgramAreaService implements IProgramAreaService {
     /**
      * Description: method getting program area given CLIA and Observation Requests
      * */
-    @SuppressWarnings({"java:S3776","java:S1149", "java:S135"})
+    @SuppressWarnings({"java:S3776","java:S1149", "java:S135", "java:S6541"})
     private HashMap<String, String> getProgramAreaHelper(String reportingLabCLIA,
                                                          Collection<ObservationContainer> observationResults,
                                                          String electronicInd) throws DataProcessingException {

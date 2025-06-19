@@ -152,7 +152,7 @@ public class LookupService implements ILookupService {
         return lst;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     private static void createPrePopFromMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
         int count = 0;
         int loopcount = 0;
@@ -248,7 +248,7 @@ public class LookupService implements ILookupService {
 
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     private static void createPrePopToMap(Collection<LookupMappingDto> coll) throws DataProcessingException {
         int count = 0;
         int loopcount = 0;

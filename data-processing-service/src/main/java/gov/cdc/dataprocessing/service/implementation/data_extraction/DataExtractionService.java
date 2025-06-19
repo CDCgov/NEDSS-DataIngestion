@@ -63,7 +63,7 @@ public class DataExtractionService implements IDataExtractionService {
         this.nbsInterfaceStoredProcRepository = nbsInterfaceStoredProcRepository;
     }
 
-    @SuppressWarnings({"java:S3776", "java:S108"})
+    @SuppressWarnings({"java:S3776", "java:S108", "java:S6541"})
     public LabResultProxyContainer parsingDataToObject(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto) throws JAXBException, DataProcessingException {
         int rootObsUid = 0;
         long userId = AuthUtil.authUser.getAuthUserUid();
