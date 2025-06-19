@@ -61,7 +61,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("java:S1640")
+@SuppressWarnings({"java:S1640","java:S6068"})
 class ObservationServiceTest {
     @Mock
     private INNDActivityLogService nndActivityLogService;
