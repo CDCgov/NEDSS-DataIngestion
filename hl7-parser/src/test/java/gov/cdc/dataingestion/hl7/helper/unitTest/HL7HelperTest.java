@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.hl7.helper.unitTest;
 
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
@@ -50,7 +49,6 @@ class HL7HelperTest {
     @Test
     void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(testMessageForXmlIssue);
-        Gson gson = new Gson();
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
@@ -404,7 +402,6 @@ class HL7HelperTest {
     @Test
     void hl7StringParserWith231_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated231WithDataInAllFieldV1);
-        Gson gson = new Gson();
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
