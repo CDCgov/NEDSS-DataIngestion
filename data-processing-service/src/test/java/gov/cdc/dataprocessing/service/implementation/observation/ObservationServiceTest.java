@@ -2201,5 +2201,197 @@ class ObservationServiceTest {
         assertNull(lrProxyVO.getTheConditionsList());              // not set
     }
 
+    @Test
+    void testProcessObservations_WhenMprUidIsNull() throws Exception {
+        Map<Object, Object> returnVal = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        Map<Object, Object> mockObsResults = new HashMap<>();
+        mockObsResults.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, 999L);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(mockObsResults).when(spyService).processObservationContainerCollection(proxy, true);
+        doReturn(Map.of()).when(spyService).findLocalUidsFor(null, 999L);
+
+        var result = spyService.processObservations(proxy, returnVal, null);
+
+        assertEquals(mockObsResults, result);
+        assertFalse(returnVal.containsKey(NEDSSConstant.SETLAB_RETURN_MPR_UID));
+    }
+
+    @Test
+    void testProcessObservations_WhenMprUidNegativeAndNotFound_Throws() throws Exception {
+        // Arrange
+        Map<Object, Object> returnVal = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        Map<Object, Object> mockObsResults = new HashMap<>();
+        mockObsResults.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, 999L); // Make sure this matches real constant
+
+        // Spy the service under test
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Stub methods to return mocked data
+        doReturn(mockObsResults)
+                .when(spyService)
+                .processObservationContainerCollection(proxy, true);
+
+        when(participationService.findPatientMprUidByObservationUid(
+                eq(NEDSSConstant.PERSON),
+                eq(NEDSSConstant.PAR110_TYP_CD),
+                eq(999L)
+        )).thenReturn(null); // simulate "not found"
+
+        // Act & Assert
+        DataProcessingException ex = assertThrows(DataProcessingException.class, () ->
+                spyService.processObservations(proxy, returnVal, -1L)
+        );
+
+        assertTrue(ex.getMessage().contains("observation uid = 999"));
+    }
+
+    @Test
+    void testProcessObservations_WhenMprUidNegativeAndFound_Success() throws Exception {
+        Map<Object, Object> returnVal = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        Map<Object, Object> mockObsResults = new HashMap<>();
+        mockObsResults.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, 999L); // ensure correct key
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        doReturn(mockObsResults).when(spyService).processObservationContainerCollection(proxy, true);
+
+        when(participationService.findPatientMprUidByObservationUid(
+                eq(NEDSSConstant.PERSON),
+                eq(NEDSSConstant.PAR110_TYP_CD),
+                eq(999L)
+        )).thenReturn(777L);
+
+        doReturn(Map.of()).when(spyService).findLocalUidsFor(777L, 999L);
+
+        var result = spyService.processObservations(proxy, returnVal, -1L);
+
+        assertEquals(mockObsResults, result);
+        assertEquals(777L, returnVal.get(NEDSSConstant.SETLAB_RETURN_MPR_UID));
+    }
+
+    @Test
+    void testProcessLabReportObsContainerCollection_WhenElectronicIndNotYes_SetsManualFlag() throws Exception {
+        // Arrange
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        // Include a valid non-null observation and a null to test the continue path
+        ObservationContainer obs1 = mock(ObservationContainer.class);
+        ObservationContainer obs2 = null;
+        proxy.setTheObservationContainerCollection(Arrays.asList(obs1, obs2));
+
+        // Mock the root ObservationDto with electronicInd != "Y"
+        ObservationDto rootDto = new ObservationDto();
+        rootDto.setElectronicInd("N"); // Test the condition path
+        when(observationUtil.getRootObservationDto(proxy)).thenReturn(rootDto);
+
+        // Set up a spy and stub inner calls
+        ObservationService spyService = Mockito.spy(observationService);
+
+        Map<Object, Object> returnMap = new HashMap<>();
+        doReturn(returnMap).when(spyService).processLabReportOrderTest(proxy, true);
+        doReturn(1001L).when(spyService).storeObservationVOCollection(proxy);
+
+        // Act
+        Map<Object, Object> result = spyService.processLabReportObsContainerCollection(proxy, true);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1001L, result.get(NEDSSConstant.SETLAB_RETURN_OBS_UID));
+    }
+
+    @Test
+    void testProcessLabReportObsContainerCollection_WhenObservationIsNull_ContinuesLoop() throws Exception {
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        // Add a null ObservationContainer in the list using Arrays.asList
+        proxy.setTheObservationContainerCollection(Arrays.asList((ObservationContainer) null));
+
+        ObservationDto rootDto = new ObservationDto();
+        rootDto.setElectronicInd("Y"); // not manual
+        when(observationUtil.getRootObservationDto(proxy)).thenReturn(rootDto);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(new HashMap<>()).when(spyService).processLabReportOrderTest(proxy, true);
+        doReturn(1001L).when(spyService).storeObservationVOCollection(proxy);
+
+        Map<Object, Object> result = spyService.processLabReportObsContainerCollection(proxy, true);
+
+        assertEquals(1001L, result.get(NEDSSConstant.SETLAB_RETURN_OBS_UID));
+    }
+
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_WhenObsCollectionIsNull_InitializesNewList() {
+        // Arrange
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+        proxy.setTheOrganizationContainerCollection(new ArrayList<>());
+
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto dto = new ObservationDto();
+        orderedTest.setTheObservationDto(dto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, null); // Triggers obsColl == null
+        allAct.put(DataProcessingMapKey.ORGANIZATION, null); // avoid lab block
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Force !isELR to enter user name block
+        AuthUser authUser = new AuthUser();
+        authUser.setUserId("test-user");
+        AuthUtil.authUser = authUser;
+
+        // Act
+        spyService.loadingObservationToLabResultContainerActHelper(proxy, false, allAct, orderedTest);
+
+        // Assert
+        assertNotNull(proxy.getTheObservationContainerCollection());
+        assertEquals(1, proxy.getTheObservationContainerCollection().size());
+        assertEquals(orderedTest, proxy.getTheObservationContainerCollection().iterator().next());
+
+        assertEquals("test-user", orderedTest.getTheObservationDto().getAddUserName());
+        assertEquals("test-user", orderedTest.getTheObservationDto().getLastChgUserName());
+    }
+
+
+    @Test
+    void testLoadingObservationToLabResultContainer_WhenAnswerServiceThrowsException_LogsError() throws Exception {
+        Long observationId = 123L;
+        boolean isELR = false;
+
+        // Mock orderedTest and its collections
+        ObservationContainer mockOrderedTest = new ObservationContainer();
+        mockOrderedTest.setTheParticipationDtoCollection(Collections.emptyList());
+        mockOrderedTest.setTheActRelationshipDtoCollection(Collections.emptyList());
+
+        // Spy the service so we can stub internal call
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Stub the call to load observation
+        doReturn(mockOrderedTest)
+                .when(spyService).getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
+
+        // Simulate exception from answerService
+        doThrow(new RuntimeException("Simulated failure"))
+                .when(answerService).getNbsAnswerAndAssociation(observationId);
+
+        // Act
+        LabResultProxyContainer result = spyService.loadingObservationToLabResultContainer(observationId, isELR);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getPageVO()); // Should remain null due to exception
+    }
+
+
+
 
 }

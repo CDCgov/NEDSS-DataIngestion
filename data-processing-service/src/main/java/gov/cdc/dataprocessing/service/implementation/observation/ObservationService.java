@@ -1037,20 +1037,6 @@ public class ObservationService implements IObservationService {
                 if (observationContainer == null) {
                     continue;
                 }
-
-                // NOTE: data toward DP will never be manual lab
-                if (isMannualLab) {
-                    /**
-                    // Removed for Rel 1.1.3 - as we are not doing a reverse translation for ORdered test and Resulted Test
-                    if (isOrderedTest || isResultedTest) {
-                        //Retrieve lab test code
-
-                        //Do loinc and snomed lookups for oredered and resulted tests
-                        observationContainer = srteCodeObsService.labLoincSnomedLookup(observationContainer, labResultProxyVO.getLabClia());
-                    }
-                    logger.debug("observationUID: " + observationContainer.getTheObservationDto().getObservationUid());
-                     **/
-                }
             }
         }
 
