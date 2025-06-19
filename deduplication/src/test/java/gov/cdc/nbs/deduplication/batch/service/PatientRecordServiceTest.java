@@ -83,6 +83,20 @@ class PatientRecordServiceTest {
   }
 
   @Test
+  void fetchPersonRecord_ReturnsNull() {
+    String personUid = "123";
+
+    when(namedParameterJdbcTemplate.query(
+        eq(QueryConstants.PERSON_RECORD_BY_PERSON_ID),
+        any(MapSqlParameterSource.class),
+        any(MpiPersonMapper.class))).thenReturn(List.of());
+
+    MpiPerson actualPerson = patientRecordService.fetchPersonRecord(personUid);
+
+    assertThat(actualPerson).isNull();
+  }
+
+  @Test
   void fetchPersonRecords_ReturnsListOfMpiPersons() {
     List<String> personUids = Arrays.asList("123", "456");
     MpiPerson person1 = new MpiPerson("123", null, null, null, null, null, null, null, null);
