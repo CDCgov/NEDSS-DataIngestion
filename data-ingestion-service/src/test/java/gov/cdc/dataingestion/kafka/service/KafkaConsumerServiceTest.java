@@ -131,7 +131,7 @@ class KafkaConsumerServiceTest {
     private static String xmlPrepTopic = "xml_prep";
     private static String fhirPrepTopic = "fhir_prep";
     @BeforeAll
-    public static void setUpAll() {
+    static void setUpAll() {
         String bootstrapServers = kafkaContainer.getBootstrapServers();
 
         // Create Kafka consumer properties
@@ -169,7 +169,7 @@ class KafkaConsumerServiceTest {
         validatedELRModel = new ValidatedELRModel();
     }
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         consumer.close();
         mssqlserver.stop();
     }

@@ -1133,7 +1133,7 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(xonType.getHL7OrganizationName());
         sb.append(ATTRIBUTES_SEPARATOR);
 
-        if(null != xonType.getHL7OrganizationNameTypeCode() && (xonType.getHL7OrganizationNameTypeCode().length() > 0)) {
+        if(null != xonType.getHL7OrganizationNameTypeCode() && (!xonType.getHL7OrganizationNameTypeCode().isEmpty())) {
             sb.append(xonType.getHL7OrganizationNameTypeCode());
         }
 
@@ -1154,7 +1154,7 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(streamHL7HDType(xonType.getHL7AssigningAuthority()));
         sb.append(ATTRIBUTES_SEPARATOR);
 
-        if(null != xonType.getHL7IdentifierTypeCode() && (xonType.getHL7IdentifierTypeCode().length() > 0)) {
+        if(null != xonType.getHL7IdentifierTypeCode() && (!xonType.getHL7IdentifierTypeCode().isEmpty())) {
             sb.append(xonType.getHL7IdentifierTypeCode());
         }
 
@@ -1163,13 +1163,13 @@ public class RhapsodysXmlToHl7Converter {
         sb.append(streamHL7HDType(xonType.getHL7AssigningFacility()));
         sb.append(ATTRIBUTES_SEPARATOR);
 
-        if(null != xonType.getHL7NameRepresentationCode() && (xonType.getHL7NameRepresentationCode().length() > 0)) {
+        if(null != xonType.getHL7NameRepresentationCode() && (!xonType.getHL7NameRepresentationCode().isEmpty())) {
             sb.append(xonType.getHL7NameRepresentationCode());
         }
 
         sb.append(ATTRIBUTES_SEPARATOR);
 
-        if(null != xonType.getHL7OrganizationIdentifier() && (xonType.getHL7OrganizationIdentifier().length() > 0)) {
+        if(null != xonType.getHL7OrganizationIdentifier() && (!xonType.getHL7OrganizationIdentifier().isEmpty())) {
             sb.append(xonType.getHL7OrganizationIdentifier());
         }
 

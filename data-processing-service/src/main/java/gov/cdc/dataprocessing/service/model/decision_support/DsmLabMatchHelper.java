@@ -631,7 +631,7 @@ public class DsmLabMatchHelper {
                                 }
                                 else if (algorithmTextValue.getComparatorCode().equals(NEDSSConstant.NOTNULL_LOGIC))
                                 {
-                                    if (obsValueTxtDT.getValueTxt() != null && (obsValueTxtDT.getValueTxt().length() > 0))
+                                    if (obsValueTxtDT.getValueTxt() != null && (!obsValueTxtDT.getValueTxt().isEmpty()))
                                     {
                                         textAlgorithmMatched = true;
                                     }

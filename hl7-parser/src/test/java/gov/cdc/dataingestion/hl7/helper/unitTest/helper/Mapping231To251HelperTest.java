@@ -26,7 +26,7 @@ class Mapping231To251HelperTest {
     static HL7ParsedMessage testObject;
     static ca.uhn.hl7v2.model.v231.message.ORU_R01 oruR01Hapi;
     @BeforeAll
-    public static void setUp() throws DiHL7Exception {
+    static void setUp() throws DiHL7Exception {
         testObject = hl7Helper.hl7StringParser(randomGenerated231WithDataInAllFieldV2);
         oruR01Hapi =hl7Helper.hl7StringParser231(randomGenerated231WithDataInAllFieldV2);
     }
