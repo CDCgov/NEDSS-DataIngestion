@@ -72,10 +72,10 @@ class PatientRecordServiceTest {
     MpiPerson expectedPerson = new MpiPerson(personUid, null, null, null,
         null, null, null, null, null);
 
-    when(namedParameterJdbcTemplate.queryForObject(
+    when(namedParameterJdbcTemplate.query(
         eq(QueryConstants.PERSON_RECORD_BY_PERSON_ID),
         any(MapSqlParameterSource.class),
-        any(MpiPersonMapper.class))).thenReturn(expectedPerson);
+        any(MpiPersonMapper.class))).thenReturn(List.of(expectedPerson));
 
     MpiPerson actualPerson = patientRecordService.fetchPersonRecord(personUid);
 
