@@ -3,11 +3,11 @@ package gov.cdc.nbs.deduplication.patient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-class PatientCreator {
+class PersonManager {
 
   private final JdbcClient client;
 
-  public PatientCreator(@Qualifier("nbsJdbcClient") final JdbcClient client) {
+  public PersonManager(@Qualifier("nbsJdbcClient") final JdbcClient client) {
     this.client = client;
   }
 
@@ -67,11 +67,30 @@ class PatientCreator {
       )
       """;
 
+  private static final String SET_INACTIVE = """
+      UPDATE person
+      SET
+        record_status_cd = 'INACTIVE',
+        record_status_time = GETDATE(),
+        status_cd = 'I',
+        status_time = GETDATE(),
+        last_chg_user_id = -1,
+        last_chg_time = GETDATE()
+      WHERE
+        person_uid = :id
+      """;
+
   public Long create() {
     final Long patientId = getNextId();
     insertEntity(patientId);
     insertPatient(patientId);
     return patientId;
+  }
+
+  public void setInactive(long patientId) {
+    client.sql(SET_INACTIVE)
+        .param("id", patientId)
+        .update();
   }
 
   private Long getNextId() {

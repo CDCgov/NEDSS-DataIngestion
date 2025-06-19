@@ -5,22 +5,27 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
 @Component
+// Handles creating and managing patient data within NBS 6 tests
 public class PatientManager {
 
-  private final PatientCreator creator;
+  private final PersonManager personManager;
   private final PatientNameCreator nameCreator;
 
   public PatientManager(@Qualifier("nbsJdbcClient") final JdbcClient client) {
-    this.creator = new PatientCreator(client);
+    this.personManager = new PersonManager(client);
     this.nameCreator = new PatientNameCreator(client);
   }
 
   public long createPatient() {
-    return creator.create();
+    return personManager.create();
   }
 
   public void addName(long patientId, PatientName name) {
     nameCreator.create(patientId, name);
+  }
+
+  public void markInactive(long patientId) {
+    personManager.setInactive(patientId);
   }
 
 }

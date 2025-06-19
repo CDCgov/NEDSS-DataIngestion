@@ -42,10 +42,15 @@ public class PatientRecordService {
   }
 
   public MpiPerson fetchPersonRecord(String personUid) {
-    return namedParameterJdbcTemplate.queryForObject(
+    List<MpiPerson> results = namedParameterJdbcTemplate.query(
         QueryConstants.PERSON_RECORD_BY_PERSON_ID,
         new MapSqlParameterSource("personUid", personUid),
         mpiPersonMapper);
+    if (results.isEmpty()) {
+      return null;
+    } else {
+      return results.get(0);
+    }
   }
 
   public List<MpiPerson> fetchPersonRecords(List<String> personUids) {
