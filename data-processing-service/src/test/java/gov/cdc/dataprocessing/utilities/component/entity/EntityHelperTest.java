@@ -28,7 +28,7 @@ class EntityHelperTest {
     private PrepareAssocModelHelper prepareAssocModel;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

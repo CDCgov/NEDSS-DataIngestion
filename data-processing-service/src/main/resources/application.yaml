@@ -1,8 +1,8 @@
 server:
 #  Designated PORT Is 8082
-#  port: 8082
-#  servlet:
-#    context-path: /rti
+  port: 8082
+  servlet:
+    context-path: /rti
 
 info:
   app:
@@ -39,8 +39,8 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
-  main:
-    web-application-type: none
+#  main:
+#    web-application-type: none
   application:
     name: data-processing-service
 
@@ -131,7 +131,5 @@ feature:
   thread-pool-size: ${THREAD_POOL_SIZE:10}
   thread-batch-size: ${THREAD_BATCH_SIZE:50}
 processor:
-  delay_ms: ${PROCESSOR_DELAY:100}
+  delay_ms: ${PROCESSOR_DELAY:1000}
 uid:
-  pool_size: ${UID_POOL_SIZE:5000}
-  min_pool_size: ${UID_MIN_POOL_SIZE:1000}

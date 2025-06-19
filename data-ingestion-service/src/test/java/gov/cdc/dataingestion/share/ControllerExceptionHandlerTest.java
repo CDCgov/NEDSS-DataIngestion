@@ -17,7 +17,7 @@ class ControllerExceptionHandlerTest {
     private Exception exception;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         handler = new ControllerExceptionHandler();
         exception = new Exception("Something went wrong");
     }

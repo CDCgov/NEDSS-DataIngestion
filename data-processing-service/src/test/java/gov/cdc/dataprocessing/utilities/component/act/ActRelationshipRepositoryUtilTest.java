@@ -29,7 +29,7 @@ class ActRelationshipRepositoryUtilTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

@@ -228,7 +228,6 @@ public class SrteCodeObsService implements ISrteCodeObsService {
 
                 }
 
-               ///adawfaf
             }
         } //end of while
 

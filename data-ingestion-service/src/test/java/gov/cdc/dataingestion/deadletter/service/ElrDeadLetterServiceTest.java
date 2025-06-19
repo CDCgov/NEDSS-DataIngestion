@@ -15,7 +15,6 @@ import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,16 +69,11 @@ class ElrDeadLetterServiceTest {
     private String guidForTesting = "8DC5E410-4A2E-4018-8C28-A4F6AB99E802";
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
         elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService, rawElrService);
     }
 
-
-    @AfterAll
-    public static void tearDown() {
-
-    }
 
     @Test
     void testGetDltRecordByIdSuccess() throws DeadLetterTopicException {

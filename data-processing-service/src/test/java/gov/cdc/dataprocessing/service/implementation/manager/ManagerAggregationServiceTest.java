@@ -33,16 +33,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+@SuppressWarnings("java:S6068")
 class ManagerAggregationServiceTest {
     @Mock
     private IOrganizationService organizationService;
@@ -186,7 +182,7 @@ class ManagerAggregationServiceTest {
 
     @SuppressWarnings("java:S1117")
     @Test
-    void testProgAndJurisdictionAggregationAsync_HappyPath() throws DataProcessingException, ExecutionException, InterruptedException {
+    void testProgAndJurisdictionAggregationAsync_HappyPath() throws DataProcessingException {
         // Prepare mock data
         Collection<ObservationContainer> observationContainerCollection = new ArrayList<>();
         observationContainerCollection.add(observationContainer);
@@ -391,4 +387,209 @@ class ManagerAggregationServiceTest {
 
         assertNotNull(res);
     }
+
+    @Test
+    void testPatientAggregation_WhenPersonCollectionIsNull_ReturnsEmptyContainer() throws Exception {
+        PersonAggContainer result = managerAggregationService.patientAggregation(
+                labResultProxyContainer,
+                edxLabInformationDto,
+                null
+        );
+
+        assertNotNull(result);
+        assertNull(result.getPersonContainer());
+        assertNull(result.getProviderContainer());
+    }
+
+    @SuppressWarnings("java:S1117")
+    @Test
+    void testPatientAggregation_WhenCdIsProvider_CallsProcessingProvider() throws Exception {
+        // Use real objects for critical internal structure
+        PersonDto personDto = new PersonDto();
+        personDto.setCd(EdxELRConstant.ELR_PROVIDER_CD);
+
+        PersonContainer container = new PersonContainer();
+        container.setRole("IGNORED");
+        container.setThePersonDto(personDto);
+
+        Collection<PersonContainer> personList = List.of(container);
+
+        when(patientService.processingProvider(
+                eq(labResultProxyContainer),
+                eq(edxLabInformationDto),
+                eq(container),
+                eq(false))
+        ).thenReturn(container);
+
+        PersonAggContainer result = managerAggregationService.patientAggregation(
+                labResultProxyContainer,
+                edxLabInformationDto,
+                personList
+        );
+
+        assertNotNull(result);
+        assertEquals(container, result.getProviderContainer());
+        verify(patientService).processingProvider(eq(labResultProxyContainer), eq(edxLabInformationDto), eq(container), eq(false));
+    }
+
+    @Test
+    void testRoleAggregation_ScopingEntityUidNull_CountZero() {
+        RoleDto roleDto = new RoleDto();
+        roleDto.setItDelete(false);
+        roleDto.setSubjectEntityUid(1L);
+        roleDto.setCd("PROVIDER");
+        roleDto.setScopingEntityUid(null);
+        roleDto.setSubjectClassCd("SUB");
+
+        List<RoleDto> roleDtos = List.of(roleDto);
+        when(labResult.getTheRoleDtoCollection()).thenReturn(roleDtos);
+        when(roleService.loadCountBySubjectCdComb(any())).thenReturn(0);
+
+        new ManagerAggregationService(null, null, null, null, null, null, null, roleService)
+                .roleAggregation(labResult);
+
+        verify(roleService).loadCountBySubjectCdComb(roleDto);
+        verify(labResult).setTheRoleDtoCollection(argThat(list -> list.stream()
+                .anyMatch(r -> ((RoleDto) r).getRoleSeq() == 1)));
+    }
+
+    @Test
+    void testRoleAggregation_SpecialCase_ProviderAndConRole() {
+        RoleDto roleDto = new RoleDto();
+        roleDto.setItDelete(false);
+        roleDto.setSubjectEntityUid(2L);
+        roleDto.setCd(EdxELRConstant.ELR_COPY_TO_CD);
+        roleDto.setScopingEntityUid(3L);
+        roleDto.setSubjectClassCd(EdxELRConstant.ELR_CON);
+        roleDto.setScopingRoleCd("ANY");
+
+        List<RoleDto> roleDtos = List.of(roleDto);
+        when(labResult.getTheRoleDtoCollection()).thenReturn(roleDtos);
+        when(roleService.loadCountBySubjectScpingCdComb(any())).thenReturn(0);
+        when(roleService.loadCountBySubjectCdComb(any())).thenReturn(0);
+
+        new ManagerAggregationService(null, null, null, null, null, null, null, roleService)
+                .roleAggregation(labResult);
+
+        verify(roleService).loadCountBySubjectScpingCdComb(roleDto);
+        verify(roleService).loadCountBySubjectCdComb(roleDto);
+        verify(labResult).setTheRoleDtoCollection(argThat(list -> list.stream()
+                .anyMatch(r -> ((RoleDto) r).getRoleSeq() == 1)));
+    }
+
+
+    @Test
+    void testRoleAggregation_SpecialMaterialCase_SkipsSetRoleSeq() {
+        // Arrange
+        RoleDto roleDto = new RoleDto();
+        roleDto.setItDelete(false);
+        roleDto.setSubjectEntityUid(3L);
+        roleDto.setCd(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD);
+        roleDto.setScopingEntityUid(4L);
+        roleDto.setSubjectClassCd(EdxELRConstant.ELR_MAT_CD);
+        roleDto.setScopingRoleCd(EdxELRConstant.ELR_SPECIMEN_PROCURER_CD);
+        roleDto.setRoleSeq(2L); // triggers the inner "Material is a special" block
+
+        List<RoleDto> roleDtos = List.of(roleDto);
+        when(labResult.getTheRoleDtoCollection()).thenReturn(roleDtos);
+        when(roleService.loadCountBySubjectScpingCdComb(any())).thenReturn(0);
+        when(roleService.loadCountBySubjectCdComb(any())).thenReturn(1); // countForPKValues != 0
+
+        // Act
+        new ManagerAggregationService(null, null, null, null, null, null, null, roleService)
+                .roleAggregation(labResult);
+
+        // Assert
+        verify(roleService).loadCountBySubjectScpingCdComb(roleDto);
+        verify(roleService).loadCountBySubjectCdComb(roleDto);
+        verify(labResult).setTheRoleDtoCollection(argThat(list ->
+                list.stream().anyMatch(r ->
+                        ((RoleDto) r).getRoleSeq() == 2 &&
+                                ((RoleDto) r).getSubjectClassCd().equals(EdxELRConstant.ELR_MAT_CD)
+                )
+        ));
+    }
+
+    @SuppressWarnings("java:S1117")
+    @Test
+    void testProgAndJurisdictionAggregationHelper_AssignsProgramAndJurisdiction() throws DataProcessingException {
+        // Arrange
+        ObservationDto requestDto = new ObservationDto();
+        requestDto.setObsDomainCdSt1(EdxELRConstant.ELR_ORDER_CD); // observationRequest
+        requestDto.setProgAreaCd(null);
+        requestDto.setJurisdictionCd(null);
+
+        ObservationDto resultDto = new ObservationDto();
+        resultDto.setObsDomainCdSt1(EdxELRConstant.ELR_RESULT_CD);
+
+        ObservationContainer requestContainer = new ObservationContainer();
+        requestContainer.setTheObservationDto(requestDto);
+
+        ObservationContainer resultContainer = new ObservationContainer();
+        resultContainer.setTheObservationDto(resultDto);
+
+        Collection<ObservationContainer> obsList = Arrays.asList(resultContainer, requestContainer);
+
+        LabResultProxyContainer labResult = mock(LabResultProxyContainer.class);
+        when(labResult.getTheObservationContainerCollection()).thenReturn(obsList);
+
+        EdxLabInformationDto edxInfo = new EdxLabInformationDto();
+        edxInfo.setSendingFacilityClia("CLIA123");
+
+        PersonAggContainer personAgg = new PersonAggContainer();
+        personAgg.setPersonContainer(new PersonContainer());
+        personAgg.setProviderContainer(new PersonContainer());
+
+        OrganizationContainer orgContainer = new OrganizationContainer();
+
+        // Act
+        managerAggregationService.progAndJurisdictionAggregationHelper(labResult, edxInfo, personAgg, orgContainer);
+
+        // Assert
+        verify(programAreaService).getProgramArea(
+                argThat(col -> col.contains(resultContainer)), eq(requestContainer),
+                eq("CLIA123")
+        );
+
+        verify(jurisdictionService).assignJurisdiction(
+                eq(personAgg.getPersonContainer()),
+                eq(personAgg.getProviderContainer()),
+                eq(orgContainer),
+                eq(requestContainer)
+        );
+    }
+
+    @Test
+    void testServiceAggregation_ExecutesAllAggregationSteps() throws Exception {
+        // Arrange
+        ManagerAggregationService spyService = Mockito.spy(new ManagerAggregationService(
+                organizationService,
+                patientService,
+                uidService,
+                observationService,
+                observationMatchingService,
+                programAreaService,
+                jurisdictionService,
+                roleService
+        ));
+
+        when(labResult.getTheObservationContainerCollection()).thenReturn(observationContainerCollection);
+        when(labResult.getThePersonContainerCollection()).thenReturn(personContainerCollection);
+        doNothing().when(spyService).observationAggregation(eq(labResult), eq(edxLabInformationDto), eq(observationContainerCollection));
+        doReturn(personAggContainer).when(spyService).patientAggregation(eq(labResult), eq(edxLabInformationDto), eq(personContainerCollection));
+        when(organizationService.processingOrganization(eq(labResult))).thenReturn(organizationContainer);
+        doNothing().when(spyService).roleAggregation(eq(labResult));
+        doNothing().when(spyService).progAndJurisdictionAggregationHelper(eq(labResult), eq(edxLabInformationDto), eq(personAggContainer), eq(organizationContainer));
+
+        // Act
+        spyService.serviceAggregation(labResult, edxLabInformationDto);
+
+        // Assert
+        verify(spyService).observationAggregation(labResult, edxLabInformationDto, observationContainerCollection);
+        verify(spyService).patientAggregation(labResult, edxLabInformationDto, personContainerCollection);
+        verify(organizationService).processingOrganization(labResult);
+        verify(spyService).roleAggregation(labResult);
+        verify(spyService).progAndJurisdictionAggregationHelper(labResult, edxLabInformationDto, personAggContainer, organizationContainer);
+    }
+
 }

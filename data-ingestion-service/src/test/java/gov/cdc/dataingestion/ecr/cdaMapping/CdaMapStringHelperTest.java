@@ -21,7 +21,7 @@ class CdaMapStringHelperTest {
     private CdaMapStringHelper target;
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
     }
 

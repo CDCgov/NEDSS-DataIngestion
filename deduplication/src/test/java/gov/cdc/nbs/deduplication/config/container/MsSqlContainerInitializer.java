@@ -6,7 +6,11 @@ import org.springframework.lang.NonNull;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.images.PullPolicy;
 
+import org.testcontainers.containers.Network;
+
 class MsSqlContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+  public static final Network network = Network.newNetwork();
 
   @Override
   @SuppressWarnings("resource") // We don't want to close this
@@ -18,6 +22,8 @@ class MsSqlContainerInitializer implements ApplicationContextInitializer<Configu
     JdbcDatabaseContainer<?> container = new NbsDatabaseContainer<>(image)
         .withUsername(username)
         .withPassword(password)
+        .withNetwork(network)
+        .withNetworkAliases("mssql")
         .withImagePullPolicy(PullPolicy.defaultPolicy());
 
     container.start();
@@ -29,6 +35,10 @@ class MsSqlContainerInitializer implements ApplicationContextInitializer<Configu
     System.setProperty("spring.datasource.nbs.url", container.getJdbcUrl() + ";database=nbs_odse");
     System.setProperty("spring.datasource.nbs.username", username);
     System.setProperty("spring.datasource.nbs.password", password);
+
+    System.setProperty("spring.datasource.mpi.url", container.getJdbcUrl() + ";database=mpi");
+    System.setProperty("spring.datasource.mpi.username", username);
+    System.setProperty("spring.datasource.mpi.password", password);
 
   }
 

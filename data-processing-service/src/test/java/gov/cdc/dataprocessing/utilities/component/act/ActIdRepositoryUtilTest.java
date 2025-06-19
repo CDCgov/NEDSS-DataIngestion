@@ -24,7 +24,7 @@ class ActIdRepositoryUtilTest {
     private ActIdJdbcRepository actIdRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

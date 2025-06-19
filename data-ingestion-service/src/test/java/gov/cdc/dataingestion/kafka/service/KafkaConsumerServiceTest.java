@@ -14,8 +14,8 @@ import gov.cdc.dataingestion.kafka.integration.service.KafkaConsumerService;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
-import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
+import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
@@ -53,7 +53,8 @@ import java.sql.*;
 import java.time.Duration;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 /**
@@ -130,7 +131,7 @@ class KafkaConsumerServiceTest {
     private static String xmlPrepTopic = "xml_prep";
     private static String fhirPrepTopic = "fhir_prep";
     @BeforeAll
-    public static void setUpAll() {
+    static void setUpAll() {
         String bootstrapServers = kafkaContainer.getBootstrapServers();
 
         // Create Kafka consumer properties
@@ -151,7 +152,7 @@ class KafkaConsumerServiceTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         kafkaConsumerService = new KafkaConsumerService(
                 iValidatedELRRepository,
@@ -168,7 +169,7 @@ class KafkaConsumerServiceTest {
         validatedELRModel = new ValidatedELRModel();
     }
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         consumer.close();
         mssqlserver.stop();
     }

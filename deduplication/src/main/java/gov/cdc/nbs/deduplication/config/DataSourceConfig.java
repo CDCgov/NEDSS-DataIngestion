@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 @Configuration
 public class DataSourceConfig {
@@ -43,6 +44,11 @@ public class DataSourceConfig {
     return new NamedParameterJdbcTemplate(template);
   }
 
+  @Bean("deduplicationJdbcClient")
+  public JdbcClient deduplicationJdbcClient(@Qualifier("deduplication") DataSource deduplicationDataSource) {
+    return JdbcClient.create(deduplicationDataSource);
+  }
+
   // NBS data source
   @Bean
   @ConfigurationProperties("spring.datasource.nbs")
@@ -69,6 +75,11 @@ public class DataSourceConfig {
     return new NamedParameterJdbcTemplate(template);
   }
 
+  @Bean("nbsJdbcClient")
+  public JdbcClient nbsJdbcClient(@Qualifier("nbs") DataSource nbsDataSource) {
+    return JdbcClient.create(nbsDataSource);
+  }
+
   // MPI data source
   @Bean
   @ConfigurationProperties("spring.datasource.mpi")
@@ -93,6 +104,11 @@ public class DataSourceConfig {
   public NamedParameterJdbcTemplate mpiNamedJdbcTemplate(
       @Qualifier("mpiTemplate") JdbcTemplate template) {
     return new NamedParameterJdbcTemplate(template);
+  }
+
+  @Bean("mpiJdbcClient")
+  public JdbcClient mpiJdbcClient(@Qualifier("mpi") DataSource mpiDataSource) {
+    return JdbcClient.create(mpiDataSource);
   }
 
 }

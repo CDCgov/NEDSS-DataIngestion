@@ -22,7 +22,10 @@ import static gov.cdc.dataprocessing.constant.elr.EdxELRConstant.AND_UPPERCASE;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.*;
 
 @Service
-
+/**
+ * Do not Attempt to refactor this Class Unless you know what need to be done
+ * Blindly refactoring this class will causing the significant failure with Case Notification and Mark As Review action
+ * */
 public class ContactSummaryService implements IContactSummaryService {
 
     private final QueryHelper queryHelper;

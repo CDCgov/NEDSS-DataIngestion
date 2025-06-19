@@ -25,13 +25,13 @@ class KafkaProducerConfigTest {
             .withStartupTimeout(Duration.ofMinutes(5));
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         kafkaContainer.start();
         kafkaProducerConfig = new KafkaProducerConfig();
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         kafkaContainer.stop();
     }
 

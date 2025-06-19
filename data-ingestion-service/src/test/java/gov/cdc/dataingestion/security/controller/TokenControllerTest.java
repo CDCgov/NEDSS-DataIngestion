@@ -51,7 +51,7 @@ class TokenControllerTest {
                 ArgumentMatchers.any(), ArgumentMatchers.<Class<List<String>>>any()))
                 .thenReturn(responseEntity);
 
-        String generatedToken = tokenController.token(clientId,clientSecret).getBody().toString();
+        String generatedToken = tokenController.token(clientId,clientSecret).getBody();
 
         assertEquals(expectedToken, generatedToken);
         verify(customMetricsBuilder, times(1)).incrementTokensRequested();

@@ -360,7 +360,7 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             }
             var caretStringList = getStringsBeforeCaret(repeats.get(i));
 
-            if (tripletCodedValue.length() > 0 && caretStringList.size() == 4) {
+            if (!tripletCodedValue.isEmpty() && caretStringList.size() == 4) {
                 String code = caretStringList.get(0);
                 String displayName = caretStringList.get(1);
                 String codeSystemName = caretStringList.get(2);

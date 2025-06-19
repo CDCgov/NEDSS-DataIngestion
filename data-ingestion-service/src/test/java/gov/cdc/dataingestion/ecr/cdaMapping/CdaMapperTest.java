@@ -31,7 +31,7 @@ class CdaMapperTest {
     private CdaMapper target;
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
     }
 

@@ -6,7 +6,6 @@ import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.kafka.integration.service.KafkaProducerService;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,11 +45,7 @@ class KafkaProducerServiceTest {
     private KafkaProducerService kafkaProducerService;
 
     @BeforeEach
-    public void setUp() {
-    }
-
-    @AfterAll
-    public static void tearDown() {
+    void setUp() {
     }
 
     @Test
@@ -168,7 +163,6 @@ class KafkaProducerServiceTest {
     @Test
     void testSendMessageAfterCheckingDuplicateHL7() throws KafkaProducerException {
         String topic = "test-topic";
-        String msg = "test";
         ValidatedELRModel model = new ValidatedELRModel();
         model.setRawId("test");
         CompletableFuture<SendResult<String, String>> future = new CompletableFuture<>();
@@ -209,7 +203,7 @@ class KafkaProducerServiceTest {
 
         when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
 
-        kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType);
+        kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType); //NOSONAR
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 

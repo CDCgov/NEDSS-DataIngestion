@@ -1,11 +1,10 @@
 package gov.cdc.dataingestion.nbs.ecr.resolver.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
+import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
 import org.springframework.jdbc.core.RowMapper;
 
-import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class EcrContainerMapper implements RowMapper<EcrMsgContainerDto> {
 

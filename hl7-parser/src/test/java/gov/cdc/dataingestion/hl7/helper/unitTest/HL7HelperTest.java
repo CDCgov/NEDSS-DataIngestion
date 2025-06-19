@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.hl7.helper.unitTest;
 
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.hl7.helper.HL7Helper;
 import gov.cdc.dataingestion.hl7.helper.integration.exception.DiHL7Exception;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.FinancialTransaction;
@@ -34,9 +33,8 @@ class HL7HelperTest {
             + "OBR|0||T09-100442-RET-0^^OLIS_Site_ID^ISO|RET^RETICULOCYTE COUNT^HL79901 literal|||200905011106|||||||200905011106||OLIST^BLAKE^DONALD^THOR^^^^L^921379||7870279|7870279|T09-100442|MOHLTC|200905011130||B7|F||1^^^200905011106^^R\r"
             + "OBX|1|ST|||Test Value";
 
-    private String invalidData = "TEST TEST";
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         target = new HL7Helper();
     }
 
@@ -51,8 +49,6 @@ class HL7HelperTest {
     @Test
     void hl7StringParser_ReturnValidMessage() throws  DiHL7Exception {
         var result = target.hl7StringParser(testMessageForXmlIssue);
-        Gson gson = new Gson();
-        String json = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
@@ -93,6 +89,7 @@ class HL7HelperTest {
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 
+    @SuppressWarnings("java:S5961")
     @Test
     void hl7StringParserWith251_ReturnValidMessage_RandomV2() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated251WithDataInAllFieldV2);
@@ -405,8 +402,6 @@ class HL7HelperTest {
     @Test
     void hl7StringParserWith231_ReturnValidMessage_RandomV1() throws  DiHL7Exception {
         var result = target.hl7StringParser(randomGenerated231WithDataInAllFieldV1);
-        Gson gson = new Gson();
-        var test = gson.toJson(result);
         Assertions.assertEquals("R01", result.getEventTrigger());
     }
 

@@ -36,7 +36,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 @Component
-
+/**
+ * Do not Attempt to refactor this Class Unless you know what need to be done
+ * Tightly coupling with Data Parser - small error can mess up the entire Pipeline
+ * */
 public class ObservationResultRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObservationResultRequestHandler.class);
 
@@ -331,7 +334,7 @@ public class ObservationResultRequestHandler {
             organizationDto.setItNew(true);
             organizationDto.setItDirty(false);
             organizationContainer.setTheOrganizationDto(organizationDto);
-            
+
             EntityIdDto entityIdDto = new EntityIdDto();
             entityIdDto.setEntityUid(organizationDto.getOrganizationUid());
             entityIdDto.setRootExtensionTxt(hl7XONTypeName.getHL7OrganizationIdentifier());
@@ -346,11 +349,11 @@ public class ObservationResultRequestHandler {
                 entityIdDto.setAssigningAuthorityCd(hl7XONTypeName.getHL7AssigningAuthority().getHL7UniversalID());
                 entityIdDto.setAssigningAuthorityIdType(hl7XONTypeName.getHL7AssigningAuthority().getHL7UniversalIDType());
             }
-            if(hl7XONTypeName.getHL7AssigningAuthority()!=null && hl7XONTypeName.getHL7AssigningAuthority().getHL7NamespaceID()!=null 
+            if(hl7XONTypeName.getHL7AssigningAuthority()!=null && hl7XONTypeName.getHL7AssigningAuthority().getHL7NamespaceID()!=null
                     && hl7XONTypeName.getHL7AssigningAuthority().getHL7NamespaceID().equals(EdxELRConstant.ELR_CLIA_CD)) {
                 entityIdDto.setAssigningAuthorityDescTxt(EdxELRConstant.ELR_CLIA_DESC);
             }
-            
+
             organizationContainer.getTheEntityIdDtoCollection().add(entityIdDto);
 
             ParticipationDto participationDto = new ParticipationDto();
@@ -642,7 +645,7 @@ public class ObservationResultRequestHandler {
     }
 
     protected ObservationContainer processingAbnormalFlag(List<HL7CWEType> abnormalFlag, ObservationDto observationDto,
-                                          ObservationContainer observationContainer) throws DataProcessingException {
+                                                          ObservationContainer observationContainer) throws DataProcessingException {
         if(abnormalFlag !=null && !abnormalFlag.isEmpty())
         {
             ObservationInterpDto observationIntrepDT = new ObservationInterpDto();

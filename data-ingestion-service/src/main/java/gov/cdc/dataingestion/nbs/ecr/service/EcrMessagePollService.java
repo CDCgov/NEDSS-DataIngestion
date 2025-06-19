@@ -5,13 +5,12 @@ import gov.cdc.dataingestion.nbs.ecr.service.interfaces.ICdaMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.dataingestion.nbs.services.EcrMsgQueryService;
 import gov.cdc.dataingestion.nbs.services.NbsRepositoryServiceProvider;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @EnableScheduling

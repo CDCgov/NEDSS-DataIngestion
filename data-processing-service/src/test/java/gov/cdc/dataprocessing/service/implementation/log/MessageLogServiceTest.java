@@ -25,7 +25,7 @@ class MessageLogServiceTest {
     private MessageLogRepository messageLogRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
