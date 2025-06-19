@@ -23,14 +23,14 @@ class PersonManager {
       WHERE class_name_cd = 'PERSON';
       """;
 
-  private static final String INSERT_PATIENT_ENTITY = """
+  private static final String INSERT_ENTITY = """
       INSERT INTO Entity
         (entity_uid, class_cd)
       VALUES
         (:id, 'PSN');
       """;
 
-  private static final String INSERT_PATIENT = """
+  private static final String INSERT_PERSON = """
       INSERT INTO person
         (
           person_uid,
@@ -100,13 +100,13 @@ class PersonManager {
   }
 
   private void insertEntity(long id) {
-    client.sql(INSERT_PATIENT_ENTITY)
+    client.sql(INSERT_ENTITY)
         .param("id", id)
         .update();
   }
 
   private void insertPatient(long id) {
-    client.sql(INSERT_PATIENT)
+    client.sql(INSERT_PERSON)
         .param("id", id)
         .param("localId", "PSN" + id + "GA01")
         .update();
