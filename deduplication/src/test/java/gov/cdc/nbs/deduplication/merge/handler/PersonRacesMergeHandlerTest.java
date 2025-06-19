@@ -63,7 +63,7 @@ class PersonRacesMergeHandlerTest {
 
     verifyUnselectedSurvivingRacesMarkedInactive();
     verifyNewDetailedRaceInserted();
-    verify(nbsTemplate, never()).update(eq(PersonRacesMergeHandler.MOVE_NEW_RACE_CATEGORY_TO_SURVIVOR), anyMap());
+    verify(nbsTemplate, never()).update(eq(PersonRacesMergeHandler.COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR), anyMap());
   }
 
   @Test
@@ -81,8 +81,8 @@ class PersonRacesMergeHandlerTest {
     handler.handleMerge("match-123", request);
 
     verifyUnselectedSurvivingRacesMarkedInactive();
-    verifyNewRaceCategoryMovedToSurvivor();
-    verify(nbsTemplate, never()).update(eq(PersonRacesMergeHandler.INSERT_NEW_DETAILED_RACE), anyMap());
+    verifyNewRaceCategoryCopiedToSurvivor();
+    verify(nbsTemplate, never()).update(eq(PersonRacesMergeHandler.COPY_RACE_DETAIL_IF_NOT_EXISTS), anyMap());
   }
 
   private void mockSurvivorRaceCategories(List<String> categories) {
@@ -102,12 +102,15 @@ class PersonRacesMergeHandlerTest {
   }
 
   private void verifyNewDetailedRaceInserted() {
-    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.INSERT_NEW_DETAILED_RACE),
+    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.COPY_RACE_DETAIL_IF_NOT_EXISTS),
         paramSourceCaptor.capture());
   }
 
-  private void verifyNewRaceCategoryMovedToSurvivor() {
-    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.MOVE_NEW_RACE_CATEGORY_TO_SURVIVOR),
+  private void verifyNewRaceCategoryCopiedToSurvivor() {
+    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR),
+        paramSourceCaptor.capture());
+
+    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR),
         paramSourceCaptor.capture());
   }
 

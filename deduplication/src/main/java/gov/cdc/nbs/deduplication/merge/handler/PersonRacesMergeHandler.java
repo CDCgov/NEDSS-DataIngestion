@@ -37,7 +37,7 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String INSERT_NEW_DETAILED_RACE = """
+  static final String COPY_RACE_DETAIL_IF_NOT_EXISTS = """
       INSERT INTO person_race (
           person_uid, race_cd, race_category_cd,
           add_reason_cd, add_time, add_user_id,
@@ -64,14 +64,48 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         )
       """;
 
-  static final String MOVE_NEW_RACE_CATEGORY_TO_SURVIVOR = """
-      UPDATE person_race
-      SET person_uid = :survivorId,
-          last_chg_time = GETDATE()
-      WHERE person_uid = :supersededUid
-        AND race_category_cd = :raceCategoryCd
-        AND race_cd = :selectedRaceCd
+  static final String COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR = """
+      INSERT INTO person_race (
+          person_uid, race_cd, race_category_cd,
+          add_reason_cd, add_time, add_user_id,
+          last_chg_reason_cd, last_chg_time, last_chg_user_id,
+          race_desc_txt, record_status_cd, record_status_time,
+          user_affiliation_txt, as_of_date
+      )
+      SELECT
+          :survivorId, race_cd, race_category_cd,
+          add_reason_cd, add_time, add_user_id,
+          'merge', GETDATE(), last_chg_user_id,
+          race_desc_txt, record_status_cd, record_status_time,
+          user_affiliation_txt, as_of_date
+      FROM Person_race pr
+      WHERE pr.person_uid = :supersededUid
+        AND pr.race_category_cd = :raceCategoryCd
+        AND pr.race_cd = pr.race_category_cd
+        AND pr.record_status_cd = 'ACTIVE'
       """;
+
+  static final String COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR = """
+      INSERT INTO person_race (
+          person_uid, race_cd, race_category_cd,
+          add_reason_cd, add_time, add_user_id,
+          last_chg_reason_cd, last_chg_time, last_chg_user_id,
+          race_desc_txt, record_status_cd, record_status_time,
+          user_affiliation_txt, as_of_date
+      )
+      SELECT
+          :survivorId, race_cd, race_category_cd,
+          add_reason_cd, add_time, add_user_id,
+          'merge', GETDATE(), last_chg_user_id,
+          race_desc_txt, record_status_cd, record_status_time,
+          user_affiliation_txt, as_of_date
+      FROM Person_race pr
+      WHERE pr.person_uid = :supersededUid
+        AND pr.race_category_cd = :raceCategoryCd
+        AND pr.race_cd = :selectedRaceCd
+        AND pr.record_status_cd = 'ACTIVE'
+      """;
+
 
   static final String SELECT_RACE_CATEGORY_FOR_RACE_CD = """
       SELECT DISTINCT race_category_cd
@@ -163,25 +197,35 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
       List<String> survivingRaceCategories, String selectedRaceCd) {
 
     if (survivingRaceCategories.contains(raceCategoryCd)) {
-      addNewDetailedRaceToSurviving(survivorId, supersededUid, raceCategoryCd, selectedRaceCd);
+      addNewRaceDetailToSurviving(survivorId, supersededUid, raceCategoryCd, selectedRaceCd);
     } else {
-      moveRaceToSurviving(survivorId, supersededUid, raceCategoryCd, selectedRaceCd);
+      copyRaceToSurviving(survivorId, supersededUid, raceCategoryCd);
+      copyRaceDetailToSurviving(survivorId, supersededUid, raceCategoryCd, selectedRaceCd);
     }
   }
 
-  private void addNewDetailedRaceToSurviving(String survivorId, String supersededUid, String raceCategoryCd,
+  private void addNewRaceDetailToSurviving(String survivorId, String supersededUid, String raceCategoryCd,
       String selectedRaceCd) {
 
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("survivorId", survivorId);
-    params.addValue("supersededUid", supersededUid);
-    params.addValue("raceCategoryCd", raceCategoryCd);
+    params.addValue("supersededUid", supersededUid);//NOSONAR
+    params.addValue("raceCategoryCd", raceCategoryCd);//NOSONAR
     params.addValue("selectedRaceCd", selectedRaceCd);
 
-    nbsTemplate.update(INSERT_NEW_DETAILED_RACE, params);
+    nbsTemplate.update(COPY_RACE_DETAIL_IF_NOT_EXISTS, params);
   }
 
-  private void moveRaceToSurviving(String survivorId, String supersededUid, String raceCategoryCd,
+  private void copyRaceToSurviving(String survivorId, String supersededUid, String raceCategoryCd) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("survivorId", survivorId);
+    params.addValue("supersededUid", supersededUid);
+    params.addValue("raceCategoryCd", raceCategoryCd);
+
+    nbsTemplate.update(COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR, params);
+  }
+
+  private void copyRaceDetailToSurviving(String survivorId, String supersededUid, String raceCategoryCd,
       String selectedRaceCd) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("survivorId", survivorId);
@@ -189,7 +233,7 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
     params.addValue("raceCategoryCd", raceCategoryCd);
     params.addValue("selectedRaceCd", selectedRaceCd);
 
-    nbsTemplate.update(MOVE_NEW_RACE_CATEGORY_TO_SURVIVOR, params);
+    nbsTemplate.update(COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR, params);
   }
 
 
