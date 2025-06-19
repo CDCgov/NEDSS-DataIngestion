@@ -696,6 +696,8 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity().getHL7Quantity());
         Assertions.assertNotNull(result.getQuantityTiming().getHL7Quantity().getHL7Units());
     }
+
+    @SuppressWarnings("java:S5961")
     @Test
     void buildHL7FT1TypeAllMissingConditional() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DiHL7Exception {
         String hl7Message = TestData.randomGenerated251WithDataInAllFieldV1;
@@ -759,7 +761,6 @@ class Hl7ToRhapsodysXmlConverterTest {
 
         var parentClass = new Hl7ToRhapsodysXmlConverter();
         gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen model = oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen();
-        var expectedMessage = "20230615";
         Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7SPMType", gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen.class);
         privateMethod.setAccessible(true);
         var result = (HL7SPMType) privateMethod.invoke(parentClass, model);
@@ -864,7 +865,6 @@ class Hl7ToRhapsodysXmlConverterTest {
 
         var parentClass = new Hl7ToRhapsodysXmlConverter();
         CommonOrder model = oru.getPatientResult().get(0).getOrderObservation().get(0).getCommonOrder();
-        var expectedMessage = "20230615";
         Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7ORCType", CommonOrder.class);
         privateMethod.setAccessible(true);
         var result = (HL7ORCType) privateMethod.invoke(parentClass, model);

@@ -49,10 +49,6 @@ class KafkaProducerServiceTest {
     void setUp() {
     }
 
-    @AfterAll
-    public static void tearDown() {
-    }
-
     @Test
     void testSendMessageFromController() throws KafkaProducerException {
         String msg = "test message";
@@ -168,7 +164,6 @@ class KafkaProducerServiceTest {
     @Test
     void testSendMessageAfterCheckingDuplicateHL7() throws KafkaProducerException {
         String topic = "test-topic";
-        String msg = "test";
         ValidatedELRModel model = new ValidatedELRModel();
         model.setRawId("test");
         CompletableFuture<SendResult<String, String>> future = new CompletableFuture<>();
@@ -209,7 +204,7 @@ class KafkaProducerServiceTest {
 
         when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
 
-        kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType);
+        kafkaProducerService.sendMessageFromCSVController(msg, topic,msgType); //NOSONAR
         verify(kafkaTemplate, times(1)).send(any(ProducerRecord.class));
     }
 

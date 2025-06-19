@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.hl7.helper.unitTest;
 
+@SuppressWarnings({"java:S115","java:S1124"})
 public class Hl7TestData {
 
 	public static String testMessageForXmlIssue = "MSH|^~\\&|LABCORP-CORP^OID^ISO|LABCORP^34D0655059^CLIA|SCDOH^OID^ISO|SC^OID^ISO|201204200159||ORU^R01^ORU_R01|20120605034370001A|D|2.5.1|||||||||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r" +

@@ -76,11 +76,6 @@ class ElrDeadLetterServiceTest {
     }
 
 
-    @AfterAll
-    public static void tearDown() {
-
-    }
-
     @Test
     void testGetDltRecordByIdSuccess() throws DeadLetterTopicException {
         ElrDeadLetterModel model = new ElrDeadLetterModel();
