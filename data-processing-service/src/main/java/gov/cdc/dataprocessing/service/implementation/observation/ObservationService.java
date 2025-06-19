@@ -242,7 +242,7 @@ public class ObservationService implements IObservationService {
     /**
      * Was: retrieveOrganizationVOsForProxyVO
      * */
-    Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) {
+    protected Collection<Object>  retrieveOrganizationFromParticipation(Collection<ParticipationDto> partColl) {
         Collection<Object>  theOrganizationVOCollection  = null;
         for (ParticipationDto partDT : partColl) {
             if (partDT == null) {
@@ -256,14 +256,11 @@ public class ObservationService implements IObservationService {
                 && subjectClassCd.equalsIgnoreCase(NEDSSConstant.PAR102_SUB_CD)
                 && recordStatusCd != null
                 && recordStatusCd.equalsIgnoreCase(NEDSSConstant.ACTIVE)
-            ) // NOSONAR
+            )
             {
                 Long organizationUid = partDT.getSubjectEntityUid();
                 if (theOrganizationVOCollection == null) {
                     theOrganizationVOCollection = new ArrayList<>();
-                }
-                else {
-                    var test = "STRING";
                 }
                 var orgContainer = organizationRepositoryUtil.loadObject(organizationUid, partDT.getActUid());
                 theOrganizationVOCollection.add(orgContainer);
