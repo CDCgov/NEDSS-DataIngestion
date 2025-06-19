@@ -1017,6 +1017,7 @@ public class ObservationService implements IObservationService {
     /**
      * Original Name: processLabReportObsVOCollection
      * */
+    @SuppressWarnings({"java:S1481","java:S1854", "java:S3626"})
     protected Map<Object, Object> processLabReportObsContainerCollection(LabResultProxyContainer labResultProxyVO, boolean elrProcessing) throws DataProcessingException {
         Collection<ObservationContainer>obsContainerCollection = labResultProxyVO.getTheObservationContainerCollection();
         ObservationContainer observationContainer;
