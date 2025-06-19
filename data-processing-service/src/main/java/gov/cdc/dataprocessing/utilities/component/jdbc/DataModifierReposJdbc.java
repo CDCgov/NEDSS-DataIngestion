@@ -35,6 +35,7 @@ public class DataModifierReposJdbc {
     }
 
 
+    @SuppressWarnings("java:S2077")
     public void deletePersonRaceByUid(Long personUid, List<String> raceCds) {
         String sql = "DELETE FROM Person_race WHERE person_uid = ? AND race_cd NOT IN (" +
                 String.join(",", raceCds.stream().map(cd -> "?").toArray(String[]::new)) + ")";

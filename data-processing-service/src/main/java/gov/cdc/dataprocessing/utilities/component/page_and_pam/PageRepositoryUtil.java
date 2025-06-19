@@ -181,7 +181,6 @@ public class PageRepositoryUtil {
             pamService.insertPamVO(pageProxyVO.getPageVO(), pageProxyVO.getPublicHealthCaseContainer());
 
         } else if (pageProxyVO.getPageVO() != null && pageProxyVO.isItDirty()) {
-            //pamRootDAO.editPamVO(pageActProxyContainer.getPageVO(), pageActProxyContainer.getPublicHealthCaseContainer()); //NOSONAR
             logger.info("test");
         } else
         {
@@ -245,14 +244,14 @@ public class PageRepositoryUtil {
     }
 
 
-    private ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) throws DataProcessingException {
+    protected ArrayList<Object> getInvListForCoInfectionId(Long mprUid,String coInfectionId) throws DataProcessingException {
         ArrayList<Object> coinfectionInvList;
         coinfectionInvList = customRepository.getInvListForCoInfectionId(mprUid, coInfectionId);
         return coinfectionInvList;
     }
 
     @SuppressWarnings({"java:S1172","java:S1854", "java:S1481", "java:S125", "java:S107"})
-    private  void updateCoInfectionInvest(Map<Object, Object> mappedCoInfectionQuestions, Map<Object, Object>  fromMapQuestions,
+    protected   void updateCoInfectionInvest(Map<Object, Object> mappedCoInfectionQuestions, Map<Object, Object>  fromMapQuestions,
                                           PageActProxyContainer pageActProxyContainer, PublicHealthCaseContainer publicHealthCaseContainer,
                                           PublicHealthCaseContainer supersededPublicHealthCaseContainer,
                                           Map<Object, Object> coInSupersededEpliLinkIdMap,
@@ -374,7 +373,7 @@ public class PageRepositoryUtil {
 
 
     @SuppressWarnings("java:S3776")
-    private void processingParticipationPatTypeForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {
+    protected void processingParticipationPatTypeForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {
         if (pageActProxyContainer.isItNew() && (!pageActProxyContainer.isItDirty()))
         {
             // changes according to new Analysis
@@ -404,7 +403,7 @@ public class PageRepositoryUtil {
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
-    private PageActPatient processingPersonContainerForPageAct(PageActProxyContainer pageActProxyContainer,
+    protected PageActPatient processingPersonContainerForPageAct(PageActProxyContainer pageActProxyContainer,
                                                                PublicHealthCaseDto phcDT) throws DataProcessingException
     {
         PersonContainer personVO;
@@ -486,7 +485,7 @@ public class PageRepositoryUtil {
         return pageActPatient;
     }
     @SuppressWarnings({"java:S3457","java:S3776"})
-    private PageActPhc processingPhcContainerForPageAct(
+    protected PageActPhc processingPhcContainerForPageAct(
             PageActProxyContainer pageActProxyContainer,
             boolean isCoInfectionCondition) throws DataProcessingException
     {
@@ -583,7 +582,7 @@ public class PageRepositoryUtil {
         return docUid;
     }
 
-    private void processingParticipationForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {
+    protected void processingParticipationForPageAct(PageActProxyContainer pageActProxyContainer) throws DataProcessingException {
         if (pageActProxyContainer.getTheParticipationDtoCollection() != null)
         {
             for (var item : pageActProxyContainer.getTheParticipationDtoCollection())
@@ -597,7 +596,7 @@ public class PageRepositoryUtil {
         }
     }
     @SuppressWarnings("java:S3776")
-    private void processingNotificationSummaryForPageAct(PageActProxyContainer pageActProxyContainer, PublicHealthCaseDto phcDT) throws DataProcessingException {
+    protected void processingNotificationSummaryForPageAct(PageActProxyContainer pageActProxyContainer, PublicHealthCaseDto phcDT) throws DataProcessingException {
         if (pageActProxyContainer.getTheNotificationSummaryVOCollection() != null)
         {
             Collection<Object> notSumVOColl = pageActProxyContainer.getTheNotificationSummaryVOCollection();
@@ -665,7 +664,7 @@ public class PageRepositoryUtil {
         }
     }
 
-    private void processingNbsDocumentForPageAct(PageActProxyContainer pageActProxyContainer, Long docUid) throws DataProcessingException {
+    protected void processingNbsDocumentForPageAct(PageActProxyContainer pageActProxyContainer, Long docUid) throws DataProcessingException {
         if (docUid != null)
         {
 
@@ -686,7 +685,7 @@ public class PageRepositoryUtil {
 
     }
 
-    private  void handlingCoInfectionAndContactDisposition(PageActProxyContainer pageActProxyContainer, Long mprUid, Long actualUid) throws DataProcessingException {
+    protected  void handlingCoInfectionAndContactDisposition(PageActProxyContainer pageActProxyContainer, Long mprUid, Long actualUid) throws DataProcessingException {
         if( !pageActProxyContainer.isRenterant() && pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCoinfectionId()!=null
                 && !pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getCoinfectionId().equalsIgnoreCase(NEDSSConstant.COINFCTION_GROUP_ID_NEW_CODE) && mprUid!=null
                 && !pageActProxyContainer.isMergeCase() && !NEDSSConstant.INVESTIGATION_STATUS_CODE_CLOSED.equals(pageActProxyContainer.getPublicHealthCaseContainer().getThePublicHealthCaseDto().getInvestigationStatusCd()))

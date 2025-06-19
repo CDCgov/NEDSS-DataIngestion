@@ -32,7 +32,7 @@ class CdaMapperPatientTest {
     private CdaPatientMappingHelper target;
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
         cdaMapHelper = new CdaMapHelper(cdaLookUpService);
         target = new CdaPatientMappingHelper(cdaMapHelper);

@@ -26,7 +26,7 @@ class CustomAuthenticationEntryPointTest {
     private AuthenticationException authException;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         entryPoint = new CustomAuthenticationEntryPoint();
         request = Mockito.mock(HttpServletRequest.class);
         response = Mockito.mock(HttpServletResponse.class);

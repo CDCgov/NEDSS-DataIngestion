@@ -111,5 +111,4 @@ class ContactSummaryServiceTests {
         assertEquals(3, test.size());
 
     }
-
 }

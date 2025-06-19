@@ -39,7 +39,7 @@ public class OrganizationMatchingService implements IOrganizationMatchingService
         this.organizationRepositoryUtil=organizationRepositoryUtil;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S6541"})
     public EDXActivityDetailLogDto getMatchingOrganization(
             OrganizationContainer organizationContainer)
             throws DataProcessingException

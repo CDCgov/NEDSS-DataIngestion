@@ -27,7 +27,7 @@ class HL7FileProcessComponentTest {
     private HL7FileProcessComponent hL7FileProcessComponent;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(hL7FileProcessComponent, "phcrImporterVersion", "1");
     }

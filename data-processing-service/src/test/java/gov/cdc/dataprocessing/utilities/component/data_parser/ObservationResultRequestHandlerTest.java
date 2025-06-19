@@ -36,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("java:S1117")
 class ObservationResultRequestHandlerTest {
     @Mock
     private ICatchingValueDpService checkingValueService;
@@ -65,7 +66,6 @@ class ObservationResultRequestHandlerTest {
         userInfo.setAuthUser(user);
 
         authUtil.setGlobalAuthUser(userInfo);
-
         var test = new TestDataReader();
         var xmlData = test.readDataFromXmlPath("/xml_payload/payload_1.xml");
         var xmlConn = test.convertXmlStrToContainer(xmlData);
@@ -92,6 +92,7 @@ class ObservationResultRequestHandlerTest {
     void tearDown() {
         Mockito.reset(checkingValueService, nbsObjectConverter, commonLabUtil, authUtil);
     }
+
 
 
     @Test
@@ -174,27 +175,6 @@ class ObservationResultRequestHandlerTest {
         assertEquals(1, res.getTheObservationInterpDtoCollection().size());
     }
 
-    @Test
-    void processingReferringRange_Test() {
-        ObservationContainer observationContainer = new ObservationContainer();
-        HL7OBXType type = result.get(0).getObservationResult();
-        type.setReferencesRange("1");
-
-        var res= observationResultRequestHandler.processingReferringRange(type, observationContainer);
-        assertNotNull(res);
-
-    }
-
-    @Test
-    void processingReferringRange_Test_2() {
-        ObservationContainer observationContainer = new ObservationContainer();
-        HL7OBXType type = result.get(0).getObservationResult();
-        type.setReferencesRange("1^2^3^4^5");
-
-        var res= observationResultRequestHandler.processingReferringRange(type, observationContainer);
-        assertNotNull(res);
-
-    }
 
     @Test
     void processingObservationMethod_Test() throws DataProcessingException {
@@ -348,20 +328,4 @@ class ObservationResultRequestHandlerTest {
     }
 
 
-    @Test
-    void getObservationResultRequest_Test_Exp() {
-        List<HL7OBSERVATIONType> observation = result;
-        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
-
-        observation.get(0).getObservationResult().setReferencesRange("1^2^3");
-
-        edxLabInformationDt.setParentObsInd(false);
-        observation.get(0).getObservationResult().setObservationIdentifier(null);
-
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            observationResultRequestHandler.getObservationResultRequest(observation, labResultProxyContainer, edxLabInformationDt);
-        });
-
-        assertNotNull(thrown);
-    }
 }

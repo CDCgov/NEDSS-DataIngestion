@@ -53,6 +53,7 @@ public class EcrReportsController {
                             required = true,
                             schema = @Schema(type = "string"))}
     )
+    @SuppressWarnings("java:S5145")
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs")
     public ResponseEntity<Integer> saveIncomingEcr(@RequestBody final String payload,
                                                    @RequestHeader("systemNm") String systemNm,

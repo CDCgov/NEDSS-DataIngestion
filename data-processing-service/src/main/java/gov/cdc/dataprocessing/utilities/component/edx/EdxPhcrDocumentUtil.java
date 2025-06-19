@@ -34,60 +34,57 @@ public class EdxPhcrDocumentUtil {
         this.cacheApiService = cacheApiService;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S5411"})
     public Map<Object, Object> loadQuestions(String conditionCode) throws DataProcessingException {
         String invFormCd = "";
-        if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode))
-        {
+        if (cacheApiService.getSrteCacheBool(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode)) {
             invFormCd = cacheApiService.getSrteCacheString(ObjectName.INVESTIGATION_FORM_CONDITION_CODE.name(), conditionCode);
         }
-        if(invFormCd==null || invFormCd.startsWith("INV_FORM"))
-        {
-            invFormCd= DecisionSupportConstants.CORE_INV_FORM;
-        }
-        Map<Object,Object> tempMap = new HashMap<>();
-        Map<Object,Object> generalMap = new HashMap<>();
 
-        //Check to see if it is single condition or multiple conditions
-        if(invFormCd != null)
-        {
-            if(invFormCd.equals(NBSConstantUtil.INV_FORM_RVCT)|| invFormCd.equals(NBSConstantUtil.INV_FORM_VAR))
-            {
-                if(lookupService.getQuestionMap()!=null && lookupService.getQuestionMap().containsKey(invFormCd))
-                {
-                    tempMap = (Map<Object, Object> )lookupService.getQuestionMap().get(invFormCd);
-                }
-            }
-            else
-            {
-                if(OdseCache.dmbMap.containsKey(invFormCd))
-                {
-                    tempMap.putAll((Map<Object, Object> ) OdseCache.dmbMap.get(invFormCd));
-                }
-                else if(!OdseCache.dmbMap.containsKey(invFormCd))
-                {
-                    Map<Object, Object> questions = (Map<Object, Object> ) OdseCache.DMB_QUESTION_MAP.get(invFormCd);
-
-                    if(questions != null)
-                    {
-                        tempMap.putAll(questions);
-                    }
-                }
-            }
-
-            if(tempMap != null){
-                for (Object o : tempMap.keySet()) {
-                    String key = (String) o;
-                    NbsQuestionMetadata metaData = (NbsQuestionMetadata) tempMap.get(key);
-                    generalMap.put(key, metaData);
-                }
-            }
+        if (invFormCd == null || invFormCd.startsWith("INV_FORM")) {
+            invFormCd = DecisionSupportConstants.CORE_INV_FORM;
         }
 
+        Map<Object, Object> tempMap = getQuestionMapForFormCode(invFormCd);
+        Map<Object, Object> generalMap = new HashMap<>();
+
+        if (tempMap != null) {
+            for (Object o : tempMap.keySet()) {
+                String key = (String) o;
+                NbsQuestionMetadata metaData = (NbsQuestionMetadata) tempMap.get(key);
+                generalMap.put(key, metaData);
+            }
+        }
 
         return generalMap;
-
     }
+
+    protected Map<Object, Object> getQuestionMapForFormCode(String invFormCd) {
+        Map<Object, Object> tempMap = new HashMap<>();
+
+        if (invFormCd == null) {
+            return tempMap;
+        }
+
+        if (invFormCd.equals(NBSConstantUtil.INV_FORM_RVCT) || invFormCd.equals(NBSConstantUtil.INV_FORM_VAR)) {
+            TreeMap<Object, Object> questionMap = lookupService.getQuestionMap();
+            if (questionMap != null && questionMap.containsKey(invFormCd)) {
+                tempMap = (Map<Object, Object>) questionMap.get(invFormCd);
+            }
+        } else {
+            if (OdseCache.dmbMap.containsKey(invFormCd)) {
+                tempMap.putAll((Map<Object, Object>) OdseCache.dmbMap.get(invFormCd));
+            } else {
+                Map<Object, Object> questions = (Map<Object, Object>) OdseCache.DMB_QUESTION_MAP.get(invFormCd);
+                if (questions != null) {
+                    tempMap.putAll(questions);
+                }
+            }
+        }
+
+        return tempMap;
+    }
+
 
 
     @SuppressWarnings({"java:S3776", "java:S1066"})
@@ -115,7 +112,7 @@ public class EdxPhcrDocumentUtil {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        if(errorTextColl!=null && !errorTextColl.isEmpty()){
+        if(!errorTextColl.isEmpty()){
             Iterator<Object> iterator = errorTextColl.iterator();
             StringBuilder errorTextString = new StringBuilder();
             while(iterator.hasNext()){
@@ -134,8 +131,7 @@ public class EdxPhcrDocumentUtil {
                 requireFieldError = "The following required field is missing: "+ errorTextString;
             }else if(errorTextColl.size()>1){
                 requireFieldError = "The following required field(s) are missing: "+ errorTextString;
-            }else
-                requireFieldError =null;
+            }
 
         }
         return requireFieldError;

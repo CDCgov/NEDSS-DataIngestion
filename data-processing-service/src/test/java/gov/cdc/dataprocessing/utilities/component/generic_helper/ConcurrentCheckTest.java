@@ -18,7 +18,7 @@ class ConcurrentCheckTest {
     private ConcurrentCheck concurrentCheck;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

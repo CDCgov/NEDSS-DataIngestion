@@ -1,6 +1,5 @@
 package gov.cdc.dataingestion.reportstatus.service;
 
-import com.google.gson.Gson;
 import gov.cdc.dataingestion.deadletter.repository.IElrDeadLetterRepository;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
@@ -19,7 +18,10 @@ import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static gov.cdc.dataingestion.constant.MessageType.HL7_ELR;
 
@@ -62,86 +64,72 @@ public class ReportStatusService {
     }
 
     @SuppressWarnings("java:S3776")
-    public List<MessageStatus> getMessageStatus(String rawMessageID) {
-        List<MessageStatus> msgStatusList=new ArrayList<>();
-
+    public MessageStatus getMessageStatus(String rawMessageID) {
+        MessageStatus msgStatus = new MessageStatus();
         Optional<RawElrModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
-        if (!rawMessageData.isEmpty()) {
-            MessageStatus msgStatus = new MessageStatus();
+        if (rawMessageData.isPresent()) {
             msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
-            //msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
             msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
             msgStatus.getRawInfo().setRawCreatedOn(TimeStampHelper.convertTimestampToString(rawMessageData.get().getCreatedOn()));
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
 
             if (rawMessageData.get().getType().equalsIgnoreCase(HL7_ELR)) {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
-                if (!validatedMessageData.isEmpty()) {
+                if (validatedMessageData.isPresent()) {
                     msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
-                    //msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
                     msgStatus.getValidatedInfo().setValidatedCreatedOn(TimeStampHelper.convertTimestampToString(validatedMessageData.get().getCreatedOn()));
                     msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
 
                     // XML
-                    msgStatusList=setDiXmlTransformationInfo(msgStatus);
+                    setDiXmlTransformationInfo(msgStatus);
                 }
                 else {
                     setDltInfo(rawMessageID, msgStatus, DLT_ORIGIN_RAW);
-                    msgStatusList.add(msgStatus);
                 }
             } else {
-                msgStatusList=setDiXmlTransformationInfo(msgStatus);
+                setDiXmlTransformationInfo(msgStatus);
             }
 
-            for(MessageStatus msgStatusNew:msgStatusList) {
-                if(msgStatusNew.getNbsInfo().getNbsInterfaceStatus() !=null) {
-                    EdxActivityLog edxActivityLog = iEdxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(msgStatusNew.getNbsInfo().getNbsInterfaceId()));
-                    List<EdxActivityDetailLog> edxActivityStatusList = iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatusNew.getNbsInfo().getNbsInterfaceId()));
-                    if(!edxActivityStatusList.isEmpty() && edxActivityLog != null) {
-                        msgStatusNew.getEdxLogStatus().setEdxActivityLog(edxActivityLog);
-                        Set<String> seenComments = new HashSet<>();
-                        for(EdxActivityDetailLog edxActivityLogModel:edxActivityStatusList){
-                            String logComment = edxActivityLogModel.getLogComment();
-                            if (seenComments.add(logComment)) {
-                                msgStatusNew.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogModel);
-                            }
+            if(msgStatus.getNbsInfo().getNbsInterfaceStatus() !=null) {
+                EdxActivityLog edxActivityLog = iEdxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
+                List<EdxActivityDetailLog> edxActivityStatusList = iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(msgStatus.getNbsInfo().getNbsInterfaceId()));
+                if(!edxActivityStatusList.isEmpty() && edxActivityLog != null) {
+                    msgStatus.getEdxLogStatus().setEdxActivityLog(edxActivityLog);
+                    Set<String> seenComments = new HashSet<>();
+                    for(EdxActivityDetailLog edxActivityLogModel:edxActivityStatusList){
+                        String logComment = edxActivityLogModel.getLogComment();
+                        if (seenComments.add(logComment)) {
+                            msgStatus.getEdxLogStatus().getEdxActivityDetailLogList().add(edxActivityLogModel);
                         }
+
                     }
                 }
             }
         }
-        return msgStatusList;
+        return msgStatus;
     }
 
-    private List<MessageStatus> setDiXmlTransformationInfo(MessageStatus msgStatus) {
-        List<MessageStatus> msgStatusList=new ArrayList<>();
-        List<ReportStatusIdData> elrStatusIdList = iReportStatusRepository.findByRawMessageId(msgStatus.getRawInfo().getRawMessageId());
-        if (!elrStatusIdList.isEmpty()) {
-            Gson gson = new Gson();
-            for (ReportStatusIdData reportStatusIdData : elrStatusIdList) {
-                MessageStatus msgStatusNew = gson.fromJson(gson.toJson(msgStatus), MessageStatus.class);
-                msgStatusNew.getNbsInfo().setNbsInterfaceId(reportStatusIdData.getNbsInterfaceUid());
-                msgStatusNew.getNbsInfo().setNbsCreatedOn(TimeStampHelper.convertTimestampToString(reportStatusIdData.getCreatedOn()));
-                msgStatusNew.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_SUCCESS);
-                setNbsInfo(msgStatusNew);
-                msgStatusList.add(msgStatusNew);
-            }
+    private MessageStatus setDiXmlTransformationInfo(MessageStatus msgStatus) {
+        Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(msgStatus.getRawInfo().getRawMessageId());
+        if (reportStatusIdData.isPresent()) {
+            msgStatus.getNbsInfo().setNbsInterfaceId(reportStatusIdData.get().getNbsInterfaceUid());
+            msgStatus.getNbsInfo().setNbsCreatedOn(TimeStampHelper.convertTimestampToString(reportStatusIdData.get().getCreatedOn()));
+            msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_SUCCESS);
+            setNbsInfo(msgStatus);
         } else {
             if (msgStatus.getValidatedInfo().getValidatedMessageId() == null) {
                 setDltInfo(msgStatus.getRawInfo().getRawMessageId(), msgStatus, DLT_ORIGIN_RAW);
             } else {
                 setDltInfo(msgStatus.getValidatedInfo().getValidatedMessageId(), msgStatus, DLT_ORIGIN_VALIDATED);
             }
-            msgStatusList.add(msgStatus);
         }
-        return msgStatusList;
+        return msgStatus;
     }
 
     private MessageStatus setNbsInfo(MessageStatus msgStatus) {
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(msgStatus.getNbsInfo().getNbsInterfaceId());
-        if (!nbsInterfaceModel.isEmpty()) {
+        if (nbsInterfaceModel.isPresent()) {
             msgStatus.getNbsInfo().setNbsInterfaceStatus(nbsInterfaceModel.get().getRecordStatusCd());
-            //msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
         } else {
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
         }
@@ -150,7 +138,7 @@ public class ReportStatusService {
 
     private MessageStatus setDltInfo(String id, MessageStatus msgStatus, String origin) {
         var dlt = iElrDeadLetterRepository.findById(id);
-        if (!dlt.isEmpty() ) {
+        if (dlt.isPresent()) {
             switch (origin) {
                 case DLT_ORIGIN_RAW:
                     msgStatus.getRawInfo().setDltInfo(new DltMessageStatus());
@@ -201,22 +189,16 @@ public class ReportStatusService {
         return msgStatus;
     }
 
-    public List<String> getStatusForReport(String id) {
-        List<String> statusList=new ArrayList<>();
+    public String getStatusForReport(String id) {
+        Optional<ReportStatusIdData > reportStatusIdData = iReportStatusRepository.findByRawMessageId(id);
+        if(reportStatusIdData.isEmpty()) {
+            return "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
+        }
 
-        List<ReportStatusIdData> elrStatusIdList = iReportStatusRepository.findByRawMessageId(id);
-        if(elrStatusIdList.isEmpty()) {
-            String status= "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
-            statusList.add(status);
+        Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.get().getNbsInterfaceUid());
+        if(nbsInterfaceModel.isEmpty()) {
+            return "Couldn't find status for the requested UUID.";
         }
-        for(ReportStatusIdData reportStatusIdData: elrStatusIdList) {
-            Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.getNbsInterfaceUid());
-            if(!nbsInterfaceModel.isEmpty()) {
-                statusList.add("NBS Inerface Id:"+reportStatusIdData.getNbsInterfaceUid()+" Status:"+nbsInterfaceModel.get().getRecordStatusCd());
-            }else{
-                statusList.add("Couldn't find status for the requested UUID.");
-            }
-        }
-        return statusList;
+        return nbsInterfaceModel.get().getRecordStatusCd();
     }
 }

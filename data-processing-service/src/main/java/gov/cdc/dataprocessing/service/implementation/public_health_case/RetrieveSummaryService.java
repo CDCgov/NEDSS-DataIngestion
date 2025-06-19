@@ -55,7 +55,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
     public Map<Object,Object> retrieveTreatmentSummaryVOForInv(Long publicHealthUID) {
         //TODO: DIFFER FLOW
         return new HashMap<>();
-    } // retrieveTreatmentSummaryList
+    }
 
 
     public Map<Object,Object> retrieveDocumentSummaryVOForInv(Long publicHealthUID)  {
@@ -118,7 +118,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
                  notificationSummaryVO,
                  object);
         return theNotificationSummaryVOCollection;
-    } //end of observationAssociates()
+    }
 
     @SuppressWarnings("java:S3776")
     protected Collection<Object> notificationSummaryOnInvestigationProcessingNotificationCol(Collection<Object> theNotificationSummaryVOCollection,
@@ -241,6 +241,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
         }
         return theNotificationSummaryVOCollection;
     }
+
     @SuppressWarnings({"unchecked","java:S3776","java:S1197"})
     protected Collection<Object>  retrieveNotificationSummaryListForInvestigation1(Long publicHealthUID) throws DataProcessingException {
         ArrayList<Object> theNotificationSummaryVOCollection  = new ArrayList<> ();

@@ -31,7 +31,7 @@ class EcrMsgQueryRepositoryTest {
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 

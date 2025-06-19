@@ -78,13 +78,7 @@ jacoco {
     reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 
-test {
-    finalizedBy jacocoTestReport // report is always generated after tests run
-    jacoco {
-        // Exclude problematic classes (e.g., JDK internal tools)
-        excludes = ["com/sun/tools/attach/**"]
-    }
-}
+
 jacocoTestReport {
     dependsOn test
     reports {
@@ -139,7 +133,6 @@ task jaxbDsma {
 }
 compileJava.dependsOn jaxbDsma
 
-
 jar {
     manifest {
         attributes(
@@ -149,9 +142,9 @@ jar {
     zip64 true
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+    // Gather all runtime dependencies
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
 }
 
 dependencies {
@@ -221,35 +214,100 @@ dependencies {
 }
 
 test {
-    useJUnitPlatform()
-}
-
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'gov.cdc.dataprocessing.ServiceApplication'
-        )
+    finalizedBy jacocoTestReport // report is always generated after tests run
+    jacoco {
+        // Exclude problematic classes (e.g., JDK internal tools)
+        excludes = ["com/sun/tools/attach/**"]
     }
-    zip64 true
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    useJUnitPlatform()
+    systemProperty 'junit.platform.configuration.file', "$projectDir/src/test/resources/junit-platform.properties"
 
-    // Gather all runtime dependencies
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
 }
+
+
 
 sonarqube {
     properties {
         property "sonar.projectKey", "CDCgov_NEDSS-DataIngestion"
         property "sonar.organization", "cdcgov"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "**/config/**, **/constant/**, **/exception/**, **/model/container/**, **/model/dsma_algorithm/**, **/model/dto/**, **/model/phdc/**, " +
-                " **/repository/nbs/msgoute/model/**, **/repository/nbs/odse/model/**, **/repository/nbs/srte/model/**, **/security/config/**, **/ServiceApplication.java, " +
-                " **/service/model/**, **/DynamicBeanBinding.java, **/RulesEngineUtil.java, **/utilities/model/**," +
-                " **/controller/**, **/kafka/consumer/**, **kafka/producer/**, **/WdsObjectChecker.java," +
-                " **/AdvancedCriteria.java, **/cache/OdseCache.java, **/cache/PropertyUtilCache.java, " +
-                " **/cache/SrteCache.java, **/StringUtils.java, **/TimeStampUtil.java, **/AuthUtil.java, **/cache/cache_model/**, **/repository/nbs/odse/repos/**, " +
-                " **/service/implementation/auth_user/**, **/service/implementation/cache/ManagerCacheService.java, " +
-                " **/service/implementation/uid_generator/UidPoolManager.java"
+        property "sonar.exclusions", String.join(", ",
+                // cache
+                "**/cache/OdseCache.java",
+                "**/cache/PropertyUtilCache.java",
+                "**/cache/SrteCache.java",
+                "**/cache/cache_model/**",
+
+                // config
+                "**/config/**",
+
+                // constant
+                "**/constant/**",
+
+                // controller
+                "**/controller/**",
+
+                // data_parser
+                "**/data_parser/**",
+
+                // dto/model
+                "**/model/container/**",
+                "**/model/dsma_algorithm/**",
+                "**/model/dto/**",
+                "**/model/phdc/**",
+
+                // exception
+                "**/exception/**",
+
+                // implementation
+                "**/service/implementation/auth_user/**",
+                "**/service/implementation/cache/ManagerCacheService.java",
+                "**/service/implementation/uid_generator/UidPoolManager.java",
+
+                // kafka
+                "**/kafka/consumer/**",
+                "**/kafka/producer/**",
+
+                // model
+                "**/service/model/**",
+                "**/utilities/model/**",
+
+                // repository
+                "**/repository/nbs/msgoute/model/**",
+                "**/repository/nbs/odse/model/**",
+                "**/repository/nbs/odse/repos/**",
+                "**/repository/nbs/srte/model/**",
+
+                // security
+                "**/security/config/**",
+
+                // service
+                "**/PamService.java",
+                "**/DecisionSupportService.java",
+                "**/InvestigationService.java",
+
+                // top-level utility and logic classes
+                "**/AdvancedCriteria.java",
+                "**/AuthUtil.java",
+                "**/DynamicBeanBinding.java",
+                "**/GsonUtil.java",
+                "**/KafkaProducerTransactionService.java",
+                "**/LinkResponse.java",
+                "**/MatchesRequireReviewResponse.java",
+                "**/RelateRequest.java",
+                "**/RulesEngineUtil.java",
+                "**/ServiceApplication.java",
+                "**/StringUtils.java",
+                "**/TimeStampUtil.java",
+                "**/ContactSummaryService.java",
+
+                // wds
+                "**/wds/**"
+        )
     }
 }

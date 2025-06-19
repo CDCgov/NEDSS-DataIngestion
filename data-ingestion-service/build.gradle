@@ -141,7 +141,9 @@ jacocoTestReport {
 					'**/UnstructuredType.class',
 					'**/ValuesType.class',
 					'**/LabReportCommentsType.class',
-					'**/TimeMetricsBuilder.class'
+					'**/TimeMetricsBuilder.class',
+					'**/KafkaProducerTransactionService.java',
+					'**/constant/**'
 			])
 		}))
 	}

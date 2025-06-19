@@ -2,8 +2,10 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 
 import gov.cdc.dataprocessing.constant.elr.NBSBOLookup;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.elr.ProgramAreaJurisdiction;
 import gov.cdc.dataprocessing.constant.enums.DataProcessingMapKey;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
+import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.container.model.*;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.edx.EDXDocumentDto;
@@ -16,6 +18,8 @@ import gov.cdc.dataprocessing.model.dto.organization.OrganizationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.Observation;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.person.Person;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.observation.ObservationRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.person.PersonRepository;
 import gov.cdc.dataprocessing.service.interfaces.act.IActRelationshipService;
@@ -43,16 +47,21 @@ import gov.cdc.dataprocessing.utilities.component.patient.PersonUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"java:S1640","java:S6068"})
 class ObservationServiceTest {
     @Mock
     private INNDActivityLogService nndActivityLogService;
@@ -102,6 +111,7 @@ class ObservationServiceTest {
 
     @InjectMocks
     private ObservationService observationService;
+
 
     @Mock
     AuthUtil authUtil;
@@ -309,6 +319,11 @@ class ObservationServiceTest {
 
     }
 
+    @Test
+    void getAbstractObjectForObservationOrIntervention_Test() throws DataProcessingException {
+        var res = observationService.getAbstractObjectForObservationOrIntervention("NA", 1L);
+        assertNull(res);
+    }
 
     @Test
     void processingLabResultContainer_ThrowException() {
@@ -1090,4 +1105,1293 @@ class ObservationServiceTest {
 
         return observationContainer;
     }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNewAndFalseUidIsNegative_callsUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer(); // or any BaseContainer subclass
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(-99L); // false UID
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(true);
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService).setFalseToNewForObservation(proxyVO, -99L, realUid);
+    }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNewButFalseUidIsPositive_doesNotCallUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer();
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(99L); // valid UID
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(true);
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService, never()).setFalseToNewForObservation(any(), anyLong(), anyLong());
+    }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNewButUidIsNull_doesNotCallUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer();
+        ObservationDto dto = new ObservationDto(); // UID is null
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(true);
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService, never()).setFalseToNewForObservation(any(), any(), anyLong());
+    }
+
+    @Test
+    void testHandleFalseUidReplacement_whenItIsNotNew_doesNotCallUidService() {
+        // Arrange
+        BaseContainer proxyVO = new LabResultProxyContainer();
+        ObservationDto dto = new ObservationDto();
+        dto.setObservationUid(-88L);
+
+        ObservationContainer container = new ObservationContainer();
+        container.setItNew(false); // not new
+        container.setTheObservationDto(dto);
+
+        Long realUid = 123L;
+
+        // Act
+        observationService.handleFalseUidReplacement(proxyVO, container, realUid);
+
+        // Assert
+        verify(uidService, never()).setFalseToNewForObservation(any(), anyLong(), anyLong());
+    }
+
+    @Test
+    void testIsRootObservation_whenCtrlCdMatchesMobCtrlCdDisplay_returnsTrue() {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setObsDomainCdSt1("not-matching"); // ensure this does not trigger first if
+        dto.setCtrlCdDisplayForm(NEDSSConstant.MOB_CTRLCD_DISPLAY); // triggers return true
+
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+
+        // Act
+        boolean result = observationService.isRootObservation(container, false);
+
+        // Assert
+        assertTrue(result, "Should return true when ctrlCdDisplayForm matches MOB_CTRLCD_DISPLAY");
+    }
+
+    @Test
+    void testExtractObservationCollection_whenNotLabResultProxy_returnsNull() {
+        // Arrange
+        BaseContainer proxyVO = new BaseContainer() {}; // anonymous subclass, not LabResultProxyContainer
+
+        // Act
+        Collection<ObservationContainer> result = observationService.extractObservationCollection(proxyVO);
+
+        // Assert
+        assertNull(result, "Expected null when proxyVO is not a LabResultProxyContainer");
+    }
+
+    @Test
+    void testStoreObservationVOCollection_whenExtractedCollectionIsNull_returnsNull() throws DataProcessingException {
+        // Arrange
+        BaseContainer proxyVO = new BaseContainer() {}; // not a LabResultProxyContainer
+        // No need to mock extractObservationCollection since we want it to return null
+
+        // Act
+        Long result = observationService.storeObservationVOCollection(proxyVO);
+
+        // Assert
+        assertNull(result, "Expected null when extracted ObservationContainer collection is null");
+    }
+
+    @Test
+    void testStoreObservationVOCollection_whenExtractedCollectionIsEmpty_returnsNull() throws DataProcessingException {
+        // Arrange
+        LabResultProxyContainer proxyVO = new LabResultProxyContainer();
+        proxyVO.setTheObservationContainerCollection(Collections.emptyList()); // empty collection
+
+        // Act
+        Long result = observationService.storeObservationVOCollection(proxyVO);
+
+        // Assert
+        assertNull(result, "Expected null when extracted ObservationContainer collection is empty");
+    }
+
+    @Test
+    void testFindLocalUidsFor_observationAndPersonFound_setsExpectedLocalIds() {
+        // Arrange
+        Long obsUid = 100L;
+        Long personUid = 200L;
+
+        // Mock observation repository result
+        Observation obs = new Observation();
+        obs.setLocalId("OBS_LOCAL_ID");
+        when(observationRepository.findById(obsUid)).thenReturn(Optional.of(obs));
+
+        // Mock person repository result
+        Person person = new Person();
+        person.setLocalId("PERSON_LOCAL_ID");
+        when(personRepository.findById(personUid)).thenReturn(Optional.of(person));
+
+        // Act
+        Map<Object, Object> result = observationService.findLocalUidsFor(personUid, obsUid);
+
+        // Assert
+        assertEquals("OBS_LOCAL_ID", result.get(NEDSSConstant.SETLAB_RETURN_OBS_LOCAL));
+        assertTrue(result.get(NEDSSConstant.SETLAB_RETURN_OBSDT) instanceof ObservationDto);
+        assertEquals("PERSON_LOCAL_ID", result.get(NEDSSConstant.SETLAB_RETURN_MPR_LOCAL));
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsNull_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(null);
+        Map<Object, Object> errors = new HashMap<>();
+
+        // Act
+        observationService.handleJurisdictionCode(new LabResultProxyContainer(), dto, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsAnyJurisdiction_addsError() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(ProgramAreaJurisdiction.ANY_JURISDICTION);
+        Map<Object, Object> errors = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        when(jurisdictionService.deriveJurisdictionCd(proxy, dto)).thenReturn("SomeError");
+
+        // Act
+        observationService.handleJurisdictionCode(proxy, dto, errors);
+
+        // Assert
+        assertTrue(errors.containsKey(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+        assertEquals(ProgramAreaJurisdiction.ANY_JURISDICTION, errors.get(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsJurisdictionNone_addsError() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(ProgramAreaJurisdiction.JURISDICTION_NONE);
+        Map<Object, Object> errors = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        when(jurisdictionService.deriveJurisdictionCd(proxy, dto)).thenReturn("SomeError");
+
+        // Act
+        observationService.handleJurisdictionCode(proxy, dto, errors);
+
+        // Assert
+        assertTrue(errors.containsKey(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+        assertEquals(ProgramAreaJurisdiction.JURISDICTION_NONE, errors.get(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+    }
+
+    @Test
+    void testHandleJurisdictionCode_codeIsAnyJurisdiction_butNoErrorReturned_doesNotAddToMap() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setJurisdictionCd(ProgramAreaJurisdiction.ANY_JURISDICTION);
+        Map<Object, Object> errors = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        when(jurisdictionService.deriveJurisdictionCd(proxy, dto)).thenReturn(null);
+
+        // Act
+        observationService.handleJurisdictionCode(proxy, dto, errors);
+
+        // Assert
+        assertFalse(errors.containsKey(NEDSSConstant.SETLAB_RETURN_JURISDICTION_ERRORS));
+    }
+
+
+
+    @Test
+    void testHandleProgramAreaCode_whenPaCdIsNull_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd(null);
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        Map<Object, Object> errors = new HashMap<>();
+
+        // Act
+        observationService.handleProgramAreaCode(new LabResultProxyContainer(), container, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleProgramAreaCode_whenPaCdIsNotAnyProgramArea_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd("STD"); // Not "ANY"
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        Map<Object, Object> errors = new HashMap<>();
+
+        // Act
+        observationService.handleProgramAreaCode(new LabResultProxyContainer(), container, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleProgramAreaCode_whenDerivedErrorIsNull_doesNothing() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd(ProgramAreaJurisdiction.ANY_PROGRAM_AREA);
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+        Map<Object, Object> errors = new HashMap<>();
+
+        when(programAreaService.deriveProgramAreaCd(proxy, container)).thenReturn(null);
+
+        // Act
+        observationService.handleProgramAreaCode(proxy, container, errors);
+
+        // Assert
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testHandleProgramAreaCode_whenDerivedErrorIsPresent_addsToErrors() throws DataProcessingException {
+        // Arrange
+        ObservationDto dto = new ObservationDto();
+        dto.setProgAreaCd(ProgramAreaJurisdiction.ANY_PROGRAM_AREA);
+        ObservationContainer container = new ObservationContainer();
+        container.setTheObservationDto(dto);
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+        Map<Object, Object> errors = new HashMap<>();
+
+        when(programAreaService.deriveProgramAreaCd(proxy, container)).thenReturn("SomeError");
+
+        // Act
+        observationService.handleProgramAreaCode(proxy, container, errors);
+
+        // Assert
+        assertEquals("SomeError", errors.get(NEDSSConstant.SETLAB_RETURN_PROGRAM_AREA_ERRORS));
+    }
+
+
+    @Test
+    void testRetrieveEntityFromParticipationForContainer_WhenNoPersonOrRoleKeys() {
+        // Arrange
+        ParticipationDto participationDto = new ParticipationDto();
+        Collection<ParticipationDto> partColl = Collections.singletonList(participationDto);
+
+        // Stub retrievePersonAndRoleFromParticipation to return empty map
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(Collections.emptyMap()).when(spyService).retrievePersonAndRoleFromParticipation(partColl);
+
+        // Stub retrieveOrganizationFromParticipation
+        Collection<Object> mockOrgCollection = Collections.singletonList(new Object());
+        doReturn(mockOrgCollection).when(spyService).retrieveOrganizationFromParticipation(partColl);
+
+        // Stub retrieveMaterialFromParticipation
+        Collection<Object> mockMaterialCollection = Collections.singletonList(new Object());
+        doReturn(mockMaterialCollection).when(spyService).retrieveMaterialFromParticipation(partColl);
+
+        // Act
+        Map<DataProcessingMapKey, Object> result = spyService.retrieveEntityFromParticipationForContainer(partColl);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey(DataProcessingMapKey.ORGANIZATION));
+        assertTrue(result.containsKey(DataProcessingMapKey.MATERIAL));
+        assertFalse(result.containsKey(DataProcessingMapKey.PERSON));
+        assertFalse(result.containsKey(DataProcessingMapKey.ROLE));
+        assertSame(mockOrgCollection, result.get(DataProcessingMapKey.ORGANIZATION));
+        assertSame(mockMaterialCollection, result.get(DataProcessingMapKey.MATERIAL));
+
+    }
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_NoMatch_SubjectClassCdNull() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(null);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        var result = observationService.retrieveOrganizationFromParticipation(List.of(dto));
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_NoMatch_SubjectClassCdWrong() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd("WRONG_CODE");
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        var result = observationService.retrieveOrganizationFromParticipation(List.of(dto));
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_NoMatch_RecordStatusCdNull() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        dto.setRecordStatusCd(null);
+        var result = observationService.retrieveOrganizationFromParticipation(List.of(dto));
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_NoMatch_RecordStatusCdWrong() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        dto.setRecordStatusCd("INACTIVE");
+        var result = observationService.retrieveOrganizationFromParticipation(List.of(dto));
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_Match_Success() {
+        Long expectedOrgUid = 123L;
+        Long actUid = 456L;
+        OrganizationContainer mockOrg = new OrganizationContainer();
+
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto.setSubjectEntityUid(expectedOrgUid);
+        dto.setActUid(actUid);
+
+        when(organizationRepositoryUtil.loadObject(expectedOrgUid, actUid)).thenReturn(mockOrg);
+
+        var result = observationService.retrieveOrganizationFromParticipation(List.of(dto));
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(mockOrg, result.iterator().next());
+
+        verify(organizationRepositoryUtil).loadObject(expectedOrgUid, actUid);
+    }
+
+    @Test
+    void testRetrieveOrganizationFromParticipation_MultipleMatches_TriggersElsePath() {
+        Long uid1 = 1L, uid2 = 2L;
+        Long act1 = 10L, act2 = 20L;
+
+        OrganizationContainer org1 = new OrganizationContainer();
+        OrganizationContainer org2 = new OrganizationContainer();
+
+        ParticipationDto dto1 = new ParticipationDto();
+        dto1.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        dto1.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto1.setSubjectEntityUid(uid1);
+        dto1.setActUid(act1);
+
+        ParticipationDto dto2 = new ParticipationDto();
+        dto2.setSubjectClassCd(NEDSSConstant.PAR102_SUB_CD);
+        dto2.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto2.setSubjectEntityUid(uid2);
+        dto2.setActUid(act2);
+
+        when(organizationRepositoryUtil.loadObject(uid1, act1)).thenReturn(org1);
+        when(organizationRepositoryUtil.loadObject(uid2, act2)).thenReturn(org2);
+
+        Collection<ParticipationDto> input = List.of(dto1, dto2);
+
+        var result = observationService.retrieveOrganizationFromParticipation(input);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(org1));
+        assertTrue(result.contains(org2));
+
+        verify(organizationRepositoryUtil).loadObject(uid1, act1);
+        verify(organizationRepositoryUtil).loadObject(uid2, act2);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_SubjectClassCdNull() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(null);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto));
+
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_SubjectClassCdWrong() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd("WRONG_CODE");
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto));
+
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_RecordStatusCdNull() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto.setRecordStatusCd(null);
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto));
+
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_RecordStatusCdWrong() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto.setRecordStatusCd("INACTIVE");
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto));
+
+        assertNull(result);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_ValidMatch() {
+        Long materialUid = 123L;
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto.setSubjectEntityUid(materialUid);
+
+        MaterialContainer material = new MaterialContainer();
+        when(materialService.loadMaterialObject(materialUid)).thenReturn(material);
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto));
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertTrue(result.contains(material));
+        verify(materialService).loadMaterialObject(materialUid);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_TwoValidMatches() {
+        ParticipationDto dto1 = new ParticipationDto();
+        dto1.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto1.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto1.setSubjectEntityUid(100L);
+
+        ParticipationDto dto2 = new ParticipationDto();
+        dto2.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto2.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto2.setSubjectEntityUid(200L);
+
+        MaterialContainer mat1 = new MaterialContainer();
+        MaterialContainer mat2 = new MaterialContainer();
+
+        when(materialService.loadMaterialObject(100L)).thenReturn(mat1);
+        when(materialService.loadMaterialObject(200L)).thenReturn(mat2);
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto1, dto2));
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(mat1));
+        assertTrue(result.contains(mat2));
+
+        verify(materialService).loadMaterialObject(100L);
+        verify(materialService).loadMaterialObject(200L);
+    }
+
+    @Test
+    void testRetrieveMaterialFromParticipation_TwoValidEntries_HitsElsePath() {
+        Long uid1 = 101L;
+        Long uid2 = 202L;
+
+        ParticipationDto dto1 = new ParticipationDto();
+        dto1.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto1.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto1.setSubjectEntityUid(uid1);
+
+        ParticipationDto dto2 = new ParticipationDto();
+        dto2.setSubjectClassCd(NEDSSConstant.PAR104_SUB_CD);
+        dto2.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto2.setSubjectEntityUid(uid2);
+
+        MaterialContainer mat1 = new MaterialContainer();
+        MaterialContainer mat2 = new MaterialContainer();
+
+        when(materialService.loadMaterialObject(uid1)).thenReturn(mat1);
+        when(materialService.loadMaterialObject(uid2)).thenReturn(mat2);
+
+        var result = observationService.retrieveMaterialFromParticipation(List.of(dto1, dto2));
+
+        // Validate the collection contains both materials
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(mat1));
+        assertTrue(result.contains(mat2));
+
+        verify(materialService).loadMaterialObject(uid1);
+        verify(materialService).loadMaterialObject(uid2);
+    }
+
+    @Test
+    void testRetrievePersonAndRole_SubjectClassCdNull() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(null);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+
+        var result = observationService.retrievePersonAndRoleFromParticipation(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.PERSON)).isEmpty());
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.ROLE)).isEmpty());
+    }
+
+    @Test
+    void testRetrievePersonAndRole_SubjectClassCdWrong() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd("WRONG_CODE");
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+
+        var result = observationService.retrievePersonAndRoleFromParticipation(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.PERSON)).isEmpty());
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.ROLE)).isEmpty());
+    }
+
+    @Test
+    void testRetrievePersonAndRole_RecordStatusCdNull() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR110_SUB_CD);
+        dto.setRecordStatusCd(null);
+
+        var result = observationService.retrievePersonAndRoleFromParticipation(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.PERSON)).isEmpty());
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.ROLE)).isEmpty());
+    }
+
+    @Test
+    void testRetrievePersonAndRole_RecordStatusCdWrong() {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR110_SUB_CD);
+        dto.setRecordStatusCd("INACTIVE");
+
+        var result = observationService.retrievePersonAndRoleFromParticipation(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.PERSON)).isEmpty());
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.ROLE)).isEmpty());
+    }
+
+    @Test
+    void testRetrievePersonAndRole_ValidMatch_PersonLoaded() {
+        Long personUid = 111L;
+        Long subjectEntityUid = 222L;
+
+        RoleDto role = new RoleDto();
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonUid(personUid);
+
+        PersonContainer vo = new PersonContainer();
+        vo.setThePersonDto(personDto);
+        vo.setTheRoleDtoCollection(List.of(role));
+
+        ParticipationDto dto = new ParticipationDto();
+        dto.setSubjectClassCd(NEDSSConstant.PAR110_SUB_CD);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto.setTypeCd(NEDSSConstant.PAR110_TYP_CD);
+        dto.setSubjectEntityUid(subjectEntityUid);
+
+        when(patientRepositoryUtil.loadPerson(subjectEntityUid)).thenReturn(vo);
+        when(observationService.retrieveScopedPersons(personUid)).thenReturn(Collections.emptyList());
+
+        var result = observationService.retrievePersonAndRoleFromParticipation(List.of(dto));
+
+        var persons = (Collection<?>) result.get(DataProcessingMapKey.PERSON);
+        var roles = (Collection<?>) result.get(DataProcessingMapKey.ROLE);
+
+        assertEquals(1, persons.size());
+        assertEquals(1, roles.size());
+        assertTrue(persons.contains(vo));
+        assertTrue(roles.contains(role));
+
+        verify(patientRepositoryUtil).loadPerson(subjectEntityUid);
+    }
+
+
+
+    @Test
+    void testRetrieveScopedPersons_Else_scopedPersonsAlreadyInitialized() {
+        Long scopingUid = 123L;
+        RoleDto role1 = new RoleDto();
+        role1.setSubjectEntityUid(111L); // triggers init and add
+
+        RoleDto role2 = new RoleDto();
+        role2.setSubjectEntityUid(222L); // should hit else for scopedPersons
+
+        PersonContainer person1 = new PersonContainer();
+        PersonContainer person2 = new PersonContainer();
+
+        when(roleService.findRoleScopedToPatient(scopingUid)).thenReturn(List.of(role1, role2));
+        when(patientRepositoryUtil.loadPerson(111L)).thenReturn(person1);
+        when(patientRepositoryUtil.loadPerson(222L)).thenReturn(person2);
+
+        var result = observationService.retrieveScopedPersons(scopingUid);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.containsAll(List.of(person1, person2)));
+    }
+
+
+    @Test
+    void testRetrieveScopedPersons_Else_SkipsWhenSubjectEntityUidIsNull() {
+        Long scopingUid = 123L;
+        RoleDto role = new RoleDto();
+        role.setSubjectEntityUid(null); // triggers else: skip add
+
+        when(roleService.findRoleScopedToPatient(scopingUid)).thenReturn(List.of(role));
+
+        var result = observationService.retrieveScopedPersons(scopingUid);
+
+        assertNotNull(result); // because scopedPersons never initialized
+        verify(patientRepositoryUtil, never()).loadPerson(any());
+    }
+
+
+    @Test
+    void testIfCondition_SourceClassCdNull_SkipsBlock() throws Exception {
+        ActRelationshipDto dto = actRel(null, "OBS", "ACTIVE", "PROCESS");
+
+        var result = observationService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+    }
+
+    @Test
+    void testIfCondition_SourceClassCdWrong_SkipsBlock() throws Exception {
+        ActRelationshipDto dto = actRel("WRONG", "OBS", "ACTIVE", "PROCESS");
+
+        var result = observationService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+    }
+
+    @Test
+    void testIfCondition_TargetClassCdNull_SkipsBlock() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", null, "ACTIVE", "PROCESS");
+
+        var result = observationService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+    }
+
+    @Test
+    void testIfCondition_TargetClassCdWrong_SkipsBlock() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", "WRONG", "ACTIVE", "PROCESS");
+
+        var result = observationService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+    }
+
+    @Test
+    void testIfCondition_RecordStatusCdNull_SkipsBlock() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", "OBS", null, "PROCESS");
+
+        var result = observationService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+    }
+
+    @Test
+    void testIfCondition_RecordStatusCdWrong_SkipsBlock() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", "OBS", "INACTIVE", "PROCESS");
+
+        var result = observationService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+    }
+
+    private ActRelationshipDto actRel(String srcCls, String tgtCls, String recStatus, String typeCd) {
+        ActRelationshipDto dto = new ActRelationshipDto();
+        dto.setSourceClassCd(srcCls);
+        dto.setTargetClassCd(tgtCls);
+        dto.setRecordStatusCd(recStatus);
+        dto.setTypeCd(typeCd);
+        dto.setSourceActUid(111L);
+        return dto;
+    }
+
+
+    @Test
+    void testResultedTestObservation_ContinueWhenRtObservationIsNull() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", "OBS", "ACTIVE", NEDSSConstant.ACT108_TYP_CD);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(null).when(spyService)
+                .getAbstractObjectForObservationOrIntervention(eq("OBS"), anyLong());
+
+        var result = spyService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).isEmpty());
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.ORGANIZATION)).isEmpty());
+    }
+
+    @Test
+    void testResultedTestObservation_ContinueWhenReflexObsEmpty() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", "OBS", "ACTIVE", NEDSSConstant.ACT108_TYP_CD);
+
+        ObservationDto obsDto = new ObservationDto();
+        obsDto.setAddUserName("testUser"); // if needed
+
+        ObservationContainer rtObs = mock(ObservationContainer.class);
+        when(rtObs.getTheObservationDto()).thenReturn(obsDto);
+        when(rtObs.getTheParticipationDtoCollection()).thenReturn(Collections.emptyList());
+        when(rtObs.getTheActRelationshipDtoCollection()).thenReturn(Collections.emptyList());
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(rtObs).when(spyService)
+                .getAbstractObjectForObservationOrIntervention(eq("OBS"), anyLong());
+
+        doReturn(null).when(spyService)
+                .retrieveReflexObservationsFromActRelationship(any());
+
+        var result = spyService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertEquals(1, ((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).size()); // only RT
+        assertTrue(((Collection<?>) result.get(DataProcessingMapKey.ORGANIZATION)).isEmpty());
+    }
+
+
+    @Test
+    void testResultedTestObservation_ContinueWhenReflexObsIsEmpty() throws Exception {
+        ActRelationshipDto dto = actRel("OBS", "OBS", "ACTIVE", NEDSSConstant.ACT108_TYP_CD);
+
+        ObservationDto obsDto = new ObservationDto();
+
+        ObservationContainer rtObs = mock(ObservationContainer.class);
+        when(rtObs.getTheObservationDto()).thenReturn(obsDto);
+        when(rtObs.getTheParticipationDtoCollection()).thenReturn(Collections.emptyList());
+        when(rtObs.getTheActRelationshipDtoCollection()).thenReturn(Collections.emptyList());
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(rtObs).when(spyService).getAbstractObjectForObservationOrIntervention(eq("OBS"), anyLong());
+        doReturn(Collections.emptyList()).when(spyService).retrieveReflexObservationsFromActRelationship(any());
+
+        var result = spyService.retrieveObservationFromActRelationship(List.of(dto));
+
+        assertEquals(1, ((Collection<?>) result.get(DataProcessingMapKey.OBSERVATION)).size()); // only RT added
+    }
+
+    @Test
+    void testContinue_WhenActRelDtoIsNull() throws Exception {
+        ObservationService spyService = Mockito.spy(observationService);
+
+        Collection<ActRelationshipDto> input = Collections.singletonList(null); // Correct way
+
+        Collection<ObservationContainer> result = spyService.retrieveReflexObservationsFromActRelationship(input);
+
+        assertNull(result); // reflexObsVOCollection is never initialized
+    }
+
+
+    @Test
+    void testContinue_WhenReflexObservationIsNull() throws Exception {
+        ActRelationshipDto dto = createReflexDto();
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(null).when(spyService)
+                .getAbstractObjectForObservationOrIntervention(eq("OBS"), anyLong());
+
+        Collection<ObservationContainer> result = spyService.retrieveReflexObservationsFromActRelationship(List.of(dto));
+
+        assertNull(result); // reflexObsVOCollection never initialized
+    }
+
+    @Test
+    void testContinue_WhenReflexRTsIsEmpty() throws Exception {
+        ActRelationshipDto dto = createReflexDto();
+
+        ObservationDto obsDto = new ObservationDto();
+        ObservationContainer reflexObs = mock(ObservationContainer.class);
+
+        when(reflexObs.getTheObservationDto()).thenReturn(obsDto);
+        when(reflexObs.getTheActRelationshipDtoCollection()).thenReturn(Collections.emptyList());
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(reflexObs).when(spyService)
+                .getAbstractObjectForObservationOrIntervention(eq("OBS"), anyLong());
+
+        // reflex RTs returned as empty
+        doReturn(Collections.emptyList()).when(spyService)
+                .retrieveReflexRTsAkaObservationFromActRelationship(any());
+
+        Collection<ObservationContainer> result = spyService.retrieveReflexObservationsFromActRelationship(List.of(dto));
+
+        assertNotNull(result); // reflexObsVOCollection was initialized
+        assertEquals(1, result.size()); // only reflexObs was added
+        assertTrue(result.contains(reflexObs));
+    }
+
+    private ActRelationshipDto createReflexDto() {
+        ActRelationshipDto dto = new ActRelationshipDto();
+        dto.setTypeCd(NEDSSConstant.ACT109_TYP_CD);
+        dto.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
+        dto.setTargetClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto.setSourceActUid(123L);
+        return dto;
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideAct109TestCases")
+    void testAct109Condition(String typeCd, String srcCls, String tgtCls, String recStatus, boolean shouldMatch) throws Exception {
+        ActRelationshipDto dto = new ActRelationshipDto();
+        dto.setTypeCd(typeCd);
+        dto.setSourceClassCd(srcCls);
+        dto.setTargetClassCd(tgtCls);
+        dto.setRecordStatusCd(recStatus);
+        dto.setSourceActUid(123L);
+
+        ObservationDto obsDto = new ObservationDto();
+        ObservationContainer reflexObs = mock(ObservationContainer.class);
+        when(reflexObs.getTheObservationDto()).thenReturn(obsDto);
+        when(reflexObs.getTheActRelationshipDtoCollection()).thenReturn(Collections.emptyList());
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Only mock getAbstractObjectForObservationOrIntervention if type matches
+        if ("ACT109".equalsIgnoreCase(typeCd)) {
+            doReturn(reflexObs).when(spyService)
+                    .getAbstractObjectForObservationOrIntervention(eq("OBS"), eq(123L));
+        }
+
+        // Reflex RTs must return empty to avoid adding more
+        doReturn(Collections.emptyList()).when(spyService)
+                .retrieveReflexRTsAkaObservationFromActRelationship(any());
+
+        var result = spyService.retrieveReflexObservationsFromActRelationship(List.of(dto));
+
+        if (shouldMatch) {
+            assertNotNull(result);
+            assertEquals(1, result.size());
+        } else {
+            assertTrue(result == null || result.isEmpty());
+        }
+    }
+
+    private static Stream<Arguments> provideAct109TestCases() {
+        return Stream.of(
+                Arguments.of(null,     "OBS", "OBS", "ACTIVE", false),
+                Arguments.of("WRONG",  "OBS", "OBS", "ACTIVE", false),
+                Arguments.of("REFR", null,  "OBS", "ACTIVE", false),
+                Arguments.of("REFR", "WRONG", "OBS", "ACTIVE", false),
+                Arguments.of("REFR", "OBS", null,  "ACTIVE", false),
+                Arguments.of("REFR", "OBS", "WRONG", "ACTIVE", false),
+                Arguments.of("REFR", "OBS", "OBS", null, false),
+                Arguments.of("REFR", "OBS", "OBS", "INACTIVE", false)
+        );
+    }
+    @Test
+    void testContinue_WhenActRelDtoIsNull2() throws Exception {
+        ObservationService spyService = Mockito.spy(observationService);
+
+        Collection<ActRelationshipDto> input = Collections.singletonList(null);
+
+        var result = spyService.retrieveReflexRTsAkaObservationFromActRelationship(input);
+
+        assertNull(result); // never initialized
+    }
+
+
+    @Test
+    void testContinue_WhenReflexObsIsNull() throws Exception {
+        ActRelationshipDto dto = new ActRelationshipDto();
+        dto.setTypeCd(NEDSSConstant.ACT110_TYP_CD);
+        dto.setSourceClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
+        dto.setTargetClassCd(NEDSSConstant.OBSERVATION_CLASS_CODE);
+        dto.setRecordStatusCd(NEDSSConstant.ACTIVE);
+        dto.setSourceActUid(123L);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(null).when(spyService).getAbstractObjectForObservationOrIntervention("OBS", 123L);
+
+        var result = spyService.retrieveReflexRTsAkaObservationFromActRelationship(List.of(dto));
+
+        assertNull(result); // never initialized
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideElseCaseInputs")
+    void testRetrieveReflexRTsAkaObservationFromActRelationship_ElseCases(
+            String typeCd,
+            String sourceClassCd,
+            String targetClassCd,
+            String recordStatusCd
+    ) throws Exception {
+        ActRelationshipDto dto = new ActRelationshipDto();
+        dto.setTypeCd(typeCd);
+        dto.setSourceClassCd(sourceClassCd);
+        dto.setTargetClassCd(targetClassCd);
+        dto.setRecordStatusCd(recordStatusCd);
+        dto.setSourceActUid(123L);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(mock(ObservationContainer.class)).when(spyService)
+                .getAbstractObjectForObservationOrIntervention(anyString(), anyLong());
+
+        var result = spyService.retrieveReflexRTsAkaObservationFromActRelationship(List.of(dto));
+
+        assertTrue(result == null || result.isEmpty(), "Should skip block (else case)");
+    }
+    private static Stream<Arguments> provideElseCaseInputs() {
+        return Stream.of(
+                Arguments.of(null,     "OBS",  "OBS",  "ACTIVE"),   // E1
+                Arguments.of("WRONG",  "OBS",  "OBS",  "ACTIVE"),   // E2
+                Arguments.of("COMP", null,   "OBS",  "ACTIVE"),   // E3
+                Arguments.of("COMP", "WRONG","OBS",  "ACTIVE"),   // E4
+                Arguments.of("COMP", "OBS",  null,   "ACTIVE"),   // E5
+                Arguments.of("COMP", "OBS",  "WRONG","ACTIVE"),   // E6
+                Arguments.of("COMP", "OBS",  "OBS",  null),       // E7
+                Arguments.of("COMP", "OBS",  "OBS",  "INACTIVE")  // E8
+        );
+    }
+
+    @Test
+    void testContinueWhenPartDtoIsNull() {
+        ObservationService spyService = Mockito.spy(observationService);
+        Collection<ParticipationDto> input = Collections.singletonList(null);
+
+        OrganizationContainer result = spyService.retrievePerformingLabAkaOrganizationFromParticipation(input);
+
+        assertNull(result);
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideElseCasesForLab")
+    void testElseCasesForPerformingLab(
+            String typeCd,
+            String subjectClassCd,
+            String actClassCd,
+            String recordStatusCd
+    ) {
+        ParticipationDto dto = new ParticipationDto();
+        dto.setTypeCd(typeCd);
+        dto.setSubjectClassCd(subjectClassCd);
+        dto.setActClassCd(actClassCd);
+        dto.setRecordStatusCd(recordStatusCd);
+        dto.setSubjectEntityUid(1L);
+        dto.setActUid(2L);
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        OrganizationContainer result = spyService.retrievePerformingLabAkaOrganizationFromParticipation(List.of(dto));
+
+        assertNull(result); // None should trigger loading lab
+    }
+
+    private static Stream<Arguments> provideElseCasesForLab() {
+        return Stream.of(
+                Arguments.of(null,     "ORG",  "OBS", "ACTIVE"),    // typeCd null
+                Arguments.of("WRONG",  "ORG",  "OBS", "ACTIVE"),    // typeCd wrong
+                Arguments.of("PRF",    null,   "OBS", "ACTIVE"),    // subjectClassCd null
+                Arguments.of("PRF",    "WRONG","OBS", "ACTIVE"),    // subjectClassCd wrong
+                Arguments.of("PRF",    "ORG",  null,  "ACTIVE"),    // actClassCd null
+                Arguments.of("PRF",    "ORG",  "WRONG","ACTIVE"),   // actClassCd wrong
+                Arguments.of("PRF",    "ORG",  "OBS", null),        // recordStatusCd null
+                Arguments.of("PRF",    "ORG",  "OBS", "INACTIVE")   // recordStatusCd wrong
+        );
+    }
+
+    @Test
+    void testContinueWhenActRelDtoIsNull() throws Exception {
+        ObservationService spyService = Mockito.spy(observationService);
+        Collection<ActRelationshipDto> input = Collections.singletonList(null);
+
+        Collection<Object> result = spyService.retrieveInterventionFromActRelationship(input);
+
+        assertNull(result); // collection should never initialize
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideElseCasesForIntervention")
+    void testElseCasesForRetrieveIntervention(
+            String sourceClassCd,
+            String targetClassCd,
+            String recordStatusCd
+    ) throws Exception {
+        ActRelationshipDto dto = new ActRelationshipDto();
+        dto.setSourceClassCd(sourceClassCd);
+        dto.setTargetClassCd(targetClassCd);
+        dto.setRecordStatusCd(recordStatusCd);
+        dto.setSourceActUid(999L);
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        var result = spyService.retrieveInterventionFromActRelationship(List.of(dto));
+
+        assertNull(result); // should not trigger intervention retrieval
+    }
+
+    private static Stream<Arguments> provideElseCasesForIntervention() {
+        return Stream.of(
+                Arguments.of(null,     "OBS", "ACTIVE"),     // sourceClassCd null
+                Arguments.of("WRONG",  "OBS", "ACTIVE"),     // sourceClassCd wrong
+                Arguments.of("INTV",   null,  "ACTIVE"),     // targetClassCd null
+                Arguments.of("INTV",   "WRONG", "ACTIVE"),   // targetClassCd wrong
+                Arguments.of("INTV",   "OBS", null),         // recordStatusCd null
+                Arguments.of("INTV",   "OBS", "INACTIVE")    // recordStatusCd wrong
+        );
+    }
+
+    @Test
+    void testProcessingNotELRLab_ElseCasesForAllConditions() throws Exception {
+        // Arrange
+        LabResultProxyContainer lrProxyVO = new LabResultProxyContainer();
+        ObservationContainer orderedTest = new ObservationContainer();
+        long obsId = 123L;
+
+        // ensure we enter the main block
+        boolean isELR = false;
+
+        // Mock checkForExistingNotification to return false (doesn't matter here)
+        when(notificationService.checkForExistingNotification(lrProxyVO)).thenReturn(false);
+
+        // Force else cases:
+        when(actRelationshipService.loadActRelationshipBySrcIdAndTypeCode(obsId, NEDSSConstant.LAB_REPORT))
+                .thenReturn(Collections.emptyList()); // triggers first else
+
+        when(edxDocumentService.selectEdxDocumentCollectionByActUid(obsId))
+                .thenReturn(null); // triggers second else
+
+        when(observationCodeService.deriveTheConditionCodeList(lrProxyVO, orderedTest))
+                .thenReturn(new ArrayList<>()); // triggers third else
+
+        // Act
+        observationService.processingNotELRLab(isELR, lrProxyVO, orderedTest, obsId);
+
+        // Assert - all should remain at default/null/false
+        assertFalse(lrProxyVO.isAssociatedInvInd());               // not set to true
+        assertNull(lrProxyVO.getEDXDocumentCollection());          // not set
+        assertNull(lrProxyVO.getTheConditionsList());              // not set
+    }
+
+    @Test
+    void testProcessObservations_WhenMprUidIsNull() throws Exception {
+        Map<Object, Object> returnVal = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        Map<Object, Object> mockObsResults = new HashMap<>();
+        mockObsResults.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, 999L);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(mockObsResults).when(spyService).processObservationContainerCollection(proxy, true);
+        doReturn(Map.of()).when(spyService).findLocalUidsFor(null, 999L);
+
+        var result = spyService.processObservations(proxy, returnVal, null);
+
+        assertEquals(mockObsResults, result);
+        assertFalse(returnVal.containsKey(NEDSSConstant.SETLAB_RETURN_MPR_UID));
+    }
+
+    @Test
+    void testProcessObservations_WhenMprUidNegativeAndNotFound_Throws() throws Exception {
+        // Arrange
+        Map<Object, Object> returnVal = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        Map<Object, Object> mockObsResults = new HashMap<>();
+        mockObsResults.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, 999L); // Make sure this matches real constant
+
+        // Spy the service under test
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Stub methods to return mocked data
+        doReturn(mockObsResults)
+                .when(spyService)
+                .processObservationContainerCollection(proxy, true);
+
+        when(participationService.findPatientMprUidByObservationUid(
+                eq(NEDSSConstant.PERSON),
+                eq(NEDSSConstant.PAR110_TYP_CD),
+                eq(999L)
+        )).thenReturn(null); // simulate "not found"
+
+        // Act & Assert
+        DataProcessingException ex = assertThrows(DataProcessingException.class, () ->
+                spyService.processObservations(proxy, returnVal, -1L)
+        );
+
+        assertTrue(ex.getMessage().contains("observation uid = 999"));
+    }
+
+    @Test
+    void testProcessObservations_WhenMprUidNegativeAndFound_Success() throws Exception {
+        Map<Object, Object> returnVal = new HashMap<>();
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        Map<Object, Object> mockObsResults = new HashMap<>();
+        mockObsResults.put(NEDSSConstant.SETLAB_RETURN_OBS_UID, 999L); // ensure correct key
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        doReturn(mockObsResults).when(spyService).processObservationContainerCollection(proxy, true);
+
+        when(participationService.findPatientMprUidByObservationUid(
+                eq(NEDSSConstant.PERSON),
+                eq(NEDSSConstant.PAR110_TYP_CD),
+                eq(999L)
+        )).thenReturn(777L);
+
+        doReturn(Map.of()).when(spyService).findLocalUidsFor(777L, 999L);
+
+        var result = spyService.processObservations(proxy, returnVal, -1L);
+
+        assertEquals(mockObsResults, result);
+        assertEquals(777L, returnVal.get(NEDSSConstant.SETLAB_RETURN_MPR_UID));
+    }
+
+    @Test
+    void testProcessLabReportObsContainerCollection_WhenElectronicIndNotYes_SetsManualFlag() throws Exception {
+        // Arrange
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        // Include a valid non-null observation and a null to test the continue path
+        ObservationContainer obs1 = mock(ObservationContainer.class);
+        ObservationContainer obs2 = null;
+        proxy.setTheObservationContainerCollection(Arrays.asList(obs1, obs2));
+
+        // Mock the root ObservationDto with electronicInd != "Y"
+        ObservationDto rootDto = new ObservationDto();
+        rootDto.setElectronicInd("N"); // Test the condition path
+        when(observationUtil.getRootObservationDto(proxy)).thenReturn(rootDto);
+
+        // Set up a spy and stub inner calls
+        ObservationService spyService = Mockito.spy(observationService);
+
+        Map<Object, Object> returnMap = new HashMap<>();
+        doReturn(returnMap).when(spyService).processLabReportOrderTest(proxy, true);
+        doReturn(1001L).when(spyService).storeObservationVOCollection(proxy);
+
+        // Act
+        Map<Object, Object> result = spyService.processLabReportObsContainerCollection(proxy, true);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1001L, result.get(NEDSSConstant.SETLAB_RETURN_OBS_UID));
+    }
+
+    @Test
+    void testProcessLabReportObsContainerCollection_WhenObservationIsNull_ContinuesLoop() throws Exception {
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+
+        // Add a null ObservationContainer in the list using Arrays.asList
+        proxy.setTheObservationContainerCollection(Arrays.asList((ObservationContainer) null));
+
+        ObservationDto rootDto = new ObservationDto();
+        rootDto.setElectronicInd("Y"); // not manual
+        when(observationUtil.getRootObservationDto(proxy)).thenReturn(rootDto);
+
+        ObservationService spyService = Mockito.spy(observationService);
+        doReturn(new HashMap<>()).when(spyService).processLabReportOrderTest(proxy, true);
+        doReturn(1001L).when(spyService).storeObservationVOCollection(proxy);
+
+        Map<Object, Object> result = spyService.processLabReportObsContainerCollection(proxy, true);
+
+        assertEquals(1001L, result.get(NEDSSConstant.SETLAB_RETURN_OBS_UID));
+    }
+
+
+    @Test
+    void testLoadingObservationToLabResultContainerActHelper_WhenObsCollectionIsNull_InitializesNewList() {
+        // Arrange
+        LabResultProxyContainer proxy = new LabResultProxyContainer();
+        proxy.setTheOrganizationContainerCollection(new ArrayList<>());
+
+        ObservationContainer orderedTest = new ObservationContainer();
+        ObservationDto dto = new ObservationDto();
+        orderedTest.setTheObservationDto(dto);
+
+        Map<DataProcessingMapKey, Object> allAct = new HashMap<>();
+        allAct.put(DataProcessingMapKey.INTERVENTION, new ArrayList<>());
+        allAct.put(DataProcessingMapKey.OBSERVATION, null); // Triggers obsColl == null
+        allAct.put(DataProcessingMapKey.ORGANIZATION, null); // avoid lab block
+
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Force !isELR to enter user name block
+        AuthUser authUser = new AuthUser();
+        authUser.setUserId("test-user");
+        AuthUtil.authUser = authUser;
+
+        // Act
+        spyService.loadingObservationToLabResultContainerActHelper(proxy, false, allAct, orderedTest);
+
+        // Assert
+        assertNotNull(proxy.getTheObservationContainerCollection());
+        assertEquals(1, proxy.getTheObservationContainerCollection().size());
+        assertEquals(orderedTest, proxy.getTheObservationContainerCollection().iterator().next());
+
+        assertEquals("test-user", orderedTest.getTheObservationDto().getAddUserName());
+        assertEquals("test-user", orderedTest.getTheObservationDto().getLastChgUserName());
+    }
+
+
+    @Test
+    void testLoadingObservationToLabResultContainer_WhenAnswerServiceThrowsException_LogsError() throws Exception {
+        Long observationId = 123L;
+        boolean isELR = false;
+
+        // Mock orderedTest and its collections
+        ObservationContainer mockOrderedTest = new ObservationContainer();
+        mockOrderedTest.setTheParticipationDtoCollection(Collections.emptyList());
+        mockOrderedTest.setTheActRelationshipDtoCollection(Collections.emptyList());
+
+        // Spy the service so we can stub internal call
+        ObservationService spyService = Mockito.spy(observationService);
+
+        // Stub the call to load observation
+        doReturn(mockOrderedTest)
+                .when(spyService).getAbstractObjectForObservationOrIntervention(NEDSSConstant.OBSERVATION_CLASS_CODE, observationId);
+
+        // Simulate exception from answerService
+        doThrow(new RuntimeException("Simulated failure"))
+                .when(answerService).getNbsAnswerAndAssociation(observationId);
+
+        // Act
+        LabResultProxyContainer result = spyService.loadingObservationToLabResultContainer(observationId, isELR);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getPageVO()); // Should remain null due to exception
+    }
+
+
+
+
 }

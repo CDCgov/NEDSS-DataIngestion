@@ -98,6 +98,8 @@ public class MatchingBaseService  {
                             Coded coded = new Coded();
                             coded.setCode(idDto.getAssigningAuthorityCd());
                             coded.setCodesetName(NEDSSConstant.EI_AUTH);
+                            coded.setCodeDescription("UKN");
+                            coded.setCodeSystemCd("UKN");
 
                             if (idDto.getRootExtensionTxt() != null
                                     && idDto.getTypeCd() != null
@@ -158,14 +160,7 @@ public class MatchingBaseService  {
                         {
                             // These condition check was how it originally designed in legacy
                             // The way I see it is the second conditional check would never be reached
-                            if (asofDate == null || (asofDate.getTime() < personNameDto.getAsOfDate().getTime())) // NOSONAR
-                            {
-                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
-                            }
-                            else if (asofDate.before(personNameDto.getAsOfDate()))
-                            {
-                                namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
-                            }
+                            namesStr = processingPersonNameBasedOnAsOfDate(personNameDto, namesStr, asofDate); // NOSONAR
                         }
                     }
 

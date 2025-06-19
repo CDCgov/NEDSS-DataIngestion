@@ -296,8 +296,7 @@ public class ObservationRepositoryUtil {
         observationVO.setItDirty(true);
         this.saveObservation(observationVO);
     }
-    @SuppressWarnings("java:S3776")
-
+    @SuppressWarnings({"java:S3776","java:S6541"})
     public Collection<ObservationContainer> retrieveObservationQuestion(Long targetActUid) {
 
         ArrayList<ObservationContainer> theObservationQuestionColl = new ArrayList<> ();
@@ -451,7 +450,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private Collection<ObservationReasonDto> selectObservationReasons(long aUID)
+    protected Collection<ObservationReasonDto> selectObservationReasons(long aUID)
     {
         Collection<ObservationReason> observationReasons = observationJdbcRepository.findByObservationReasons(aUID);
         Collection<ObservationReasonDto> dtCollection = new ArrayList<>();
@@ -464,7 +463,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Collection<ActIdDto> selectActivityIDs(long aUID)
+    protected Collection<ActIdDto> selectActivityIDs(long aUID)
     {
 
         var result  = actIdJdbcRepository.findRecordsByActUid(aUID);
@@ -483,7 +482,7 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private Collection<ObservationInterpDto> selectObservationInterps(long aUID)
+    protected Collection<ObservationInterpDto> selectObservationInterps(long aUID)
     {
         Collection<ObservationInterp> col = observationJdbcRepository.findByObservationInterp(aUID);
         Collection<ObservationInterpDto> dtCollection = new ArrayList<>();
@@ -499,7 +498,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Collection<ObsValueCodedDto> selectObsValueCodeds(long aUID)
+    protected Collection<ObsValueCodedDto> selectObsValueCodeds(long aUID)
     {
         Collection<ObsValueCoded> col = observationJdbcRepository.findByObservationCodedUid(aUID);
         Collection<ObsValueCodedDto> dtCollection = new ArrayList<>();
@@ -514,7 +513,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Collection<ObsValueTxtDto> selectObsValueTxts(long aUID)
+    protected Collection<ObsValueTxtDto> selectObsValueTxts(long aUID)
     {
         Collection<ObsValueTxt> col = observationJdbcRepository.findByObservationTxtUid(aUID);
         Collection<ObsValueTxtDto> dtCollection = new ArrayList<>();
@@ -529,7 +528,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Collection<ObsValueDateDto> selectObsValueDates(long aUID)
+    protected Collection<ObsValueDateDto> selectObsValueDates(long aUID)
     {
         Collection<ObsValueDate> col = observationJdbcRepository.findByObservationDateUid(aUID);
         Collection<ObsValueDateDto> dtCollection = new ArrayList<>();
@@ -545,7 +544,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Collection<ObsValueNumericDto> selectObsValueNumerics(long aUID)
+    protected Collection<ObsValueNumericDto> selectObsValueNumerics(long aUID)
     {
         Collection<ObsValueNumeric> col = observationJdbcRepository.findByObservationNumericUid(aUID);
         Collection<ObsValueNumericDto> dtCollection = new ArrayList<>();
@@ -560,7 +559,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Collection<ActivityLocatorParticipationDto> selectActivityLocatorParticipations(long aUID)
+    protected Collection<ActivityLocatorParticipationDto> selectActivityLocatorParticipations(long aUID)
     {
         Collection<ActLocatorParticipation> col = actLocatorParticipationJdbcRepository.findByActUid(aUID);
         Collection<ActivityLocatorParticipationDto> dtCollection = new ArrayList<>();
@@ -576,7 +575,7 @@ public class ObservationRepositoryUtil {
     }
 
 
-    private Collection<ParticipationDto> selectParticipationDTCollection(long aUID)
+    protected Collection<ParticipationDto> selectParticipationDTCollection(long aUID)
     {
         var col = participationJdbcRepository.findByActUid(aUID);
         Collection<ParticipationDto> dtCollection = new ArrayList<>();
@@ -592,7 +591,7 @@ public class ObservationRepositoryUtil {
         return dtCollection;
     }
 
-    private Long saveNewObservation(ObservationDto observationDto) throws DataProcessingException {
+    protected Long saveNewObservation(ObservationDto observationDto) throws DataProcessingException {
         var uid = uidPoolManager.getNextUid(LocalIdClass.OBSERVATION, true);
         Act act = new Act();
         act.setActUid(uid.getGaTypeUid().getSeedValueNbr());
@@ -621,7 +620,7 @@ public class ObservationRepositoryUtil {
         return observation.getObservationUid();
     }
 
-    private void  addObservationReasons(Long obsUid, Collection<ObservationReasonDto> observationReasonDtoCollection)   {
+    protected void  addObservationReasons(Long obsUid, Collection<ObservationReasonDto> observationReasonDtoCollection)   {
         if (observationReasonDtoCollection != null) {
             ArrayList<ObservationReasonDto> arr = new ArrayList<>(observationReasonDtoCollection);
             for(var item: arr) {
@@ -634,7 +633,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void saveObservationReason(ObservationReasonDto item, String operation) {
+    protected void saveObservationReason(ObservationReasonDto item, String operation) {
         var data = new ObservationReason(item);
         if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObservationReason(data);
@@ -643,7 +642,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void updateObservationReason(Long obsUid, Collection<ObservationReasonDto> observationReasonDtoCollection)   {
+    protected void updateObservationReason(Long obsUid, Collection<ObservationReasonDto> observationReasonDtoCollection)   {
         ArrayList<ObservationReasonDto> arr = new ArrayList<>(observationReasonDtoCollection);
         for(var item: arr) {
             if (!item.isItDelete()) {
@@ -655,7 +654,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void addActivityId(Long obsUid, Collection<ActIdDto> actIdDtoCollection, boolean updateApplied) throws DataProcessingException {
+    protected void addActivityId(Long obsUid, Collection<ActIdDto> actIdDtoCollection, boolean updateApplied) throws DataProcessingException {
         if (actIdDtoCollection == null || actIdDtoCollection.isEmpty()) {
             return;
         }
@@ -668,7 +667,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private int getMaxSegId(Long obsUid) throws DataProcessingException {
+    protected int getMaxSegId(Long obsUid) throws DataProcessingException {
         var res = actIdJdbcRepository.findRecordsByActUid(obsUid);
         if (res == null || res.isEmpty()) {
             return 0;
@@ -691,7 +690,7 @@ public class ObservationRepositoryUtil {
     }
 
 
-    private void addObservationInterps(Long obsUid, Collection<ObservationInterpDto> observationInterpDtoCollection)   {
+    protected void addObservationInterps(Long obsUid, Collection<ObservationInterpDto> observationInterpDtoCollection)   {
         if (observationInterpDtoCollection != null) {
             ArrayList<ObservationInterpDto> arr = new ArrayList<>(observationInterpDtoCollection);
             for(var item: arr) {
@@ -704,7 +703,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void saveObservationInterp(ObservationInterpDto item, String operation) {
+    protected void saveObservationInterp(ObservationInterpDto item, String operation) {
         var reason = new ObservationInterp(item);
         if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObservationInterp(reason);
@@ -713,7 +712,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void updateObservationInterps(Long obsUid, Collection<ObservationInterpDto> collection)   {
+    protected void updateObservationInterps(Long obsUid, Collection<ObservationInterpDto> collection)   {
         ArrayList<ObservationInterpDto> arr = new ArrayList<>(collection);
         for(var item: arr) {
             if (!item.isItDelete()) {
@@ -725,7 +724,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void addObsValueCoded(Long obsUid, Collection<ObsValueCodedDto> obsValueCodedDtoCollection)   {
+    protected void addObsValueCoded(Long obsUid, Collection<ObsValueCodedDto> obsValueCodedDtoCollection)   {
         if (obsValueCodedDtoCollection != null) {
             ArrayList<ObsValueCodedDto> arr = new ArrayList<>(obsValueCodedDtoCollection);
             for(var item: arr) {
@@ -739,7 +738,7 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void saveObsValueCoded(ObsValueCodedDto item, String operation) {
+    protected void saveObsValueCoded(ObsValueCodedDto item, String operation) {
         var reason = new ObsValueCoded(item);
         if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueCoded(reason);
@@ -748,7 +747,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void updateObsValueCoded(Long obsUid, Collection<ObsValueCodedDto> collection)   {
+    protected void updateObsValueCoded(Long obsUid, Collection<ObsValueCodedDto> collection)   {
         ArrayList<ObsValueCodedDto> arr = new ArrayList<>(collection);
         for(var item: arr) {
             if (!item.isItDelete()) {
@@ -762,7 +761,7 @@ public class ObservationRepositoryUtil {
 
     }
 
-    private void addObsValueTxts(Long obsUid, Collection<ObsValueTxtDto> obsValueTxtDtoCollection)   {
+    protected void addObsValueTxts(Long obsUid, Collection<ObsValueTxtDto> obsValueTxtDtoCollection)   {
         if (obsValueTxtDtoCollection != null)  {
             ArrayList<ObsValueTxtDto> arr = new ArrayList<>(obsValueTxtDtoCollection);
             for(var item: arr) {
@@ -775,7 +774,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void saveObsValueTxt(ObsValueTxtDto item, String operation) {
+    protected void saveObsValueTxt(ObsValueTxtDto item, String operation) {
         var reason = new ObsValueTxt(item);
         if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueTxt(reason);
@@ -784,7 +783,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void updateObsValueTxts(Long obsUid, Collection<ObsValueTxtDto> collection)   {
+    protected void updateObsValueTxts(Long obsUid, Collection<ObsValueTxtDto> collection)   {
         ArrayList<ObsValueTxtDto> arr = new ArrayList<>(collection);
         for(var item: arr) {
             if (!item.isItDelete()) {
@@ -797,7 +796,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void addObsValueDates(Long obsUid, Collection<ObsValueDateDto> obsValueDateDtoCollection)   {
+    protected void addObsValueDates(Long obsUid, Collection<ObsValueDateDto> obsValueDateDtoCollection)   {
         if (obsValueDateDtoCollection != null) {
             ArrayList<ObsValueDateDto> arr = new ArrayList<>(obsValueDateDtoCollection);
             for(var item: arr) {
@@ -810,7 +809,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void saveObsValueDate(ObsValueDateDto item, String operation) {
+    protected void saveObsValueDate(ObsValueDateDto item, String operation) {
         var reason = new ObsValueDate(item);
         if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueDate(reason);
@@ -819,7 +818,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void updateObsValueDates(Long obsUid, Collection<ObsValueDateDto> collection)   {
+    protected void updateObsValueDates(Long obsUid, Collection<ObsValueDateDto> collection)   {
         ArrayList<ObsValueDateDto> arr = new ArrayList<>(collection);
         for(var item: arr) {
             if (!item.isItDelete()) {
@@ -832,7 +831,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void addObsValueNumeric(Long obsUid, Collection<ObsValueNumericDto> obsValueNumericDtoCollection)   {
+    protected void addObsValueNumeric(Long obsUid, Collection<ObsValueNumericDto> obsValueNumericDtoCollection)   {
         if (obsValueNumericDtoCollection != null) {
             ArrayList<ObsValueNumericDto> arr = new ArrayList<>(obsValueNumericDtoCollection);
             for(var item: arr) {
@@ -845,7 +844,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void saveObsValueNumeric(ObsValueNumericDto item, String operation)  {
+    protected void saveObsValueNumeric(ObsValueNumericDto item, String operation)  {
         var reason = new ObsValueNumeric(item);
         if (operation.equalsIgnoreCase(OPERATION_CREATE)) {
             observationJdbcRepository.insertObsValueNumeric(reason);
@@ -854,7 +853,7 @@ public class ObservationRepositoryUtil {
         }
     }
 
-    private void updateObsValueNumerics(Long obsUid, Collection<ObsValueNumericDto> collection)   {
+    protected void updateObsValueNumerics(Long obsUid, Collection<ObsValueNumericDto> collection)   {
         ArrayList<ObsValueNumericDto> arr = new ArrayList<>(collection);
         for(var item: arr) {
             if (!item.isItDelete()) {

@@ -70,7 +70,7 @@ class ElrDeadLetterServiceTest {
     private String guidForTesting = "8DC5E410-4A2E-4018-8C28-A4F6AB99E802";
 
     @BeforeEach
-    public void setUpEach() {
+    void setUpEach() {
         MockitoAnnotations.openMocks(this);
         elrDeadLetterService = new ElrDeadLetterService(dltRepository, rawELRRepository, validatedELRRepository, kafkaProducerService, rawElrService);
     }
