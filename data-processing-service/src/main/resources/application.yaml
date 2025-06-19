@@ -39,8 +39,8 @@ features:
     url: ${MODERNIZED_MATCHING_URL}
 
 spring:
-  main:
-    web-application-type: none
+#  main:
+#    web-application-type: none
   application:
     name: data-processing-service
 
