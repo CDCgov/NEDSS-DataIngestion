@@ -66,19 +66,17 @@ public class ReportStatusService {
         List<MessageStatus> msgStatusList=new ArrayList<>();
 
         Optional<RawElrModel> rawMessageData = iRawELRRepository.findById(rawMessageID);
-        if (!rawMessageData.isEmpty()) {
+        if (rawMessageData.isPresent()) {
             MessageStatus msgStatus = new MessageStatus();
             msgStatus.getRawInfo().setRawMessageId(rawMessageData.get().getId());
-            //msgStatus.getRawInfo().setRawPayload(Base64.getEncoder().encodeToString(rawMessageData.get().getPayload().getBytes()));
             msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
             msgStatus.getRawInfo().setRawCreatedOn(TimeStampHelper.convertTimestampToString(rawMessageData.get().getCreatedOn()));
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
 
             if (rawMessageData.get().getType().equalsIgnoreCase(HL7_ELR)) {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
-                if (!validatedMessageData.isEmpty()) {
+                if (validatedMessageData.isPresent()) {
                     msgStatus.getValidatedInfo().setValidatedMessageId(validatedMessageData.get().getId());
-                    //msgStatus.getValidatedInfo().setValidatedMessage(Base64.getEncoder().encodeToString(validatedMessageData.get().getRawMessage().getBytes()));
                     msgStatus.getValidatedInfo().setValidatedCreatedOn(TimeStampHelper.convertTimestampToString(validatedMessageData.get().getCreatedOn()));
                     msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_SUCCESS);
 
@@ -137,20 +135,18 @@ public class ReportStatusService {
         return msgStatusList;
     }
 
-    private MessageStatus setNbsInfo(MessageStatus msgStatus) {
+    private void setNbsInfo(MessageStatus msgStatus) {
         Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(msgStatus.getNbsInfo().getNbsInterfaceId());
-        if (!nbsInterfaceModel.isEmpty()) {
+        if (nbsInterfaceModel.isPresent()) {
             msgStatus.getNbsInfo().setNbsInterfaceStatus(nbsInterfaceModel.get().getRecordStatusCd());
-            //msgStatus.getNbsInfo().setNbsInterfacePayload(Base64.getEncoder().encodeToString(nbsInterfaceModel.get().getPayload().getBytes()));
         } else {
             msgStatus.getNbsInfo().setNbsInterfacePipeLineStatus(MSG_STATUS_PROGRESS);
         }
-        return msgStatus;
     }
 
-    private MessageStatus setDltInfo(String id, MessageStatus msgStatus, String origin) {
+    private void setDltInfo(String id, MessageStatus msgStatus, String origin) {
         var dlt = iElrDeadLetterRepository.findById(id);
-        if (!dlt.isEmpty() ) {
+        if (dlt.isPresent()) {
             switch (origin) {
                 case DLT_ORIGIN_RAW:
                     msgStatus.getRawInfo().setDltInfo(new DltMessageStatus());
@@ -183,11 +179,9 @@ public class ReportStatusService {
         } else {
             setPipeLineStatus(msgStatus, origin);
         }
-
-        return msgStatus;
     }
 
-    private MessageStatus setPipeLineStatus(MessageStatus msgStatus, String origin) {
+    private void setPipeLineStatus(MessageStatus msgStatus, String origin) {
         switch (origin) {
             case DLT_ORIGIN_RAW:
                 msgStatus.getValidatedInfo().setValidatedPipeLineStatus(MSG_STATUS_PROGRESS);
@@ -198,7 +192,6 @@ public class ReportStatusService {
             default:
                 break;
         }
-        return msgStatus;
     }
 
     public List<String> getStatusForReport(String id) {
@@ -211,7 +204,7 @@ public class ReportStatusService {
         }
         for(ReportStatusIdData reportStatusIdData: elrStatusIdList) {
             Optional<NbsInterfaceModel> nbsInterfaceModel = nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.getNbsInterfaceUid());
-            if(!nbsInterfaceModel.isEmpty()) {
+            if(nbsInterfaceModel.isPresent()) {
                 statusList.add("NBS Inerface Id:"+reportStatusIdData.getNbsInterfaceUid()+" Status:"+nbsInterfaceModel.get().getRecordStatusCd());
             }else{
                 statusList.add("Couldn't find status for the requested UUID.");

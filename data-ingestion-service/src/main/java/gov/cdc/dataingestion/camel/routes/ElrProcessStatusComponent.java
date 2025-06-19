@@ -95,6 +95,7 @@ public class ElrProcessStatusComponent {
                                 + " \n" + ELR_ID + ": " + elrId
                                 + EMPTY_LINE;
                     } else {
+                        statusSb.setLength(0);
                         statusSb.append(body);
                         break outerLoop;
                     }
