@@ -120,6 +120,7 @@ public class ManagerService implements IManagerService {
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
         boolean dltLockError = false;
+        boolean nonDltError = false;
         try
         {
 
@@ -207,6 +208,7 @@ public class ManagerService implements IManagerService {
             else
             {
                 detailedMsg = handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel);
+                nonDltError = true;
             }
         }
         finally
@@ -214,6 +216,10 @@ public class ManagerService implements IManagerService {
             if (dltLockError)
             {
                 composeDlt(String.valueOf(data));
+            }
+            else if (nonDltError)
+            {
+                persistingRtiDlt();
             }
             edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
             edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
@@ -233,6 +239,7 @@ public class ManagerService implements IManagerService {
     public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
         boolean dltLockError = false;
+        boolean nonDltError = false;
         try
         {
             wds = initiatingInvestigationAndPublicHealthCase(phcContainer);
@@ -252,16 +259,17 @@ public class ManagerService implements IManagerService {
                     dltLockError = true;
                 }
                 else {
+                    nonDltError = true;
                     throw new DataProcessingDBException(e.getMessage(), e);
                 }
             }
             else
             {
+                nonDltError = true;
                 // TODO SEND TO DLT QUEUE HERE && ISOLATE LOCK EXCEPTION and push it to sequence queue
                 phcContainer.getNbsInterfaceModel().setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
                 phcContainer.getNbsInterfaceModel().setRecordStatusTime(getCurrentTimeStamp(tz));
                 nbsInterfaceRepository.save(phcContainer.getNbsInterfaceModel());
-                throw new DataProcessingException(e.getMessage(), e);
             }
         }
         finally
@@ -272,6 +280,9 @@ public class ManagerService implements IManagerService {
             }
             else
             {
+                if (nonDltError) {
+                    persistingRtiDlt();
+                }
                 edxLogService.updateActivityLogDT(phcContainer.getNbsInterfaceModel(), phcContainer.getEdxLabInformationDto());
                 edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), "");
                 edxLogService.saveEdxActivityLogs(phcContainer.getEdxLabInformationDto().getEdxActivityLogDto());
@@ -283,6 +294,9 @@ public class ManagerService implements IManagerService {
         nbsInterfaceJdbcRepository.updateRecordStatusToRtiProcess(ids);
     }
 
+    protected void persistingRtiDlt() {
+        //TODO: DLT logic here for tracking
+    }
     protected void composeDlt(String message) {
         kafkaManagerProducer.sendDltForLocking(message);
     }
