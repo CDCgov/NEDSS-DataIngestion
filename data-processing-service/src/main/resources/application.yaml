@@ -133,3 +133,5 @@ feature:
 processor:
   delay_ms: ${PROCESSOR_DELAY:1000}
 uid:
+  pool_size: ${UID_POOL_SIZE:500}
+  min_pool_size: ${UID_MIN_POOL_SIZE:100}
