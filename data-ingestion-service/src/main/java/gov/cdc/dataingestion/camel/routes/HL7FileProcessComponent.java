@@ -36,14 +36,13 @@ public class HL7FileProcessComponent {
         String elrId = "";
         try {
             logger.debug("Calling HL7FileProcessComponent");
-            logger.debug("HL7 Message:{}", hl7MsgBody);
             if (hl7MsgBody != null && !hl7MsgBody.trim().isEmpty()) {
                 RawElrDto rawElrDto = new RawElrDto();
                 rawElrDto.setType(msgType);
                 rawElrDto.setValidationActive(true);
                 rawElrDto.setPayload(hl7MsgBody);
                 rawElrDto.setVersion(phcrImporterVersion);
-                elrId = rawELRService.submission(rawElrDto);
+                elrId = rawELRService.submissionElr(rawElrDto);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());

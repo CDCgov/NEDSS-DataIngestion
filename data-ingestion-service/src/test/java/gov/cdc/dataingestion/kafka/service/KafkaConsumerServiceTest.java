@@ -20,6 +20,7 @@ import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
+import gov.cdc.dataingestion.share.helper.OBRSplitter;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -50,10 +51,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -90,6 +88,8 @@ class KafkaConsumerServiceTest {
     private CustomMetricsBuilder customMetricsBuilder;
     @Mock
     private TimeMetricsBuilder timeMetricsBuilder;
+    @Mock
+    private OBRSplitter elrSplitter;
 
     private NbsInterfaceModel nbsInterfaceModel;
     private ValidatedELRModel validatedELRModel;
@@ -164,7 +164,7 @@ class KafkaConsumerServiceTest {
                 elrDeadLetterRepository,
                 iReportStatusRepository,
                 customMetricsBuilder,
-                timeMetricsBuilder);
+                timeMetricsBuilder,elrSplitter);
         nbsInterfaceModel = new NbsInterfaceModel();
         validatedELRModel = new ValidatedELRModel();
     }
@@ -403,7 +403,8 @@ class KafkaConsumerServiceTest {
 
                 when(iValidatedELRRepository.findById(guidForTesting))
                         .thenReturn(Optional.of(model));
-                when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
+                //Not reachable after adding the splitter code.
+                //when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), eq(false))).thenReturn(nbsInterfaceModel);
 
                 doAnswer(invocation -> {
                     Runnable runnable = invocation.getArgument(0);
@@ -423,7 +424,7 @@ class KafkaConsumerServiceTest {
 
 
     @Test
-    void xmlPreparationConsumerTestNewFlow() throws XmlConversionException, KafkaProducerException {
+    void xmlPreparationConsumerTestNewFlow() throws KafkaProducerException {
 
 
         // Produce a test message to the topic
@@ -444,9 +445,8 @@ class KafkaConsumerServiceTest {
         model.setRawMessage(testHL7Message);
 
         when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
-        when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), anyBoolean())).thenReturn(nbsInterfaceModel);
-
-
+        //Not reachable after adding the splitter code.
+        //when(nbsRepositoryServiceProvider.saveXmlMessage(anyString(), anyString(), any(), anyBoolean())).thenReturn(nbsInterfaceModel);
 
         kafkaConsumerService.xmlConversionHandlerProcessing(value, EnumKafkaOperation.INJECTION.name(), "true");
 
@@ -486,10 +486,13 @@ class KafkaConsumerServiceTest {
 
         when(iValidatedELRRepository.findById(guidForTesting)).thenReturn(Optional.of(model));
 
-        var rpt = new ReportStatusIdData();
+        ReportStatusIdData rpt = new ReportStatusIdData();
         rpt.setNbsInterfaceUid(1);
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(rpt);
+
         when(iReportStatusRepository.
-                findByRawMessageId(any())).thenReturn(Optional.of(rpt));
+                findByRawMessageId(any())).thenReturn(rptStatusIdDataList);
 
 
 

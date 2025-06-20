@@ -25,3 +25,12 @@ databaseChangeLog:
         - sqlFile:
             path: db/dataingest/tables/di-service-002.sql
             splitStatements: false
+
+  - changeSet:
+      id: 4
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/dataingest/tables/di-service-003.sql
+            splitStatements: false
