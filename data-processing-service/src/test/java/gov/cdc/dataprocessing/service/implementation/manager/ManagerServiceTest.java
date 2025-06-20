@@ -1175,6 +1175,7 @@ class ManagerServiceTest {
         assertThrows(DataProcessingDBException.class, () -> spyManager.handlingWdsAndLab(container));
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void testHandlingWdsAndLab_GenericException() throws DataProcessingException {
         PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
@@ -1187,6 +1188,8 @@ class ManagerServiceTest {
         ManagerService spyManager = spy(managerService);
         doThrow(new RuntimeException("Unexpected error"))
                 .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+
+
     }
 
     @Test

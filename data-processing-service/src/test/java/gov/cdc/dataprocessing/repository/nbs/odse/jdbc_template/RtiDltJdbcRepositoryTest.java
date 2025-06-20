@@ -106,10 +106,10 @@ class RtiDltJdbcRepositoryTest {
         when(rs.getString("stack_trace")).thenReturn("stacktrace here");
         when(rs.getString("payload")).thenReturn("{json}");
 
-        RtiDltJdbcRepository repository = new RtiDltJdbcRepository(null); // jdbcTemplate not needed here
+        RtiDltJdbcRepository blah = new RtiDltJdbcRepository(null); // jdbcTemplate not needed here
 
         // Act
-        RtiDlt result = repository.mapRow(rs, 0);
+        RtiDlt result = blah.mapRow(rs, 0);
 
         // Assert
         assertNotNull(result);
