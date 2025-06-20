@@ -127,7 +127,7 @@ logging:
 
 
 feature:
-  thread-enabled: ${THREAD_FLAG:false}
+  thread-enabled: ${THREAD_FLAG:true}
   thread-pool-size: ${THREAD_POOL_SIZE:10}
   thread-batch-size: ${THREAD_BATCH_SIZE:50}
 processor:

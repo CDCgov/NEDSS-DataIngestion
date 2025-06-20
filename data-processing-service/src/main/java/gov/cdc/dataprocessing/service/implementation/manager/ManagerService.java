@@ -81,6 +81,8 @@ public class ManagerService implements IManagerService {
 
     private final KafkaManagerProducer kafkaManagerProducer;
 
+
+
     @Autowired
     public ManagerService(@Lazy ICacheApiService cacheApiService,
                           IObservationService observationService,
@@ -106,6 +108,8 @@ public class ManagerService implements IManagerService {
         this.nbsInterfaceJdbcRepository = nbsInterfaceJdbcRepository;
         this.kafkaManagerProducer = kafkaManagerProducer;
     }
+
+
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional()
