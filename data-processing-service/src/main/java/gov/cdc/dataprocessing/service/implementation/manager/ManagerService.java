@@ -17,8 +17,10 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.model.RtiDlt;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsInterfaceJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.RtiDltJdbcRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
@@ -50,7 +52,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_1;
+import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_2;
+import static gov.cdc.dataprocessing.utilities.StringUtils.getRootStackTraceAsString;
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Service
@@ -81,6 +88,10 @@ public class ManagerService implements IManagerService {
 
     private final KafkaManagerProducer kafkaManagerProducer;
 
+    private final RtiDltJdbcRepository rtiDltJdbcRepository;
+
+
+
     @Autowired
     public ManagerService(@Lazy ICacheApiService cacheApiService,
                           IObservationService observationService,
@@ -92,7 +103,7 @@ public class ManagerService implements IManagerService {
                           IManagerAggregationService managerAggregationService,
                           LabService labService,
                           NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository,
-                          KafkaManagerProducer kafkaManagerProducer)
+                          KafkaManagerProducer kafkaManagerProducer, RtiDltJdbcRepository rtiDltJdbcRepository)
     {
         this.cacheApiService = cacheApiService;
         this.observationService = observationService;
@@ -105,7 +116,10 @@ public class ManagerService implements IManagerService {
         this.labService = labService;
         this.nbsInterfaceJdbcRepository = nbsInterfaceJdbcRepository;
         this.kafkaManagerProducer = kafkaManagerProducer;
+        this.rtiDltJdbcRepository = rtiDltJdbcRepository;
     }
+
+
 
     @SuppressWarnings({"java:S6541", "java:S3776"})
     @Transactional()
@@ -119,7 +133,9 @@ public class ManagerService implements IManagerService {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
+        Exception exception = null;
         boolean dltLockError = false;
+        boolean nonDltError = false;
         try
         {
 
@@ -160,22 +176,7 @@ public class ManagerService implements IManagerService {
             edxLabInformationDto.setRootObserbationUid(observationDto.getObservationUid());
 
             // Populate program area & jurisdiction from cache
-            if (observationDto.getProgAreaCd() != null && cacheApiService.getSrteCacheBool(ObjectName.PROGRAM_AREA_CODES.name(), observationDto.getProgAreaCd())) {
-                edxLabInformationDto.setProgramAreaName(cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES.name(), observationDto.getProgAreaCd()));
-            }
-
-            if (observationDto.getJurisdictionCd() != null && cacheApiService.getSrteCacheBool(ObjectName.JURISDICTION_CODES.name(), observationDto.getJurisdictionCd())) {
-                edxLabInformationDto.setJurisdictionName(cacheApiService.getSrteCacheString(ObjectName.JURISDICTION_CODES.name(), observationDto.getJurisdictionCd()));
-            }
-
-            if (edxLabInformationDto.isLabIsCreate()) {
-                edxLabInformationDto.setLabIsCreateSuccess(true);
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);
-            }
-
-            if (edxLabInformationDto.isLabIsCreateSuccess() && (edxLabInformationDto.getProgramAreaName() == null || edxLabInformationDto.getJurisdictionName() == null)) {
-                edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
-            }
+            enrichProgramAreaAndJurisdiction(observationDto, edxLabInformationDto);
 
             nbsInterfaceModel.setObservationUid(observationDto.getObservationUid().intValue());
 
@@ -190,38 +191,110 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (e instanceof CannotAcquireLockException ||
-                    e instanceof QueryTimeoutException ||
-                    e instanceof TransientDataAccessException ||
-                    e instanceof DataAccessException ||
-                    rootCause instanceof java.sql.SQLException) {
-                log.warn("DB-related exception caught: {}", e.getMessage(), e);
-                if (e instanceof CannotAcquireLockException) {
-                    dltLockError = true;
-                }
-                else {
-                    throw new DataProcessingDBException(e.getMessage(), e);
-                }
-            }
-            else
-            {
-                detailedMsg = handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel);
-            }
+            exception = e;
+            AtomicBoolean lockError = new AtomicBoolean(false);
+            AtomicBoolean otherError = new AtomicBoolean(false);
+            AtomicReference<String> msgRef = new AtomicReference<>("");
+
+            handleProcessingElrException(e, edxLabInformationDto, nbsInterfaceModel, lockError, otherError, msgRef);
+
+            dltLockError = lockError.get();
+            nonDltError = otherError.get();
+            detailedMsg = msgRef.get();
         }
         finally
         {
-            if (dltLockError)
-            {
-                composeDlt(String.valueOf(data));
-            }
-            edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
-            edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
-            edxLogService.saveEdxActivityLogs(edxLabInformationDto.getEdxActivityLogDto());
+            finalizeProcessingElr(
+                    dltLockError,
+                    nonDltError,
+                    exception,
+                    data,
+                    detailedMsg,
+                    nbsInterfaceModel,
+                    edxLabInformationDto
+            );
+
         }
 
         return null;
     }
+
+    protected void handleProcessingElrException(
+            Exception e,
+            EdxLabInformationDto edxLabInformationDto,
+            NbsInterfaceModel nbsInterfaceModel,
+            AtomicBoolean dltLockError,
+            AtomicBoolean nonDltError,
+            AtomicReference<String> detailedMsg
+    ) throws DataProcessingDBException {
+
+        Throwable rootCause = ExceptionUtils.getRootCause(e);
+        log.warn("DB-related exception caught: {}", e.getMessage(), e);
+
+        if (e instanceof CannotAcquireLockException) {
+            dltLockError.set(true);
+        } else if (e instanceof QueryTimeoutException ||
+                e instanceof TransientDataAccessException ||
+                e instanceof DataAccessException ||
+                rootCause instanceof java.sql.SQLException) {
+            throw new DataProcessingDBException(e.getMessage(), e);
+        } else {
+            detailedMsg.set(handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel));
+            nonDltError.set(true);
+        }
+    }
+
+    protected void finalizeProcessingElr(
+            boolean dltLockError,
+            boolean nonDltError,
+            Exception exception,
+            int interfaceId,
+            String detailedMsg,
+            NbsInterfaceModel nbsInterfaceModel,
+            EdxLabInformationDto edxLabInformationDto
+    ) throws EdxLogException {
+        if (dltLockError) {
+            persistingRtiDlt(exception, Long.valueOf(interfaceId), "", "STEP_1", DP_FAILURE_STEP_1 + " - Locking Error");
+            composeDltKafkaEvent(String.valueOf(interfaceId));
+        } else if (nonDltError) {
+            persistingRtiDlt(exception, Long.valueOf(interfaceId), "", "STEP_1", DP_FAILURE_STEP_1 + " - Other Non Error");
+        }
+
+        edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
+        edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
+        edxLogService.saveEdxActivityLogs(edxLabInformationDto.getEdxActivityLogDto());
+    }
+
+    protected void enrichProgramAreaAndJurisdiction(
+            ObservationDto observationDto,
+            EdxLabInformationDto edxLabInformationDto
+    ) throws DataProcessingException {
+        if (observationDto.getProgAreaCd() != null &&
+                cacheApiService.getSrteCacheBool(ObjectName.PROGRAM_AREA_CODES.name(), observationDto.getProgAreaCd())) {
+            edxLabInformationDto.setProgramAreaName(
+                    cacheApiService.getSrteCacheString(ObjectName.PROGRAM_AREA_CODES.name(), observationDto.getProgAreaCd())
+            );
+        }
+
+        if (observationDto.getJurisdictionCd() != null &&
+                cacheApiService.getSrteCacheBool(ObjectName.JURISDICTION_CODES.name(), observationDto.getJurisdictionCd())) {
+            edxLabInformationDto.setJurisdictionName(
+                    cacheApiService.getSrteCacheString(ObjectName.JURISDICTION_CODES.name(), observationDto.getJurisdictionCd())
+            );
+        }
+
+        if (edxLabInformationDto.isLabIsCreate()) {
+            edxLabInformationDto.setLabIsCreateSuccess(true);
+            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_2);
+        }
+
+        if (edxLabInformationDto.isLabIsCreateSuccess() &&
+                (edxLabInformationDto.getProgramAreaName() == null || edxLabInformationDto.getJurisdictionName() == null)) {
+            edxLabInformationDto.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_1);
+        }
+    }
+
+
 
     @Transactional()
     @Retryable(
@@ -232,7 +305,9 @@ public class ManagerService implements IManagerService {
     @SuppressWarnings("java:S1135")
     public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
+        Exception exception = null;
         boolean dltLockError = false;
+        boolean nonDltError = false;
         try
         {
             wds = initiatingInvestigationAndPublicHealthCase(phcContainer);
@@ -240,50 +315,93 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (e instanceof CannotAcquireLockException ||
-                    e instanceof QueryTimeoutException ||
-                    e instanceof TransientDataAccessException ||
-                    e instanceof DataAccessException ||
-                    rootCause instanceof java.sql.SQLException) {
+            exception = e;
+            AtomicBoolean lockFlag = new AtomicBoolean(false);
+            AtomicBoolean otherFlag = new AtomicBoolean(false);
 
-                log.warn("DB-related exception caught: {}", e.getMessage(), e);
-                if (e instanceof CannotAcquireLockException) {
-                    dltLockError = true;
-                }
-                else {
-                    throw new DataProcessingDBException(e.getMessage(), e);
-                }
-            }
-            else
-            {
-                // TODO SEND TO DLT QUEUE HERE && ISOLATE LOCK EXCEPTION and push it to sequence queue
-                phcContainer.getNbsInterfaceModel().setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
-                phcContainer.getNbsInterfaceModel().setRecordStatusTime(getCurrentTimeStamp(tz));
-                nbsInterfaceRepository.save(phcContainer.getNbsInterfaceModel());
-                throw new DataProcessingException(e.getMessage(), e);
-            }
+            handleWdsAndLabException(e, phcContainer, lockFlag, otherFlag);
+
+            dltLockError = lockFlag.get();
+            nonDltError = otherFlag.get();
         }
-        finally
+        finally {
+            finalizeWdsAndLabProcessing(phcContainer, exception, dltLockError, nonDltError);
+        }
+
+    }
+
+    protected void handleWdsAndLabException(
+            Exception e,
+            PublicHealthCaseFlowContainer phcContainer,
+            AtomicBoolean dltLockError,
+            AtomicBoolean nonDltError
+    ) throws DataProcessingDBException {
+
+        Throwable rootCause = ExceptionUtils.getRootCause(e);
+        log.warn("DB-related exception caught: {}", e.getMessage(), e);
+
+        if (e instanceof CannotAcquireLockException)
         {
-            if (dltLockError) {
-                var localGson = new Gson();
-                composeDlt(localGson.toJson(phcContainer));
-            }
-            else
-            {
-                edxLogService.updateActivityLogDT(phcContainer.getNbsInterfaceModel(), phcContainer.getEdxLabInformationDto());
-                edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), "");
-                edxLogService.saveEdxActivityLogs(phcContainer.getEdxLabInformationDto().getEdxActivityLogDto());
-            }
+            dltLockError.set(true);
+        }
+        else if (e instanceof QueryTimeoutException ||
+                e instanceof TransientDataAccessException ||
+                e instanceof DataAccessException ||
+                rootCause instanceof java.sql.SQLException)
+        {
+            nonDltError.set(true);
+            throw new DataProcessingDBException(e.getMessage(), e);
+        }
+        else
+        {
+            nonDltError.set(true);
+            NbsInterfaceModel model = phcContainer.getNbsInterfaceModel();
+            model.setRecordStatusCd(DP_FAILURE_STEP_2);
+            model.setRecordStatusTime(getCurrentTimeStamp(tz));
+            nbsInterfaceRepository.save(model);
         }
     }
+
+    protected void finalizeWdsAndLabProcessing(
+            PublicHealthCaseFlowContainer phcContainer,
+            Exception exception,
+            boolean dltLockError,
+            boolean nonDltError
+    ) throws EdxLogException {
+        String payload = new Gson().toJson(phcContainer);
+
+        if (dltLockError)
+        {
+            persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, "STEP_2", DP_FAILURE_STEP_2 + " - Locking Error");
+            composeDltKafkaEvent(payload);
+        }
+        else
+        {
+            if (nonDltError)
+            {
+                persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, "STEP_2", DP_FAILURE_STEP_2 + " - Other Non Error");
+            }
+            edxLogService.updateActivityLogDT(phcContainer.getNbsInterfaceModel(), phcContainer.getEdxLabInformationDto());
+            edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), "");
+            edxLogService.saveEdxActivityLogs(phcContainer.getEdxLabInformationDto().getEdxActivityLogDto());
+        }
+    }
+
 
     public void updateNbsInterfaceStatus(List<Integer> ids) {
         nbsInterfaceJdbcRepository.updateRecordStatusToRtiProcess(ids);
     }
 
-    protected void composeDlt(String message) {
+    protected void persistingRtiDlt(Exception exception, Long nbsInterfaceUid, String payload, String step, String status) {
+        RtiDlt rtiDlt = new RtiDlt();
+        rtiDlt.setNbsInterfaceId(nbsInterfaceUid);
+        rtiDlt.setOrigin(step);
+        rtiDlt.setStatus(status);
+        rtiDlt.setPayload(payload);
+        rtiDlt.setStackTrace(getRootStackTraceAsString(exception));
+        rtiDltJdbcRepository.upsert(rtiDlt);
+    }
+    protected void composeDltKafkaEvent(String message) {
         kafkaManagerProducer.sendDltForLocking(message);
     }
 
@@ -395,7 +513,7 @@ public class ManagerService implements IManagerService {
         logger.debug("Completed");
     }
 
-    private String handleProcessingELRError(Exception e, EdxLabInformationDto dto, NbsInterfaceModel model) {
+    protected String handleProcessingELRError(Exception e, EdxLabInformationDto dto, NbsInterfaceModel model) {
         logException(e);
         updateModelStatus(model);
 
@@ -421,7 +539,7 @@ public class ManagerService implements IManagerService {
 
     private void updateModelStatus(NbsInterfaceModel model) {
         if (model != null) {
-            model.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
+            model.setRecordStatusCd(DP_FAILURE_STEP_1);
             model.setRecordStatusTime(getCurrentTimeStamp(tz));
             nbsInterfaceRepository.save(model);
         }
