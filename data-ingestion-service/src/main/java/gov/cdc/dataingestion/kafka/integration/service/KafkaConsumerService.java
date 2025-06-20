@@ -23,7 +23,7 @@ import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
-import gov.cdc.dataingestion.share.helper.ElrSplitter;
+import gov.cdc.dataingestion.share.helper.OBRSplitter;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -106,7 +106,7 @@ public class KafkaConsumerService {
     private final IReportStatusRepository iReportStatusRepository;
     private final CustomMetricsBuilder customMetricsBuilder;
     private final TimeMetricsBuilder timeMetricsBuilder;
-    private final ElrSplitter elrSplitter;
+    private final OBRSplitter elrSplitter;
     private String errorDltMessage = "Message not found in dead letter table";
     private String topicDebugLog = "Received message ID: {} from topic: {}";
     private String processDltErrorMessage = "Raw data not found; id: ";
@@ -125,7 +125,7 @@ public class KafkaConsumerService {
             IReportStatusRepository iReportStatusRepository,
             CustomMetricsBuilder customMetricsBuilder,
             TimeMetricsBuilder timeMetricsBuilder,
-            ElrSplitter elrSplitter) {
+            OBRSplitter elrSplitter) {
         this.iValidatedELRRepository = iValidatedELRRepository;
         this.iRawELRRepository = iRawELRRepository;
         this.kafkaProducerService = kafkaProducerService;

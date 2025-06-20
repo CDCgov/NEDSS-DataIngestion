@@ -2,17 +2,13 @@ package gov.cdc.dataingestion.share.helper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HL7BatchSplitterTest {
-
-    @InjectMocks
-    private ElrSplitter splitter;
 
     String hl7BatchMsg = """
             FHS|^~\\\\&|TEST|LABCORP-CORP|IHIE|IHIE|20120703094005||||||

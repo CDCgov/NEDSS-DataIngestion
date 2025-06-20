@@ -20,7 +20,7 @@ import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
-import gov.cdc.dataingestion.share.helper.ElrSplitter;
+import gov.cdc.dataingestion.share.helper.OBRSplitter;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7DuplicateValidator;
 import gov.cdc.dataingestion.validation.integration.validator.interfaces.IHL7v2Validator;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -89,7 +89,7 @@ class KafkaConsumerServiceTest {
     @Mock
     private TimeMetricsBuilder timeMetricsBuilder;
     @Mock
-    private ElrSplitter elrSplitter;
+    private OBRSplitter elrSplitter;
 
     private NbsInterfaceModel nbsInterfaceModel;
     private ValidatedELRModel validatedELRModel;

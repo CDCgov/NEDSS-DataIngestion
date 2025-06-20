@@ -24,7 +24,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ElrSplitter {
+public class OBRSplitter {
 
     private final IObxIdStdLookupRepository obxIdStdLookupRepository;
 
@@ -47,7 +47,7 @@ public class ElrSplitter {
             for (Observation obx : obxList) {
                 String code = obx.getObservationResult().getObservationIdentifier().getIdentifier();
                 Optional<ObxIdStdLookup> stdLookup = getValueType(code);
-                log.info("obx-3 code:" + code + " stdLookup.isPresent()" + stdLookup.isPresent());
+                log.info("obx-3 code:" + code + " in Lookup isPresent" + stdLookup.isPresent());
                 if (stdLookup.isPresent()) {
                     obrsByObxSplit.add(obr);
                     isSplitByOBX = true;
@@ -62,7 +62,7 @@ public class ElrSplitter {
         } else {
             parsedMessageList = splitElrByOBR(parsedMessageOrig);
         }
-        log.info("After the split..ELRs size:" + parsedMessageList.size());
+        log.info("After the OBR split..ELRs size:" + parsedMessageList.size());
         return parsedMessageList;
     }
 
@@ -153,7 +153,7 @@ public class ElrSplitter {
         //Take OBR list from the original ELR
         List<OrderObservation> obrList = patientResultList.getFirst().getOrderObservation();
         if (obrList != null && obrList.size() > 1) {
-            log.debug("Before split..splitElrByOBR Incoming Obr list size:" + obrList.size());
+            log.debug("Before OBR split..splitElrByOBR Incoming Obr list size:" + obrList.size());
             //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
             CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
             //Check if a OBR is parent
@@ -264,7 +264,7 @@ public class ElrSplitter {
             log.info("Single OBR. No split.");
             parsedMessageList.add(parsedMessageOrig);
         }
-        log.info("Parsed ELR message sizes in ElrSplitter: {}", parsedMessageList.size());
+        log.info("Parsed ELR message sizes in OBRSplitter: {}", parsedMessageList.size());
         return parsedMessageList;
     }
 

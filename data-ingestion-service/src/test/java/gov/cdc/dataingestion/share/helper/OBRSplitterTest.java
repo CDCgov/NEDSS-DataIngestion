@@ -18,13 +18,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-class ElrSplitterTest {
+class OBRSplitterTest {
 
     @Mock
     private IObxIdStdLookupRepository obxIdStdLookupRepository;
 
     @InjectMocks
-    private ElrSplitter splitter;
+    private OBRSplitter splitter;
 
     private String testHL7Single = "MSH|^~\\&|ULTRA|TML|OLIS|OLIS|200905011130||ORU^R01|20169838-v25|T|2.5.1\r" +
             "PID|||7005728^^^TML^MR||JOHN^DOE^DIAMOND||19310313|F|||200 ANYWHERE ST^^TORONTO^ON^M6G 2T9||(416)888-8888||||||1014071185^KR\r" +
