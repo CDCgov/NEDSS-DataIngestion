@@ -64,7 +64,7 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+@SuppressWarnings("java:S6068")
 class ManagerServiceTest {
     @Mock
     private  IObservationService observationService;
