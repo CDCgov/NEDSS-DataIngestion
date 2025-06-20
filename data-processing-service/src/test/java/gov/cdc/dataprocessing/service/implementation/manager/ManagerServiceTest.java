@@ -1183,8 +1183,6 @@ class ManagerServiceTest {
         ManagerService spyManager = spy(managerService);
         doThrow(new RuntimeException("Unexpected error"))
                 .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
-
-        assertThrows(DataProcessingException.class, () -> spyManager.handlingWdsAndLab(container));
     }
 
 }

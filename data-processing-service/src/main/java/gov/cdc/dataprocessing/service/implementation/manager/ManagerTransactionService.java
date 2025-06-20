@@ -4,7 +4,6 @@ import gov.cdc.dataprocessing.exception.DataProcessingDBException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.exception.EdxLogException;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerTransactionService;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
