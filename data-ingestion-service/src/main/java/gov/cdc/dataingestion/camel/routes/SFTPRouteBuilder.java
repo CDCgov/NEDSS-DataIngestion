@@ -146,7 +146,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
             //Process the files from unzipped folder
             from(routeTextFileDir+"?delete=true")
                     .routeId("sftpReadFromTextFileDirRouteId_"+i)
-                        .log("Read from a folder that has files extracted from a zip file.The file ${file:name}")
+                        .log("Read from a folder that has individual files.")
                         .to("seda:processfiles_"+i, "seda:movefiles_"+i)
                     .end();
 
@@ -157,7 +157,6 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .choice()
                         .when(simple(fileTypeValidationCondition))//NOSONAR
                             .log("File processed:${file:name}")
-                            .log("Before bean process:${bodyAs(String).trim.length}:")
                             .bean(HL7FileProcessComponent.class)
                             .log("ELR raw id: ${body}")
                             .setBody(simple("${file:name}:${body}"))
@@ -169,7 +168,6 @@ public class SFTPRouteBuilder extends RouteBuilder {
 
             from("seda:movefiles_"+i)
                     .routeId("sedaMoveFilesRouteId_"+i)
-                        .log("from seda movefiles file:${file:name}")
                         .to(routeMoveToUnprocessed)
                     .end();
 

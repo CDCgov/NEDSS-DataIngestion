@@ -17,7 +17,6 @@ public class HL7BatchSplitter {
         StringBuilder currentMessage = new StringBuilder();
         log.info("BTS value:" + StringUtils.substringBetween(batchHL7Msg, "BTS|", "|"));
         //Check if input message has batch - BTS|5|Batch Message Count
-        //int batchMsgCount = getNumberOfMessages(batchHL7Msg);
         boolean isBatchFile = isHl7Batch(batchHL7Msg);
         log.info("isBatchFile:" + isBatchFile);
         if (isBatchFile) {
@@ -42,20 +41,8 @@ public class HL7BatchSplitter {
         return hl7Messages;
     }
 
-    private static int getNumberOfMessages(String hl7Str) {
-        String batchMsgCount = StringUtils.substringBetween(hl7Str, "BTS|", "|");
-        log.info("BTS value.HL7 message count:" + batchMsgCount);
-        if (NumberUtils.isCreatable(batchMsgCount)) {
-            return Double.valueOf(batchMsgCount).intValue();
-        }
-        return 0;
-    }
-
     private static boolean isHl7Batch(String batchHL7Msg) {
-        if (StringUtils.contains(batchHL7Msg, "FHS|")
-                && StringUtils.contains(batchHL7Msg, "BHS|")) {
-            return true;
-        }
-        return false;
+        return StringUtils.contains(batchHL7Msg, "FHS|")
+                && StringUtils.contains(batchHL7Msg, "BHS|");
     }
 }
