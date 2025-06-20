@@ -19,7 +19,7 @@ public class RtiDltJdbcRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private RtiDlt mapRow(ResultSet rs, int rowNum) throws SQLException {
+    protected RtiDlt mapRow(ResultSet rs, int rowNum) throws SQLException {
         RtiDlt rtiDlt = new RtiDlt();
         rtiDlt.setId(rs.getString("id"));
         rtiDlt.setNbsInterfaceId(rs.getLong("nbs_interface_id"));

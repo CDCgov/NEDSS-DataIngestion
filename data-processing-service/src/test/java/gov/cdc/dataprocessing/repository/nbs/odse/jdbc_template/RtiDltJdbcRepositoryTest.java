@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -93,5 +94,29 @@ class RtiDltJdbcRepositoryTest {
 
         // Assert
         verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
+    }
+
+    @Test
+    void testMapRow_ReturnsValidRtiDlt() throws Exception {
+        // Arrange
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.getString("id")).thenReturn("uuid-1234");
+        when(rs.getLong("nbs_interface_id")).thenReturn(101L);
+        when(rs.getString("status")).thenReturn("FAILED");
+        when(rs.getString("stack_trace")).thenReturn("stacktrace here");
+        when(rs.getString("payload")).thenReturn("{json}");
+
+        RtiDltJdbcRepository repository = new RtiDltJdbcRepository(null); // jdbcTemplate not needed here
+
+        // Act
+        RtiDlt result = repository.mapRow(rs, 0);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("uuid-1234", result.getId());
+        assertEquals(101L, result.getNbsInterfaceId());
+        assertEquals("FAILED", result.getStatus());
+        assertEquals("stacktrace here", result.getStackTrace());
+        assertEquals("{json}", result.getPayload());
     }
 }

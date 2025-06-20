@@ -51,13 +51,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.QueryTimeoutException;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -1188,5 +1188,38 @@ class ManagerServiceTest {
         doThrow(new RuntimeException("Unexpected error"))
                 .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
     }
+
+    @Test
+    void processingELR_shouldThrowDataProcessingDBException_onQueryTimeout() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        Integer testId = 456;
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        model.setNbsInterfaceUid(testId);
+
+        when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(new QueryTimeoutException("Timeout"));
+
+        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
+                managerService.processingELR(testId));
+        assertEquals("Timeout", ex.getMessage());
+    }
+
+    @Test
+    void processingELR_shouldThrowDataProcessingDBException_onSqlException() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        Integer testId = 789;
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        model.setNbsInterfaceUid(testId);
+
+        SQLException sqlException = new SQLException("SQL Error");
+        RuntimeException wrapped = new RuntimeException("Wrapper", sqlException);
+
+        when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(wrapped);
+
+        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
+                managerService.processingELR(testId));
+        assertEquals("Wrapper", ex.getMessage());
+    }
+
+
 
 }
