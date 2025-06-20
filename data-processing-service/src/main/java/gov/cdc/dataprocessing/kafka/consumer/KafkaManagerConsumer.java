@@ -161,14 +161,6 @@ public class KafkaManagerConsumer {
                 Thread.startVirtualThread(() -> {
                     try {
                         for (Integer id : batch) {
-//                            try {
-//                                var result = managerService.processingELR(id);
-//                                if (result != null) {
-//                                    managerService.handlingWdsAndLab(result);
-//                                }
-//                            } catch (Exception e) {
-//                                log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
-//                            }
                             try {
                                 managerTransactionService.processWithTransactionSeparation(id);
                             } catch (Exception e) {

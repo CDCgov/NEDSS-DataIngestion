@@ -17,8 +17,10 @@ import gov.cdc.dataprocessing.model.container.model.PublicHealthCaseContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
+import gov.cdc.dataprocessing.repository.nbs.msgoute.model.RtiDlt;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsInterfaceJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.RtiDltJdbcRepository;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
 import gov.cdc.dataprocessing.service.interfaces.data_extraction.IDataExtractionService;
 import gov.cdc.dataprocessing.service.interfaces.log.IEdxLogService;
@@ -51,6 +53,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_1;
+import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_2;
+import static gov.cdc.dataprocessing.utilities.StringUtils.getRootStackTraceAsString;
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Service
@@ -81,6 +86,8 @@ public class ManagerService implements IManagerService {
 
     private final KafkaManagerProducer kafkaManagerProducer;
 
+    private final RtiDltJdbcRepository rtiDltJdbcRepository;
+
 
 
     @Autowired
@@ -94,7 +101,7 @@ public class ManagerService implements IManagerService {
                           IManagerAggregationService managerAggregationService,
                           LabService labService,
                           NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository,
-                          KafkaManagerProducer kafkaManagerProducer)
+                          KafkaManagerProducer kafkaManagerProducer, RtiDltJdbcRepository rtiDltJdbcRepository)
     {
         this.cacheApiService = cacheApiService;
         this.observationService = observationService;
@@ -107,6 +114,7 @@ public class ManagerService implements IManagerService {
         this.labService = labService;
         this.nbsInterfaceJdbcRepository = nbsInterfaceJdbcRepository;
         this.kafkaManagerProducer = kafkaManagerProducer;
+        this.rtiDltJdbcRepository = rtiDltJdbcRepository;
     }
 
 
@@ -123,6 +131,7 @@ public class ManagerService implements IManagerService {
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
+        Exception exception = null;
         boolean dltLockError = false;
         boolean nonDltError = false;
         try
@@ -195,6 +204,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            exception = e;
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (e instanceof CannotAcquireLockException ||
                     e instanceof QueryTimeoutException ||
@@ -219,11 +229,12 @@ public class ManagerService implements IManagerService {
         {
             if (dltLockError)
             {
-                composeDlt(String.valueOf(data));
+                persistingRtiDlt(exception, Long.valueOf(data), "", "STEP_1", DP_FAILURE_STEP_1 + " - Locking Error");
+                composeDltKafkaEvent(String.valueOf(data));
             }
             else if (nonDltError)
             {
-                persistingRtiDlt();
+                persistingRtiDlt(exception, Long.valueOf(data), "", "STEP_1", DP_FAILURE_STEP_1 + " - Other Non Error");
             }
             edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
             edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
@@ -242,6 +253,7 @@ public class ManagerService implements IManagerService {
     @SuppressWarnings("java:S1135")
     public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
+        Exception exception = null;
         boolean dltLockError = false;
         boolean nonDltError = false;
         try
@@ -251,6 +263,7 @@ public class ManagerService implements IManagerService {
         }
         catch (Exception e)
         {
+            exception = e;
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (e instanceof CannotAcquireLockException ||
                     e instanceof QueryTimeoutException ||
@@ -270,22 +283,23 @@ public class ManagerService implements IManagerService {
             else
             {
                 nonDltError = true;
-                // TODO SEND TO DLT QUEUE HERE && ISOLATE LOCK EXCEPTION and push it to sequence queue
-                phcContainer.getNbsInterfaceModel().setRecordStatusCd(DpConstant.DP_FAILURE_STEP_2);
+                phcContainer.getNbsInterfaceModel().setRecordStatusCd(DP_FAILURE_STEP_2);
                 phcContainer.getNbsInterfaceModel().setRecordStatusTime(getCurrentTimeStamp(tz));
                 nbsInterfaceRepository.save(phcContainer.getNbsInterfaceModel());
             }
         }
         finally
         {
+            var localGson = new Gson();
+            var payload = localGson.toJson(phcContainer);
             if (dltLockError) {
-                var localGson = new Gson();
-                composeDlt(localGson.toJson(phcContainer));
+                persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, "STEP_2", DP_FAILURE_STEP_2 + " - Locking Error");
+                composeDltKafkaEvent(payload);
             }
             else
             {
                 if (nonDltError) {
-                    persistingRtiDlt();
+                    persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, "STEP_2", DP_FAILURE_STEP_2 + " - Other Non Error");
                 }
                 edxLogService.updateActivityLogDT(phcContainer.getNbsInterfaceModel(), phcContainer.getEdxLabInformationDto());
                 edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), "");
@@ -298,10 +312,16 @@ public class ManagerService implements IManagerService {
         nbsInterfaceJdbcRepository.updateRecordStatusToRtiProcess(ids);
     }
 
-    protected void persistingRtiDlt() {
-        //TODO: DLT logic here for tracking
+    protected void persistingRtiDlt(Exception exception, Long nbsInterfaceUid, String payload, String step, String status) {
+        RtiDlt rtiDlt = new RtiDlt();
+        rtiDlt.setNbsInterfaceId(nbsInterfaceUid);
+        rtiDlt.setOrigin(step);
+        rtiDlt.setStatus(status);
+        rtiDlt.setPayload(payload);
+        rtiDlt.setStackTrace(getRootStackTraceAsString(exception));
+        rtiDltJdbcRepository.upsert(rtiDlt);
     }
-    protected void composeDlt(String message) {
+    protected void composeDltKafkaEvent(String message) {
         kafkaManagerProducer.sendDltForLocking(message);
     }
 
@@ -439,7 +459,7 @@ public class ManagerService implements IManagerService {
 
     private void updateModelStatus(NbsInterfaceModel model) {
         if (model != null) {
-            model.setRecordStatusCd(DpConstant.DP_FAILURE_STEP_1);
+            model.setRecordStatusCd(DP_FAILURE_STEP_1);
             model.setRecordStatusTime(getCurrentTimeStamp(tz));
             nbsInterfaceRepository.save(model);
         }

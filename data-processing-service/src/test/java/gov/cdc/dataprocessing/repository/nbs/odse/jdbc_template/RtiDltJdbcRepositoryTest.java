@@ -1,0 +1,97 @@
+package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
+
+import gov.cdc.dataprocessing.repository.nbs.msgoute.model.RtiDlt;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class RtiDltJdbcRepositoryTest {
+
+    @Mock
+    private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @InjectMocks
+    private RtiDltJdbcRepository repository;
+
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testFindById_WhenExists_ReturnsRtiDlt() {
+        // Arrange
+        String id = "test-uuid";
+        RtiDlt expected = new RtiDlt();
+        expected.setId(id);
+        expected.setNbsInterfaceId(123L);
+        expected.setStatus("SUCCESS");
+        expected.setPayload("somePayload");
+        expected.setStackTrace("none");
+        expected.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusHours(1)));
+        expected.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+
+        when(jdbcTemplate.queryForObject(
+                eq("SELECT * FROM rti_dlt WHERE id = :id"),
+                eq(Map.of("id", id)),
+                any(RowMapper.class)
+        )).thenReturn(expected);
+
+        // Act
+        RtiDlt result = repository.findById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("SUCCESS", result.getStatus());
+        assertEquals(123L, result.getNbsInterfaceId());
+    }
+
+    @Test
+    void testFindById_WhenNotFound_ReturnsNull() {
+        // Arrange
+        String id = "missing-id";
+        when(jdbcTemplate.queryForObject(
+                anyString(),
+                any(Map.class),
+                any(RowMapper.class)
+        )).thenThrow(new EmptyResultDataAccessException(1));
+
+        // Act
+        RtiDlt result = repository.findById(id);
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void testUpsert_PerformsUpdate() {
+        // Arrange
+        RtiDlt rti = new RtiDlt();
+        rti.setId("id-123");
+        rti.setNbsInterfaceId(99L);
+        rti.setStatus("OK");
+        rti.setStackTrace("trace");
+        rti.setPayload("payload");
+        rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+        rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+
+        // Act
+        repository.upsert(rti);
+
+        // Assert
+        verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
+    }
+}

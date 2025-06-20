@@ -22,6 +22,7 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsInterfaceJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.RtiDltJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
@@ -87,6 +88,9 @@ class ManagerServiceTest {
     private  IInvestigationNotificationService investigationNotificationService;
     @Mock
     private IManagerCacheService managerCacheService;
+
+    @Mock
+    private RtiDltJdbcRepository rtiDltJdbcRepository;
 
     @Mock
     private NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository;
