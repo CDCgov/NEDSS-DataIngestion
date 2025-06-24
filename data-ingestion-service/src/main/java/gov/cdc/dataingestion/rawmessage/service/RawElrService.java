@@ -89,7 +89,6 @@ public class RawElrService {
                 }
             }
         }
-        log.info("Elr Ids:"+String.join(",",rawELRIds));
         return String.join(",",rawELRIds);
     }
     public void updateRawMessageAfterRetry(RawElrDto rawElrDto, int dltOccurrence) throws KafkaProducerException {
