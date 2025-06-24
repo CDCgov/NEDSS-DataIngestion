@@ -60,7 +60,7 @@ class PersonPhoneEmailMergeHandlerTest {
         new PatientMergeRequest.PhoneEmailId("locator2")
     );
     return new PatientMergeRequest(survivingId, null,
-        null, null, phoneEmailIds, null, null);
+        null, null, phoneEmailIds, null, null, null);
   }
 
 

@@ -9,17 +9,27 @@ public record PatientMergeRequest(
     List<AddressId> addresses,
     List<PhoneEmailId> phoneEmails,
     List<IdentificationId> identifications,
-    List<RaceId> races
+    List<RaceId> races,
+    String ethnicitySource
 ) {
 
-  public record NameId(String personUid, String sequence) {}
+  public record NameId(String personUid, String sequence) {
+  }
 
-  public record AddressId(String locatorId) {}
 
-  public record PhoneEmailId(String locatorId) {}
+  public record AddressId(String locatorId) {
+  }
 
-  public record IdentificationId(String personUid, String sequence) {}
 
-  public record RaceId(String personUid, String raceCode) {}
+  public record PhoneEmailId(String locatorId) {
+  }
+
+
+  public record IdentificationId(String personUid, String sequence) {
+  }
+
+
+  public record RaceId(String personUid, String raceCode) {
+  }
 
 }

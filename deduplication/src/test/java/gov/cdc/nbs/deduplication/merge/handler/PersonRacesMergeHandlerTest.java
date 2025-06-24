@@ -115,7 +115,7 @@ class PersonRacesMergeHandlerTest {
   }
 
   private PatientMergeRequest getPatientMergeRequest(List<PatientMergeRequest.RaceId> races) {
-    return new PatientMergeRequest(SURVIVOR_ID, null, null, null, null, null, races);
+    return new PatientMergeRequest(SURVIVOR_ID, null, null, null, null, null, races, null);
   }
 
 }
