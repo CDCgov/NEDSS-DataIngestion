@@ -97,7 +97,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
 
   private void updatePersonEthnicityIndicator(String survivorId, String ethnicitySourcePersonId) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("survivorId", survivorId);
+    parameters.addValue("survivorId", survivorId);//NOSONAR
     parameters.addValue("ethnicitySourcePersonId", ethnicitySourcePersonId);
     nbsTemplate.update(UPDATE_PERSON_ETHNICITY_IND, parameters);
   }
