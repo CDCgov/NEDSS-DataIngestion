@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
 
 @Component
 @Order(7)
@@ -74,12 +73,6 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
         AND record_status_cd = 'ACTIVE'
       """;
 
-  static final String FETCH_ETHNICITY_INDICATORS_FOR_COMPARISON = """
-      SELECT
-          (SELECT ethnic_group_ind FROM person WHERE person_uid = :survivorId) AS survivorIndicator,
-          (SELECT ethnic_group_ind FROM person WHERE person_uid = :supersededId) AS supersededIndicator
-      """;
-
 
   final NamedParameterJdbcTemplate nbsTemplate;
 
@@ -90,24 +83,8 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   //Merge modifications have been applied to the person ethnicity
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    if (!ethnicityIndicatorsAreEqual(request.survivingRecord(), request.ethnicitySource())) {
-      mergePersonEthnicity(request.survivingRecord(), request.ethnicitySource());
-    }
+    mergePersonEthnicity(request.survivingRecord(), request.ethnicitySource());
   }
-
-  private boolean ethnicityIndicatorsAreEqual(String survivorId, String supersededId) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivorId", survivorId);//NOSONAR
-    params.addValue("supersededId", supersededId);
-
-    Map<String, Object> result = nbsTemplate.queryForMap(FETCH_ETHNICITY_INDICATORS_FOR_COMPARISON, params);
-
-    String survivorIndicator = String.valueOf(result.get("survivorIndicator"));
-    String supersededIndicator = String.valueOf(result.get("supersededIndicator"));
-
-    return Objects.equals(survivorIndicator, supersededIndicator);
-  }
-
 
   private void mergePersonEthnicity(String survivorId, String ethnicitySourcePersonId) {
     updatePersonEthnicityIndicator(survivorId, ethnicitySourcePersonId);
@@ -120,7 +97,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
 
   private void updatePersonEthnicityIndicator(String survivorId, String ethnicitySourcePersonId) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("survivorId", survivorId);//NOSONAR
+    parameters.addValue("survivorId", survivorId);
     parameters.addValue("ethnicitySourcePersonId", ethnicitySourcePersonId);
     nbsTemplate.update(UPDATE_PERSON_ETHNICITY_IND, parameters);
   }

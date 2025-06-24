@@ -10,9 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -35,21 +32,9 @@ class PersonEthnicityMergeHandlerTest {
     when(patientMergeRequest.ethnicitySource()).thenReturn("supersededId");
   }
 
-  @Test
-  void handleMerge_WhenEthnicityIndicatorsAreEqual_ShouldNotPerformMerge() {
-    // Ethnicity indicators are equal
-    mockFetchEthnicityIndicators("2135-3", "2135-3");
-
-    handler.handleMerge("matchId", patientMergeRequest);
-
-    verify(nbsTemplate, never()).update(any(String.class), any(MapSqlParameterSource.class));
-  }
 
   @Test
   void handleMerge_WhenEthnicityIndicatorsAreDifferent_ShouldPerformMerge() {
-    // Ethnicity indicators are different
-    mockFetchEthnicityIndicators("2135-2", "2135-5");
-
     when(nbsTemplate.queryForObject(
         eq(PersonEthnicityMergeHandler.FETCH_SUPERSEDED_PERSON_ETHNICITY_IND),
         any(MapSqlParameterSource.class),
@@ -66,14 +51,4 @@ class PersonEthnicityMergeHandlerTest {
         any(MapSqlParameterSource.class));
   }
 
-  private void mockFetchEthnicityIndicators(String survivorIndicator, String supersededIndicator) {
-    Map<String, Object> indicatorResult = new HashMap<>();
-    indicatorResult.put("survivorIndicator", survivorIndicator);
-    indicatorResult.put("supersededIndicator", supersededIndicator);
-
-    when(nbsTemplate.queryForMap(
-        eq(PersonEthnicityMergeHandler.FETCH_ETHNICITY_INDICATORS_FOR_COMPARISON),
-        any(MapSqlParameterSource.class)))
-        .thenReturn(indicatorResult);
-  }
 }
