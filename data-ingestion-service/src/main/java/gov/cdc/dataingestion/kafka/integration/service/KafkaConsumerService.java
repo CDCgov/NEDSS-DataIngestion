@@ -495,10 +495,10 @@ public class KafkaConsumerService {
      * we need to implementation interface pattern for NBS convert and transformation classes. it better for unit testing
      * */
     @SuppressWarnings("java:S3776")
-    public void xmlConversionHandlerProcessing(String rawElrId, String operation, String dataProcessingEnable) throws KafkaProducerException {
+    public void xmlConversionHandlerProcessing(String messageId, String operation, String dataProcessingEnable) throws KafkaProducerException {
         String hl7Msg = "";
         try {
-            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(rawElrId);
+            Optional<ValidatedELRModel> validatedELRModel = iValidatedELRRepository.findById(messageId);
             if (validatedELRModel.isEmpty()) {
                 throw new XmlConversionException("Message Not Found in Validated");
             }
@@ -512,10 +512,10 @@ public class KafkaConsumerService {
                 }
             }
             if (operation.equalsIgnoreCase(EnumKafkaOperation.INJECTION.name())) {
-                Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(rawElrId);
+                Optional<ValidatedELRModel> validatedElrResponse = this.iValidatedELRRepository.findById(messageId);
                 hl7Msg = validatedElrResponse.map(ValidatedELRModel::getRawMessage).orElse("");
             } else {
-                Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(rawElrId);
+                Optional<ElrDeadLetterModel> response = this.elrDeadLetterRepository.findById(messageId);
                 if (response.isPresent()) {
                     var validMessage = iHl7v2Validator.messageStringFormat(response.get().getMessage());
                     validMessage = iHl7v2Validator.processFhsMessage(validMessage);
@@ -538,9 +538,9 @@ public class KafkaConsumerService {
             }
 
             for(HL7ParsedMessage<OruR1> hl7ParsedMessage:parsedMessageList) {
-                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawElrId, hl7ParsedMessage);
+                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(messageId, hl7ParsedMessage);
                 log.debug("phdcXml: {}", phdcXml);
-                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(rawElrId, phdcXml, hl7ParsedMessage, dataProcessingApplied);
+                NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(messageId, phdcXml, hl7ParsedMessage, dataProcessingApplied);
 
                 customMetricsBuilder.incrementXmlConversionRequested();
                 // Once the XML is saved to the NBS_Interface table, we get the ID to save it
@@ -578,7 +578,7 @@ public class KafkaConsumerService {
             var msg =  e.getMessage();
             // Handle any exceptions here
             kafkaProducerService.sendMessageDlt(
-                    msg, rawElrId, "xml_prep_dlt_manual", 0 ,
+                    msg, messageId, "xml_prep_dlt_manual", 0 ,
                     stackTrace,prepXmlTopic
             );
         }
