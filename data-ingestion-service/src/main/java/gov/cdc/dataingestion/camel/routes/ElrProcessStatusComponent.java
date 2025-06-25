@@ -59,15 +59,15 @@ public class ElrProcessStatusComponent {
                     if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(SUCCESS)) {
                         StringBuilder activityLogSb = new StringBuilder();
                         activityLogSb.append("Status: Success ");
-                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
                         activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
+                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
                         activityLogSb.append(EMPTY_LINE);
                         status = activityLogSb.toString();
                     } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
                         StringBuilder activityLogSb = new StringBuilder();
                         activityLogSb.append("Status: Failure ");
-                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
                         activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
+                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
                         List<EdxActivityDetailLog> edxActivityLogList = messageStatus.getEdxLogStatus().getEdxActivityDetailLogList();
                         EdxActivityLog edxActivityLogParent = messageStatus.getEdxLogStatus().getEdxActivityLog();
                         for (EdxActivityDetailLog edxActivityLogStatus : edxActivityLogList) {
