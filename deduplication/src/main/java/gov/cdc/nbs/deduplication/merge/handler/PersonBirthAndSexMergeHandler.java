@@ -133,7 +133,7 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         AND use_cd = 'BIR';
       """;
 
-  public static final String COPY_BIRTH_ADDRESS_FROM_SURVIVING_TO_SUPERSEDED = """
+  public static final String COPY_BIRTH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING = """
       INSERT INTO Entity_locator_participation (
           entity_uid,
           locator_uid,
@@ -292,7 +292,7 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     Map<String, Object> params = new HashMap<>();
     params.put("survivingId", survivingId);
     params.put("sourceId", sourceId);
-    nbsTemplate.update(COPY_BIRTH_ADDRESS_FROM_SURVIVING_TO_SUPERSEDED, params);
+    nbsTemplate.update(COPY_BIRTH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING, params);
   }
 
   private void updatePersonField(String survivorId, String sourceId, String sqlQuery) {
