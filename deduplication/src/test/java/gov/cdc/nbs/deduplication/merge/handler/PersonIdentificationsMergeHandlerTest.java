@@ -82,6 +82,6 @@ class PersonIdentificationsMergeHandlerTest {
 
   private PatientMergeRequest getPatientMergeRequest(List<PatientMergeRequest.IdentificationId> identifications) {
     return new PatientMergeRequest(SURVIVING_PERSON_UID, null, null, null,
-        null, identifications, null,null);
+        null, identifications, null, null, null, null, null);
   }
 }

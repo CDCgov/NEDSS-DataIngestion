@@ -78,6 +78,6 @@ class PersonNamesMergeHandlerTest {
   }
 
   private PatientMergeRequest getPatientMergeRequest(List<PatientMergeRequest.NameId> names) {
-    return new PatientMergeRequest(SURVIVING_PERSON_UID, null, names, null, null, null, null, null);
+    return new PatientMergeRequest(SURVIVING_PERSON_UID, null, names, null, null, null, null, null, null, null, null);
   }
 }

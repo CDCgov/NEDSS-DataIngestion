@@ -59,7 +59,7 @@ class PersonAddressMergeHandlerTest {
         new PatientMergeRequest.AddressId("locator2")
     );
     return new PatientMergeRequest(survivingId, null,
-        null, addressIds, null, null, null, null);
+        null, addressIds, null, null, null, null, null, null, null);
   }
 
 

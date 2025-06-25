@@ -99,7 +99,8 @@ class PersonTableMergeHandlerTest {
   }
 
   private PatientMergeRequest getPatientMergeRequest() {
-    return new PatientMergeRequest("survivorId1", null, null, null, null, null, null, null);
+    return new PatientMergeRequest("survivorId1", null, null, null, null, null,
+        null, null, null, null, null);
   }
 
 }
