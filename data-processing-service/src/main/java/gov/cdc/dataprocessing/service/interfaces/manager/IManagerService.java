@@ -14,4 +14,5 @@ public interface IManagerService {
     void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException;
 
     void updateNbsInterfaceStatus(List<Integer> ids);
+
 }

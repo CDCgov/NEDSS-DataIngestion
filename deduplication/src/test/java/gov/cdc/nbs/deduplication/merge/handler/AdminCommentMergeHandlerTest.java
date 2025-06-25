@@ -42,7 +42,7 @@ class AdminCommentMergeHandlerTest {
 
   private PatientMergeRequest getPatientMergeRequest() {
     return new PatientMergeRequest("survivorId1", "adminCommentSourcePersonId",
-        null, null, null, null, null);
+        null, null, null, null, null, null);
   }
 
   private void verifyUpdateAdministrativeComments() {

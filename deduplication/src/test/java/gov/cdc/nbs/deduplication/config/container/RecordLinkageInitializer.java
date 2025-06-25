@@ -7,17 +7,23 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 
 class RecordLinkageInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+  private static GenericContainer<?> recordLinkageContainer;
 
   @Override
   @SuppressWarnings("resource") // We don't want to close these containers
   public void initialize(@NonNull final ConfigurableApplicationContext context) {
+    if (recordLinkageContainer != null) {
+      return;
+    }
+
     final Network network = MsSqlContainerInitializer.network;
 
-    final GenericContainer<?> recordLinkageContainer = new GenericContainer<>(
+    recordLinkageContainer = new GenericContainer<>(
         "ghcr.io/cdcgov/recordlinker:v25.8.0")
         .withExposedPorts(8070)
         .withEnv("PORT", "8070")
         .withNetwork(network)
+        .dependsOn(MsSqlContainerInitializer.container)
         .withNetworkAliases("recordLinkage");
 
     String username = System.getProperty("spring.datasource.mpi.username");

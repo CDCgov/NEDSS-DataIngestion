@@ -7,6 +7,7 @@ import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
+import gov.cdc.dataprocessing.service.interfaces.manager.IManagerTransactionService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.service.model.phc.PublicHealthCaseFlowContainer;
 import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
@@ -46,18 +47,20 @@ public class KafkaManagerConsumer {
 
 
     private final IManagerService managerService;
+    private final IManagerTransactionService managerTransactionService;
     private final IAuthUserService authUserService;
     private final QueryHelper queryHelper;
     private final ILookupService lookupService;
 
 
     public KafkaManagerConsumer(
-            ManagerService managerService,
+            ManagerService managerService, IManagerTransactionService managerTransactionService,
             IAuthUserService authUserService,
             QueryHelper queryHelper,
             ILookupService lookupService
             ) {
         this.managerService = managerService;
+        this.managerTransactionService = managerTransactionService;
         this.authUserService = authUserService;
         this.queryHelper = queryHelper;
         this.lookupService = lookupService;
@@ -159,13 +162,11 @@ public class KafkaManagerConsumer {
                     try {
                         for (Integer id : batch) {
                             try {
-                                var result = managerService.processingELR(id);
-                                if (result != null) {
-                                    managerService.handlingWdsAndLab(result);
-                                }
+                                managerTransactionService.processWithTransactionSeparation(id);
                             } catch (Exception e) {
                                 log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
                             }
+
                         }
                     } finally {
                         concurrencyLimiter.release();

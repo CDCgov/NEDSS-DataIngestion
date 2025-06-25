@@ -6,6 +6,7 @@ import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
+import gov.cdc.dataprocessing.constant.enums.ObjectName;
 import gov.cdc.dataprocessing.exception.DataProcessingConsumerException;
 import gov.cdc.dataprocessing.exception.DataProcessingDBException;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -22,6 +23,7 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.NbsInterfaceModel;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.repos.NbsInterfaceRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.NbsInterfaceJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.RtiDltJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.auth.AuthUser;
 import gov.cdc.dataprocessing.service.interfaces.action.ILabReportProcessing;
 import gov.cdc.dataprocessing.service.interfaces.cache.ICacheApiService;
@@ -43,23 +45,26 @@ import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.QueryTimeoutException;
+import org.springframework.dao.TransientDataAccessException;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_2;
 import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+@SuppressWarnings("java:S6068")
 class ManagerServiceTest {
     @Mock
     private  IObservationService observationService;
@@ -89,8 +94,12 @@ class ManagerServiceTest {
     private IManagerCacheService managerCacheService;
 
     @Mock
+    private RtiDltJdbcRepository rtiDltJdbcRepository;
+
+    @Mock
     private NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository;
 
+    @Spy
     @InjectMocks
     private ManagerService managerService;
     @Mock
@@ -1142,13 +1151,12 @@ class ManagerServiceTest {
         when(container.getNbsInterfaceModel()).thenReturn(model);
 
         // Using spy to override protected method
-        ManagerService spyManager = spy(managerService);
         doThrow(new CannotAcquireLockException("Lock error"))
-                .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+                .when(managerService).initiatingInvestigationAndPublicHealthCase(container);
 
         assertDoesNotThrow(() -> {
             try {
-                spyManager.handlingWdsAndLab(container);
+                managerService.handlingWdsAndLab(container);
             } catch (DataProcessingException | DataProcessingDBException | EdxLogException ignored) {
                 //IGNORE THIS
             }
@@ -1164,13 +1172,13 @@ class ManagerServiceTest {
         when(container.getEdxLabInformationDto()).thenReturn(edxDto);
         when(container.getNbsInterfaceModel()).thenReturn(model);
 
-        ManagerService spyManager = spy(managerService);
         doThrow(new QueryTimeoutException("Timeout"))
-                .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+                .when(managerService).initiatingInvestigationAndPublicHealthCase(container);
 
-        assertThrows(DataProcessingDBException.class, () -> spyManager.handlingWdsAndLab(container));
+        assertThrows(DataProcessingDBException.class, () -> managerService.handlingWdsAndLab(container));
     }
 
+    @SuppressWarnings("java:S2699")
     @Test
     void testHandlingWdsAndLab_GenericException() throws DataProcessingException {
         PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
@@ -1180,11 +1188,311 @@ class ManagerServiceTest {
         when(container.getEdxLabInformationDto()).thenReturn(edxDto);
         when(container.getNbsInterfaceModel()).thenReturn(model);
 
-        ManagerService spyManager = spy(managerService);
         doThrow(new RuntimeException("Unexpected error"))
-                .when(spyManager).initiatingInvestigationAndPublicHealthCase(container);
+                .when(managerService).initiatingInvestigationAndPublicHealthCase(container);
 
-        assertThrows(DataProcessingException.class, () -> spyManager.handlingWdsAndLab(container));
+
     }
+
+    @Test
+    void processingELR_shouldThrowDataProcessingDBException_onQueryTimeout() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        Integer testId = 456;
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        model.setNbsInterfaceUid(testId);
+
+        when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(new QueryTimeoutException("Timeout"));
+
+        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
+                managerService.processingELR(testId));
+        assertEquals("Timeout", ex.getMessage());
+    }
+
+    @Test
+    void processingELR_shouldThrowDataProcessingDBException_onSqlException() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+        Integer testId = 789;
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        model.setNbsInterfaceUid(testId);
+
+        SQLException sqlException = new SQLException("SQL Error");
+        RuntimeException wrapped = new RuntimeException("Wrapper", sqlException);
+
+        when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
+        when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(wrapped);
+
+        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
+                managerService.processingELR(testId));
+        assertEquals("Wrapper", ex.getMessage());
+    }
+
+    @Test
+    void handleProcessingElrException_whenCannotAcquireLock_setsDltLockError() throws Exception {
+        AtomicBoolean dltLock = new AtomicBoolean(false);
+        AtomicBoolean nonDlt = new AtomicBoolean(false);
+        AtomicReference<String> msg = new AtomicReference<>("");
+
+        Exception ex = new CannotAcquireLockException("lock issue");
+
+        managerService.handleProcessingElrException(ex, new EdxLabInformationDto(), new NbsInterfaceModel(), dltLock, nonDlt, msg);
+
+        assertTrue(dltLock.get());
+        assertFalse(nonDlt.get());
+        assertEquals("", msg.get());
+    }
+
+    @Test
+    void handleProcessingElrException_whenQueryTimeout_throwsDataProcessingDBException() {
+        assertThrows(DataProcessingDBException.class, () -> {
+            managerService.handleProcessingElrException(
+                    new QueryTimeoutException("timeout"),
+                    new EdxLabInformationDto(),
+                    new NbsInterfaceModel(),
+                    new AtomicBoolean(),
+                    new AtomicBoolean(),
+                    new AtomicReference<>()
+            );
+        });
+    }
+
+    @Test
+    void handleProcessingElrException_whenTransientDataAccess_throwsDataProcessingDBException() {
+        assertThrows(DataProcessingDBException.class, () -> {
+            managerService.handleProcessingElrException(
+                    new TransientDataAccessException("transient") {},
+                    new EdxLabInformationDto(),
+                    new NbsInterfaceModel(),
+                    new AtomicBoolean(),
+                    new AtomicBoolean(),
+                    new AtomicReference<>()
+            );
+        });
+    }
+
+    @Test
+    void handleProcessingElrException_whenDataAccess_throwsDataProcessingDBException() {
+        assertThrows(DataProcessingDBException.class, () -> {
+            managerService.handleProcessingElrException(
+                    new DataAccessException("data") {},
+                    new EdxLabInformationDto(),
+                    new NbsInterfaceModel(),
+                    new AtomicBoolean(),
+                    new AtomicBoolean(),
+                    new AtomicReference<>()
+            );
+        });
+    }
+
+    @Test
+    void handleProcessingElrException_whenSqlRootCause_throwsDataProcessingDBException() {
+        SQLException sqlCause = new SQLException("SQL error");
+        RuntimeException wrapper = new RuntimeException("wrapper", sqlCause);
+
+        assertThrows(DataProcessingDBException.class, () -> {
+            managerService.handleProcessingElrException(
+                    wrapper,
+                    new EdxLabInformationDto(),
+                    new NbsInterfaceModel(),
+                    new AtomicBoolean(),
+                    new AtomicBoolean(),
+                    new AtomicReference<>()
+            );
+        });
+    }
+
+
+    @Test
+    void finalizeProcessingElr_whenDltLockError_shouldPersistAndComposeKafkaEvent() throws Exception {
+        int interfaceId = 111;
+        Exception ex = new Exception("lock");
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setEdxActivityLogDto(new EDXActivityLogDto());
+        NbsInterfaceModel model = new NbsInterfaceModel();
+
+        managerService.finalizeProcessingElr(
+                true, false, ex, interfaceId, "msg", model, dto
+        );
+
+        verify(edxLogService).updateActivityLogDT(model, dto);
+        verify(edxLogService).addActivityDetailLogs(dto, "msg");
+        verify(edxLogService).saveEdxActivityLogs(dto.getEdxActivityLogDto());
+    }
+
+    @Test
+    void finalizeProcessingElr_whenNonDltError_shouldPersistWithOtherError() throws Exception {
+        int interfaceId = 222;
+        Exception ex = new Exception("non-dlt");
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setEdxActivityLogDto(new EDXActivityLogDto());
+        NbsInterfaceModel model = new NbsInterfaceModel();
+
+        managerService.finalizeProcessingElr(
+                false, true, ex, interfaceId, "some-details", model, dto
+        );
+
+        verify(edxLogService).updateActivityLogDT(model, dto);
+        verify(edxLogService).addActivityDetailLogs(dto, "some-details");
+        verify(edxLogService).saveEdxActivityLogs(dto.getEdxActivityLogDto());
+    }
+
+    @Test
+    void finalizeProcessingElr_whenNoErrors_shouldOnlyLog() throws Exception {
+        int interfaceId = 333;
+        Exception ex = new Exception("no issue");
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setEdxActivityLogDto(new EDXActivityLogDto());
+        NbsInterfaceModel model = new NbsInterfaceModel();
+
+        managerService.finalizeProcessingElr(
+                false, false, ex, interfaceId, "just logs", model, dto
+        );
+
+        verify(edxLogService).updateActivityLogDT(model, dto);
+        verify(edxLogService).saveEdxActivityLogs(dto.getEdxActivityLogDto());
+    }
+
+    @Test
+    void enrichProgramAreaAndJurisdiction_shouldNotSetProgramArea_ifCodeIsNull() throws Exception {
+        ObservationDto observation = new ObservationDto();
+        observation.setProgAreaCd(null);  // null check
+        observation.setJurisdictionCd("JURIS");
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setLabIsCreate(true);
+
+        when(cacheApiService.getSrteCacheBool(eq(ObjectName.JURISDICTION_CODES.name()), eq("JURIS"))).thenReturn(false);
+
+        managerService.enrichProgramAreaAndJurisdiction(observation, dto);
+
+        assertNull(dto.getProgramAreaName());
+        assertNull(dto.getJurisdictionName());
+        assertTrue(dto.isLabIsCreateSuccess());
+        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_1, dto.getErrorText());
+    }
+
+    @Test
+    void enrichProgramAreaAndJurisdiction_shouldNotSetProgramArea_ifCacheBoolIsFalse() throws Exception {
+        ObservationDto observation = new ObservationDto();
+        observation.setProgAreaCd("PROG");
+        observation.setJurisdictionCd("JURIS");
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setLabIsCreate(true);
+
+        when(cacheApiService.getSrteCacheBool(eq(ObjectName.PROGRAM_AREA_CODES.name()), eq("PROG"))).thenReturn(false);
+        when(cacheApiService.getSrteCacheBool(eq(ObjectName.JURISDICTION_CODES.name()), eq("JURIS"))).thenReturn(false);
+
+        managerService.enrichProgramAreaAndJurisdiction(observation, dto);
+
+        assertNull(dto.getProgramAreaName());
+        assertNull(dto.getJurisdictionName());
+        assertTrue(dto.isLabIsCreateSuccess());
+        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_1, dto.getErrorText());
+    }
+
+    @Test
+    void enrichProgramAreaAndJurisdiction_shouldNotSetJurisdiction_ifCacheBoolIsFalse() throws Exception {
+        ObservationDto observation = new ObservationDto();
+        observation.setProgAreaCd("PROG");
+        observation.setJurisdictionCd("JURIS");
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setLabIsCreate(true);
+
+        when(cacheApiService.getSrteCacheBool(eq(ObjectName.PROGRAM_AREA_CODES.name()), eq("PROG"))).thenReturn(true);
+        when(cacheApiService.getSrteCacheString(eq(ObjectName.PROGRAM_AREA_CODES.name()), eq("PROG"))).thenReturn("Program Area");
+
+        when(cacheApiService.getSrteCacheBool(eq(ObjectName.JURISDICTION_CODES.name()), eq("JURIS"))).thenReturn(false);
+
+        managerService.enrichProgramAreaAndJurisdiction(observation, dto);
+
+        assertEquals("Program Area", dto.getProgramAreaName());
+        assertNull(dto.getJurisdictionName());
+        assertTrue(dto.isLabIsCreateSuccess());
+        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_1, dto.getErrorText());
+    }
+
+    @Test
+    void enrichProgramAreaAndJurisdiction_shouldNotSetLabIsCreateSuccess_ifLabIsCreateIsFalse() throws Exception {
+        ObservationDto observation = new ObservationDto();
+        observation.setProgAreaCd("PROG");
+        observation.setJurisdictionCd("JURIS");
+
+        EdxLabInformationDto dto = new EdxLabInformationDto(); // default isLabIsCreate == false
+
+        when(cacheApiService.getSrteCacheBool(anyString(), anyString())).thenReturn(false);
+
+        managerService.enrichProgramAreaAndJurisdiction(observation, dto);
+
+        assertFalse(dto.isLabIsCreateSuccess());
+        assertNull(dto.getErrorText());
+    }
+
+    @Test
+    void handleWdsAndLabException_whenNonDatabaseError_shouldSetStatusAndSaveModel() throws Exception {
+        // Arrange
+        AtomicBoolean dltLock = new AtomicBoolean(false);
+        AtomicBoolean nonDlt = new AtomicBoolean(false);
+
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceModel(model);
+
+        Exception ex = new IllegalArgumentException("non-database error");
+
+        // Act
+        managerService.handleWdsAndLabException(ex, container, dltLock, nonDlt);
+
+        // Assert
+        assertFalse(dltLock.get());
+        assertTrue(nonDlt.get());
+        assertEquals(DP_FAILURE_STEP_2, model.getRecordStatusCd());
+        assertNotNull(model.getRecordStatusTime());
+        verify(nbsInterfaceRepository).save(model);
+    }
+
+    @Test
+    void finalizeWdsAndLabProcessing_whenNonDltError_shouldPersistAndLog() throws Exception {
+        // Arrange
+        Exception ex = new Exception("non-dlt-error");
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        container.setNbsInterfaceModel(model);
+        container.setNbsInterfaceId(987);
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setEdxActivityLogDto(new EDXActivityLogDto());
+        container.setEdxLabInformationDto(dto);
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(container, ex, false, true);
+
+        // Assert
+        verify(managerService).persistingRtiDlt(
+                eq(ex),
+                eq(987L),
+                anyString(),
+                eq("STEP_2"),
+                contains("Other Non Error")
+        );
+        verify(managerService, never()).composeDltKafkaEvent(any());
+        verify(edxLogService).updateActivityLogDT(model, dto);
+        verify(edxLogService).addActivityDetailLogs(dto, "");
+        verify(edxLogService).saveEdxActivityLogs(dto.getEdxActivityLogDto());
+    }
+    @Test
+    void updateNbsInterfaceStatus_shouldDelegateToJdbcRepository() {
+        // Arrange
+        List<Integer> ids = List.of(1001, 1002, 1003);
+
+        // Act
+        managerService.updateNbsInterfaceStatus(ids);
+
+        // Assert
+        verify(nbsInterfaceJdbcRepository).updateRecordStatusToRtiProcess(ids);
+    }
+
+
+
 
 }

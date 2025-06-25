@@ -71,3 +71,11 @@ databaseChangeLog:
         - sqlFile:
             path: db/msgoute/routines/insert_ecr_phdc_answer_lookup-001.sql
             splitStatements: false
+  - changeSet:
+      id: 10
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/create_dp_dlt_table-001.sql
+            splitStatements: false

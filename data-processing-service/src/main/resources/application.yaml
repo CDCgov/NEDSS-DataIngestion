@@ -127,9 +127,11 @@ logging:
 
 
 feature:
-  thread-enabled: ${THREAD_FLAG:false}
+  thread-enabled: ${THREAD_FLAG:true}
   thread-pool-size: ${THREAD_POOL_SIZE:10}
   thread-batch-size: ${THREAD_BATCH_SIZE:50}
 processor:
   delay_ms: ${PROCESSOR_DELAY:1000}
 uid:
+  pool_size: ${UID_POOL_SIZE:500}
+  min_pool_size: ${UID_MIN_POOL_SIZE:100}

@@ -77,7 +77,8 @@ class PersonTableMergeHandlerTest {
   }
 
   private void verifyLinkSupersededChildIdsToSurvivor() {
-    verify(nbsTemplate).update(eq(QueryConstants.LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR), any(MapSqlParameterSource.class));
+    verify(nbsTemplate).update(eq(QueryConstants.LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR),
+        any(MapSqlParameterSource.class));
   }
 
   private void verifyMarkSupersededRecordsAsSuperseded() {
@@ -85,7 +86,8 @@ class PersonTableMergeHandlerTest {
   }
 
   private void verifyUpdateLastChangeTimeForPatients() {
-    verify(nbsTemplate).update(eq(QueryConstants.UPDATE_LAST_CHANGE_TIME_FOR_PATIENTS), any(MapSqlParameterSource.class));
+    verify(nbsTemplate).update(eq(QueryConstants.UPDATE_LAST_CHANGE_TIME_FOR_PATIENTS),
+        any(MapSqlParameterSource.class));
   }
 
   private void verifyInsertPersonMergeRecord() {
@@ -97,7 +99,7 @@ class PersonTableMergeHandlerTest {
   }
 
   private PatientMergeRequest getPatientMergeRequest() {
-    return new PatientMergeRequest("survivorId1", null, null, null, null, null, null);
+    return new PatientMergeRequest("survivorId1", null, null, null, null, null, null, null);
   }
 
 }

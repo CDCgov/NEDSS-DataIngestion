@@ -12,18 +12,25 @@ class MsSqlContainerInitializer implements ApplicationContextInitializer<Configu
 
   public static final Network network = Network.newNetwork();
 
+  public static JdbcDatabaseContainer<?> container = null;
+
   @Override
   @SuppressWarnings("resource") // We don't want to close this
   public void initialize(@NonNull final ConfigurableApplicationContext context) {
+    if (container != null) {
+      return;
+    }
+
     String image = context.getEnvironment().getProperty("testing.database.mssql.image", "dataingestion-di-mssql");
     String username = context.getEnvironment().getProperty("testing.database.mssql.username");
     String password = context.getEnvironment().getProperty("testing.database.mssql.password");
 
-    JdbcDatabaseContainer<?> container = new NbsDatabaseContainer<>(image)
+    container = new NbsDatabaseContainer<>(image)
         .withUsername(username)
         .withPassword(password)
         .withNetwork(network)
         .withNetworkAliases("mssql")
+        .withExposedPorts(1433)
         .withImagePullPolicy(PullPolicy.defaultPolicy());
 
     container.start();
