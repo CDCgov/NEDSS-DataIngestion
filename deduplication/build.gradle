@@ -28,6 +28,15 @@ dependencies {
   implementation 'org.apache.httpcomponents.client5:httpclient5'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+  // security
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.security:spring-security-config'
+  implementation 'org.springframework.security:spring-security-web'
+  implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+  implementation 'org.springframework.security:spring-security-oauth2-jose'
+  implementation 'com.auth0:java-jwt:4.5.0'
+
+  // pdf creation
   implementation 'com.github.librepdf:openpdf:1.3.30'
 
 

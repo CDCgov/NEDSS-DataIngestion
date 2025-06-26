@@ -7,6 +7,12 @@ spring:
   application.name: deduplication
   jackson.serialization.indent-output: true
   kafka.bootstrap-servers: localhost:9092
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+          jwk-set-uri:
   batch:
     job:
       enabled: false
@@ -36,6 +42,15 @@ spring:
 
   main:
     allow-circular-references: true
+
+nbs:
+  security:
+    tokenSecret: ${TOKEN_SECRET}
+    tokenIssuer: gov.cdc.nbs
+    tokenExpirationMillis: 1800000 # 30 minutes
+    oidc:
+      # toggles the validation of users provided jwt token
+      enabled: true
 
 deduplication:
   # url for Record Linker API
