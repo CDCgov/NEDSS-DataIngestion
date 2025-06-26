@@ -1,15 +1,20 @@
-package gov.cdc.nbs.deduplication.config.auth.oidc;
+package gov.cdc.nbs.deduplication.config.auth.nbs;
 
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "true")
-class AuthorizedUserResolver {
+import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsSessionToken;
+import jakarta.servlet.http.HttpServletRequest;
 
-  private static final String QUERY = """
+@Configuration
+@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
+public class NbsSessionAuthenticator {
+
+  private static final String SELECT_USER_BY_SESSION = """
       SELECT TOP 1
         au.user_id
       FROM
@@ -31,17 +36,23 @@ class AuthorizedUserResolver {
 
   private final JdbcClient client;
 
-  public AuthorizedUserResolver(@Qualifier("nbsJdbcClient") final JdbcClient client) {
+  public NbsSessionAuthenticator(@Qualifier("nbsJdbcClient") final JdbcClient client) {
     this.client = client;
+  }
+
+  // checks for a valid JSESSIONID cookie
+  // returns the user associated if one exists
+  public Optional<String> authenticate(HttpServletRequest incoming) {
+    return NbsSessionToken.resolve(incoming.getCookies())
+        .flatMap(session -> findUserBySession(session.jSessionId()));
   }
 
   // Attempts to lookup a user Id from the provided session Id where the user is
   // currently logged in
-  public Optional<String> resolve(String sessionId) {
-    return client.sql(QUERY)
+  private Optional<String> findUserBySession(String sessionId) {
+    return client.sql(SELECT_USER_BY_SESSION)
         .param("sessionId", sessionId)
         .query(String.class)
         .optional();
   }
-
 }

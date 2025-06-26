@@ -1,36 +1,21 @@
-package gov.cdc.nbs.deduplication.config.auth.oidc;
+package gov.cdc.nbs.deduplication.config.auth;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfigurer;
-
 @Configuration
-@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "true")
-class OidcAuthenticationConfiguration {
+@EnableConfigurationProperties(SecurityProperties.class)
+public class AuthenticationConfiguration {
 
-  @ConfigurationProperties(prefix = "nbs.security")
-  record SecurityProperties(
-      String tokenSecret,
-      String tokenIssuer,
-      long tokenExpirationMillis) {
-    public int getTokenExpirationSeconds() {
-      return Math.toIntExact(TimeUnit.MILLISECONDS.toSeconds(tokenExpirationMillis));
-    }
-  }
-
-  @Bean
-  AuthenticationConfigurer oidcAuthenticationConfigurer(
-      final OidcAuthenticationConverter converter) {
-    return new OidcAuthenticationConfigurer(converter);
+  public interface AuthenticationConfigurer {
+    @SuppressWarnings("java:S112")
+    HttpSecurity configure(final HttpSecurity http) throws Exception;
   }
 
   @Bean

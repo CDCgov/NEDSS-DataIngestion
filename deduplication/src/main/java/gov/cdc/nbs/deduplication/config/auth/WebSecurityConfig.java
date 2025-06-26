@@ -1,25 +1,28 @@
 package gov.cdc.nbs.deduplication.config.auth;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.stereotype.Component;
 
-@Component
-// applies the configured security to the service
-public class SecurityConfigurer {
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
+public class WebSecurityConfig {
 
-  // will be either OidcAuthenticationConfigurer or NbsAuthenticationConfigurer
-  private final AuthenticationConfigurer authenticationConfigurer;
-
-  public SecurityConfigurer(
-      final AuthenticationConfigurer authenticationConfigurer) {
-    this.authenticationConfigurer = authenticationConfigurer;
-  }
-
-  public HttpSecurity configure(final HttpSecurity http) throws Exception {
-    return authenticationConfigurer.configure(withStandardSecurity(http));
+  @Bean
+  SecurityFilterChain securityFilterChain(
+      final HttpSecurity http,
+      // will be either OidcAuthenticationConfigurer or NbsAuthenticationConfigurer
+      final AuthenticationConfigurer authenticationConfigurer)
+      throws Exception {
+    return authenticationConfigurer.configure(withStandardSecurity(http))
+        .build();
   }
 
   @SuppressWarnings("java:S4502")
