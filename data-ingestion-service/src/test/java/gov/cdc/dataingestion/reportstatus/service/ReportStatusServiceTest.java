@@ -10,6 +10,7 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
+import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
@@ -91,20 +92,23 @@ class ReportStatusServiceTest {
         validatedELRModel.setRawMessage("payload");
         validatedELRModel.setCreatedOn(getCurrentTimeStamp("UTC"));
 
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
         ReportStatusIdData reportStatusIdModel = new ReportStatusIdData();
         reportStatusIdModel.setRawMessageId(id);
         reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
+        rptStatusIdDataList.add(reportStatusIdModel);
 
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
         nbsModel.setRecordStatusCd("Success");
         nbsModel.setPayload("payload");
         when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
         when(edxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(nbsId))).thenReturn(new EdxActivityLog());
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals(nbsId, msgStatus.getNbsInfo().getNbsInterfaceId());
@@ -120,11 +124,8 @@ class ReportStatusServiceTest {
     void testGetMessageDetailStatus_RawNotExist() {
         String id = "test";
         when(iRawELRRepository.findById(id)).thenReturn(Optional.empty());
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
-        assertNotNull(msgStatus);
-        assertNotNull(msgStatus.getRawInfo());
-        assertNotNull(msgStatus.getValidatedInfo());
-        assertNotNull(msgStatus.getNbsInfo());
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        assertEquals(0, msgStatusList.size());
     }
 
     @Test
@@ -149,7 +150,8 @@ class ReportStatusServiceTest {
 
         when(iElrDeadLetterRepository.findById(id)).thenReturn(Optional.of(dltModel));
 
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("FAILED", msgStatus.getValidatedInfo().getValidatedPipeLineStatus());
         assertEquals(id, msgStatus.getRawInfo().getDltInfo().getDltId());
@@ -176,7 +178,10 @@ class ReportStatusServiceTest {
 
         when(iElrDeadLetterRepository.findById(id)).thenReturn(Optional.empty());
 
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        //var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
+
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("IN PROGRESS", msgStatus.getValidatedInfo().getValidatedPipeLineStatus());
         assertEquals("admin", msgStatus.getRawInfo().getRawCreatedBy());
@@ -205,16 +210,19 @@ class ReportStatusServiceTest {
         reportStatusIdModel.setRawMessageId(id);
         reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(reportStatusIdModel);
 
         NbsInterfaceModel nbsModel = new NbsInterfaceModel();
         nbsModel.setRecordStatusCd("Success");
         nbsModel.setPayload("payload");
         when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.empty());
 
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals("IN PROGRESS", msgStatus.getNbsInfo().getNbsInterfacePipeLineStatus());
@@ -243,11 +251,11 @@ class ReportStatusServiceTest {
 
         when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.
-                empty());
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(List.of());
 
         when(iElrDeadLetterRepository.findById("validate-id")).thenReturn(Optional.of(dltModel));
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals("FAILED", msgStatus.getNbsInfo().getNbsInterfacePipeLineStatus());
@@ -274,12 +282,12 @@ class ReportStatusServiceTest {
 
         when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.
-                empty());
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(List.of());
 
         when(iElrDeadLetterRepository.findById("validate-id")).thenReturn(Optional.
                 empty());
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals("IN PROGRESS", msgStatus.getNbsInfo().getNbsInterfacePipeLineStatus());
@@ -293,32 +301,39 @@ class ReportStatusServiceTest {
         reportStatusIdData.setNbsInterfaceUid(1234);
         nbsInterfaceModel.setRecordStatusCd("Success");
 
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdData));
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(reportStatusIdData);
+
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234)).thenReturn(Optional.of(nbsInterfaceModel));
 
-        String status = reportStatusServiceMock.getStatusForReport(id);
-        assertEquals("Success", status);
+        List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
+        //Actual value - 'NBS Inerface Id:1234 Status:Success'
+        assertTrue(statusList.get(0).endsWith("Success"));
     }
 
     @Test
     void testGetStatusForReportEmptyReportIdData() {
         String id = "test_uuid_from_user_does_not_exist";
 
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.empty());
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(List.of());
 
-        String status = reportStatusServiceMock.getStatusForReport(id);
-        assertEquals("Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.", status);
+        List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
+        assertEquals("Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.", statusList.get(0));
     }
 
     @Test
     void testGetStatusForReportEmptyNbsInterfaceData() {
         String id = "test_uuid_from_user";
 
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdData));
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(reportStatusIdData);
+
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234)).thenReturn(Optional.empty());
 
-        String status = reportStatusServiceMock.getStatusForReport(id);
-        assertEquals("Couldn't find status for the requested UUID.", status);
+        List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
+        assertEquals("Couldn't find status for the requested UUID.", statusList.get(0));
     }
 
     @Test
@@ -332,12 +347,14 @@ class ReportStatusServiceTest {
         reportStatusIdData.setRawMessageId(id);
         reportStatusIdData.setCreatedBy("junit_test");
         reportStatusIdData.setUpdatedBy("junit_test");
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(reportStatusIdData);
 
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdData));
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234)).thenReturn(Optional.of(nbsInterfaceModel));
 
-        String status = reportStatusServiceMock.getStatusForReport(id);
-        assertEquals("Success", status);
+        List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
+        assertTrue(statusList.get(0).endsWith("Success"));
 
         // The following asserts are added to increase the line coverage for model class
         assertEquals("test_uuid", reportStatusIdData.getId());
@@ -365,6 +382,8 @@ class ReportStatusServiceTest {
         reportStatusIdModel.setRawMessageId(id);
         reportStatusIdModel.setCreatedOn(getCurrentTimeStamp("UTC"));
         reportStatusIdModel.setNbsInterfaceUid(nbsId);
+        List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
+        rptStatusIdDataList.add(reportStatusIdModel);
 
         List<EdxActivityDetailLog> edxActivityLogList=new ArrayList();
         EdxActivityDetailLog edxActivityLogModelProjection=mock(EdxActivityDetailLog.class);
@@ -382,12 +401,13 @@ class ReportStatusServiceTest {
 
         when(iRawELRRepository.findById(id)).thenReturn(Optional.of(rawElrModel));
         when(iValidatedELRRepository.findByRawId(id)).thenReturn(Optional.of(validatedELRModel));
-        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(Optional.of(reportStatusIdModel));
+        when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
         when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.of(nbsModel));
         when (iEdxActivityLogRepository.getEdxActivityLogDetailsBySourceId(Long.valueOf(nbsId))).thenReturn(edxActivityLogList);
         when(edxActivityParentLogRepository.getParentEdxActivity(Long.valueOf(nbsId))).thenReturn(new EdxActivityLog());
 
-        var msgStatus = reportStatusServiceMock.getMessageStatus(id);
+        List<MessageStatus> msgStatusList = reportStatusServiceMock.getMessageStatus(id);
+        MessageStatus msgStatus = msgStatusList.get(0);
         assertEquals(id, msgStatus.getRawInfo().getRawMessageId());
         assertEquals("validate-id", msgStatus.getValidatedInfo().getValidatedMessageId());
         assertEquals(nbsId, msgStatus.getNbsInfo().getNbsInterfaceId());

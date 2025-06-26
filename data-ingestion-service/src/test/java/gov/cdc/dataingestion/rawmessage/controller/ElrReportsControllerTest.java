@@ -53,7 +53,7 @@ class ElrReportsControllerTest {
         rawElrDto.setValidationActive(true);
         rawElrDto.setVersion("1");
         rawElrDto.setCustomMapper("");
-        verify(rawELRService).submission(rawElrDto);
+        verify(rawELRService).submissionElr(rawElrDto);
 
     }
 
@@ -75,7 +75,7 @@ class ElrReportsControllerTest {
         rawElrDto.setVersion("1");
         rawElrDto.setCustomMapper(null);
 
-        verify(rawELRService).submission(rawElrDto);
+        verify(rawELRService).submissionElrXml(rawElrDto);
     }
 
     @Test
@@ -87,7 +87,7 @@ class ElrReportsControllerTest {
         rawElrDto.setPayload(payload);
         rawElrDto.setVersion("1");
 
-        when(rawELRService.submission(rawElrDto)).thenReturn("OK");
+        when(rawELRService.submissionElr(rawElrDto)).thenReturn("OK");
         mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .param("id", "1").with(SecurityMockMvcRequestPostProcessors.jwt())
                         .header("msgType", messageType)
