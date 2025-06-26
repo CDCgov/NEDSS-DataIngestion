@@ -38,7 +38,7 @@ public class HL7BatchSplitter {
                 hl7Messages.add(currentMessage.toString());
             }
         } else {
-            log.info("This is not a batch file. No ELR batch split is needed.");
+            log.info("This is not a batch file, or there is only one message. No ELR batch split is needed.");
             hl7Messages.add(batchHL7Msg);
         }
         return hl7Messages;
