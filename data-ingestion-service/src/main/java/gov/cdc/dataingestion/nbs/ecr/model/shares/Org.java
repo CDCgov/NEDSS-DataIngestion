@@ -25,5 +25,20 @@ public class Org {
     String zip;
     String phone;
     String extn ;
+
+    String orgName;
+    String orgLocalId;
+    String authState;
+    String authStreetAddress1;
+    String authStreetAddress2;
+    String authCity;
+    String authCounty;
+    String authCountry;
+    String authZip;
+    String authPhone;
+    String authExtn;
+    String authOrgName;
+    String authOrgLocalId;
+
     POCDMT000040Participant2 out;
 }

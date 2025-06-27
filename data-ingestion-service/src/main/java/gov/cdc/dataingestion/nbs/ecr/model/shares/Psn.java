@@ -32,4 +32,22 @@ public class Psn {
     String extn;
     String email;
     POCDMT000040Participant2 out;
+
+    String localId;
+    String authFirstName;
+    String authLastName;
+    String authSuffix;
+    String authDegree;
+    String authAddress1;
+    String authAddress2;
+    String authCity;
+    String authCounty;
+    String authState;
+    String authZip;
+    String authCountry;
+    String authTelephone;
+    String authExtn;
+    String authEmail;
+    String authPrefix;
+    String authLocalId;
 }

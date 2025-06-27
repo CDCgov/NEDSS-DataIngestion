@@ -533,7 +533,7 @@ public class CdaPlaceMappingHelper implements ICdaPlaceMappingHelper {
         return param;
     }
 
-    private  POCDMT000040Participant2 mapToPlaceFieldCheckP1Helper5(String value, String name, EcrMsgPlaceDto in,
+    private POCDMT000040Participant2 mapToPlaceFieldCheckP1Helper5(String value, String name, EcrMsgPlaceDto in,
                                                 POCDMT000040Participant2 out) {
         if (name.equals("plaIdQuickCode") && value != null&& !in.getPlaIdQuickCode().isEmpty()){
 

@@ -809,8 +809,7 @@ public class CdaPatientMappingHelper implements ICdaPatientMappingHelper {
         } else {
             raceCatList.add(patient.getPatRaceCategoryCd());
         }
-        for(int i = 0; i < raceCatList.size(); i++) {
-            String val = raceCatList.get(i);
+        for (String val : raceCatList) {
             String questionCode = this.cdaMapHelper.mapToQuestionId("PAT_RACE_CATEGORY_CD");
             if (!questionCode.isEmpty()) {
                 CE ce = this.cdaMapHelper.mapToCEAnswerType(val, questionCode);

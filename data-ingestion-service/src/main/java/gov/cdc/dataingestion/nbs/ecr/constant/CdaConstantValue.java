@@ -1,5 +1,8 @@
 package gov.cdc.dataingestion.nbs.ecr.constant;
 
+import gov.cdc.dataingestion.nbs.ecr.model.author.AuthorOrg;
+import gov.cdc.dataingestion.nbs.ecr.model.author.AuthorPerson;
+
 /**
  1118 - require constructor complaint
  125 - comment complaint
@@ -64,4 +67,9 @@ public class CdaConstantValue {
     /**DATA TYPE*/
     public static final String DATA_TYPE_CODE = "CODED";
     public static final String DATA_TYPE_NUMERIC = "NUMERIC";
+
+    public static String AUTHOR_ORG_LOCAL_ID = "";
+    public static String AUTHOR_PERSON_LOCAL_ID = "";
+    public static final AuthorOrg AUTHOR_ORG = new AuthorOrg();
+    public static final AuthorPerson AUTHOR_PERSON = new AuthorPerson();
 }

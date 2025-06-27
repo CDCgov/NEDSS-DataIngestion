@@ -82,8 +82,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
             mapper.setComponentCaseCounter(componentCaseCounter);
             mapper.setInv168(inv168);
             return mapper;
-
-
     }
     //endregion
 
@@ -103,7 +101,6 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
         int answerGroupCounter=0;
         int sectionCounter = 0;
         int repeatComponentCounter=0;
-
 
         if (!caseDto.getMsgCaseParticipants().isEmpty()
                 || !caseDto.getMsgCaseAnswers().isEmpty() || !caseDto.getMsgCaseAnswerRepeats().isEmpty()) {
@@ -390,6 +387,8 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     private POCDMT000040Observation mapToObsFromParticipant(EcrMsgCaseParticipantDto in, POCDMT000040Observation out) throws EcrCdaXmlException {
         String localId = "";
         String questionCode ="";
+        String orgAsReporterOfPHCInd = "";
+        String personAsReporterOfPHCInd = "";
 
         if (in.getAnswerTxt() != null && !in.getAnswerTxt().isEmpty()) {
             localId = in.getAnswerTxt();
@@ -397,6 +396,22 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
 
         if (in.getQuestionIdentifier() != null && !in.getQuestionIdentifier().isEmpty()) {
             questionCode = in.getQuestionIdentifier();
+        }
+
+        if (in.getPartTypeCd() != null && !in.getPartTypeCd().isEmpty() && in.getPartTypeCd().contains("OrgAsReporterOfPHC")) {
+            orgAsReporterOfPHCInd = in.getPartTypeCd();
+        }
+
+        if (in.getPartTypeCd() != null && !in.getPartTypeCd().isEmpty() && in.getPartTypeCd().contains("PerAsReporterOfPHC")) {
+            personAsReporterOfPHCInd = in.getPartTypeCd();
+        }
+
+        if (!personAsReporterOfPHCInd.isEmpty()) {
+            AUTHOR_PERSON_LOCAL_ID = localId;
+        }
+
+        if (!orgAsReporterOfPHCInd.isEmpty()) {
+            AUTHOR_ORG_LOCAL_ID = localId;
         }
 
         return this.cdaMapHelper.mapToObservation(questionCode, localId, out);
@@ -1000,11 +1015,15 @@ public class CdaCaseMappingHelper implements ICdaCaseMappingHelper {
     }
 
     private boolean checkInvalidField(String name, EcrSelectedCase caseDto) {
-        boolean patLocalIdFailedCheck = (name.equalsIgnoreCase(PAT_LOCAL_ID_CONST) && caseDto.getMsgCase().getPatLocalId() == null)
-                || (name.equalsIgnoreCase(PAT_LOCAL_ID_CONST)  && caseDto.getMsgCase().getPatLocalId() != null && caseDto.getMsgCase().getPatLocalId().isEmpty());
-        boolean patInvEffTimeFailedCheck = name.equalsIgnoreCase("invEffectiveTime")  && caseDto.getMsgCase().getInvEffectiveTime() == null;
-        boolean patInvAuthorIdFailedCheck = (name.equalsIgnoreCase("invAuthorId") && caseDto.getMsgCase().getInvAuthorId() == null)
-                || (name.equalsIgnoreCase("invAuthorId") && caseDto.getMsgCase().getInvAuthorId() != null && caseDto.getMsgCase().getInvAuthorId().isEmpty());
-        return patLocalIdFailedCheck || patInvEffTimeFailedCheck || patInvAuthorIdFailedCheck;
+//        boolean patLocalIdFailedCheck = (name.equalsIgnoreCase(PAT_LOCAL_ID_CONST) && caseDto.getMsgCase().getPatLocalId() == null)
+//                || (name.equalsIgnoreCase(PAT_LOCAL_ID_CONST)  && caseDto.getMsgCase().getPatLocalId() != null && caseDto.getMsgCase().getPatLocalId().isEmpty());
+//        boolean patInvEffTimeFailedCheck = name.equalsIgnoreCase("invEffectiveTime")  && caseDto.getMsgCase().getInvEffectiveTime() == null;
+//        boolean patInvAuthorIdFailedCheck = (name.equalsIgnoreCase("invAuthorId") && caseDto.getMsgCase().getInvAuthorId() == null)
+//                || (name.equalsIgnoreCase("invAuthorId") && caseDto.getMsgCase().getInvAuthorId() != null && caseDto.getMsgCase().getInvAuthorId().isEmpty());
+//        return patLocalIdFailedCheck || patInvEffTimeFailedCheck || patInvAuthorIdFailedCheck;
+        return name != null && (name.startsWith(PAT_LOCAL_ID_CONST) ||
+                        name.startsWith("invEffectiveTime") ||
+                        name.startsWith("invAuthorId")
+        );
     }
 }

@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import static gov.cdc.dataingestion.ecr.cdaMapping.helper.TestDataInitiation.getTestData;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 /**
  1118 - require constructor complaint
  125 - comment complaint
@@ -54,7 +55,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -79,7 +80,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -103,7 +104,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -129,7 +130,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -155,7 +156,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -181,7 +182,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -207,7 +208,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -233,7 +234,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -277,7 +278,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -321,7 +322,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
@@ -365,7 +366,7 @@ class CdaMapperTest {
 
         var result = target.tranformSelectedEcrToCDAXml(input);
 
-        verify(cdaLookUpService).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
+        verify(cdaLookUpService, never()).fetchConstantLookUpByCriteriaWithColumn("QuestionIdentifier", "CUS101");
         Assertions.assertNotNull(result);
     }
 
