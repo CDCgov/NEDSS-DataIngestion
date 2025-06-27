@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
 public class NbsSessionAuthenticator {
 
-  private static final String SELECT_USER_BY_SESSION = """
+  static final String SELECT_USER_BY_SESSION = """
       SELECT TOP 1
         au.user_id
       FROM

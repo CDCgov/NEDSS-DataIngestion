@@ -16,7 +16,11 @@ public record NbsSessionToken(String jSessionId) {
       if (cookie.getName().equals(J_SESSION_COOKIE_NAME)) {
         String identifier = cookie.getValue();
 
-        if (identifier != null && identifier.contains(".")) {
+        if (identifier == null) {
+          return Optional.empty();
+        }
+
+        if (identifier.contains(".")) {
           identifier = identifier.substring(0, identifier.indexOf("."));
         }
 

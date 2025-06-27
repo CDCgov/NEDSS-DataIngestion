@@ -9,8 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class NbsUserDetailsService implements UserDetailsService {
@@ -21,7 +21,7 @@ public class NbsUserDetailsService implements UserDetailsService {
     this.client = client;
   }
 
-  private static final String SELECT_USER_INFORMATION = """
+  static final String SELECT_USER_INFORMATION = """
       SELECT
         nedss_entry_id AS 'identifier',
         user_first_nm AS 'first',
@@ -37,7 +37,7 @@ public class NbsUserDetailsService implements UserDetailsService {
         USER_ID = :userName;
       """;
 
-  private static final String SELECT_GRANTED_AUTHORITIES = """
+  static final String SELECT_GRANTED_AUTHORITIES = """
       SELECT DISTINCT
         operationType.bus_op_nm + '-' + objectType.bus_obj_nm
       FROM
@@ -56,8 +56,15 @@ public class NbsUserDetailsService implements UserDetailsService {
         );
         """;
 
+  public PreAuthenticatedAuthenticationToken authenticateByUsername(final String username) {
+    NbsUserDetails userDetails = loadUserByUsername(username);
+    return new PreAuthenticatedAuthenticationToken(
+        userDetails,
+        null,
+        userDetails.getAuthorities());
+  }
+
   @Override
-  @Transactional
   public NbsUserDetails loadUserByUsername(final String username) {
     return findNbsUser(username)
         .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
@@ -90,7 +97,7 @@ public class NbsUserDetailsService implements UserDetailsService {
         userInformation.enabled());
   }
 
-  private record UserInformation(
+  record UserInformation(
       long identifier,
       String first,
       String last,

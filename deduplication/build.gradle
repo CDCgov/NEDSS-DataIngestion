@@ -67,7 +67,7 @@ dependencies {
 }
 
 bootRun {
-    systemProperty('spring.profiles.active', 'default,local')
+    systemProperty('spring.profiles.active', 'default,local,dev')
 
      debugOptions {
         enabled = true

@@ -1,6 +1,6 @@
 package gov.cdc.nbs.deduplication.auth;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/login")
-@ConditionalOnProperty(value = "nbs.security.login.enabled", havingValue = "true")
+@Profile("dev")
 public class LoginController {
 
   private final SecurityProperties securityProperties;
@@ -33,9 +34,9 @@ public class LoginController {
   @PostMapping
   LoginResponse login(@RequestBody LoginRequest request, HttpServletResponse response) {
 
-    var userDetails = userService.loadUserByUsername(request.userName());
+    NbsUserDetails userDetails = userService.loadUserByUsername(request.username());
 
-    NbsToken token = this.tokenCreator.forUser(request.userName());
+    NbsToken token = this.tokenCreator.forUser(request.username());
 
     token.apply(
         securityProperties.getTokenExpirationSeconds(),

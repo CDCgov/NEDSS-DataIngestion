@@ -56,6 +56,7 @@ nbs:
         - /v3/api-docs/**
         - /swagger-ui/**
         - /swagger-resources/**
+        - /match
         - /health
 
 deduplication:

@@ -4,6 +4,7 @@ import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/merge")
+@PreAuthorize("hasAuthority('MERGE-PATIENT')")
 public class PatientMergeController {
   static final String DEFAULT_SORT = "patient-id,desc";
 

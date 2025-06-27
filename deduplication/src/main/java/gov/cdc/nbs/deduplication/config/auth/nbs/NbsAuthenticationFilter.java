@@ -1,27 +1,24 @@
 package gov.cdc.nbs.deduplication.config.auth.nbs;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Optional;
 
-import jakarta.servlet.http.Cookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
 import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator.TokenValidation;
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService;
-
-import java.io.IOException;
-import java.util.Optional;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A {@code OncePerRequestFilter} that ensures that incoming requests have a
@@ -82,7 +79,7 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
   }
 
   // Checks if the JSESSIONID is valid, if so, apply authentication
-  private void attemptSessionAuthentication(final HttpServletRequest incoming, final HttpServletResponse response) {
+  void attemptSessionAuthentication(final HttpServletRequest incoming, final HttpServletResponse response) {
     Optional<String> user = sessionAuthenticator.authenticate(incoming);
     if (user.isPresent()) {
       issueAuthentication(user.get(), response);
@@ -96,12 +93,7 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
   private void issueAuthentication(
       final String user,
       final HttpServletResponse response) {
-    NbsUserDetails userDetails = this.userService.loadUserByUsername(user);
-
-    Authentication auth = new PreAuthenticatedAuthenticationToken(
-        userDetails,
-        null,
-        userDetails.getAuthorities());
+    Authentication auth = this.userService.authenticateByUsername(user);
 
     SecurityContextHolder.getContext().setAuthentication(auth);
 
