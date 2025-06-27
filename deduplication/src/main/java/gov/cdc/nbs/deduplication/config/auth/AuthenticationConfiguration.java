@@ -1,5 +1,9 @@
 package gov.cdc.nbs.deduplication.config.auth;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,12 +14,33 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 
 @Configuration
-@EnableConfigurationProperties(SecurityProperties.class)
+@EnableConfigurationProperties({
+    AuthenticationConfiguration.SecurityProperties.class,
+    AuthenticationConfiguration.PathSettings.class })
 public class AuthenticationConfiguration {
 
   public interface AuthenticationConfigurer {
     @SuppressWarnings("java:S112")
     HttpSecurity configure(final HttpSecurity http) throws Exception;
+  }
+
+  @ConfigurationProperties(prefix = "nbs.security")
+  public record SecurityProperties(
+      String tokenSecret,
+      String tokenIssuer,
+      long tokenExpirationMillis) {
+    public int getTokenExpirationSeconds() {
+      return Math.toIntExact(TimeUnit.MILLISECONDS.toSeconds(tokenExpirationMillis));
+    }
+  }
+
+  @ConfigurationProperties(prefix = "nbs.security.paths")
+  record PathSettings(List<String> ignored) {
+  }
+
+  @Bean
+  IgnoredPaths configuredIgnoredPaths(final PathSettings settings) {
+    return new IgnoredPaths(settings.ignored());
   }
 
   @Bean

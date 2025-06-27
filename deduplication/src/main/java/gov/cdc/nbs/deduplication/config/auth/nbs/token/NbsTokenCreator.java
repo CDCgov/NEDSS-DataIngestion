@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import gov.cdc.nbs.deduplication.config.auth.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
 
 @Component
 @ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)

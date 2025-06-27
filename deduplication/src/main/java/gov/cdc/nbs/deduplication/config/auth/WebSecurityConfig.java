@@ -19,16 +19,20 @@ public class WebSecurityConfig {
   SecurityFilterChain securityFilterChain(
       final HttpSecurity http,
       // will be either OidcAuthenticationConfigurer or NbsAuthenticationConfigurer
-      final AuthenticationConfigurer authenticationConfigurer)
+      final AuthenticationConfiguration.AuthenticationConfigurer authenticationConfigurer,
+      final IgnoredPaths ignoredPaths)
       throws Exception {
-    return authenticationConfigurer.configure(withStandardSecurity(http))
+    return authenticationConfigurer.configure(withStandardSecurity(http, ignoredPaths))
         .build();
   }
 
   @SuppressWarnings("java:S4502")
-  private HttpSecurity withStandardSecurity(final HttpSecurity http) throws Exception {
+  private HttpSecurity withStandardSecurity(
+      final HttpSecurity http,
+      final IgnoredPaths ignoredPaths) throws Exception {
     return http
         .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(requests -> requests.requestMatchers(ignoredPaths.paths()).permitAll())
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(

@@ -11,7 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import gov.cdc.nbs.deduplication.config.auth.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
+import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator;
@@ -34,18 +35,21 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
   private final NbsTokenCreator tokenCreator;
   private final SecurityProperties securityProperties;
   private final NbsSessionAuthenticator sessionAuthenticator;
+  private final IgnoredPaths ignoredPaths;
 
   public NbsAuthenticationFilter(
       final NbsTokenValidator tokenValidator,
       final NbsUserDetailsService userService,
       final NbsTokenCreator tokenCreator,
       final SecurityProperties securityProperties,
-      final NbsSessionAuthenticator sessionAuthenticator) {
+      final NbsSessionAuthenticator sessionAuthenticator,
+      final IgnoredPaths ignoredPaths) {
     this.tokenValidator = tokenValidator;
     this.userService = userService;
     this.tokenCreator = tokenCreator;
     this.securityProperties = securityProperties;
     this.sessionAuthenticator = sessionAuthenticator;
+    this.ignoredPaths = ignoredPaths;
   }
 
   @Override
@@ -74,7 +78,7 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(final HttpServletRequest request) {
-    return false;
+    return ignoredPaths.ignored(request);
   }
 
   // Checks if the JSESSIONID is valid, if so, apply authentication

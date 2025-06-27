@@ -51,6 +51,12 @@ nbs:
     oidc:
       # toggles the validation of users provided jwt token
       enabled: true
+    paths:
+      ignored: # routes that are excluded from security
+        - /v3/api-docs/**
+        - /swagger-ui/**
+        - /swagger-resources/**
+        - /health
 
 deduplication:
   # url for Record Linker API
