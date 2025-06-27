@@ -128,7 +128,7 @@ public class ManagerService implements IManagerService {
             backoff = @Backoff(delay = 1000, multiplier = 2),
             retryFor = {DataProcessingDBException.class}
     )
-    public PublicHealthCaseFlowContainer processingELR(Integer data, boolean retryApplied) throws EdxLogException, DataProcessingDBException {
+    public PublicHealthCaseFlowContainer processingELR(Integer data, boolean retryApplied) throws EdxLogException {
         logger.debug("Interface Id: {}", data);
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
@@ -233,7 +233,7 @@ public class ManagerService implements IManagerService {
             AtomicBoolean nonDltError,
             AtomicBoolean dataIntegrityError,
             AtomicReference<String> detailedMsg
-    ) throws DataProcessingDBException {
+    ) {
 
         Throwable rootCause = ExceptionUtils.getRootCause(e);
         log.warn("DB-related exception caught: {}", e.getMessage(), e);
@@ -357,7 +357,7 @@ public class ManagerService implements IManagerService {
             AtomicBoolean dltLockError,
             AtomicBoolean nonDltError,
             AtomicBoolean interityError
-    ) throws DataProcessingDBException {
+    )  {
 
         Throwable rootCause = ExceptionUtils.getRootCause(e);
         log.warn("DB-related exception caught: {}", e.getMessage(), e);

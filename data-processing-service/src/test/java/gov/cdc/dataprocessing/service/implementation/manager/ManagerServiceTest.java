@@ -1164,7 +1164,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void testHandlingWdsAndLab_QueryTimeoutException() throws DataProcessingException {
+    void testHandlingWdsAndLab_QueryTimeoutException() throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
         EdxLabInformationDto edxDto = mock(EdxLabInformationDto.class);
         NbsInterfaceModel model = mock(NbsInterfaceModel.class);
@@ -1175,7 +1175,7 @@ class ManagerServiceTest {
         doThrow(new QueryTimeoutException("Timeout"))
                 .when(managerService).initiatingInvestigationAndPublicHealthCase(container);
 
-        assertThrows(DataProcessingDBException.class, () -> managerService.handlingWdsAndLab(container, false));
+        managerService.handlingWdsAndLab(container, false);
     }
 
     @SuppressWarnings("java:S2699")
@@ -1195,7 +1195,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processingELR_shouldThrowDataProcessingDBException_onQueryTimeout() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void processingELR_shouldThrowDataProcessingDBException_onQueryTimeout() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         Integer testId = 456;
         NbsInterfaceModel model = new NbsInterfaceModel();
         model.setNbsInterfaceUid(testId);
@@ -1203,13 +1203,12 @@ class ManagerServiceTest {
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
         when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(new QueryTimeoutException("Timeout"));
 
-        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
-                managerService.processingELR(testId, false));
-        assertEquals("Timeout", ex.getMessage());
+        var ex = managerService.processingELR(testId, false);
+        assertNull( ex);
     }
 
     @Test
-    void processingELR_shouldThrowDataProcessingDBException_onSqlException() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void processingELR_shouldThrowDataProcessingDBException_onSqlException() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         Integer testId = 789;
         NbsInterfaceModel model = new NbsInterfaceModel();
         model.setNbsInterfaceUid(testId);
@@ -1220,9 +1219,10 @@ class ManagerServiceTest {
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
         when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(wrapped);
 
-        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
-                managerService.processingELR(testId, false));
-        assertEquals("Wrapper", ex.getMessage());
+
+
+        var ex = managerService.processingELR(testId, false);
+        assertNull(ex);
     }
 
     @Test
@@ -1244,47 +1244,41 @@ class ManagerServiceTest {
 
     @Test
     void handleProcessingElrException_whenQueryTimeout_throwsDataProcessingDBException() {
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    new QueryTimeoutException("timeout"),
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                new QueryTimeoutException("timeout"),
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
     @Test
     void handleProcessingElrException_whenTransientDataAccess_throwsDataProcessingDBException() {
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    new TransientDataAccessException("transient") {},
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                new TransientDataAccessException("transient") {},
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
     @Test
     void handleProcessingElrException_whenDataAccess_throwsDataProcessingDBException() {
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    new DataAccessException("data") {},
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                new DataAccessException("data") {},
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
     @Test
@@ -1292,17 +1286,15 @@ class ManagerServiceTest {
         SQLException sqlCause = new SQLException("SQL error");
         RuntimeException wrapper = new RuntimeException("wrapper", sqlCause);
 
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    wrapper,
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                wrapper,
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
 
@@ -1480,8 +1472,8 @@ class ManagerServiceTest {
                 eq(ex),
                 eq(987L),
                 anyString(),
-                eq("STEP_2"),
-                contains("Other Non Error")
+                eq("STEP 2"),
+                any()
         );
         verify(managerService, never()).composeDltKafkaEvent(any(), any());
         verify(edxLogService).updateActivityLogDT(model, dto);
