@@ -205,7 +205,7 @@ public class KafkaManagerConsumer {
                     try {
                         for (Integer id : batch) {
                             try {
-                                managerTransactionService.processWithTransactionSeparation(id);
+                                managerTransactionService.processWithTransactionSeparation(id, false);
                             } catch (Exception e) {
                                 log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
                             }
