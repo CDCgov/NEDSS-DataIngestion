@@ -43,6 +43,18 @@ spring:
 #    web-application-type: none
   application:
     name: data-processing-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${DP_AUTH_URI:http://localhost:8100/realms/NBS}
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+auth:
+  token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
+  introspect-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token/introspect
+
+dp-server:
+  host: ${DP_SERVER_HOST:localhost:8081}
 
 kafka:
   topic:

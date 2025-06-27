@@ -157,7 +157,7 @@ public class KafkaManagerConsumer {
 
         if (DpStatic.isUuidPoolInitialized()) {
             // Reinitialize the uuid pool
-            uidPoolManager.initializePools();
+            uidPoolManager.reInitializePools();
             DpStatic.setUuidPoolInitialized(false);
         }
 
