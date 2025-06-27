@@ -234,62 +234,94 @@ public class CdaMapper implements ICdaMapper {
 
     private void mapCustodian(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
         int k = 0;
-        String custodianValue;
+        String custodianValue = "";
         clinicalDocument.addNewCustodian().addNewAssignedCustodian().addNewRepresentedCustodianOrganization()
                 .addNewId();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewAddr();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr();
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().addNewTelecom();
 
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0)
+//                .setExtension(mapToTranslatedValue("CUS101"));
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getIdArray(0)
-                .setExtension(mapToTranslatedValue("CUS101"));
-        custodianValue = mapToTranslatedValue("CUS102");
+                .setExtension("2.16.840.1.113883.19.5");
+//        custodianValue = mapToTranslatedValue("CUS102");
 
         var element = clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization();
-        element = this.cdaMapHelper.mapToElementValue(custodianValue, element, "name");
+        if (AUTHOR_ORG.getName() != null && !AUTHOR_ORG.getName().isEmpty()) {
+            element = this.cdaMapHelper.mapToElementValue(AUTHOR_ORG.getName(), element, "name");
+        }
         clinicalDocument.getCustodian().getAssignedCustodian().setRepresentedCustodianOrganization(element);
 
-        custodianValue = mapToTranslatedValue("CUS103");
+//        custodianValue = mapToTranslatedValue("CUS103");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
                 .addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
-                .getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+//                .getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+        if (AUTHOR_ORG.getStreetAddress1() != null && !AUTHOR_ORG.getStreetAddress1().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+                    .getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(AUTHOR_ORG.getStreetAddress1()));
+        }
         k = k + 1;
-        custodianValue = mapToTranslatedValue("CUS104");
+
+//        custodianValue = mapToTranslatedValue("CUS104");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
                 .addNewStreetAddressLine();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
-                .getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
-
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+//                .getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+        if (AUTHOR_ORG.getStreetAddress2() != null && !AUTHOR_ORG.getStreetAddress2().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+                    .getStreetAddressLineArray(k).set(cdaMapHelper.mapToPCData(AUTHOR_ORG.getStreetAddress2()));
+        }
         k = 0;
-        custodianValue = mapToTranslatedValue("CUS105");
+
+//        custodianValue = mapToTranslatedValue("CUS105");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
                 .addNewCity();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
-                .getCityArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+//                .getCityArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+        if (AUTHOR_ORG.getCity() != null && !AUTHOR_ORG.getCity().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+                    .getCityArray(k).set(cdaMapHelper.mapToPCData(AUTHOR_ORG.getCity()));
+        }
 
-        custodianValue = mapToTranslatedValue("CUS106");
+//        custodianValue = mapToTranslatedValue("CUS106");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
                 .addNewState();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
-                .getStateArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+//                .getStateArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+        if (AUTHOR_ORG.getState() != null && !AUTHOR_ORG.getState().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+                    .getStateArray(k).set(cdaMapHelper.mapToPCData(AUTHOR_ORG.getState()));
+        }
 
-        custodianValue = mapToTranslatedValue("CUS107");
+//        custodianValue = mapToTranslatedValue("CUS107");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
                 .addNewPostalCode();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
-                .getPostalCodeArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+//                .getPostalCodeArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+        if (AUTHOR_ORG.getZip() != null && !AUTHOR_ORG.getZip().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+                    .getPostalCodeArray(k).set(cdaMapHelper.mapToPCData(AUTHOR_ORG.getZip()));
+        }
 
-        custodianValue = mapToTranslatedValue("CUS108");
+//        custodianValue = mapToTranslatedValue("CUS108");
         clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
                 .addNewCountry();
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
-                .getCountryArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+//                .getCountryArray(k).set(cdaMapHelper.mapToPCData(custodianValue));
+        if (AUTHOR_ORG.getCountry() != null && !AUTHOR_ORG.getCountry().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getAddr()
+                    .getCountryArray(k).set(cdaMapHelper.mapToPCData(AUTHOR_ORG.getCountry()));
+        }
 
-        custodianValue = mapToTranslatedValue("CUS109");
-        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom()
-                .setValue(custodianValue);
-
+//        custodianValue = mapToTranslatedValue("CUS109");
+//        clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom()
+//                .setValue(custodianValue);
+        if (AUTHOR_ORG.getPhone() != null && !AUTHOR_ORG.getPhone().isEmpty()) {
+            clinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().getTelecom()
+                    .setValue(AUTHOR_ORG.getPhone());
+        }
     }
 
     private void mapAuthor(POCDMT000040ClinicalDocument1 clinicalDocument) throws EcrCdaXmlException {
@@ -298,14 +330,24 @@ public class CdaMapper implements ICdaMapper {
         clinicalDocument.getAuthorArray(0).addNewTime();
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewId();
 
-        value = mapToTranslatedValue("AUT101");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot(value);
+//        value = mapToTranslatedValue("AUT101");
+//        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot(value);
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getIdArray(0).setRoot("2.16.840.1.113883.19.5");
 
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().addNewAssignedPerson().addNewName();
         clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewFamily();
-        value = mapToTranslatedValue("AUT102");
-        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0)
-                .set(cdaMapHelper.mapToPCData(value));
+        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).addNewGiven();
+//        value = mapToTranslatedValue("AUT102");
+//        clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0)
+//                .set(cdaMapHelper.mapToPCData(value));
+        if(AUTHOR_PERSON.getLastName() != null && !AUTHOR_PERSON.getLastName().isEmpty()) {
+            clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getFamilyArray(0)
+                    .set(cdaMapHelper.mapToPCData(AUTHOR_PERSON.getLastName()));
+        }
+        if(AUTHOR_PERSON.getFirstName() != null && !AUTHOR_PERSON.getFirstName().isEmpty()) {
+            clinicalDocument.getAuthorArray(0).getAssignedAuthor().getAssignedPerson().getNameArray(0).getGivenArray(0)
+                    .set(cdaMapHelper.mapToPCData(AUTHOR_PERSON.getFirstName()));
+        }
 
         OffsetDateTime now = OffsetDateTime.now();
         String formattedDateTime = formatDateTime(now);
