@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
 import com.google.gson.Gson;
+import gov.cdc.dataprocessing.cache.DpStatic;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -55,8 +56,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_1;
-import static gov.cdc.dataprocessing.constant.DpConstant.DP_FAILURE_STEP_2;
+import static gov.cdc.dataprocessing.constant.DpConstant.*;
 import static gov.cdc.dataprocessing.utilities.StringUtils.getRootStackTraceAsString;
 import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
@@ -128,13 +128,14 @@ public class ManagerService implements IManagerService {
             backoff = @Backoff(delay = 1000, multiplier = 2),
             retryFor = {DataProcessingDBException.class}
     )
-    public PublicHealthCaseFlowContainer processingELR(Integer data) throws EdxLogException, DataProcessingDBException {
+    public PublicHealthCaseFlowContainer processingELR(Integer data, boolean retryApplied) throws EdxLogException, DataProcessingDBException {
         logger.debug("Interface Id: {}", data);
         NbsInterfaceModel nbsInterfaceModel = null;
         EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
         String detailedMsg = "";
         Exception exception = null;
         boolean dltLockError = false;
+        boolean dataIntegrityError = false;
         boolean nonDltError = false;
         try
         {
@@ -193,25 +194,30 @@ public class ManagerService implements IManagerService {
         {
             exception = e;
             AtomicBoolean lockError = new AtomicBoolean(false);
+            AtomicBoolean integrityError = new AtomicBoolean(false);
             AtomicBoolean otherError = new AtomicBoolean(false);
+
             AtomicReference<String> msgRef = new AtomicReference<>("");
 
-            handleProcessingElrException(e, edxLabInformationDto, nbsInterfaceModel, lockError, otherError, msgRef);
+            handleProcessingElrException(e, edxLabInformationDto, nbsInterfaceModel, lockError, otherError, integrityError, msgRef);
 
             dltLockError = lockError.get();
             nonDltError = otherError.get();
             detailedMsg = msgRef.get();
+            dataIntegrityError = integrityError.get();
         }
         finally
         {
             finalizeProcessingElr(
                     dltLockError,
                     nonDltError,
+                    dataIntegrityError,
                     exception,
                     data,
                     detailedMsg,
                     nbsInterfaceModel,
-                    edxLabInformationDto
+                    edxLabInformationDto,
+                    retryApplied
             );
 
         }
@@ -225,6 +231,7 @@ public class ManagerService implements IManagerService {
             NbsInterfaceModel nbsInterfaceModel,
             AtomicBoolean dltLockError,
             AtomicBoolean nonDltError,
+            AtomicBoolean dataIntegrityError,
             AtomicReference<String> detailedMsg
     ) throws DataProcessingDBException {
 
@@ -237,7 +244,8 @@ public class ManagerService implements IManagerService {
                 e instanceof TransientDataAccessException ||
                 e instanceof DataAccessException ||
                 rootCause instanceof java.sql.SQLException) {
-            throw new DataProcessingDBException(e.getMessage(), e);
+//            throw new DataProcessingDBException(e.getMessage(), e);
+            dataIntegrityError.set(true);
         } else {
             detailedMsg.set(handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel));
             nonDltError.set(true);
@@ -247,19 +255,28 @@ public class ManagerService implements IManagerService {
     protected void finalizeProcessingElr(
             boolean dltLockError,
             boolean nonDltError,
+            boolean integrityError,
             Exception exception,
             int interfaceId,
             String detailedMsg,
             NbsInterfaceModel nbsInterfaceModel,
-            EdxLabInformationDto edxLabInformationDto
+            EdxLabInformationDto edxLabInformationDto,
+            boolean retryApplied
     ) throws EdxLogException {
         if (dltLockError) {
-            persistingRtiDlt(exception, Long.valueOf(interfaceId), "", "STEP_1", DP_FAILURE_STEP_1 + " - Locking Error");
-            composeDltKafkaEvent(String.valueOf(interfaceId));
+            persistingRtiDlt(exception, (long) interfaceId, EMPTY, STEP_1, DP_FAILURE_STEP_1 + DASH + ERROR_DB_LOCKING);
+            if (!retryApplied) {
+                composeDltKafkaEvent(String.valueOf(interfaceId), ERROR_DB_LOCKING);
+            }
         } else if (nonDltError) {
-            persistingRtiDlt(exception, Long.valueOf(interfaceId), "", "STEP_1", DP_FAILURE_STEP_1 + " - Other Non Error");
+            persistingRtiDlt(exception, (long) interfaceId, EMPTY, STEP_1, DP_FAILURE_STEP_1 + DASH + "Other Error");
+        } else if (integrityError) {
+            DpStatic.setUuidPoolInitialized(true);
+            persistingRtiDlt(exception, (long) interfaceId, EMPTY, STEP_1, DP_FAILURE_STEP_1 + DASH + ERROR_DB_DATA_INTEGERITY);
+            if (!retryApplied) {
+                composeDltKafkaEvent(String.valueOf(interfaceId), ERROR_DB_DATA_INTEGERITY);
+            }
         }
-
         edxLogService.updateActivityLogDT(nbsInterfaceModel, edxLabInformationDto);
         edxLogService.addActivityDetailLogs(edxLabInformationDto, detailedMsg);
         edxLogService.saveEdxActivityLogs(edxLabInformationDto.getEdxActivityLogDto());
@@ -303,11 +320,12 @@ public class ManagerService implements IManagerService {
             retryFor = {DataProcessingDBException.class}
     )
     @SuppressWarnings("java:S1135")
-    public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException {
+    public void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer, boolean retryApplied) throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer wds;
         Exception exception = null;
         boolean dltLockError = false;
         boolean nonDltError = false;
+        boolean integrityError = false;
         try
         {
             wds = initiatingInvestigationAndPublicHealthCase(phcContainer);
@@ -318,14 +336,17 @@ public class ManagerService implements IManagerService {
             exception = e;
             AtomicBoolean lockFlag = new AtomicBoolean(false);
             AtomicBoolean otherFlag = new AtomicBoolean(false);
+            AtomicBoolean integrityFlag = new AtomicBoolean(false);
 
-            handleWdsAndLabException(e, phcContainer, lockFlag, otherFlag);
+
+            handleWdsAndLabException(e, phcContainer, lockFlag, otherFlag, integrityFlag);
 
             dltLockError = lockFlag.get();
             nonDltError = otherFlag.get();
+            integrityError = integrityFlag.get();
         }
         finally {
-            finalizeWdsAndLabProcessing(phcContainer, exception, dltLockError, nonDltError);
+            finalizeWdsAndLabProcessing(phcContainer, exception, dltLockError, nonDltError, integrityError, retryApplied);
         }
 
     }
@@ -334,7 +355,8 @@ public class ManagerService implements IManagerService {
             Exception e,
             PublicHealthCaseFlowContainer phcContainer,
             AtomicBoolean dltLockError,
-            AtomicBoolean nonDltError
+            AtomicBoolean nonDltError,
+            AtomicBoolean interityError
     ) throws DataProcessingDBException {
 
         Throwable rootCause = ExceptionUtils.getRootCause(e);
@@ -349,8 +371,8 @@ public class ManagerService implements IManagerService {
                 e instanceof DataAccessException ||
                 rootCause instanceof java.sql.SQLException)
         {
-            nonDltError.set(true);
-            throw new DataProcessingDBException(e.getMessage(), e);
+            interityError.set(true);
+//            throw new DataProcessingDBException(e.getMessage(), e);
         }
         else
         {
@@ -366,23 +388,34 @@ public class ManagerService implements IManagerService {
             PublicHealthCaseFlowContainer phcContainer,
             Exception exception,
             boolean dltLockError,
-            boolean nonDltError
+            boolean nonDltError,
+            boolean integrityError,
+            boolean retryApplied
     ) throws EdxLogException {
         String payload = new Gson().toJson(phcContainer);
 
         if (dltLockError)
         {
-            persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, "STEP_2", DP_FAILURE_STEP_2 + " - Locking Error");
-            composeDltKafkaEvent(payload);
+            persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, STEP_2, DP_FAILURE_STEP_2 + DASH + ERROR_DB_LOCKING);
+            if (!retryApplied) {
+                composeDltKafkaEvent(payload, ERROR_DB_LOCKING);
+            }
+        }
+        else if (integrityError) {
+            DpStatic.setUuidPoolInitialized(true);
+            persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), EMPTY, STEP_2, DP_FAILURE_STEP_2 + DASH + ERROR_DB_DATA_INTEGERITY);
+            if (!retryApplied) {
+                composeDltKafkaEvent(payload, ERROR_DB_DATA_INTEGERITY);
+            }
         }
         else
         {
             if (nonDltError)
             {
-                persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, "STEP_2", DP_FAILURE_STEP_2 + " - Other Non Error");
+                persistingRtiDlt(exception, Long.valueOf(phcContainer.getNbsInterfaceId()), payload, STEP_2, DP_FAILURE_STEP_2 + " - Other Non Error");
             }
             edxLogService.updateActivityLogDT(phcContainer.getNbsInterfaceModel(), phcContainer.getEdxLabInformationDto());
-            edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), "");
+            edxLogService.addActivityDetailLogs(phcContainer.getEdxLabInformationDto(), EMPTY);
             edxLogService.saveEdxActivityLogs(phcContainer.getEdxLabInformationDto().getEdxActivityLogDto());
         }
     }
@@ -401,8 +434,16 @@ public class ManagerService implements IManagerService {
         rtiDlt.setStackTrace(getRootStackTraceAsString(exception));
         rtiDltJdbcRepository.upsert(rtiDlt);
     }
-    protected void composeDltKafkaEvent(String message) {
-        kafkaManagerProducer.sendDltForLocking(message);
+    protected void composeDltKafkaEvent(String message, String dltType) {
+        if (dltType.equalsIgnoreCase(ERROR_DB_LOCKING)) {
+            kafkaManagerProducer.sendDltForLocking(message);
+        }
+        else if (dltType.equalsIgnoreCase(ERROR_DB_DATA_INTEGERITY)) {
+            kafkaManagerProducer.sendDltForDataIntegrity(message);
+        }
+        else {
+            //DO NOTHING HERE
+        }
     }
 
     @SuppressWarnings({"java:S6541", "java:S3776"})

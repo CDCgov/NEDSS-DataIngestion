@@ -48,6 +48,7 @@ kafka:
   topic:
     elr_unprocessed: dp_elr_unprocessed
     elr_reprocessing_locking: dp_elr_reprocess_locking
+    elr_reprocessing_data_integrity: dp_elr_reprocess_data_integrity
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
     elr_nnd: dp_elr_handle_nnd

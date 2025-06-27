@@ -49,7 +49,6 @@ public class UidPoolManager {
         logger.info("All UID pools initialized.");
     }
 
-    @Scheduled(fixedDelay = 60000)
     public void periodicRefill() {
         for (Map.Entry<String, Queue<LocalUidModel>> entry : uidPools.entrySet()) {
             String key = entry.getKey();
