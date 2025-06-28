@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.security;
+package gov.cdc.dataprocessing.config.security;
 
 
 import io.swagger.v3.oas.models.Components;

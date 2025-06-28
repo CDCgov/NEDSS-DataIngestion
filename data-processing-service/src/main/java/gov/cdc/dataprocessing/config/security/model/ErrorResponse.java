@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.security.model;
+package gov.cdc.dataprocessing.config.security.model;
 
 import lombok.Getter;
 import lombok.Setter;

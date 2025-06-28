@@ -1,7 +1,7 @@
-package gov.cdc.dataprocessing.security;
+package gov.cdc.dataprocessing.config.security;
 
 import com.google.gson.Gson;
-import gov.cdc.dataprocessing.security.model.ErrorResponse;
+import gov.cdc.dataprocessing.config.security.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;

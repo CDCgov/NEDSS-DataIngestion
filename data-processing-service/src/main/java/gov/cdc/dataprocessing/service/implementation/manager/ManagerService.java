@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 
 import com.google.gson.Gson;
 import gov.cdc.dataprocessing.cache.DpStatic;
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -62,12 +63,11 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Service
 @Slf4j
-
 public class ManagerService implements IManagerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
-    @Value("${service.timezone}")
-    private String tz = "UTC";
+
+    private final ServicePropertiesProvider servicePropertiesProvider;
     private final ICacheApiService cacheApiService;
     private final IObservationService observationService;
 
@@ -93,7 +93,7 @@ public class ManagerService implements IManagerService {
 
 
     @Autowired
-    public ManagerService(@Lazy ICacheApiService cacheApiService,
+    public ManagerService(ServicePropertiesProvider servicePropertiesProvider, @Lazy ICacheApiService cacheApiService,
                           IObservationService observationService,
                           IEdxLogService edxLogService,
                           IDataExtractionService dataExtractionService,
@@ -103,8 +103,10 @@ public class ManagerService implements IManagerService {
                           IManagerAggregationService managerAggregationService,
                           LabService labService,
                           NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository,
-                          KafkaManagerProducer kafkaManagerProducer, RtiDltJdbcRepository rtiDltJdbcRepository)
+                          KafkaManagerProducer kafkaManagerProducer,
+                          RtiDltJdbcRepository rtiDltJdbcRepository)
     {
+        this.servicePropertiesProvider = servicePropertiesProvider;
         this.cacheApiService = cacheApiService;
         this.observationService = observationService;
         this.edxLogService = edxLogService;
@@ -379,7 +381,7 @@ public class ManagerService implements IManagerService {
             nonDltError.set(true);
             NbsInterfaceModel model = phcContainer.getNbsInterfaceModel();
             model.setRecordStatusCd(DP_FAILURE_STEP_2);
-            model.setRecordStatusTime(getCurrentTimeStamp(tz));
+            model.setRecordStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
             nbsInterfaceRepository.save(model);
         }
     }
@@ -549,7 +551,7 @@ public class ManagerService implements IManagerService {
         }
 
         interfaceModel.setRecordStatusCd(DpConstant.DP_SUCCESS_STEP_3);
-        interfaceModel.setRecordStatusTime(getCurrentTimeStamp(tz));
+        interfaceModel.setRecordStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
         nbsInterfaceRepository.save(interfaceModel);
         logger.debug("Completed");
     }
@@ -581,7 +583,7 @@ public class ManagerService implements IManagerService {
     private void updateModelStatus(NbsInterfaceModel model) {
         if (model != null) {
             model.setRecordStatusCd(DP_FAILURE_STEP_1);
-            model.setRecordStatusTime(getCurrentTimeStamp(tz));
+            model.setRecordStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
             nbsInterfaceRepository.save(model);
         }
     }

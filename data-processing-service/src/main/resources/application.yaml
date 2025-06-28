@@ -54,7 +54,7 @@ auth:
   introspect-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token/introspect
 
 dp-server:
-  host: ${DP_SERVER_HOST:localhost:8081}
+  host: ${DP_SERVER_HOST:localhost:8082}
 
 kafka:
   topic:

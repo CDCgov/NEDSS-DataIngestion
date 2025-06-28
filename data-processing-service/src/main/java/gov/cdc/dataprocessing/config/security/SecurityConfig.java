@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.security;
+package gov.cdc.dataprocessing.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

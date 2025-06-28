@@ -1,4 +1,4 @@
-package gov.cdc.dataprocessing.security;
+package gov.cdc.dataprocessing.config.security;
 
 import gov.cdc.dataprocessing.exception.DataProcessingSecurityException;
 import jakarta.servlet.http.HttpServletRequest;
