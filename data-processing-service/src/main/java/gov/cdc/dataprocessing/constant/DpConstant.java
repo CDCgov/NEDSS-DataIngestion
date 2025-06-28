@@ -16,4 +16,11 @@ public class DpConstant {
 
     public static final String OPERATION_CREATE = "CREATE";
     public static final String OPERATION_UPDATE = "UPDATE";
+
+    public static final String ERROR_DB_LOCKING = "DB Locking Error";
+    public static final String ERROR_DB_DATA_INTEGERITY = "Data Integrity Error";
+    public static final String STEP_1 = "STEP 1";
+    public static final String STEP_2 = "STEP 2";
+    public static final String DASH = " - ";
+    public static final String EMPTY = "";
 }

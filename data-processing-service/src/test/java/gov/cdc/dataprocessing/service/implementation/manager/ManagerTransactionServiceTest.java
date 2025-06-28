@@ -22,46 +22,46 @@ class ManagerTransactionServiceTest {
 
     @Test
     void testProcessWithTransactionSeparation_WhenProcessingReturnsNull_SkipsHandling() throws Exception {
-        when(managerService.processingELR(123)).thenReturn(null);
+        when(managerService.processingELR(123, false)).thenReturn(null);
 
-        transactionService.processWithTransactionSeparation(123);
+        transactionService.processWithTransactionSeparation(123, false);
 
-        verify(managerService, times(1)).processingELR(123);
-        verify(managerService, never()).handlingWdsAndLab(any());
+        verify(managerService, times(1)).processingELR(123, false);
+        verify(managerService, never()).handlingWdsAndLab(any(), anyBoolean());
     }
 
     @Test
     void testProcessWithTransactionSeparation_WhenProcessingReturnsValid_CallsHandling() throws Exception {
         PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
-        when(managerService.processingELR(123)).thenReturn(container);
+        when(managerService.processingELR(123, false)).thenReturn(container);
 
-        transactionService.processWithTransactionSeparation(123);
+        transactionService.processWithTransactionSeparation(123, false);
 
-        verify(managerService).processingELR(123);
-        verify(managerService).handlingWdsAndLab(container);
+        verify(managerService).processingELR(123, false);
+        verify(managerService).handlingWdsAndLab(container, false);
     }
 
     @Test
     void testProcessWithTransactionSeparation_WhenProcessingThrows_ExceptionPropagated() throws Exception {
-        when(managerService.processingELR(123)).thenThrow(new DataProcessingDBException("DB error"));
+        when(managerService.processingELR(123, false)).thenThrow(new DataProcessingDBException("DB error"));
 
         assertThrows(DataProcessingDBException.class,
-                () -> transactionService.processWithTransactionSeparation(123));
+                () -> transactionService.processWithTransactionSeparation(123, false));
 
-        verify(managerService).processingELR(123);
-        verify(managerService, never()).handlingWdsAndLab(any());
+        verify(managerService).processingELR(123, false);
+        verify(managerService, never()).handlingWdsAndLab(any(), anyBoolean());
     }
 
     @Test
     void testProcessWithTransactionSeparation_WhenHandlingThrows_ExceptionPropagated() throws Exception {
         PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
-        when(managerService.processingELR(123)).thenReturn(container);
-        doThrow(new EdxLogException("Handling failed", container)).when(managerService).handlingWdsAndLab(container);
+        when(managerService.processingELR(123, false)).thenReturn(container);
+        doThrow(new EdxLogException("Handling failed", container)).when(managerService).handlingWdsAndLab(container, false);
 
         assertThrows(EdxLogException.class,
-                () -> transactionService.processWithTransactionSeparation(123));
+                () -> transactionService.processWithTransactionSeparation(123, false));
 
-        verify(managerService).processingELR(123);
-        verify(managerService).handlingWdsAndLab(container);
+        verify(managerService).processingELR(123, false);
+        verify(managerService).handlingWdsAndLab(container, false);
     }
 }

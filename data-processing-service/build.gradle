@@ -166,6 +166,7 @@ dependencies {
 
     // Swagger - openapi
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+    implementation("org.apache.httpcomponents.core5:httpcore5:5.2.5")
 
     // Database
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
