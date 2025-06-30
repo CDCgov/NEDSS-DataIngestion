@@ -91,8 +91,8 @@ public class KafkaConsumerService {
     @Value("${kafka.fhir-conversion-prep.topic}")
     private String prepFhirTopic = "fhir_prep";
 
-    @Value("${features.obrSpliting.enabled}")
-    private boolean obrSplitingEnabled;
+    @Value("${features.obrSplitting.enabled}")
+    private boolean obrSplittingEnabled;
 
     private final KafkaProducerService kafkaProducerService;
     private final IHL7v2Validator iHl7v2Validator;
@@ -529,8 +529,8 @@ public class KafkaConsumerService {
 
             HL7ParsedMessage<OruR1> parsedMessageOrig = Hl7ToRhapsodysXmlConverter.getInstance().parsedStringToHL7(hl7Msg);
             List<HL7ParsedMessage<OruR1>> parsedMessageList;
-            log.info("OBR splitting feature flag enabled: {}", obrSplitingEnabled);
-            if(obrSplitingEnabled){
+            log.info("OBR splitting feature flag enabled: {}", obrSplittingEnabled);
+            if(obrSplittingEnabled){
                 parsedMessageList= splitElrByOBR(parsedMessageOrig);
             }else{
                 parsedMessageList= new ArrayList<>();
