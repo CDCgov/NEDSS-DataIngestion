@@ -99,9 +99,9 @@ public class CdaProviderMappingHelper implements ICdaProviderMappingHelper {
                 componentCounter++;
                 performerComponentCounter = componentCounter;
 
-                var nestedCode = CODE;
-                nestedCode = nestedCode.replaceAll("-", ""); // NOSONAR
-                clinicalDocument.getCode().setCode(nestedCode);
+//                var nestedCode = CODE;
+//                nestedCode = nestedCode.replaceAll("-", ""); // NOSONAR
+                clinicalDocument.getCode().setCode(CODE);
                 clinicalDocument.getCode().setCodeSystem(CLINICAL_CODE_SYSTEM);
                 clinicalDocument.getCode().setCodeSystemName(CLINICAL_CODE_SYSTEM_NAME);
                 clinicalDocument.getCode().setDisplayName(CODE_DISPLAY_NAME);

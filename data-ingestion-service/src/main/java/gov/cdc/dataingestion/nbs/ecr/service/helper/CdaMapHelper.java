@@ -627,6 +627,24 @@ public class CdaMapHelper implements ICdaMapHelper {
         String prefix="";
         int teleCounter=0;
 
+        String localId="";
+        String authFirstName="";
+        String authLastName="";
+        String authSuffix="";
+        String authDegree="";
+        String authAddress1="";
+        String authAddress2="";
+        String authCity="";
+        String authCounty="";
+        String authState="";
+        String authZip="";
+        String authCountry="";
+        String authTelephone="";
+        String authExtn="";
+        String authEmail="";
+        String authPrefix="";
+        String authLocalId="";
+
         out.setTypeCode("PRF");
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
@@ -648,7 +666,26 @@ public class CdaMapHelper implements ICdaMapHelper {
             param.setTelephone(telephone);
             param.setExtn(extn);
             param.setEmail(email);
-            var psn = mapToPSNFieldCheckAndMap( in,
+
+            param.setLocalId(localId);
+            param.setAuthFirstName(authFirstName);
+            param.setAuthLastName(authLastName);
+            param.setAuthSuffix(authSuffix);
+            param.setAuthDegree(authDegree);
+            param.setAuthAddress1(authAddress1);
+            param.setAuthAddress2(authAddress2);
+            param.setAuthCity(authCity);
+            param.setAuthCounty(authCounty);
+            param.setAuthState(authState);
+            param.setAuthZip(authZip);
+            param.setAuthCountry(authCountry);
+            param.setAuthTelephone(authTelephone);
+            param.setAuthExtn(authExtn);
+            param.setAuthEmail(authEmail);
+            param.setAuthPrefix(authPrefix);
+            param.setAuthLocalId(authLocalId);
+
+            var psn = mapToPSNFieldCheckAndMap(in,
                      out,
                      name,
                      param);
@@ -669,6 +706,41 @@ public class CdaMapHelper implements ICdaMapHelper {
              extn = psn.getExtn();
              email = psn.getEmail();
              out = psn.getOut();
+
+             localId = psn.getLocalId();
+             authFirstName = psn.getAuthFirstName();
+             authLastName = psn.getAuthLastName();
+             authSuffix = psn.getAuthSuffix();
+             authDegree = psn.getAuthDegree();
+             authAddress1 = psn.getAuthAddress1();
+             authAddress2 = psn.getAuthAddress2();
+             authCity = psn.getAuthCity();
+             authCounty = psn.getAuthCounty();
+             authState = psn.getAuthState();
+             authZip = psn.getAuthZip();
+             authCountry = psn.getAuthCountry();
+             authTelephone = psn.getAuthTelephone();
+             authExtn = psn.getAuthExtn();
+             authEmail = psn.getAuthEmail();
+             authPrefix = psn.getAuthPrefix();
+             authLocalId = psn.getAuthLocalId();
+        }
+
+        if (AUTHOR_PERSON_LOCAL_ID != null
+                && !AUTHOR_PERSON_LOCAL_ID.isEmpty()
+                && authLocalId != null
+                && authLocalId.equals(AUTHOR_PERSON_LOCAL_ID)) {
+
+            AUTHOR_PERSON.setCity(authCity);
+            AUTHOR_PERSON.setCountry(authCountry);
+            AUTHOR_PERSON.setCounty(authCounty);
+            AUTHOR_PERSON.setStreetAddress1(authAddress1);
+            AUTHOR_PERSON.setStreetAddress2(authAddress2);
+            AUTHOR_PERSON.setState(authState);
+            AUTHOR_PERSON.setZip(authZip);
+            AUTHOR_PERSON.setFirstName(authFirstName);
+            AUTHOR_PERSON.setLastName(authLastName);
+            AUTHOR_PERSON.setLocalId(authLocalId);
         }
 
         if(!firstName.isEmpty()){
@@ -954,6 +1026,24 @@ public class CdaMapHelper implements ICdaMapHelper {
         String extn = param.getExtn();
         String email = param.getEmail();
 
+        String localId = param.getLocalId();
+        String authFirstName = param.getAuthFirstName();
+        String authLastName = param.getAuthLastName();
+        String authSuffix = param.getAuthSuffix();
+        String authDegree = param.getAuthDegree();
+        String authAddress1 = param.getAuthAddress1();
+        String authAddress2 = param.getAuthAddress2();
+        String authCity = param.getAuthCity();
+        String authCounty = param.getAuthCounty();
+        String authState = param.getAuthState();
+        String authZip = param.getAuthZip();
+        String authCountry = param.getAuthCountry();
+        String authTelephone = param.getAuthTelephone();
+        String authExtn = param.getAuthExtn();
+        String authEmail = param.getAuthEmail();
+        String authLocalId = param.getAuthLocalId();
+        String authPrefix = param.getAuthPrefix();
+
         Psn param2 = new Psn();
         param2.setFirstName(firstName);
         param2.setPrefix(prefix);
@@ -963,6 +1053,24 @@ public class CdaMapHelper implements ICdaMapHelper {
         param2.setAddress1(address1);
         param2.setAddress2(address2);
         param2.setCity(city);
+
+        param2.setLocalId(localId);
+        param2.setAuthLocalId(authLocalId);
+        param2.setAuthFirstName(authFirstName);
+        param2.setAuthPrefix(authPrefix);
+        param2.setAuthLastName(authLastName);
+        param2.setAuthSuffix(authSuffix);
+        param2.setAuthDegree(authDegree);
+        param2.setAuthAddress1(authAddress1);
+        param2.setAuthAddress2(authAddress2);
+        param2.setAuthCity(authCity);
+//        param2.setAuthCounty(authCounty);
+//        param2.setAuthState(authState);
+//        param2.setAuthZip(authZip);
+//        param2.setAuthCountry(authCountry);
+//        param2.setAuthTelephone(authTelephone);
+//        param2.setAuthExtn(authExtn);
+//        param2.setAuthEmail(authEmail);
         param2 = mapToPSNFieldCheckAndMapGenericP1( in,
                  out,
                  name,
@@ -978,22 +1086,28 @@ public class CdaMapHelper implements ICdaMapHelper {
          out = param2.getOut();
 
         if(name.equals("prvAddrCountyCd") && in.getPrvAddrCountyCd() != null && !in.getPrvAddrCountyCd().isEmpty()) {
-            county = mapToAddressType(in.getPrvAddrCountyCd(), county);
+            param.setAuthCounty(in.getPrvAddrCountyCd());
+            county = mapToAddressType(in.getPrvAddrCountyCd(), COUNTY);
         }
         else if(name.equals("prvAddrStateCd") && in.getPrvAddrStateCd() != null  && !in.getPrvAddrStateCd().isEmpty()) {
-            state = mapToAddressType(in.getPrvAddrStateCd(), state);
+            param.setAuthState(in.getPrvAddrStateCd());
+            state = mapToAddressType(in.getPrvAddrStateCd(), STATE);
         }
         else if(name.equals("prvAddrZipCodeTxt") && in.getPrvAddrZipCodeTxt() != null && !in.getPrvAddrZipCodeTxt().isEmpty()) {
             zip = in.getPrvAddrZipCodeTxt();
+            param.setAuthZip(zip);
         }
         else if(name.equals("prvAddrCountryCd") && in.getPrvAddrCountryCd() != null && !in.getPrvAddrCountryCd().isEmpty()) {
-            country = mapToAddressType(in.getPrvAddrCountryCd(), country);
+            param.setAuthCountry(in.getPrvAddrCountryCd());
+            country = mapToAddressType(in.getPrvAddrCountryCd(), COUNTRY);
         }
         else if(name.equals("prvPhoneNbrTxt") && in.getPrvPhoneNbrTxt() != null && !in.getPrvPhoneNbrTxt().isEmpty()) {
             telephone = in.getPrvPhoneNbrTxt();
+            param.setAuthTelephone(telephone);
         }
         else  if(name.equals("prvPhoneExtensionTxt") && in.getPrvPhoneExtensionTxt() != null) {
             extn = in.getPrvPhoneExtensionTxt().toString();
+            param.setAuthExtn(extn);
         }
         else if(name.equals("prvIdQuickCodeTxt") && in.getPrvIdQuickCodeTxt() != null && !in.getPrvIdQuickCodeTxt().isEmpty()) {
             mapToPSNFieldCheckAndMapQuickCode( in,
@@ -1001,6 +1115,7 @@ public class CdaMapHelper implements ICdaMapHelper {
         }
         else if( mapToPSNFieldCheckAndMapValidateField(name, in)) {
             email = in.getPrvEmailAddressTxt();
+            param.setAuthEmail(email);
         }
 
         param.setFirstName(firstName);
@@ -1019,7 +1134,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         param.setExtn(extn);
         param.setEmail(email);
         param.setOut(out);
-
         return param;
     }
 
@@ -1043,30 +1157,40 @@ public class CdaMapHelper implements ICdaMapHelper {
         if (name.equals("prvLocalId") && in.getPrvLocalId() != null && !in.getPrvLocalId().isEmpty()) {
             mapToPSNFieldCheckAndMapLocalId( in,
                     out);
+            param.setLocalId(in.getPrvLocalId());
+            param.setAuthLocalId(in.getPrvLocalId());
         }
         else if (name.equals("prvNameFirstTxt") && in.getPrvNameFirstTxt() !=null && !in.getPrvNameFirstTxt().isEmpty()) {
             firstName = in.getPrvNameFirstTxt();
+            param.setAuthFirstName(firstName);
         }
         else if (name.equals("prvNamePrefixCd") && in.getPrvNamePrefixCd() != null && !in.getPrvNamePrefixCd().isEmpty()) {
             prefix = in.getPrvNamePrefixCd();
+            param.setAuthPrefix(prefix);
         }
         else if (name.equals("prvNameLastTxt") && in.getPrvNameLastTxt() != null && !in.getPrvNameLastTxt().isEmpty()) {
             lastName = in.getPrvNameLastTxt();
+            param.setAuthLastName(lastName);
         }
         else if(name.equals("prvNameSuffixCd") && in.getPrvNameSuffixCd() != null && !in.getPrvNameSuffixCd().isEmpty()) {
             suffix = in.getPrvNameSuffixCd();
+            param.setAuthSuffix(suffix);
         }
         else if(name.equals("prvNameDegreeCd") && in.getPrvNameDegreeCd()!=null && !in.getPrvNameDegreeCd().isEmpty()) {
             degree = in.getPrvNameDegreeCd();
+            param.setAuthDegree(degree);
         }
         else if(name.equals("prvAddrStreetAddr1Txt")) {
-            address1 = mapToPSNFieldCheckAndMapAddress1( in,  address1);
+            address1 = mapToPSNFieldCheckAndMapAddress1(in,  address1);
+            param.setAuthAddress1(address1);
         }
         else if(name.equals("prvAddrStreetAddr2Txt")) {
-            address2 = mapToPSNFieldCheckAndMapGenericP1Address2( in,  address2);
+            address2 = mapToPSNFieldCheckAndMapGenericP1Address2(in,  address2);
+            param.setAuthAddress2(address2);
         }
         else if(name.equals("prvAddrCityTxt")) {
             city = mapToPSNFieldCheckAndMapCity(in, city);
+            param.setAuthCity(city);
         }
 
         param.setFirstName(firstName);
@@ -1156,6 +1280,19 @@ public class CdaMapHelper implements ICdaMapHelper {
         String phone= "";
         String extn = "";
 
+        String orgName = "";
+        String orgLocalId = "";
+        String authState="";
+        String authStreetAddress1="";
+        String authStreetAddress2="";
+        String authCity = "";
+        String authCounty = "";
+        String authCountry = "";
+        String authZip = "";
+        String authPhone= "";
+        String authExtn = "";
+        String authOrgName = "";
+
         out.setTypeCode("PRF");
 
         for (Map.Entry<String, Object> entry : in.getDataMap().entrySet()) {
@@ -1171,7 +1308,20 @@ public class CdaMapHelper implements ICdaMapHelper {
             param.setZip(zip);
             param.setPhone(phone);
             param.setExtn(extn);
-            var orgModel = mapToORGFieldCheckP1( in,
+
+            param.setOrgLocalId(orgLocalId);
+            param.setOrgName(orgName);
+            param.setAuthOrgName(authOrgName);
+            param.setAuthStreetAddress1(authStreetAddress1);
+            param.setAuthStreetAddress2(authStreetAddress2);
+            param.setAuthCity(authCity);
+            param.setAuthState(authState);
+            param.setAuthZip(authZip);
+            param.setAuthCounty(authCounty);
+            param.setAuthCountry(authCountry);
+            param.setAuthPhone(authPhone);
+            param.setAuthExtn(authExtn);
+            var orgModel = mapToORGFieldCheckP1(in,
                      out,
                      name,
                      param);
@@ -1185,8 +1335,38 @@ public class CdaMapHelper implements ICdaMapHelper {
              phone= orgModel.getPhone();
              extn = orgModel.getExtn();
              out = orgModel.getOut();
+
+             orgLocalId = orgModel.getOrgLocalId();
+             orgName = orgModel.getOrgName();
+             authOrgName = orgModel.getAuthOrgName();
+             authStreetAddress1 = orgModel.getAuthStreetAddress1();
+             authStreetAddress2 = orgModel.getAuthStreetAddress2();
+             authCity = orgModel.getAuthCity();
+             authState = orgModel.getAuthState();
+             authZip = orgModel.getAuthZip();
+             authCounty = orgModel.getAuthCounty();
+             authCountry = orgModel.getAuthCountry();
+             authPhone = orgModel.getAuthPhone();
+             authExtn = orgModel.getAuthExtn();
         }
 
+
+        if (AUTHOR_ORG_LOCAL_ID != null
+                && !AUTHOR_ORG_LOCAL_ID.isEmpty()
+                && orgLocalId != null
+                && orgLocalId.endsWith(AUTHOR_ORG_LOCAL_ID)) {
+            AUTHOR_ORG.setCity(authCity);
+            AUTHOR_ORG.setCountry(authCountry);
+            AUTHOR_ORG.setCounty(authCounty);
+            AUTHOR_ORG.setStreetAddress1(authStreetAddress1);
+            AUTHOR_ORG.setStreetAddress2(authStreetAddress2);
+            AUTHOR_ORG.setPhone(authPhone);
+            AUTHOR_ORG.setExtn(authExtn);
+            AUTHOR_ORG.setState(authState);
+            AUTHOR_ORG.setZip(authZip);
+            AUTHOR_ORG.setName(authOrgName);
+            AUTHOR_ORG.setOrgLocalId(AUTHOR_ORG_LOCAL_ID);
+        }
 
 
         int isAddressPopulated= 0;
@@ -1356,39 +1536,50 @@ public class CdaMapHelper implements ICdaMapHelper {
         String extn = param.getExtn();
 
         if(name.equals("orgLocalId") && in.getOrgLocalId()!=null){
-            mapToORGFieldCheckP1LocalId( in,out);
+            mapToORGFieldCheckP1LocalId(in, out);
+            param.setOrgLocalId(in.getOrgLocalId());
         }
         else if(name.equals("orgNameTxt") && in.getOrgNameTxt() != null){
-            mapToORGFieldCheckP1OrgName( in,
-                     out);
+            mapToORGFieldCheckP1OrgName(in, out);
+            param.setOrgName(String.valueOf(mapToCData(in.getOrgNameTxt())));
+            param.setAuthOrgName(in.getOrgNameTxt());
         }
         else if(name.equals("orgAddrStreetAddr1Txt") && mapToORGFieldCheckP1ValidateField(in)){
-            streetAddress1= in.getOrgAddrStreetAddr1Txt();
+            streetAddress1 = in.getOrgAddrStreetAddr1Txt();
+            param.setAuthStreetAddress1(streetAddress1);
         }
         else if(name.equals("orgAddrStreetAddr2Txt") && mapToORGFieldCheckP1ValidateField(in)){
-            streetAddress2 =in.getOrgAddrStreetAddr2Txt();
+            streetAddress2 = in.getOrgAddrStreetAddr2Txt();
+            param.setAuthStreetAddress2(streetAddress2);
         }
         else if(name.equals("orgAddrCityTxt") && mapToORGFieldCheckP1ValidateField(in)){
-            city= in.getOrgAddrCityTxt();
+            city = in.getOrgAddrCityTxt();
+            param.setAuthCity(city);
         }
         else if(name.equals("orgAddrCountyCd") && mapToORGFieldCheckP1ValidateField(in)){
-            county = mapToAddressType( in.getOrgAddrCountyCd(), county);
+            param.setAuthCounty(in.getOrgAddrCountyCd());
+            county = mapToAddressType(in.getOrgAddrCountyCd(), COUNTY);
         }
         else if (name.equals("orgAddrStateCd") && mapToORGFieldCheckP1ValidateField(in)){
-            state= mapToAddressType( in.getOrgAddrStateCd(), state);
+            param.setAuthState(in.getOrgAddrStateCd());
+            state = mapToAddressType(in.getOrgAddrStateCd(), STATE);
         }
         else if(name.equals("orgAddrZipCodeTxt") && mapToORGFieldCheckP1ValidateField(in)){
             zip = in.getOrgAddrZipCodeTxt();
+            param.setAuthZip(zip);
         }
         else if(name.equals("orgAddrCountryCd") && mapToORGFieldCheckP1ValidateField(in)){
-            country = mapToAddressType( in.getOrgAddrCountryCd(), country);
+            param.setAuthCountry(in.getOrgAddrCountryCd());
+            country = mapToAddressType(in.getOrgAddrCountryCd(), COUNTRY);
         }
         else if(name.equals("orgPhoneNbrTxt") && mapToORGFieldCheckP1ValidateField(in)){
-            phone=in.getOrgPhoneNbrTxt();
+            phone = in.getOrgPhoneNbrTxt();
+            param.setAuthPhone(phone);
         }
         else if (name.equals("orgPhoneExtensionTxt") && in.getOrgPhoneExtensionTxt() != null)
         {
-            extn= in.getOrgPhoneExtensionTxt().toString();
+            extn = in.getOrgPhoneExtensionTxt().toString();
+            param.setAuthExtn(extn);
         }
         else if(name.equals("orgIdCliaNbrTxt") && in.getOrgIdCliaNbrTxt() != null){
             mapToORGFieldCheckP1CliaNbr( in,
