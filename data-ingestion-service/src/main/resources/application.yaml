@@ -161,5 +161,7 @@ service:
   timezone: ${SERVICE_TZ:UTC}
 
 features:
-  obrSpliting:
+  obrSplitting:
     enabled: ${OBR_SPLITTING_ENABLED:false}
+  hl7BatchSplitting:
+    enabled: ${HL7_BATCH_SPLITTING_ENABLED:false}

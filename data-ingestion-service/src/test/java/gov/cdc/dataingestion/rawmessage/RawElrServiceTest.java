@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -45,7 +46,8 @@ class RawElrServiceTest {
     }
 
     @Test
-    void testSaveHL7_Success() throws KafkaProducerException {
+    void testSaveHL7_batch_Success() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", true);
         RawElrDto modelDto = new RawElrDto();
         modelDto.setPayload("test");
         modelDto.setType("HL7");
@@ -63,7 +65,26 @@ class RawElrServiceTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals("test",result);
     }
+    @Test
+    void testSaveHL7_batch_off_Success() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", false);
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.save(any())).thenReturn(model);
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        var result = target.submissionElr(modelDto);
 
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("test",result);
+    }
     @Test
     void testSaveElrXml_Success() throws KafkaProducerException {
         RawElrDto modelDto = new RawElrDto();
@@ -140,6 +161,7 @@ class RawElrServiceTest {
     }
     @Test
     void testSaveHL7_with_customMapping_Success() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", true);
         RawElrDto modelDto = new RawElrDto();
         modelDto.setPayload("test");
         modelDto.setType("HL7");
@@ -160,6 +182,7 @@ class RawElrServiceTest {
     }
     @Test
     void testSaveHL7_KafkaProducerException() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", true);
         RawElrDto modelDto = new RawElrDto();
         modelDto.setPayload("test");
         modelDto.setType("HL7");
@@ -175,6 +198,25 @@ class RawElrServiceTest {
         Mockito.doThrow(new KafkaProducerException("Failed sending message to kafka")).when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Assertions.assertThrows(KafkaProducerException.class, () -> target.submissionElr(modelDto));
     }
+    @Test
+    void testSaveHL7_batch_off_KafkaProducerException() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", false);
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.save(any())).thenReturn(model);
+
+        Mockito.doThrow(new KafkaProducerException("Failed sending message to kafka")).when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertThrows(KafkaProducerException.class, () -> target.submissionElr(modelDto));
+    }
+
     @Test
     void testSaveElrXml_KafkaProducerException() throws KafkaProducerException {
         RawElrDto modelDto = new RawElrDto();

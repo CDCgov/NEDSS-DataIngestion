@@ -47,7 +47,6 @@ class HL7BatchSplitterTest {
     @Test
     void splitHL7Batch_multiELRs() {
         List<String> result= HL7BatchSplitter.splitHL7Batch(hl7BatchMsg);
-        System.out.println("size:"+result.size());
         assertEquals(2, result.size());
     }
     @Test

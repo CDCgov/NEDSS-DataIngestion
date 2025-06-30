@@ -33,6 +33,8 @@ public class RawElrService {
 
     @Value("${service.timezone}")
     private String tz = "UTC";
+    @Value("${features.hl7BatchSplitting.enabled}")
+    private boolean hl7BatchSplittingEnabled;
 
     private final IRawElrRepository rawElrRepository;
     private final KafkaProducerService kafkaProducerService;
@@ -59,37 +61,59 @@ public class RawElrService {
         return created.getId();
     }
     public String submissionElr(RawElrDto rawElrDto) throws KafkaProducerException {
-        List<String> rawELRIds=new ArrayList<>();
-        if(rawElrDto.getType().equalsIgnoreCase(HL7_ELR)) {
-            if(rawElrDto.getCustomMapper()!=null && !rawElrDto.getCustomMapper().trim().isEmpty()) {
+        List<String> rawELRIds = new ArrayList<>();
+        if (rawElrDto.getType().equalsIgnoreCase(HL7_ELR)) {
+            if (rawElrDto.getCustomMapper() != null && !rawElrDto.getCustomMapper().trim().isEmpty()) {
                 rawElrDto.setPayload(hl7MessageCustomMapping(rawElrDto.getPayload(), rawElrDto.getCustomMapper()));
             }
-            //Split the incoming ELR into multiple messages if it is a hl7 batch.
-            List<String> hl7Messages= HL7BatchSplitter.splitHL7Batch(rawElrDto.getPayload());
-            log.info("Number of messages after batch split:"+hl7Messages.size());
-            List<RawElrModel> rawElrModels=  createRawElrModelsForBatch(hl7Messages,rawElrDto);
-            //JPA batch insert
-            List<RawElrModel> savedELRs=rawElrRepository.saveAll(rawElrModels);
+            log.info("HL7Batch splitting feature flag enabled: {}", hl7BatchSplittingEnabled);
+            if (hl7BatchSplittingEnabled) {
+                //Split the incoming ELR into multiple messages if it is a hl7 batch.
+                List<String> hl7Messages = HL7BatchSplitter.splitHL7Batch(rawElrDto.getPayload());
+                log.info("Number of messages after batch split:" + hl7Messages.size());
+                List<RawElrModel> rawElrModels = createRawElrModelsForBatch(hl7Messages, rawElrDto);
+                //JPA batch insert
+                List<RawElrModel> savedELRs = rawElrRepository.saveAll(rawElrModels);
 
-            for(RawElrModel rawElrModel : savedELRs) {
-                rawELRIds.add(rawElrModel.getId());
-                int dltOccurrence = 0;
-                try{
-                    kafkaProducerService.sendMessageFromController(
-                            rawElrModel.getId(),
-                            topicName,
-                            rawElrDto.getType(),
-                            dltOccurrence,
-                            rawElrDto.getValidationActive(),
-                            rawElrDto.getVersion());
-                }catch (KafkaProducerException e) {
-                    String errorStatus = "Sending event to elr_raw kafka topic failed";
-                    iElrDeadLetterRepository.addErrorStatusForRawId(rawElrModel.getId(), topicName, rawElrModel.getType(), rawElrModel.getPayload(), errorStatus, dltOccurrence + 1);
-                    throw new KafkaProducerException("Failed publishing message to kafka topic: " + topicName + " with UUID: " + rawElrModel.getId());
+                for (RawElrModel rawElrModel : savedELRs) {
+                    rawELRIds.add(rawElrModel.getId());
+                    int dltOccurrence = 0;
+                    try {
+                        kafkaProducerService.sendMessageFromController(
+                                rawElrModel.getId(),
+                                topicName,
+                                rawElrDto.getType(),
+                                dltOccurrence,
+                                rawElrDto.getValidationActive(),
+                                rawElrDto.getVersion());
+                    } catch (KafkaProducerException e) {
+                        String errorStatus = "Sending event to elr_raw kafka topic failed";
+                        iElrDeadLetterRepository.addErrorStatusForRawId(rawElrModel.getId(), topicName, rawElrModel.getType(), rawElrModel.getPayload(), errorStatus, dltOccurrence + 1);
+                        throw new KafkaProducerException("Failed publishing message to kafka topic: " + topicName + " with UUID: " + rawElrModel.getId());
+                    }
                 }
+            } else {
+                RawElrModel created = rawElrRepository.save(convert(rawElrDto));
+                int dltOccurrence = 0;
+                try {
+                    if (rawElrDto.getType().equalsIgnoreCase(HL7_ELR)) {
+                        kafkaProducerService.sendMessageFromController(
+                                created.getId(),
+                                topicName,
+                                rawElrDto.getType(),
+                                dltOccurrence,
+                                rawElrDto.getValidationActive(),
+                                rawElrDto.getVersion());
+                    }
+                } catch (KafkaProducerException e) {
+                    String errorStatus = "Sending event to elr_raw kafka topic failed";
+                    iElrDeadLetterRepository.addErrorStatusForRawId(created.getId(), topicName, created.getType(), created.getPayload(), errorStatus, dltOccurrence + 1);
+                    throw new KafkaProducerException("Failed publishing message to kafka topic: " + topicName + " with UUID: " + created.getId());
+                }
+                return created.getId();
             }
         }
-        return String.join(",",rawELRIds);
+        return String.join(",", rawELRIds);
     }
     public void updateRawMessageAfterRetry(RawElrDto rawElrDto, int dltOccurrence) throws KafkaProducerException {
         try {
