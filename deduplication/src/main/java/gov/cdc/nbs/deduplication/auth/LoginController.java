@@ -1,11 +1,14 @@
 package gov.cdc.nbs.deduplication.auth;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import gov.cdc.nbs.deduplication.auth.model.LoginRequest;
+import gov.cdc.nbs.deduplication.auth.model.LoginResponse;
 import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
@@ -16,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/login")
 @Profile("dev")
+@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
 public class LoginController {
 
   private final SecurityProperties securityProperties;

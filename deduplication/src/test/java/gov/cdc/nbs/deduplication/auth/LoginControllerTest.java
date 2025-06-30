@@ -8,6 +8,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import gov.cdc.nbs.deduplication.auth.model.LoginRequest;
+import gov.cdc.nbs.deduplication.auth.model.LoginResponse;
 import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
