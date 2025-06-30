@@ -136,7 +136,7 @@ public class NbsRepositoryServiceProvider {
 
 	public NbsInterfaceModel saveElrXmlMessage(String messageId, String xmlMsg, boolean dataProcessingApplied) throws XmlConversionException {
 
-		log.debug("Processing Elr xml: \n {} \n with an uid: {}", xmlMsg, messageId);
+		log.debug("Processing Elr xml with an uid: {}", messageId);
 		NbsInterfaceModel item = new NbsInterfaceModel();
 
 		item.setPayload(xmlMsg);
@@ -320,7 +320,6 @@ public class NbsRepositoryServiceProvider {
 	}
 
 	public NbsInterfaceModel saveIncomingEcrMessageWithoutRR(String payload, String systemNm, String origDocTypeEicr) {
-		log.debug("Processing ecr message: \n {}", payload);
 		NbsInterfaceModel ecrModel = new NbsInterfaceModel();
 
 		ecrModel.setImpExpIndCd(IMPEXP_CD);
@@ -346,7 +345,6 @@ public class NbsRepositoryServiceProvider {
 	}
 
 	public NbsInterfaceModel saveIncomingEcrMessageWithRR(String payload, String systemNm, String origDocTypeEicr, String incomingRR, String origDocTypeRR) {
-		log.debug("Processing ecr message: \n {} \n and RR message: \n {}", payload, incomingRR);
 		NbsInterfaceModel ecrModelWithRR = new NbsInterfaceModel();
 
 		ecrModelWithRR.setImpExpIndCd(IMPEXP_CD);
