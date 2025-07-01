@@ -45,7 +45,7 @@ spring:
 
 nbs:
   security:
-    tokenSecret: ${TOKEN_SECRET}
+    tokenSecret:
     tokenIssuer: gov.cdc.nbs
     tokenExpirationMillis: 1800000 # 30 minutes
     oidc:
