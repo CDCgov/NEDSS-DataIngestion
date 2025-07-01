@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+@SuppressWarnings("java:S2696")
 @Service
 public class SchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerService.class);

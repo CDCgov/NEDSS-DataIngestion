@@ -207,12 +207,6 @@ class ObservationMatchingServiceTest {
         orgCon.setTheRoleDTCollection(perRoleCol);
         orgConCol.add(orgCon);
 
-        // Material Conn
-        var matConCol = new ArrayList<MaterialContainer>();
-        var matCon = new MaterialContainer();
-        matCon.setTheRoleDTCollection(perRoleCol);
-        matConCol.add(matCon);
-
         matchedlabResultProxyVO.setTheOrganizationContainerCollection(orgConCol);
         matchedlabResultProxyVO.setThePersonContainerCollection(personConCol);
         matchedlabResultProxyVO.setTheObservationContainerCollection(matchedObsObsCol);

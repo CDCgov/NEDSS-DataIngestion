@@ -283,7 +283,6 @@ public class UidService implements IUidService {
         Iterator<Object> anIterator;
         ActRelationshipDto actRelationshipDT = null;
         Collection<Object> actRelationShipColl = notificationProxyVO.getTheActRelationshipDTCollection();
-        Collection<Object> act2 = new ArrayList<>();
 
         if (actRelationShipColl != null)
         {
@@ -292,7 +291,6 @@ public class UidService implements IUidService {
             {
                 actRelationshipDT = (ActRelationshipDto) anIterator.next();
                 actRelationshipDT.setSourceActUid(actualUid);
-                act2.add(actRelationshipDT);
             }
         }
         return actRelationshipDT;

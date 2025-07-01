@@ -37,7 +37,6 @@ import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
 import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_UPDATE;
-import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Component
 

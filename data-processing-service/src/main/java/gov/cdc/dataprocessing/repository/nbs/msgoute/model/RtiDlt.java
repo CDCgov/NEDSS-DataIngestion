@@ -1,7 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.msgoute.model;
+
 import gov.cdc.dataprocessing.model.dto.dead_letter.RtiDltDto;
-import lombok.*;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;

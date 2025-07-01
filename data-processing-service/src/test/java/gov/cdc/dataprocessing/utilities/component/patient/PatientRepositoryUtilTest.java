@@ -361,8 +361,6 @@ class PatientRepositoryUtilTest {
     @Test
     void findPatientParentUidByUid_Test() {
         var uid = 10L;
-        var ids = new ArrayList<Long>();
-        ids.add(10L);
         when(personRepository.findMprUid(uid)).thenReturn(uid);
 
         var res = patientRepositoryUtil.findPatientParentUidByUid(uid);

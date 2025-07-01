@@ -66,7 +66,7 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-@SuppressWarnings("java:S6068")
+@SuppressWarnings({"java:S6068", "java:S2699"})
 class ManagerServiceTest {
     @Mock
     private  IObservationService observationService;
@@ -139,7 +139,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -752,7 +752,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -796,7 +796,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -838,7 +838,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -881,7 +881,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -926,7 +926,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -970,7 +970,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1014,7 +1014,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1058,7 +1058,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep1KafkaFailed() throws EdxLogException, DataProcessingDBException {
+    void initiateStep1KafkaFailed() throws EdxLogException {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
@@ -1072,7 +1072,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void initiateStep1KafkaFailed_ResetCache() throws EdxLogException, DataProcessingDBException {
+    void initiateStep1KafkaFailed_ResetCache() throws EdxLogException {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep1 = 100000;
         var nbs = new NbsInterfaceModel();
@@ -1184,7 +1184,6 @@ class ManagerServiceTest {
         managerService.handlingWdsAndLab(container, false);
     }
 
-    @SuppressWarnings("java:S2699")
     @Test
     void testHandlingWdsAndLab_GenericException() throws DataProcessingException {
         PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
@@ -1232,7 +1231,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void handleProcessingElrException_whenCannotAcquireLock_setsDltLockError() throws Exception {
+    void handleProcessingElrException_whenCannotAcquireLock_setsDltLockError()  {
         AtomicBoolean dltLock = new AtomicBoolean(false);
         AtomicBoolean nonDlt = new AtomicBoolean(false);
         AtomicBoolean inteDlt = new AtomicBoolean(false);
@@ -1432,7 +1431,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void handleWdsAndLabException_whenNonDatabaseError_shouldSetStatusAndSaveModel() throws Exception {
+    void handleWdsAndLabException_whenNonDatabaseError_shouldSetStatusAndSaveModel()  {
         // Arrange
         AtomicBoolean dltLock = new AtomicBoolean(false);
         AtomicBoolean nonDlt = new AtomicBoolean(false);
@@ -1454,6 +1453,27 @@ class ManagerServiceTest {
         assertEquals(DP_FAILURE_STEP_2, model.getRecordStatusCd());
         assertNotNull(model.getRecordStatusTime());
         verify(nbsInterfaceRepository).save(model);
+    }
+
+    @Test
+    void finalizeWdsAndLabProcessing_whenNonDltError_shouldPersistAndLog_2() throws Exception {
+        // Arrange
+        Exception ex = new Exception("non-dlt-error");
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        container.setNbsInterfaceModel(model);
+        container.setNbsInterfaceId(987);
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setEdxActivityLogDto(new EDXActivityLogDto());
+        container.setEdxLabInformationDto(dto);
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(container, ex, true, true, false, true);
+
+        // Assert
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
     }
 
     @Test

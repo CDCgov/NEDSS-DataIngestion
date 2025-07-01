@@ -6,15 +6,18 @@ import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManage
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
-import gov.cdc.dataprocessing.utilities.auth.AuthUtil;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class SchedulerServiceTest {
 

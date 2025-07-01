@@ -1,6 +1,5 @@
 package gov.cdc.dataprocessing.service.implementation.dead_letter;
 
-import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.model.dto.dead_letter.RtiDltDto;
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.RtiDlt;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.RtiDltJdbcRepository;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static gov.cdc.dataprocessing.utilities.StringUtils.getRootStackTraceAsString;
 
