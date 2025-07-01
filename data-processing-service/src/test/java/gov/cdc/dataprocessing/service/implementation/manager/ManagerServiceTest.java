@@ -1579,5 +1579,127 @@ class ManagerServiceTest {
 
 
 
+    @Test
+    void testFinalizeWdsAndLabProcessing_NonDltErrorFalse_RetryAppliedTrue() throws EdxLogException {
+        // Arrange
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceId(123);
+
+        // Mock EDX components
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labDto = new EdxLabInformationDto();
+        EDXActivityLogDto logDto = new EDXActivityLogDto();
+
+        container.setNbsInterfaceModel(model);
+        container.setEdxLabInformationDto(labDto);
+        labDto.setEdxActivityLogDto(logDto);
+
+        Exception ex = new RuntimeException("some exception");
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        doNothing().when(managerService).composeDltKafkaEvent(any(), any());
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(
+                container,
+                ex,
+                false, // dltLockError
+                false, // nonDltError
+                false, // integrityError
+                true   // retryApplied
+        );
+
+        // Assert
+        // Only log operations should be invoked, no kafka or persistingRtiDlt
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
+        verify(managerService, never()).persistingRtiDlt(eq(ex), anyLong(), any(), eq("STEP_2"), contains("Other Non Error"));
+        verify(edxLogService).updateActivityLogDT(eq(model), eq(labDto));
+        verify(edxLogService).addActivityDetailLogs(eq(labDto), eq(""));
+        verify(edxLogService).saveEdxActivityLogs(eq(logDto));
+    }
+
+    @Test
+    void testFinalizeWdsAndLabProcessing_IntegrityErrorTrue_RetryAppliedTrue() throws EdxLogException {
+        // Arrange
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceId(321);
+
+        // Clear static state
+        DpStatic.setUuidPoolInitialized(false);
+        assertFalse(DpStatic.isUuidPoolInitialized());
+
+        Exception ex = new RuntimeException("integrity check");
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        doNothing().when(managerService).composeDltKafkaEvent(any(), any());
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(
+                container,
+                ex,
+                false,  // dltLockError
+                false,  // nonDltError
+                true,   // integrityError
+                true    // retryApplied
+        );
+
+        // Assert
+        verify(edxLogService, never()).saveEdxActivityLogs(any());
+    }
+
+    @Test
+    void testFinalizeWdsAndLabProcessing_NonDltErrorFalse_LogOnly() throws EdxLogException {
+        // Arrange
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceId(999);
+
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labDto = new EdxLabInformationDto();
+        EDXActivityLogDto logDto = new EDXActivityLogDto();
+        labDto.setEdxActivityLogDto(logDto);
+
+        container.setNbsInterfaceModel(model);
+        container.setEdxLabInformationDto(labDto);
+
+        Exception ex = new RuntimeException("ignored");
+
+        // Mock behavior
+        doNothing().when(edxLogService).updateActivityLogDT(any(), any());
+        doNothing().when(edxLogService).addActivityDetailLogs(any(), any());
+        doNothing().when(edxLogService).saveEdxActivityLogs(any());
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(
+                container,
+                ex,
+                false,  // dltLockError
+                false,  // nonDltError
+                false,  // integrityError
+                true    // retryApplied
+        );
+
+        // Assert
+        verify(managerService, never()).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
+
+        verify(edxLogService).updateActivityLogDT(eq(model), eq(labDto));
+        verify(edxLogService).addActivityDetailLogs(eq(labDto), eq(""));
+        verify(edxLogService).saveEdxActivityLogs(eq(logDto));
+    }
+
+
+    @Test
+    void testComposeDltKafkaEvent_ElsePath_NoKafkaCalled() {
+        // Arrange
+        String message = "some message payload";
+        String unknownType = "UNEXPECTED_TYPE";
+
+        // Act
+        managerService.composeDltKafkaEvent(message, unknownType);
+
+        // Assert
+        verify(kafkaManagerProducer, never()).sendDltForLocking(any());
+        verify(kafkaManagerProducer, never()).sendDltForDataIntegrity(any());
+    }
 
 }
