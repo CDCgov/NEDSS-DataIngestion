@@ -4,6 +4,8 @@ import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.LocalUidJdbcRepository;
+import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -26,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class UidPoolManager {
     private static final Logger logger = LoggerFactory.getLogger(UidPoolManager.class);
     private final LocalUidGeneratorRepository localUidGeneratorRepository;
+    private final LocalUidJdbcRepository localUidJdbcRepository;
+
     protected final Map<String, Queue<LocalUidModel>> uidPools = new ConcurrentHashMap<>();
     private final Map<String, AtomicBoolean> refillInProgress = new ConcurrentHashMap<>();
 
@@ -33,11 +37,15 @@ public class UidPoolManager {
     private int POOL_SIZE = 5000;
     @Value("${uid.min_pool_size}")
     private int LOW_WATERMARK = 1000;
+    @Value("${uid.use_store_proc:false}") // default to false if not set
+    protected boolean useJdbc;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Autowired
-    public UidPoolManager(LocalUidGeneratorRepository localUidGeneratorRepository) {
+    public UidPoolManager(LocalUidGeneratorRepository localUidGeneratorRepository,
+                          LocalUidJdbcRepository localUidJdbcRepository) {
         this.localUidGeneratorRepository = localUidGeneratorRepository;
+        this.localUidJdbcRepository = localUidJdbcRepository;
     }
 
     @PostConstruct
@@ -117,8 +125,11 @@ public class UidPoolManager {
 
         Queue<LocalUidModel> pool = uidPools.get(key);
 
-        var localStartSeed = localUidGeneratorRepository.reserveBatchAndGetStartSeed(idClass.name(), POOL_SIZE);
-        var gaStartSeed = gaApplied ? localUidGeneratorRepository.reserveBatchAndGetStartSeed(LocalIdClass.GA.name(), POOL_SIZE) : null;
+//        var localStartSeed = localUidGeneratorRepository.reserveBatchAndGetStartSeed(idClass.name(), POOL_SIZE);
+        var localStartSeed = getSeedFromSource(idClass.name());
+
+//        var gaStartSeed = gaApplied ? localUidGeneratorRepository.reserveBatchAndGetStartSeed(LocalIdClass.GA.name(), POOL_SIZE) : null;
+        var gaStartSeed = gaApplied ? getSeedFromSource(LocalIdClass.GA.name()) : null;
 
         if (localStartSeed == null) {
             throw new DataProcessingException("Failed to reserve UID batch from DB for " + idClass.name());
@@ -163,8 +174,10 @@ public class UidPoolManager {
         // Overwrite existing queue with a fresh one
         Queue<LocalUidModel> newPool = new ConcurrentLinkedQueue<>();
 
-        var localStartSeed = localUidGeneratorRepository.reserveBatchAndGetStartSeed(idClass.name(), POOL_SIZE);
-        var gaStartSeed = gaApplied ? localUidGeneratorRepository.reserveBatchAndGetStartSeed(LocalIdClass.GA.name(), POOL_SIZE) : null;
+//        var localStartSeed = localUidGeneratorRepository.reserveBatchAndGetStartSeed(idClass.name(), POOL_SIZE);
+        var localStartSeed = getSeedFromSource(idClass.name());
+//        var gaStartSeed = gaApplied ? localUidGeneratorRepository.reserveBatchAndGetStartSeed(LocalIdClass.GA.name(), POOL_SIZE) : null;
+        var gaStartSeed = gaApplied ? getSeedFromSource(LocalIdClass.GA.name()) : null;
 
         if (localStartSeed == null) {
             throw new DataProcessingException("Failed to reserve UID batch from DB for " + idClass.name());
@@ -202,6 +215,14 @@ public class UidPoolManager {
         refillInProgress.putIfAbsent(key, new AtomicBoolean(false));
 
         logger.info("UID pool reset for key {}", key);
+    }
+
+    private LocalUidGenerator getSeedFromSource(String className) throws DataProcessingException {
+        if (useJdbc) {
+            return localUidJdbcRepository.getLocalUID(className, POOL_SIZE);
+        } else {
+            return localUidGeneratorRepository.reserveBatchAndGetStartSeed(className, POOL_SIZE);
+        }
     }
 
 }

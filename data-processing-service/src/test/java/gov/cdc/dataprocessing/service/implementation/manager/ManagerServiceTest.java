@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.manager;
 
 
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -95,6 +96,9 @@ class ManagerServiceTest {
 
     @Mock
     private RtiDltJdbcRepository rtiDltJdbcRepository;
+    @Mock
+    private ServicePropertiesProvider servicePropertiesProvider;
+
 
     @Mock
     private NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository;
@@ -120,6 +124,7 @@ class ManagerServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
+        when(servicePropertiesProvider.getTz()).thenReturn("UTC");
         authUtil.setGlobalAuthUser(userInfo);
 
     }
