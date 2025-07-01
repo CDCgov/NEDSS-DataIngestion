@@ -6,8 +6,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.AuthenticationConfigurer;
-import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator;
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService;

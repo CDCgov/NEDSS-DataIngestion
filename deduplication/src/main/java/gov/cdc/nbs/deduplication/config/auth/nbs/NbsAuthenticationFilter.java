@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;

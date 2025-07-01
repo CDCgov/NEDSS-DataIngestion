@@ -15,7 +15,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 
 class NbsTokenCreatorTest {
 

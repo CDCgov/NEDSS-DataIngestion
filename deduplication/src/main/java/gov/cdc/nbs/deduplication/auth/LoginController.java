@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import gov.cdc.nbs.deduplication.auth.model.LoginRequest;
 import gov.cdc.nbs.deduplication.auth.model.LoginResponse;
-import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;

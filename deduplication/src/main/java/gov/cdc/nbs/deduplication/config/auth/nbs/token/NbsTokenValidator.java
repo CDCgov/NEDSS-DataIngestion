@@ -3,6 +3,8 @@ package gov.cdc.nbs.deduplication.config.auth.nbs.token;
 import java.util.Optional;
 import java.util.function.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -10,6 +12,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @Component
+@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
 public class NbsTokenValidator {
   private static final String AUTHORIZATION = "Authorization";
   private static final String BEARER = "Bearer ";

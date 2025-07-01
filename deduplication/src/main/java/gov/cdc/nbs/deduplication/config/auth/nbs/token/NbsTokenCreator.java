@@ -4,14 +4,16 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import gov.cdc.nbs.deduplication.config.auth.AuthenticationConfiguration.SecurityProperties;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 
 @Component
+@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
 public class NbsTokenCreator {
   private final Clock clock;
   private final Algorithm algorithm;
