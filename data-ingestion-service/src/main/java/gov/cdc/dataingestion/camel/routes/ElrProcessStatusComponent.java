@@ -64,8 +64,8 @@ public class ElrProcessStatusComponent {
                     } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
                         StringBuilder activityLogSb = new StringBuilder();
                         activityLogSb.append("Status: Failure ");
-                        activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID).append(": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
-                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID).append(": ").append(elrId);
+                        activityLogSb.append(DOUBLR_LINE_BREAK).append(NBS_INTERFACE_ID).append(": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
+                        activityLogSb.append(DOUBLR_LINE_BREAK).append(ELR_ID).append(": ").append(elrId);
                         List<EdxActivityDetailLog> edxActivityLogList = messageStatus.getEdxLogStatus().getEdxActivityDetailLogList();
                         EdxActivityLog edxActivityLogParent = messageStatus.getEdxLogStatus().getEdxActivityLog();
                         for (EdxActivityDetailLog edxActivityLogStatus : edxActivityLogList) {
