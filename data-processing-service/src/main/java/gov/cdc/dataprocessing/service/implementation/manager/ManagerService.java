@@ -246,7 +246,6 @@ public class ManagerService implements IManagerService {
                 e instanceof TransientDataAccessException ||
                 e instanceof DataAccessException ||
                 rootCause instanceof java.sql.SQLException) {
-//            throw new DataProcessingDBException(e.getMessage(), e);
             dataIntegrityError.set(true);
         } else {
             detailedMsg.set(handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel));
@@ -374,7 +373,6 @@ public class ManagerService implements IManagerService {
                 rootCause instanceof java.sql.SQLException)
         {
             interityError.set(true);
-//            throw new DataProcessingDBException(e.getMessage(), e);
         }
         else
         {

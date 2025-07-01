@@ -19,8 +19,7 @@ public class LocalUidJdbcRepository {
 
     public LocalUidGenerator getLocalUID(String className, int count) {
         LocalUidGenerator localUidGenerator = new LocalUidGenerator();
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplateOdse.getJdbcTemplate())
-                .withProcedureName("GetUid");
+        SimpleJdbcCall jdbcCall = createJdbcCall();
 
         Map<String, Object> inParams = new HashMap<>();
         inParams.put("classNameCd", className);
@@ -28,16 +27,15 @@ public class LocalUidJdbcRepository {
 
         Map<String, Object> result = jdbcCall.execute(inParams);
 
-//        Map<String, String> output = new HashMap<>();
-//        output.put("currentUID", (String) result.get("fromseedValueNbr"));
-//        output.put("maxUID", (String) result.get("toseedValueNbr"));
-//        output.put("uidPrefixCd", (String) result.get("uidPrefixCd"));
-//        output.put("uidSuffixCd", (String) result.get("uidSuffixCd"));
-
         localUidGenerator.setClassNameCd(className);
         localUidGenerator.setUidPrefixCd((String) result.get("uidPrefixCd"));
         localUidGenerator.setUidSuffixCd((String) result.get("uidSuffixCd"));
         localUidGenerator.setSeedValueNbr(Long.valueOf((String) result.get("fromseedValueNbr")));
         return localUidGenerator;
     }
+
+    protected SimpleJdbcCall createJdbcCall() {
+        return new SimpleJdbcCall(jdbcTemplateOdse.getJdbcTemplate()).withProcedureName("GetUid");
+    }
+
 }

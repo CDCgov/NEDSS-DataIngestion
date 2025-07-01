@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
@@ -112,7 +113,9 @@ public class PatientRepositoryUtil {
 
         // if MPR creation, we force last change time to newer, this will kick off NIFI
         if (Objects.equals(personDto.getPersonParentUid(), personDto.getPersonUid())) {
-            person.setLastChgTime(getCurrentTimeStamp(tz));
+            Timestamp newLastChgTime = new Timestamp(person.getLastChgTime().getTime() + (10 * 60 * 1000)); // +2 minutes
+            person.setLastChgTime(newLastChgTime);
+
         }
 
         personJdbcRepository.createPerson(person);
@@ -156,7 +159,8 @@ public class PatientRepositoryUtil {
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setVersionCtrlNbr(person.getVersionCtrlNbr() + 1);
         person.setBirthCntryCd(null);
-        person.setLastChgTime(getCurrentTimeStamp(tz));
+        Timestamp newLastChgTime = new Timestamp(person.getLastChgTime().getTime() + (10 * 60 * 1000)); // +2 minutes
+        person.setLastChgTime(newLastChgTime);
         personJdbcRepository.updatePerson(person);
 
         // Cache UID for reuse

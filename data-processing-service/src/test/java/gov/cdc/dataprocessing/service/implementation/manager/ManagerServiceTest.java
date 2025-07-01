@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
 
+import gov.cdc.dataprocessing.cache.DpStatic;
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
 import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
@@ -1495,6 +1496,85 @@ class ManagerServiceTest {
 
         // Assert
         verify(nbsInterfaceJdbcRepository).updateRecordStatusToRtiProcess(ids);
+    }
+
+    @Test
+    void testFinalizeProcessingElr_DltLockError_WithRetryApplied() throws EdxLogException {
+        // Arrange
+        Exception ex = new RuntimeException("test-exception");
+        NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
+        EdxLabInformationDto labDto = new EdxLabInformationDto();
+        labDto.setEdxActivityLogDto(new EDXActivityLogDto());
+        String detailedMsg = "lock error msg";
+        int interfaceId = 123;
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        doNothing().when(managerService).composeDltKafkaEvent(any(), any());
+
+        // Act
+        managerService.finalizeProcessingElr(
+                true,     // dltLockError
+                false,    // nonDltError
+                false,    // integrityError
+                ex,
+                interfaceId,
+                detailedMsg,
+                nbsInterfaceModel,
+                labDto,
+                true      // retryApplied
+        );
+
+        // Assert
+        verify(edxLogService).saveEdxActivityLogs(eq(labDto.getEdxActivityLogDto()));
+    }
+
+    @Test
+    void testFinalizeProcessingElr_NonDltError_WithRetryApplied() throws EdxLogException {
+        Exception ex = new RuntimeException("non-dlt-error");
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labInfo = new EdxLabInformationDto();
+        labInfo.setEdxActivityLogDto(new EDXActivityLogDto());
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+
+        managerService.finalizeProcessingElr(
+                false,   // dltLockError
+                true,    // nonDltError
+                false,   // integrityError
+                ex,
+                456,
+                "some detail",
+                model,
+                labInfo,
+                true     // retryApplied
+        );
+
+
+        verify(edxLogService).saveEdxActivityLogs(eq(labInfo.getEdxActivityLogDto()));
+    }
+
+    @Test
+    void testFinalizeProcessingElr_IntegrityError_WithRetryApplied() throws EdxLogException {
+        Exception ex = new RuntimeException("integrity error");
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labInfo = new EdxLabInformationDto();
+        labInfo.setEdxActivityLogDto(new EDXActivityLogDto());
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+
+        managerService.finalizeProcessingElr(
+                false,   // dltLockError
+                false,   // nonDltError
+                true,    // integrityError
+                ex,
+                789,
+                "integrity issue",
+                model,
+                labInfo,
+                true     // retryApplied
+        );
+
+        assertTrue(DpStatic.isUuidPoolInitialized()); // Also verifies the static state change
     }
 
 
