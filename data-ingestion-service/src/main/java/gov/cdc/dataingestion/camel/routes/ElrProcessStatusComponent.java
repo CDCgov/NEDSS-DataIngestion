@@ -57,17 +57,15 @@ public class ElrProcessStatusComponent {
                 for (MessageStatus messageStatus : msgStatusList) {
                     String status = "";
                     if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(SUCCESS)) {
-                        StringBuilder activityLogSb = new StringBuilder();
-                        activityLogSb.append("Status: Success ");
-                        activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
-                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
-                        activityLogSb.append(EMPTY_LINE);
-                        status = activityLogSb.toString();
+                        status = "Status: Success " +
+                                DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": " + messageStatus.getNbsInfo().getNbsInterfaceId() +
+                                DOUBLR_LINE_BREAK + ELR_ID + ": " + elrId +
+                                EMPTY_LINE;
                     } else if (messageStatus.getNbsInfo().getNbsInterfaceStatus() != null && messageStatus.getNbsInfo().getNbsInterfaceStatus().equals(FAILURE)) {
                         StringBuilder activityLogSb = new StringBuilder();
                         activityLogSb.append("Status: Failure ");
-                        activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID + ": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
-                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID + ": ").append(elrId);
+                        activityLogSb.append(DOUBLR_LINE_BREAK + NBS_INTERFACE_ID).append(": ").append(messageStatus.getNbsInfo().getNbsInterfaceId());
+                        activityLogSb.append(DOUBLR_LINE_BREAK + ELR_ID).append(": ").append(elrId);
                         List<EdxActivityDetailLog> edxActivityLogList = messageStatus.getEdxLogStatus().getEdxActivityDetailLogList();
                         EdxActivityLog edxActivityLogParent = messageStatus.getEdxLogStatus().getEdxActivityLog();
                         for (EdxActivityDetailLog edxActivityLogStatus : edxActivityLogList) {

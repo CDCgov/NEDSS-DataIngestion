@@ -25,6 +25,7 @@ import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeS
 public class RawElrService {
 
     private static final String CREATED_BY = "admin";
+    private static final String KAFKA_PRODUCER_FAILED_MSG="Sending event to elr_raw kafka topic failed";
     @Value("${kafka.raw.topic}")
     String topicName;
 
@@ -54,12 +55,12 @@ public class RawElrService {
                         rawElrDto.getVersion());
             }
         } catch (KafkaProducerException e) {
-            String errorStatus = "Sending event to elr_raw kafka topic failed";
-            iElrDeadLetterRepository.addErrorStatusForRawId(created.getId(), topicName, created.getType(), created.getPayload(), errorStatus, dltOccurrence + 1);
+            iElrDeadLetterRepository.addErrorStatusForRawId(created.getId(), topicName, created.getType(), created.getPayload(), KAFKA_PRODUCER_FAILED_MSG, dltOccurrence + 1);
             throw new KafkaProducerException("Failed publishing message to kafka topic: " + topicName + " with UUID: " + created.getId());
         }
         return created.getId();
     }
+    @SuppressWarnings("java:S3776")
     public String submissionElr(RawElrDto rawElrDto) throws KafkaProducerException {
         List<String> rawELRIds = new ArrayList<>();
         if (rawElrDto.getType().equalsIgnoreCase(HL7_ELR)) {
@@ -87,8 +88,7 @@ public class RawElrService {
                                 rawElrDto.getValidationActive(),
                                 rawElrDto.getVersion());
                     } catch (KafkaProducerException e) {
-                        String errorStatus = "Sending event to elr_raw kafka topic failed";
-                        iElrDeadLetterRepository.addErrorStatusForRawId(rawElrModel.getId(), topicName, rawElrModel.getType(), rawElrModel.getPayload(), errorStatus, dltOccurrence + 1);
+                        iElrDeadLetterRepository.addErrorStatusForRawId(rawElrModel.getId(), topicName, rawElrModel.getType(), rawElrModel.getPayload(), KAFKA_PRODUCER_FAILED_MSG, dltOccurrence + 1);
                         throw new KafkaProducerException("Failed publishing message to kafka topic: " + topicName + " with UUID: " + rawElrModel.getId());
                     }
                 }
@@ -106,8 +106,7 @@ public class RawElrService {
                                 rawElrDto.getVersion());
                     }
                 } catch (KafkaProducerException e) {
-                    String errorStatus = "Sending event to elr_raw kafka topic failed";
-                    iElrDeadLetterRepository.addErrorStatusForRawId(created.getId(), topicName, created.getType(), created.getPayload(), errorStatus, dltOccurrence + 1);
+                    iElrDeadLetterRepository.addErrorStatusForRawId(created.getId(), topicName, created.getType(), created.getPayload(), KAFKA_PRODUCER_FAILED_MSG, dltOccurrence + 1);
                     throw new KafkaProducerException("Failed publishing message to kafka topic: " + topicName + " with UUID: " + created.getId());
                 }
                 return created.getId();

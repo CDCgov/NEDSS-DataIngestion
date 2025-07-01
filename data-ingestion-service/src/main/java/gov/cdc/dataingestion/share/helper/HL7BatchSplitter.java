@@ -26,7 +26,7 @@ public class HL7BatchSplitter {
             String[] msgAllLines = batchHL7Msg.split("\\R");
             for (String line : msgAllLines) {
                 if (line.startsWith(MSH)) {
-                    if (currentMessage.length() > 0) {
+                    if (!currentMessage.isEmpty()) {
                         hl7Messages.add(currentMessage.toString());
                     }
                     currentMessage = new StringBuilder(line + "\n");
@@ -34,7 +34,7 @@ public class HL7BatchSplitter {
                     currentMessage.append(line).append("\n");
                 }
             }
-            if (currentMessage.length() > 0) {
+            if (!currentMessage.isEmpty()) {
                 hl7Messages.add(currentMessage.toString());
             }
         } else {
