@@ -33,7 +33,7 @@ public class RtiDltJdbcRepository {
 
     public RtiDlt findById(String id) {
         try {
-            String sql = "SELECT * FROM rti_dlt WHERE id = :id";
+            String sql = "SELECT * FROM dbo.rti_dlt WHERE id = :id";
             return jdbcTemplate.queryForObject(sql, Map.of("id", id), this::mapRow);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -42,7 +42,7 @@ public class RtiDltJdbcRepository {
 
     public List<RtiDlt> findByNbsInterfaceId(Long nbsInterfaceId) {
         try {
-            String sql = "SELECT * FROM rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
+            String sql = "SELECT * FROM dbo.rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
             return jdbcTemplate.query(sql, Map.of("id", nbsInterfaceId), this::mapRow);
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();

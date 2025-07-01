@@ -52,7 +52,7 @@ public class RtiController {
                     )
             }
     )
-    @GetMapping("/rti/uid/reinitialize-all")
+    @GetMapping("/uid/reinitialize")
     public String reinitializeAllUidPools() throws DataProcessingException {
         poolManager.reInitializePools();
         return "All UID pools have been reinitialized.";
@@ -85,7 +85,7 @@ public class RtiController {
                     )
             }
     )
-    @GetMapping("/rti/dlt")
+    @GetMapping("/dlt")
     public List<RtiDltDto> getDeadLetterRecords(
             @RequestParam(name = "interfaceUid", required = false) Long interfaceUid
     ) {

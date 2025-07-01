@@ -44,14 +44,14 @@ public class OpenAPIConfig {
         server.setDescription("Server URL");
 
         Contact contact = new Contact();
-        contact.setEmail("nndservice@cdc.com");
-        contact.setName("Data Sync Service");
+        contact.setEmail("rtiservice@cdc.com");
+        contact.setName("Real Time Ingestion");
 
         Info info = new Info()
-                .title("Data Sync Service API")
+                .title("Real Time Ingestion API")
                 .version("1.0")
                 .contact(contact)
-                .description("This API exposes endpoints to manage Data Extraction Services.");
+                .description("This API exposes endpoints to manage Real Time Ingestion Services.");
 
         Components components=new Components().
                 addSecuritySchemes("bearer-key",
