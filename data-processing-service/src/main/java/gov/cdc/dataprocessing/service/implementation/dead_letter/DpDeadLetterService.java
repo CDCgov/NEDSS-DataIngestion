@@ -22,7 +22,7 @@ public class DpDeadLetterService implements IDpDeadLetterService {
     }
 
     public List<RtiDltDto> findDltRecords(Long interfaceUid) {
-        List<RtiDlt> domainList = new ArrayList<>();
+        List<RtiDlt> domainList;
         if (interfaceUid == null) {
             domainList = rtiDltJdbcRepository.findByUnSuccessStatus();
         }
