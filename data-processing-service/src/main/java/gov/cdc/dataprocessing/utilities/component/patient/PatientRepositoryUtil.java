@@ -156,6 +156,7 @@ public class PatientRepositoryUtil {
         Person person = new Person(personContainer.getThePersonDto(), tz);
         person.setVersionCtrlNbr(person.getVersionCtrlNbr() + 1);
         person.setBirthCntryCd(null);
+        person.setLastChgTime(getCurrentTimeStamp(tz));
         personJdbcRepository.updatePerson(person);
 
         // Cache UID for reuse
