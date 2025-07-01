@@ -52,7 +52,7 @@ public class PersonJdbcRepository {
                 .addValue("education_level_desc_txt", person.getEducationLevelDescTxt())
                 .addValue("ethnic_group_ind", person.getEthnicGroupInd())
                 .addValue(LAST_CHG_REASON_CD_DB, person.getLastChgReasonCd())
-                .addValue(LAST_CHG_TIME_DB, null)
+                .addValue(LAST_CHG_TIME_DB, person.getLastChgTime())
                 .addValue(LAST_CHG_USER_ID_DB, person.getLastChgUserId())
                 .addValue("local_id", person.getLocalId())
                 .addValue("marital_status_cd", person.getMaritalStatusCd())

@@ -36,6 +36,7 @@ import java.util.*;
 
 import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_CREATE;
 import static gov.cdc.dataprocessing.constant.DpConstant.OPERATION_UPDATE;
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Component
 
@@ -98,6 +99,7 @@ public class PatientRepositoryUtil {
             personDto.setLocalId(localUid);
         }
 
+        // if record hit this, it is MPR
         if (personDto.getPersonParentUid() == null) {
             personDto.setPersonParentUid(personUid);
         }
@@ -107,6 +109,11 @@ public class PatientRepositoryUtil {
 
         Person person = new Person(personDto, tz);
         person.setBirthCntryCd(null);
+
+        // if MPR creation, we force last change time to newer, this will kick off NIFI
+        if (Objects.equals(personDto.getPersonParentUid(), personDto.getPersonUid())) {
+            person.setLastChgTime(getCurrentTimeStamp(tz));
+        }
 
         personJdbcRepository.createPerson(person);
 
