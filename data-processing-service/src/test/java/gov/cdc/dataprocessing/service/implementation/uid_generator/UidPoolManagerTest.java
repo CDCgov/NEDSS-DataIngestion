@@ -2,6 +2,7 @@ package gov.cdc.dataprocessing.service.implementation.uid_generator;
 
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidModel;
+import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.LocalUidJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.generic_helper.LocalUidGenerator;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.locator.LocalUidGeneratorRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,8 @@ class UidPoolManagerTest {
 
     @Mock
     private LocalUidGeneratorRepository localUidGeneratorRepository;
+    @Mock
+    private LocalUidJdbcRepository localUidJdbcRepository;
 
     @InjectMocks
     private UidPoolManager uidPoolManager;
@@ -27,7 +30,8 @@ class UidPoolManagerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        uidPoolManager = new UidPoolManager(localUidGeneratorRepository);
+        uidPoolManager.useJdbc = false;
+        uidPoolManager = new UidPoolManager(localUidGeneratorRepository, localUidJdbcRepository);
         Queue<LocalUidModel> queue = new ConcurrentLinkedQueue<>();
         var localUid = new LocalUidModel();
         queue.add(localUid);

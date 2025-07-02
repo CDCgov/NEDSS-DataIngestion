@@ -1,9 +1,11 @@
 package gov.cdc.dataprocessing.kafka.consumer;
 
 import com.google.gson.Gson;
+import gov.cdc.dataprocessing.cache.DpStatic;
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.implementation.manager.ManagerService;
+import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.interfaces.manager.IManagerService;
@@ -51,19 +53,21 @@ public class KafkaManagerConsumer {
     private final IAuthUserService authUserService;
     private final QueryHelper queryHelper;
     private final ILookupService lookupService;
+    private final UidPoolManager uidPoolManager;
 
 
     public KafkaManagerConsumer(
             ManagerService managerService, IManagerTransactionService managerTransactionService,
             IAuthUserService authUserService,
             QueryHelper queryHelper,
-            ILookupService lookupService
-            ) {
+            ILookupService lookupService, UidPoolManager uidPoolManager
+    ) {
         this.managerService = managerService;
         this.managerTransactionService = managerTransactionService;
         this.authUserService = authUserService;
         this.queryHelper = queryHelper;
         this.lookupService = lookupService;
+        this.uidPoolManager = uidPoolManager;
     }
 
     @PostConstruct
@@ -113,7 +117,7 @@ public class KafkaManagerConsumer {
             topics = "${kafka.topic.elr_reprocessing_locking}",
             containerFactory = "kafkaListenerContainerFactoryDltStep1"
     )
-    public void handleDltMessageUnifiedForLockingException(String message, Acknowledgment acknowledgment) {
+    public void handleDltMessageUnifiedForLockingException(String message, Acknowledgment acknowledgment)  {
         if (!pendingMessages.isEmpty()) {
             log.info("Skipping due to active processing. Will be retried.");
             return;
@@ -123,16 +127,55 @@ public class KafkaManagerConsumer {
             // First, try parsing as Integer
             try {
                 Integer id = Integer.valueOf(message);
-                var result = managerService.processingELR(id);
+                var result = managerService.processingELR(id, false);
                 if (result != null) {
-                    managerService.handlingWdsAndLab(result);
+                    managerService.handlingWdsAndLab(result, false);
                 }
             }
             catch (NumberFormatException ex) {
                 // If it's not an integer, try parsing as JSON object
                 Gson consumerGson = new Gson();
                 PublicHealthCaseFlowContainer phc = consumerGson.fromJson(message, PublicHealthCaseFlowContainer.class);
-                managerService.handlingWdsAndLab(phc);
+                managerService.handlingWdsAndLab(phc, false);
+            }
+
+            acknowledgment.acknowledge();
+        } catch (Exception e) {
+            log.error("Failed to process handleDltMessageUnifiedForLockingException: {}", e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(
+            topics = "${kafka.topic.elr_reprocessing_data_integrity}",
+            containerFactory = "kafkaListenerContainerFactoryDltStep1"
+    )
+    public void handleDltMessageUnifiedForDataIntegrityException(String message, Acknowledgment acknowledgment) throws DataProcessingException {
+        if (!pendingMessages.isEmpty()) {
+            log.info("Skipping due to active processing. Will be retried.");
+            return;
+        }
+
+        if (DpStatic.isUuidPoolInitialized()) {
+            // Reinitialize the uuid pool
+            uidPoolManager.reInitializePools();
+            DpStatic.setUuidPoolInitialized(false);
+        }
+
+
+        try {
+            // First, try parsing as Integer
+            try {
+                Integer id = Integer.valueOf(message);
+                var result = managerService.processingELR(id, true);
+                if (result != null) {
+                    managerService.handlingWdsAndLab(result, true);
+                }
+            }
+            catch (NumberFormatException ex) {
+                // If it's not an integer, try parsing as JSON object
+                Gson consumerGson = new Gson();
+                PublicHealthCaseFlowContainer phc = consumerGson.fromJson(message, PublicHealthCaseFlowContainer.class);
+                managerService.handlingWdsAndLab(phc, true);
             }
 
             acknowledgment.acknowledge();
@@ -162,7 +205,7 @@ public class KafkaManagerConsumer {
                     try {
                         for (Integer id : batch) {
                             try {
-                                managerTransactionService.processWithTransactionSeparation(id);
+                                managerTransactionService.processWithTransactionSeparation(id, false);
                             } catch (Exception e) {
                                 log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
                             }
@@ -182,9 +225,9 @@ public class KafkaManagerConsumer {
                 if (nbs == null) continue;
 
                 try {
-                    var result = managerService.processingELR(nbs);
+                    var result = managerService.processingELR(nbs, false);
                     if (result != null) {
-                        managerService.handlingWdsAndLab(result);
+                        managerService.handlingWdsAndLab(result, false);
                     }
                 } catch (Exception e) {
                     log.error("Single-threaded error: {}", e.getMessage(), e);
@@ -193,27 +236,6 @@ public class KafkaManagerConsumer {
         }
     }
 
-    @Scheduled(fixedDelay = 1800000) // every 30 min
-    public void populateAuthUser() throws DataProcessingException {
-        AuthUserProfileInfo profile = authUserService.getAuthUserInfo(nbsUser);
-        AuthUtil.setGlobalAuthUser(profile);
-        logger.info("Completed populateAuthUser");
-    }
-
-    @Scheduled(fixedDelay = 3600000) // every 1 hr
-    public void populateHashPAJList() throws DataProcessingException {
-        logger.info("Started populateHashPAJList");
-        OdseCache.OWNER_LIST_HASHED_PA_J =  queryHelper.getHashedPAJList(false);
-        OdseCache.GUEST_LIST_HASHED_PA_J = queryHelper.getHashedPAJList(true);
-        logger.info("Completed populateHashPAJList");
-    }
-
-    @Scheduled(fixedDelay = 3600000) // every 1 hr
-    public void populateDMBQuestionMap() {
-        logger.info("Started populateDMBQuestionMap");
-        OdseCache.DMB_QUESTION_MAP = lookupService.getDMBQuestionMapAfterPublish();
-        logger.info("Completed populateDMBQuestionMap");
-    }
 
 
 }

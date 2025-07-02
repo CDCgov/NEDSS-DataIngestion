@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -31,10 +33,28 @@ public class RtiDltJdbcRepository {
 
     public RtiDlt findById(String id) {
         try {
-            String sql = "SELECT * FROM rti_dlt WHERE id = :id";
+            String sql = "SELECT * FROM dbo.rti_dlt WHERE id = :id";
             return jdbcTemplate.queryForObject(sql, Map.of("id", id), this::mapRow);
         } catch (EmptyResultDataAccessException e) {
             return null;
+        }
+    }
+
+    public List<RtiDlt> findByNbsInterfaceId(Long nbsInterfaceId) {
+        try {
+            String sql = "SELECT * FROM dbo.rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
+            return jdbcTemplate.query(sql, Map.of("id", nbsInterfaceId), this::mapRow);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<RtiDlt> findByUnSuccessStatus() {
+        try {
+            String sql = "SELECT * FROM rti_dlt WHERE status != 'SUCCESS' ORDER BY created_on DESC";
+            return jdbcTemplate.query(sql, this::mapRow);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
         }
     }
 
