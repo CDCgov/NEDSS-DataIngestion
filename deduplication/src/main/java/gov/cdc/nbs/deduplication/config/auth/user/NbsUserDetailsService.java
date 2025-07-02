@@ -38,22 +38,45 @@ public class NbsUserDetailsService implements UserDetailsService {
       """;
 
   static final String SELECT_GRANTED_AUTHORITIES = """
-      SELECT DISTINCT
-        operationType.bus_op_nm + '-' + objectType.bus_obj_nm
+      SELECT
+        grantedAuthority
       FROM
-        auth_user authUser
-        JOIN auth_user_role role ON role.auth_user_uid = authUser.auth_user_uid
-        JOIN auth_perm_set permissionSet ON role.auth_perm_set_uid = permissionSet.auth_perm_set_uid
-        JOIN auth_bus_obj_rt objectRight ON objectRight.auth_perm_set_uid = permissionSet.auth_perm_set_uid
-        JOIN auth_bus_obj_type objectType ON objectRight.auth_bus_obj_type_uid = objectType.auth_bus_obj_type_uid
-        JOIN auth_bus_op_rt operationRight ON operationRight.auth_bus_obj_rt_uid = objectRight.auth_bus_obj_rt_uid
-        JOIN auth_bus_op_type operationType ON operationType.auth_bus_op_type_uid = operationRight.auth_bus_op_type_uid
+        (
+          SELECT
+            'ADMINISTRATE-SYSTEM' grantedAuthority
+          FROM
+            auth_user
+          WHERE
+            nedss_entry_id = :identifier
+            AND master_sec_admin_ind = 'T'
+          UNION
+          SELECT
+            'ADMINISTRATE-SECURITY' grantedAuthority
+          FROM
+            auth_user
+          WHERE
+            nedss_entry_id = :identifier
+            AND prog_area_admin_ind = 'T'
+          UNION
+          SELECT
+            DISTINCT operationType.bus_op_nm + '-' + objectType.bus_obj_nm
+          FROM
+            auth_user authUser
+            JOIN auth_user_role role ON role.auth_user_uid = authUser.auth_user_uid
+            JOIN auth_perm_set permissionSet ON role.auth_perm_set_uid = permissionSet.auth_perm_set_uid
+            JOIN auth_bus_obj_rt objectRight ON objectRight.auth_perm_set_uid = permissionSet.auth_perm_set_uid
+            JOIN auth_bus_obj_type objectType ON objectRight.auth_bus_obj_type_uid = objectType.auth_bus_obj_type_uid
+            JOIN auth_bus_op_rt operationRight ON operationRight.auth_bus_obj_rt_uid = objectRight.auth_bus_obj_rt_uid
+            JOIN auth_bus_op_type operationType ON operationType.auth_bus_op_type_uid = operationRight.auth_bus_op_type_uid
+          WHERE
+            authUser.nedss_entry_id = :identifier
+            AND NOT (
+              role.role_guest_ind = 'T'
+              AND isNull(operationRight.bus_op_guest_rt, 'F') = 'F'
+            )
+        ) AS permQuery
       WHERE
-        authUser.nedss_entry_id = :identifier
-        AND NOT (
-          role.role_guest_ind = 'T'
-          AND isNull(operationRight.bus_op_guest_rt, 'F') = 'F'
-        );
+        grantedAuthority IS NOT NULL;
         """;
 
   public PreAuthenticatedAuthenticationToken authenticateByUsername(final String username) {
