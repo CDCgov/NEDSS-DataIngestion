@@ -99,14 +99,14 @@ public class ElrReportsController {
             rawElrDto.setValidationActive(true);
             rawElrDto.setVersion(version);
             rawElrDto.setCustomMapper(customMapper);
-            return ResponseEntity.ok(rawELRService.submission(rawElrDto));
+            return ResponseEntity.ok(rawELRService.submissionElr(rawElrDto));
         }
         else if (type.equalsIgnoreCase(XML_ELR)) {
             rawElrDto.setType(type);
             rawElrDto.setPayload(payload);
             rawElrDto.setValidationActive(true);
             rawElrDto.setVersion(version);
-            return ResponseEntity.ok(rawELRService.submission(rawElrDto));
+            return ResponseEntity.ok(rawELRService.submissionElrXml(rawElrDto));
         }
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide valid value for msgType header");

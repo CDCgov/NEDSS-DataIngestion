@@ -43,7 +43,7 @@ class HL7FileProcessComponentTest {
         rawElrDto.setValidationActive(true);
         rawElrDto.setVersion("1");
 
-        when(rawELRService.submission(rawElrDto)).thenReturn("OK");
+        when(rawELRService.submissionElr(rawElrDto)).thenReturn("OK");
         String status = hL7FileProcessComponent.process(hl7Payload);
         Assertions.assertEquals("OK",status);
     }

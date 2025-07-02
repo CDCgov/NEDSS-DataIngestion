@@ -1,0 +1,13 @@
+USE NBS_DataIngest;
+IF
+NOT EXISTS(
+        SELECT 'X'
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = 'obx_id_std_lookup')
+BEGIN
+CREATE TABLE obx_id_std_lookup(
+     UID                 INTEGER  NOT NULL PRIMARY KEY
+    ,OBX_VALUE_TYPE_ID   VARCHAR(20) NOT NULL UNIQUE
+    ,OBX_VALUE_TYPE_DESC VARCHAR(200)
+);
+END

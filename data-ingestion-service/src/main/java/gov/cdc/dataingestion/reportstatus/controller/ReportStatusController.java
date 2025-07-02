@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @SecurityRequirement(name = "bearer-key")
@@ -68,18 +66,12 @@ public class ReportStatusController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid 'UUID' parameter provided.");
         }
 
-        String status = reportStatusService.getStatusForReport(sanitizedElrId);
+        List<String> statusList = reportStatusService.getStatusForReport(sanitizedElrId);
 
-        Map<String, String> returnJson = new HashMap<>();
-        returnJson.put("id", sanitizedElrId);
-        if(status.equals("Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.") || status.equals("Couldn't find status for the requested ID.")) {
-            returnJson.put("error_message", status);
-        }
-        else {
-            returnJson.put("status", status);
-        }
+        statusList.addFirst("id:"+sanitizedElrId);
+
         ObjectMapper mapper = new ObjectMapper();
-        return ResponseEntity.ok(mapper.writeValueAsString(returnJson));
+        return ResponseEntity.ok(mapper.writeValueAsString(statusList));
     }
 
     @Operation(
@@ -101,7 +93,7 @@ public class ReportStatusController {
     public ResponseEntity<List<MessageStatus>> getMessageStatus(@PathVariable("elr-id") String rawMessageId)  {
         List<String> messageIdList = Arrays.asList(rawMessageId.split(","));
         List<MessageStatus> statusList = messageIdList.stream()
-                .map(reportStatusService::getMessageStatus)
+                .flatMap(id ->reportStatusService.getMessageStatus(id).stream())
                 .toList();
 
         List<MessageStatus> unmodifiableStatusList = List.copyOf(statusList);
