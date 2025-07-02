@@ -47,7 +47,7 @@ class RtiDltJdbcRepositoryTest {
         expected.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
 
         when(jdbcTemplate.queryForObject(
-                eq("SELECT * FROM rti_dlt WHERE id = :id"),
+                eq("SELECT * FROM dbo.rti_dlt WHERE id = :id"),
                 eq(Map.of("id", id)),
                 any(RowMapper.class)
         )).thenReturn(expected);
@@ -129,7 +129,7 @@ class RtiDltJdbcRepositoryTest {
         RtiDlt dlt2 = new RtiDlt();
         dlt2.setId("id2");
 
-        String expectedSql = "SELECT * FROM rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
+        String expectedSql = "SELECT * FROM dbo.rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
 
         when(jdbcTemplate.query(eq(expectedSql), eq(Map.of("id", interfaceId)), any(RowMapper.class)))
                 .thenReturn(List.of(dlt1, dlt2));
