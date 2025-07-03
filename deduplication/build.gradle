@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  id 'org.springframework.boot' version '3.4.5'
+  id 'org.springframework.boot' version '3.5.3'
   id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -30,10 +30,10 @@ dependencies {
 
   // security
   implementation 'org.springframework.boot:spring-boot-starter-security'
-  implementation 'org.springframework.security:spring-security-config'
-  implementation 'org.springframework.security:spring-security-web'
-  implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-  implementation 'org.springframework.security:spring-security-oauth2-jose'
+  implementation 'org.springframework.security:spring-security-config:6.5.1'
+  implementation 'org.springframework.security:spring-security-web:6.5.1'
+  implementation 'org.springframework.security:spring-security-oauth2-resource-server:6.5.1'
+  implementation 'org.springframework.security:spring-security-oauth2-jose:6.5.1'
   implementation 'com.auth0:java-jwt:4.5.0'
 
   // pdf creation
