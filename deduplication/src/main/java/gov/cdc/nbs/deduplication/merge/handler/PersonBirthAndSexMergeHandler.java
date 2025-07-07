@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Component
 @Order(8)
 public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
@@ -193,30 +192,36 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         AND class_cd   = 'PST'
       """;
 
-
   final NamedParameterJdbcTemplate nbsTemplate;
 
   public PersonBirthAndSexMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
-  //Merge modifications have been applied to the person birth and sex
+  // Merge modifications have been applied to the person birth and sex
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonBirthAndSex(request.survivingRecord(), request.sexAndBirthFieldSource());
+    mergePersonBirthAndSex(request.survivingRecord(), request.sexAndBirth());
   }
 
   private void mergePersonBirthAndSex(String survivorId, PatientMergeRequest.SexAndBirthFieldSource fieldSource) {
-    updateAsOf(survivorId, fieldSource.asOfSource());
-    updateDateOfBirth(survivorId, fieldSource.dateOfBirthSource());
-    updateAdditionalGender(survivorId, fieldSource.additionalGenderSource());
-    updateBirthOrder(survivorId, fieldSource.birthOrderSource());
-    updateCurrentSex(survivorId, fieldSource.currentSexSource());
-    updateSexUnknown(survivorId, fieldSource.sexUnknownSource());
-    updateTransgender(survivorId, fieldSource.transgenderSource());
-    updateBirthGender(survivorId, fieldSource.birthGenderSource());
-    updateMultipleBirth(survivorId, fieldSource.multipleBirthSource());
-    updateBirthAddress(survivorId, fieldSource.birthAddressSource());
+    updateAsOf(survivorId, fieldSource.asOf());
+    updateDateOfBirth(survivorId, fieldSource.dateOfBirth());
+    updateAdditionalGender(survivorId, fieldSource.additionalGender());
+    updateTransgender(survivorId, fieldSource.transgenderInfo());
+    updateBirthGender(survivorId, fieldSource.birthGender());
+
+    // Sex Unknown reason and current sex are tied together and use the same Id
+    updateCurrentSex(survivorId, fieldSource.currentSex());
+    updateSexUnknown(survivorId, fieldSource.currentSex());
+
+    // Multiple birth and birth order are tied together and use the same Id
+    updateMultipleBirth(survivorId, fieldSource.multipleBirth());
+    updateBirthOrder(survivorId, fieldSource.multipleBirth());
+
+    // TODO birth address is not implemented. Should allow itemized selection of
+    // birth city, birth country. Birth state / county should use the birthState
+    // selection
   }
 
   private void updateAsOf(String survivorId, String sourceId) {
@@ -272,7 +277,6 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       updatePersonField(survivorId, sourceId, UPDATE_PERSON_MULTIPLE_BIRTH_IND);
     }
   }
-
 
   private void updateBirthAddress(String survivorId, String sourceId) {
     if (!survivorId.equals(sourceId)) {

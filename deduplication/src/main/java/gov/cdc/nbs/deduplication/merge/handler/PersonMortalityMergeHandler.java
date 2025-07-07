@@ -7,11 +7,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @Order(9)
 public class PersonMortalityMergeHandler implements SectionMergeHandler {
-
 
   static final String UPDATE_PERSON_AS_OF_DEATH = """
       UPDATE person
@@ -124,16 +122,16 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
     this.nbsTemplate = nbsTemplate;
   }
 
-  //Merge modifications have been applied to the person Mortality
+  // Merge modifications have been applied to the person Mortality
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonMortality(request.survivingRecord(), request.mortalityFieldSource());
+    mergePersonMortality(request.survivingRecord(), request.mortality());
   }
 
   private void mergePersonMortality(String survivorId, PatientMergeRequest.MortalityFieldSource fieldSource) {
-    updateAsOf(survivorId, fieldSource.asOfSource());
-    updateDeceasedFlag(survivorId, fieldSource.deceasedSource());
-    updateDateOfDeath(survivorId, fieldSource.dateOfDeathSource());
-    updateDeathAddress(survivorId, fieldSource.deathAddressSource());
+    updateAsOf(survivorId, fieldSource.asOf());
+    updateDeceasedFlag(survivorId, fieldSource.deceased());
+    updateDateOfDeath(survivorId, fieldSource.dateOfDeath());
+    updateDeathAddress(survivorId, fieldSource.deathCity());
   }
 
   private void updateAsOf(String survivorId, String sourceId) {
@@ -155,6 +153,8 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
   }
 
   private void updateDeathAddress(String survivorId, String sourceId) {
+    // TODO - Mortality should allow individual selection of Death city, Death
+    // country, Death state (Death county uses selected patient's death state)
     if (!survivorId.equals(sourceId)) {
       markUnselectedDeathAddressInactive(survivorId);
       copyDeathAddressFromSupersededToSurviving(survivorId, sourceId);
@@ -175,14 +175,11 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
     nbsTemplate.update(INSERT_NEW_DEATH_LOCATOR, params);
   }
 
-
   private void updatePersonField(String survivorId, String sourceId, String query) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("survivorId", survivorId);
     params.addValue("sourceId", sourceId);
     nbsTemplate.update(query, params);
   }
-
-
 
 }

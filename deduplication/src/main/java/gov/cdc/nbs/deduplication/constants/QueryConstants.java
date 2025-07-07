@@ -502,7 +502,7 @@ public class QueryConstants {
           :survivorPersonId,
           :supersededPersonId,
           :mergeTime,
-          1,
+          (SELECT MAX(version_ctrl_nbr) FROM person_hist where person_uid = :supersededPersonId),
           'PAT_MERGE'
       )
       """;

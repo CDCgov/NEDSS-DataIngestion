@@ -18,14 +18,13 @@ public class AdminCommentMergeHandler implements SectionMergeHandler {
     this.nbsTemplate = nbsTemplate;
   }
 
-  //Merge modifications have been applied to the Administrative Comments
+  // Merge modifications have been applied to the Administrative Comments
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
     String survivorId = request.survivingRecord();
-    String adminCommentsSourcePersonUid = request.adminCommentsSource();
+    String adminCommentsSourcePersonUid = request.adminComments();
     updateAdministrativeComments(survivorId, adminCommentsSourcePersonUid);
   }
-
 
   private void updateAdministrativeComments(String survivorId, String adminCommentsSourcePersonUid) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();

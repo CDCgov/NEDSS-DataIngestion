@@ -7,11 +7,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @Order(7)
 public class PersonEthnicityMergeHandler implements SectionMergeHandler {
-
 
   static final String UPDATE_PERSON_ETHNICITY_IND = """
       UPDATE person
@@ -73,17 +71,16 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
         AND record_status_cd = 'ACTIVE'
       """;
 
-
   final NamedParameterJdbcTemplate nbsTemplate;
 
   public PersonEthnicityMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
-  //Merge modifications have been applied to the person ethnicity
+  // Merge modifications have been applied to the person ethnicity
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonEthnicity(request.survivingRecord(), request.ethnicitySource());
+    mergePersonEthnicity(request.survivingRecord(), request.ethnicity());
   }
 
   private void mergePersonEthnicity(String survivorId, String ethnicitySourcePersonId) {
@@ -94,10 +91,9 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
     }
   }
 
-
   private void updatePersonEthnicityIndicator(String survivorId, String ethnicitySourcePersonId) {
     MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("survivorId", survivorId);//NOSONAR
+    parameters.addValue("survivorId", survivorId);// NOSONAR
     parameters.addValue("ethnicitySourcePersonId", ethnicitySourcePersonId);
     nbsTemplate.update(UPDATE_PERSON_ETHNICITY_IND, parameters);
   }
@@ -108,13 +104,11 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
     nbsTemplate.update(UPDATE_PRE_EXISTING_ENTRIES_TO_INACTIVE, parameters);
   }
 
-
   private boolean isEthnicityIndicatorNull(String personUid) {
     String ethnicityInd = nbsTemplate.queryForObject(
         FETCH_SUPERSEDED_PERSON_ETHNICITY_IND,
         new MapSqlParameterSource("personUid", personUid),
-        String.class
-    );
+        String.class);
     return ethnicityInd == null || ethnicityInd.isBlank();
   }
 
@@ -125,6 +119,5 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(COPY_SUPERSEDED_ETHNIC_GROUPS_TO_SURVIVING, parameters);
   }
-
 
 }

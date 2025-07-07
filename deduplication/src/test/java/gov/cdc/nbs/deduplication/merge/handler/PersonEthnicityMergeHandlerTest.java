@@ -1,6 +1,5 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +28,8 @@ class PersonEthnicityMergeHandlerTest {
   void setUp() {
     handler = new PersonEthnicityMergeHandler(nbsTemplate);
     when(patientMergeRequest.survivingRecord()).thenReturn("survivorId");
-    when(patientMergeRequest.ethnicitySource()).thenReturn("supersededId");
+    when(patientMergeRequest.ethnicity()).thenReturn("supersededId");
   }
-
 
   @Test
   void handleMerge_WhenEthnicityIndicatorsAreDifferent_ShouldPerformMerge() {

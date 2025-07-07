@@ -27,7 +27,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     this.deduplicationTemplate = deduplicationTemplate;
   }
 
-  //Modifications have been performed on the person table entries.
+  // Modifications have been performed on the person table entries.
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
     String survivorId = request.survivingRecord();
@@ -44,7 +44,6 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     saveSupersededPersonMergeDetails(survivorId, supersededUids);
   }
 
-
   List<String> getSupersededRecords(String matchId, String survivorId) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("matchId", matchId);
@@ -55,7 +54,6 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
         String.class);
   }
 
-
   private void createHistoryEntries(List<String> involvedPatients) {
     savePersonCopyToPersonHist(involvedPatients);
     increasePersonVersionNbr(involvedPatients);
@@ -63,11 +61,10 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
 
   private void savePersonCopyToPersonHist(List<String> involvedPatients) {
     MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("involvedPatients", involvedPatients);//NOSONAR
+    params.addValue("involvedPatients", involvedPatients);// NOSONAR
     nbsTemplate.update(
         QueryConstants.COPY_PERSON_TO_HISTORY,
-        params
-    );
+        params);
   }
 
   private void increasePersonVersionNbr(List<String> involvedPatients) {
@@ -75,13 +72,14 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     params.addValue("involvedPatients", involvedPatients);
     nbsTemplate.update(
         QueryConstants.INCREMENT_PERSON_VERSION_NUMBER,
-        params
-    );
+        params);
   }
 
   private void linkSupersededChildIdsToSurvivingMpr(String survivorUid, List<String> supersededPersonIds) {
     List<String> childIds = getChildIdsOfTheSupersededPerson(supersededPersonIds);
-    updateParentIdForChildIds(survivorUid, childIds);
+    if (!childIds.isEmpty()) {
+      updateParentIdForChildIds(survivorUid, childIds);
+    }
   }
 
   private List<String> getChildIdsOfTheSupersededPerson(List<String> supersededPersonIds) {
@@ -97,8 +95,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     params.addValue("supersededChildIds", supersededChildIds);
     nbsTemplate.update(
         QueryConstants.LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR,
-        params
-    );
+        params);
   }
 
   private void markSupersededRecords(List<String> supersededPersonIds) {

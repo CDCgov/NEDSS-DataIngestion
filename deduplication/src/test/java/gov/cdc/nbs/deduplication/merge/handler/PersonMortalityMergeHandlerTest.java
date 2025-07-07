@@ -13,8 +13,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-
-
 @ExtendWith(MockitoExtension.class)
 class PersonMortalityMergeHandlerTest {
 
@@ -22,7 +20,6 @@ class PersonMortalityMergeHandlerTest {
   private NamedParameterJdbcTemplate nbsTemplate;
 
   private PersonMortalityMergeHandler handler;
-
 
   @Mock
   private PatientMergeRequest mockRequest;
@@ -33,22 +30,31 @@ class PersonMortalityMergeHandlerTest {
   private PatientMergeRequest.MortalityFieldSource fieldSourceWithDiffIds;
   private PatientMergeRequest.MortalityFieldSource fieldSourceWithSameIds;
 
-
   @BeforeEach
   void setUp() {
     handler = new PersonMortalityMergeHandler(nbsTemplate);
 
-    fieldSourceWithDiffIds =
-        new PatientMergeRequest.MortalityFieldSource(SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID);
+    fieldSourceWithDiffIds = new PatientMergeRequest.MortalityFieldSource(
+        SOURCE_ID,
+        SOURCE_ID,
+        SOURCE_ID,
+        SOURCE_ID,
+        SOURCE_ID,
+        SOURCE_ID);
 
-    fieldSourceWithSameIds =
-        new PatientMergeRequest.MortalityFieldSource(SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID);
+    fieldSourceWithSameIds = new PatientMergeRequest.MortalityFieldSource(
+        SURVIVOR_ID,
+        SURVIVOR_ID,
+        SURVIVOR_ID,
+        SURVIVOR_ID,
+        SURVIVOR_ID,
+        SURVIVOR_ID);
   }
 
   @Test
   void handleMerge_ShouldUpdatePersonMortalityFields() {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
-    when(mockRequest.mortalityFieldSource()).thenReturn(fieldSourceWithDiffIds);
+    when(mockRequest.mortality()).thenReturn(fieldSourceWithDiffIds);
 
     handler.handleMerge("matchId", mockRequest);
 
@@ -58,7 +64,7 @@ class PersonMortalityMergeHandlerTest {
   @Test
   void handleMerge_NotCalledWhenSourceSameAsSurvivor() {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
-    when(mockRequest.mortalityFieldSource()).thenReturn(fieldSourceWithSameIds);
+    when(mockRequest.mortality()).thenReturn(fieldSourceWithSameIds);
 
     handler.handleMerge("matchId", mockRequest);
 
