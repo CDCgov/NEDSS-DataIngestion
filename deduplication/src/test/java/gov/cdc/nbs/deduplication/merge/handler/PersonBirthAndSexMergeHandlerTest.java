@@ -45,7 +45,7 @@ class PersonBirthAndSexMergeHandlerTest {
         SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID);
   }
 
-  // @Test -- TODO incorrect handling of fields
+  // @Test -- incorrect handling of fields
   // void handleMerge_ShouldUpdatePersonBirthAndSexFields() {
   // when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
   // when(mockRequest.sexAndBirth()).thenReturn(fieldSourceWithDiffIds);

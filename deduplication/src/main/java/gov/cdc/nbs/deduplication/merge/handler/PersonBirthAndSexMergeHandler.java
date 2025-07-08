@@ -1,18 +1,23 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
+import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.SexAndBirthFieldSource;
 
 @Component
 @Order(8)
 public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
+  private static final String SURVIVOR_ID = "survivorId";
+  private static final String SOURCE_ID = "sourceId";
 
   static final String UPDATE_PERSON_AS_OF_SEX = """
       UPDATE person
@@ -122,80 +127,169 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_UN_SELECTED_BIRTH_ADDRESS_INACTIVE = """
-      UPDATE Entity_locator_participation
-      SET record_status_cd = 'INACTIVE',
-          last_chg_time = GETDATE(),
-          last_chg_reason_cd = 'merge'
-      WHERE entity_uid = :survivingId
-        AND class_cd = 'PST'
-        AND use_cd = 'BIR';
-      """;
-
-  public static final String COPY_BIRTH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING = """
-      INSERT INTO Entity_locator_participation (
-          entity_uid,
-          locator_uid,
-          version_ctrl_nbr,
-          add_reason_cd,
-          add_time,
-          add_user_id,
-          cd,
-          cd_desc_txt,
-          class_cd,
-          duration_amt,
-          duration_unit_cd,
-          from_time,
-          last_chg_reason_cd,
-          last_chg_time,
-          last_chg_user_id,
-          locator_desc_txt,
-          record_status_cd,
-          record_status_time,
-          status_cd,
-          status_time,
-          to_time,
-          use_cd,
-          user_affiliation_txt,
-          valid_time_txt,
-          as_of_date
-      )
+  // Returns 0 if the survivorId already has a birth locator entry
+  // Returns 1 if the survivorId does not have a birth locator and the sourceId
+  // does
+  static final String SHOULD_CREATE_POSTAL_LOCATOR = """
       SELECT
-          :survivingId,
-          locator_uid,
-          version_ctrl_nbr,
-          add_reason_cd,
-          add_time,
-          add_user_id,
-          cd,
-          cd_desc_txt,
-          class_cd,
-          duration_amt,
-          duration_unit_cd,
-          from_time,
-          'merge',
-          GETDATE(),
-          last_chg_user_id,
-          locator_desc_txt,
-          record_status_cd,
-          record_status_time,
-          status_cd,
-          status_time,
-          to_time,
-          use_cd,
-          user_affiliation_txt,
-          valid_time_txt,
-          as_of_date
-      FROM Entity_locator_participation
-      WHERE entity_uid = :sourceId
-        AND use_cd     = 'BIR'
-        AND class_cd   = 'PST'
+        CASE
+          WHEN (
+            SELECT
+              count(locator_uid)
+            FROM
+              Entity_locator_participation elp
+            WHERE
+              elp.entity_uid = :survivorId
+              AND elp.record_status_cd = 'ACTIVE'
+              AND elp.use_cd = 'BIR'
+          ) = 0
+          AND (
+            SELECT
+              count(locator_uid)
+            FROM
+              Entity_locator_participation elp
+            WHERE
+              elp.entity_uid = :sourceId
+              AND elp.record_status_cd = 'ACTIVE'
+              AND elp.use_cd = 'BIR'
+          ) = 1 THEN 1
+          ELSE 0
+        END AS isMissingElp;
       """;
 
-  final NamedParameterJdbcTemplate nbsTemplate;
+  static final String INSERT_ENTITY_LOCATOR_PARTICIPATION = """
+      INSERT INTO Entity_locator_participation (
+        entity_uid,
+        locator_uid,
+        cd,
+        class_cd,
+        last_chg_time,
+        last_chg_user_id,
+        record_status_cd,
+        record_status_time,
+        status_cd,
+        status_time,
+        use_cd,
+        as_of_date)
+      VALUES
+      (
+        :survivorId,
+        :locatorId,
+        'F',
+        'PST',
+        GETDATE(),
+        :userId,
+        'ACTIVE',
+        GETDATE(),
+        'A',
+        GETDATE(),
+        'BIR',
+        GETDATE()
+      );
+          """;
+  static final String INSERT_POSTAL_LOCATOR = """
+      INSERT INTO Postal_locator (
+        postal_locator_uid,
+        add_time,
+        last_chg_time,
+        last_chg_user_id,
+        record_status_cd,
+        record_status_time
+        )
+      VALUES (
+        :locatorId,
+        GETDATE(),
+        GETDATE(),
+        :userId,
+        'ACTIVE',
+        GETDATE()
+      );
+      """;
 
-  public PersonBirthAndSexMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
+  static final String UPDATE_BIRTH_CITY = """
+      UPDATE Postal_locator
+      SET
+        city_desc_txt = (
+          SELECT
+            city_desc_txt
+          FROM
+            Entity_locator_participation elp
+            JOIN Postal_locator pst on elp.locator_uid = pst.postal_locator_uid
+          WHERE
+            elp.entity_uid = :sourceId
+            AND elp.use_cd = 'BIR'
+        )
+      WHERE postal_locator_uid = (SELECT
+        locator_uid
+      FROM
+        Entity_locator_participation elp
+      WHERE
+        elp.use_cd = 'BIR'
+        AND Entity_uid = :survivorId)
+          """;
+
+  static final String UPDATE_BIRTH_STATE_AND_COUNTY = """
+      UPDATE Postal_locator
+      SET
+        state_cd = (
+          SELECT
+            state_cd
+          FROM
+            Entity_locator_participation elp
+            JOIN Postal_locator pst on elp.locator_uid = pst.postal_locator_uid
+          WHERE
+            elp.entity_uid = :sourceId
+            AND elp.use_cd = 'BIR'
+        ),
+        cnty_cd = (
+          SELECT
+            cnty_cd
+          FROM
+            Entity_locator_participation elp
+            JOIN Postal_locator pst on elp.locator_uid = pst.postal_locator_uid
+          WHERE
+            elp.entity_uid = :sourceId
+            AND elp.use_cd = 'BIR'
+        )
+      WHERE postal_locator_uid = (SELECT
+        locator_uid
+      FROM
+        Entity_locator_participation elp
+      WHERE
+        elp.use_cd = 'BIR'
+        AND Entity_uid = :survivorId)
+          """;
+
+  static final String UPDATE_BIRTH_COUNTRY = """
+      UPDATE Postal_locator
+      SET
+        cntry_cd = (
+          SELECT
+            cntry_cd
+          FROM
+            Entity_locator_participation elp
+            JOIN Postal_locator pst on elp.locator_uid = pst.postal_locator_uid
+          WHERE
+            elp.entity_uid = :sourceId
+            AND elp.use_cd = 'BIR'
+        )
+      WHERE postal_locator_uid = (SELECT
+        locator_uid
+      FROM
+        Entity_locator_participation elp
+      WHERE
+        elp.use_cd = 'BIR'
+        AND Entity_uid = :survivorId)
+          """;
+
+  private final NamedParameterJdbcTemplate nbsTemplate;
+  private final LocalUidGenerator idGenerator;
+
+  public PersonBirthAndSexMergeHandler(
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate,
+      final LocalUidGenerator idGenerator) {
     this.nbsTemplate = nbsTemplate;
+    this.idGenerator = idGenerator;
   }
 
   // Merge modifications have been applied to the person birth and sex
@@ -212,16 +306,79 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     updateBirthGender(survivorId, fieldSource.birthGender());
 
     // Sex Unknown reason and current sex are tied together and use the same Id
-    updateCurrentSex(survivorId, fieldSource.currentSex());
-    updateSexUnknown(survivorId, fieldSource.currentSex());
+    updateCurrentSexAndUnknownReason(survivorId, fieldSource.currentSex());
 
     // Multiple birth and birth order are tied together and use the same Id
-    updateMultipleBirth(survivorId, fieldSource.multipleBirth());
-    updateBirthOrder(survivorId, fieldSource.multipleBirth());
+    updateMultipleBirthAndBirthOrder(survivorId, fieldSource.multipleBirth());
 
-    // TODO birth address is not implemented. Should allow itemized selection of
-    // birth city, birth country. Birth state / county should use the birthState
-    // selection
+    updateBirthAddress(survivorId, fieldSource);
+  }
+
+  private void updateBirthAddress(String survivorId, SexAndBirthFieldSource fieldSource) {
+    updateBirthCity(survivorId, fieldSource.birthCity());
+    updateBirthStateAndCounty(survivorId, fieldSource.birthState());
+    updateBirthCountry(survivorId, fieldSource.birthCountry());
+  }
+
+  // Checks if the surviving patient is missing an Entity_locator_participation
+  // and postal_locator entry
+  // Will only create a new one if the survivingId does not have one and the
+  // sourceId does
+  private void ensurePostalLocator(String survivorId, String sourceId) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue(SURVIVOR_ID, survivorId);
+    params.addValue(SOURCE_ID, sourceId);
+    Boolean shouldCreate = nbsTemplate.queryForObject(SHOULD_CREATE_POSTAL_LOCATOR, params, Boolean.class);
+    if (Boolean.TRUE.equals(shouldCreate)) {
+      createBirthLocator(survivorId);
+    }
+  }
+
+  private void createBirthLocator(String survivorId) {
+    long locatorId = idGenerator.getNextValidId(EntityType.NBS).id();
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    // Create Entity_locator_participation
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue(SURVIVOR_ID, survivorId);
+    params.addValue("locatorId", locatorId);
+    params.addValue("userId", currentUser.getId());
+
+    nbsTemplate.update(INSERT_ENTITY_LOCATOR_PARTICIPATION, params);
+
+    // Create Postal_locator
+    MapSqlParameterSource locatorParams = new MapSqlParameterSource();
+    params.addValue("locatorId", locatorId);
+    params.addValue("userId", currentUser.getId());
+
+    nbsTemplate.update(INSERT_POSTAL_LOCATOR, locatorParams);
+  }
+
+  private void updateBirthCity(String survivorId, String sourceId) {
+    if (!survivorId.equals(sourceId)) {
+      // make sure a postal_locator entry exists if needed
+      ensurePostalLocator(survivorId, sourceId);
+      // update surviving record's 'BIR' postal_locator to selected value
+      updatePersonField(survivorId, sourceId, UPDATE_BIRTH_CITY);
+    }
+  }
+
+  private void updateBirthStateAndCounty(String survivorId, String sourceId) {
+    if (!survivorId.equals(sourceId)) {
+      // make sure a postal_locator entry exists if needed
+      ensurePostalLocator(survivorId, sourceId);
+      // update surviving record's 'BIR' postal_locator to selected value
+      updatePersonField(survivorId, sourceId, UPDATE_BIRTH_STATE_AND_COUNTY);
+    }
+  }
+
+  private void updateBirthCountry(String survivorId, String sourceId) {
+    if (!survivorId.equals(sourceId)) {
+      // make sure a postal_locator entry exists if needed
+      ensurePostalLocator(survivorId, sourceId);
+      // update surviving record's 'BIR' postal_locator to selected value
+      updatePersonField(survivorId, sourceId, UPDATE_BIRTH_COUNTRY);
+    }
   }
 
   private void updateAsOf(String survivorId, String sourceId) {
@@ -242,20 +399,9 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     }
   }
 
-  private void updateBirthOrder(String survivorId, String sourceId) {
-    if (!survivorId.equals(sourceId)) {
-      updatePersonField(survivorId, sourceId, UPDATE_PERSON_BIRTH_ORDER);
-    }
-  }
-
-  private void updateCurrentSex(String survivorId, String sourceId) {
+  private void updateCurrentSexAndUnknownReason(String survivorId, String sourceId) {
     if (!survivorId.equals(sourceId)) {
       updatePersonField(survivorId, sourceId, UPDATE_PERSON_CURRENT_SEX_CD);
-    }
-  }
-
-  private void updateSexUnknown(String survivorId, String sourceId) {
-    if (!survivorId.equals(sourceId)) {
       updatePersonField(survivorId, sourceId, UPDATE_PERSON_SEX_UNKNOWN_CD);
     }
   }
@@ -272,37 +418,17 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     }
   }
 
-  private void updateMultipleBirth(String survivorId, String sourceId) {
+  private void updateMultipleBirthAndBirthOrder(String survivorId, String sourceId) {
     if (!survivorId.equals(sourceId)) {
       updatePersonField(survivorId, sourceId, UPDATE_PERSON_MULTIPLE_BIRTH_IND);
+      updatePersonField(survivorId, sourceId, UPDATE_PERSON_BIRTH_ORDER);
     }
-  }
-
-  private void updateBirthAddress(String survivorId, String sourceId) {
-    if (!survivorId.equals(sourceId)) {
-      markUnselectedBirthAddressInactive(survivorId);
-      copyBirthAddressFromSupersededToSurviving(survivorId, sourceId);
-    }
-
-  }
-
-  private void markUnselectedBirthAddressInactive(String survivingId) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivingId", survivingId);
-    nbsTemplate.update(UPDATE_UN_SELECTED_BIRTH_ADDRESS_INACTIVE, params);
-  }
-
-  private void copyBirthAddressFromSupersededToSurviving(String survivingId, String sourceId) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("survivingId", survivingId);
-    params.put("sourceId", sourceId);
-    nbsTemplate.update(COPY_BIRTH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING, params);
   }
 
   private void updatePersonField(String survivorId, String sourceId, String sqlQuery) {
     MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivorId", survivorId);
-    params.addValue("sourceId", sourceId);
+    params.addValue(SURVIVOR_ID, survivorId);
+    params.addValue(SOURCE_ID, sourceId);
     nbsTemplate.update(sqlQuery, params);
   }
 
