@@ -154,12 +154,13 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   private void updateSpanishOriginsToInactive(String personId, List<String> spanishOrigins) {
     NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Long userId = currentUser.getId();
-
-    client.sql(UPDATE_SPANISH_ORIGINS_TO_INACTIVE)
-        .param(USER_ID, userId)
-        .param(PERSON_ID, personId)
-        .param("spanishOrigins", spanishOrigins)
-        .update();
+    if (!spanishOrigins.isEmpty()) {
+      client.sql(UPDATE_SPANISH_ORIGINS_TO_INACTIVE)
+          .param(USER_ID, userId)
+          .param(PERSON_ID, personId)
+          .param("spanishOrigins", spanishOrigins)
+          .update();
+    }
   }
 
 }
