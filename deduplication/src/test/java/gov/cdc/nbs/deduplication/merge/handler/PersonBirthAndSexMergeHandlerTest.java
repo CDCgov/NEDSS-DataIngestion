@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,9 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -20,6 +18,9 @@ class PersonBirthAndSexMergeHandlerTest {
 
   @Mock
   private NamedParameterJdbcTemplate nbsTemplate;
+
+  @Mock
+  private LocalUidGenerator iUidGenerator;
 
   private PersonBirthAndSexMergeHandler handler;
 
@@ -34,7 +35,7 @@ class PersonBirthAndSexMergeHandlerTest {
 
   @BeforeEach
   void setUp() {
-    handler = new PersonBirthAndSexMergeHandler(nbsTemplate);
+    handler = new PersonBirthAndSexMergeHandler(nbsTemplate, iUidGenerator);
 
     fieldSourceWithDiffIds = new PatientMergeRequest.SexAndBirthFieldSource(
         SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID,
@@ -45,16 +46,15 @@ class PersonBirthAndSexMergeHandlerTest {
         SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID);
   }
 
-  // @Test -- incorrect handling of fields
-  // void handleMerge_ShouldUpdatePersonBirthAndSexFields() {
-  // when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
-  // when(mockRequest.sexAndBirth()).thenReturn(fieldSourceWithDiffIds);
+  @Test
+  void handleMerge_ShouldUpdatePersonMortalityFields() {
+    when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
+    when(mockRequest.sexAndBirth()).thenReturn(fieldSourceWithDiffIds);
 
-  // handler.handleMerge("matchId", mockRequest);
+    handler.handleMerge("matchId", mockRequest);
 
-  // verify(nbsTemplate, times(10)).update(anyString(),
-  // any(MapSqlParameterSource.class));
-  // }
+    verify(nbsTemplate, times(12)).update(anyString(), any(MapSqlParameterSource.class));
+  }
 
   @Test
   void handleMerge_NotCalledWhenSourceSameAsSurvivor() {
