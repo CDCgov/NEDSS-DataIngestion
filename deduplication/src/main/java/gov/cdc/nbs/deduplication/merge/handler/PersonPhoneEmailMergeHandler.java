@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -85,12 +87,12 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE';
       """;
 
-
   public PersonPhoneEmailMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
+  @Transactional(propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonPhoneEmail(request);
   }
@@ -122,6 +124,5 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(INSERT_NEW_PHONE_EMAIL_LOCATORS, params);
   }
-
 
 }

@@ -6,6 +6,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Order(10)
@@ -138,6 +140,7 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
   }
 
   @Override
+  @Transactional(propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonGeneralInfo(request.survivingRecord(), request.generalInfo());
   }

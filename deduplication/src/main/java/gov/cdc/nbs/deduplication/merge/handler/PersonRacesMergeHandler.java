@@ -6,14 +6,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Component
 @Order(7)
 public class PersonRacesMergeHandler implements SectionMergeHandler {
-
 
   static final String UPDATE_ALL_SURVIVOR_RACES_INACTIVE = """
       UPDATE person_race
@@ -106,7 +106,6 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         AND pr.record_status_cd = 'ACTIVE'
       """;
 
-
   static final String SELECT_RACE_CATEGORY_FOR_RACE_CD = """
       SELECT DISTINCT race_category_cd
       FROM person_race
@@ -119,8 +118,9 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
     this.nbsTemplate = nbsTemplate;
   }
 
-  //Merge modifications have been applied to the person races
+  // Merge modifications have been applied to the person races
   @Override
+  @Transactional(propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonRaces(request.survivingRecord(), request.races());
   }
@@ -152,11 +152,11 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
   }
 
   private void markUnselectedSurvivingRacesAsInactive(String survivorId, List<String> survivingSelectedRaceCodes) {
-    String query = survivingSelectedRaceCodes.isEmpty() ? UPDATE_ALL_SURVIVOR_RACES_INACTIVE :
-        UPDATE_SELECTED_EXCLUDED_RACES_INACTIVE;
+    String query = survivingSelectedRaceCodes.isEmpty() ? UPDATE_ALL_SURVIVOR_RACES_INACTIVE
+        : UPDATE_SELECTED_EXCLUDED_RACES_INACTIVE;
 
     Map<String, Object> params = new HashMap<>();
-    params.put("survivorId", survivorId);//NOSONAR
+    params.put("survivorId", survivorId);// NOSONAR
     if (!survivingSelectedRaceCodes.isEmpty()) {
       params.put("survivingSelectedRaceCodes", survivingSelectedRaceCodes);
     }
@@ -209,8 +209,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
 
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("survivorId", survivorId);
-    params.addValue("supersededUid", supersededUid);//NOSONAR
-    params.addValue("raceCategoryCd", raceCategoryCd);//NOSONAR
+    params.addValue("supersededUid", supersededUid);// NOSONAR
+    params.addValue("raceCategoryCd", raceCategoryCd);// NOSONAR
     params.addValue("selectedRaceCd", selectedRaceCd);
 
     nbsTemplate.update(COPY_RACE_DETAIL_IF_NOT_EXISTS, params);
@@ -235,7 +235,6 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR, params);
   }
-
 
   private String getRaceCategoryCd(String raceCd) {
     return nbsTemplate.queryForObject(SELECT_RACE_CATEGORY_FOR_RACE_CD,
