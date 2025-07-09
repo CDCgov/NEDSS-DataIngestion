@@ -74,7 +74,7 @@ public class LocalUidGenerator {
           .optional()
           .orElseThrow();
 
-      client.sql(INCREMENT_BY_NBS_TYPE_CD)
+      client.sql(INCREMENT_BY_ID)
           .param("classCd", type.toString())
           .update();
       return id;
