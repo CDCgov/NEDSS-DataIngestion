@@ -14,8 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +46,28 @@ class RawElrServiceTest {
     }
 
     @Test
-    void testSaveHL7_Success() throws KafkaProducerException {
+    void testSaveHL7_batch_Success() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", true);
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.saveAll(any())).thenReturn(List.of(model));
+        Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        var result = target.submissionElr(modelDto);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("test",result);
+    }
+    @Test
+    void testSaveHL7_batch_off_Success() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", false);
         RawElrDto modelDto = new RawElrDto();
         modelDto.setPayload("test");
         modelDto.setType("HL7");
@@ -57,12 +80,11 @@ class RawElrServiceTest {
         model.setUpdatedBy("test");
         when(rawELRRepository.save(any())).thenReturn(model);
         Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        var result = target.submission(modelDto);
+        var result = target.submissionElr(modelDto);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("test",result);
     }
-
     @Test
     void testSaveElrXml_Success() throws KafkaProducerException {
         RawElrDto modelDto = new RawElrDto();
@@ -77,7 +99,7 @@ class RawElrServiceTest {
         model.setUpdatedBy("test");
         when(rawELRRepository.save(any())).thenReturn(model);
         Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        var result = target.submission(modelDto);
+        var result = target.submissionElrXml(modelDto);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("test",result);
@@ -139,6 +161,7 @@ class RawElrServiceTest {
     }
     @Test
     void testSaveHL7_with_customMapping_Success() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", true);
         RawElrDto modelDto = new RawElrDto();
         modelDto.setPayload("test");
         modelDto.setType("HL7");
@@ -150,11 +173,65 @@ class RawElrServiceTest {
         model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
         model.setCreatedBy("test");
         model.setUpdatedBy("test");
-        when(rawELRRepository.save(any())).thenReturn(model);
+        when(rawELRRepository.saveAll(any())).thenReturn(List.of(model));
         Mockito.doNothing().when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        var result = target.submission(modelDto);
+        var result = target.submissionElr(modelDto);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("test",result);
+    }
+    @Test
+    void testSaveHL7_KafkaProducerException() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", true);
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.saveAll(any())).thenReturn(List.of(model));
+
+        Mockito.doThrow(new KafkaProducerException("Failed sending message to kafka")).when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertThrows(KafkaProducerException.class, () -> target.submissionElr(modelDto));
+    }
+    @Test
+    void testSaveHL7_batch_off_KafkaProducerException() throws KafkaProducerException {
+        ReflectionTestUtils.setField(target, "hl7BatchSplittingEnabled", false);
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.save(any())).thenReturn(model);
+
+        Mockito.doThrow(new KafkaProducerException("Failed sending message to kafka")).when(kafkaProducerService).sendMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertThrows(KafkaProducerException.class, () -> target.submissionElr(modelDto));
+    }
+
+    @Test
+    void testSaveElrXml_KafkaProducerException() throws KafkaProducerException {
+        RawElrDto modelDto = new RawElrDto();
+        modelDto.setPayload("test");
+        modelDto.setType("HL7-XML");
+        RawElrModel model = new RawElrModel();
+        model.setId("test");
+        model.setVersion("1");
+        model.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
+        model.setCreatedBy("test");
+        model.setUpdatedBy("test");
+        when(rawELRRepository.save(any())).thenReturn(model);
+
+        Mockito.doThrow(new KafkaProducerException("Failed sending message to kafka")).when(kafkaProducerService).sendElrXmlMessageFromController(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertThrows(KafkaProducerException.class, () -> target.submissionElrXml(modelDto));
     }
 }

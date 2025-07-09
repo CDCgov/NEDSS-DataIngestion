@@ -157,6 +157,11 @@ sftp:
 diserver:
   host: ${DI_SERVER_HOST:localhost:8081}
 
-
 service:
   timezone: ${SERVICE_TZ:UTC}
+
+features:
+  obrSplitting:
+    enabled: ${OBR_SPLITTING_ENABLED:false}
+  hl7BatchSplitting:
+    enabled: ${HL7_BATCH_SPLITTING_ENABLED:false}

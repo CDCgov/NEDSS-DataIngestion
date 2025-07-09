@@ -146,7 +146,7 @@ public class SFTPRouteBuilder extends RouteBuilder {
             //Process the files from unzipped folder
             from(routeTextFileDir+"?delete=true")
                     .routeId("sftpReadFromTextFileDirRouteId_"+i)
-                        .log("Read from a folder that has files extracted from a zip file.The file ${file:name}")
+                        .log("Read from a folder that has individual files.")
                         .to("seda:processfiles_"+i, "seda:movefiles_"+i)
                     .end();
 
@@ -157,7 +157,6 @@ public class SFTPRouteBuilder extends RouteBuilder {
                     .choice()
                         .when(simple(fileTypeValidationCondition))//NOSONAR
                             .log("File processed:${file:name}")
-                            .log("Before bean process:${bodyAs(String).trim.length}:")
                             .bean(HL7FileProcessComponent.class)
                             .log("ELR raw id: ${body}")
                             .setBody(simple("${file:name}:${body}"))
@@ -169,7 +168,6 @@ public class SFTPRouteBuilder extends RouteBuilder {
 
             from("seda:movefiles_"+i)
                     .routeId("sedaMoveFilesRouteId_"+i)
-                        .log("from seda movefiles file:${file:name}")
                         .to(routeMoveToUnprocessed)
                     .end();
 
@@ -188,21 +186,20 @@ public class SFTPRouteBuilder extends RouteBuilder {
             //Provide the ELR processing status in the output folder.
             from(routeProcessingStatus)
                     .routeId("sedaStatusRouteId_"+i).delay(5000)
-                    .log("from seda updateStatus message:${body}")
                     .bean(ElrProcessStatusComponent.class)
                     .choice()
-                        .when(simple("${bodyAs(String)} == 'Success'"))
-                            .log("When success. status: ${body}")
+                        .when(simple("${bodyAs(String).startsWith('Status: Success')} == 'true'"))
+                            .log("Completed - the status is available in the processed folder")
                             .setBody(simple("${body}"))
-                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Success-${file:name}"))
+                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-success-${file:onlyname.noext.single}.log"))
                             .to(sftpProcessedUri)
-                        .when(simple("${bodyAs(String).startsWith('Status:')} == 'true'"))
-                            .log("When failure. status: ${body}")
+                        .when(simple("${bodyAs(String).startsWith('Status: Failure')} == 'true' || ${bodyAs(String).startsWith('Status: Validation Error')} == 'true'"))
+                            .log("Completed - the status is available in the processed folder")
                             .setBody(simple("${body}"))
-                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-Failure-${file:name}"))
+                            .setHeader(Exchange.FILE_NAME, simple("${date:now:yyyyMMddHHmmss}-failure-${file:onlyname.noext.single}.log"))
                             .to(sftpProcessedUri)
                         .otherwise()
-                            .log("Calling the same route until it finds the status. seda:updateStatus----${body}")
+                            .log("Checking the status for the file ${body}")
                             .to(routeProcessingStatus)
                     .endChoice()
                     .end();

@@ -291,11 +291,18 @@ public class NbsRepositoryServiceProvider {
 
 		try {
 			if (specimenColDateStr != null) {
-				//Text '202408212230-0600'
+				//Need to find the correct format for the date string like '202408212230-0600','20250508145500000-0700'.Maybe the datetime is not in the correct format.
+				//Until then truncate the content after +/-.
 				if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("-")){
 					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("-"));
+					if(specimenColDateStr.length()>14){
+						specimenColDateStr=specimenColDateStr.substring(0,14);
+					}
 				}else if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("+")){
 					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("+"));
+					if(specimenColDateStr.length()>14){
+						specimenColDateStr=specimenColDateStr.substring(0,14);
+					}
 				}
 				DateTimeFormatterBuilder dateTimeFormatterBuilder = new DateTimeFormatterBuilder()
 						.append(DateTimeFormatter.ofPattern("[yyyyMMddHHmm]" + "[yyyyMMddHHmmss.SSSX]"
