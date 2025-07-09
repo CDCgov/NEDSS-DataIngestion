@@ -1,7 +1,9 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
 
+import gov.cdc.dataprocessing.cache.DpStatic;
 import gov.cdc.dataprocessing.cache.PropertyUtilCache;
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.constant.DecisionSupportConstants;
 import gov.cdc.dataprocessing.constant.DpConstant;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
@@ -64,7 +66,7 @@ import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-@SuppressWarnings("java:S6068")
+@SuppressWarnings({"java:S6068", "java:S2699"})
 class ManagerServiceTest {
     @Mock
     private  IObservationService observationService;
@@ -95,6 +97,9 @@ class ManagerServiceTest {
 
     @Mock
     private RtiDltJdbcRepository rtiDltJdbcRepository;
+    @Mock
+    private ServicePropertiesProvider servicePropertiesProvider;
+
 
     @Mock
     private NbsInterfaceJdbcRepository nbsInterfaceJdbcRepository;
@@ -120,6 +125,7 @@ class ManagerServiceTest {
         user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
         userInfo.setAuthUser(user);
 
+        when(servicePropertiesProvider.getTz()).thenReturn("UTC");
         authUtil.setGlobalAuthUser(userInfo);
 
     }
@@ -133,7 +139,7 @@ class ManagerServiceTest {
 
 
     @Test
-    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Test() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -173,7 +179,7 @@ class ManagerServiceTest {
 
 
         when(cacheApiService.getSrteCacheBool(any(), any())).thenReturn(true);
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
@@ -746,7 +752,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_1() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -784,13 +790,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("Invalid XML"));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
 
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_2() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -826,13 +832,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
 
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_3() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -869,13 +875,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
 
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_4() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -914,13 +920,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
 
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_5() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -958,13 +964,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.SQL_FIELD_TRUNCATION_ERROR_MSG));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
 
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_6() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1002,13 +1008,13 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException(EdxELRConstant.DATE_VALIDATION));
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
 
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException, DataProcessingDBException {
+    void processDistribution_Error_7() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         var test = new TestDataReader();
 
         NbsInterfaceModel labData = test.readDataFromJsonPath("manager/manager_first_process.json", NbsInterfaceModel.class);
@@ -1046,34 +1052,34 @@ class ManagerServiceTest {
         when(observationService.processingLabResultContainer(any()))  .thenThrow(new DataProcessingException("BLAH"));
 
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(any())).thenReturn(labData);
-        managerService.processingELR(123);
+        managerService.processingELR(123, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataEdxActivityLog(any());
     }
 
     @Test
-    void initiateStep1KafkaFailed() throws EdxLogException, DataProcessingDBException {
+    void initiateStep1KafkaFailed() throws EdxLogException {
         Integer nbsId = 1;
 
         var nbs = new NbsInterfaceModel();
         nbs.setNbsInterfaceUid(nbsId);
         nbs.setRecordStatusCd("SUCCESS");
         when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
-        managerService.processingELR(nbsId);
+        managerService.processingELR(nbsId, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataPhc(any());
 
     }
 
     @Test
-    void initiateStep1KafkaFailed_ResetCache() throws EdxLogException, DataProcessingDBException {
+    void initiateStep1KafkaFailed_ResetCache() throws EdxLogException {
         Integer nbsId = 1;
         PropertyUtilCache.kafkaFailedCheckStep1 = 100000;
         var nbs = new NbsInterfaceModel();
         nbs.setNbsInterfaceUid(nbsId);
         nbs.setRecordStatusCd("SUCCESS");
         when(nbsInterfaceRepository.findByNbsInterfaceUid(nbsId)).thenReturn(Optional.ofNullable(nbs));
-        managerService.processingELR(nbsId);
+        managerService.processingELR(nbsId, false);
 
         verify(kafkaManagerProducer, times(0)).sendDataPhc(any());
         PropertyUtilCache.kafkaFailedCheckStep1 = 0;
@@ -1156,7 +1162,7 @@ class ManagerServiceTest {
 
         assertDoesNotThrow(() -> {
             try {
-                managerService.handlingWdsAndLab(container);
+                managerService.handlingWdsAndLab(container, false);
             } catch (DataProcessingException | DataProcessingDBException | EdxLogException ignored) {
                 //IGNORE THIS
             }
@@ -1164,7 +1170,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void testHandlingWdsAndLab_QueryTimeoutException() throws DataProcessingException {
+    void testHandlingWdsAndLab_QueryTimeoutException() throws DataProcessingException, DataProcessingDBException, EdxLogException {
         PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
         EdxLabInformationDto edxDto = mock(EdxLabInformationDto.class);
         NbsInterfaceModel model = mock(NbsInterfaceModel.class);
@@ -1175,10 +1181,9 @@ class ManagerServiceTest {
         doThrow(new QueryTimeoutException("Timeout"))
                 .when(managerService).initiatingInvestigationAndPublicHealthCase(container);
 
-        assertThrows(DataProcessingDBException.class, () -> managerService.handlingWdsAndLab(container));
+        managerService.handlingWdsAndLab(container, false);
     }
 
-    @SuppressWarnings("java:S2699")
     @Test
     void testHandlingWdsAndLab_GenericException() throws DataProcessingException {
         PublicHealthCaseFlowContainer container = mock(PublicHealthCaseFlowContainer.class);
@@ -1195,7 +1200,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void processingELR_shouldThrowDataProcessingDBException_onQueryTimeout() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void processingELR_shouldThrowDataProcessingDBException_onQueryTimeout() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         Integer testId = 456;
         NbsInterfaceModel model = new NbsInterfaceModel();
         model.setNbsInterfaceUid(testId);
@@ -1203,13 +1208,12 @@ class ManagerServiceTest {
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
         when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(new QueryTimeoutException("Timeout"));
 
-        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
-                managerService.processingELR(testId));
-        assertEquals("Timeout", ex.getMessage());
+        var ex = managerService.processingELR(testId, false);
+        assertNull( ex);
     }
 
     @Test
-    void processingELR_shouldThrowDataProcessingDBException_onSqlException() throws DataProcessingConsumerException, JAXBException, DataProcessingException {
+    void processingELR_shouldThrowDataProcessingDBException_onSqlException() throws DataProcessingConsumerException, JAXBException, DataProcessingException, EdxLogException {
         Integer testId = 789;
         NbsInterfaceModel model = new NbsInterfaceModel();
         model.setNbsInterfaceUid(testId);
@@ -1220,20 +1224,23 @@ class ManagerServiceTest {
         when(nbsInterfaceJdbcRepository.getNbsInterfaceByUid(testId)).thenReturn(model);
         when(dataExtractionService.parsingDataToObject(any(), any())).thenThrow(wrapped);
 
-        DataProcessingDBException ex = assertThrows(DataProcessingDBException.class, () ->
-                managerService.processingELR(testId));
-        assertEquals("Wrapper", ex.getMessage());
+
+
+        var ex = managerService.processingELR(testId, false);
+        assertNull(ex);
     }
 
     @Test
-    void handleProcessingElrException_whenCannotAcquireLock_setsDltLockError() throws Exception {
+    void handleProcessingElrException_whenCannotAcquireLock_setsDltLockError()  {
         AtomicBoolean dltLock = new AtomicBoolean(false);
         AtomicBoolean nonDlt = new AtomicBoolean(false);
+        AtomicBoolean inteDlt = new AtomicBoolean(false);
+
         AtomicReference<String> msg = new AtomicReference<>("");
 
         Exception ex = new CannotAcquireLockException("lock issue");
 
-        managerService.handleProcessingElrException(ex, new EdxLabInformationDto(), new NbsInterfaceModel(), dltLock, nonDlt, msg);
+        managerService.handleProcessingElrException(ex, new EdxLabInformationDto(), new NbsInterfaceModel(), dltLock, nonDlt, inteDlt, msg);
 
         assertTrue(dltLock.get());
         assertFalse(nonDlt.get());
@@ -1242,44 +1249,41 @@ class ManagerServiceTest {
 
     @Test
     void handleProcessingElrException_whenQueryTimeout_throwsDataProcessingDBException() {
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    new QueryTimeoutException("timeout"),
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                new QueryTimeoutException("timeout"),
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
     @Test
     void handleProcessingElrException_whenTransientDataAccess_throwsDataProcessingDBException() {
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    new TransientDataAccessException("transient") {},
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                new TransientDataAccessException("transient") {},
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
     @Test
     void handleProcessingElrException_whenDataAccess_throwsDataProcessingDBException() {
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    new DataAccessException("data") {},
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                new DataAccessException("data") {},
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
     @Test
@@ -1287,16 +1291,15 @@ class ManagerServiceTest {
         SQLException sqlCause = new SQLException("SQL error");
         RuntimeException wrapper = new RuntimeException("wrapper", sqlCause);
 
-        assertThrows(DataProcessingDBException.class, () -> {
-            managerService.handleProcessingElrException(
-                    wrapper,
-                    new EdxLabInformationDto(),
-                    new NbsInterfaceModel(),
-                    new AtomicBoolean(),
-                    new AtomicBoolean(),
-                    new AtomicReference<>()
-            );
-        });
+        managerService.handleProcessingElrException(
+                wrapper,
+                new EdxLabInformationDto(),
+                new NbsInterfaceModel(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicBoolean(),
+                new AtomicReference<>()
+        );
     }
 
 
@@ -1309,7 +1312,7 @@ class ManagerServiceTest {
         NbsInterfaceModel model = new NbsInterfaceModel();
 
         managerService.finalizeProcessingElr(
-                true, false, ex, interfaceId, "msg", model, dto
+                true, false, false,ex, interfaceId, "msg", model, dto, false
         );
 
         verify(edxLogService).updateActivityLogDT(model, dto);
@@ -1326,7 +1329,7 @@ class ManagerServiceTest {
         NbsInterfaceModel model = new NbsInterfaceModel();
 
         managerService.finalizeProcessingElr(
-                false, true, ex, interfaceId, "some-details", model, dto
+                false, true, false, ex, interfaceId, "some-details", model, dto, false
         );
 
         verify(edxLogService).updateActivityLogDT(model, dto);
@@ -1343,7 +1346,7 @@ class ManagerServiceTest {
         NbsInterfaceModel model = new NbsInterfaceModel();
 
         managerService.finalizeProcessingElr(
-                false, false, ex, interfaceId, "just logs", model, dto
+                false, false, false, ex, interfaceId, "just logs", model, dto, false
         );
 
         verify(edxLogService).updateActivityLogDT(model, dto);
@@ -1428,10 +1431,12 @@ class ManagerServiceTest {
     }
 
     @Test
-    void handleWdsAndLabException_whenNonDatabaseError_shouldSetStatusAndSaveModel() throws Exception {
+    void handleWdsAndLabException_whenNonDatabaseError_shouldSetStatusAndSaveModel()  {
         // Arrange
         AtomicBoolean dltLock = new AtomicBoolean(false);
         AtomicBoolean nonDlt = new AtomicBoolean(false);
+        AtomicBoolean inteDlt = new AtomicBoolean(false);
+
 
         NbsInterfaceModel model = new NbsInterfaceModel();
         PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
@@ -1440,7 +1445,7 @@ class ManagerServiceTest {
         Exception ex = new IllegalArgumentException("non-database error");
 
         // Act
-        managerService.handleWdsAndLabException(ex, container, dltLock, nonDlt);
+        managerService.handleWdsAndLabException(ex, container, dltLock, nonDlt, inteDlt);
 
         // Assert
         assertFalse(dltLock.get());
@@ -1448,6 +1453,27 @@ class ManagerServiceTest {
         assertEquals(DP_FAILURE_STEP_2, model.getRecordStatusCd());
         assertNotNull(model.getRecordStatusTime());
         verify(nbsInterfaceRepository).save(model);
+    }
+
+    @Test
+    void finalizeWdsAndLabProcessing_whenNonDltError_shouldPersistAndLog_2() throws Exception {
+        // Arrange
+        Exception ex = new Exception("non-dlt-error");
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        container.setNbsInterfaceModel(model);
+        container.setNbsInterfaceId(987);
+
+        EdxLabInformationDto dto = new EdxLabInformationDto();
+        dto.setEdxActivityLogDto(new EDXActivityLogDto());
+        container.setEdxLabInformationDto(dto);
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(container, ex, true, true, false, true);
+
+        // Assert
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
     }
 
     @Test
@@ -1465,17 +1491,17 @@ class ManagerServiceTest {
         container.setEdxLabInformationDto(dto);
 
         // Act
-        managerService.finalizeWdsAndLabProcessing(container, ex, false, true);
+        managerService.finalizeWdsAndLabProcessing(container, ex, false, true, false, false);
 
         // Assert
         verify(managerService).persistingRtiDlt(
                 eq(ex),
                 eq(987L),
                 anyString(),
-                eq("STEP_2"),
-                contains("Other Non Error")
+                eq("STEP 2"),
+                any()
         );
-        verify(managerService, never()).composeDltKafkaEvent(any());
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
         verify(edxLogService).updateActivityLogDT(model, dto);
         verify(edxLogService).addActivityDetailLogs(dto, "");
         verify(edxLogService).saveEdxActivityLogs(dto.getEdxActivityLogDto());
@@ -1492,7 +1518,208 @@ class ManagerServiceTest {
         verify(nbsInterfaceJdbcRepository).updateRecordStatusToRtiProcess(ids);
     }
 
+    @Test
+    void testFinalizeProcessingElr_DltLockError_WithRetryApplied() throws EdxLogException {
+        // Arrange
+        Exception ex = new RuntimeException("test-exception");
+        NbsInterfaceModel nbsInterfaceModel = new NbsInterfaceModel();
+        EdxLabInformationDto labDto = new EdxLabInformationDto();
+        labDto.setEdxActivityLogDto(new EDXActivityLogDto());
+        String detailedMsg = "lock error msg";
+        int interfaceId = 123;
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        doNothing().when(managerService).composeDltKafkaEvent(any(), any());
+
+        // Act
+        managerService.finalizeProcessingElr(
+                true,     // dltLockError
+                false,    // nonDltError
+                false,    // integrityError
+                ex,
+                interfaceId,
+                detailedMsg,
+                nbsInterfaceModel,
+                labDto,
+                true      // retryApplied
+        );
+
+        // Assert
+        verify(edxLogService).saveEdxActivityLogs(eq(labDto.getEdxActivityLogDto()));
+    }
+
+    @Test
+    void testFinalizeProcessingElr_NonDltError_WithRetryApplied() throws EdxLogException {
+        Exception ex = new RuntimeException("non-dlt-error");
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labInfo = new EdxLabInformationDto();
+        labInfo.setEdxActivityLogDto(new EDXActivityLogDto());
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+
+        managerService.finalizeProcessingElr(
+                false,   // dltLockError
+                true,    // nonDltError
+                false,   // integrityError
+                ex,
+                456,
+                "some detail",
+                model,
+                labInfo,
+                true     // retryApplied
+        );
 
 
+        verify(edxLogService).saveEdxActivityLogs(eq(labInfo.getEdxActivityLogDto()));
+    }
+
+    @Test
+    void testFinalizeProcessingElr_IntegrityError_WithRetryApplied() throws EdxLogException {
+        Exception ex = new RuntimeException("integrity error");
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labInfo = new EdxLabInformationDto();
+        labInfo.setEdxActivityLogDto(new EDXActivityLogDto());
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+
+        managerService.finalizeProcessingElr(
+                false,   // dltLockError
+                false,   // nonDltError
+                true,    // integrityError
+                ex,
+                789,
+                "integrity issue",
+                model,
+                labInfo,
+                true     // retryApplied
+        );
+
+        assertTrue(DpStatic.isUuidPoolInitialized()); // Also verifies the static state change
+    }
+
+
+
+    @Test
+    void testFinalizeWdsAndLabProcessing_NonDltErrorFalse_RetryAppliedTrue() throws EdxLogException {
+        // Arrange
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceId(123);
+
+        // Mock EDX components
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labDto = new EdxLabInformationDto();
+        EDXActivityLogDto logDto = new EDXActivityLogDto();
+
+        container.setNbsInterfaceModel(model);
+        container.setEdxLabInformationDto(labDto);
+        labDto.setEdxActivityLogDto(logDto);
+
+        Exception ex = new RuntimeException("some exception");
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        doNothing().when(managerService).composeDltKafkaEvent(any(), any());
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(
+                container,
+                ex,
+                false, // dltLockError
+                false, // nonDltError
+                false, // integrityError
+                true   // retryApplied
+        );
+
+        // Assert
+        // Only log operations should be invoked, no kafka or persistingRtiDlt
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
+        verify(managerService, never()).persistingRtiDlt(eq(ex), anyLong(), any(), eq("STEP_2"), contains("Other Non Error"));
+        verify(edxLogService).updateActivityLogDT(eq(model), eq(labDto));
+        verify(edxLogService).addActivityDetailLogs(eq(labDto), eq(""));
+        verify(edxLogService).saveEdxActivityLogs(eq(logDto));
+    }
+
+    @Test
+    void testFinalizeWdsAndLabProcessing_IntegrityErrorTrue_RetryAppliedTrue() throws EdxLogException {
+        // Arrange
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceId(321);
+
+        // Clear static state
+        DpStatic.setUuidPoolInitialized(false);
+        assertFalse(DpStatic.isUuidPoolInitialized());
+
+        Exception ex = new RuntimeException("integrity check");
+
+        doNothing().when(managerService).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        doNothing().when(managerService).composeDltKafkaEvent(any(), any());
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(
+                container,
+                ex,
+                false,  // dltLockError
+                false,  // nonDltError
+                true,   // integrityError
+                true    // retryApplied
+        );
+
+        // Assert
+        verify(edxLogService, never()).saveEdxActivityLogs(any());
+    }
+
+    @Test
+    void testFinalizeWdsAndLabProcessing_NonDltErrorFalse_LogOnly() throws EdxLogException {
+        // Arrange
+        PublicHealthCaseFlowContainer container = new PublicHealthCaseFlowContainer();
+        container.setNbsInterfaceId(999);
+
+        NbsInterfaceModel model = new NbsInterfaceModel();
+        EdxLabInformationDto labDto = new EdxLabInformationDto();
+        EDXActivityLogDto logDto = new EDXActivityLogDto();
+        labDto.setEdxActivityLogDto(logDto);
+
+        container.setNbsInterfaceModel(model);
+        container.setEdxLabInformationDto(labDto);
+
+        Exception ex = new RuntimeException("ignored");
+
+        // Mock behavior
+        doNothing().when(edxLogService).updateActivityLogDT(any(), any());
+        doNothing().when(edxLogService).addActivityDetailLogs(any(), any());
+        doNothing().when(edxLogService).saveEdxActivityLogs(any());
+
+        // Act
+        managerService.finalizeWdsAndLabProcessing(
+                container,
+                ex,
+                false,  // dltLockError
+                false,  // nonDltError
+                false,  // integrityError
+                true    // retryApplied
+        );
+
+        // Assert
+        verify(managerService, never()).persistingRtiDlt(any(), anyLong(), any(), any(), any());
+        verify(managerService, never()).composeDltKafkaEvent(any(), any());
+
+        verify(edxLogService).updateActivityLogDT(eq(model), eq(labDto));
+        verify(edxLogService).addActivityDetailLogs(eq(labDto), eq(""));
+        verify(edxLogService).saveEdxActivityLogs(eq(logDto));
+    }
+
+
+    @Test
+    void testComposeDltKafkaEvent_ElsePath_NoKafkaCalled() {
+        // Arrange
+        String message = "some message payload";
+        String unknownType = "UNEXPECTED_TYPE";
+
+        // Act
+        managerService.composeDltKafkaEvent(message, unknownType);
+
+        // Assert
+        verify(kafkaManagerProducer, never()).sendDltForLocking(any());
+        verify(kafkaManagerProducer, never()).sendDltForDataIntegrity(any());
+    }
 
 }

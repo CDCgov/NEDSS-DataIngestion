@@ -1,6 +1,9 @@
 package gov.cdc.dataprocessing.repository.nbs.msgoute.model;
-import lombok.*;
+
+import gov.cdc.dataprocessing.model.dto.dead_letter.RtiDltDto;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
@@ -38,5 +41,20 @@ public class RtiDlt {
 
     @Column(name = "updated_on")
     private Timestamp updatedOn;
+
+    public RtiDlt() {
+
+    }
+
+    public RtiDlt(RtiDltDto dto) {
+        this.id = dto.getId();
+        this.nbsInterfaceId = dto.getNbsInterfaceId();
+        this.origin = dto.getOrigin();
+        this.status = dto.getStatus();
+        this.stackTrace = dto.getStackTrace();
+        this.payload = dto.getPayload();
+        this.createdOn = dto.getCreatedOn();
+        this.updatedOn = dto.getUpdatedOn();
+    }
 
 }

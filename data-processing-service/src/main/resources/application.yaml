@@ -43,11 +43,24 @@ spring:
 #    web-application-type: none
   application:
     name: data-processing-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${DP_AUTH_URI:http://localhost:8100/realms/NBS}
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+auth:
+  token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
+  introspect-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token/introspect
+
+dp-server:
+  host: ${DP_SERVER_HOST:localhost:8082}
 
 kafka:
   topic:
     elr_unprocessed: dp_elr_unprocessed
     elr_reprocessing_locking: dp_elr_reprocess_locking
+    elr_reprocessing_data_integrity: dp_elr_reprocess_data_integrity
     elr_health_case: dp_elr_processing_public_health_case
     elr_handle_lab: dp_elr_processing_handle_lab
     elr_nnd: dp_elr_handle_nnd
@@ -131,7 +144,8 @@ feature:
   thread-pool-size: ${THREAD_POOL_SIZE:10}
   thread-batch-size: ${THREAD_BATCH_SIZE:50}
 processor:
-  delay_ms: ${PROCESSOR_DELAY:1000}
+  delay_ms: ${PROCESSOR_DELAY:10000}
 uid:
-  pool_size: ${UID_POOL_SIZE:500}
-  min_pool_size: ${UID_MIN_POOL_SIZE:100}
+  pool_size: ${UID_POOL_SIZE:5000}
+  min_pool_size: ${UID_MIN_POOL_SIZE:1000}
+  use_store_proc: ${UID_USE_STORE_PROC:true}

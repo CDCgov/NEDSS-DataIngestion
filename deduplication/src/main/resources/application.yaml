@@ -7,6 +7,12 @@ spring:
   application.name: deduplication
   jackson.serialization.indent-output: true
   kafka.bootstrap-servers: localhost:9092
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+          jwk-set-uri:
   batch:
     job:
       enabled: false
@@ -36,6 +42,22 @@ spring:
 
   main:
     allow-circular-references: true
+
+nbs:
+  security:
+    tokenSecret:
+    tokenIssuer: gov.cdc.nbs
+    tokenExpirationMillis: 1800000 # 30 minutes
+    oidc:
+      # toggles the validation of users provided jwt token
+      enabled: true
+    paths:
+      ignored: # routes that are excluded from security
+        - /v3/api-docs/**
+        - /swagger-ui/**
+        - /swagger-resources/**
+        - /match
+        - /health
 
 deduplication:
   # url for Record Linker API

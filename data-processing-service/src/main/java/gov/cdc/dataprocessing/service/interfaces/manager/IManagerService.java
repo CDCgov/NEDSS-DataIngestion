@@ -9,9 +9,9 @@ import java.util.List;
 
 
 public interface IManagerService {
-    PublicHealthCaseFlowContainer processingELR(Integer data) throws EdxLogException, DataProcessingDBException;
+    PublicHealthCaseFlowContainer processingELR(Integer data, boolean retryApplied) throws EdxLogException, DataProcessingDBException;
 
-    void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer) throws DataProcessingException, DataProcessingDBException, EdxLogException;
+    void handlingWdsAndLab(PublicHealthCaseFlowContainer phcContainer, boolean retryApplied) throws DataProcessingException, DataProcessingDBException, EdxLogException;
 
     void updateNbsInterfaceStatus(List<Integer> ids);
 

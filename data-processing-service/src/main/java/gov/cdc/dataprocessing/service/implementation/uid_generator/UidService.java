@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -29,8 +28,7 @@ public class UidService implements IUidService {
      * the investigationProxyVO(determined in the addInvestigation method).
      * As it has also got the actualUID (determined in the addInvestigation method) it replaces them accordingly.
      */
-    @SuppressWarnings("java:S3776")
-
+    @SuppressWarnings({"java:S3776","java:S6541"})
     public void setFalseToNewForObservation(BaseContainer proxyVO, Long falseUid, Long actualUid)
     {
         Iterator<ParticipationDto> participationDTIterator;
@@ -283,7 +281,6 @@ public class UidService implements IUidService {
         Iterator<Object> anIterator;
         ActRelationshipDto actRelationshipDT = null;
         Collection<Object> actRelationShipColl = notificationProxyVO.getTheActRelationshipDTCollection();
-        Collection<Object> act2 = new ArrayList<>();
 
         if (actRelationShipColl != null)
         {
@@ -292,7 +289,6 @@ public class UidService implements IUidService {
             {
                 actRelationshipDT = (ActRelationshipDto) anIterator.next();
                 actRelationshipDT.setSourceActUid(actualUid);
-                act2.add(actRelationshipDT);
             }
         }
         return actRelationshipDT;

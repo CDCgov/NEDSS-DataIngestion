@@ -7,6 +7,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 
 @RestController
 @RequestMapping("/configuration")
+@PreAuthorize("hasAuthority('MERGE-PATIENT')")
 public class AlgorithmController {
 
     private final PassService passService;
