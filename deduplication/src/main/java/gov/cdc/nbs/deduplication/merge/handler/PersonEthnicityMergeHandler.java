@@ -16,12 +16,12 @@ import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 @Component
 @Order(7)
 public class PersonEthnicityMergeHandler implements SectionMergeHandler {
-  private static final String SURVIVOR_ID = "survivorId";
-  private static final String SOURCE_ID = "sourceId";
-  private static final String PERSON_ID = "personId";
-  private static final String USER_ID = "userId";
+  static final String SURVIVOR_ID = "survivorId";
+  static final String SOURCE_ID = "sourceId";
+  static final String PERSON_ID = "personId";
+  static final String USER_ID = "userId";
 
-  static final String UPDATE_PERSON_ETHNIC_CODE = """
+  static final String UPDATE_PERSON_ETHNIC_GROUP = """
       UPDATE person
       SET
         ethnic_group_ind = (
@@ -127,7 +127,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   }
 
   private void updatePersonEthnicGroup(String survivorId, String sourceId) {
-    client.sql(UPDATE_PERSON_ETHNIC_CODE)
+    client.sql(UPDATE_PERSON_ETHNIC_GROUP)
         .param(SURVIVOR_ID, survivorId)
         .param(SOURCE_ID, sourceId)
         .update();
