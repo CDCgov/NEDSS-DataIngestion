@@ -49,6 +49,7 @@ class LocalUidGeneratorTest {
     assertThat(id.id()).isEqualTo(12L);
     assertThat(id.prefix()).isEqualTo("prefix");
     assertThat(id.suffix()).isEqualTo("suffix");
+    assertThat(id.toLocalId()).isEqualTo("prefix12suffix");
 
     verify(client, times(1)).sql(LocalUidGenerator.QUERY_BY_NBS_TYPE_CD);
     verify(client, times(1)).sql(LocalUidGenerator.INCREMENT_BY_NBS_TYPE_CD);
