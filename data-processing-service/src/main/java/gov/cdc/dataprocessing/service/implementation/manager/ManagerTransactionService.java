@@ -14,10 +14,10 @@ public class ManagerTransactionService implements IManagerTransactionService {
         this.managerService = managerService;
     }
 
-    public void processWithTransactionSeparation(Integer id) throws DataProcessingDBException, EdxLogException, DataProcessingException {
-        var result = managerService.processingELR(id);  // must call through proxy
+    public void processWithTransactionSeparation(Integer id, boolean retryApplied) throws DataProcessingDBException, EdxLogException, DataProcessingException {
+        var result = managerService.processingELR(id, retryApplied);  // must call through proxy
         if (result != null) {
-            managerService.handlingWdsAndLab(result);  // must call through proxy
+            managerService.handlingWdsAndLab(result, retryApplied);  // must call through proxy
         }
     }
 }

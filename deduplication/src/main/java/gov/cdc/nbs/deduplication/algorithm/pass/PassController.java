@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
 
 @RestController
 @RequestMapping("/configuration/pass")
+@PreAuthorize("hasAuthority('MERGE-PATIENT')")
 public class PassController {
 
     private final PassService passService;

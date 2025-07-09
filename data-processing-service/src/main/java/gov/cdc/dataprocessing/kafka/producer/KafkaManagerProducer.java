@@ -16,6 +16,9 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     @Value("${kafka.topic.elr_reprocessing_locking}")
     private String dlt_reprocess_locking = "dp_elr_reprocess_locking";
 
+    @Value("${kafka.topic.elr_reprocessing_data_integrity}")
+    private String dlt_reprocess_data_integrity = "dp_elr_reprocess_data_integrity";
+
     @Value("${kafka.topic.elr_health_case}")
     private String phcTopic = "elr_processing_public_health_case";
 
@@ -38,6 +41,10 @@ public class KafkaManagerProducer  extends KafkaBaseProducer {
     public void sendDltForLocking(String message) {
         sendData(dlt_reprocess_locking, message);
     }
+    public void sendDltForDataIntegrity(String message) {
+        sendData(dlt_reprocess_data_integrity, message);
+    }
+
 
 
     public void sendDataPhc(String msg) {

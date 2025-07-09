@@ -8,3 +8,20 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+  autoconfigure.exclude: org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+
+nbs:
+  security:
+    tokenSecret: O5CaRj8zREImokS6sY9q9csloUnce0AB6TwO3mIyOHiIfydCwj+AYTYJdVUZrvTY/Ecs9irpPtVfqcl2qQWOCQ==
+    tokenIssuer: gov.cdc.nbs
+    tokenExpirationMillis: 1800000 # 30 minutes
+    oidc:
+      enabled: false
+    paths:
+      ignored: # routes that are excluded from security
+        - /v3/api-docs/**
+        - /swagger-ui/**
+        - /swagger-resources/**
+        - /match
+        - /health
+        - /login

@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.algorithm.dataelements;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
 
 @RestController
 @RequestMapping("/configuration/data-elements")
+@PreAuthorize("hasAuthority('MERGE-PATIENT')")
 public class DataElementsController {
 
     private final DataElementsService service;

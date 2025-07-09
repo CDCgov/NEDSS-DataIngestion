@@ -269,8 +269,6 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
             catchingValueService.getCodedValuesCallRepos("PHC_TYPE");
 
             for (String s : statement) {
-                List<Object> inputArg = new ArrayList<>();
-                inputArg.add(publicHealthUID);
                 List<NotificationSummaryContainer> retval;
                 retval = customRepository.retrieveNotificationSummaryListForInvestigation(publicHealthUID, s);
 

@@ -144,6 +144,8 @@ class PatientRepositoryUtilTest {
         when(odseIdGeneratorService.getValidLocalUid(any(), anyBoolean())).thenReturn(id);
 
         var perDt = new PersonDto();
+        perDt.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
         perCon.setThePersonDto(perDt);
 
         var patNameCol = new ArrayList<PersonNameDto>();
@@ -198,6 +200,8 @@ class PatientRepositoryUtilTest {
         perDt.setMiddleNm("TEST-1");
         perDt.setNmPrefix("TEST-1");
         perDt.setNmSuffix("TEST-1");
+        perDt.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
         perCon.setThePersonDto(perDt);
 
 
@@ -357,8 +361,6 @@ class PatientRepositoryUtilTest {
     @Test
     void findPatientParentUidByUid_Test() {
         var uid = 10L;
-        var ids = new ArrayList<Long>();
-        ids.add(10L);
         when(personRepository.findMprUid(uid)).thenReturn(uid);
 
         var res = patientRepositoryUtil.findPatientParentUidByUid(uid);
@@ -497,6 +499,7 @@ class PatientRepositoryUtilTest {
         PersonDto personDto = new PersonDto();
         personDto.setLocalId(null);
         personDto.setPersonParentUid(null);
+        personDto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
 
         PersonContainer container = new PersonContainer();
         container.setThePersonDto(personDto);
@@ -514,6 +517,8 @@ class PatientRepositoryUtilTest {
 
         PersonDto personDto = new PersonDto();
         personDto.setLocalId(" ");
+        personDto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
         PersonContainer container = new PersonContainer();
         container.setThePersonDto(personDto);
 
@@ -536,6 +541,8 @@ class PatientRepositoryUtilTest {
 
         PersonDto dto = new PersonDto();
         dto.setLocalId("EXISTING");
+        dto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
         PersonContainer container = new PersonContainer();
         container.setThePersonDto(dto);
 
@@ -577,6 +584,8 @@ class PatientRepositoryUtilTest {
         dto.setPersonUid(1L);
         dto.setPersonParentUid(1L);
         dto.setVersionCtrlNbr(1);
+        dto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
         PersonContainer container = new PersonContainer();
         container.setThePersonDto(dto);
         container.setThePersonNameDtoCollection(Collections.emptyList());
@@ -599,6 +608,8 @@ class PatientRepositoryUtilTest {
         dto.setPersonUid(1L);
         dto.setPersonParentUid(1L);
         dto.setVersionCtrlNbr(1);
+        dto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
         PersonContainer container = new PersonContainer();
         container.setThePersonDto(dto);
         container.setThePersonNameDtoCollection(List.of(new PersonNameDto()));
@@ -622,10 +633,13 @@ class PatientRepositoryUtilTest {
         dto.setPersonUid(2L);
         dto.setPersonParentUid(1L);
         dto.setEthnicGroupInd("Hispanic");
+        dto.setLastChgTime(new Timestamp(System.currentTimeMillis()));
 
         Person mpr = new Person();
         mpr.setPersonUid(1L);
         dto.setVersionCtrlNbr(1);
+        mpr.setLastChgTime(new Timestamp(System.currentTimeMillis()));
+
 
         PersonContainer container = new PersonContainer();
         container.setThePersonDto(dto);

@@ -3,7 +3,10 @@ package gov.cdc.dataprocessing.service.implementation.observation;
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
-import gov.cdc.dataprocessing.model.container.model.*;
+import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
+import gov.cdc.dataprocessing.model.container.model.ObservationContainer;
+import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
+import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.act.ActRelationshipDto;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
@@ -206,12 +209,6 @@ class ObservationMatchingServiceTest {
         var orgCon = new OrganizationContainer();
         orgCon.setTheRoleDTCollection(perRoleCol);
         orgConCol.add(orgCon);
-
-        // Material Conn
-        var matConCol = new ArrayList<MaterialContainer>();
-        var matCon = new MaterialContainer();
-        matCon.setTheRoleDTCollection(perRoleCol);
-        matConCol.add(matCon);
 
         matchedlabResultProxyVO.setTheOrganizationContainerCollection(orgConCol);
         matchedlabResultProxyVO.setThePersonContainerCollection(personConCol);
