@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import gov.cdc.nbs.deduplication.merge.handler.SectionMergeHandler;
@@ -17,7 +18,7 @@ public class MergeService {
 
   private final List<SectionMergeHandler> handlers;
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRED, rollbackFor = { Exception.class, RuntimeException.class })
   public void performMerge(Long matchId, PatientMergeRequest request) {
     String matchIdStr = matchId.toString();
     List<SectionMergeHandler> orderedHandlers = new ArrayList<>(handlers);
