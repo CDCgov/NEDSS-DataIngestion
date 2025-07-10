@@ -61,42 +61,42 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
       WHERE
         person_uid = :personId
         AND race_category_cd = :race
-        AND race_cd = ':detailedRace;
+        AND race_cd = :detailedRace;
       """;
 
   static final String INSERT_NEW_RACE_ENTRY = """
-      INSERT INTO person_race (
-        person_uid,
-        race_category_cd,
-        race_cd,
-        add_time,
-        add_user_id,
-        last_chg_time,
-        last_chg_user_id,
-        record_status_cd,
-        record_status_time,
-        add_time,
-        as_of_date
-      )
-      VALUES (
-        :personId,
-        :race,
-        :detailedRace,
-        GETDATE(),
-        :userId,
-        'ACTIVE',
-        GETDATE(),
-        GETDATE(),
-        (
-          SELECT as_of_date
-          FROM person_race
-          WHERE
-            person_uid = :sourceId
-            AND race_category_cd = :race
-            AND race_cd = :detailedRace
-        )
+          INSERT INTO person_race (
+            person_uid,
+            race_category_cd,
+            race_cd,
+            add_time,
+            add_user_id,
+            last_chg_time,
+            last_chg_user_id,
+            record_status_cd,
+            record_status_time,
+            as_of_date
+          )
+          VALUES (
+            :personId,
+            :race,
+            :detailedRace,
+            GETDATE(),
+            :userId,
+            GETDATE(),
+            :userId,
+            'ACTIVE',
+              GETDATE(),
+            (
+              SELECT as_of_date
+              FROM person_race
+              WHERE
+                person_uid = :sourceId
+                AND race_category_cd = :race
+                AND race_cd = :detailedRace
+            )
       );
-      """;
+          """;
 
   private final JdbcClient client;
 
