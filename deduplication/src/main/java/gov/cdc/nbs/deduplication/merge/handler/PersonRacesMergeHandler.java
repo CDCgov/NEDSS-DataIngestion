@@ -1,243 +1,182 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
 
 @Component
 @Order(7)
 public class PersonRacesMergeHandler implements SectionMergeHandler {
+  static final String USER_ID = "userId";
+  static final String PERSON_ID = "personId";
+  static final String SOURCE_ID = "sourceId";
+  static final String RACE = "race";
+  static final String DETAILED_RACE = "detailedRace";
 
-  static final String UPDATE_ALL_SURVIVOR_RACES_INACTIVE = """
+  static final String SET_RACE_ENTRIES_TO_INACTIVE = """
       UPDATE person_race
-      SET record_status_cd = 'INACTIVE',
-          last_chg_time = GETDATE()
-      WHERE person_uid = :survivorId
-        AND record_status_cd = 'ACTIVE'
-      """;
-  static final String UPDATE_SELECTED_EXCLUDED_RACES_INACTIVE = """
-      UPDATE person_race
-      SET record_status_cd = 'INACTIVE',
-          last_chg_time = GETDATE()
-      WHERE person_uid = :survivorId
-        AND record_status_cd = 'ACTIVE'
-        AND race_cd NOT IN (:survivingSelectedRaceCodes)
+      SET
+        record_status_cd = 'INACTIVE',
+        record_status_time = GETDATE(),
+        last_chg_user_id = :userId,
+        last_chg_time = GETDATE()
+      WHERE
+        person_uid = :personId;
       """;
 
-  static final String SELECT_ACTIVE_RACE_CATEGORIES = """
-      SELECT DISTINCT race_category_cd
-      FROM person_race
-      WHERE person_uid = :survivorId
-      """;
-
-  static final String COPY_RACE_DETAIL_IF_NOT_EXISTS = """
-      INSERT INTO person_race (
-          person_uid, race_cd, race_category_cd,
-          add_reason_cd, add_time, add_user_id,
-          last_chg_reason_cd, last_chg_time, last_chg_user_id,
-          race_desc_txt, record_status_cd, record_status_time,
-          user_affiliation_txt, as_of_date
-      )
+  static final String SELECT_RACE_ENTRIES = """
       SELECT
-          :survivorId, race_cd, race_category_cd,
-          add_reason_cd, add_time, add_user_id,
-          'merge', GETDATE(), last_chg_user_id,
-          race_desc_txt, record_status_cd, record_status_time,
-          user_affiliation_txt, as_of_date
-      FROM Person_race pr
-      WHERE pr.person_uid = :supersededUid
-        AND pr.race_category_cd = :raceCategoryCd
-        AND pr.race_cd = :selectedRaceCd
-        AND pr.record_status_cd = 'ACTIVE'
-        AND NOT EXISTS (
-            SELECT 1
-            FROM Person_race pr2
-            WHERE pr2.person_uid = :survivorId
-              AND pr2.race_cd = pr.race_cd
+        race_category_cd as race,
+        race_cd as detailedRace
+      FROM
+        person_race
+      WHERE
+        person_uid = :personId
+        AND race_category_cd = :race;
+      """;
+
+  static final String SELECT_RACE_ENTRY_EXISTS = """
+      SELECT
+        count(*)
+      FROM
+        person_race
+      WHERE
+        person_uid = :personId
+        AND race_category_cd = :race
+        AND race_cd = :detailedRace;
+      """;
+
+  static final String UPDATE_EXISTING_RACE_ENTRY = """
+      UPDATE person_race
+      SET
+        record_status_cd = 'ACTIVE'
+      WHERE
+        person_uid = :personId
+        AND race_category_cd = :race
+        AND race_cd = ':detailedRace;
+      """;
+
+  static final String INSERT_NEW_RACE_ENTRY = """
+      INSERT INTO person_race (
+        person_uid,
+        race_category_cd,
+        race_cd,
+        add_time,
+        add_user_id,
+        last_chg_time,
+        last_chg_user_id,
+        record_status_cd,
+        record_status_time,
+        add_time,
+        as_of_date
+      )
+      VALUES (
+        :personId,
+        :race,
+        :detailedRace,
+        GETDATE(),
+        :userId,
+        'ACTIVE',
+        GETDATE(),
+        GETDATE(),
+        (
+          SELECT as_of_date
+          FROM person_race
+          WHERE
+            person_uid = :sourceId
+            AND race_category_cd = :race
+            AND race_cd = :detailedRace
         )
+      );
       """;
 
-  static final String COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR = """
-      INSERT INTO person_race (
-          person_uid, race_cd, race_category_cd,
-          add_reason_cd, add_time, add_user_id,
-          last_chg_reason_cd, last_chg_time, last_chg_user_id,
-          race_desc_txt, record_status_cd, record_status_time,
-          user_affiliation_txt, as_of_date
-      )
-      SELECT
-          :survivorId, race_cd, race_category_cd,
-          add_reason_cd, add_time, add_user_id,
-          'merge', GETDATE(), last_chg_user_id,
-          race_desc_txt, record_status_cd, record_status_time,
-          user_affiliation_txt, as_of_date
-      FROM Person_race pr
-      WHERE pr.person_uid = :supersededUid
-        AND pr.race_category_cd = :raceCategoryCd
-        AND pr.race_cd = pr.race_category_cd
-        AND pr.record_status_cd = 'ACTIVE'
-      """;
+  private final JdbcClient client;
 
-  static final String COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR = """
-      INSERT INTO person_race (
-          person_uid, race_cd, race_category_cd,
-          add_reason_cd, add_time, add_user_id,
-          last_chg_reason_cd, last_chg_time, last_chg_user_id,
-          race_desc_txt, record_status_cd, record_status_time,
-          user_affiliation_txt, as_of_date
-      )
-      SELECT
-          :survivorId, race_cd, race_category_cd,
-          add_reason_cd, add_time, add_user_id,
-          'merge', GETDATE(), last_chg_user_id,
-          race_desc_txt, record_status_cd, record_status_time,
-          user_affiliation_txt, as_of_date
-      FROM Person_race pr
-      WHERE pr.person_uid = :supersededUid
-        AND pr.race_category_cd = :raceCategoryCd
-        AND pr.race_cd = :selectedRaceCd
-        AND pr.record_status_cd = 'ACTIVE'
-      """;
+  public PersonRacesMergeHandler(@Qualifier("nbsJdbcClient") JdbcClient client) {
+    this.client = client;
+  }
 
-  static final String SELECT_RACE_CATEGORY_FOR_RACE_CD = """
-      SELECT DISTINCT race_category_cd
-      FROM person_race
-      WHERE race_cd = :raceCd
-      """;
-
-  final NamedParameterJdbcTemplate nbsTemplate;
-
-  public PersonRacesMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
-    this.nbsTemplate = nbsTemplate;
+  public record RaceEntry(String race, String detailedRace) {
   }
 
   // Merge modifications have been applied to the person races
   @Override
-  @Transactional(propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonRaces(request.survivingRecord(), request.races());
+    mergeRace(request.survivingRecord(), request.races());
   }
 
-  private void mergePersonRaces(String survivorId, List<PatientMergeRequest.RaceId> races) {
-    List<String> survivingSelectedRaceCodes = new ArrayList<>();
-    Map<String, List<String>> supersededRaceMap = new HashMap<>();
+  private void mergeRace(String survivorId, List<RaceId> races) {
+    // Set all to INACTIVE
+    setAllEntriesToInactive(survivorId);
 
-    categorizeRaces(survivorId, races, supersededRaceMap, survivingSelectedRaceCodes);
-    markUnselectedSurvivingRacesAsInactive(survivorId, survivingSelectedRaceCodes);
+    for (RaceId raceId : races) {
+      // For each race selected, get all entries
+      List<RaceEntry> raceEntries = selectRaceEntries(raceId);
 
-    List<String> survivingRaceCategories = getRaceCategoriesForSurvivor(survivorId);
-    processSupersededRaces(survivorId, supersededRaceMap, survivingRaceCategories);
-  }
-
-  private void categorizeRaces(String survivorId, List<PatientMergeRequest.RaceId> races,
-      Map<String, List<String>> supersededRaceMap, List<String> survivingSelectedRaceCodes) {
-
-    for (PatientMergeRequest.RaceId race : races) {
-      String personUid = race.personUid();
-      String raceCode = race.raceCode();
-
-      if (personUid.equals(survivorId)) {
-        survivingSelectedRaceCodes.add(raceCode);
-      } else {
-        supersededRaceMap.computeIfAbsent(personUid, k -> new ArrayList<>()).add(raceCode);
+      // For each entry, check if it already exists on survivor
+      for (RaceEntry raceEntry : raceEntries) {
+        if (raceEntryExists(survivorId, raceEntry)) {
+          updateExistingRaceEntry(survivorId, raceEntry);
+        } else {
+          inserNewRaceEntry(survivorId, raceId.personUid(), raceEntry);
+        }
       }
     }
   }
 
-  private void markUnselectedSurvivingRacesAsInactive(String survivorId, List<String> survivingSelectedRaceCodes) {
-    String query = survivingSelectedRaceCodes.isEmpty() ? UPDATE_ALL_SURVIVOR_RACES_INACTIVE
-        : UPDATE_SELECTED_EXCLUDED_RACES_INACTIVE;
+  private void setAllEntriesToInactive(String survivorId) {
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    Map<String, Object> params = new HashMap<>();
-    params.put("survivorId", survivorId);// NOSONAR
-    if (!survivingSelectedRaceCodes.isEmpty()) {
-      params.put("survivingSelectedRaceCodes", survivingSelectedRaceCodes);
-    }
-    nbsTemplate.update(query, params);
+    client.sql(SET_RACE_ENTRIES_TO_INACTIVE)
+        .param(USER_ID, currentUser.getId())
+        .param(PERSON_ID, survivorId)
+        .update();
   }
 
-  private List<String> getRaceCategoriesForSurvivor(String survivorId) {
-    return nbsTemplate.queryForList(SELECT_ACTIVE_RACE_CATEGORIES,
-        new MapSqlParameterSource("survivorId", survivorId), String.class);
+  private List<RaceEntry> selectRaceEntries(RaceId raceId) {
+    return client.sql(SELECT_RACE_ENTRIES)
+        .param(PERSON_ID, raceId.personUid())
+        .param(RACE, raceId.raceCode())
+        .query(RaceEntry.class)
+        .list();
   }
 
-  private void processSupersededRaces(String survivorId, Map<String, List<String>> supersededRaceMap,
-      List<String> survivingRaceCategories) {
-
-    for (Map.Entry<String, List<String>> entry : supersededRaceMap.entrySet()) {
-      String supersededUid = entry.getKey();
-      List<String> selectedRaceCodes = entry.getValue();
-      processRaceCodesForSuperseded(survivorId, supersededUid, selectedRaceCodes, survivingRaceCategories);
-    }
+  private boolean raceEntryExists(String survivorId, RaceEntry raceEntry) {
+    Boolean entryExists = client.sql(SELECT_RACE_ENTRY_EXISTS)
+        .param(PERSON_ID, survivorId)
+        .param(RACE, raceEntry.race())
+        .param(DETAILED_RACE, raceEntry.detailedRace())
+        .query(Boolean.class)
+        .single();
+    return Boolean.TRUE.equals(entryExists);
   }
 
-  private void processRaceCodesForSuperseded(String survivorId, String supersededUid, List<String> raceCodes,
-      List<String> survivingRaceCategories) {
-
-    Set<String> processedCategories = new HashSet<>();
-
-    for (String raceCd : raceCodes) {
-      String raceCategoryCd = getRaceCategoryCd(raceCd);
-      if (processedCategories.contains(raceCategoryCd))
-        continue;
-
-      handleRaceCategory(survivorId, supersededUid, raceCategoryCd, survivingRaceCategories, raceCd);
-      processedCategories.add(raceCategoryCd);
-    }
+  private void updateExistingRaceEntry(String survivorId, RaceEntry raceEntry) {
+    client.sql(UPDATE_EXISTING_RACE_ENTRY)
+        .param(PERSON_ID, survivorId)
+        .param(RACE, raceEntry.race())
+        .param(DETAILED_RACE, raceEntry.detailedRace())
+        .update();
   }
 
-  private void handleRaceCategory(String survivorId, String supersededUid, String raceCategoryCd,
-      List<String> survivingRaceCategories, String selectedRaceCd) {
+  private void inserNewRaceEntry(String survivorId, String sourceId, RaceEntry raceEntry) {
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    if (survivingRaceCategories.contains(raceCategoryCd)) {
-      addNewRaceDetailToSurviving(survivorId, supersededUid, raceCategoryCd, selectedRaceCd);
-    } else {
-      copyRaceToSurviving(survivorId, supersededUid, raceCategoryCd);
-      copyRaceDetailToSurviving(survivorId, supersededUid, raceCategoryCd, selectedRaceCd);
-    }
+    client.sql(INSERT_NEW_RACE_ENTRY)
+        .param(PERSON_ID, survivorId)
+        .param(RACE, raceEntry.race())
+        .param(DETAILED_RACE, raceEntry.detailedRace())
+        .param(USER_ID, currentUser.getId())
+        .param(SOURCE_ID, sourceId)
+        .update();
   }
 
-  private void addNewRaceDetailToSurviving(String survivorId, String supersededUid, String raceCategoryCd,
-      String selectedRaceCd) {
-
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivorId", survivorId);
-    params.addValue("supersededUid", supersededUid);// NOSONAR
-    params.addValue("raceCategoryCd", raceCategoryCd);// NOSONAR
-    params.addValue("selectedRaceCd", selectedRaceCd);
-
-    nbsTemplate.update(COPY_RACE_DETAIL_IF_NOT_EXISTS, params);
-  }
-
-  private void copyRaceToSurviving(String survivorId, String supersededUid, String raceCategoryCd) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivorId", survivorId);
-    params.addValue("supersededUid", supersededUid);
-    params.addValue("raceCategoryCd", raceCategoryCd);
-
-    nbsTemplate.update(COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR, params);
-  }
-
-  private void copyRaceDetailToSurviving(String survivorId, String supersededUid, String raceCategoryCd,
-      String selectedRaceCd) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivorId", survivorId);
-    params.addValue("supersededUid", supersededUid);
-    params.addValue("raceCategoryCd", raceCategoryCd);
-    params.addValue("selectedRaceCd", selectedRaceCd);
-
-    nbsTemplate.update(COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR, params);
-  }
-
-  private String getRaceCategoryCd(String raceCd) {
-    return nbsTemplate.queryForObject(SELECT_RACE_CATEGORY_FOR_RACE_CD,
-        new MapSqlParameterSource("raceCd", raceCd), String.class);
-  }
 }

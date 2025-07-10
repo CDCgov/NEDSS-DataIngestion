@@ -1,19 +1,18 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(1)
@@ -31,7 +30,6 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
 
   // Modifications have been performed on the person table entries.
   @Override
-  @Transactional(propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     String survivorId = request.survivingRecord();
     List<String> supersededUids = getSupersededRecords(matchId, survivorId);
