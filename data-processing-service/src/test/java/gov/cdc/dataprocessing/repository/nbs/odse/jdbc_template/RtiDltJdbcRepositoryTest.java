@@ -97,6 +97,27 @@ class RtiDltJdbcRepositoryTest {
         verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
     }
 
+
+    @Test
+    void testUpsert_PerformsUpdateNoId() {
+        // Arrange
+        RtiDlt rti = new RtiDlt();
+        rti.setId(null);
+        rti.setNbsInterfaceId(99L);
+        rti.setStatus("OK");
+        rti.setStackTrace("trace");
+        rti.setPayload("payload");
+        rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+        rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+
+        // Act
+        repository.upsert(rti);
+
+        // Assert
+        verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
+    }
+
+
     @Test
     void testMapRow_ReturnsValidRtiDlt() throws Exception {
         // Arrange
