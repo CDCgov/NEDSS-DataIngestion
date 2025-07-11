@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
@@ -20,7 +21,7 @@ public class AdminCommentMergeHandler implements SectionMergeHandler {
 
   //Merge modifications have been applied to the Administrative Comments
   @Override
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     String survivorId = request.survivingRecord();
     String adminCommentsSourcePersonUid = request.adminCommentsSource();
     updateAdministrativeComments(survivorId, adminCommentsSourcePersonUid);

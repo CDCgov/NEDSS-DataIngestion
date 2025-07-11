@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class PersonPhoneEmailMergeHandlerTest {
     String matchId = "match123";
     PatientMergeRequest request = getPatientMergeRequest(survivingId);
 
-    handler.handleMerge(matchId, request);
+    handler.handleMerge(matchId, request, new PatientMergeAudit());
 
     verify(nbsTemplate).update(eq(PersonPhoneEmailMergeHandler.UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE),
         (Map<String, Object>) argThat(params -> {

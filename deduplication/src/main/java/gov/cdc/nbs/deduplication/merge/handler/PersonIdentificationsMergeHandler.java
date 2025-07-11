@@ -1,6 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,14 +17,16 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
   static final String UPDATE_ALL_PERSON_IDENTIFICATION_INACTIVE = """
       UPDATE Entity_id
       SET record_status_cd = 'INACTIVE',
-          last_chg_time = GETDATE()
+          last_chg_time = GETDATE(),
+          last_chg_reason_cd='MERGE'
       WHERE entity_uid = :personUid
       """;
 
   static final String UPDATE_SELECTED_EXCLUDED_IDENTIFICATION_INACTIVE = """
       UPDATE Entity_id
       SET record_status_cd = 'INACTIVE',
-          last_chg_time = GETDATE()
+          last_chg_time = GETDATE(),
+          last_chg_reason_cd='MERGE'
       WHERE entity_uid = :personUid
         AND entity_id_seq NOT IN (:sequences)
       """;
@@ -95,24 +97,56 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
       WHERE entity_uid = :supersededUid
         AND entity_id_seq = :oldSeq
       """;
+  static final String FIND_ALL_IDENTIFICATIONS_FOR_AUDIT = """
+      SELECT entity_uid, entity_id_seq, record_status_cd
+      FROM Entity_id
+      WHERE entity_uid = :personUid
+      """;
+
+  static final String FIND_UNSELECTED_IDENTIFICATIONS_FOR_AUDIT = """
+      SELECT entity_uid, entity_id_seq, record_status_cd
+      FROM Entity_id
+      WHERE entity_uid = :personUid
+        AND entity_id_seq NOT IN (:sequences)
+      """;
+
+  static final String FIND_SUPERSEDED_IDENTIFICATIONS_FOR_AUDIT = """
+      SELECT entity_uid, entity_id_seq
+      FROM entity_id
+      WHERE entity_uid = :supersededUid
+        AND entity_id_seq = :seq
+      """;
+
 
   public PersonIdentificationsMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
-  public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonIdentifications(request.survivingRecord(), request.identifications());
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit audit) {
+    mergePersonIdentifications(request.survivingRecord(), request.identifications(), audit);
   }
 
   private void mergePersonIdentifications(String survivorId,
-      List<PatientMergeRequest.IdentificationId> identifications) {
+      List<PatientMergeRequest.IdentificationId> identifications,
+      PatientMergeAudit audit) {
     List<Integer> survivingIdentificationsSequences = new ArrayList<>();
     Map<String, List<Integer>> supersededIdentifications = new HashMap<>();
-    categorizeIdentifications(survivorId, identifications, survivingIdentificationsSequences,
-        supersededIdentifications);
-    markUnselectedIdentificationsInactive(survivorId, survivingIdentificationsSequences);
-    updateSupersededIdentifications(survivorId, supersededIdentifications);
+
+    categorizeIdentifications(
+        survivorId, identifications, survivingIdentificationsSequences, supersededIdentifications
+    );
+
+    List<AuditUpdateAction> updateActions = markUnselectedIdentificationsInactive(
+        survivorId, survivingIdentificationsSequences
+    );
+    List<AuditInsertAction> insertActions = updateSupersededIdentifications(
+        survivorId, supersededIdentifications
+    );
+
+    audit.getRelatedTableAudits().add(
+        new RelatedTableAudit("Entity_id", updateActions, insertActions)
+    );
   }
 
   private void categorizeIdentifications(String survivorId, List<PatientMergeRequest.IdentificationId> identifications,
@@ -129,42 +163,103 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
     }
   }
 
-  private void markUnselectedIdentificationsInactive(String survivorId, List<Integer> selectedSequences) {
-    String query =
-        selectedSequences.isEmpty() ?
-            UPDATE_ALL_PERSON_IDENTIFICATION_INACTIVE :
-            UPDATE_SELECTED_EXCLUDED_IDENTIFICATION_INACTIVE;
+  private List<AuditUpdateAction> markUnselectedIdentificationsInactive(String survivorId,
+      List<Integer> selectedSequences) {
+    String query = selectedSequences.isEmpty()
+        ? UPDATE_ALL_PERSON_IDENTIFICATION_INACTIVE
+        : UPDATE_SELECTED_EXCLUDED_IDENTIFICATION_INACTIVE;
+
     Map<String, Object> params = new HashMap<>();
     params.put("personUid", survivorId);
-    if (!selectedSequences.isEmpty()) {
+
+    List<Map<String, Object>> rowsToUpdate;
+
+    if (selectedSequences.isEmpty()) {
+      rowsToUpdate = nbsTemplate.queryForList(
+          FIND_ALL_IDENTIFICATIONS_FOR_AUDIT, params
+      );
+    } else {
       params.put("sequences", selectedSequences);
+      rowsToUpdate = nbsTemplate.queryForList(
+          FIND_UNSELECTED_IDENTIFICATIONS_FOR_AUDIT, params
+      );
     }
+
+    List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
+
     nbsTemplate.update(query, params);
+    return auditUpdates;
+  }
+
+  private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rows) {
+    return rows.stream()
+        .map(row -> new AuditUpdateAction(
+            Map.of("entity_uid", row.get("entity_uid"), "entity_id_seq", row.get("entity_id_seq")),//NOSONAR
+            Map.of("record_status_cd", row.get("record_status_cd"))
+        ))
+        .toList();
   }
 
 
-  private void updateSupersededIdentifications(String survivorId,
-      Map<String, List<Integer>> supersededIdentifications) {
+  private List<AuditInsertAction> updateSupersededIdentifications(
+      String survivorId, Map<String, List<Integer>> supersededIdentifications
+  ) {
+    List<AuditInsertAction> insertActions = new ArrayList<>();
+
     for (Map.Entry<String, List<Integer>> entry : supersededIdentifications.entrySet()) {
-      copySupersededIdentificationsToSurviving(entry.getKey(), entry.getValue(), survivorId);
+      String supersededUid = entry.getKey();
+      List<Integer> sequences = entry.getValue();
+      insertActions.addAll(copySupersededIdentificationsToSurviving(supersededUid, sequences, survivorId));
     }
+
+    return insertActions;
   }
 
-  private void copySupersededIdentificationsToSurviving(String supersededUid, List<Integer> sequences,
-      String survivingId) {
+  private List<AuditInsertAction> copySupersededIdentificationsToSurviving(
+      String supersededUid, List<Integer> sequences, String survivingId) {
+
     int survivingMaxSeq = getMaxSequenceForPerson(survivingId);
+    List<AuditInsertAction> insertActions = new ArrayList<>();
 
-    for (Integer seq : sequences) {
+    for (Integer oldSeq : sequences) {
       int newSeq = ++survivingMaxSeq;
-      Map<String, Object> params = new HashMap<>();
-      params.put("supersededUid", supersededUid);
-      params.put("oldSeq", seq);
-      params.put("survivingId", survivingId);
-      params.put("newSeq", newSeq);
 
-      nbsTemplate.update(COPY_ENTITY_ID_TO_SURVIVING, params);
+      Map<String, Object> params = Map.of(
+          "supersededUid", supersededUid,
+          "seq", oldSeq
+      );
+
+      List<Map<String, Object>> rowsToInsert = nbsTemplate.queryForList(
+          FIND_SUPERSEDED_IDENTIFICATIONS_FOR_AUDIT, params);
+
+      if (!rowsToInsert.isEmpty()) {
+        insertActions.add(buildAuditInsertAction(survivingId, newSeq));
+      }
+
+      copyIdentificationToSurvivor(supersededUid, oldSeq, survivingId, newSeq);
     }
+
+    return insertActions;
   }
+
+  private void copyIdentificationToSurvivor(String supersededUid, Integer oldSeq, String survivingId, int newSeq) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("supersededUid", supersededUid);
+    params.put("oldSeq", oldSeq);
+    params.put("survivingId", survivingId);
+    params.put("newSeq", newSeq);
+
+    nbsTemplate.update(COPY_ENTITY_ID_TO_SURVIVING, params);
+  }
+
+  private AuditInsertAction buildAuditInsertAction(String survivingId, int newSeq) {
+    return new AuditInsertAction(Map.of(
+        "entity_uid", survivingId,
+        "entity_id_seq", newSeq
+    ));
+  }
+
+
 
   private int getMaxSequenceForPerson(String personUid) {
     Map<String, Object> params = Collections.singletonMap("personUid", personUid);

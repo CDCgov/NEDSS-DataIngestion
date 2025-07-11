@@ -1,7 +1,9 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -29,7 +31,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
 
   //Modifications have been performed on the person table entries.
   @Override
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     String survivorId = request.survivingRecord();
     List<String> supersededUids = getSupersededRecords(matchId, survivorId);
     List<String> involvedPatients = new ArrayList<>();
@@ -42,6 +44,9 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     updateLastChangeTime(involvedPatients);
     markMergedRecordAsMerged(involvedPatients); // For involved patients(within current and other groups)
     saveSupersededPersonMergeDetails(survivorId, supersededUids);
+
+    patientMergeAudit.setSupersededIds(supersededUids);
+    patientMergeAudit.setMergeTimestamp(getCurrentUtcTimestamp());
   }
 
 
@@ -138,5 +143,6 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
   public static Timestamp getCurrentUtcTimestamp() {
     return Timestamp.from(Instant.now());
   }
+
 
 }

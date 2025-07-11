@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +60,7 @@ class PersonRacesMergeHandlerTest {
     mockSurvivorRaceCategories(List.of(EXISTING_CATEGORY));
     mockRaceCategoryCd(EXISTING_CATEGORY);
 
-    handler.handleMerge("match-123", request);
+    handler.handleMerge("match-123", request, new PatientMergeAudit());
 
     verifyUnselectedSurvivingRacesMarkedInactive();
     verifyNewDetailedRaceInserted();
@@ -78,7 +79,7 @@ class PersonRacesMergeHandlerTest {
     mockSurvivorRaceCategories(Collections.singletonList(EXISTING_CATEGORY));
     mockRaceCategoryCd(NEW_CATEGORY);
 
-    handler.handleMerge("match-123", request);
+    handler.handleMerge("match-123", request, new PatientMergeAudit());
 
     verifyUnselectedSurvivingRacesMarkedInactive();
     verifyNewRaceCategoryCopiedToSurvivor();

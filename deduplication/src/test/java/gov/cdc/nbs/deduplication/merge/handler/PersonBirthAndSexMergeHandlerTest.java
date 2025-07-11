@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ class PersonBirthAndSexMergeHandlerTest {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
     when(mockRequest.sexAndBirthFieldSource()).thenReturn(fieldSourceWithDiffIds);
 
-    handler.handleMerge("matchId", mockRequest);
+    handler.handleMerge("matchId", mockRequest, new PatientMergeAudit());
 
     verify(nbsTemplate, times(10)).update(anyString(), any(MapSqlParameterSource.class));
   }
@@ -66,7 +67,7 @@ class PersonBirthAndSexMergeHandlerTest {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
     when(mockRequest.sexAndBirthFieldSource()).thenReturn(fieldSourceWithSameIds);
 
-    handler.handleMerge("matchId", mockRequest);
+    handler.handleMerge("matchId", mockRequest, new PatientMergeAudit());
 
     verify(nbsTemplate, never()).update(anyString(), any(MapSqlParameterSource.class));
   }
