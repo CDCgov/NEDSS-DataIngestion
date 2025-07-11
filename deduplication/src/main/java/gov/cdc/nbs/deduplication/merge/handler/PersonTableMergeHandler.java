@@ -32,7 +32,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
 
   // Modifications have been performed on the person table entries.
   @Override
-  @Transactional(propagation = Propagation.REQUIRED, rollbackFor = { Exception.class, RuntimeException.class })
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     String survivorId = request.survivingRecord();
     List<String> supersededUids = getSupersededRecords(matchId, survivorId);
@@ -44,7 +44,6 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     linkSupersededChildIdsToSurvivingMpr(survivorId, supersededUids);
     markSupersededRecords(supersededUids);
     updateLastChangeTime(involvedPatients);
-    markMergedRecordAsMerged(involvedPatients); // For involved patients(within current and other groups)
     saveSupersededPersonMergeDetails(survivorId, supersededUids);
   }
 
@@ -113,12 +112,6 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     parameters.addValue("involvedPatients", involvedPatients);
     parameters.addValue("lastChgTime", getCurrentUtcTimestamp());
     nbsTemplate.update(QueryConstants.UPDATE_LAST_CHANGE_TIME_FOR_PATIENTS, parameters);
-  }
-
-  private void markMergedRecordAsMerged(List<String> mergedPatient) {
-    MapSqlParameterSource parameters = new MapSqlParameterSource();
-    parameters.addValue("mergedPatient", mergedPatient);
-    deduplicationTemplate.update(QueryConstants.MARK_PATIENTS_AS_MERGED, parameters);
   }
 
   private void saveSupersededPersonMergeDetails(String survivorPersonId, List<String> supersededPersonIds) {

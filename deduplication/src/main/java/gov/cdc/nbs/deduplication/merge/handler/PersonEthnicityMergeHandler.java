@@ -7,6 +7,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
@@ -93,6 +95,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
 
   // Merge modifications have been applied to the person ethnicity
   @Override
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergeEthnicity(request.survivingRecord(), request.ethnicity());
   }

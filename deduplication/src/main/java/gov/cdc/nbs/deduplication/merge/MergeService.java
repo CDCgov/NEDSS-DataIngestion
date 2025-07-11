@@ -3,29 +3,52 @@ package gov.cdc.nbs.deduplication.merge;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import gov.cdc.nbs.deduplication.merge.handler.SectionMergeHandler;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class MergeService {
 
-  private final List<SectionMergeHandler> handlers;
+  static final String MARK_PATIENTS_AS_MERGED = """
+      UPDATE match_candidates
+      SET is_merge = 1
+      WHERE  match_id = :matchId
+      AND is_merge IS NULL;
+      """;
 
-  @Transactional(propagation = Propagation.REQUIRED, rollbackFor = { Exception.class, RuntimeException.class })
-  public void performMerge(Long matchId, PatientMergeRequest request) {
-    String matchIdStr = matchId.toString();
+  private final List<SectionMergeHandler> handlers;
+  private final JdbcClient deduplicationClient;
+
+  public MergeService(
+      final List<SectionMergeHandler> handlers,
+      final @Qualifier("deduplicationJdbcClient") JdbcClient deduplicationClient) {
     List<SectionMergeHandler> orderedHandlers = new ArrayList<>(handlers);
     AnnotationAwareOrderComparator.sort(orderedHandlers);
+    this.handlers = orderedHandlers;
+    this.deduplicationClient = deduplicationClient;
+  }
 
-    for (SectionMergeHandler handler : orderedHandlers) {
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.REQUIRED)
+  public void performMerge(Long matchId, PatientMergeRequest request) {
+    String matchIdStr = matchId.toString();
+
+    for (SectionMergeHandler handler : handlers) {
       handler.handleMerge(matchIdStr, request);
     }
+
+    markPatientsMerged(matchId);
+  }
+
+  private void markPatientsMerged(long matchId) {
+    deduplicationClient.sql(MARK_PATIENTS_AS_MERGED)
+        .param("matchId", matchId)
+        .update();
   }
 }

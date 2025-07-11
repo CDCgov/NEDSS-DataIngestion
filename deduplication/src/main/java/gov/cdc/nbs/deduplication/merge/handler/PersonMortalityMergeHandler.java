@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
@@ -220,6 +222,7 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
 
   // Merge modifications have been applied to the person Mortality
   @Override
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonMortality(request.survivingRecord(), request.mortality());
   }

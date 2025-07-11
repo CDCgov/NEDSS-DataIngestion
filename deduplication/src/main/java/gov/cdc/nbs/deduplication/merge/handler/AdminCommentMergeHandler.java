@@ -5,6 +5,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
@@ -21,6 +23,7 @@ public class AdminCommentMergeHandler implements SectionMergeHandler {
 
   // Merge modifications have been applied to the Administrative Comments
   @Override
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     String survivorId = request.survivingRecord();
     String adminCommentsSourcePersonUid = request.adminComments();

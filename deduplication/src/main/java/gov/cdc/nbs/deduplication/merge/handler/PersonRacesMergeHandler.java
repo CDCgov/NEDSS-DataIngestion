@@ -111,7 +111,7 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
 
   // Merge modifications have been applied to the person races
   @Override
-  @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergeRace(request.survivingRecord(), request.races());
   }
