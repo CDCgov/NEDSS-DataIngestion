@@ -246,6 +246,11 @@ public class ManagerService implements IManagerService {
                 e instanceof DataAccessException ||
                 rootCause instanceof java.sql.SQLException) {
             dataIntegrityError.set(true);
+
+            nbsInterfaceModel.setRecordStatusCd(DP_FAILURE_STEP_1);
+            nbsInterfaceModel.setRecordStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
+            nbsInterfaceRepository.save(nbsInterfaceModel);
+
         } else {
             detailedMsg.set(handleProcessingELRError(e, edxLabInformationDto, nbsInterfaceModel));
             nonDltError.set(true);
@@ -377,11 +382,11 @@ public class ManagerService implements IManagerService {
         else
         {
             nonDltError.set(true);
-            NbsInterfaceModel model = phcContainer.getNbsInterfaceModel();
-            model.setRecordStatusCd(DP_FAILURE_STEP_2);
-            model.setRecordStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
-            nbsInterfaceRepository.save(model);
         }
+        NbsInterfaceModel model = phcContainer.getNbsInterfaceModel();
+        model.setRecordStatusCd(DP_FAILURE_STEP_2);
+        model.setRecordStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
+        nbsInterfaceRepository.save(model);
     }
 
     protected void finalizeWdsAndLabProcessing(

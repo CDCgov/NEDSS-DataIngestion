@@ -55,6 +55,9 @@ public class DataModifierReposJdbc {
     }
 
     public void deletePostalLocatorById(Long postalId) {
+        String sqlHist = "DELETE FROM Postal_locator_hist WHERE postal_locator_uid = ?";
+        jdbcTemplateOdse.update(sqlHist, postalId);
+
         String sql = "DELETE FROM Postal_locator WHERE postal_locator_uid = ?";
         jdbcTemplateOdse.update(sql, postalId);
     }
