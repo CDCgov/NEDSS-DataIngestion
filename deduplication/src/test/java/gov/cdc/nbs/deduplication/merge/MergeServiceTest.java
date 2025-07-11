@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,13 +28,18 @@ class MergeServiceTest {
   @Mock
   private AdminCommentMergeHandler adminCommentMergeHandler;
 
-  private MergeService mergeService;
+  @Mock
+  private JdbcClient deduplicationClient;
 
+  private MergeService mergeService;
 
   @BeforeEach
   void setUp() {
     List<SectionMergeHandler> handlers = Arrays.asList(personTableMergeHandler, adminCommentMergeHandler);
-    mergeService = new MergeService(handlers);
+    StatementSpec mockStatementSpec = Mockito.mock(StatementSpec.class);
+    when(deduplicationClient.sql(MergeService.MARK_PATIENTS_AS_MERGED)).thenReturn(mockStatementSpec);
+    when(mockStatementSpec.param("matchId", 123L)).thenReturn(mockStatementSpec);
+    mergeService = new MergeService(handlers, deduplicationClient);
   }
 
   @Test
@@ -41,9 +49,10 @@ class MergeServiceTest {
     PatientMergeRequest patientMergeRequest = mock(PatientMergeRequest.class);
     mergeService.performMerge(matchId, patientMergeRequest);
 
-    InOrder inOrder = inOrder(personTableMergeHandler, adminCommentMergeHandler);
+    InOrder inOrder = inOrder(personTableMergeHandler, adminCommentMergeHandler, deduplicationClient);
     inOrder.verify(personTableMergeHandler).handleMerge(matchIdStr, patientMergeRequest);
     inOrder.verify(adminCommentMergeHandler).handleMerge(matchIdStr, patientMergeRequest);
+    inOrder.verify(deduplicationClient).sql(MergeService.MARK_PATIENTS_AS_MERGED);
   }
 
 }
