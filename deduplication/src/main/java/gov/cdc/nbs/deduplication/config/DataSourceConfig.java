@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
 public class DataSourceConfig {
@@ -78,6 +79,11 @@ public class DataSourceConfig {
   @Bean("nbsJdbcClient")
   public JdbcClient nbsJdbcClient(@Qualifier("nbs") DataSource nbsDataSource) {
     return JdbcClient.create(nbsDataSource);
+  }
+
+  @Bean("nbsTransactionManager")
+  DataSourceTransactionManager nbsTransactionManager(@Qualifier("nbs") DataSource dataSource) {
+    return new DataSourceTransactionManager(dataSource);
   }
 
   // MPI data source

@@ -13,8 +13,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-
-
 @ExtendWith(MockitoExtension.class)
 class PersonGeneralInfoMergeHandlerTest {
 
@@ -32,14 +30,12 @@ class PersonGeneralInfoMergeHandlerTest {
   private PatientMergeRequest.GeneralInfoFieldSource fieldSourceWithDiffIds;
   private PatientMergeRequest.GeneralInfoFieldSource fieldSourceWithSameIds;
 
-
   @BeforeEach
   void setUp() {
     handler = new PersonGeneralInfoMergeHandler(nbsTemplate);
 
     fieldSourceWithDiffIds = new PatientMergeRequest.GeneralInfoFieldSource(SOURCE_ID, SOURCE_ID,
         SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID);
-
 
     fieldSourceWithSameIds = new PatientMergeRequest.GeneralInfoFieldSource(SURVIVOR_ID, SURVIVOR_ID,
         SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID);
@@ -48,7 +44,7 @@ class PersonGeneralInfoMergeHandlerTest {
   @Test
   void handleMerge_ShouldUpdatePersonGeneralInfoFields() {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
-    when(mockRequest.generalInfoFieldSource()).thenReturn(fieldSourceWithDiffIds);
+    when(mockRequest.generalInfo()).thenReturn(fieldSourceWithDiffIds);
 
     handler.handleMerge("matchId", mockRequest);
 
@@ -58,7 +54,7 @@ class PersonGeneralInfoMergeHandlerTest {
   @Test
   void handleMerge_NotCalledWhenSourceSameAsSurvivor() {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
-    when(mockRequest.generalInfoFieldSource()).thenReturn(fieldSourceWithSameIds);
+    when(mockRequest.generalInfo()).thenReturn(fieldSourceWithSameIds);
 
     handler.handleMerge("matchId", mockRequest);
 

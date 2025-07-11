@@ -1,20 +1,23 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(4)
 public class PersonAddressMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
-
 
   static final String UPDATE_UN_SELECTED_ADDRESS_INACTIVE = """
       UPDATE Entity_locator_participation
@@ -87,12 +90,12 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
         AND class_cd = 'PST';
       """;
 
-
   public PersonAddressMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonAddress(request);
   }
@@ -124,6 +127,5 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(INSERT_NEW_LOCATORS, params);
   }
-
 
 }

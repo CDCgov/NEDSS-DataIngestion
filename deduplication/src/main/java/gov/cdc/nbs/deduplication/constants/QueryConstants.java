@@ -455,12 +455,6 @@ public class QueryConstants {
           WHERE mc.match_id = :matchId
       """;
 
-  public static final String MARK_PATIENTS_AS_MERGED = """
-      UPDATE match_candidates
-      SET is_merge = 1
-      WHERE  person_uid IN (:mergedPatient)
-      """;
-
   public static final String SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS = """
           UPDATE mc
           SET is_merge = 0
@@ -502,7 +496,7 @@ public class QueryConstants {
           :survivorPersonId,
           :supersededPersonId,
           :mergeTime,
-          1,
+          (SELECT MAX(version_ctrl_nbr) FROM person_hist where person_uid = :supersededPersonId),
           'PAT_MERGE'
       )
       """;

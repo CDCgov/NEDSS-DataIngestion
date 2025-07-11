@@ -1,6 +1,5 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,6 @@ class PersonTableMergeHandlerTest {
 
   private PersonTableMergeHandler handler;
 
-
   @BeforeEach
   void setUp() {
     handler = new PersonTableMergeHandler(nbsTemplate, deduplicationTemplate);
@@ -49,23 +47,20 @@ class PersonTableMergeHandlerTest {
     verifyMarkSupersededRecordsAsSuperseded();
     verifyUpdateLastChangeTimeForPatients();
     verifyInsertPersonMergeRecord();
-    verifyMarkPatientsAsMerged();
   }
 
   private void mockFetchSupersededCandidatesToReturn(String... ids) {
     when(deduplicationTemplate.queryForList(
         eq(QueryConstants.FETCH_SUPERSEDED_CANDIDATES),
         any(MapSqlParameterSource.class),
-        eq(String.class)
-    )).thenReturn(Arrays.asList(ids));
+        eq(String.class))).thenReturn(Arrays.asList(ids));
   }
 
   private void mockFetchChildIdsOfSupersededToReturn(String... ids) {
     when(nbsTemplate.queryForList(
         eq(QueryConstants.CHILD_IDS_BY_PARENT_PERSON_IDS),
         any(MapSqlParameterSource.class),
-        eq(String.class)
-    )).thenReturn(Arrays.asList(ids));
+        eq(String.class))).thenReturn(Arrays.asList(ids));
   }
 
   private void verifyCopyPersonToHistory() {
@@ -92,10 +87,6 @@ class PersonTableMergeHandlerTest {
 
   private void verifyInsertPersonMergeRecord() {
     verify(nbsTemplate).batchUpdate(eq(QueryConstants.INSERT_PERSON_MERGE_RECORD), any(MapSqlParameterSource[].class));
-  }
-
-  private void verifyMarkPatientsAsMerged() {
-    verify(deduplicationTemplate).update(eq(QueryConstants.MARK_PATIENTS_AS_MERGED), any(MapSqlParameterSource.class));
   }
 
   private PatientMergeRequest getPatientMergeRequest() {

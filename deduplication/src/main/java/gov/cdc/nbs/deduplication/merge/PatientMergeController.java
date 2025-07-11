@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,14 +72,10 @@ public class PatientMergeController {
   }
 
   @PostMapping("/{matchId}")
-  public ResponseEntity<Void> mergePatients(@RequestBody PatientMergeRequest mergeRequest,
+  public void mergePatients(
+      @RequestBody PatientMergeRequest mergeRequest,
       @PathVariable("matchId") Long matchId) {
-    try {
-      mergeService.performMerge(matchId, mergeRequest);
-      return ResponseEntity.ok().build();
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+    mergeService.performMerge(matchId, mergeRequest);
   }
 
   @GetMapping(value = "/export/csv", produces = "text/csv")

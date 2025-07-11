@@ -1,12 +1,19 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(3)
@@ -86,6 +93,7 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
   }
 
   @Override
+  @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
   public void handleMerge(String matchId, PatientMergeRequest request) {
     mergePersonNames(request.survivingRecord(), request.names());
   }
@@ -113,8 +121,8 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
   }
 
   private void markUnselectedNamesInactive(String survivorId, List<Integer> selectedSequences) {
-    String query =
-        selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
+    String query = selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE
+        : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
     Map<String, Object> params = new HashMap<>();
     params.put("personUid", survivorId);
     if (!selectedSequences.isEmpty()) {
