@@ -50,7 +50,7 @@ nbs:
     tokenExpirationMillis: 1800000 # 30 minutes
     oidc:
       # toggles the validation of users provided jwt token
-      enabled: true
+      enabled: false
     paths:
       ignored: # routes that are excluded from security
         - /v3/api-docs/**

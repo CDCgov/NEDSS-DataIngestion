@@ -4,74 +4,71 @@ import java.util.List;
 
 public record PatientMergeRequest(
     String survivingRecord,
-    String adminCommentsSource,
+    String adminComments,
     List<NameId> names,
     List<AddressId> addresses,
     List<PhoneEmailId> phoneEmails,
     List<IdentificationId> identifications,
     List<RaceId> races,
-    String ethnicitySource,
-    SexAndBirthFieldSource sexAndBirthFieldSource,
-    MortalityFieldSource mortalityFieldSource,
-    GeneralInfoFieldSource generalInfoFieldSource
-) {
+    String ethnicity,
+    SexAndBirthFieldSource sexAndBirth,
+    MortalityFieldSource mortality,
+    GeneralInfoFieldSource generalInfo) {
 
-  public record NameId(String personUid, String sequence) {
+  public record NameId(
+      String personUid,
+      String sequence) {
   }
-
 
   public record AddressId(String locatorId) {
   }
 
-
   public record PhoneEmailId(String locatorId) {
   }
 
-
-  public record IdentificationId(String personUid, String sequence) {
+  public record IdentificationId(
+      String personUid,
+      String sequence) {
   }
 
-
-  public record RaceId(String personUid, String raceCode) {
+  public record RaceId(
+      String personUid,
+      String raceCode) {
   }
-
 
   public record SexAndBirthFieldSource(
-      String asOfSource,
-      String dateOfBirthSource,
-      String currentSexSource,
-      String sexUnknownSource,
-      String transgenderSource,
-      String additionalGenderSource,
-      String birthGenderSource,
-      String multipleBirthSource,
-      String birthOrderSource,
-      String birthAddressSource
-  ) {
+      String asOf,
+      String dateOfBirth,
+      String currentSex, // unknown reason depends on currentSex
+      String transgenderInfo,
+      String additionalGender,
+      String birthGender,
+      String multipleBirth, // birth order depends on multiple birth
+      String birthCity,
+      String birthState, // birth county depends on birth state
+      String birthCountry) {
   }
-
 
   public record MortalityFieldSource(
-      String asOfSource,
-      String deceasedSource,
-      String dateOfDeathSource,
-      String deathAddressSource
-  ) {
+      String asOf,
+      String deceased,
+      String dateOfDeath,
+      String deathCity,
+      String deathState, // death county depends on death state
+      String deathCountry) {
   }
 
-
   public record GeneralInfoFieldSource(
-      String asOfSource,
-      String maritalStatusSource,
-      String mothersMaidenNameSource,
-      String numberOfAdultsInResidenceSource,
-      String numberOfChildrenInResidenceSource,
-      String primaryOccupationSource,
-      String educationLevelSource,
-      String primaryLanguageSource,
-      String speaksEnglishSource,
-      String stateHivCaseIdSource
-  ) {
+      String asOf,
+      String maritalStatus,
+      String mothersMaidenName,
+      String numberOfAdultsInResidence,
+      String numberOfChildrenInResidence,
+      String primaryOccupation,
+      String educationLevel,
+      String primaryLanguage,
+      String speaksEnglish,
+      String stateHivCaseId) {
   }
 
 }

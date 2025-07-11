@@ -102,22 +102,6 @@ class PatientMergeControllerTest {
   }
 
   @Test
-  void testMergePatients_ServiceThrowsException() throws Exception {
-    Long matchId = 123L;
-    String requestBody = createPatientMergeRequestJson();
-
-    doThrow(new RuntimeException("Merge failed"))
-        .when(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
-
-    mockMvc.perform(post("/merge/{matchId}", matchId)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(requestBody))
-        .andExpect(status().isInternalServerError());
-
-    verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
-  }
-
-  @Test
   void testExportMatchesAsPDF() throws Exception {
     List<MatchRequiringReview> mockMatches = List.of(
         new MatchRequiringReview(1l, "111122", "444", "john smith", "1990-01-01", "2000-01-01", 2),

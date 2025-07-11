@@ -1,14 +1,15 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(5)
@@ -85,7 +86,6 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE';
       """;
 
-
   public PersonPhoneEmailMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
@@ -122,6 +122,5 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(INSERT_NEW_PHONE_EMAIL_LOCATORS, params);
   }
-
 
 }

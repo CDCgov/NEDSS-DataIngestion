@@ -1,12 +1,12 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(10)
@@ -140,22 +140,21 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
 
   @Override
   public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonGeneralInfo(request.survivingRecord(), request.generalInfoFieldSource());
+    mergePersonGeneralInfo(request.survivingRecord(), request.generalInfo());
   }
 
   private void mergePersonGeneralInfo(String survivorId, PatientMergeRequest.GeneralInfoFieldSource fieldSource) {
-    updateAsOf(survivorId, fieldSource.asOfSource());
-    updateMaritalStatus(survivorId, fieldSource.maritalStatusSource());
-    updateMothersMaidenName(survivorId, fieldSource.mothersMaidenNameSource());
-    updateNumberOfAdults(survivorId, fieldSource.numberOfAdultsInResidenceSource());
-    updateNumberOfChildren(survivorId, fieldSource.numberOfChildrenInResidenceSource());
-    updatePrimaryOccupation(survivorId, fieldSource.primaryOccupationSource());
-    updateEducationLevel(survivorId, fieldSource.educationLevelSource());
-    updatePrimaryLanguage(survivorId, fieldSource.primaryLanguageSource());
-    updateSpeaksEnglish(survivorId, fieldSource.speaksEnglishSource());
-    updateStateHivCaseId(survivorId, fieldSource.stateHivCaseIdSource());
+    updateAsOf(survivorId, fieldSource.asOf());
+    updateMaritalStatus(survivorId, fieldSource.maritalStatus());
+    updateMothersMaidenName(survivorId, fieldSource.mothersMaidenName());
+    updateNumberOfAdults(survivorId, fieldSource.numberOfAdultsInResidence());
+    updateNumberOfChildren(survivorId, fieldSource.numberOfChildrenInResidence());
+    updatePrimaryOccupation(survivorId, fieldSource.primaryOccupation());
+    updateEducationLevel(survivorId, fieldSource.educationLevel());
+    updatePrimaryLanguage(survivorId, fieldSource.primaryLanguage());
+    updateSpeaksEnglish(survivorId, fieldSource.speaksEnglish());
+    updateStateHivCaseId(survivorId, fieldSource.stateHivCaseId());
   }
-
 
   private void updateAsOf(String survivorId, String sourceId) {
     if (!survivorId.equals(sourceId)) {
@@ -216,7 +215,6 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
       updatePersonField(survivorId, sourceId, UPDATE_PERSON_STATE_HIV_CASE_ID);
     }
   }
-
 
   private void updatePersonField(String survivorId, String sourceId, String query) {
     MapSqlParameterSource params = new MapSqlParameterSource();

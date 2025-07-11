@@ -1,121 +1,140 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-import org.junit.jupiter.api.BeforeEach;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
+import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.merge.handler.PersonRacesMergeHandler.RaceEntry;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class PersonRacesMergeHandlerTest {
 
-  private PersonRacesMergeHandler handler;
-
-  private static final String SURVIVOR_ID = "survivor-100";
-  private static final String SUPERSEDED_ID = "superseded-200";
-  private static final String SURVIVOR_RACE_CODE = "RACE_001";
-  private static final String SUPERSEDED_RACE_CODE = "RACE_002";
-  private static final String EXISTING_CATEGORY = "EXISTING_CATEGORY";
-  private static final String NEW_CATEGORY = "NEW_CATEGORY";
-
   @Mock
-  private NamedParameterJdbcTemplate nbsTemplate;
+  private JdbcClient client;
 
-  @Captor
-  private ArgumentCaptor<Map<String, Object>> paramMapCaptor;
-
-  @Captor
-  private ArgumentCaptor<MapSqlParameterSource> paramSourceCaptor;
-
-
-  @BeforeEach
-  void setUp() {
-    handler = new PersonRacesMergeHandler(nbsTemplate);
-  }
+  @InjectMocks
+  private PersonRacesMergeHandler mergeHandler;
 
   @Test
-  void shouldAddDetailedRace_whenSurvivorContainsTheCategory() {
-    List<PatientMergeRequest.RaceId> races = Arrays.asList(
-        new PatientMergeRequest.RaceId(SURVIVOR_ID, SURVIVOR_RACE_CODE),
-        new PatientMergeRequest.RaceId(SUPERSEDED_ID, SUPERSEDED_RACE_CODE)
-    );
+  void should_merge_race() {
+    // Mock
+    mockCurrentUser(99L);
+    PatientMergeRequest request = Mockito.mock(PatientMergeRequest.class);
+    when(request.survivingRecord()).thenReturn("1");
+    when(request.races()).thenReturn(List.of(
+        new RaceId("1", "A"),
+        new RaceId("2", "B")));
 
-    PatientMergeRequest request = getPatientMergeRequest(races);
+    mockSetInactive(99L, "1");
+    mockSelectRaceEntries();
+    mockEntryExists();
+    mockInsert();
+    mockUpdate();
 
-    mockSurvivorRaceCategories(List.of(EXISTING_CATEGORY));
-    mockRaceCategoryCd(EXISTING_CATEGORY);
+    // Act
+    mergeHandler.handleMerge("matchId", request);
 
-    handler.handleMerge("match-123", request);
+    // Verify
+    verify(client, times(1)).sql(PersonRacesMergeHandler.SET_RACE_ENTRIES_TO_INACTIVE);
 
-    verifyUnselectedSurvivingRacesMarkedInactive();
-    verifyNewDetailedRaceInserted();
-    verify(nbsTemplate, never()).update(eq(PersonRacesMergeHandler.COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR), anyMap());
+    verify(client, times(1)).sql(PersonRacesMergeHandler.UPDATE_EXISTING_RACE_ENTRY);
+    verify(client, times(1)).sql(PersonRacesMergeHandler.INSERT_NEW_RACE_ENTRY);
   }
 
-  @Test
-  void shouldMoveRace_whenSurvivorDoesNotContainTheCategory() {
-    List<PatientMergeRequest.RaceId> races = Arrays.asList(
-        new PatientMergeRequest.RaceId(SURVIVOR_ID, SURVIVOR_RACE_CODE),
-        new PatientMergeRequest.RaceId(SUPERSEDED_ID, SUPERSEDED_RACE_CODE)
-    );
-
-    PatientMergeRequest request = getPatientMergeRequest(races);
-
-    mockSurvivorRaceCategories(Collections.singletonList(EXISTING_CATEGORY));
-    mockRaceCategoryCd(NEW_CATEGORY);
-
-    handler.handleMerge("match-123", request);
-
-    verifyUnselectedSurvivingRacesMarkedInactive();
-    verifyNewRaceCategoryCopiedToSurvivor();
-    verify(nbsTemplate, never()).update(eq(PersonRacesMergeHandler.COPY_RACE_DETAIL_IF_NOT_EXISTS), anyMap());
+  private void mockUpdate() {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.UPDATE_EXISTING_RACE_ENTRY)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.RACE, "A")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "Z")).thenReturn(statementSpec);
   }
 
-  private void mockSurvivorRaceCategories(List<String> categories) {
-    when(nbsTemplate.queryForList(anyString(), any(MapSqlParameterSource.class), eq(String.class)))
-        .thenReturn(categories);
+  private void mockInsert() {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.INSERT_NEW_RACE_ENTRY)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.RACE, "B")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "X")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.USER_ID, 99L)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.SOURCE_ID, "2")).thenReturn(statementSpec);
   }
 
-  //Mock that a race_cd maps to the given category
-  private void mockRaceCategoryCd(String categoryCd) {
-    when(nbsTemplate.queryForObject(anyString(), any(MapSqlParameterSource.class), eq(String.class)))
-        .thenReturn(categoryCd);
+  private void mockEntryExists() {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.SELECT_RACE_ENTRY_EXISTS)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
+
+    StatementSpec bxSpec = Mockito.mock(StatementSpec.class);
+    when(statementSpec.param(PersonRacesMergeHandler.RACE, "B")).thenReturn(bxSpec);
+    when(bxSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "X")).thenReturn(bxSpec);
+    MappedQuerySpec<Boolean> bxBooleanSpec = Mockito.mock(MappedQuerySpec.class);
+    when(bxSpec.query(Boolean.class)).thenReturn(bxBooleanSpec);
+    when(bxBooleanSpec.single()).thenReturn(false);
+
+    StatementSpec azSpec = Mockito.mock(StatementSpec.class);
+    when(statementSpec.param(PersonRacesMergeHandler.RACE, "A")).thenReturn(azSpec);
+    when(azSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "Z")).thenReturn(azSpec);
+    MappedQuerySpec<Boolean> azBooleanSpec = Mockito.mock(MappedQuerySpec.class);
+    when(azSpec.query(Boolean.class)).thenReturn(azBooleanSpec);
+    when(azBooleanSpec.single()).thenReturn(true);
   }
 
-  private void verifyUnselectedSurvivingRacesMarkedInactive() {
-    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.UPDATE_SELECTED_EXCLUDED_RACES_INACTIVE),
-        paramMapCaptor.capture());
+  private void mockSelectRaceEntries() {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    StatementSpec person1Statement = Mockito.mock(StatementSpec.class);
+    StatementSpec person2Statement = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.SELECT_RACE_ENTRIES)).thenReturn(statementSpec);
+
+    // person 1
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(person1Statement);
+    when(person1Statement.param(PersonRacesMergeHandler.RACE, "A")).thenReturn(person1Statement);
+
+    MappedQuerySpec<RaceEntry> person1QuerySpec = Mockito.mock(MappedQuerySpec.class);
+    when(person1Statement.query(RaceEntry.class)).thenReturn(person1QuerySpec);
+    when(person1QuerySpec.list()).thenReturn(List.of(new RaceEntry("A", "Z")));
+
+    // perosn 2
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "2")).thenReturn(person2Statement);
+    when(person2Statement.param(PersonRacesMergeHandler.RACE, "B")).thenReturn(person2Statement);
+
+    MappedQuerySpec<RaceEntry> person2QuerySpec = Mockito.mock(MappedQuerySpec.class);
+    when(person2Statement.query(RaceEntry.class)).thenReturn(person2QuerySpec);
+    when(person2QuerySpec.list()).thenReturn(List.of(new RaceEntry("B", "X")));
   }
 
-  private void verifyNewDetailedRaceInserted() {
-    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.COPY_RACE_DETAIL_IF_NOT_EXISTS),
-        paramSourceCaptor.capture());
+  private void mockSetInactive(long userId, String survivorId) {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.SET_RACE_ENTRIES_TO_INACTIVE)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.USER_ID, userId)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, survivorId)).thenReturn(statementSpec);
   }
 
-  private void verifyNewRaceCategoryCopiedToSurvivor() {
-    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.COPY_RACE_FROM_SUPERSEDED_TO_SURVIVOR),
-        paramSourceCaptor.capture());
+  private void mockCurrentUser(long userId) {
+    NbsUserDetails user = Mockito.mock(NbsUserDetails.class);
+    when(user.getId()).thenReturn(userId);
 
-    verify(nbsTemplate).update(eq(PersonRacesMergeHandler.COPY_RACE_DETAIL_FROM_SUPERSEDED_TO_SURVIVOR),
-        paramSourceCaptor.capture());
-  }
+    Authentication auth = Mockito.mock(Authentication.class);
+    when(auth.getPrincipal()).thenReturn(user);
 
-  private PatientMergeRequest getPatientMergeRequest(List<PatientMergeRequest.RaceId> races) {
-    return new PatientMergeRequest(SURVIVOR_ID, null, null, null, null, null, races, null, null, null, null);
+    SecurityContextHolder.getContext().setAuthentication(auth);
   }
 
 }
