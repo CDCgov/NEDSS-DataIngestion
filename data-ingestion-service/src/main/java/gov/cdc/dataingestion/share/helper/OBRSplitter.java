@@ -154,7 +154,6 @@ public class OBRSplitter {
         List<OrderObservation> obrList = patientResultList.getFirst().getOrderObservation();
         if (obrList != null && obrList.size() > 1) {
             log.debug("Before OBR split..splitElrByOBR Incoming Obr list size:" + obrList.size());
-
             //Fix obr ids to be in sequence like 1,2,3.. before splitting
             for (int i = 0; i < obrList.size(); i++) {
                 OrderObservation obr = obrList.get(i);
