@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@SuppressWarnings("java:S5976")
 class RtiDltJdbcRepositoryTest {
 
     @Mock
