@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ class PersonEthnicityMergeHandlerTest {
         eq(String.class)))
         .thenReturn("2135-5");
 
-    handler.handleMerge("matchId", patientMergeRequest);
+    handler.handleMerge("matchId", patientMergeRequest, new PatientMergeAudit());
 
     verify(nbsTemplate).update(eq(PersonEthnicityMergeHandler.UPDATE_PERSON_ETHNICITY_IND),
         any(MapSqlParameterSource.class));

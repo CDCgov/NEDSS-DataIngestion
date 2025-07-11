@@ -1,11 +1,15 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 @Component
@@ -58,7 +62,7 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
         AND class_cd = 'PST'
       """;
 
-  static final String INSERT_NEW_DEATH_LOCATOR = """
+  static final String COPY_DEATH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING = """
       INSERT INTO Entity_locator_participation (
           entity_uid,
           locator_uid,
@@ -118,6 +122,22 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
         AND class_cd = 'PST'
       """;
 
+  static final String FIND_DEATH_ADDRESS_LOCATOR_UID = """
+      SELECT locator_uid
+      FROM Entity_locator_participation
+      WHERE entity_uid = :sourceId
+        AND use_cd = 'DTH'
+        AND class_cd = 'PST'
+      """;
+
+  static final String FIND_UNSELECTED_DEATH_ADDRESS_FOR_AUDIT = """
+      SELECT entity_uid, locator_uid, record_status_cd
+      FROM Entity_locator_participation
+      WHERE entity_uid = :survivingId
+        AND class_cd = 'PST'
+        AND use_cd = 'DTH';
+      """;
+
   final NamedParameterJdbcTemplate nbsTemplate;
 
   public PersonMortalityMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
@@ -125,15 +145,17 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
   }
 
   //Merge modifications have been applied to the person Mortality
-  public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonMortality(request.survivingRecord(), request.mortalityFieldSource());
+  @Override
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+    mergePersonMortality(request.survivingRecord(), request.mortalityFieldSource(), patientMergeAudit);
   }
 
-  private void mergePersonMortality(String survivorId, PatientMergeRequest.MortalityFieldSource fieldSource) {
+  private void mergePersonMortality(String survivorId, PatientMergeRequest.MortalityFieldSource fieldSource,
+      PatientMergeAudit audit) {
     updateAsOf(survivorId, fieldSource.asOfSource());
     updateDeceasedFlag(survivorId, fieldSource.deceasedSource());
     updateDateOfDeath(survivorId, fieldSource.dateOfDeathSource());
-    updateDeathAddress(survivorId, fieldSource.deathAddressSource());
+    updateDeathAddress(survivorId, fieldSource.deathAddressSource(), audit);
   }
 
   private void updateAsOf(String survivorId, String sourceId) {
@@ -154,25 +176,62 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
     }
   }
 
-  private void updateDeathAddress(String survivorId, String sourceId) {
-    if (!survivorId.equals(sourceId)) {
-      markUnselectedDeathAddressInactive(survivorId);
-      copyDeathAddressFromSupersededToSurviving(survivorId, sourceId);
+  private void updateDeathAddress(String survivorId, String sourceId, PatientMergeAudit audit) {
+    if (survivorId.equals(sourceId)) {
+      return;
     }
+
+    List<AuditUpdateAction> updateActions = performDeathAddressInactivation(survivorId);
+    List<AuditInsertAction> insertActions = performDeathAddressCopy(survivorId, sourceId);
+
+    audit.getRelatedTableAudits().add(
+        new RelatedTableAudit("Entity_locator_participation", updateActions, insertActions)
+    );
   }
 
-  private void markUnselectedDeathAddressInactive(String survivingId) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivingId", survivingId);
+  private List<AuditUpdateAction> performDeathAddressInactivation(String survivorId) {
+    Map<String, Object> params = Collections.singletonMap("survivingId", survivorId);
+
+    List<Map<String, Object>> rowsToUpdate = nbsTemplate.queryForList(
+        FIND_UNSELECTED_DEATH_ADDRESS_FOR_AUDIT, params
+    );
+
+    List<AuditUpdateAction> auditUpdates = buildUpdateActions(rowsToUpdate);
+
     nbsTemplate.update(UPDATE_UN_SELECTED_DEATH_ADDRESS_INACTIVE, params);
+    return auditUpdates;
   }
 
-  private void copyDeathAddressFromSupersededToSurviving(String survivingId, String sourceId) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivingId", survivingId);
-    params.addValue("sourceId", sourceId);
+  private List<AuditUpdateAction> buildUpdateActions(List<Map<String, Object>> rows) {
+    return rows.stream()
+        .map(row -> new AuditUpdateAction(
+            Map.of("entity_uid", row.get("entity_uid"), "locator_uid", row.get("locator_uid")),//NOSONAR
+            Map.of("record_status_cd", row.get("record_status_cd"))
+        ))
+        .toList();
+  }
 
-    nbsTemplate.update(INSERT_NEW_DEATH_LOCATOR, params);
+  private List<AuditInsertAction> performDeathAddressCopy(String survivorId, String sourceId) {
+    Map<String, Object> params = Map.of("survivingId", survivorId, "sourceId", sourceId);
+
+    List<Map<String, Object>> insertedRows = nbsTemplate.queryForList(
+        FIND_DEATH_ADDRESS_LOCATOR_UID, params
+    );
+
+    List<AuditInsertAction> insertActions = buildInsertActions(survivorId, insertedRows);
+
+    nbsTemplate.update(COPY_DEATH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING, params);
+
+    return insertActions;
+  }
+
+  private List<AuditInsertAction> buildInsertActions(String survivorId, List<Map<String, Object>> insertedRows) {
+    return insertedRows.stream()
+        .map(row -> new AuditInsertAction(Map.of(
+            "entity_uid", survivorId,
+            "locator_uid", row.get("locator_uid")
+        )))
+        .toList();
   }
 
 

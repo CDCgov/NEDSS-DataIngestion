@@ -2,6 +2,7 @@ package gov.cdc.nbs.deduplication.merge.handler;
 
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ class PersonTableMergeHandlerTest {
     mockFetchSupersededCandidatesToReturn("superseded1", "superseded2", "superseded3");
     mockFetchChildIdsOfSupersededToReturn("supersededChild1", "supersededChild2", "supersededChild3");
 
-    handler.handleMerge(matchId, request);
+    handler.handleMerge(matchId, request, new PatientMergeAudit());
 
     verifyCopyPersonToHistory();
     verifyIncrementPersonVersionNumber();

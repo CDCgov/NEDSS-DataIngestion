@@ -1,13 +1,14 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 
@@ -193,6 +194,22 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         AND class_cd   = 'PST'
       """;
 
+  private static final String FIND_BIRTH_ADDRESS_LOCATOR_UID = """
+      SELECT locator_uid
+      FROM Entity_locator_participation
+      WHERE entity_uid = :sourceId
+        AND use_cd = 'BIR'
+        AND class_cd = 'PST'
+      """;
+
+  private static final String FIND_UNSELECTED_BIRTH_ADDRESS_FOR_AUDIT = """
+      SELECT entity_uid, locator_uid, record_status_cd
+      FROM Entity_locator_participation
+      WHERE entity_uid = :survivingId
+          AND class_cd = 'PST'
+          AND use_cd = 'BIR';
+      """;
+
 
   final NamedParameterJdbcTemplate nbsTemplate;
 
@@ -202,11 +219,12 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
 
   //Merge modifications have been applied to the person birth and sex
   @Override
-  public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonBirthAndSex(request.survivingRecord(), request.sexAndBirthFieldSource());
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+    mergePersonBirthAndSex(request.survivingRecord(), request.sexAndBirthFieldSource(), patientMergeAudit);
   }
 
-  private void mergePersonBirthAndSex(String survivorId, PatientMergeRequest.SexAndBirthFieldSource fieldSource) {
+  private void mergePersonBirthAndSex(String survivorId, PatientMergeRequest.SexAndBirthFieldSource fieldSource
+      , PatientMergeAudit patientMergeAudit) {
     updateAsOf(survivorId, fieldSource.asOfSource());
     updateDateOfBirth(survivorId, fieldSource.dateOfBirthSource());
     updateAdditionalGender(survivorId, fieldSource.additionalGenderSource());
@@ -216,7 +234,7 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     updateTransgender(survivorId, fieldSource.transgenderSource());
     updateBirthGender(survivorId, fieldSource.birthGenderSource());
     updateMultipleBirth(survivorId, fieldSource.multipleBirthSource());
-    updateBirthAddress(survivorId, fieldSource.birthAddressSource());
+    updateBirthAddress(survivorId, fieldSource.birthAddressSource(), patientMergeAudit);
   }
 
   private void updateAsOf(String survivorId, String sourceId) {
@@ -274,25 +292,60 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
   }
 
 
-  private void updateBirthAddress(String survivorId, String sourceId) {
-    if (!survivorId.equals(sourceId)) {
-      markUnselectedBirthAddressInactive(survivorId);
-      copyBirthAddressFromSupersededToSurviving(survivorId, sourceId);
+  private void updateBirthAddress(String survivorId, String sourceId, PatientMergeAudit audit) {
+    if (survivorId.equals(sourceId)) {
+      return;
     }
-
+    List<AuditUpdateAction> updateActions = performBirthAddressInactivation(survivorId);
+    List<AuditInsertAction> insertActions = performBirthAddressCopy(survivorId, sourceId);
+    audit.getRelatedTableAudits()
+        .add(new RelatedTableAudit("Entity_locator_participation", updateActions, insertActions));
   }
 
-  private void markUnselectedBirthAddressInactive(String survivingId) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("survivingId", survivingId);
+  private List<AuditUpdateAction> performBirthAddressInactivation(String survivorId) {
+    Map<String, Object> params = Collections.singletonMap("survivorId", survivorId);
+
+    List<Map<String, Object>> rowsToUpdate = nbsTemplate.queryForList(
+        FIND_UNSELECTED_BIRTH_ADDRESS_FOR_AUDIT, params
+    );
+
+    List<AuditUpdateAction> auditUpdates = buildUpdateActions(rowsToUpdate);
+
     nbsTemplate.update(UPDATE_UN_SELECTED_BIRTH_ADDRESS_INACTIVE, params);
+    return auditUpdates;
   }
 
-  private void copyBirthAddressFromSupersededToSurviving(String survivingId, String sourceId) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("survivingId", survivingId);
-    params.put("sourceId", sourceId);
+  private List<AuditUpdateAction> buildUpdateActions(List<Map<String, Object>> rows) {
+    return rows.stream()
+        .map(row -> new AuditUpdateAction(
+            Map.of("entity_uid", row.get("entity_uid"), "locator_uid", row.get("locator_uid")),//NOSONAR
+            Map.of("record_status_cd", row.get("record_status_cd"))
+        ))
+        .toList();
+  }
+
+
+  private List<AuditInsertAction> performBirthAddressCopy(String survivorId, String sourceId) {
+    Map<String, Object> params = Map.of("survivingId", survivorId, "sourceId", sourceId);
+
+    List<Map<String, Object>> insertedRows = nbsTemplate.queryForList(
+        FIND_BIRTH_ADDRESS_LOCATOR_UID, params
+    );
+
+    List<AuditInsertAction> insertActions = buildInsertActions(survivorId, insertedRows);
+
     nbsTemplate.update(COPY_BIRTH_ADDRESS_FROM_SUPERSEDED_TO_SURVIVING, params);
+
+    return insertActions;
+  }
+
+  private List<AuditInsertAction> buildInsertActions(String survivorId, List<Map<String, Object>> insertedRows) {
+    return insertedRows.stream()
+        .map(row -> new AuditInsertAction(Map.of(
+            "entity_uid", survivorId,
+            "locator_uid", row.get("locator_uid")
+        )))
+        .toList();
   }
 
   private void updatePersonField(String survivorId, String sourceId, String sqlQuery) {

@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class PersonNamesMergeHandlerTest {
     PatientMergeRequest request = getPatientMergeRequest(names);
 
     mockMaxSequenceQueryToReturn(2);
-    handler.handleMerge(MATCH_ID, request);
+    handler.handleMerge(MATCH_ID, request, new PatientMergeAudit());
     verifyInactiveSurvivingNames();
     verifySupersededNameMoves();
   }

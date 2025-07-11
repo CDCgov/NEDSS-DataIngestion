@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
@@ -139,7 +140,7 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
   }
 
   @Override
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     mergePersonGeneralInfo(request.survivingRecord(), request.generalInfoFieldSource());
   }
 

@@ -1,6 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -19,7 +19,7 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
   static final String UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE = """
       UPDATE Entity_locator_participation
       SET record_status_cd = 'INACTIVE',
-         last_chg_time = GETDATE()
+          last_chg_time = GETDATE()
       WHERE entity_uid = :survivingId
         AND locator_uid NOT IN (:selectedLocators)
         AND class_cd = 'TELE';
@@ -85,43 +85,103 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE';
       """;
 
+  private static final String FIND_UNSELECTED_PHONE_EMAILS_FOR_AUDIT = """
+      SELECT entity_uid, locator_uid, record_status_cd
+      FROM Entity_locator_participation
+      WHERE entity_uid = :survivingId
+        AND locator_uid NOT IN (:selectedLocators)
+        AND class_cd = 'TELE'
+      """;
+
+  private static final String FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT = """
+      SELECT locator_uid
+      FROM Entity_locator_participation
+      WHERE locator_uid IN (:selectedLocators)
+        AND entity_uid != :survivingId
+        AND class_cd = 'TELE'
+      """;
 
   public PersonPhoneEmailMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
-  public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonPhoneEmail(request);
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+    mergePersonPhoneEmail(request, patientMergeAudit);
   }
 
-  private void mergePersonPhoneEmail(PatientMergeRequest request) {
+  private void mergePersonPhoneEmail(PatientMergeRequest request, PatientMergeAudit audit) {
     String survivingId = request.survivingRecord();
-    List<String> selectedLocatorIds = request.phoneEmails().stream()
-        .map(PatientMergeRequest.PhoneEmailId::locatorId)
-        .toList();
+    List<String> selectedLocators = extractSelectedLocatorIds(request);
 
-    if (!selectedLocatorIds.isEmpty()) {
-      markUnselectedPhoneEmailInactive(survivingId, selectedLocatorIds);
-      updateSelectedPhoneEmail(survivingId, selectedLocatorIds);
+    if (!selectedLocators.isEmpty()) {
+      List<AuditUpdateAction> updateActions = performUnselectedPhoneEmailInactivation(survivingId, selectedLocators);
+      List<AuditInsertAction> insertActions = performSelectedPhoneEmailCopy(survivingId, selectedLocators);
+
+      audit.getRelatedTableAudits()
+          .add(new RelatedTableAudit("Entity_locator_participation", updateActions, insertActions));
     }
   }
 
-  private void markUnselectedPhoneEmailInactive(String survivingId, List<String> selectedLocators) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("survivingId", survivingId);
-    params.put("selectedLocators", selectedLocators);
+  private List<String> extractSelectedLocatorIds(PatientMergeRequest request) {
+    return request.phoneEmails().stream()
+        .map(PatientMergeRequest.PhoneEmailId::locatorId)
+        .toList();
+  }
+
+  private List<AuditUpdateAction> performUnselectedPhoneEmailInactivation(String survivingId,
+      List<String> selectedLocators) {
+    Map<String, Object> params = Map.of(
+        "survivingId", survivingId, //NOSONAR
+        "selectedLocators", selectedLocators  //NOSONAR
+    );
+
+    List<Map<String, Object>> rowsToUpdate = fetchUnselectedPhoneEmailsForAudit(survivingId, selectedLocators);
+    List<AuditUpdateAction> auditUpdates = buildUpdateActions(rowsToUpdate);
 
     nbsTemplate.update(UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE, params);
+    return auditUpdates;
   }
 
-  private void updateSelectedPhoneEmail(String survivingId, List<String> selectedLocators) {
-    Map<String, Object> params = new HashMap<>();
-    params.put("survivingId", survivingId);
-    params.put("selectedLocators", selectedLocators);
+  private List<Map<String, Object>> fetchUnselectedPhoneEmailsForAudit(String survivingId,
+      List<String> selectedLocators) {
+    return nbsTemplate.queryForList(
+        FIND_UNSELECTED_PHONE_EMAILS_FOR_AUDIT,
+        Map.of("survivingId", survivingId, "selectedLocators", selectedLocators)
+    );
+  }
+
+  private List<AuditUpdateAction> buildUpdateActions(List<Map<String, Object>> rows) {
+    return rows.stream()
+        .map(row -> new AuditUpdateAction(
+            Map.of("entity_uid", row.get("entity_uid"), "locator_uid", row.get("locator_uid")),//NOSONAR
+            Map.of("record_status_cd", row.get("record_status_cd"))
+        ))
+        .toList();
+  }
+
+  private List<AuditInsertAction> performSelectedPhoneEmailCopy(String survivingId, List<String> selectedLocators) {
+    Map<String, Object> params = Map.of(
+        "survivingId", survivingId,
+        "selectedLocators", selectedLocators
+    );
+
+    List<Map<String, Object>> insertedRows = nbsTemplate.queryForList(
+        FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT, params
+    );
+
+    List<AuditInsertAction> insertActions = buildInsertActions(survivingId, insertedRows);
 
     nbsTemplate.update(INSERT_NEW_PHONE_EMAIL_LOCATORS, params);
+    return insertActions;
   }
 
-
+  private List<AuditInsertAction> buildInsertActions(String survivingId, List<Map<String, Object>> insertedRows) {
+    return insertedRows.stream()
+        .map(row -> new AuditInsertAction(Map.of(
+            "entity_uid", survivingId,
+            "locator_uid", row.get("locator_uid")
+        )))
+        .toList();
+  }
 }
