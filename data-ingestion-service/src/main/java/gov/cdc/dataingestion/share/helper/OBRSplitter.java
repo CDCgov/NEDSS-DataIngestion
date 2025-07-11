@@ -154,21 +154,11 @@ public class OBRSplitter {
         List<OrderObservation> obrList = patientResultList.getFirst().getOrderObservation();
         if (obrList != null && obrList.size() > 1) {
             log.debug("Before OBR split..splitElrByOBR Incoming Obr list size:" + obrList.size());
-            //Get Specimen from an obr
-            List<Specimen> spmObj=new ArrayList<>();
-            for (int i = obrList.size() - 1; i >= 0; i--) {
-                spmObj= obrList.get(i).getSpecimen();
-                if(spmObj!=null && !spmObj.isEmpty()) {
-                    break;
-                }
-            }
-            //Fix obr ids to be in sequence like 1,2,3 and set specimen value before splitting
+
+            //Fix obr ids to be in sequence like 1,2,3.. before splitting
             for (int i = 0; i < obrList.size(); i++) {
                 OrderObservation obr = obrList.get(i);
                 obr.getObservationRequest().setSetIdObr(""+(i+1));
-                if(obr.getSpecimen() == null || obr.getSpecimen().isEmpty()){
-                    obr.setSpecimen(spmObj);
-                }
             }
             //ORC data is available only in the first OBR object and needs to be copied to the other OBRs.
             CommonOrder orc = oruR1.getPatientResult().getFirst().getOrderObservation().getFirst().getCommonOrder();
