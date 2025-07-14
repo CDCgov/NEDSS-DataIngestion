@@ -52,7 +52,7 @@ public class LinkRequestMapper {
         toNames(request.names()),
         toTelecoms(request.teleLocators()),
         race,
-        new ArrayList<>()));
+        toIdentifiers(request.identifications())));
   }
 
   List<Address> toAddresses(List<PostalLocatorDto> postalLocators) {
@@ -61,8 +61,8 @@ public class LinkRequestMapper {
         .stream()
         .map(pl -> new Address(
             Stream.of(
-                    pl.streetAddr1(),
-                    pl.streetAddr2())
+                pl.streetAddr1(),
+                pl.streetAddr2())
                 .filter(Strings::isNotBlank)
                 .toList(),
             pl.cityDescTxt(),
@@ -79,13 +79,13 @@ public class LinkRequestMapper {
         .stream()
         .map(n -> new Name(
             Stream.of(
-                    n.firstNm(),
-                    n.middleNm())
+                n.firstNm(),
+                n.middleNm())
                 .filter(Strings::isNotBlank)
                 .toList(),
             n.lastNm(),
             Stream.of(
-                    n.nmSuffix())
+                n.nmSuffix())
                 .filter(Strings::isNotBlank)
                 .toList()))
         .toList();
