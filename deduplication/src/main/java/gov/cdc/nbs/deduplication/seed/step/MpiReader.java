@@ -16,6 +16,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
 
   private static final String SELECT = """
       SELECT
+        patient.external_patient_id,
         patient.external_patient_id person_uid,
         patient.external_person_id person_parent_uid,
         patient.reference_id mpi_patient_uuid,
@@ -36,7 +37,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
     provider.setDataSource(dataSource);
     provider.setSelectClause(SELECT);
     provider.setFromClause(FROM);
-    provider.setSortKey("person_uid");
+    provider.setSortKey("external_patient_id");
 
     this.setName("mpiIdReader");
     this.setDataSource(dataSource);
