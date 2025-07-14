@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -33,7 +34,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
   // Modifications have been performed on the person table entries.
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     String survivorId = request.survivingRecord();
     List<String> supersededUids = getSupersededRecords(matchId, survivorId);
     List<String> involvedPatients = new ArrayList<>();
@@ -45,6 +46,9 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     markSupersededRecords(supersededUids);
     updateLastChangeTime(involvedPatients);
     saveSupersededPersonMergeDetails(survivorId, supersededUids);
+
+    patientMergeAudit.setSupersededIds(supersededUids);
+    patientMergeAudit.setMergeTimestamp(getCurrentUtcTimestamp());
   }
 
   List<String> getSupersededRecords(String matchId, String survivorId) {
