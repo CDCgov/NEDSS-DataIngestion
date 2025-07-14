@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class RtiDltJdbcRepository {
@@ -59,6 +60,10 @@ public class RtiDltJdbcRepository {
     }
 
     public void upsert(RtiDlt rtiDlt) {
+        if (rtiDlt.getId() == null || rtiDlt.getId().isBlank()) {
+            rtiDlt.setId(UUID.randomUUID().toString());
+        }
+
         String sql = """
             MERGE rti_dlt AS target
             USING (SELECT :id AS id) AS source
