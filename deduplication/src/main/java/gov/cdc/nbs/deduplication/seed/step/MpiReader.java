@@ -6,6 +6,7 @@ import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.seed.mapper.DeduplicationEntryMapper;
@@ -31,7 +32,9 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
 
   private final DeduplicationEntryMapper mapper = new DeduplicationEntryMapper();
 
-  public MpiReader(@Qualifier("mpi") DataSource dataSource) throws Exception {
+  public MpiReader(
+      @Qualifier("mpi") DataSource dataSource,
+      @Value("${deduplication.seed.deduplicationInsertSize:1000}") Integer pageSize) throws Exception {
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
@@ -46,6 +49,6 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
       this.setQueryProvider(queryProvider);
     }
     this.setRowMapper(mapper);
-    this.setPageSize(1000);
+    this.setPageSize(pageSize);
   }
 }

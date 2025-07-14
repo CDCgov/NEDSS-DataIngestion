@@ -25,3 +25,7 @@ nbs:
         - /match
         - /health
         - /login
+
+deduplication:
+  seed:
+    deduplicationInsertSize: 10 # how many records to insert into deduplication db at a time
