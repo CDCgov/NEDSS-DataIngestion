@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,7 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Value("${auth.introspect-uri}")
     String introspectionUri;
-    private static final String[] AUTH_WHITELIST = {
+    private static final String[] AUTH_WHITELIST_DEV = {
             "/v2/api-docs",
             "/swagger-resources",
             "/swagger-resources/**",
@@ -39,15 +40,44 @@ public class SecurityConfig {
             "/actuator/health",
             "/actuator/info"
     };
+
+    private static final String[] AUTH_WHITELIST_PROD = {
+            "/configuration/ui",
+            "/configuration/security",
+            "/webjars/**",
+            "/api/auth/token",
+            "/actuator/health",
+            "/actuator/info"
+    };
     @Autowired
     private CustomAuthenticationManagerResolver customauthenticationmanagerresolver;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Profile("dev")
+    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers(AUTH_WHITELIST_DEV).permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationManagerResolver(customauthenticationmanagerresolver)
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
+
+        return http.build();
+    }
+
+    @Bean
+    @Profile("!dev")
+    public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(AUTH_WHITELIST_PROD).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
