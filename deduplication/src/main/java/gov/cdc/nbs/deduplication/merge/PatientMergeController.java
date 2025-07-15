@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/merge")
 @PreAuthorize("hasAuthority('MERGE-PATIENT')")
 public class PatientMergeController {
-  static final String DEFAULT_SORT = "patient-id,desc";
+  static final String DEFAULT_SORT = "identified,desc";
 
   private final MergeGroupHandler mergeGroupHandler;
   private final MergeService mergeService;
