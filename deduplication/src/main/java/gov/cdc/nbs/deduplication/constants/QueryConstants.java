@@ -728,7 +728,7 @@ public class QueryConstants {
                                   AND reasonUnknownCode.code_set_nm = 'P_ETHN_UNK_REASON'
                               WHERE
                                   ep.person_uid = p.person_uid
-                                  AND eg.record_status_cd = 'ACTIVE'
+                                  AND (eg.record_status_cd IS NULL OR eg.record_status_cd = 'ACTIVE')
                               GROUP BY
                                   ep.person_uid,
                                   ep.as_of_date_ethnicity,
