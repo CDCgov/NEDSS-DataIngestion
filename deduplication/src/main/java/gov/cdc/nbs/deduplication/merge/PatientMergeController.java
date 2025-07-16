@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import gov.cdc.nbs.deduplication.merge.model.PatientFileMergeHistory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,16 +35,19 @@ public class PatientMergeController {
   private final MergeService mergeService;
   private final PdfBuilder pdfBuilder;
   private final MatchesRequiringReviewResolver matchesRequiringReviewResolver;
+  private final MergeHistoryHandler mergeHistoryHandler;
 
   public PatientMergeController(
       final MergeGroupHandler possibleMatchHandler,
       final MergeService mergeService,
       final PdfBuilder pdfBuilder,
-      final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
+      final MatchesRequiringReviewResolver matchesRequiringReviewResolver,
+      final MergeHistoryHandler mergeHistoryHandler) {
     this.mergeGroupHandler = possibleMatchHandler;
     this.mergeService = mergeService;
     this.pdfBuilder = pdfBuilder;
     this.matchesRequiringReviewResolver = matchesRequiringReviewResolver;
+    this.mergeHistoryHandler = mergeHistoryHandler;
   }
 
   @GetMapping
@@ -74,9 +79,17 @@ public class PatientMergeController {
   @PostMapping("/{matchId}")
   public void mergePatients(
       @RequestBody PatientMergeRequest mergeRequest,
-      @PathVariable("matchId") Long matchId) {
+      @PathVariable("matchId") Long matchId) throws JsonProcessingException {
     mergeService.performMerge(matchId, mergeRequest);
   }
+
+  @GetMapping("/history/{patientId}")
+  public ResponseEntity<List<PatientFileMergeHistory>> getPatientMergeHistory(
+      @PathVariable("patientId") Long patientId) {
+    List<PatientFileMergeHistory> historyData = mergeHistoryHandler.getPatientMergeHistoryList(patientId);
+    return ResponseEntity.ok(historyData);
+  }
+
 
   @GetMapping(value = "/export/csv", produces = "text/csv")
   public void exportMatchesAsCSV(
