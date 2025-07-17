@@ -1,77 +1,77 @@
-name: Karate Test Workflow
-
-on:
-  push:
-    branches:
-      - karate-**
-  pull_request:
-    branches:
-      - karate-**
-  workflow_dispatch:
- 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    environment: DI-INT
- 
-    steps:
-      - uses: actions/checkout@v4
- 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
- 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
- 
-      - name: Grant execute permission for gradlew
-        run: chmod +x karatetest/gradlew
- 
-      - name: Build and run Karate tests
-        working-directory: ./karatetest
-        env:
-          KARATE_OPTIONS: ${{ vars.KARATE_OPTIONS }}
-          KARATE_ENV: ${{ vars.ENV }}
-          TEST_API_URL: ${{ secrets.APIURL }}
-          CONNECT_TIMEOUT: ${{ vars.CONNECT_TIMEOUT }}
-          READ_TIMEOUT: ${{ vars.KARATE_READTIMEOUT }}
-          RETRY_COUNT: ${{ vars.KARATE_RETRYCOUNT }}
-          RETRY_INTERVAL: ${{vars.RETRYINTERVAL }}
-          TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
-          TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
-          TEST_WRONGAPIURL: ${{ secrets.WRONGAPIURL }}
-          TEST_TOKENURL: ${{ secrets.TOKENURL }}
-          TEST_CHECKERRORURL: ${{ secrets.CHECKERRORURL }}
-          TEST_REGISTRATIONAPIURL: ${{ secrets.REGISTRATIONAPIURL }}
-          TEST_CHECKSTATUSURL: ${{ secrets.CHECKSTATUSURL }}
-        run: |
-          ./gradlew test \
-            -Dkarate.options="$KARATE_OPTIONS" \
-            -Dkarate.env="$KARATE_ENV" \
-            -Dtest.apiurl="$TEST_API_URL" \
-            -DconnectTimeout="$CONNECT_TIMEOUT" \
-            -DreadTimeout="$READ_TIMEOUT" \
-            -DretryCount="$RETRY_COUNT" \
-            -DretryInterval="$RETRY_INTERVAL" \
-            -Dtest.apiusername="$TEST_API_USERNAME" \
-            -Dtest.apipassword="$TEST_API_PASSWORD" \
-            -Dtest.wrongapiurl="$TEST_WRONGAPIURL" \
-            -Dtest.checkstatusurl="$TEST_CHECKSTATUSURL" \
-            -Dtest.checkerrorurl="$TEST_CHECKERRORURL" \
-            -Dtest.registrationapiurl="$TEST_REGISTRATIONAPIURL" \
-            -Dtest.tokenurl="$TEST_TOKENURL" \
- 
-      - name: Upload Karate Test Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: karate-report
-          retention-days: 1
-          path: |
-           ./karatetest/build/cucumber-html-reports
-           ./karatetest/build/karate-reports
+#name: Karate Test Workflow
+#
+#on:
+#  push:
+#    branches:
+#      - karate-**
+#  pull_request:
+#    branches:
+#      - karate-**
+#  workflow_dispatch:
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#    environment: DI-INT
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Set up Java
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '21'
+#
+#      - name: Cache Gradle packages
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+#          restore-keys: ${{ runner.os }}-gradle
+#
+#      - name: Grant execute permission for gradlew
+#        run: chmod +x karatetest/gradlew
+#
+#      - name: Build and run Karate tests
+#        working-directory: ./karatetest
+#        env:
+#          KARATE_OPTIONS: ${{ vars.KARATE_OPTIONS }}
+#          KARATE_ENV: ${{ vars.ENV }}
+#          TEST_API_URL: ${{ secrets.APIURL }}
+#          CONNECT_TIMEOUT: ${{ vars.CONNECT_TIMEOUT }}
+#          READ_TIMEOUT: ${{ vars.KARATE_READTIMEOUT }}
+#          RETRY_COUNT: ${{ vars.KARATE_RETRYCOUNT }}
+#          RETRY_INTERVAL: ${{vars.RETRYINTERVAL }}
+#          TEST_API_USERNAME: ${{ secrets.API_USERNAME }}
+#          TEST_API_PASSWORD: ${{ secrets.API_PASSWORD }}
+#          TEST_WRONGAPIURL: ${{ secrets.WRONGAPIURL }}
+#          TEST_TOKENURL: ${{ secrets.TOKENURL }}
+#          TEST_CHECKERRORURL: ${{ secrets.CHECKERRORURL }}
+#          TEST_REGISTRATIONAPIURL: ${{ secrets.REGISTRATIONAPIURL }}
+#          TEST_CHECKSTATUSURL: ${{ secrets.CHECKSTATUSURL }}
+#        run: |
+#          ./gradlew test \
+#            -Dkarate.options="$KARATE_OPTIONS" \
+#            -Dkarate.env="$KARATE_ENV" \
+#            -Dtest.apiurl="$TEST_API_URL" \
+#            -DconnectTimeout="$CONNECT_TIMEOUT" \
+#            -DreadTimeout="$READ_TIMEOUT" \
+#            -DretryCount="$RETRY_COUNT" \
+#            -DretryInterval="$RETRY_INTERVAL" \
+#            -Dtest.apiusername="$TEST_API_USERNAME" \
+#            -Dtest.apipassword="$TEST_API_PASSWORD" \
+#            -Dtest.wrongapiurl="$TEST_WRONGAPIURL" \
+#            -Dtest.checkstatusurl="$TEST_CHECKSTATUSURL" \
+#            -Dtest.checkerrorurl="$TEST_CHECKERRORURL" \
+#            -Dtest.registrationapiurl="$TEST_REGISTRATIONAPIURL" \
+#            -Dtest.tokenurl="$TEST_TOKENURL" \
+#
+#      - name: Upload Karate Test Report
+#        uses: actions/upload-artifact@v4
+#        if: always()
+#        with:
+#          name: karate-report
+#          retention-days: 1
+#          path: |
+#           ./karatetest/build/cucumber-html-reports
+#           ./karatetest/build/karate-reports

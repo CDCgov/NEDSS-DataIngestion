@@ -1,0 +1,133 @@
+name: Release Production Ready Image (Pump version and Auto merge)
+
+on:
+  workflow_dispatch:
+    inputs:
+      microservice_name:
+        description: "Select the microservice to release."
+        required: true
+        type: choice
+        options:
+          - data-ingestion-service
+          - data-processing-service
+      is_hotfix:
+        description: "Is this a hotfix release?"
+        required: true
+        type: boolean
+        default: false
+      new_version:
+        description: "Enter the new version (format: n.n.n, e.g., 1.2.3)"
+        required: false
+        type: string
+        default: ""
+      hotfix_version:
+        description: "If hotfix, enter the hotfix number (e.g., 9999)"
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Git config for bot
+        run: |
+          git config --global user.name "${{ secrets.BOT_USERNAME }}"
+          git config --global user.email "${{ secrets.BOT_EMAIL }}"
+
+      - name: Determine final version
+        id: validate
+        run: |
+          is_hotfix="${{ inputs.is_hotfix }}"
+          base_version="${{ inputs.new_version }}"
+          hotfix_version="${{ inputs.hotfix_version }}"
+
+          gradle_path="./${{ inputs.microservice_name }}/build.gradle"
+
+          if [[ "$is_hotfix" == "true" ]]; then
+            if [[ -n "$base_version" ]]; then
+              echo "❌ ERROR: Do not enter 'new_version' when 'is_hotfix' is true."
+              exit 1
+            fi
+            if [[ ! "$hotfix_version" =~ ^[0-9]{4}$ ]]; then
+              echo "❌ ERROR: Hotfix version must be exactly 4 digits (e.g., 9999)."
+              exit 1
+            fi
+
+            current_version_line=$(grep "^version" "$gradle_path")
+            current_version=$(echo "$current_version_line" | sed -E "s/version *= *['\"]([^'\"]+)['\"]/\1/")
+            current_version_base=$(echo "$current_version" | sed 's/-SNAPSHOT.*//')
+
+            final_version="${current_version_base}-SNAPSHOT-${hotfix_version}"
+          else
+            if [[ -z "$base_version" ]]; then
+              echo "❌ ERROR: You must provide a 'new_version' when not performing a hotfix."
+              exit 1
+            fi
+            if [[ -n "$hotfix_version" ]]; then
+              echo "❌ ERROR: Do not enter 'hotfix_version' when 'is_hotfix' is false."
+              exit 1
+            fi
+            if [[ ! "$base_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "❌ ERROR: Version format must be n.n.n (e.g., 1.2.3)"
+              exit 1
+            fi
+            final_version="${base_version}-SNAPSHOT"
+          fi
+
+          echo "✅ Using version: $final_version"
+          echo "new_version=$final_version" >> $GITHUB_OUTPUT
+
+      - name: Update version in build.gradle
+        run: |
+          gradle_path="./${{ inputs.microservice_name }}/build.gradle"
+          sed -i "s/^version = .*/version = '${{ steps.validate.outputs.new_version }}'/" "$gradle_path"
+          echo "Updated version in $gradle_path to ${{ steps.validate.outputs.new_version }}"
+
+      - name: Update version in ROOT build.gradle for HelmChart
+        run: |
+          gradle_path="./build.gradle"
+          new_version="${{ steps.validate.outputs.new_version }}"
+          sed -i -E "s/^([[:space:]]*version[[:space:]]*=[[:space:]]*)['\"][^'\"]*['\"](.*)/\1'${new_version}'\2/" "$gradle_path"
+          echo "Updated version in $gradle_path to ${new_version}"
+
+      - name: Commit and create PR using bot
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          branch_name="version-bump-${{ inputs.microservice_name }}-${{ steps.validate.outputs.new_version }}"
+          git checkout -b "$branch_name"
+          git add "./${{ inputs.microservice_name }}/build.gradle"
+          git add "./build.gradle"
+          git commit -m "chore: bump version of ${{ inputs.microservice_name }} to ${{ steps.validate.outputs.new_version }}"
+          git push --set-upstream origin "$branch_name"
+
+          pr_url=$(gh pr create \
+            --title "Bump ${{ inputs.microservice_name }} version to ${{ steps.validate.outputs.new_version }}" \
+            --body "This PR updates \`${{ inputs.microservice_name }}/build.gradle\` to \`${{ steps.validate.outputs.new_version }}\`." \
+            --base main \
+            --head "$branch_name")
+
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+          echo "pr_url=$pr_url"
+
+      - name: Approve PR using repo account
+        env:
+          GH_TOKEN: ${{ secrets.REPOS_TOKEN }}
+        run: |
+          gh pr review version-bump-${{ inputs.microservice_name }}-${{ steps.validate.outputs.new_version }} --approve
+
+      - name: Auto-merge the PR
+        env:
+          GH_TOKEN: ${{ secrets.REPOS_TOKEN }}
+        run: |
+          gh pr merge version-bump-${{ inputs.microservice_name }}-${{ steps.validate.outputs.new_version }} --squash --delete-branch --admin
