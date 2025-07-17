@@ -13,6 +13,7 @@ import java.util.List;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
+import gov.cdc.nbs.deduplication.merge.model.PatientFileMergeHistory;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,9 @@ class PatientMergeControllerTest {
   MergeService mergeService;
 
   @Mock
+  MergeHistoryHandler mergeHistoryHandler;
+
+  @Mock
   private PdfBuilder pdfBuilder;
 
   @InjectMocks
@@ -55,7 +59,7 @@ class PatientMergeControllerTest {
     Long patientId = 100L;
 
     mockMvc.perform(delete("/merge/{patientId}", patientId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).removeAll(patientId);
@@ -67,7 +71,7 @@ class PatientMergeControllerTest {
     Long removePatientId = 111L;
 
     mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(mergeGroupHandler).removePerson(patientId, removePatientId);
@@ -94,12 +98,43 @@ class PatientMergeControllerTest {
     String requestBody = createPatientMergeRequestJson();
 
     mockMvc.perform(post("/merge/{matchId}", matchId)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(requestBody))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody))
         .andExpect(status().isOk());
 
     verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
   }
+
+  @Test
+  void testGetPatientMergeHistory() throws Exception {
+    long patientId = 200L;
+    List<PatientFileMergeHistory> mockHistory = List.of(
+        new PatientFileMergeHistory(
+            "12345",
+            "Doe, John",
+            "2025-07-16T12:34:56",
+            "Admin"
+        )
+    );
+
+    when(mergeHistoryHandler.getPatientMergeHistoryList(patientId)).thenReturn(mockHistory);
+
+    // Act & Assert
+    mockMvc.perform(get("/merge/history/{patientId}", patientId))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json("""
+                [
+                  {
+                    "supersededPersonLocalId": "12345",
+                    "supersededPersonLegalName": "Doe, John",
+                    "mergeTimestamp": "2025-07-16T12:34:56",
+                    "mergedByUser": "Admin"
+                  }
+                ]
+            """));
+  }
+
 
   @Test
   void testExportMatchesAsPDF() throws Exception {
