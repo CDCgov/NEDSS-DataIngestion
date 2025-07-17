@@ -6,6 +6,7 @@ import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.seed.mapper.DeduplicationEntryMapper;
@@ -16,6 +17,7 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
 
   private static final String SELECT = """
       SELECT
+        patient.external_patient_id,
         patient.external_patient_id person_uid,
         patient.external_person_id person_parent_uid,
         patient.reference_id mpi_patient_uuid,
@@ -30,13 +32,15 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
 
   private final DeduplicationEntryMapper mapper = new DeduplicationEntryMapper();
 
-  public MpiReader(@Qualifier("mpi") DataSource dataSource) throws Exception {
+  public MpiReader(
+      @Qualifier("mpi") DataSource dataSource,
+      @Value("${deduplication.seed.deduplicationInsertSize:1000}") Integer pageSize) throws Exception {
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
     provider.setSelectClause(SELECT);
     provider.setFromClause(FROM);
-    provider.setSortKey("person_uid");
+    provider.setSortKey("external_patient_id");
 
     this.setName("mpiIdReader");
     this.setDataSource(dataSource);
@@ -45,6 +49,6 @@ public class MpiReader extends JdbcPagingItemReader<DeduplicationEntry> {
       this.setQueryProvider(queryProvider);
     }
     this.setRowMapper(mapper);
-    this.setPageSize(1000);
+    this.setPageSize(pageSize);
   }
 }
