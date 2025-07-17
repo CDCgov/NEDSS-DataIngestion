@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.batch.service;
 
+import gov.cdc.nbs.deduplication.auth.authentication.PermissionResolver;
 import gov.cdc.nbs.deduplication.batch.mapper.PersonMergeDataMapper;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
@@ -22,12 +23,14 @@ import java.util.Map;
 public class PatientRecordService {
 
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final PermissionResolver permissionResolver;
   private final MpiPersonMapper mpiPersonMapper = new MpiPersonMapper();
-  private final PersonMergeDataMapper personMergeDataMapper = new PersonMergeDataMapper();
 
   public PatientRecordService(
-      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+      final PermissionResolver permissionResolver) {
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    this.permissionResolver = permissionResolver;
   }
 
   public MpiPerson fetchMostRecentPatient(String personParentUid) {
@@ -63,12 +66,17 @@ public class PatientRecordService {
   }
 
   public List<PersonMergeData> fetchPersonsMergeData(List<String> personUids) {
+    List<Long> programJurisdictionOids = permissionResolver.resolve("view", "investigation");
+    boolean hasHivAccess = !permissionResolver.resolve("HIVQuestions", "Global").isEmpty();
+
     MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("ids", personUids);
+        .addValue("ids", personUids)
+        .addValue("programJurisdictionOids", programJurisdictionOids);
+
     return namedParameterJdbcTemplate.query(
         QueryConstants.PERSONS_MERGE_DATA_BY_PERSON_IDS,
         params,
-        personMergeDataMapper);
+        new PersonMergeDataMapper(hasHivAccess));
   }
 
   public Map<String, LocalDateTime> fetchPersonAddTimeMap(List<String> personUids) {

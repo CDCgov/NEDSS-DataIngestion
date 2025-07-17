@@ -576,6 +576,8 @@ public class QueryConstants {
                   AND part.record_status_cd = 'ACTIVE'
                   AND part.subject_class_cd = 'PSN'
                   AND part.act_class_cd = 'CASE'
+                  AND inv.program_jurisdiction_oid IN (:programJurisdictionOids)
+                  ORDER BY inv.activity_from_time DESC
               FOR JSON
                   PATH,
                   INCLUDE_NULL_VALUES
