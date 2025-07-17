@@ -1,6 +1,8 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.RelatedTableAudit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -26,6 +29,7 @@ class PersonNamesMergeHandlerTest {
   private static final String SUPERSEDED_PERSON_UID_1 = "200";
   private static final String SUPERSEDED_PERSON_UID_2 = "300";
   private static final String MATCH_ID = "123";
+
 
   @BeforeEach
   void setUp() {
@@ -43,11 +47,16 @@ class PersonNamesMergeHandlerTest {
     );
 
     PatientMergeRequest request = getPatientMergeRequest(names);
+    PatientMergeAudit audit = new PatientMergeAudit(new ArrayList<>());
 
     mockMaxSequenceQueryToReturn(2);
-    handler.handleMerge(MATCH_ID, request);
+    mockAuditForInactiveNames();
+    mockAuditForSupersededNames();
+
+    handler.handleMerge(MATCH_ID, request, audit);
     verifyInactiveSurvivingNames();
     verifySupersededNameMoves();
+    verifyAuditData(audit);
   }
 
   @SuppressWarnings("unchecked")
@@ -75,6 +84,37 @@ class PersonNamesMergeHandlerTest {
         eq(PersonNamesMergeHandler.COPY_PERSON_NAME_TO_SURVIVING),
         moveParamsCaptor.capture()
     );
+  }
+
+
+  @SuppressWarnings("unchecked")
+  private void mockAuditForInactiveNames() {
+    when(nbsTemplate.queryForList(
+        eq(PersonNamesMergeHandler.FIND_EXCLUDED_PERSON_NAMES_FOR_INACTIVATION),
+        any(Map.class)
+    )).thenReturn(List.of(
+        Map.of("person_uid", SURVIVING_PERSON_UID, "person_name_seq", 2, "record_status_cd", "ACTIVE")
+    ));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void mockAuditForSupersededNames() {
+    when(nbsTemplate.queryForList(
+        eq(PersonNamesMergeHandler.FIND_SUPERSEDED_NAMES_FOR_AUDIT),
+        any(Map.class)
+    )).thenReturn(List.of(
+        Map.of("person_uid", SUPERSEDED_PERSON_UID_1, "person_name_seq", 1, "record_status_cd", "ACTIVE")
+    ));
+  }
+
+  private void verifyAuditData(PatientMergeAudit audit) {
+    assertEquals(1, audit.getRelatedTableAudits().size());
+
+    RelatedTableAudit tableAudit = audit.getRelatedTableAudits().getFirst();
+    assertEquals("person_name", tableAudit.tableName());
+
+    assertEquals(1, tableAudit.updates().size());
+    assertEquals(2, tableAudit.inserts().size());
   }
 
   private PatientMergeRequest getPatientMergeRequest(List<PatientMergeRequest.NameId> names) {

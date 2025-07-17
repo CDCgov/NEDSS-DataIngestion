@@ -1,18 +1,25 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
@@ -28,6 +35,10 @@ class PersonEthnicityMergeHandlerTest {
   @Mock
   private JdbcClient client;
 
+  @Mock
+  private NamedParameterJdbcTemplate nbsTemplate;
+
+
   @InjectMocks
   private PersonEthnicityMergeHandler mergeHandler;
 
@@ -38,8 +49,9 @@ class PersonEthnicityMergeHandlerTest {
     when(request.survivingRecord()).thenReturn("123");
     when(request.ethnicity()).thenReturn("123");
 
+    PatientMergeAudit audit = new PatientMergeAudit(new ArrayList<>());
     // Act
-    mergeHandler.handleMerge("1", request);
+    mergeHandler.handleMerge("1", request, audit);
 
     // Verify
     verifyNoInteractions(client);
@@ -47,6 +59,8 @@ class PersonEthnicityMergeHandlerTest {
 
   @Test
   void should_merge() {
+    PatientMergeAudit audit = new PatientMergeAudit(new ArrayList<>());
+
     // Mock
     PatientMergeRequest request = Mockito.mock(PatientMergeRequest.class);
     when(request.survivingRecord()).thenReturn("123");
@@ -69,8 +83,10 @@ class PersonEthnicityMergeHandlerTest {
     // Set inactive
     mockSetInactive("2155-0", "123", 99L);
 
+    mockFetchOldRows("123", "2155-0", "2155-0");
+
     // Act
-    mergeHandler.handleMerge("1", request);
+    mergeHandler.handleMerge("1", request, audit);
 
     // Verify
     // Person table should be updated (ethnic_group_ind and ethnic_unk_reason_cd)
@@ -85,6 +101,8 @@ class PersonEthnicityMergeHandlerTest {
     // Should set inactive 2155-0
     verify(client).sql(PersonEthnicityMergeHandler.UPDATE_SPANISH_ORIGINS_TO_INACTIVE);
   }
+
+
 
   private void mockUpdatePerson(String survivor, String source) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
@@ -143,4 +161,18 @@ class PersonEthnicityMergeHandlerTest {
     when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId)).thenReturn(statementSpec);
     when(statementSpec.param(PersonEthnicityMergeHandler.USER_ID, userId)).thenReturn(statementSpec);
   }
+
+  private void mockFetchOldRows(String personId, String ethnicGroupCd, String recordStatusCd) {
+    List<Map<String, Object>> oldRows = List.of(
+        Map.of(
+            PersonEthnicityMergeHandler.PERSON_UID, personId,
+            PersonEthnicityMergeHandler.ETHNIC_GROUP_CD, ethnicGroupCd,
+            "record_status_cd", recordStatusCd
+        )
+    );
+
+    when(nbsTemplate.queryForList(anyString(), ArgumentMatchers.<SqlParameterSource>any()))
+        .thenReturn(oldRows);
+  }
+
 }

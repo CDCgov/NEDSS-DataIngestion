@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -12,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Order(9)
@@ -210,8 +214,40 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
         elp.use_cd = 'DTH'
         AND Entity_uid = :survivorId)
           """;
+
+  static final String SELECT_DEATH_CITY_FOR_AUDIT_BEFORE_UPDATE = """
+          SELECT postal_locator_uid, city_desc_txt
+          FROM Postal_locator
+          WHERE postal_locator_uid = (
+              SELECT locator_uid
+              FROM Entity_locator_participation
+              WHERE entity_uid = :survivorId AND use_cd = 'DTH'
+          )
+      """;
+
+  static final String SELECT_DEATH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE = """
+          SELECT postal_locator_uid, state_cd, cnty_cd
+          FROM Postal_locator
+          WHERE postal_locator_uid = (
+              SELECT locator_uid
+              FROM Entity_locator_participation
+              WHERE entity_uid = :survivorId AND use_cd = 'DTH'
+          )
+      """;
+
+  static final String SELECT_DEATH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE = """
+          SELECT postal_locator_uid, cntry_cd
+          FROM Postal_locator
+          WHERE postal_locator_uid = (
+              SELECT locator_uid
+              FROM Entity_locator_participation
+              WHERE entity_uid = :survivorId AND use_cd = 'DTH'
+          )
+      """;
   private final NamedParameterJdbcTemplate nbsTemplate;
   private final LocalUidGenerator idGenerator;
+
+  private PatientMergeAudit audit;
 
   public PersonMortalityMergeHandler(
       final @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate,
@@ -223,7 +259,8 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
   // Merge modifications have been applied to the person Mortality
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit audit) {
+    this.audit = audit;
     mergePersonMortality(request.survivingRecord(), request.mortality());
   }
 
@@ -284,20 +321,51 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(INSERT_ENTITY_LOCATOR_PARTICIPATION, params);
 
+    addAuditInsertEntry("Entity_locator_participation", Map.of(
+        "entity_uid", survivorId,
+        "locator_uid", locatorId
+    ));
+
     // Create Postal_locator
     MapSqlParameterSource locatorParams = new MapSqlParameterSource();
     params.addValue("locatorId", locatorId);
     params.addValue("userId", currentUser.getId());
 
     nbsTemplate.update(INSERT_POSTAL_LOCATOR, locatorParams);
+
+    addAuditInsertEntry("Postal_locator", Map.of(
+        "postal_locator_uid", locatorId //NOSONAR
+    ));
+  }
+
+  private void addAuditInsertEntry(String tableName, Map<String, Object> data) {
+    AuditInsertAction insertAction = new AuditInsertAction(data);
+    RelatedTableAudit relatedTableAudit =
+        new RelatedTableAudit(tableName, List.of(), Collections.singletonList(insertAction));
+    audit.getRelatedTableAudits().add(relatedTableAudit);
   }
 
   private void updateDeathCity(String survivorId, String sourceId) {
     if (!survivorId.equals(sourceId)) {
       // make sure a postal_locator entry exists if needed
       ensurePostalLocator(survivorId, sourceId);
+
+      // fetch current value for audit
+      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_DEATH_CITY_FOR_AUDIT_BEFORE_UPDATE,
+          new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+
       // update surviving record's 'DTH' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_DEATH_CITY);
+
+      // audit update
+      List<AuditUpdateAction> updateActions = oldRows.stream()
+          .map(row -> new AuditUpdateAction(
+              Map.of("postal_locator_uid", row.get("postal_locator_uid")),
+              Map.of("city_desc_txt", row.get("city_desc_txt"))
+          ))
+          .toList();
+
+      addAuditUpdateEntry(updateActions);
     }
   }
 
@@ -305,8 +373,26 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
     if (!survivorId.equals(sourceId)) {
       // make sure a postal_locator entry exists if needed
       ensurePostalLocator(survivorId, sourceId);
+
+      // fetch current value for audit
+      List<Map<String, Object>> oldRows =
+          nbsTemplate.queryForList(SELECT_DEATH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE,
+              new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+
       // update surviving record's 'DTH' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_DEATH_STATE_AND_COUNTY);
+
+      List<AuditUpdateAction> updateActions = oldRows.stream()
+          .map(row -> new AuditUpdateAction(
+              Map.of("postal_locator_uid", row.get("postal_locator_uid")),
+              Map.of(
+                  "state_cd", row.get("state_cd"),
+                  "cnty_cd", row.get("cnty_cd")
+              )
+          ))
+          .toList();
+
+      addAuditUpdateEntry(updateActions);
     }
   }
 
@@ -314,9 +400,29 @@ public class PersonMortalityMergeHandler implements SectionMergeHandler {
     if (!survivorId.equals(sourceId)) {
       // make sure a postal_locator entry exists if needed
       ensurePostalLocator(survivorId, sourceId);
+
+      // fetch current value for audit
+      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_DEATH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE,
+          new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+
       // update surviving record's 'DTH' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_DEATH_COUNTRY);
+
+      List<AuditUpdateAction> updateActions = oldRows.stream()
+          .map(row -> new AuditUpdateAction(
+              Map.of("postal_locator_uid", row.get("postal_locator_uid")),
+              Map.of("cntry_cd", row.get("cntry_cd"))
+          ))
+          .toList();
+
+      addAuditUpdateEntry(updateActions);
+
     }
+  }
+
+  private void addAuditUpdateEntry(List<AuditUpdateAction> updateActions) {
+    audit.getRelatedTableAudits()
+        .add(new RelatedTableAudit("Postal_locator", updateActions, List.of()));
   }
 
   private void updatePersonField(String survivorId, String sourceId, String query) {

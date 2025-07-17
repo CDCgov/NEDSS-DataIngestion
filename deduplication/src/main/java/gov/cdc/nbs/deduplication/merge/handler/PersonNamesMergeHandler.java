@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(3)
@@ -88,73 +89,154 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
         AND person_name_seq = :oldSeq
       """;
 
+  static final String FIND_PERSON_NAMES_FOR_INACTIVATION = """
+      SELECT person_uid, person_name_seq, record_status_cd
+      FROM person_name
+      WHERE person_uid = :personUid
+      """;
+
+  static final String FIND_EXCLUDED_PERSON_NAMES_FOR_INACTIVATION = """
+      SELECT person_uid, person_name_seq, record_status_cd
+      FROM person_name
+      WHERE person_uid = :personUid
+        AND person_name_seq NOT IN (:sequences)
+      """;
+
+  static final String FIND_SUPERSEDED_NAMES_FOR_AUDIT = """
+      SELECT person_uid, person_name_seq
+      FROM person_name
+      WHERE person_uid = :supersededUid
+        AND person_name_seq = :oldSeq
+      """;
+
   public PersonNamesMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request) {
-    mergePersonNames(request.survivingRecord(), request.names());
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+    mergePersonNames(request.survivingRecord(), request.names(), patientMergeAudit);
   }
 
-  private void mergePersonNames(String survivorId, List<PatientMergeRequest.NameId> names) {
-    List<Integer> survivingNamesSequences = new ArrayList<>();
+  private void mergePersonNames(String survivorId, List<PatientMergeRequest.NameId> names, PatientMergeAudit audit) {
+    List<Integer> survivingSequences = new ArrayList<>();
     Map<String, List<Integer>> supersededNames = new HashMap<>();
-    categorizeNames(survivorId, names, survivingNamesSequences, supersededNames);
-    markUnselectedNamesInactive(survivorId, survivingNamesSequences);
-    updateSupersededNames(survivorId, supersededNames);
+
+    categorizeNames(survivorId, names, survivingSequences, supersededNames);
+
+    List<AuditUpdateAction> updateActions = performNameInactivation(survivorId, survivingSequences);
+    List<AuditInsertAction> insertActions = performNameCopyToSurvivor(survivorId, supersededNames);
+
+    audit.getRelatedTableAudits().add(new RelatedTableAudit("person_name", updateActions, insertActions));
   }
 
   private void categorizeNames(String survivorId, List<PatientMergeRequest.NameId> names,
       List<Integer> survivingSequences, Map<String, List<Integer>> supersededNames) {
-    for (PatientMergeRequest.NameId name : names) {
-      String personUid = name.personUid();
-      Integer seq = Integer.parseInt(name.sequence());
-
-      if (personUid.equals(survivorId)) {
-        survivingSequences.add(seq);
+    names.forEach(name -> {
+      if (name.personUid().equals(survivorId)) {
+        survivingSequences.add(Integer.parseInt(name.sequence()));
       } else {
-        supersededNames.computeIfAbsent(personUid, k -> new ArrayList<>()).add(seq);
+        supersededNames.computeIfAbsent(name.personUid(), k -> new ArrayList<>())
+            .add(Integer.parseInt(name.sequence()));
       }
-    }
+    });
   }
 
-  private void markUnselectedNamesInactive(String survivorId, List<Integer> selectedSequences) {
+  private List<AuditUpdateAction> performNameInactivation(String survivorId, List<Integer> selectedSequences) {
     String query = selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE
         : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
     Map<String, Object> params = new HashMap<>();
-    params.put("personUid", survivorId);
+    params.put("personUid", survivorId);//NOSONAR
     if (!selectedSequences.isEmpty()) {
       params.put("sequences", selectedSequences);
     }
+
+
+    List<Map<String, Object>> rowsToUpdate = fetchRowsForInactivation(survivorId, selectedSequences);
+    List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
+
     nbsTemplate.update(query, params);
+    return auditUpdates;
   }
 
-  private void updateSupersededNames(String survivorId, Map<String, List<Integer>> supersededNames) {
-    for (Map.Entry<String, List<Integer>> entry : supersededNames.entrySet()) {
-      copySupersededNamesToSurviving(entry.getKey(), entry.getValue(), survivorId);
+  private List<Map<String, Object>> fetchRowsForInactivation(String survivorId, List<Integer> selectedSequences) {
+    if (selectedSequences.isEmpty()) {
+      return nbsTemplate.queryForList(
+          FIND_PERSON_NAMES_FOR_INACTIVATION,
+          Collections.singletonMap("personUid", survivorId)
+      );
     }
+
+    return nbsTemplate.queryForList(
+        FIND_EXCLUDED_PERSON_NAMES_FOR_INACTIVATION,
+        Map.of("personUid", survivorId, "sequences", selectedSequences)
+    );
   }
 
-  private void copySupersededNamesToSurviving(String supersededUid, List<Integer> sequences, String survivingId) {
-    int survivingMaxSeq = getMaxSequenceForPerson(survivingId);
+  private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rowsToUpdate) {
+    return rowsToUpdate.stream()
+        .map(row -> new AuditUpdateAction(
+            Map.of("person_uid", row.get("person_uid"), "person_name_seq", row.get("person_name_seq")),//NOSONAR
+            Map.of("record_status_cd", row.get("record_status_cd"))
+        ))
+        .toList();
+  }
 
-    for (Integer seq : sequences) {
-      int newSeq = ++survivingMaxSeq;
-      Map<String, Object> params = new HashMap<>();
-      params.put("supersededUid", supersededUid);
-      params.put("oldSeq", seq);
-      params.put("survivingId", survivingId);
-      params.put("newSeq", newSeq);
+  private List<AuditInsertAction> performNameCopyToSurvivor(String survivorId,
+      Map<String, List<Integer>> supersededNames) {
 
-      nbsTemplate.update(COPY_PERSON_NAME_TO_SURVIVING, params);
-    }
+    AtomicInteger maxSeq = new AtomicInteger(getMaxSequenceForPerson(survivorId));
+    List<AuditInsertAction> insertActions = new ArrayList<>();
+
+    supersededNames.forEach((supersededUid, sequences) -> {
+      for (Integer oldSeq : sequences) {
+        int newSeq = maxSeq.incrementAndGet();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("supersededUid", supersededUid);
+        params.put("oldSeq", oldSeq);
+
+        List<Map<String, Object>> rowsToInsert = nbsTemplate.queryForList(
+            FIND_SUPERSEDED_NAMES_FOR_AUDIT, params);
+
+
+        if (!rowsToInsert.isEmpty()) {
+          insertActions.add(buildAuditInsertAction(survivorId, newSeq));
+        }
+
+        copyPersonNameToSurvivor(survivorId, supersededUid, oldSeq, newSeq);
+      }
+    });
+
+    return insertActions;
+  }
+
+
+
+  private void copyPersonNameToSurvivor(String survivorId, String supersededUid, Integer oldSeq, int newSeq) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("survivingId", survivorId);
+    params.put("supersededUid", supersededUid);
+    params.put("oldSeq", oldSeq);
+    params.put("newSeq", newSeq);
+
+    nbsTemplate.update(COPY_PERSON_NAME_TO_SURVIVING, params);
+  }
+
+  private AuditInsertAction buildAuditInsertAction(String survivorId, int newSeq) {
+    return new AuditInsertAction(Map.of(
+        "person_uid", survivorId,
+        "person_name_seq", newSeq
+    ));
   }
 
   private int getMaxSequenceForPerson(String personUid) {
-    Map<String, Object> params = Collections.singletonMap("personUid", personUid);
-    Integer maxSequence = nbsTemplate.queryForObject(FIND_MAX_SEQUENCE_PERSON_NAME, params, Integer.class);
+    Integer maxSequence = nbsTemplate.queryForObject(
+        FIND_MAX_SEQUENCE_PERSON_NAME,
+        Collections.singletonMap("personUid", personUid),
+        Integer.class
+    );
     return maxSequence == null ? 0 : maxSequence;
   }
 }

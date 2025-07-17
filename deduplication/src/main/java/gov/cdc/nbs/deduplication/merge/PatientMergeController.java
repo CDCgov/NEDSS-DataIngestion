@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -74,7 +75,7 @@ public class PatientMergeController {
   @PostMapping("/{matchId}")
   public void mergePatients(
       @RequestBody PatientMergeRequest mergeRequest,
-      @PathVariable("matchId") Long matchId) {
+      @PathVariable("matchId") Long matchId) throws JsonProcessingException {
     mergeService.performMerge(matchId, mergeRequest);
   }
 
