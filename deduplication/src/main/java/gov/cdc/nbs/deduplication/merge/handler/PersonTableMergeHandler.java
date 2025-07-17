@@ -5,11 +5,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,13 +121,14 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
   }
 
   private void saveSupersededPersonMergeDetails(String survivorPersonId, List<String> supersededPersonIds) {
-
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     MapSqlParameterSource[] batchParameters = supersededPersonIds.stream()
         .map(supersededPersonId -> {
           MapSqlParameterSource parameters = new MapSqlParameterSource();
           parameters.addValue("survivorPersonId", survivorPersonId);
           parameters.addValue("supersededPersonId", supersededPersonId);
           parameters.addValue("mergeTime", Timestamp.from(Instant.now()));
+          parameters.addValue("mergeUserId", currentUser.getId());
           return parameters;
         })
         .toArray(MapSqlParameterSource[]::new);
