@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
@@ -10,6 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 
@@ -40,6 +44,7 @@ class PersonTableMergeHandlerTest {
     String matchId = "123";
     PatientMergeRequest request = getPatientMergeRequest();
 
+    mockSecurityContext();
     mockFetchSupersededCandidatesToReturn("superseded1", "superseded2", "superseded3");
     mockFetchChildIdsOfSupersededToReturn("supersededChild1", "supersededChild2", "supersededChild3");
 
@@ -65,6 +70,19 @@ class PersonTableMergeHandlerTest {
         eq(QueryConstants.CHILD_IDS_BY_PARENT_PERSON_IDS),
         any(MapSqlParameterSource.class),
         eq(String.class))).thenReturn(Arrays.asList(ids));
+  }
+
+  private void mockSecurityContext() {
+    NbsUserDetails mockUserDetails = mock(NbsUserDetails.class);
+    when(mockUserDetails.getId()).thenReturn(100L);
+
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn(mockUserDetails);
+
+    SecurityContext securityContext = mock(SecurityContext.class);
+    when(securityContext.getAuthentication()).thenReturn(authentication);
+
+    SecurityContextHolder.setContext(securityContext);
   }
 
   private void verifyCopyPersonToHistory() {
