@@ -100,6 +100,7 @@ public record PersonMergeData(
       String primaryLanguage,
       String speaksEnglish,
       String stateHivCaseId) {
+
     public GeneralPatientInformation() {
       this(
           null,
@@ -111,6 +112,21 @@ public record PersonMergeData(
           null,
           null,
           null,
+          null);
+    }
+
+    public static GeneralPatientInformation restrictStateHivCaseId(
+        GeneralPatientInformation generalPatientInformation) {
+      return new GeneralPatientInformation(
+          generalPatientInformation.asOf(),
+          generalPatientInformation.maritalStatus(),
+          generalPatientInformation.mothersMaidenName(),
+          generalPatientInformation.numberOfAdultsInResidence(),
+          generalPatientInformation.numberOfChildrenInResidence(),
+          generalPatientInformation.primaryOccupation(),
+          generalPatientInformation.educationLevel(),
+          generalPatientInformation.primaryLanguage(),
+          generalPatientInformation.speaksEnglish(),
           null);
     }
   }

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 class PersonMergeDataMapperTest {
 
-  private final PersonMergeDataMapper mapper = new PersonMergeDataMapper();
+  private final PersonMergeDataMapper mapper = new PersonMergeDataMapper(true);
 
   // Constants for testing
   private static final String PERSON_UID = "1000001";
@@ -193,6 +193,25 @@ class PersonMergeDataMapperTest {
     assertGeneralPatientInformation(personMergeData);
     assertInvestigations(personMergeData);
     assertNestedFields(personMergeData);
+  }
+
+  @Test
+  void filtersHivCase() throws Exception {
+    ResultSet rs = Mockito.mock(ResultSet.class);
+    // Mocking
+    when(rs.getString("person_parent_uid")).thenReturn(PERSON_UID);
+    mockGeneralFields(rs);
+    mockSexAndBirthFields(rs);
+    mockMortalityFields(rs);
+    mockGeneralPatientInformationFields(rs);
+    mockInvestigationsField(rs);
+    mockNestedFields(rs);
+
+    // Perform mapping
+    PersonMergeDataMapper restrictedMapper = new PersonMergeDataMapper(false);
+    PersonMergeData personMergeData = restrictedMapper.mapRow(rs, 0);
+
+    assertThat(personMergeData.general().stateHivCaseId()).isNull();
   }
 
   // Mocking Methods
