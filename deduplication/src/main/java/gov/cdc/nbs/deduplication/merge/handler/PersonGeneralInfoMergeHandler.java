@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -142,7 +143,7 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
 
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     mergePersonGeneralInfo(request.survivingRecord(), request.generalInfo());
   }
 

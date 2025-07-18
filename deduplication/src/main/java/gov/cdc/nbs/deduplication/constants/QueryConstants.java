@@ -482,24 +482,30 @@ public class QueryConstants {
       """;
 
   public static final String INSERT_PERSON_MERGE_RECORD = """
-       INSERT INTO PERSON_MERGE (
-          SURVIVING_PERSON_UID,
-          superced_person_uid,
-          surviving_parent_uid,
-          superceded_parent_uid,
-          MERGE_TIME,
-          superceded_version_ctrl_nbr,
-          RECORD_STATUS_CD
-      ) VALUES (
-          :survivorPersonId,
-          :supersededPersonId,
-          :survivorPersonId,
-          :supersededPersonId,
-          :mergeTime,
-          (SELECT MAX(version_ctrl_nbr) FROM person_hist where person_uid = :supersededPersonId),
-          'PAT_MERGE'
-      )
-      """;
+    INSERT INTO PERSON_MERGE (
+        SURVIVING_PERSON_UID,
+        superced_person_uid,
+        surviving_parent_uid,
+        superceded_parent_uid,
+        MERGE_TIME,
+        superceded_version_ctrl_nbr,
+        surviving_version_ctrl_nbr,
+        RECORD_STATUS_CD,
+        record_status_time,
+        merge_user_id
+    ) VALUES (
+        :survivorPersonId,
+        :supersededPersonId,
+        (SELECT person_parent_uid FROM person WHERE person_uid = :survivorPersonId),
+        (SELECT person_parent_uid FROM person WHERE person_uid = :supersededPersonId),
+        :mergeTime,
+        (SELECT MAX(version_ctrl_nbr) FROM person_hist WHERE person_uid = :supersededPersonId),
+        (SELECT MAX(version_ctrl_nbr) FROM person_hist WHERE person_uid = :survivorPersonId),
+        'PAT_MERGE',
+        :mergeTime,
+        :mergeUserId
+    )
+    """;
 
   public static final String CHILD_IDS_BY_PARENT_PERSON_IDS = """
       SELECT person_uid
@@ -728,7 +734,7 @@ public class QueryConstants {
                                   AND reasonUnknownCode.code_set_nm = 'P_ETHN_UNK_REASON'
                               WHERE
                                   ep.person_uid = p.person_uid
-                                  AND eg.record_status_cd = 'ACTIVE'
+                                  AND (eg.record_status_cd IS NULL OR eg.record_status_cd = 'ACTIVE')
                               GROUP BY
                                   ep.person_uid,
                                   ep.as_of_date_ethnicity,

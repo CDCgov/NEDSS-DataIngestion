@@ -50,3 +50,13 @@ CREATE TABLE match_candidates (
   FOREIGN KEY (match_id) REFERENCES matches_requiring_review(id)
 );
 GO
+
+CREATE TABLE patient_merge_audit (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    survivor_id VARCHAR(20) NOT NULL,
+    superseded_ids VARCHAR(200) NOT NULL,
+    merge_time DATETIME NOT NULL DEFAULT getdate(),
+    related_table_audits_json NVARCHAR(MAX) NOT NULL, -- Serialized PatientMergeAudit object
+	patient_merge_request_json NVARCHAR(MAX) NOT NULL -- Serialized PatientMergeRequest object
+);
+GO

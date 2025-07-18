@@ -31,7 +31,7 @@ class MpiReaderTest {
     when(connection.getMetaData()).thenReturn(metadata);
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
 
-    final MpiReader reader = new MpiReader(dataSource);
+    final MpiReader reader = new MpiReader(dataSource, 1000);
     assertThat(reader).isNotNull();
   }
 }

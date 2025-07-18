@@ -5,10 +5,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
   // Modifications have been performed on the person table entries.
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     String survivorId = request.survivingRecord();
     List<String> supersededUids = getSupersededRecords(matchId, survivorId);
     List<String> involvedPatients = new ArrayList<>();
@@ -45,6 +48,9 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     markSupersededRecords(supersededUids);
     updateLastChangeTime(involvedPatients);
     saveSupersededPersonMergeDetails(survivorId, supersededUids);
+
+    patientMergeAudit.setSupersededIds(supersededUids);
+    patientMergeAudit.setMergeTimestamp(getCurrentUtcTimestamp());
   }
 
   List<String> getSupersededRecords(String matchId, String survivorId) {
@@ -115,13 +121,14 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
   }
 
   private void saveSupersededPersonMergeDetails(String survivorPersonId, List<String> supersededPersonIds) {
-
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     MapSqlParameterSource[] batchParameters = supersededPersonIds.stream()
         .map(supersededPersonId -> {
           MapSqlParameterSource parameters = new MapSqlParameterSource();
           parameters.addValue("survivorPersonId", survivorPersonId);
           parameters.addValue("supersededPersonId", supersededPersonId);
           parameters.addValue("mergeTime", Timestamp.from(Instant.now()));
+          parameters.addValue("mergeUserId", currentUser.getId());
           return parameters;
         })
         .toArray(MapSqlParameterSource[]::new);

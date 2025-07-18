@@ -1,17 +1,24 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
@@ -29,6 +36,9 @@ class PersonRacesMergeHandlerTest {
 
   @Mock
   private JdbcClient client;
+
+  @Mock
+  private NamedParameterJdbcTemplate nbsTemplate;
 
   @InjectMocks
   private PersonRacesMergeHandler mergeHandler;
@@ -49,8 +59,12 @@ class PersonRacesMergeHandlerTest {
     mockInsert();
     mockUpdate();
 
+    mockFetchOldRows("1", "X", "X", "ACTIVE");
+
+    PatientMergeAudit audit = new PatientMergeAudit(new ArrayList<>());
+
     // Act
-    mergeHandler.handleMerge("matchId", request);
+    mergeHandler.handleMerge("matchId", request, audit);
 
     // Verify
     verify(client, times(1)).sql(PersonRacesMergeHandler.SET_RACE_ENTRIES_TO_INACTIVE);
@@ -136,5 +150,20 @@ class PersonRacesMergeHandlerTest {
 
     SecurityContextHolder.getContext().setAuthentication(auth);
   }
+
+  private void mockFetchOldRows(String personId, String raceCategoryCd, String raceCd, String recordStatusCd) {
+    List<Map<String, Object>> oldRows = List.of(
+        Map.of(
+            PersonRacesMergeHandler.PERSON_UID, personId,
+            PersonRacesMergeHandler.RACE_CATEGORY_CD, raceCategoryCd,
+            PersonRacesMergeHandler.RACE_CD, raceCd,
+            "record_status_cd", recordStatusCd
+        )
+    );
+
+    when(nbsTemplate.queryForList(anyString(), ArgumentMatchers.<SqlParameterSource>any()))
+        .thenReturn(oldRows);
+  }
+
 
 }

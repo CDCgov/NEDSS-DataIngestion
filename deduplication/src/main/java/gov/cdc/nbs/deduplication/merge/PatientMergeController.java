@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/merge")
 @PreAuthorize("hasAuthority('MERGE-PATIENT')")
 public class PatientMergeController {
-  static final String DEFAULT_SORT = "patient-id,desc";
+  static final String DEFAULT_SORT = "identified,desc";
 
   private final MergeGroupHandler mergeGroupHandler;
   private final MergeService mergeService;
@@ -74,7 +75,7 @@ public class PatientMergeController {
   @PostMapping("/{matchId}")
   public void mergePatients(
       @RequestBody PatientMergeRequest mergeRequest,
-      @PathVariable("matchId") Long matchId) {
+      @PathVariable("matchId") Long matchId) throws JsonProcessingException {
     mergeService.performMerge(matchId, mergeRequest);
   }
 

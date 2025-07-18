@@ -60,9 +60,6 @@ dlt:
 
 ---
 spring:
-  config:
-    activate:
-      on-profile: default
   liquibase:
     user: ${NBS_DBUSER}
     password: ${NBS_DBPASSWORD}
@@ -144,7 +141,30 @@ sasl:
     config: software.amazon.msk.auth.iam.IAMLoginModule required;
   client:
     callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+
 ---
+spring:
+  config:
+    activate:
+      on-profile: default
+  springdoc:
+    api-docs:
+      enabled: false
+    swagger-ui:
+      enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  springdoc:
+    api-docs:
+      enabled: true
+    swagger-ui:
+      enabled: true
+---
+
 sftp:
   enabled: ${DI_SFTP_ENABLED:disabled}
   host: ${DI_SFTP_HOST:dummyhost}

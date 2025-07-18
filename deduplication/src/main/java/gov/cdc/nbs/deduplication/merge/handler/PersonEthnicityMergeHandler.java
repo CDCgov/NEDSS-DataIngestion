@@ -1,9 +1,14 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -11,7 +16,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(7)
@@ -20,6 +24,9 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   static final String SOURCE_ID = "sourceId";
   static final String PERSON_ID = "personId";
   static final String USER_ID = "userId";
+  static final String PERSON_UID = "person_uid";
+  static final String ETHNIC_GROUP_CD = "ethnic_group_cd";
+
 
   static final String UPDATE_PERSON_ETHNIC_GROUP = """
       UPDATE person
@@ -87,16 +94,28 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
         AND ethnic_group_cd IN ( :spanishOrigins);
           """;
 
-  final JdbcClient client;
+  private static final String SELECT_PERSON_ETHNIC_GROUP_FOR_SPANISH_ORIGIN_FOR_AUDIT = """
+      SELECT person_uid, ethnic_group_cd, record_status_cd
+      FROM Person_ethnic_group
+      WHERE person_uid = :personId
+        AND ethnic_group_cd IN (:spanishOrigins)
+      """;
 
-  public PersonEthnicityMergeHandler(@Qualifier("nbsJdbcClient") JdbcClient client) {
+  final JdbcClient client;
+  PatientMergeAudit audit;
+  private final NamedParameterJdbcTemplate nbsTemplate;
+
+  public PersonEthnicityMergeHandler(@Qualifier("nbsJdbcClient") JdbcClient client,
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.client = client;
+    this.nbsTemplate = nbsTemplate;
   }
 
   // Merge modifications have been applied to the person ethnicity
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request) {
+  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit audit) {
+    this.audit = audit;
     mergeEthnicity(request.survivingRecord(), request.ethnicity());
   }
 
@@ -143,24 +162,71 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   private void insertSpanishOrigins(String personId, String sourceId, List<String> spanishOrigins) {
     NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Long userId = currentUser.getId();
-    spanishOrigins.forEach(o -> client.sql(INSERT_SPANISH_ORIGIN)
-        .param("spanishOrigin", o)
-        .param(PERSON_ID, personId)
-        .param(USER_ID, userId)
-        .param(SOURCE_ID, sourceId)
-        .update());
+
+    List<AuditInsertAction> insertActions = new ArrayList<>();
+
+    for (String origin : spanishOrigins) {
+      // Perform insert
+      client.sql(INSERT_SPANISH_ORIGIN)
+          .param("spanishOrigin", origin)
+          .param(PERSON_ID, personId)
+          .param(USER_ID, userId)
+          .param(SOURCE_ID, sourceId)
+          .update();
+
+      // Record audit
+      insertActions.add(new AuditInsertAction(
+          Map.of(
+              PERSON_UID, personId,
+              ETHNIC_GROUP_CD, origin
+          )
+      ));
+    }
+
+    if (!insertActions.isEmpty()) {
+      audit.getRelatedTableAudits()
+          .add(new RelatedTableAudit("Person_ethnic_group", List.of(), insertActions));
+    }
   }
 
   private void updateSpanishOriginsToInactive(String personId, List<String> spanishOrigins) {
     NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Long userId = currentUser.getId();
+
     if (!spanishOrigins.isEmpty()) {
+      // Perform update
       client.sql(UPDATE_SPANISH_ORIGINS_TO_INACTIVE)
           .param(USER_ID, userId)
           .param(PERSON_ID, personId)
           .param("spanishOrigins", spanishOrigins)
           .update();
+
+      List<Map<String, Object>> oldRows = fetchOldRows(personId, spanishOrigins);
+      addUpdateAudit(oldRows);
     }
   }
 
+  private void addUpdateAudit(List<Map<String, Object>> oldRows) {
+    List<AuditUpdateAction> updateActions = oldRows.stream()
+        .map(row -> new AuditUpdateAction(
+            Map.of(
+                PERSON_UID, row.get(PERSON_UID),
+                ETHNIC_GROUP_CD, row.get(ETHNIC_GROUP_CD)
+            ),
+            Map.of("record_status_cd", row.get("record_status_cd"))
+        ))
+        .toList();
+
+    audit.getRelatedTableAudits()
+        .add(new RelatedTableAudit("Person_ethnic_group", updateActions, List.of()));
+  }
+
+  private List<Map<String, Object>> fetchOldRows(String personId, List<String> spanishOrigins) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue(PERSON_ID, personId);
+    params.addValue("spanishOrigins", spanishOrigins);
+    return nbsTemplate.queryForList(SELECT_PERSON_ETHNIC_GROUP_FOR_SPANISH_ORIGIN_FOR_AUDIT, params);
+  }
+
 }
+

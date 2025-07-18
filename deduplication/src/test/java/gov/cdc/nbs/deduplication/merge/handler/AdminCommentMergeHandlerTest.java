@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +25,9 @@ class AdminCommentMergeHandlerTest {
 
   private AdminCommentMergeHandler handler;
 
+  @Mock
+  private PatientMergeAudit patientMergeAudit;
+
 
   @BeforeEach
   void setUp() {
@@ -35,7 +39,7 @@ class AdminCommentMergeHandlerTest {
     String matchId = "123";
     PatientMergeRequest request = getPatientMergeRequest();
 
-    handler.handleMerge(matchId, request);
+    handler.handleMerge(matchId, request, patientMergeAudit);
 
     verifyUpdateAdministrativeComments();
   }
