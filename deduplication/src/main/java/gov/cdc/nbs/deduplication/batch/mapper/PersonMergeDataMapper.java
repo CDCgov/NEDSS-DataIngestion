@@ -31,6 +31,11 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
 public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
   private final ObjectMapper mapper = new ObjectMapper();
+  private final boolean hasHivAccess;
+
+  public PersonMergeDataMapper(final boolean hasHivAccess) {
+    this.hasHivAccess = hasHivAccess;
+  }
 
   @Override
   @Nullable
@@ -127,7 +132,12 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new GeneralPatientInformation();
     }
     try {
-      return mapper.readValue(generalInfoString, GeneralPatientInformation.class);
+      GeneralPatientInformation generalPatientInformation = mapper.readValue(generalInfoString,
+          GeneralPatientInformation.class);
+
+      return hasHivAccess ? generalPatientInformation
+          : GeneralPatientInformation.restrictStateHivCaseId(generalPatientInformation);
+
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient general information");
     }

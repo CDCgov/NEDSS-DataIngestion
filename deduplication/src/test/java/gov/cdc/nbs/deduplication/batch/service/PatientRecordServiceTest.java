@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import gov.cdc.nbs.deduplication.auth.authentication.PermissionResolver;
 import gov.cdc.nbs.deduplication.batch.mapper.PersonMergeDataMapper;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
@@ -33,6 +34,9 @@ class PatientRecordServiceTest {
 
   @Mock
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+  @Mock
+  private PermissionResolver permissionResolver;
 
   @InjectMocks
   private PatientRecordService patientRecordService;

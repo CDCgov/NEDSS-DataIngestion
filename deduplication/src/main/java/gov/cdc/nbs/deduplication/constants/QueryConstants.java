@@ -482,30 +482,30 @@ public class QueryConstants {
       """;
 
   public static final String INSERT_PERSON_MERGE_RECORD = """
-    INSERT INTO PERSON_MERGE (
-        SURVIVING_PERSON_UID,
-        superced_person_uid,
-        surviving_parent_uid,
-        superceded_parent_uid,
-        MERGE_TIME,
-        superceded_version_ctrl_nbr,
-        surviving_version_ctrl_nbr,
-        RECORD_STATUS_CD,
-        record_status_time,
-        merge_user_id
-    ) VALUES (
-        :survivorPersonId,
-        :supersededPersonId,
-        (SELECT person_parent_uid FROM person WHERE person_uid = :survivorPersonId),
-        (SELECT person_parent_uid FROM person WHERE person_uid = :supersededPersonId),
-        :mergeTime,
-        (SELECT MAX(version_ctrl_nbr) FROM person_hist WHERE person_uid = :supersededPersonId),
-        (SELECT MAX(version_ctrl_nbr) FROM person_hist WHERE person_uid = :survivorPersonId),
-        'PAT_MERGE',
-        :mergeTime,
-        :mergeUserId
-    )
-    """;
+      INSERT INTO PERSON_MERGE (
+          SURVIVING_PERSON_UID,
+          superced_person_uid,
+          surviving_parent_uid,
+          superceded_parent_uid,
+          MERGE_TIME,
+          superceded_version_ctrl_nbr,
+          surviving_version_ctrl_nbr,
+          RECORD_STATUS_CD,
+          record_status_time,
+          merge_user_id
+      ) VALUES (
+          :survivorPersonId,
+          :supersededPersonId,
+          (SELECT person_parent_uid FROM person WHERE person_uid = :survivorPersonId),
+          (SELECT person_parent_uid FROM person WHERE person_uid = :supersededPersonId),
+          :mergeTime,
+          (SELECT MAX(version_ctrl_nbr) FROM person_hist WHERE person_uid = :supersededPersonId),
+          (SELECT MAX(version_ctrl_nbr) FROM person_hist WHERE person_uid = :survivorPersonId),
+          'PAT_MERGE',
+          :mergeTime,
+          :mergeUserId
+      )
+      """;
 
   public static final String CHILD_IDS_BY_PARENT_PERSON_IDS = """
       SELECT person_uid
@@ -582,6 +582,8 @@ public class QueryConstants {
                   AND part.record_status_cd = 'ACTIVE'
                   AND part.subject_class_cd = 'PSN'
                   AND part.act_class_cd = 'CASE'
+                  AND inv.program_jurisdiction_oid IN (:programJurisdictionOids)
+                  ORDER BY inv.activity_from_time DESC
               FOR JSON
                   PATH,
                   INCLUDE_NULL_VALUES
@@ -641,6 +643,7 @@ public class QueryConstants {
                                   AND use_cd NOT IN ('BIR', 'DTH')
                                   AND elp.class_cd = 'PST'
                                   AND elp.record_status_cd = 'ACTIVE'
+                              ORDER BY asOf desc
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES
@@ -668,6 +671,7 @@ public class QueryConstants {
                               WHERE
                                   eid.entity_uid = p.person_uid
                                   AND eid.record_status_cd = 'ACTIVE'
+                              ORDER BY asOf desc
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES
@@ -703,6 +707,7 @@ public class QueryConstants {
                                   race_category_cd,
                                   as_of_date,
                                   raceCode.code_short_desc_txt
+                              ORDER BY asOf desc
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES
@@ -786,6 +791,7 @@ public class QueryConstants {
                                       OR tl.email_address IS NOT NULL
                                       OR tl.url_address IS NOT NULL
                                   )
+                              ORDER BY asOf desc
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES
@@ -827,6 +833,7 @@ public class QueryConstants {
                               WHERE
                                   pn.person_uid = p.person_uid
                                   AND pn.record_status_cd = 'ACTIVE'
+                              ORDER BY asOf desc
                               FOR JSON
                                   PATH,
                                   INCLUDE_NULL_VALUES
