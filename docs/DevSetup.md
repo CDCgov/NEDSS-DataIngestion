@@ -28,7 +28,7 @@ Following this guide will set up a fully functioning local development environme
       ./gradlew deduplication:bootRun
       ```
 
-Once the above steps have been completed, the [postman collection](./DataIngestion.postman_collection.json) can be used to fetch an authentication token from Keycloak, submit an ELR, and check the status of the ELR. 
+Once the above steps have been completed, the [postman collection](./DataIngestion_OLD.postman_collection.json) can be used to fetch an authentication token from Keycloak, submit an ELR, and check the status of the ELR. 
 
 Swagger pages are also available
 1. [data-ingestion-service](http://localhost:8081/ingestion/swagger-ui/index.html)
