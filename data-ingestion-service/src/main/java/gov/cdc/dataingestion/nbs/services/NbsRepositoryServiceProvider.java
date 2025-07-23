@@ -316,7 +316,6 @@ public class NbsRepositoryServiceProvider {
 					specimenColDateStr = appendingTimeStamp(specimenColDateStr);
 				}
 				LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, tsFormatter);
-				System.out.println("localDateTime:" + Timestamp.valueOf(localDateTime));
 				nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 			} else {
 				nbsInterface.setSpecimenCollDate(null);
