@@ -22,7 +22,7 @@ public class PersonDeleteSyncHandler {
     this.deduplicationClient = deduplicationClient;
   }
 
-  private static final String LOOKUP_MPI_PATIENT = """
+  static final String LOOKUP_MPI_PATIENT = """
       SELECT
         mpi_patient
       FROM
@@ -31,16 +31,51 @@ public class PersonDeleteSyncHandler {
         person_uid = :id;
       """;
 
-  private static final String DELETE_MPI_MAPPING = """
+  static final String DELETE_MPI_MAPPING = """
       DELETE FROM
         nbs_mpi_mapping
       WHERE
         person_uid = :id;
       """;
 
+  static final String REMOVE_FROM_POTENTIAL_MERGES = """
+      UPDATE match_candidates
+      SET is_merge = 0
+      WHERE person_uid = :id
+      AND is_merge IS NULL;
+      """;
+
+  // clears any potential merge listings where there are only 1 entry
+  static final String CLEAN_UP_POTENTIAL_MERGES = """
+      UPDATE match_candidates
+      SET
+        is_merge = 0
+      WHERE
+        match_id IN (
+          SELECT
+            match_id
+          FROM
+            (
+              SELECT
+                match_id,
+                count(*) AS null_count
+              FROM
+                match_candidates
+              WHERE
+                is_merge IS NULL
+              GROUP BY
+                match_id
+            ) AS counts
+          WHERE
+            null_count = 1
+        );
+          """;
+
   // Handles the case when a patient was deleted in NBS 6. This deletion needs to
   // propagate to the nbs_mpi_mapping table as well as the MPI. Removing the
-  // patient data will prevent new data from matching to a deleted patient
+  // patient data will prevent new data from matching to a deleted patient.
+  // We also need to check if this patient was involved in a potential merge. If
+  // so remove it
   public void handleDelete(JsonNode payloadNode) {
     JsonNode afterNode = payloadNode.path("after");
     String personUid = afterNode.get("person_uid").asText();
@@ -62,6 +97,15 @@ public class PersonDeleteSyncHandler {
           .param("id", personUid)
           .update();
     }
+
+    // ensure the person is removed from any potential merges
+    deduplicationClient.sql(REMOVE_FROM_POTENTIAL_MERGES)
+        .param("id", personUid)
+        .update();
+
+    // do a clean up of potential merges so no single entries are left
+    deduplicationClient.sql(CLEAN_UP_POTENTIAL_MERGES)
+        .update();
   }
 
 }
