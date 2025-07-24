@@ -2153,7 +2153,7 @@ public class Hl7ToRhapsodysXmlConverter {
         if (buildHL7TSType(mh.getDateTimeOfMessage()) == null) {
             throw new XmlConversionException("MSH Date Time Of Message Can Not Be Empty, Please verify 2.5.1 or 2.3.1 MSH.7");
         } else {
-            mshType.setDateTimeOfMessage(buildHL7TSType(mh.getDateTimeOfMessage(), TS_FMT_DATE_HOUR_ONLY));
+            mshType.setDateTimeOfMessage(buildHL7TSType(mh.getDateTimeOfMessage(), TS_FMT_ALL));
         }
         mshType.setSecurity("");
         mshType.setMessageType(buildHl7MsgType());
