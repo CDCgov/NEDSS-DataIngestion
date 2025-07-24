@@ -22,5 +22,5 @@ Pushing a new container to our ECR can be accomplished by performing the followi
    ```
 4. Push the image to ECR
    ```
-   docker push 501715613725.dkr.ecr.us-east-1.amazonaws.com/cdc-nbs-modernization/deduplication-test-db:501715613725.dkr.ecr.us-east-1.amazonaws.com/cdc-nbs-modernization/deduplication-test-db:latest
+   docker image push --platform linux/amd64 501715613725.dkr.ecr.us-east-1.amazonaws.com/cdc-nbs-modernization/deduplication-test-db:latest
    ```
