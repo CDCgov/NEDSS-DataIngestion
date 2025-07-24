@@ -51,8 +51,11 @@ public class Hl7ToRhapsodysXmlConverter {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
     private static final String OBX_VALUE_TYPE_SN = "SN";
+    public static final String NM="NM";
     public static final String CE="CE";
     public static final String CWE="CWE";
+    public static final String DT="DT";
+    public static final String ST="ST";
     private static final String EMPTY_STRING = "";
     private static final int TS_FMT_ALL = 0;
     private static final int TS_FMT_DATE_ONLY = 1;
@@ -667,7 +670,7 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBRType.setPriorityOBR(or.getPriorityObr());
         hl7OBRType.setRequestedDateTime(buildHL7TSType(or.getRequestedDateTime()));
         hl7OBRType.setObservationDateTime(buildHL7TSType(or.getObservationDateTime(), TS_FMT_ALL));
-        hl7OBRType.setObservationEndDateTime(buildHL7TSType(or.getObservationEndDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
+        hl7OBRType.setObservationEndDateTime(buildHL7TSType(or.getObservationEndDateTime(), TS_FMT_ALL));
 
         if (!isEmptyHL7CQType(or.getCollectionVolume())) {
             hl7OBRType.setCollectionVolume(buildHL7CQType(or.getCollectionVolume()));
@@ -684,7 +687,7 @@ public class Hl7ToRhapsodysXmlConverter {
         }
 
         hl7OBRType.setRelevantClinicalInformation(or.getRelevantClinicalInformation());
-        hl7OBRType.setSpecimenReceivedDateTime(buildHL7TSType(or.getSpecimenReceivedDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
+        hl7OBRType.setSpecimenReceivedDateTime(buildHL7TSType(or.getSpecimenReceivedDateTime(), TS_FMT_ALL));
 
         if (!isEmptyHL7SPSType(or.getSpecimenSource())) {
             hl7OBRType.setSpecimenSource(buildHL7SPSType(or.getSpecimenSource()));
@@ -879,17 +882,23 @@ public class Hl7ToRhapsodysXmlConverter {
         hl7OBXType.setObservationIdentifier(buildHL7CWEType(or.getObservationIdentifier()));
         hl7OBXType.setObservationSubID(or.getObservationSubId());
 
+        if(CWE.equals(hl7OBXType.getValueType())){
+            hl7OBXType.setValueType(CE);
+        }else if(NM.equals(hl7OBXType.getValueType())){
+            hl7OBXType.setValueType(OBX_VALUE_TYPE_SN);
+        }else if(DT.equals(hl7OBXType.getValueType())){
+            hl7OBXType.setValueType(ST);
+        }
         for (String s : or.getObservationValue()) {
             if (OBX_VALUE_TYPE_SN.equals(hl7OBXType.getValueType())
-                    || CWE.equals(hl7OBXType.getValueType()) || CE.equals(hl7OBXType.getValueType())) {
+                    || CE.equals(hl7OBXType.getValueType())) {
                 Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // Pattern to match text between square brackets
                 Matcher matcher = pattern.matcher(s);
                 String extractedText = "";
                 while (matcher.find()) {
                     extractedText = matcher.group(1); // Extract text between square brackets
                 }
-                if(CWE.equals(hl7OBXType.getValueType()) || CE.equals(hl7OBXType.getValueType())){
-                    hl7OBXType.setValueType(CE);
+                if(CE.equals(hl7OBXType.getValueType())){
                     extractedText=stripTypeValueAfter6thCaret(extractedText);
                 }
                 hl7OBXType.getObservationValue().add(extractedText);
@@ -932,7 +941,7 @@ public class Hl7ToRhapsodysXmlConverter {
             hl7OBXType.getEquipmentInstanceIdentifier().add(buildHL7EIType(ei));
         }
 
-        hl7OBXType.setDateTimeOftheAnalysis(buildHL7TSType(or.getDateTimeOfTheAnalysis(), TS_FMT_DATE_ONLY));
+        hl7OBXType.setDateTimeOftheAnalysis(buildHL7TSType(or.getDateTimeOfTheAnalysis(), TS_FMT_ALL));
 
         if (!isEmptyHL7XONType(or.getPerformingOrganizationName())) {
             hl7OBXType.setPerformingOrganizationName(buildHL7XONType(or.getPerformingOrganizationName()));
@@ -2089,8 +2098,8 @@ public class Hl7ToRhapsodysXmlConverter {
 
     private HL7DRType buildHL7DRType(Dr dr) {
         HL7DRType hl7DRType = new HL7DRType();
-        hl7DRType.setHL7RangeStartDateTime(buildHL7TSType(dr.getRangeStartDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
-        hl7DRType.setHL7RangeEndDateTime(buildHL7TSType(dr.getRangeEndDateTime(), TS_FMT_DATE_HOUR_MINUTE_ONLY));
+        hl7DRType.setHL7RangeStartDateTime(buildHL7TSType(dr.getRangeStartDateTime(), TS_FMT_ALL));
+        hl7DRType.setHL7RangeEndDateTime(buildHL7TSType(dr.getRangeEndDateTime(), TS_FMT_ALL));
         return hl7DRType;
     }
 
