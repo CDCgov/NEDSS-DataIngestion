@@ -43,8 +43,6 @@ Data Ingestion for Modernization of NEDSS Project by Enquizit
               KC_BOOTSTRAP_ADMIN_PASSWORD=value
             
               OBR_SPLITTING_ENABLED=value
-              
-              HL7_BATCH_SPLITTING_ENABLED=value
           ```
           - Run "docker compose up -d"
           - If encounter gradle exception such as missing wrapper then run the following command
