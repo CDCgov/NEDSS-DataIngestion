@@ -873,7 +873,7 @@ public class Hl7ToRhapsodysXmlConverter {
         return hl7RPTType;
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S6541"})
     private HL7OBXType buildHL7OBXType(ObservationResult or) {
         HL7OBXType hl7OBXType = new HL7OBXType();
 
