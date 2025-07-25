@@ -152,7 +152,20 @@ class Hl7ToRhapsodysXmlConverterTest {
         Assertions.assertNull(result.getPerformingOrganizationMedicalDirector());
 
     }
-
+    @Test
+    void buildHL7OBXType_TestCWE_valuetype() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var parentClass = new Hl7ToRhapsodysXmlConverter();
+        ObservationResult model = new ObservationResult();
+        model.setValueType("CWE");
+        List<String> listStr = new ArrayList<>();
+        listStr.add("CWE[260373001^Detected^SCT^SARS Coronavirus 2A^LA6576-8^L^Vunknown^Vunknown^LA6576-8]");
+        model.setObservationValue(listStr);
+        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7OBXType", ObservationResult.class);
+        privateMethod.setAccessible(true);
+        var result = (HL7OBXType) privateMethod.invoke(parentClass, model);
+        Assertions.assertNull(result.getSetIDOBX().getHL7SequenceID());
+        Assertions.assertEquals("CE",result.getValueType());
+    }
     @Test
     void buildHL7PIV2TypeAllMissingConditional() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var parentClass = new Hl7ToRhapsodysXmlConverter();
@@ -783,7 +796,7 @@ class Hl7ToRhapsodysXmlConverterTest {
     private void buildHL7SPMTypeAllMissingConditionalHelper(HL7SPMType result) {
         Assertions.assertNotNull(result.getSpecimenHandlingCode());
         Assertions.assertNotNull(result.getSpecimenRiskCode());
-        Assertions.assertNull(result.getSpecimenCollectionDateTime());
+        Assertions.assertNotNull(result.getSpecimenCollectionDateTime());
         Assertions.assertNotNull(result.getSpecimenReceivedDateTime());
         Assertions.assertNotNull(result.getSpecimenExpirationDateTime());
         Assertions.assertNotNull(result.getSpecimenAvailability());
@@ -938,7 +951,7 @@ class Hl7ToRhapsodysXmlConverterTest {
     @ParameterizedTest
     @CsvSource({
             "20230615123059-timezone, 20230615123059",
-            "20230615123, 2023061512300",
+            "20230615123, 20230615123000",
             "20230615, 20230615000000"
     })
     void testAppendingTimeStamp(String payload, String expectedMessage) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
