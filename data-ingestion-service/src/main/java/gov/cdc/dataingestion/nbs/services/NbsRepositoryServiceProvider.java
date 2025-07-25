@@ -6,6 +6,7 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 import gov.cdc.dataingestion.nbs.repository.NbsInterfaceRepository;
 import gov.cdc.dataingestion.nbs.repository.model.NbsInterfaceModel;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,10 +23,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.Optional;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
@@ -51,6 +50,8 @@ public class NbsRepositoryServiceProvider {
 
 	private static final String ECR_DOC_TYPE = "PHC236";
 	private static final String ECR_STATUS = "ORIG_QUEUED";
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+	private static final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("yyyyMMddHHmmssX");
 
 	private final NbsInterfaceRepository nbsInterfaceRepo;
 
@@ -288,35 +289,31 @@ public class NbsRepositoryServiceProvider {
 	@SuppressWarnings({"java:S3776"})
 	private void savingNbsInterfaceModelTimeStampHelper(String specimenColDateStr,
 														NbsInterfaceModel nbsInterface) throws XmlConversionException {
-
 		try {
 			if (specimenColDateStr != null) {
 				//Need to find the correct format for the date string like '202408212230-0600','20250508145500000-0700'.Maybe the datetime is not in the correct format.
-				//Until then truncate the content after +/-.
-				if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("-")){
-					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("-"));
-					if(specimenColDateStr.length()>14){
-						specimenColDateStr=specimenColDateStr.substring(0,14);
+				DateTimeFormatter tsFormatter = formatter;
+				if (specimenColDateStr.indexOf("-") > 0) //NOSONAR
+				{
+					tsFormatter = formatterWithZone;
+					int index = specimenColDateStr.indexOf("-");
+					String subStr = specimenColDateStr.substring(0, index);
+					String subStrTimeZone =  specimenColDateStr.substring(index);
+					// 20120821140551-0500
+					// this is remove additional value from timezone which suppose to have 5 character (including the dash)
+					if (subStrTimeZone.length() > 5) {
+						subStrTimeZone = subStrTimeZone.substring(0, 5);
+					} else
+					{
+						while (subStrTimeZone.length() < 5) {
+							subStrTimeZone += "0"; //NOSONAR
+						}
 					}
-				}else if(!specimenColDateStr.contains(".") && specimenColDateStr.contains("+")){
-					specimenColDateStr=specimenColDateStr.substring(0,specimenColDateStr.indexOf("+"));
-					if(specimenColDateStr.length()>14){
-						specimenColDateStr=specimenColDateStr.substring(0,14);
-					}
+					specimenColDateStr = appendingTimeStamp(subStr) + subStrTimeZone;
+				} else {
+					specimenColDateStr = appendingTimeStamp(specimenColDateStr);
 				}
-				DateTimeFormatterBuilder dateTimeFormatterBuilder = new DateTimeFormatterBuilder()
-						.append(DateTimeFormatter.ofPattern("[yyyyMMddHHmm]" + "[yyyyMMddHHmmss.SSSX]"
-								+ "[yyyyMMddHHmmss.SSSSX]"+ "[yyyyMMddHHmmssX]"+ "[yyyyMMdd]"+ "[yyyyMMddHH]"
-								+ "[yyyyMMddHHmm]"+ "[yyyyMMddHHmmss]"));
-
-				DateTimeFormatter dateTimeFormatter = dateTimeFormatterBuilder.toFormatter();
-				LocalDateTime localDateTime;
-				if(specimenColDateStr.length()<=8){
-					LocalDate dateObj= LocalDate.parse(specimenColDateStr, dateTimeFormatter);
-					localDateTime=dateObj.atStartOfDay();
-				}else{
-					localDateTime = LocalDateTime.parse(specimenColDateStr, dateTimeFormatter);
-				}
+				LocalDateTime localDateTime = LocalDateTime.parse(specimenColDateStr, tsFormatter);
 				nbsInterface.setSpecimenCollDate(Timestamp.valueOf(localDateTime));
 			} else {
 				nbsInterface.setSpecimenCollDate(null);
@@ -325,7 +322,14 @@ public class NbsRepositoryServiceProvider {
 			throw new XmlConversionException(e.getMessage());
 		}
 	}
-
+	private String appendingTimeStamp(String ts) {
+		if(ts.length() <= 14){
+			ts= StringUtils.rightPad(ts,14,"0");
+		} else {
+			ts = ts.substring(0, 14);
+		}
+		return ts;
+	}
 	public NbsInterfaceModel saveIncomingEcrMessageWithoutRR(String payload, String systemNm, String origDocTypeEicr) {
 		NbsInterfaceModel ecrModel = new NbsInterfaceModel();
 
