@@ -2421,13 +2421,7 @@ public class Hl7ToRhapsodysXmlConverter {
     private HL7DTType buildHL7DTType(String hld7Dt) {
         if (hld7Dt == null) return null;
 
-        if (hld7Dt.length() <= 8) {
-            hld7Dt = hld7Dt + "000000";
-        } else if (hld7Dt.length() <= 12) {
-            hld7Dt = hld7Dt + "00";
-        } else if (hld7Dt.length() > 14) {
-            hld7Dt = hld7Dt.substring(0, (14 - 1));
-        }
+        hld7Dt = appendingTimeStamp(hld7Dt);
 
         DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         LocalDateTime localDtTime = LocalDateTime.parse(hld7Dt, formatterDateTime);

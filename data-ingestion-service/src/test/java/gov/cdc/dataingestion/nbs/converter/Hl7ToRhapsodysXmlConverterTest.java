@@ -153,7 +153,7 @@ class Hl7ToRhapsodysXmlConverterTest {
 
     }
     @Test
-    void buildHL7OBXType_TestCWE_valuetype() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void buildHL7OBXType__test_valueTypeCWE() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var parentClass = new Hl7ToRhapsodysXmlConverter();
         ObservationResult model = new ObservationResult();
         model.setValueType("CWE");
@@ -165,6 +165,20 @@ class Hl7ToRhapsodysXmlConverterTest {
         var result = (HL7OBXType) privateMethod.invoke(parentClass, model);
         Assertions.assertNull(result.getSetIDOBX().getHL7SequenceID());
         Assertions.assertEquals("CE",result.getValueType());
+    }
+    @Test
+    void buildHL7OBXTypeAll_test_valueTypeDT() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var parentClass = new Hl7ToRhapsodysXmlConverter();
+        ObservationResult model = new ObservationResult();
+        model.setValueType("DT");
+        List<String> listStr = new ArrayList<>();
+        listStr.add("DT");
+        model.setObservationValue(listStr);
+        Method privateMethod = Hl7ToRhapsodysXmlConverter.class.getDeclaredMethod("buildHL7OBXType", ObservationResult.class);
+        privateMethod.setAccessible(true);
+        var result = (HL7OBXType) privateMethod.invoke(parentClass, model);
+        Assertions.assertNull(result.getSetIDOBX().getHL7SequenceID());
+        Assertions.assertEquals("ST",result.getValueType());
     }
     @Test
     void buildHL7PIV2TypeAllMissingConditional() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
