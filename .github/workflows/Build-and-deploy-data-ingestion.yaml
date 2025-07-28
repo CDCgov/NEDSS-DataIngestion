@@ -10,25 +10,6 @@ on:
       - "hl7-parser/**"
       - "phdc-xsd-jaxb/**"
 jobs:
-
-  #      - name: Read version from build.gradle and extract suffix
-#        id: parse
-#        run: |
-#          version_line=$(grep "^version" ./data-ingestion-service/build.gradle)
-#          version=$(echo "$version_line" | sed -E "s/version *= *['\"]([^'\"]+)['\"]/\1/")
-#          echo "Full version: $version"
-#
-#          # Default value
-#          image_tag="SNAPSHOT"
-#
-#          # Match SNAPSHOT-123
-#          if [[ "$version" =~ SNAPSHOT-([0-9]+) ]]; then
-#            image_tag="SNAPSHOT-${BASH_REMATCH[1]}"
-#          elif [[ "$version" =~ SNAPSHOT ]]; then
-#            image_tag="SNAPSHOT"
-#          fi
-#
-#          echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
   sonar_scan:
     permissions:
       id-token: write
@@ -50,7 +31,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Read version from build.gradle and extract suffix
         id: parse
         run: |
@@ -58,8 +38,15 @@ jobs:
           version=$(echo "$version_line" | sed -E "s/version *= *['\"]([^'\"]+)['\"]/\1/")
           echo "Full version: $version"
 
-          # Sanitize version for Docker tag compatibility (optional: replace + or other symbols)
-          image_tag="${version//+/_}"
+          # Default value
+          image_tag="SNAPSHOT"
+
+          # Match SNAPSHOT-123
+          if [[ "$version" =~ SNAPSHOT-([0-9]+) ]]; then
+            image_tag="SNAPSHOT-${BASH_REMATCH[1]}"
+          elif [[ "$version" =~ SNAPSHOT ]]; then
+            image_tag="SNAPSHOT"
+          fi
 
           echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
           echo "Final image tag for build: $image_tag"

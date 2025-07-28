@@ -9,8 +9,20 @@ on:
       - "data-processing-service/**"
       - "cdaschema/**"
 jobs:
+  sonar_scan:
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/sonar.yaml
+    secrets:
+      CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
+      PASSED_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+      DATABASE_USER: ${{secrets.DATABASE_USER}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
   extract-version-suffix:
     name: Extract image tag from version
+    needs: sonar_scan
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.parse.outputs.image_tag }}
@@ -36,30 +48,17 @@ jobs:
           fi
 
           echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
-  sonar_scan:
-    needs: extract-version-suffix
-    permissions:
-      id-token: write
-      contents: read
-    uses: ./.github/workflows/sonar.yaml
-    secrets:
-      CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
-      PASSED_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-      DATABASE_USER: ${{secrets.DATABASE_USER}}
-      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
   call-build-microservice-container-workflow:
     permissions:
       id-token: write
       contents: read
       security-events: write
     name: Build Container
-    needs: sonar_scan
+    needs: extract-version-suffix
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
     with:
       microservice_name: data-processing-service
       dockerfile_relative_path: -f ./data-processing-service/Dockerfile .
-#      environment_classifier: SNAPSHOT
       environment_classifier: ${{ needs.extract-version-suffix.outputs.image_tag }}
       java_version: "21"
     secrets:
