@@ -5,15 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -33,6 +33,9 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.merge.MergeGroupHandler;
 import gov.cdc.nbs.deduplication.merge.PdfBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 class MergeGroupHandlerTest {
@@ -41,7 +44,7 @@ class MergeGroupHandlerTest {
   private NamedParameterJdbcTemplate deduplicationTemplate;
 
   @Mock
-  private JdbcTemplate template;
+  private JdbcTemplate templaate;
 
   @Mock
   private PatientRecordService patientRecordService;
@@ -54,6 +57,7 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUnMergeAll() {
+    mockSecurityContext();
     mergeGroupHandler.removeAll(100L);
 
     verify(deduplicationTemplate, times(1)).update(
@@ -63,6 +67,7 @@ class MergeGroupHandlerTest {
 
   @Test
   void testUnMergeSinglePerson() {
+    mockSecurityContext();
     mergeGroupHandler.removePerson(100L, 111l);
     verify(deduplicationTemplate, times(1)).update(
         eq(QueryConstants.UN_MERGE_SINGLE_PERSON),
@@ -158,6 +163,19 @@ class MergeGroupHandlerTest {
     PersonMergeData firstResult = result.getFirst();
     assertEquals("2023-01-01", firstResult.adminComments().date());
     assertEquals("test comment", firstResult.adminComments().comment());
+  }
+
+  private void mockSecurityContext() {
+    NbsUserDetails mockUserDetails = mock(NbsUserDetails.class);
+    when(mockUserDetails.getId()).thenReturn(100L);
+
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn(mockUserDetails);
+
+    SecurityContext securityContext = mock(SecurityContext.class);
+    when(securityContext.getAuthentication()).thenReturn(authentication);
+
+    SecurityContextHolder.setContext(securityContext);
   }
 
 }
