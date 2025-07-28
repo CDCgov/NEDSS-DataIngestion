@@ -24,7 +24,7 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 group = 'gov.cdc.dataingestion'
-version = '2.0.3-SNAPSHOT'
+version = '2.0.4-SNAPSHOT'
 
 springBoot {
 	buildInfo()

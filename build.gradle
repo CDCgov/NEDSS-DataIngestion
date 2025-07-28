@@ -17,7 +17,7 @@ plugins {
 
 apply plugin: 'org.owasp.dependencycheck'
 
-version = '2.0.3-SNAPSHOT'  // The plugin will assign the root project version to all its subprojects.
+version = '2.0.4-SNAPSHOT'  // The plugin will assign the root project version to all its subprojects.
 apply plugin: "com.dipien.semantic-version"
 subprojects {
 
