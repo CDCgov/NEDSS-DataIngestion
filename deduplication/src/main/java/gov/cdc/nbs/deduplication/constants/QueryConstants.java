@@ -450,10 +450,13 @@ public class QueryConstants {
 
   public static final String UN_MERGE_ALL_GROUP = """
           UPDATE mc
-          SET is_merge = 0
+          SET is_merge = 0,
+              last_chg_time = GETDATE(),
+              last_chg_user_id = :userId
           FROM match_candidates mc
           WHERE mc.match_id = :matchId
       """;
+
 
   public static final String SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS = """
           UPDATE mc
@@ -583,7 +586,7 @@ public class QueryConstants {
                   AND part.subject_class_cd = 'PSN'
                   AND part.act_class_cd = 'CASE'
                   AND inv.program_jurisdiction_oid IN (:programJurisdictionOids)
-                  ORDER BY inv.activity_from_time DESC
+                  ORDER BY 'condition' ASC, inv.activity_from_time DESC
               FOR JSON
                   PATH,
                   INCLUDE_NULL_VALUES
@@ -1016,11 +1019,13 @@ public class QueryConstants {
       """;
 
   public static final String UN_MERGE_SINGLE_PERSON = """
-      UPDATE mc
-      SET is_merge = 0
-      FROM match_candidates mc
-      WHERE mc.match_id = :matchId
-      AND mc.person_uid = :potentialMatchPersonUid
+          UPDATE mc
+          SET is_merge = 0,
+              last_chg_time = GETDATE(),
+              last_chg_user_id = :userId
+          FROM match_candidates mc
+          WHERE mc.match_id = :matchId
+            AND mc.person_uid = :potentialMatchPersonUid
       """;
 
   public static final String MPI_PATIENT_EXISTS_CHECK = """

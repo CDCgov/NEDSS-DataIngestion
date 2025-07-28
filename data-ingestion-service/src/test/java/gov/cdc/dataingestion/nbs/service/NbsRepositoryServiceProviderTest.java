@@ -210,29 +210,7 @@ class NbsRepositoryServiceProviderTest {
         var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
-    @Test
-    void saveToNbsTestWithFractionOfSecondFiveThrowsException()  {
-        String id = "whatever";
-        String xmlMsg =  testXmlData;
-        HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
-        OruR1 oru = new OruR1();
-        oru.getMessageHeader().getSendingFacility().setUniversalId("1");
-        oru.getPatientResult().add(new PatientResult());
-        oru.getPatientResult().get(0).getOrderObservation().add(new OrderObservation());
-        oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().setEntityIdentifier("test");
-        oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getUniversalServiceIdentifier().setIdentifier("test");
-        oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().add(new Specimen());
-        oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().setTime("19800107000000.60888-0606");
-        parsedMessage.setParsedMessage(oru);
-        when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
-
-        Assertions.assertThrows(
-                XmlConversionException.class, () -> {
-                    target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
-                }
-        );
-    }
     @SuppressWarnings({"java:S5976"})
     @Test
     void saveToNbsTestDateHour() throws XmlConversionException {
@@ -295,7 +273,46 @@ class NbsRepositoryServiceProviderTest {
         var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
         Assertions.assertTrue(saved instanceof NbsInterfaceModel);
     }
+    @SuppressWarnings({"java:S5976"})
+    @Test
+    void saveToNbsTestWithSpecific_with_wrong_TimeZone1() throws XmlConversionException {
+        String id = "whatever";
+        String xmlMsg =  testXmlData;
+        HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
+        OruR1 oru = new OruR1();
+        oru.getMessageHeader().getSendingFacility().setUniversalId("1");
+        oru.getPatientResult().add(new PatientResult());
+        oru.getPatientResult().get(0).getOrderObservation().add(new OrderObservation());
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().setEntityIdentifier("test");
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getUniversalServiceIdentifier().setIdentifier("test");
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().add(new Specimen());
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().setTime("20210101000000-00000");
+        parsedMessage.setParsedMessage(oru);
+        when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
 
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
+        Assertions.assertTrue(saved instanceof NbsInterfaceModel);
+    }
+    @SuppressWarnings({"java:S5976"})
+    @Test
+    void saveToNbsTestWithSpecific_with_wrong_TimeZone2() throws XmlConversionException {
+        String id = "whatever";
+        String xmlMsg =  testXmlData;
+        HL7ParsedMessage parsedMessage = new HL7ParsedMessage();
+        OruR1 oru = new OruR1();
+        oru.getMessageHeader().getSendingFacility().setUniversalId("1");
+        oru.getPatientResult().add(new PatientResult());
+        oru.getPatientResult().get(0).getOrderObservation().add(new OrderObservation());
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getFillerOrderNumber().setEntityIdentifier("test");
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getObservationRequest().getUniversalServiceIdentifier().setIdentifier("test");
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().add(new Specimen());
+        oru.getPatientResult().get(0).getOrderObservation().get(0).getSpecimen().get(0).getSpecimen().getSpecimenCollectionDateTime().getRangeStartDateTime().setTime("20210101000000-000");
+        parsedMessage.setParsedMessage(oru);
+        when(nbsInterfaceRepo.save(any(NbsInterfaceModel.class))).thenReturn(new NbsInterfaceModel());
+
+        var saved = target.saveXmlMessage(id, xmlMsg, parsedMessage, false);
+        Assertions.assertTrue(saved instanceof NbsInterfaceModel);
+    }
     @Test
     void saveToNbsTestUniversalMsgNull() throws XmlConversionException {
         String id = "whatever";

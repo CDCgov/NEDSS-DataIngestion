@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +24,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,13 +72,13 @@ class PersonEthnicityMergeHandlerTest {
         List.of("2148-5", "2184-0"));
 
     // Current user
-    mockCurrentUser(99L);
+    SecurityTestUtil.mockSecurityContext();
 
     // Insert
-    mockInsert("2184-0", "123", 99l, "321");
+    mockInsert("2184-0", "123", 100L, "321");
 
     // Set inactive
-    mockSetInactive("2155-0", "123", 99L);
+    mockSetInactive("2155-0", "123", 100L);
 
     mockFetchOldRows("123", "2155-0", "2155-0");
 
@@ -135,15 +132,6 @@ class PersonEthnicityMergeHandlerTest {
     when(sourceQuery.list()).thenReturn(sourceSpanishOrigins);
   }
 
-  private void mockCurrentUser(long userId) {
-    NbsUserDetails user = Mockito.mock(NbsUserDetails.class);
-    when(user.getId()).thenReturn(userId);
-
-    Authentication auth = Mockito.mock(Authentication.class);
-    when(auth.getPrincipal()).thenReturn(user);
-
-    SecurityContextHolder.getContext().setAuthentication(auth);
-  }
 
   private void mockInsert(String expectedEthnicity, String personId, long userId, String sourceId) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
