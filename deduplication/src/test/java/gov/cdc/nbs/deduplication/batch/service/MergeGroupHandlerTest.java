@@ -44,7 +44,7 @@ class MergeGroupHandlerTest {
   private NamedParameterJdbcTemplate deduplicationTemplate;
 
   @Mock
-  private JdbcTemplate templaate;
+  private JdbcTemplate template;
 
   @Mock
   private PatientRecordService patientRecordService;
