@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +23,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.handler.PersonRacesMergeHandler.RaceEntry;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
@@ -46,14 +43,14 @@ class PersonRacesMergeHandlerTest {
   @Test
   void should_merge_race() {
     // Mock
-    mockCurrentUser(99L);
+    SecurityTestUtil.mockSecurityContext();
     PatientMergeRequest request = Mockito.mock(PatientMergeRequest.class);
     when(request.survivingRecord()).thenReturn("1");
     when(request.races()).thenReturn(List.of(
         new RaceId("1", "A"),
         new RaceId("2", "B")));
 
-    mockSetInactive(99L, "1");
+    mockSetInactive(100L, "1");
     mockSelectRaceEntries();
     mockEntryExists();
     mockInsert();
@@ -141,15 +138,6 @@ class PersonRacesMergeHandlerTest {
     when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, survivorId)).thenReturn(statementSpec);
   }
 
-  private void mockCurrentUser(long userId) {
-    NbsUserDetails user = Mockito.mock(NbsUserDetails.class);
-    when(user.getId()).thenReturn(userId);
-
-    Authentication auth = Mockito.mock(Authentication.class);
-    when(auth.getPrincipal()).thenReturn(user);
-
-    SecurityContextHolder.getContext().setAuthentication(auth);
-  }
 
   private void mockFetchOldRows(String personId, String raceCategoryCd, String raceCd, String recordStatusCd) {
     List<Map<String, Object>> oldRows = List.of(
