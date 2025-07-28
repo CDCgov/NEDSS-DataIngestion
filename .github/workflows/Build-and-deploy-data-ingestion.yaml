@@ -10,28 +10,6 @@ on:
       - "hl7-parser/**"
       - "phdc-xsd-jaxb/**"
 jobs:
-  extract-version-suffix:
-    name: Extract image tag from version
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.parse.outputs.image_tag }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Read version from build.gradle and extract suffix
-        id: parse
-        run: |
-          version_line=$(grep "^version" ./data-ingestion-service/build.gradle)
-          version=$(echo "$version_line" | sed -E "s/version *= *['\"]([^'\"]+)['\"]/\1/")
-          echo "Full version: $version"
-
-          # Sanitize version for Docker tag compatibility (optional: replace + or other symbols)
-          image_tag="${version//+/_}"
-
-          echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
-          echo "Final image tag for build: $image_tag"
-  
 
   #      - name: Read version from build.gradle and extract suffix
 #        id: parse
@@ -52,7 +30,6 @@ jobs:
 #
 #          echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
   sonar_scan:
-    needs: extract-version-suffix
     permissions:
       id-token: write
       contents: read
@@ -63,13 +40,37 @@ jobs:
       SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
       DATABASE_USER: ${{secrets.DATABASE_USER}}
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+
+  extract-version-suffix:
+    needs: sonar_scan
+    name: Extract image tag from version
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.parse.outputs.image_tag }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Read version from build.gradle and extract suffix
+        id: parse
+        run: |
+          version_line=$(grep "^version" ./data-ingestion-service/build.gradle)
+          version=$(echo "$version_line" | sed -E "s/version *= *['\"]([^'\"]+)['\"]/\1/")
+          echo "Full version: $version"
+
+          # Sanitize version for Docker tag compatibility (optional: replace + or other symbols)
+          image_tag="${version//+/_}"
+
+          echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
+          echo "Final image tag for build: $image_tag"
+
   call-build-microservice-container-workflow:
     permissions:
       id-token: write
       contents: read
       security-events: write
     name: Build Container
-    needs: sonar_scan
+    needs: extract-version-suffix
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
     with:
       microservice_name: data-ingestion-service
