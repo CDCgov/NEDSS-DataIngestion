@@ -84,7 +84,7 @@ class PersonRacesMergeHandlerTest {
     when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.RACE, "B")).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "X")).thenReturn(statementSpec);
-    when(statementSpec.param(PersonRacesMergeHandler.USER_ID, 99L)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.USER_ID, 100L)).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.SOURCE_ID, "2")).thenReturn(statementSpec);
   }
 
