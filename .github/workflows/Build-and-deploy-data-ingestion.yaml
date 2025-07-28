@@ -49,21 +49,13 @@ jobs:
       SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
       DATABASE_USER: ${{secrets.DATABASE_USER}}
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-  debug-output:
-    name: Debug extracted image tag
-    runs-on: ubuntu-latest
-    needs: sonar_scan
-    steps:
-      - name: Echo image tag
-        run:
-          echo "Extracted image_tag is: ${{ needs.extract-version-suffix.outputs.image_tag }}"
   call-build-microservice-container-workflow:
     permissions:
       id-token: write
       contents: read
       security-events: write
     name: Build Container
-    needs: debug-output
+    needs: sonar_scan
     uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
     with:
       microservice_name: data-ingestion-service
