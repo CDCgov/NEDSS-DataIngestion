@@ -24,7 +24,7 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 group = 'gov.cdc.dataprocessing'
-version = '7.11.0-SNAPSHOT-0001'
+version = '7.11.0-SNAPSHOT-0002'
 
 springBoot {
     buildInfo()
