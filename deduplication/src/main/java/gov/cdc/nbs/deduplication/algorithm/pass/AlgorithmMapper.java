@@ -22,9 +22,11 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
 
 public class AlgorithmMapper {
   private final String algorithmName;
+  private final boolean includeMultipleMatches;
 
-  public AlgorithmMapper(String algorithmName) {
+  public AlgorithmMapper(String algorithmName, boolean includeMultipleMatches) {
     this.algorithmName = algorithmName;
+    this.includeMultipleMatches = includeMultipleMatches;
   }
 
   // Converts NBS Algorithm to DIBBs algorithm format
@@ -51,7 +53,7 @@ public class AlgorithmMapper {
         .toList();
 
     return new AlgorithmContext(
-        true,
+        includeMultipleMatches,
         logOdds,
         new Advanced(
             SimilarityMeasure.JAROWINKLER,

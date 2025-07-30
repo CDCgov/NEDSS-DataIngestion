@@ -56,19 +56,19 @@ class PassServiceTest {
     @InjectMocks
     private PassService service;
 
-    private AlgorithmMapper algorithmMapper = new AlgorithmMapper("nbs");
+    private AlgorithmMapper algorithmMapper = new AlgorithmMapper("nbs",false);
 
     private final Pass pass = new Pass(
-            1l,
-            "pass 1",
-            "description 1",
-            true,
-            List.of(BlockingAttribute.ADDRESS),
-            List.of(
-                    new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.7),
-                    new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.8)),
-            0.52,
-            0.92);
+        1l,
+        "pass 1",
+        "description 1",
+        true,
+        List.of(BlockingAttribute.ADDRESS),
+        List.of(
+            new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.7),
+            new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.8)),
+        0.52,
+        0.92);
 
     private final Algorithm algorithm = new Algorithm(Stream.of(pass).collect(Collectors.toCollection(ArrayList::new)));
 
@@ -77,9 +77,9 @@ class PassServiceTest {
         when(template.getJdbcTemplate()).thenReturn(mockTemplate);
 
         when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
+            PassService.SELECT_CURRENT_CONFIG,
+            String.class))
+            .thenReturn(List.of("response"));
 
         when(mapper.readValue("response", Algorithm.class)).thenReturn(returnedAlgorithm);
     }
@@ -99,9 +99,9 @@ class PassServiceTest {
         when(template.getJdbcTemplate()).thenReturn(mockTemplate);
 
         when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of());
+            PassService.SELECT_CURRENT_CONFIG,
+            String.class))
+            .thenReturn(List.of());
 
         Algorithm actual = service.getCurrentAlgorithm();
 
@@ -114,9 +114,9 @@ class PassServiceTest {
         when(template.getJdbcTemplate()).thenReturn(mockTemplate);
 
         when(mockTemplate.queryForList(
-                PassService.SELECT_CURRENT_CONFIG,
-                String.class))
-                .thenReturn(List.of("response"));
+            PassService.SELECT_CURRENT_CONFIG,
+            String.class))
+            .thenReturn(List.of("response"));
 
         when(mapper.readValue("response", Algorithm.class)).thenThrow(JsonProcessingException.class);
 
@@ -136,16 +136,16 @@ class PassServiceTest {
         when(template.update(eq(PassService.INSERT_CONFIG), captor.capture())).thenReturn(1);
 
         Algorithm actual = service.save(new Pass(
-                null,
-                "pass 2",
-                "description 2",
-                true,
-                List.of(BlockingAttribute.SEX),
-                List.of(
-                        new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.77),
-                        new MatchingAttributeEntry(MatchingAttribute.BIRTHDATE, MatchingMethod.EXACT, 0.9)),
-                0.52,
-                0.92));
+            null,
+            "pass 2",
+            "description 2",
+            true,
+            List.of(BlockingAttribute.SEX),
+            List.of(
+                new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.77),
+                new MatchingAttributeEntry(MatchingAttribute.BIRTHDATE, MatchingMethod.EXACT, 0.9)),
+            0.52,
+            0.92));
 
         assertThat(actual).isEqualTo(algorithm);
         verify(dibbsService, times(1)).save(algorithmMapper.map(actual, TestData.DATA_ELEMENTS));
@@ -203,16 +203,16 @@ class PassServiceTest {
         when(template.update(eq(PassService.INSERT_CONFIG), captor.capture())).thenReturn(1);
 
         Pass updatedPass = new Pass(
-                4l,
-                "updated name",
-                "updated description",
-                false,
-                List.of(BlockingAttribute.BIRTHDATE),
-                List.of(
-                        new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.8),
-                        new MatchingAttributeEntry(MatchingAttribute.PHONE, MatchingMethod.EXACT, 1.0)),
-                0.52,
-                0.92);
+            4l,
+            "updated name",
+            "updated description",
+            false,
+            List.of(BlockingAttribute.BIRTHDATE),
+            List.of(
+                new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.8),
+                new MatchingAttributeEntry(MatchingAttribute.PHONE, MatchingMethod.EXACT, 1.0)),
+            0.52,
+            0.92);
         Algorithm actual = service.update(1l, updatedPass);
 
         verify(dibbsService, times(1)).save(algorithmMapper.map(actual, TestData.DATA_ELEMENTS));
@@ -226,8 +226,8 @@ class PassServiceTest {
         mockCurrentConfig(algorithm);
 
         PassModificationException ex = assertThrows(
-                PassModificationException.class,
-                () -> service.update(2l, null));
+            PassModificationException.class,
+            () -> service.update(2l, null));
         assertThat(ex.getMessage()).isEqualTo("Failed to find pass with Id: 2");
     }
 
@@ -252,29 +252,29 @@ class PassServiceTest {
     void delete_pass_two_passes() throws JsonProcessingException {
         List<Pass> passes = new ArrayList<>();
         passes.add(
-                new Pass(
-                        1l,
-                        "pass 1",
-                        "description 1",
-                        true,
-                        List.of(BlockingAttribute.ADDRESS),
-                        List.of(
-                                new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.45),
-                                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER,
-                                        0.32)),
-                        0.52,
-                        0.92));
+            new Pass(
+                1l,
+                "pass 1",
+                "description 1",
+                true,
+                List.of(BlockingAttribute.ADDRESS),
+                List.of(
+                    new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 0.45),
+                    new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER,
+                        0.32)),
+                0.52,
+                0.92));
         passes.add(
-                new Pass(
-                        2l,
-                        "pass 2",
-                        "description 2",
-                        true,
-                        List.of(BlockingAttribute.BIRTHDATE),
-                        List.of(
-                                new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.88)),
-                        0.52,
-                        0.92));
+            new Pass(
+                2l,
+                "pass 2",
+                "description 2",
+                true,
+                List.of(BlockingAttribute.BIRTHDATE),
+                List.of(
+                    new MatchingAttributeEntry(MatchingAttribute.ADDRESS, MatchingMethod.EXACT, 0.88)),
+                0.52,
+                0.92));
         Algorithm algorithmWithTwoPasses = new Algorithm(passes);
         mockCurrentConfig(algorithmWithTwoPasses);
 
@@ -298,8 +298,8 @@ class PassServiceTest {
         mockCurrentConfig(algorithm);
 
         PassModificationException ex = assertThrows(
-                PassModificationException.class,
-                () -> service.delete(2l));
+            PassModificationException.class,
+            () -> service.delete(2l));
         assertThat(ex.getMessage()).isEqualTo("Failed to find pass with Id: 2");
     }
 
@@ -311,9 +311,9 @@ class PassServiceTest {
         service.saveDibbsAlgorithm();
 
         verify(
-                dibbsService,
-                times(1))
-                .save(algorithmMapper.map(algorithm, TestData.DATA_ELEMENTS));
+            dibbsService,
+            times(1))
+            .save(algorithmMapper.map(algorithm, TestData.DATA_ELEMENTS));
     }
 
     @Test

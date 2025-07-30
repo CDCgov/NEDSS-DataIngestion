@@ -66,6 +66,7 @@ deduplication:
   algorithm:
     # should data elements and algorithm updates be pushed to Record Linker API
     updateRecordLinker: ${ALGORITHM_UPDATE_RL:false}
+    allowMultipleMatches: false
   sync:
     enabled: ${SYNC_ENABLED:false}
   batch:

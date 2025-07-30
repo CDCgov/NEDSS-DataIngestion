@@ -27,7 +27,7 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
 
 class AlgorithmMapperTest {
 
-  private final AlgorithmMapper mapper = new AlgorithmMapper("nbs");
+  private final AlgorithmMapper mapper = new AlgorithmMapper("nbs",false);
 
   @Test
   void should_set_name() {
@@ -50,7 +50,7 @@ class AlgorithmMapperTest {
   @Test
   void should_set_multiple_matches() {
     DibbsAlgorithm actual = mapper.map(new Algorithm(new ArrayList<>()), TestData.DATA_ELEMENTS);
-    assertThat(actual.algorithmContext().includeMultipleMatches()).isTrue();
+    assertThat(actual.algorithmContext().includeMultipleMatches()).isFalse();
   }
 
   @Test
