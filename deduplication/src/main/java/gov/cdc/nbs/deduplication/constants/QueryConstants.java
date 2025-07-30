@@ -457,7 +457,6 @@ public class QueryConstants {
           WHERE mc.match_id = :matchId
       """;
 
-
   public static final String SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS = """
           UPDATE mc
           SET is_merge = 0
@@ -698,7 +697,7 @@ public class QueryConstants {
                               WITH
                                   (NOLOCK) ON rc.code = race_cd
                                   AND rc.code_set_nm = 'P_RACE'
-                                  LEFT JOIN NBS_SRTE.dbo.code_value_general raceCode
+                                  JOIN NBS_SRTE.dbo.code_value_general raceCode
                               WITH
                                   (NOLOCK) ON raceCode.code = race_category_cd
                                   AND raceCode.code_set_nm = 'RACE_CALCULATED'
