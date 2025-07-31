@@ -168,7 +168,7 @@ services:
       - dataingestion
 
   di-record-linker:
-    image: ghcr.io/cdcgov/recordlinker:v25.8.0
+    image: ghcr.io/cdcgov/recordlinker:v25.9.0
     container_name: di-record-linker
     depends_on:
       di-mssql:
