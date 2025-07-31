@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -27,7 +28,11 @@ public class PassService {
   private final DataElementsService dataElementsService;
   private final DibbsService dibbsService;
   private final ObjectMapper mapper;
-  private final AlgorithmMapper algorithmMapper = new AlgorithmMapper("nbs");
+
+  @Value("${deduplication.algorithm.allowMultipleMatches:false}")
+  private boolean allowMultipleMatches;
+
+  private final AlgorithmMapper algorithmMapper = new AlgorithmMapper("nbs",allowMultipleMatches);
 
   public PassService(
       @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
