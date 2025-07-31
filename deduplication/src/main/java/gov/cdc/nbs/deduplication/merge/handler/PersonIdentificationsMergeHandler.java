@@ -1,5 +1,4 @@
 
-
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import java.util.ArrayList;
@@ -141,19 +140,15 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
     Map<String, List<Integer>> supersededIdentifications = new HashMap<>();
 
     categorizeIdentifications(
-        survivorId, identifications, survivingIdentificationsSequences, supersededIdentifications
-    );
+        survivorId, identifications, survivingIdentificationsSequences, supersededIdentifications);
 
     List<AuditUpdateAction> updateActions = markUnselectedIdentificationsInactive(
-        survivorId, survivingIdentificationsSequences
-    );
+        survivorId, survivingIdentificationsSequences);
     List<AuditInsertAction> insertActions = updateSupersededIdentifications(
-        survivorId, supersededIdentifications
-    );
+        survivorId, supersededIdentifications);
 
     audit.getRelatedTableAudits().add(
-        new RelatedTableAudit("Entity_id", updateActions, insertActions)
-    );
+        new RelatedTableAudit("Entity_id", updateActions, insertActions));
   }
 
   private void categorizeIdentifications(String survivorId, List<PatientMergeRequest.IdentificationId> identifications,
@@ -182,13 +177,11 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
 
     if (selectedSequences.isEmpty()) {
       rowsToUpdate = nbsTemplate.queryForList(
-          FIND_ALL_IDENTIFICATIONS_FOR_AUDIT, params
-      );
+          FIND_ALL_IDENTIFICATIONS_FOR_AUDIT, params);
     } else {
       params.put("sequences", selectedSequences);
       rowsToUpdate = nbsTemplate.queryForList(
-          FIND_UNSELECTED_IDENTIFICATIONS_FOR_AUDIT, params
-      );
+          FIND_UNSELECTED_IDENTIFICATIONS_FOR_AUDIT, params);
     }
 
     List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
@@ -199,17 +192,19 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
 
   private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rows) {
     return rows.stream()
-        .map(row -> new AuditUpdateAction(
-            Map.of("entity_uid", row.get("entity_uid"), "entity_id_seq", row.get("entity_id_seq")),//NOSONAR
-            Map.of("record_status_cd", row.get("record_status_cd"))
-        ))
+        .map(row -> {
+          Map<String, Object> values = new HashMap<>();
+          values.put("record_status_cd", row.get("record_status_cd"));
+
+          return new AuditUpdateAction(
+              Map.of("entity_uid", row.get("entity_uid"), "entity_id_seq", row.get("entity_id_seq")), // NOSONAR
+              values);
+        })
         .toList();
   }
 
-
   private List<AuditInsertAction> updateSupersededIdentifications(
-      String survivorId, Map<String, List<Integer>> supersededIdentifications
-  ) {
+      String survivorId, Map<String, List<Integer>> supersededIdentifications) {
     List<AuditInsertAction> insertActions = new ArrayList<>();
 
     for (Map.Entry<String, List<Integer>> entry : supersededIdentifications.entrySet()) {
@@ -232,8 +227,7 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
 
       Map<String, Object> params = Map.of(
           "supersededUid", supersededUid,
-          "seq", oldSeq
-      );
+          "seq", oldSeq);
 
       List<Map<String, Object>> rowsToInsert = nbsTemplate.queryForList(
           FIND_SUPERSEDED_IDENTIFICATIONS_FOR_AUDIT, params);
@@ -261,8 +255,7 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
   private AuditInsertAction buildAuditInsertAction(String survivingId, int newSeq) {
     return new AuditInsertAction(Map.of(
         "entity_uid", survivingId,
-        "entity_id_seq", newSeq
-    ));
+        "entity_id_seq", newSeq));
   }
 
   private int getMaxSequenceForPerson(String personUid) {
@@ -271,12 +264,3 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
     return maxSequence == null ? 0 : maxSequence;
   }
 }
-
-
-
-
-
-
-
-
-
