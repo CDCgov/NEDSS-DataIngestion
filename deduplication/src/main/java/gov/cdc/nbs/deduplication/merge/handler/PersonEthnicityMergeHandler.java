@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,6 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   static final String USER_ID = "userId";
   static final String PERSON_UID = "person_uid";
   static final String ETHNIC_GROUP_CD = "ethnic_group_cd";
-
 
   static final String UPDATE_PERSON_ETHNIC_GROUP = """
       UPDATE person
@@ -178,9 +178,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
       insertActions.add(new AuditInsertAction(
           Map.of(
               PERSON_UID, personId,
-              ETHNIC_GROUP_CD, origin
-          )
-      ));
+              ETHNIC_GROUP_CD, origin)));
     }
 
     if (!insertActions.isEmpty()) {
@@ -208,13 +206,16 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
 
   private void addUpdateAudit(List<Map<String, Object>> oldRows) {
     List<AuditUpdateAction> updateActions = oldRows.stream()
-        .map(row -> new AuditUpdateAction(
-            Map.of(
-                PERSON_UID, row.get(PERSON_UID),
-                ETHNIC_GROUP_CD, row.get(ETHNIC_GROUP_CD)
-            ),
-            Map.of("record_status_cd", row.get("record_status_cd"))
-        ))
+        .map(row -> {
+          Map<String, Object> values = new HashMap<>();
+          values.put("record_status_cd", row.get("record_status_cd"));
+
+          return new AuditUpdateAction(
+              Map.of(
+                  PERSON_UID, row.get(PERSON_UID),
+                  ETHNIC_GROUP_CD, row.get(ETHNIC_GROUP_CD)),
+              values);
+        })
         .toList();
 
     audit.getRelatedTableAudits()
@@ -229,4 +230,3 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   }
 
 }
-
