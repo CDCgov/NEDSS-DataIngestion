@@ -38,7 +38,8 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/api/auth/token",
             "/actuator/health",
-            "/actuator/info"
+            "/actuator/info",
+            "/prometheus"
     };
 
     private static final String[] AUTH_WHITELIST_PROD = {
