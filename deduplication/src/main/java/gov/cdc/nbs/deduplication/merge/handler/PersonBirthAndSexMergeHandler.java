@@ -396,8 +396,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
 
     // Create Postal_locator
     MapSqlParameterSource locatorParams = new MapSqlParameterSource();
-    params.addValue("locatorId", locatorId);
-    params.addValue("userId", currentUser.getId());
+    locatorParams.addValue("locatorId", locatorId);
+    locatorParams.addValue("userId", currentUser.getId());
 
     nbsTemplate.update(INSERT_POSTAL_LOCATOR, locatorParams);
 
