@@ -45,7 +45,7 @@ CREATE TABLE merge_group_entries (
 	is_merge BIT NULL,
 	last_chg_time DATETIME NULL,
 	last_chg_user_id BIGINT NULL,
-	FOREIGN KEY (group_id) REFERENCES merge_group(id)
+	FOREIGN KEY (merge_group) REFERENCES merge_group(id)
 );
 GO
 
