@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +30,6 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
   static final String PERSON_UID = "person_uid";
   static final String RACE_CD = "race_cd";
   static final String RACE_CATEGORY_CD = "race_category_cd";
-
-
 
   static final String SET_RACE_ENTRIES_TO_INACTIVE = """
       UPDATE person_race
@@ -191,7 +190,6 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
             buildAuditUpdateActions(oldRows), List.of()));
   }
 
-
   private List<RaceEntry> selectRaceEntries(RaceId raceId) {
     return client.sql(SELECT_RACE_ENTRIES)
         .param(PERSON_ID, raceId.personUid())
@@ -235,18 +233,19 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
 
   private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rows) {
     return rows.stream()
-        .map(row -> new AuditUpdateAction(
-            Map.of(
-                PERSON_UID, row.get(PERSON_UID),
-                RACE_CATEGORY_CD, row.get(RACE_CATEGORY_CD),
-                RACE_CD, row.get(RACE_CD)
-            ),
-            Map.of("record_status_cd", row.get("record_status_cd"))
-        ))
+        .map(row -> {
+          Map<String, Object> values = new HashMap<>();
+          values.put("record_status_cd", row.get("record_status_cd"));
+
+          return new AuditUpdateAction(
+              Map.of(
+                  PERSON_UID, row.get(PERSON_UID),
+                  RACE_CATEGORY_CD, row.get(RACE_CATEGORY_CD),
+                  RACE_CD, row.get(RACE_CD)),
+              values);
+        })
         .toList();
   }
-
-
 
   private void inserNewRaceEntry(String survivorId, String sourceId, RaceEntry raceEntry) {
     NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -269,11 +268,7 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
                 Map.of(
                     PERSON_UID, survivorId,
                     RACE_CATEGORY_CD, raceEntry.race(),
-                    RACE_CD, raceEntry.detailedRace()
-                )
-            ))
-        ));
+                    RACE_CD, raceEntry.detailedRace())))));
   }
-
 
 }

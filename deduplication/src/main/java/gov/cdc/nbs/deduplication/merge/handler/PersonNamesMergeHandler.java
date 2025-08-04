@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Component
 @Order(3)
 public class PersonNamesMergeHandler implements SectionMergeHandler {
@@ -147,11 +146,10 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     String query = selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE
         : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
     Map<String, Object> params = new HashMap<>();
-    params.put("personUid", survivorId);//NOSONAR
+    params.put("personUid", survivorId);// NOSONAR
     if (!selectedSequences.isEmpty()) {
       params.put("sequences", selectedSequences);
     }
-
 
     List<Map<String, Object>> rowsToUpdate = fetchRowsForInactivation(survivorId, selectedSequences);
     List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
@@ -164,22 +162,24 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     if (selectedSequences.isEmpty()) {
       return nbsTemplate.queryForList(
           FIND_PERSON_NAMES_FOR_INACTIVATION,
-          Collections.singletonMap("personUid", survivorId)
-      );
+          Collections.singletonMap("personUid", survivorId));
     }
 
     return nbsTemplate.queryForList(
         FIND_EXCLUDED_PERSON_NAMES_FOR_INACTIVATION,
-        Map.of("personUid", survivorId, "sequences", selectedSequences)
-    );
+        Map.of("personUid", survivorId, "sequences", selectedSequences));
   }
 
   private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rowsToUpdate) {
     return rowsToUpdate.stream()
-        .map(row -> new AuditUpdateAction(
-            Map.of("person_uid", row.get("person_uid"), "person_name_seq", row.get("person_name_seq")),//NOSONAR
-            Map.of("record_status_cd", row.get("record_status_cd"))
-        ))
+        .map(row -> {
+          Map<String, Object> values = new HashMap<>();
+          values.put("record_status_cd", row.get("record_status_cd"));
+
+          return new AuditUpdateAction(
+              Map.of("person_uid", row.get("person_uid"), "person_name_seq", row.get("person_name_seq")), // NOSONAR
+              values);
+        })
         .toList();
   }
 
@@ -200,7 +200,6 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
         List<Map<String, Object>> rowsToInsert = nbsTemplate.queryForList(
             FIND_SUPERSEDED_NAMES_FOR_AUDIT, params);
 
-
         if (!rowsToInsert.isEmpty()) {
           insertActions.add(buildAuditInsertAction(survivorId, newSeq));
         }
@@ -211,8 +210,6 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
 
     return insertActions;
   }
-
-
 
   private void copyPersonNameToSurvivor(String survivorId, String supersededUid, Integer oldSeq, int newSeq) {
     Map<String, Object> params = new HashMap<>();
@@ -227,16 +224,14 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
   private AuditInsertAction buildAuditInsertAction(String survivorId, int newSeq) {
     return new AuditInsertAction(Map.of(
         "person_uid", survivorId,
-        "person_name_seq", newSeq
-    ));
+        "person_name_seq", newSeq));
   }
 
   private int getMaxSequenceForPerson(String personUid) {
     Integer maxSequence = nbsTemplate.queryForObject(
         FIND_MAX_SEQUENCE_PERSON_NAME,
         Collections.singletonMap("personUid", personUid),
-        Integer.class
-    );
+        Integer.class);
     return maxSequence == null ? 0 : maxSequence;
   }
 }
