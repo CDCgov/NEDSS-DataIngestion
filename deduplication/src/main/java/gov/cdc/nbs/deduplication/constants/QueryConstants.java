@@ -5,18 +5,6 @@ public class QueryConstants {
   private QueryConstants() {
   }
 
-  public static final String UPDATE_PROCESSED_PERSONS = """
-      UPDATE nbs_mpi_mapping
-      SET status = 'P'
-      WHERE person_uid IN (:personIds)
-      """;
-
-  public static final String UPDATE_PROCESSED_PERSON = """
-      UPDATE nbs_mpi_mapping
-      SET status = 'P'
-      WHERE person_uid = :personId
-      """;
-
   public static final String NBS_MPI_QUERY = """
       INSERT INTO nbs_mpi_mapping
         (person_uid, person_parent_uid, mpi_patient, mpi_person, status,person_add_time)

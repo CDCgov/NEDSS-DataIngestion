@@ -2,127 +2,120 @@ package gov.cdc.nbs.deduplication.batch.step;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @Component
 public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
-  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final JdbcClient jdbcClient;
   private final PatientRecordService patientRecordService;
 
-  public MatchCandidateWriter(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+  public MatchCandidateWriter(
+      @Qualifier("deduplicationJdbcClient") final JdbcClient jdbcClient,
       final PatientRecordService patientRecordService) {
-    this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    this.jdbcClient = jdbcClient;
     this.patientRecordService = patientRecordService;
   }
 
-  static final String INSERT_MATCH_GROUP = """
-          INSERT INTO matches_requiring_review (person_uid, person_local_id, person_name, person_add_time, date_identified)
-          VALUES (:personUid, :personLocalId, :personName, :personAddTime, :identifiedDate)
+  static final String INSERT_MATCH_REQUIRING_REVIEW = """
+      INSERT INTO
+        matches_requiring_review (
+        person_uid,
+        person_local_id,
+        person_name,
+        person_add_time,
+        matched_person_uid,
+        date_identified)
+      VALUES
+        (
+        :personUid,
+        :personLocalId,
+        :personName,
+        :personAddTime,
+        :matchedPersonUid,
+        :identifiedDate
+        );
       """;
 
-  static final String INSERT_MATCH_CANDIDATE = """
-          INSERT INTO match_candidates (match_id, person_uid, is_merge)
-          VALUES (:matchId, :personUid, NULL)
-      """;
-
-  static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
-          SELECT person_uid
+  static final String SELECT_PERSON_UID_BY_MPI_ID = """
+          SELECT TOP 1 person_uid
           FROM nbs_mpi_mapping
-          WHERE mpi_person IN (:mpiIds)
-          AND person_uid=person_parent_uid
+          WHERE mpi_person IN (:mpiId)
+          AND person_uid = person_parent_uid
+      """;
+
+  static final String UPDATE_STATUS_TO_P = """
+      UPDATE nbs_mpi_mapping
+      SET status = 'P'
+      WHERE person_uid IN (:personIds)
       """;
 
   @Override
   public void write(Chunk<? extends MatchCandidate> chunk) {
-    List<String> personIds = new ArrayList<>();
-    List<MatchCandidate> candidatesToInsert = new ArrayList<>();
-    for (MatchCandidate candidate : chunk.getItems()) {
-      personIds.add(candidate.personUid());
-      if (candidate.possibleMatchList() != null) {
-        candidatesToInsert.add(candidate);
-      }
+    List<String> processedPersonIds = chunk.getItems()
+        .stream()
+        .map(this::processMatchCandidate)
+        .toList();
+
+    updateStatus(processedPersonIds);
+  }
+
+  private String processMatchCandidate(MatchCandidate candidate) {
+    // If the candidate has possible matches
+    if (candidate.possibleMatchList() != null && !candidate.possibleMatchList().isEmpty()) {
+      // Get the matched person's uid. Only supports single match
+      String matchedPersonUid = getPersonIdByMpiIds(candidate.possibleMatchList().getFirst());
+
+      // Insert into matches_requiring_review
+      insertMatch(candidate.personUid(), matchedPersonUid);
     }
-    insertMatchCandidates(candidatesToInsert);
-    updateStatus(personIds);
+
+    // return person_uid that was processed so status can be updated
+    return candidate.personUid();
   }
 
-  private void insertMatchCandidates(List<MatchCandidate> candidates) {
-    for (MatchCandidate candidate : candidates) {
-      // Step 1: Insert into matches_requiring_review
-      Long matchId = insertMatchGroup(candidate.personUid());
+  private void insertMatch(String incomingPersonId, String matchedPersonId) {
+    // Get the incoming records name, add time, and local Id
+    PatientNameAndTime patientData = patientRecordService.fetchPersonNameAndAddTime(incomingPersonId);
 
-      // Step 2: Insert each potential match
-      List<String> potentialNbsIds = getPersonIdsByMpiIds(candidate.possibleMatchList());
-      for (String potentialNbsId : potentialNbsIds) {
-        insertMatchCandidate(matchId, Long.valueOf(potentialNbsId));
-      }
-    }
+    // Insert into matches_requiring_review table
+    jdbcClient.sql(INSERT_MATCH_REQUIRING_REVIEW)
+        .param("personUid", incomingPersonId)
+        .param("personLocalId", patientData.personLocalId())
+        .param("personName", patientData.name())
+        .param("personAddTime", patientData.addTime())
+        .param("matchedPersonUid", matchedPersonId)
+        .param("identifiedDate", getCurrentDate())
+        .update();
   }
 
-  private Long insertMatchGroup(String personId) {
-    PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(personId);
-    MapSqlParameterSource groupParams = new MapSqlParameterSource()
-        .addValue("personUid", personId)
-        .addValue("personLocalId", patientNameAndTime.personLocalId())
-        .addValue("personName", patientNameAndTime.name())
-        .addValue("personAddTime", patientNameAndTime.addTime())
-        .addValue("identifiedDate", getCurrentDate());
-
-    KeyHolder keyHolder = new GeneratedKeyHolder();
-
-    namedParameterJdbcTemplate.update(
-        INSERT_MATCH_GROUP,
-        groupParams,
-        keyHolder);
-
-    Number matchGroupId = keyHolder.getKey();
-    return matchGroupId != null ? matchGroupId.longValue() : null;
-  }
-
-  private List<String> getPersonIdsByMpiIds(List<String> mpiIds) {
-    return namedParameterJdbcTemplate.query(
-        PERSON_UIDS_BY_MPI_PATIENT_IDS,
-        new MapSqlParameterSource("mpiIds", mpiIds),
-        (rs, rowNum) -> rs.getString("person_uid"));
-  }
-
-  private void insertMatchCandidate(Long matchId, Long personUid) {
-    MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("matchId", matchId)
-        .addValue("personUid", personUid);
-
-    namedParameterJdbcTemplate.update(INSERT_MATCH_CANDIDATE, params);
+  private String getPersonIdByMpiIds(String mpiId) {
+    return jdbcClient.sql(SELECT_PERSON_UID_BY_MPI_ID)
+        .param("mpiId", mpiId)
+        .query(String.class)
+        .single();
   }
 
   private void updateStatus(List<String> personIds) {
     if (!personIds.isEmpty()) {
-      MapSqlParameterSource parameters = new MapSqlParameterSource();
-      parameters.addValue("personIds", personIds);
-      namedParameterJdbcTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSONS, parameters);
+      jdbcClient.sql(UPDATE_STATUS_TO_P)
+          .param("personIds", personIds)
+          .update();
     }
   }
 
   private String getCurrentDate() {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-  }
-
-  private PatientNameAndTime getPersonNameAndAddTime(String personId) {
-    return patientRecordService.fetchPersonNameAndAddTime(personId);
   }
 
 }

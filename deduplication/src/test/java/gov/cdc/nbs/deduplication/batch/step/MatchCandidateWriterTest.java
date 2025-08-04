@@ -1,35 +1,34 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
-import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.verification.VerificationMode;
 import org.springframework.batch.item.Chunk;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
+import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class MatchCandidateWriterTest {
 
   @Mock
-  private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private JdbcClient jdbcClient;
 
   @Mock
   private PatientRecordService patientRecordService;
@@ -38,88 +37,99 @@ class MatchCandidateWriterTest {
   private MatchCandidateWriter writer;
 
   @Test
-  void writesChunkWithNoPossibleMatches() {
+  void writesChunkWithNullPossibleMatches() {
+    // Mock
+    mockUpdateStatus(List.of("nbsId1"));
+
+    // Act
     List<MatchCandidate> candidates = new ArrayList<>();
     candidates.add(new MatchCandidate("nbsId1", null)); // No possible matches
     var chunk = new Chunk<>(candidates);
 
     writer.write(chunk);
 
-    verifyInsertMatchGroup(never());
-    verifyUpdateProcessedPerson();
+    // Verify
+    verify(jdbcClient, times(0)).sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID);
+    verify(patientRecordService, times(0)).fetchPersonNameAndAddTime("1234");
+    verify(jdbcClient, times(0)).sql(MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW);
+
+    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.UPDATE_STATUS_TO_P);
   }
 
   @Test
-  void writesChunkWithValidPossibleMatches() {
-    String personUid = "123";
-    String possibleMatchUid = "456";
-    MatchCandidate candidate = new MatchCandidate(
-        personUid,
-        List.of(possibleMatchUid));
+  void writesChunkWithNoPossibleMatches() {
+    // Mock
+    mockUpdateStatus(List.of("nbsId1"));
 
-    mockFetchPersonNameAndAddTime();
-    mockGetPersonIdsByMpiIds();
-    mockInsertMatchGroup();
+    // Act
+    List<MatchCandidate> candidates = new ArrayList<>();
+    candidates.add(new MatchCandidate("nbsId1", List.of())); // No possible matches
+    var chunk = new Chunk<>(candidates);
 
-    writer.write(new Chunk<>(List.of(candidate)));
+    writer.write(chunk);
 
-    verifyInsertMatchGroup();
-    verifyGetPersonIdsByMpiIds();
-    verifyUpdateProcessedPerson();
+    // Verify
+    verify(jdbcClient, times(0)).sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID);
+    verify(patientRecordService, times(0)).fetchPersonNameAndAddTime("1234");
+    verify(jdbcClient, times(0)).sql(MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW);
+
+    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.UPDATE_STATUS_TO_P);
   }
 
-  private void mockFetchPersonNameAndAddTime() {
-    when(patientRecordService.fetchPersonNameAndAddTime(anyString()))
-        .thenReturn(new PatientNameAndTime("123", "John Doe", LocalDateTime.now()));
+  @Test
+  void writesChunkWithPossibleMatches() {
+    // Mock
+    mockGetPersonIds("mpiId", "4321");
+
+    LocalDateTime addTime = LocalDateTime.now();
+    PatientNameAndTime patientNameAndTime = new PatientNameAndTime("localId", "Smith, John", addTime);
+    when(patientRecordService.fetchPersonNameAndAddTime("1234")).thenReturn(patientNameAndTime);
+    mockInsert("1234", patientNameAndTime, "4321");
+
+    mockUpdateStatus(List.of("1234"));
+
+    // Act
+    List<MatchCandidate> candidates = new ArrayList<>();
+    candidates.add(new MatchCandidate("1234", List.of("mpiId", "abcd")));
+    var chunk = new Chunk<>(candidates);
+
+    writer.write(chunk);
+
+    // Verify
+    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID);
+    verify(patientRecordService, times(1)).fetchPersonNameAndAddTime("1234");
+    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW);
+    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.UPDATE_STATUS_TO_P);
   }
 
-  @SuppressWarnings("unchecked")
-  private void mockGetPersonIdsByMpiIds() {
-    when(namedParameterJdbcTemplate.query(
-        eq(MatchCandidateWriter.PERSON_UIDS_BY_MPI_PATIENT_IDS),
-        any(MapSqlParameterSource.class),
-        any(RowMapper.class)))
-        .thenAnswer(invocation -> {
-          List<String> mpiIds = (List<String>) ((MapSqlParameterSource) invocation.getArgument(1))
-              .getValue("mpiIds");
-          assert mpiIds != null;
-          return mpiIds.stream()
-              .map(id -> "123")
-              .toList();
-        });
+  private void mockInsert(String incomingPersonId, PatientNameAndTime patientData, String matchedPersonId) {
+    StatementSpec spec = Mockito.mock(StatementSpec.class);
+    when(jdbcClient.sql(MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW)).thenReturn(spec);
+
+    when(spec.param("personUid", incomingPersonId)).thenReturn(spec);
+    when(spec.param("personLocalId", patientData.personLocalId())).thenReturn(spec);
+    when(spec.param("personName", patientData.name())).thenReturn(spec);
+    when(spec.param("personAddTime", patientData.addTime())).thenReturn(spec);
+    when(spec.param("matchedPersonUid", matchedPersonId)).thenReturn(spec);
+    when(spec.param(Mockito.eq("identifiedDate"), Mockito.any())).thenReturn(spec);
   }
 
-  private void mockInsertMatchGroup() {
-    Mockito.doAnswer(invocation -> {
-      KeyHolder keyHolder = invocation.getArgument(2);
-      keyHolder.getKeyList().add(Collections.singletonMap("GENERATED_KEY", 100L));
-      return null;
-    }).when(namedParameterJdbcTemplate)
-        .update(eq(MatchCandidateWriter.INSERT_MATCH_GROUP), any(MapSqlParameterSource.class), any(KeyHolder.class));
+  private void mockGetPersonIds(String mpiId, String nbsId) {
+    StatementSpec spec = Mockito.mock(StatementSpec.class);
+
+    when(jdbcClient.sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID)).thenReturn(spec);
+    when(spec.param("mpiId", mpiId)).thenReturn(spec);
+
+    MappedQuerySpec<String> mqs = Mockito.mock(MappedQuerySpec.class);
+    when(spec.query(String.class)).thenReturn(mqs);
+    when(mqs.single()).thenReturn(nbsId);
   }
 
-  private void verifyInsertMatchGroup() {
-    verify(namedParameterJdbcTemplate).update(
-        eq(MatchCandidateWriter.INSERT_MATCH_GROUP),
-        any(MapSqlParameterSource.class),
-        any(KeyHolder.class));
+  private void mockUpdateStatus(List<String> personIds) {
+    StatementSpec spec = Mockito.mock(StatementSpec.class);
+    when(jdbcClient.sql(MatchCandidateWriter.UPDATE_STATUS_TO_P)).thenReturn(spec);
+    when(spec.param("personIds", personIds)).thenReturn(spec);
+
   }
 
-  private void verifyGetPersonIdsByMpiIds() {
-    verify(namedParameterJdbcTemplate).update(
-        eq(MatchCandidateWriter.INSERT_MATCH_CANDIDATE),
-        any(MapSqlParameterSource.class));
-  }
-
-  private void verifyInsertMatchGroup(VerificationMode callingTimes) {
-    verify(namedParameterJdbcTemplate, callingTimes).update(
-        eq(MatchCandidateWriter.INSERT_MATCH_GROUP),
-        any(MapSqlParameterSource.class));
-  }
-
-  private void verifyUpdateProcessedPerson() {
-    verify(namedParameterJdbcTemplate, times(1)).update(
-        eq(QueryConstants.UPDATE_PROCESSED_PERSONS),
-        any(MapSqlParameterSource.class));
-  }
 }
