@@ -35,7 +35,7 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   static final String FIND_MATCH_GROUP_CONTAINING_TARGET = """
       SELECT
-        TOP 1 group_id
+        TOP 1 merge_group
       FROM
         merge_group_entries
       WHERE
@@ -48,7 +48,7 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
             SELECT 1
             FROM merge_group_entries
             WHERE person_uid = :personUid
-            AND group_id = :mergeGroup
+            AND merge_group = :mergeGroup
         ) THEN 1 ELSE 0 END
       """;
 
@@ -61,7 +61,7 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   static final String INSERT_MATCH_GROUP_ENTRY = """
       INSERT INTO merge_group_entries (
-        group_id,
+        merge_group,
         person_uid
       )
       VALUES (

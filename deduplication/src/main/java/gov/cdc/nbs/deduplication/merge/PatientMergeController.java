@@ -54,23 +54,29 @@ public class PatientMergeController {
     return matchesRequiringReviewResolver.resolve(page, size, sort);
   }
 
-  @GetMapping("/{matchId}")
-  public List<PersonMergeData> getPotentialMatchesDetails(
-      @PathVariable("matchId") Long matchId) {
-    return null;
-    // TODO
+  @GetMapping("/{groupId}")
+  public List<PersonMergeData> getPotentialMatchesDetails(@PathVariable("groupId") Long groupId) {
+    return mergeGroupService.getMergeGroup(groupId);
   }
 
-  @DeleteMapping("/{matchId}")
-  public void markNoMerge(@PathVariable("matchId") Long matchId) {
-    // TODO
+  @DeleteMapping("/{groupId}/{personUid}")
+  public void markNoMerge(
+      @PathVariable("groupId") Long groupId,
+      @PathVariable("personUid") Long personUid) {
+    mergeGroupService.markNoMerge(groupId, personUid);
   }
 
-  @PostMapping("/{matchId}")
+  @DeleteMapping("/{groupId}")
+  public void markAllNoMerge(
+      @PathVariable("groupId") Long groupId) {
+    mergeGroupService.markAllNoMerge(groupId);
+  }
+
+  @PostMapping("/{groupId}")
   public void mergePatients(
       @RequestBody PatientMergeRequest mergeRequest,
-      @PathVariable("matchId") Long matchId) throws JsonProcessingException {
-    mergeService.performMerge(matchId, mergeRequest);
+      @PathVariable("groupId") Long groupId) throws JsonProcessingException {
+    mergeService.performMerge(groupId, mergeRequest);
   }
 
   @GetMapping(value = "/export/csv", produces = "text/csv")

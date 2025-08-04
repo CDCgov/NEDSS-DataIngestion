@@ -25,44 +25,36 @@ public class MatchesRequiringReviewResolver {
 
   static final String SELECT_QUERY = """
       SELECT
-        mrr.id,
+        mrr.merge_group,
         mrr.person_uid,
         mrr.person_local_id,
         mrr.person_name,
         mrr.person_add_time,
         mrr.date_identified,
-        count(mc.person_uid) as match_count
+        count(mge.person_uid) AS match_count
       FROM
         matches_requiring_review mrr
-        JOIN match_candidates mc ON mc.match_id = mrr.id AND mc.is_merge IS NULL
+        JOIN merge_group_entries mge ON mge.merge_group = mrr.merge_group
+        AND mge.is_merge IS NULL
       GROUP BY
-        mrr.id,
+        mrr.merge_group,
         mrr.person_uid,
         mrr.person_local_id,
         mrr.person_name,
         mrr.person_add_time,
         mrr.date_identified
-            ORDER BY :sort
-            OFFSET :offset ROWS
-                FETCH NEXT :limit ROWS ONLY;
+      ORDER BY :sort
+      OFFSET :offset ROWS
+          FETCH NEXT :limit ROWS ONLY;
             """;
 
   static final String COUNT_QUERY = """
       SELECT
-        count(*) AS COUNT
+        count(distinct mrr.id)
       FROM
-        (
-          SELECT DISTINCT
-            mrr.person_uid,
-            date_identified,
-            person_name,
-            person_add_time
-          FROM
-            matches_requiring_review mrr
-            JOIN match_candidates mc ON mc.match_id = mrr.id AND mc.is_merge IS NULL
-          WHERE
-            is_merge IS NULL
-        ) AS COUNT;
+        matches_requiring_review mrr
+        JOIN merge_group_entries mge ON mge.merge_group = mrr.merge_group
+        AND mge.is_merge IS NULL;
                 """;
 
   MatchesRequireReviewResponse resolve(int page, int size, String sort) {
@@ -98,7 +90,7 @@ public class MatchesRequiringReviewResolver {
 
   MatchRequiringReview mapRowToMatchCandidateData(ResultSet rs, int rowNum) throws SQLException {
     return new MatchRequiringReview(
-        rs.getLong("id"),
+        rs.getLong("merge_group"),
         rs.getString("person_uid"),
         rs.getString("person_local_id"),
         rs.getString("person_name"),
