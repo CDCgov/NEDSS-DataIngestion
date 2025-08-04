@@ -436,41 +436,6 @@ public class QueryConstants {
           p.add_time ASC;
       """;
 
-  public static final String UN_MERGE_ALL_GROUP = """
-          UPDATE mc
-          SET is_merge = 0,
-              last_chg_time = GETDATE(),
-              last_chg_user_id = :userId
-          FROM match_candidates mc
-          WHERE mc.match_id = :matchId
-      """;
-
-  public static final String SET_IS_MERGE_TO_FALSE_FOR_EXCLUDED_PATIENTS = """
-          UPDATE mc
-          SET is_merge = 0
-          FROM match_candidates mc
-          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
-          WHERE mrr.person_uid = :personUid
-            AND mc.person_uid IN (:potentialUids)
-      """;
-
-  public static final String UPDATE_SINGLE_RECORD = """
-      WITH UnmarkedCandidates AS (
-          SELECT mc.match_id, COUNT(*) AS unmarked_count
-          FROM match_candidates mc
-          JOIN matches_requiring_review mrr ON mc.match_id = mrr.id
-          WHERE mrr.person_uid = :personUid
-            AND mc.is_merge IS NULL
-          GROUP BY mc.match_id
-          HAVING COUNT(*) = 1
-      )
-      UPDATE match_candidates
-      SET is_merge = 0
-      FROM UnmarkedCandidates
-      WHERE match_candidates.match_id = UnmarkedCandidates.match_id
-        AND match_candidates.is_merge IS NULL;
-      """;
-
   public static final String INSERT_PERSON_MERGE_RECORD = """
       INSERT INTO PERSON_MERGE (
           SURVIVING_PERSON_UID,
@@ -502,13 +467,6 @@ public class QueryConstants {
       FROM person
       WHERE person_parent_uid IN (:parentPersonIds)
       AND person_uid != person_parent_uid
-      """;
-
-  public static final String POSSIBLE_MATCH_IDS_BY_MATCH_ID = """
-      SELECT mc.person_uid
-      FROM match_candidates mc
-      WHERE mc.match_id = :matchId
-      AND mc.is_merge IS NULL;
       """;
 
   public static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
@@ -1003,16 +961,6 @@ public class QueryConstants {
           ELSE 2
         END,
         pn.as_of_date DESC
-      """;
-
-  public static final String UN_MERGE_SINGLE_PERSON = """
-          UPDATE mc
-          SET is_merge = 0,
-              last_chg_time = GETDATE(),
-              last_chg_user_id = :userId
-          FROM match_candidates mc
-          WHERE mc.match_id = :matchId
-            AND mc.person_uid = :potentialMatchPersonUid
       """;
 
   public static final String MPI_PATIENT_EXISTS_CHECK = """

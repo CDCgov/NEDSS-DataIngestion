@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
@@ -30,17 +30,17 @@ import jakarta.servlet.http.HttpServletResponse;
 public class PatientMergeController {
   static final String DEFAULT_SORT = "identified,desc";
 
-  private final MergeGroupHandler mergeGroupHandler;
+  private final MergeGroupService mergeGroupService;
   private final MergeService mergeService;
   private final PdfBuilder pdfBuilder;
   private final MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
   public PatientMergeController(
-      final MergeGroupHandler possibleMatchHandler,
+      final MergeGroupService mergeGroupService,
       final MergeService mergeService,
       final PdfBuilder pdfBuilder,
       final MatchesRequiringReviewResolver matchesRequiringReviewResolver) {
-    this.mergeGroupHandler = possibleMatchHandler;
+    this.mergeGroupService = mergeGroupService;
     this.mergeService = mergeService;
     this.pdfBuilder = pdfBuilder;
     this.matchesRequiringReviewResolver = matchesRequiringReviewResolver;
@@ -55,21 +55,15 @@ public class PatientMergeController {
   }
 
   @GetMapping("/{matchId}")
-  public ResponseEntity<List<PersonMergeData>> getPotentialMatchesDetails(
+  public List<PersonMergeData> getPotentialMatchesDetails(
       @PathVariable("matchId") Long matchId) {
-    return ResponseEntity.ok(mergeGroupHandler.getPotentialMatchesDetails(matchId));
+    return null;
+    // TODO
   }
 
   @DeleteMapping("/{matchId}")
-  public void unMergeAll(@PathVariable("matchId") Long matchId) {
-    mergeGroupHandler.removeAll(matchId);
-  }
-
-  @DeleteMapping("/{matchId}/{removePatientId}")
-  public void unMergeSinglePerson(
-      @PathVariable("matchId") Long matchId,
-      @PathVariable("removePatientId") Long removePatientId) {
-    mergeGroupHandler.removePerson(matchId, removePatientId);
+  public void markNoMerge(@PathVariable("matchId") Long matchId) {
+    // TODO
   }
 
   @PostMapping("/{matchId}")

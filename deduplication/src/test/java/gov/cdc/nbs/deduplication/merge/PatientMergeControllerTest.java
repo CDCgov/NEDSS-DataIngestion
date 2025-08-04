@@ -28,8 +28,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @ExtendWith(MockitoExtension.class)
 class PatientMergeControllerTest {
 
-  @Mock
-  private MergeGroupHandler mergeGroupHandler;
+  // @Mock
+  // private MergeGroupHandler mergeGroupHandler;
 
   @Mock
   private MatchesRequiringReviewResolver matchesRequiringReviewResolver;
@@ -48,44 +48,6 @@ class PatientMergeControllerTest {
   @BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.standaloneSetup(patientMergeController).build();
-  }
-
-  @Test
-  void testUnMergeAll() throws Exception {
-    Long patientId = 100L;
-
-    mockMvc.perform(delete("/merge/{patientId}", patientId)
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    verify(mergeGroupHandler).removeAll(patientId);
-  }
-
-  @Test
-  void testUnMergeSinglePerson() throws Exception {
-    Long patientId = 100L;
-    Long removePatientId = 111L;
-
-    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    verify(mergeGroupHandler).removePerson(patientId, removePatientId);
-  }
-
-  @Test
-  void testGetPotentialMatchesDetails() throws Exception {
-    long patientId = 123L;
-    List<PersonMergeData> mockResponse = expectedPersonMergeData();
-
-    when(mergeGroupHandler.getPotentialMatchesDetails(patientId)).thenReturn(mockResponse);
-
-    // Act & Assert
-    mockMvc.perform(get("/merge/{patientId}", patientId))
-        .andExpect(status().isOk())
-        .andExpect(content().json(expectedPersonMergeDataJson()));
-
-    verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
   }
 
   @Test

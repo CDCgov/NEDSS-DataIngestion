@@ -34,12 +34,20 @@ GO
 
 CREATE TABLE matches_requiring_review (
   id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  merge_group BIGINT NOT NULL,
   person_uid BIGINT NOT NULL,
   person_local_id BIGINT NOT NULL,
   person_name NVARCHAR(300),
   person_add_time DATETIME NOT NULL,
   date_identified DATETIME DEFAULT GETDATE(),
   matched_person_uid BIGINT NOT NULL,
+  FOREIGN KEY (merge_group) REFERENCES merge_group(id)
+);
+GO
+
+CREATE TABLE merge_group (
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  person_uid BIGINT NOT NULL,
   is_merge BIT NULL,
   last_chg_time DATETIME NULL,
   last_chg_user_id BIGINT NULL
