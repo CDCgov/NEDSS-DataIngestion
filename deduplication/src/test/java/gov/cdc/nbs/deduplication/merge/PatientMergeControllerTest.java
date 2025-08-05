@@ -3,18 +3,17 @@ package gov.cdc.nbs.deduplication.merge;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Collections;
 import java.util.List;
 
-import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
-import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
-import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,11 +24,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @ExtendWith(MockitoExtension.class)
 class PatientMergeControllerTest {
 
   @Mock
-  private MergeGroupHandler mergeGroupHandler;
+  private MergeGroupService mergeGroupService;
 
   @Mock
   private MatchesRequiringReviewResolver matchesRequiringReviewResolver;
@@ -48,44 +51,6 @@ class PatientMergeControllerTest {
   @BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.standaloneSetup(patientMergeController).build();
-  }
-
-  @Test
-  void testUnMergeAll() throws Exception {
-    Long patientId = 100L;
-
-    mockMvc.perform(delete("/merge/{patientId}", patientId)
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    verify(mergeGroupHandler).removeAll(patientId);
-  }
-
-  @Test
-  void testUnMergeSinglePerson() throws Exception {
-    Long patientId = 100L;
-    Long removePatientId = 111L;
-
-    mockMvc.perform(delete("/merge/{patientId}/{removePatientId}", patientId, removePatientId)
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    verify(mergeGroupHandler).removePerson(patientId, removePatientId);
-  }
-
-  @Test
-  void testGetPotentialMatchesDetails() throws Exception {
-    long patientId = 123L;
-    List<PersonMergeData> mockResponse = expectedPersonMergeData();
-
-    when(mergeGroupHandler.getPotentialMatchesDetails(patientId)).thenReturn(mockResponse);
-
-    // Act & Assert
-    mockMvc.perform(get("/merge/{patientId}", patientId))
-        .andExpect(status().isOk())
-        .andExpect(content().json(expectedPersonMergeDataJson()));
-
-    verify(mergeGroupHandler).getPotentialMatchesDetails(patientId);
   }
 
   @Test
@@ -150,133 +115,27 @@ class PatientMergeControllerTest {
     verify(pdfBuilder, times(4)).formatDateTime(anyString());
   }
 
-  private List<PersonMergeData> expectedPersonMergeData() {
-    return List.of(
-        new PersonMergeData(
-            "localId",
-            "1",
-            "2023-01-01",
-            new AdminComments(
-                "2023-01-01", // commentDate
-                "test comment"), // adminComments
-            new PersonMergeData.Ethnicity( // Ethnicity
-                "2023-01-01",
-                "Hispanic or Latino",
-                "Unknown reason",
-                "Cuban"),
-            new PersonMergeData.SexAndBirth(
-                "2025-05-27T00:00:00",
-                "2025-05-12T00:00:00",
-                "Male",
-                "Refused",
-                "Did not ask",
-                "Add Gender",
-                "Male",
-                "No",
-                "1",
-                "Birth City",
-                "Tennessee",
-                "Some County",
-                "United States"),
-            new PersonMergeData.Mortality( // Mortality
-                "2025-05-27T00:00:00",
-                "Yes",
-                "2025-05-11T00:00:00",
-                "Death city",
-                "Texas",
-                "Anderson County",
-                "Afghanistan"),
-            new PersonMergeData.GeneralPatientInformation(
-                "2025-05-27T00:00:00",
-                "Annulled",
-                "MotherMaiden",
-                "2",
-                "0",
-                "Mining",
-                "10th grade",
-                "Eastern Frisian",
-                "Yes",
-                "123"),
-            List.of( // Investigations
-                new PersonMergeData.Investigation("1", "2023-06-01T00:00:00Z", "Condition A"),
-                new PersonMergeData.Investigation("2", "2023-07-01T00:00:00Z", "Condition B")),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList()));
+  @Test
+  void markNoMergeTest() {
+
+    patientMergeController.markNoMerge(1l, 2l);
+
+    verify(mergeGroupService, times(1)).markNoMerge(1l, 2l);
   }
 
-  private String expectedPersonMergeDataJson() {
-    return """
-        [
-          {
-            "personLocalId": "localId",
-            "personUid": "1",
-            "addTime": "2023-01-01",
-            "adminComments": {"date": "2023-01-01", "comment":  "test comment"},
-            "ethnicity": {
-              "asOf": "2023-01-01",
-              "ethnicity": "Hispanic or Latino",
-              "spanishOrigin": "Cuban",
-              "reasonUnknown": "Unknown reason"
-            },
-            "sexAndBirth": {
-              "asOf": "2025-05-27T00:00:00",
-              "dateOfBirth": "2025-05-12T00:00:00",
-              "currentSex": "Male",
-              "sexUnknown": "Refused",
-              "transgender": "Did not ask",
-              "additionalGender": "Add Gender",
-              "birthGender": "Male",
-              "multipleBirth": "No",
-              "birthOrder": "1",
-              "birthCity": "Birth City",
-              "birthState": "Tennessee",
-              "birthCounty": "Some County",
-              "birthCountry": "United States"
-            },
-            "mortality": {
-              "asOf": "2025-05-27T00:00:00",
-              "dateOfDeath": "2025-05-11T00:00:00",
-              "deathCity": "Death city",
-              "deceased": "Yes",
-              "deathState": "Texas",
-              "deathCounty": "Anderson County",
-              "deathCountry": "Afghanistan"
-            },
-            "general": {
-              "asOf": "2025-05-27T00:00:00",
-              "maritalStatus": "Annulled",
-              "mothersMaidenName": "MotherMaiden",
-              "numberOfAdultsInResidence": "2",
-              "numberOfChildrenInResidence": "0",
-              "primaryOccupation": "Mining",
-              "educationLevel": "10th grade",
-              "primaryLanguage": "Eastern Frisian",
-              "speaksEnglish": "Yes",
-              "stateHivCaseId": "123"
-            },
-            "investigations": [
-              {
-                "id": "1",
-                "startDate": "2023-06-01T00:00:00Z",
-                "condition": "Condition A"
-              },
-              {
-                "id": "2",
-                "startDate": "2023-07-01T00:00:00Z",
-                "condition": "Condition B"
-              }
-            ],
-            "addresses": [],
-            "phoneEmails": [],
-            "names": [],
-            "identifications": [],
-            "races": []
-          }
-        ]
-        """;
+  @Test
+  void markAllNoMergeTest() {
+
+    patientMergeController.markAllNoMerge(1l);
+
+    verify(mergeGroupService, times(1)).markAllNoMerge(1l);
+  }
+
+  @Test
+  void getPotentialMatchesTest() {
+    patientMergeController.getPotentialMatches(0, 25, "name,desc");
+
+    verify(matchesRequiringReviewResolver, times(1)).resolve(0, 25, "name,desc");
   }
 
   private String createPatientMergeRequestJson() {

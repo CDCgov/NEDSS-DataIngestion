@@ -277,8 +277,8 @@ public class CdaMapHelper implements ICdaMapHelper {
 
     public String mapToAddressType(String data, String questionCode) throws EcrCdaXmlException {
         String output = "";
-        if (data == null) {
-            data = "";
+        if (data == null || data.isEmpty()) {
+            return data;
         }
 
         var answer = mapToCodedAnswer(data, questionCode);
@@ -294,8 +294,6 @@ public class CdaMapHelper implements ICdaMapHelper {
         if (!answer.getCodeSystemName().isEmpty()) {
             output = output + "^" + answer.getCodeSystemName();
         }
-
-
         return output;
 
     }
@@ -449,15 +447,11 @@ public class CdaMapHelper implements ICdaMapHelper {
             String data,
             PhdcQuestionLookUpDto result) throws EcrCdaXmlException {
         var dataList = getStringsBeforePipe(data);
-        StringBuilder dataStr = new StringBuilder();
-        for (String s : dataList) {
-            dataStr.append(" ").append(s);
-
+        for (int i = 0; i < dataList.size(); i++) {
+            var value = mapToCEAnswerType(dataList.get(i), result.getQuestionIdentifier());
+            observation.addNewValue();
+            observation.setValueArray(i, value);
         }
-        dataStr = new StringBuilder(dataStr.toString().trim());
-        var value = mapToCEAnswerType(String.valueOf(dataStr), result.getQuestionIdentifier());
-        observation.addNewValue();
-        observation.setValueArray(0, value);
     }
 
     private  void mapToObservationDataTypeNotCoded(PhdcQuestionLookUpDto result,

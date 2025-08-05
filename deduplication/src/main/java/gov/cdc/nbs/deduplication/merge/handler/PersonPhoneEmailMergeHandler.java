@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,8 +135,8 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
   private List<AuditUpdateAction> performUnselectedPhoneEmailInactivation(String survivingId,
       List<String> selectedLocators) {
     Map<String, Object> params = Map.of(
-        "survivingId", survivingId, //NOSONAR
-        "selectedLocators", selectedLocators  //NOSONAR
+        "survivingId", survivingId, // NOSONAR
+        "selectedLocators", selectedLocators // NOSONAR
     );
 
     List<Map<String, Object>> rowsToUpdate = fetchUnselectedPhoneEmailsForAudit(survivingId, selectedLocators);
@@ -149,28 +150,29 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
       List<String> selectedLocators) {
     return nbsTemplate.queryForList(
         FIND_UNSELECTED_PHONE_EMAILS_FOR_AUDIT,
-        Map.of("survivingId", survivingId, "selectedLocators", selectedLocators)
-    );
+        Map.of("survivingId", survivingId, "selectedLocators", selectedLocators));
   }
 
   private List<AuditUpdateAction> buildUpdateActions(List<Map<String, Object>> rows) {
     return rows.stream()
-        .map(row -> new AuditUpdateAction(
-            Map.of("entity_uid", row.get("entity_uid"), "locator_uid", row.get("locator_uid")),//NOSONAR
-            Map.of("record_status_cd", row.get("record_status_cd"))
-        ))
+        .map(row -> {
+          Map<String, Object> values = new HashMap<>();
+          values.put("record_status_cd", row.get("record_status_cd"));
+
+          return new AuditUpdateAction(
+              Map.of("entity_uid", row.get("entity_uid"), "locator_uid", row.get("locator_uid")), // NOSONAR
+              values);
+        })
         .toList();
   }
 
   private List<AuditInsertAction> performSelectedPhoneEmailCopy(String survivingId, List<String> selectedLocators) {
     Map<String, Object> params = Map.of(
         "survivingId", survivingId,
-        "selectedLocators", selectedLocators
-    );
+        "selectedLocators", selectedLocators);
 
     List<Map<String, Object>> insertedRows = nbsTemplate.queryForList(
-        FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT, params
-    );
+        FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT, params);
 
     List<AuditInsertAction> insertActions = buildInsertActions(survivingId, insertedRows);
 
@@ -182,8 +184,7 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
     return insertedRows.stream()
         .map(row -> new AuditInsertAction(Map.of(
             "entity_uid", survivingId,
-            "locator_uid", row.get("locator_uid")
-        )))
+            "locator_uid", row.get("locator_uid"))))
         .toList();
   }
 }

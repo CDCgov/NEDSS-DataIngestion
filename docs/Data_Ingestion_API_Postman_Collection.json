@@ -1,0 +1,1298 @@
+{
+	"info": {
+		"_postman_id": "ce899a45-556c-4e7d-9ebb-814629384891",
+		"name": "Data Ingestion API",
+		"description": "This API exposes endpoints to manage Data Ingestion Service.\n\nContact Support:\n Name: Data Ingestion Service\n Email: dataingestionservice@cdc.com",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25680585",
+		"_collection_link": "https://data-team-0400.postman.co/workspace/Data-Services-Swagger~08287add-14ad-4ca6-b115-b6f95b8635db/collection/25680585-ce899a45-556c-4e7d-9ebb-814629384891?action=share&source=collection_link&creator=25680585"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "elrs",
+					"item": [
+						{
+							"name": "error-messages",
+							"item": [
+								{
+									"name": "Get all dead letter messages",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{bearerToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "clientid",
+												"value": "{{keyCloakClientId}}",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "{{keyCloakClientSecret}}",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/error-messages",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												"error-messages"
+											]
+										},
+										"description": "Get all dead letter messages"
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													},
+													{
+														"key": "clientid",
+														"value": "",
+														"description": "(Required) The Client Id"
+													},
+													{
+														"key": "clientsecret",
+														"value": "",
+														"description": "(Required) The Client Secret"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/elrs/error-messages",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"elrs",
+														"error-messages"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "[\n  {\n    \"errorMessageId\": \"eu in laborum veniam\",\n    \"errorMessageSource\": \"ea ut qui occaecat\",\n    \"message\": \"dolore qui enim sint pariatur\",\n    \"errorStackTrace\": \"ea eu exercitation do\",\n    \"errorStackTraceShort\": \"ut quis nostrud\",\n    \"dltOccurrence\": -23550196,\n    \"dltStatus\": \"nostrud ea in proident\",\n    \"createdOn\": \"1969-06-21T17:59:59.096Z\",\n    \"updatedOn\": \"1956-09-17T08:52:58.830Z\",\n    \"createdBy\": \"ad non adipisici\",\n    \"updatedBy\": \"aliquip in enim\"\n  },\n  {\n    \"errorMessageId\": \"do ut nisi\",\n    \"errorMessageSource\": \"in mollit\",\n    \"message\": \"id nostrud dolor ea\",\n    \"errorStackTrace\": \"nulla laboris adipisici\",\n    \"errorStackTraceShort\": \"dolor proident tempor laborum\",\n    \"dltOccurrence\": 70812116,\n    \"dltStatus\": \"laboris ut eu velit nulla\",\n    \"createdOn\": \"1960-08-24T09:17:09.066Z\",\n    \"updatedOn\": \"1986-06-25T00:46:24.349Z\",\n    \"createdBy\": \"Lorem\",\n    \"updatedBy\": \"ut\"\n  }\n]"
+										}
+									]
+								},
+								{
+									"name": "Get dead letter message by dlt id",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{bearerToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "clientid",
+												"value": "{{keyCloakClientId}}",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "{{keyCloakClientSecret}}",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/error-messages/:dlt-id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												"error-messages",
+												":dlt-id"
+											],
+											"variable": [
+												{
+													"key": "dlt-id",
+													"value": "",
+													"description": "(Required) "
+												}
+											]
+										},
+										"description": "Get dead letter message by dlt id"
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													},
+													{
+														"key": "clientid",
+														"value": "",
+														"description": "(Required) The Client Id"
+													},
+													{
+														"key": "clientsecret",
+														"value": "",
+														"description": "(Required) The Client Secret"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/elrs/error-messages/:dlt-id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"elrs",
+														"error-messages",
+														":dlt-id"
+													],
+													"variable": [
+														{
+															"key": "dlt-id",
+															"value": "enim dolore",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"errorMessageId\": \"\",\n  \"errorMessageSource\": \"deserunt\",\n  \"message\": \"exercitation elit\",\n  \"errorStackTrace\": \"mollit voluptate aliqua anim\",\n  \"errorStackTraceShort\": \"aliqua in\",\n  \"dltOccurrence\": 77014279,\n  \"dltStatus\": \"sed dolore aliqua do dolore\",\n  \"createdOn\": \"1962-04-11T14:22:46.622Z\",\n  \"updatedOn\": \"1953-06-07T06:04:30.080Z\",\n  \"createdBy\": \"Duis irure aute\",\n  \"updatedBy\": \"amet\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Submit a plain text or XML converted HL7 message",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const messageUuid = pm.response.text();",
+											"pm.collectionVariables.set(\"messageUuid\", messageUuid);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "{{keyCloakClientId}}",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "{{keyCloakClientSecret}}",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "version",
+										"value": "",
+										"description": "To use batch job(1) or RTI(2)"
+									},
+									{
+										"key": "customMapper",
+										"value": "",
+										"description": "The optional custom mapper field that find and replaces the text in the ELR message.Multiple values can be sent with a comma-separated string- \"key1=test,key2=newcontent\""
+									},
+									{
+										"key": "msgType",
+										"value": "",
+										"description": "(Required) "
+									},
+									{
+										"key": "Content-Type",
+										"value": "text/plain"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/elrs",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"elrs"
+									]
+								},
+								"description": "Submit a plain text or XML converted HL7 message with msgType header"
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											},
+											{
+												"key": "clientid",
+												"value": "",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "version",
+												"value": "",
+												"description": "To use batch job(1) or RTI(2)"
+											},
+											{
+												"key": "customMapper",
+												"value": "",
+												"description": "The optional custom mapper field that find and replaces the text in the ELR message.Multiple values can be sent with a comma-separated string- \"key1=test,key2=newcontent\""
+											},
+											{
+												"key": "msgType",
+												"value": "enim dolore",
+												"description": "(Required) "
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "enim dolore"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "enim dolore"
+								}
+							]
+						},
+						{
+							"name": "ReInject the message with dlt id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "{{keyCloakClientId}}",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "{{keyCloakClientSecret}}",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "Content-Type",
+										"value": "text/plain"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/elrs/:dlt-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"elrs",
+										":dlt-id"
+									],
+									"variable": [
+										{
+											"key": "dlt-id",
+											"value": "",
+											"description": "(Required) "
+										}
+									]
+								},
+								"description": "ReInject the message with dlt id"
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											},
+											{
+												"key": "clientid",
+												"value": "",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "enim dolore"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/:dlt-id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												":dlt-id"
+											],
+											"variable": [
+												{
+													"key": "dlt-id",
+													"value": "enim dolore",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"errorMessageId\": \"\",\n  \"errorMessageSource\": \"deserunt\",\n  \"message\": \"exercitation elit\",\n  \"errorStackTrace\": \"mollit voluptate aliqua anim\",\n  \"errorStackTraceShort\": \"aliqua in\",\n  \"dltOccurrence\": 77014279,\n  \"dltStatus\": \"sed dolore aliqua do dolore\",\n  \"createdOn\": \"1962-04-11T14:22:46.622Z\",\n  \"updatedOn\": \"1953-06-07T06:04:30.080Z\",\n  \"createdBy\": \"Duis irure aute\",\n  \"updatedBy\": \"amet\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Verifying whether the payload is a valid hl7 message or not",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "{{keyCloakClientId}}",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "{{keyCloakClientSecret}}",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "Content-Type",
+										"value": "text/plain"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/elrs/validate",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"elrs",
+										"validate"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											},
+											{
+												"key": "clientid",
+												"value": "",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "enim dolore"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/validate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												"validate"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "enim dolore"
+								}
+							]
+						},
+						{
+							"name": "Get status by raw id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "{{keyCloakClientId}}",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "{{keyCloakClientSecret}}",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/elrs/status/{{messageUuid}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"elrs",
+										"status",
+										"{{messageUuid}}"
+									]
+								},
+								"description": "Return all info from Elr raw and nbs interface tables."
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											},
+											{
+												"key": "clientid",
+												"value": "",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/status/:elr-id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												"status",
+												":elr-id"
+											],
+											"variable": [
+												{
+													"key": "elr-id",
+													"value": "enim dolore",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "enim dolore"
+								}
+							]
+						},
+						{
+							"name": "Get all status related to raw id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "{{keyCloakClientId}}",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "{{keyCloakClientSecret}}",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/elrs/status-details/{{messageUuid}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"elrs",
+										"status-details",
+										"{{messageUuid}}"
+									]
+								},
+								"description": "Return all info such as the pipeline which the message is currently at, dlt info,nbs ingestion etc.."
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											},
+											{
+												"key": "clientid",
+												"value": "",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/status-details/:elr-id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												"status-details",
+												":elr-id"
+											],
+											"variable": [
+												{
+													"key": "elr-id",
+													"value": "enim dolore",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"rawInfo\": {\n      \"rawMessageId\": \"laborum reprehenderit dolore proident mollit\",\n      \"rawCreatedBy\": \"ex adipisicing\",\n      \"rawCreatedOn\": \"ea qui occaecat\",\n      \"rawPipeLineStatus\": \"Ut labore quis\",\n      \"dltInfo\": {\n        \"dltId\": \"velit nostrud dolor aliquip\",\n        \"dltStatus\": \"sit est elit\",\n        \"dltOrigin\": \"tempor elit\",\n        \"dltCreatedOn\": \"amet minim\",\n        \"dltShortTrace\": \"laboris nulla\"\n      }\n    },\n    \"validatedInfo\": {\n      \"validatedMessageId\": \"eiusmod enim voluptate aute\",\n      \"validatedCreatedOn\": \"qui veniam\",\n      \"validatedPipeLineStatus\": \"fugiat non Ut\",\n      \"dltInfo\": {\n        \"dltId\": \"ea\",\n        \"dltStatus\": \"dolore\",\n        \"dltOrigin\": \"ut dolore\",\n        \"dltCreatedOn\": \"reprehenderit inci\",\n        \"dltShortTrace\": \"nostrud sit labore\"\n      }\n    },\n    \"nbsInfo\": {\n      \"nbsInterfaceId\": 54033582,\n      \"nbsInterfacePipeLineStatus\": \"est minim culpa ullamco\",\n      \"nbsInterfaceStatus\": \"reprehenderit sunt consectetur nulla\",\n      \"nbsCreatedOn\": \"ad sit in eu \",\n      \"dltInfo\": {\n        \"dltId\": \"culpa\",\n        \"dltStatus\": \"sint irure\",\n        \"dltOrigin\": \"aute\",\n        \"dltCreatedOn\": \"nisi sint dolor\",\n        \"dltShortTrace\": \"tempor nulla\"\n      }\n    },\n    \"edxLogStatus\": {\n      \"edxActivityLog\": {\n        \"edxActivityLogUid\": 22937307,\n        \"sourceUid\": -19055042,\n        \"targetUid\": -61895986,\n        \"docType\": \"exercitation nulla\",\n        \"recordStatusCd\": \"dolor Ut Duis\",\n        \"recordStatusTime\": \"incididunt in magna\",\n        \"exceptionTxt\": \"sint et incididunt\",\n        \"impExpIndCd\": \"incididunt anim id irure laborum\",\n        \"sourceTypeCd\": \"veniam adipisicing sed qui\",\n        \"targetTypeCd\": \"in reprehenderit\",\n        \"businessObjLocalId\": \"laborum\",\n        \"docNm\": \"veniam eiusmod dolor\",\n        \"sourceNm\": \"in Duis elit nostrud\",\n        \"algorithmAction\": \"in veniam\",\n        \"algorithmName\": \"non minim\",\n        \"messageId\": \"officia ut laborum sed amet\",\n        \"entityNm\": \"qui\",\n        \"accessionNbr\": \"in laboris enim\"\n      },\n      \"edxActivityDetailLogList\": [\n        {\n          \"id\": 71389627,\n          \"recordId\": \"cillum veniam\",\n          \"recordType\": \"qui nulla dolor temp\",\n          \"recordNm\": \"voluptate in L\",\n          \"logType\": \"aliquip ullamco ipsum\",\n          \"logComment\": \"in nulla Lorem\"\n        },\n        {\n          \"id\": -4810402,\n          \"recordId\": \"cillum\",\n          \"recordType\": \"mollit nostrud\",\n          \"recordNm\": \"aute\",\n          \"logType\": \"occaecat in aliqua magna \",\n          \"logComment\": \"eu ut Lorem sed\"\n        }\n      ]\n    }\n  },\n  {\n    \"rawInfo\": {\n      \"rawMessageId\": \"minim dolor nisi Ut\",\n      \"rawCreatedBy\": \"ea nostrud\",\n      \"rawCreatedOn\": \"pariatur sit\",\n      \"rawPipeLineStatus\": \"labore enim sunt dolor\",\n      \"dltInfo\": {\n        \"dltId\": \"culpa nulla ex minim\",\n        \"dltStatus\": \"in par\",\n        \"dltOrigin\": \"ex quis elit\",\n        \"dltCreatedOn\": \"Lorem\",\n        \"dltShortTrace\": \"ea proident\"\n      }\n    },\n    \"validatedInfo\": {\n      \"validatedMessageId\": \"laboru\",\n      \"validatedCreatedOn\": \"qui\",\n      \"validatedPipeLineStatus\": \"ea adipisicing sed\",\n      \"dltInfo\": {\n        \"dltId\": \"aliquip eiusmod Duis\",\n        \"dltStatus\": \"incididunt\",\n        \"dltOrigin\": \"cillum consectetur qui aliqua\",\n        \"dltCreatedOn\": \"sed in Ut id\",\n        \"dltShortTrace\": \"enim\"\n      }\n    },\n    \"nbsInfo\": {\n      \"nbsInterfaceId\": 95202522,\n      \"nbsInterfacePipeLineStatus\": \"culpa cillum\",\n      \"nbsInterfaceStatus\": \"commodo anim fugiat nulla\",\n      \"nbsCreatedOn\": \"in aliquip non\",\n      \"dltInfo\": {\n        \"dltId\": \"nisi aute\",\n        \"dltStatus\": \"consectetur dolor laborum\",\n        \"dltOrigin\": \"non\",\n        \"dltCreatedOn\": \"labore consequat\",\n        \"dltShortTrace\": \"do magna\"\n      }\n    },\n    \"edxLogStatus\": {\n      \"edxActivityLog\": {\n        \"edxActivityLogUid\": 13218032,\n        \"sourceUid\": 63554257,\n        \"targetUid\": 64998510,\n        \"docType\": \"incididunt laboris cupidatat voluptate\",\n        \"recordStatusCd\": \"eiusmod irure anim\",\n        \"recordStatusTime\": \"laborum ea anim consectetur\",\n        \"exceptionTxt\": \"eu laboris do\",\n        \"impExpIndCd\": \"amet laborum ut\",\n        \"sourceTypeCd\": \"labore elit esse dolore\",\n        \"targetTypeCd\": \"dolor exercitation mag\",\n        \"businessObjLocalId\": \"amet dolore\",\n        \"docNm\": \"irure anim aute reprehende\",\n        \"sourceNm\": \"dolore elit ipsum ea\",\n        \"algorithmAction\": \"eu pr\",\n        \"algorithmName\": \"amet laborum commodo\",\n        \"messageId\": \"dolor\",\n        \"entityNm\": \"id sunt dolore aliquip magna\",\n        \"accessionNbr\": \"Ut in tempor exercitation\"\n      },\n      \"edxActivityDetailLogList\": [\n        {\n          \"id\": -77105229,\n          \"recordId\": \"dolor\",\n          \"recordType\": \"nostrud officia\",\n          \"recordNm\": \"laboris cupidatat\",\n          \"logType\": \"eiusmod\",\n          \"logComment\": \"qui labore ea dolore\"\n        },\n        {\n          \"id\": -41043675,\n          \"recordId\": \"dolore est dolor amet proident\",\n          \"recordType\": \"qui est\",\n          \"recordNm\": \"ut\",\n          \"logType\": \"esse nostrud nisi Duis\",\n          \"logComment\": \"non Lorem mollit\"\n        }\n      ]\n    }\n  }\n]"
+								}
+							]
+						},
+						{
+							"name": "Get ELR Ingestion error messages by Date range. The Start date must be earlier than or equal to the End date.",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "{{keyCloakClientId}}",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "{{keyCloakClientSecret}}",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "startDate",
+										"value": "",
+										"description": "(Required) The start date must be in MM-DD-YYYY format."
+									},
+									{
+										"key": "endDate",
+										"value": "",
+										"description": "(Required) The end date must be in MM-DD-YYYY format"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/elrs/errors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"elrs",
+										"errors"
+									]
+								},
+								"description": "Get dead letter error messages by date"
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											},
+											{
+												"key": "clientid",
+												"value": "",
+												"description": "(Required) The Client Id"
+											},
+											{
+												"key": "clientsecret",
+												"value": "",
+												"description": "(Required) The Client Secret"
+											},
+											{
+												"key": "startDate",
+												"value": "",
+												"description": "(Required) The start date must be in MM-DD-YYYY format."
+											},
+											{
+												"key": "endDate",
+												"value": "",
+												"description": "(Required) The end date must be in MM-DD-YYYY format"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/elrs/errors",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"elrs",
+												"errors"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"errorMessageId\": \"eu in laborum veniam\",\n    \"errorMessageSource\": \"ea ut qui occaecat\",\n    \"message\": \"dolore qui enim sint pariatur\",\n    \"errorStackTrace\": \"ea eu exercitation do\",\n    \"errorStackTraceShort\": \"ut quis nostrud\",\n    \"dltOccurrence\": -23550196,\n    \"dltStatus\": \"nostrud ea in proident\",\n    \"createdOn\": \"1969-06-21T17:59:59.096Z\",\n    \"updatedOn\": \"1956-09-17T08:52:58.830Z\",\n    \"createdBy\": \"ad non adipisici\",\n    \"updatedBy\": \"aliquip in enim\"\n  },\n  {\n    \"errorMessageId\": \"do ut nisi\",\n    \"errorMessageSource\": \"in mollit\",\n    \"message\": \"id nostrud dolor ea\",\n    \"errorStackTrace\": \"nulla laboris adipisici\",\n    \"errorStackTraceShort\": \"dolor proident tempor laborum\",\n    \"dltOccurrence\": 70812116,\n    \"dltStatus\": \"laboris ut eu velit nulla\",\n    \"createdOn\": \"1960-08-24T09:17:09.066Z\",\n    \"updatedOn\": \"1986-06-25T00:46:24.349Z\",\n    \"createdBy\": \"Lorem\",\n    \"updatedBy\": \"ut\"\n  }\n]"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Submit an ECR document to Data Ingestion Service",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientid",
+								"value": "{{keyCloakClientId}}",
+								"description": "(Required) The Client Id"
+							},
+							{
+								"key": "clientsecret",
+								"value": "{{keyCloakClientSecret}}",
+								"description": "(Required) The Client Secret"
+							},
+							{
+								"key": "systemNm",
+								"value": "",
+								"description": "(Required) "
+							},
+							{
+								"key": "origDocTypeEicr",
+								"value": "",
+								"description": "(Required) "
+							},
+							{
+								"key": "origDocTypeRR",
+								"value": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<eICRXML>test-eicr</eICRXML>\n<RRXML>null</RRXML>\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ecrs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ecrs"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <token>",
+										"description": "Added as a part of security scheme: bearer"
+									},
+									{
+										"key": "clientid",
+										"value": "",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "systemNm",
+										"value": "enim dolore",
+										"description": "(Required) "
+									},
+									{
+										"key": "origDocTypeEicr",
+										"value": "enim dolore",
+										"description": "(Required) "
+									},
+									{
+										"key": "origDocTypeRR",
+										"value": "enim dolore"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "enim dolore"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/ecrs",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"ecrs"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "11107847"
+						}
+					]
+				},
+				{
+					"name": "Create JWT Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const token = pm.response.text();",
+									"pm.collectionVariables.set(\"bearerToken\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientid",
+								"value": "{{keyCloakClientId}}",
+								"description": "(Required) "
+							},
+							{
+								"key": "clientsecret",
+								"value": "{{keyCloakClientSecret}}",
+								"description": "(Required) "
+							},
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"token"
+							]
+						},
+						"description": "Create JWT Token using Keycloak Client Id and Client Secret."
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "clientid",
+										"value": "enim dolore",
+										"description": "(Required) "
+									},
+									{
+										"key": "clientsecret",
+										"value": "enim dolore",
+										"description": "(Required) "
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/auth/token",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "enim dolore"
+						}
+					]
+				},
+				{
+					"name": "Get all ingested ELR/ECR reports",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "clientid",
+								"value": "{{keyCloakClientId}}",
+								"description": "(Required) The Client Id"
+							},
+							{
+								"key": "clientsecret",
+								"value": "{{keyCloakClientSecret}}",
+								"description": "(Required) The Client Secret"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/get-all-reports",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"get-all-reports"
+							]
+						},
+						"description": "Retrieve all the reports that have been ingested into the system"
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <token>",
+										"description": "Added as a part of security scheme: bearer"
+									},
+									{
+										"key": "clientid",
+										"value": "",
+										"description": "(Required) The Client Id"
+									},
+									{
+										"key": "clientsecret",
+										"value": "",
+										"description": "(Required) The Client Secret"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/get-all-reports",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"get-all-reports"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"nbsInterfaceUid\": 37043782,\n    \"payload\": \"aliquip\",\n    \"impExpIndCd\": \"elit amet\",\n    \"recordStatusCd\": \"enim dolor commodo\",\n    \"recordStatusTime\": \"1958-10-17T10:16:19.974Z\",\n    \"addTime\": \"2000-08-11T13:27:29.315Z\",\n    \"systemNm\": \"proident in commodo ex\",\n    \"docTypeCd\": \"quis\",\n    \"originalPayload\": \"laborum amet cillum non voluptate\",\n    \"originalDocTypeCd\": \"ut ipsum tempor voluptate\",\n    \"fillerOrderNbr\": \"enim reprehenderit\",\n    \"labClia\": \"et elit esse eiusmod\",\n    \"specimenCollDate\": \"1976-10-02T15:19:45.345Z\",\n    \"orderTestCode\": \"sed sit\",\n    \"observationUid\": 20899153,\n    \"originalPayloadRR\": \"enim in ad Lorem\",\n    \"originalDocTypeCdRR\": \"ut\"\n  },\n  {\n    \"nbsInterfaceUid\": -1269208,\n    \"payload\": \"irure mollit dolore sit laboris\",\n    \"impExpIndCd\": \"ut\",\n    \"recordStatusCd\": \"occaecat enim ex\",\n    \"recordStatusTime\": \"1976-03-26T07:55:22.174Z\",\n    \"addTime\": \"1952-03-25T09:37:43.511Z\",\n    \"systemNm\": \"ea esse adipisicing\",\n    \"docTypeCd\": \"dolore sint ad\",\n    \"originalPayload\": \"in occaecat nisi\",\n    \"originalDocTypeCd\": \"consequat reprehenderit culpa mollit sunt\",\n    \"fillerOrderNbr\": \"Excepteur occaecat dolor esse in\",\n    \"labClia\": \"aliquip amet sed in\",\n    \"specimenCollDate\": \"2016-07-03T17:38:42.839Z\",\n    \"orderTestCode\": \"deserunt consectetur in laboris\",\n    \"observationUid\": -5505635,\n    \"originalPayloadRR\": \"do in reprehenderit Lorem\",\n    \"originalDocTypeCdRR\": \"irure laborum sit est\"\n  }\n]"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "keyCloakClientId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "keyCloakClientSecret",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "bearerToken",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "messageUuid",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

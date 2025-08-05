@@ -25,7 +25,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import gov.cdc.nbs.deduplication.auth.authentication.PermissionResolver;
 import gov.cdc.nbs.deduplication.batch.mapper.PersonMergeDataMapper;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.seed.mapper.MpiPersonMapper;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 
@@ -77,7 +76,7 @@ class PatientRecordServiceTest {
         null, null, null, null, null);
 
     when(namedParameterJdbcTemplate.query(
-        eq(QueryConstants.PERSON_RECORD_BY_PERSON_ID),
+        eq(PatientQueries.PERSON_RECORD_BY_PERSON_ID),
         any(MapSqlParameterSource.class),
         any(MpiPersonMapper.class))).thenReturn(List.of(expectedPerson));
 
@@ -91,7 +90,7 @@ class PatientRecordServiceTest {
     String personUid = "123";
 
     when(namedParameterJdbcTemplate.query(
-        eq(QueryConstants.PERSON_RECORD_BY_PERSON_ID),
+        eq(PatientQueries.PERSON_RECORD_BY_PERSON_ID),
         any(MapSqlParameterSource.class),
         any(MpiPersonMapper.class))).thenReturn(List.of());
 
@@ -108,7 +107,7 @@ class PatientRecordServiceTest {
     List<MpiPerson> expectedPersons = Arrays.asList(person1, person2);
 
     when(namedParameterJdbcTemplate.query(
-        eq(QueryConstants.PERSON_RECORDS_BY_PERSON_IDS),
+        eq(PatientQueries.PERSON_RECORDS_BY_PERSON_IDS),
         any(MapSqlParameterSource.class),
         any(MpiPersonMapper.class))).thenReturn(expectedPersons);
 
@@ -125,7 +124,7 @@ class PatientRecordServiceTest {
     List<PersonMergeData> expectedPersons = Arrays.asList(person1, person2);
 
     when(namedParameterJdbcTemplate.query(
-        eq(QueryConstants.PERSONS_MERGE_DATA_BY_PERSON_IDS),
+        eq(PatientQueries.PERSONS_MERGE_DATA_BY_PERSON_IDS),
         any(MapSqlParameterSource.class),
         any(PersonMergeDataMapper.class))).thenReturn(expectedPersons);
 
@@ -178,7 +177,7 @@ class PatientRecordServiceTest {
     String expectedName = "John Doe";
 
     when(namedParameterJdbcTemplate.query(
-        eq(QueryConstants.FIND_NBS_ADD_TIME_AND_NAME_QUERY),
+        eq(PatientQueries.FIND_NBS_ADD_TIME_AND_NAME_QUERY),
         any(MapSqlParameterSource.class),
         any(RowMapper.class)))
         .thenAnswer(invocation -> {

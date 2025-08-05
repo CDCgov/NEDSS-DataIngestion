@@ -9,19 +9,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.id.GeneratedId;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
@@ -108,22 +104,14 @@ class PersonMortalityMergeHandlerTest {
         .thenReturn(true);
 
     when(idGenerator.getNextValidId(EntityType.NBS)).thenReturn(new GeneratedId(14L, "prefix", "suffix"));
-    mockCurrentUser(1001L);
+    SecurityTestUtil.mockSecurityContext();
 
     handler.handleMerge("matchId", mockRequest, audit);
 
     verify(nbsTemplate, times(12)).update(anyString(), any(MapSqlParameterSource.class));
   }
 
-  private void mockCurrentUser(long userId) {
-    NbsUserDetails user = Mockito.mock(NbsUserDetails.class);
-    when(user.getId()).thenReturn(userId);
 
-    Authentication auth = Mockito.mock(Authentication.class);
-    when(auth.getPrincipal()).thenReturn(user);
-
-    SecurityContextHolder.getContext().setAuthentication(auth);
-  }
 
   @Test
   void handleMerge_ShouldAddAuditUpdateActions() {
@@ -139,7 +127,7 @@ class PersonMortalityMergeHandlerTest {
     when(idGenerator.getNextValidId(EntityType.NBS))
         .thenReturn(new GeneratedId(14L, "prefix", "suffix"));
 
-    mockCurrentUser(1001L);
+    SecurityTestUtil.mockSecurityContext();
 
     // Mock audit query results
     Map<String, Object> cityRow = new HashMap<>();

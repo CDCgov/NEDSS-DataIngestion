@@ -2,127 +2,218 @@ package gov.cdc.nbs.deduplication.batch.step;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.batch.step.exception.MergeGroupInsertException;
 import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @Component
 public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
+  private static final String PERSON_UID = "personUid";
+  private static final String MERGE_GROUP = "mergeGroup";
 
-  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final JdbcClient jdbcClient;
   private final PatientRecordService patientRecordService;
 
-  public MatchCandidateWriter(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+  public MatchCandidateWriter(
+      @Qualifier("deduplicationJdbcClient") final JdbcClient jdbcClient,
       final PatientRecordService patientRecordService) {
-    this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    this.jdbcClient = jdbcClient;
     this.patientRecordService = patientRecordService;
   }
 
+  static final String FIND_MATCH_GROUP_CONTAINING_TARGET = """
+      SELECT
+        TOP 1 merge_group
+      FROM
+        merge_group_entries
+      WHERE
+        person_uid = :personUid
+        AND is_merge IS NULL
+      """;
+
+  static final String DOES_GROUP_INCLUDES_PERSON_UID = """
+      SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM merge_group_entries
+            WHERE person_uid = :personUid
+            AND merge_group = :mergeGroup
+        ) THEN 1 ELSE 0 END
+      """;
+
   static final String INSERT_MATCH_GROUP = """
-          INSERT INTO matches_requiring_review (person_uid, person_local_id, person_name, person_add_time, date_identified)
-          VALUES (:personUid, :personLocalId, :personName, :personAddTime, :identifiedDate)
+      INSERT INTO
+        merge_group (add_time)
+      VALUES
+        (getDate());
       """;
 
-  static final String INSERT_MATCH_CANDIDATE = """
-          INSERT INTO match_candidates (match_id, person_uid, is_merge)
-          VALUES (:matchId, :personUid, NULL)
+  static final String INSERT_MATCH_GROUP_ENTRY = """
+      INSERT INTO merge_group_entries (
+        merge_group,
+        person_uid
+      )
+      VALUES (
+        :mergeGroup,
+        :personUid
+      );
       """;
 
-  static final String PERSON_UIDS_BY_MPI_PATIENT_IDS = """
-          SELECT person_uid
+  static final String INSERT_MATCH_REQUIRING_REVIEW = """
+      INSERT INTO
+        matches_requiring_review (
+        person_uid,
+        person_local_id,
+        person_name,
+        person_add_time,
+        matched_person_uid,
+        date_identified,
+        merge_group)
+      VALUES
+        (
+        :personUid,
+        :personLocalId,
+        :personName,
+        :personAddTime,
+        :matchedPersonUid,
+        :identifiedDate,
+        :mergeGroup
+        );
+      """;
+
+  static final String SELECT_PERSON_UID_BY_MPI_ID = """
+          SELECT TOP 1 person_uid
           FROM nbs_mpi_mapping
-          WHERE mpi_person IN (:mpiIds)
-          AND person_uid=person_parent_uid
+          WHERE mpi_person IN (:mpiId)
+          AND person_uid = person_parent_uid
+      """;
+
+  static final String UPDATE_STATUS_TO_P = """
+      UPDATE nbs_mpi_mapping
+      SET status = 'P'
+      WHERE person_uid IN (:personIds)
       """;
 
   @Override
   public void write(Chunk<? extends MatchCandidate> chunk) {
-    List<String> personIds = new ArrayList<>();
-    List<MatchCandidate> candidatesToInsert = new ArrayList<>();
-    for (MatchCandidate candidate : chunk.getItems()) {
-      personIds.add(candidate.personUid());
-      if (candidate.possibleMatchList() != null) {
-        candidatesToInsert.add(candidate);
-      }
-    }
-    insertMatchCandidates(candidatesToInsert);
-    updateStatus(personIds);
+    List<String> processedPersonIds = chunk.getItems()
+        .stream()
+        .map(this::processMatchCandidate)
+        .toList();
+
+    updateStatus(processedPersonIds);
   }
 
-  private void insertMatchCandidates(List<MatchCandidate> candidates) {
-    for (MatchCandidate candidate : candidates) {
-      // Step 1: Insert into matches_requiring_review
-      Long matchId = insertMatchGroup(candidate.personUid());
+  private String processMatchCandidate(MatchCandidate candidate) {
+    // If the candidate has possible matches
+    if (candidate.possibleMatchList() != null && !candidate.possibleMatchList().isEmpty()) {
+      // Get the matched person's uid. Only supports single match
+      String matchedPersonUid = getPersonIdByMpiIds(candidate.possibleMatchList().getFirst());
 
-      // Step 2: Insert each potential match
-      List<String> potentialNbsIds = getPersonIdsByMpiIds(candidate.possibleMatchList());
-      for (String potentialNbsId : potentialNbsIds) {
-        insertMatchCandidate(matchId, Long.valueOf(potentialNbsId));
-      }
+      // Add to, or create a new merge group
+      long groupId = ensureMergeGroup(candidate.personUid(), matchedPersonUid);
+
+      // Insert into matches_requiring_review
+      insertMatch(candidate.personUid(), matchedPersonUid, groupId);
     }
+
+    // return person_uid that was processed so status can be updated
+    return candidate.personUid();
   }
 
-  private Long insertMatchGroup(String personId) {
-    PatientNameAndTime patientNameAndTime = getPersonNameAndAddTime(personId);
-    MapSqlParameterSource groupParams = new MapSqlParameterSource()
-        .addValue("personUid", personId)
-        .addValue("personLocalId", patientNameAndTime.personLocalId())
-        .addValue("personName", patientNameAndTime.name())
-        .addValue("personAddTime", patientNameAndTime.addTime())
-        .addValue("identifiedDate", getCurrentDate());
+  private long ensureMergeGroup(String incomingPersonUid, String matchedPersonUid) {
+    // Check if a group already exists with the matched person
+    Optional<Long> existingGroup = jdbcClient.sql(FIND_MATCH_GROUP_CONTAINING_TARGET)
+        .param(PERSON_UID, matchedPersonUid)
+        .query(Long.class)
+        .optional();
 
+    if (existingGroup.isPresent()) {
+      // If so, ensure the incoming personUid is included in that group
+      long groupId = existingGroup.get();
+      ensurePersonInGroup(groupId, incomingPersonUid);
+      return groupId;
+    } else {
+      // If not, create a group and add both the incoming and matched person to it
+      long groupId = createMergeGroup();
+      ensurePersonInGroup(groupId, incomingPersonUid);
+      ensurePersonInGroup(groupId, matchedPersonUid);
+      return groupId;
+    }
+
+  }
+
+  long createMergeGroup() {
     KeyHolder keyHolder = new GeneratedKeyHolder();
+    jdbcClient.sql(INSERT_MATCH_GROUP)
+        .update(keyHolder);
 
-    namedParameterJdbcTemplate.update(
-        INSERT_MATCH_GROUP,
-        groupParams,
-        keyHolder);
-
-    Number matchGroupId = keyHolder.getKey();
-    return matchGroupId != null ? matchGroupId.longValue() : null;
+    Number groupId = keyHolder.getKey();
+    if (groupId == null) {
+      throw new MergeGroupInsertException();
+    }
+    return groupId.longValue();
   }
 
-  private List<String> getPersonIdsByMpiIds(List<String> mpiIds) {
-    return namedParameterJdbcTemplate.query(
-        PERSON_UIDS_BY_MPI_PATIENT_IDS,
-        new MapSqlParameterSource("mpiIds", mpiIds),
-        (rs, rowNum) -> rs.getString("person_uid"));
+  private void ensurePersonInGroup(long mergeGroup, String personUid) {
+    boolean incomingAlreadyExists = jdbcClient.sql(DOES_GROUP_INCLUDES_PERSON_UID)
+        .param(PERSON_UID, personUid)
+        .param(MERGE_GROUP, mergeGroup)
+        .query(Boolean.class)
+        .single();
+
+    if (!incomingAlreadyExists) {
+      jdbcClient.sql(INSERT_MATCH_GROUP_ENTRY)
+          .param(MERGE_GROUP, mergeGroup)
+          .param(PERSON_UID, personUid)
+          .update();
+    }
   }
 
-  private void insertMatchCandidate(Long matchId, Long personUid) {
-    MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("matchId", matchId)
-        .addValue("personUid", personUid);
+  private void insertMatch(String incomingPersonId, String matchedPersonId, long mergeGroup) {
+    // Get the incoming records name, add time, and local Id
+    PatientNameAndTime patientData = patientRecordService.fetchPersonNameAndAddTime(incomingPersonId);
 
-    namedParameterJdbcTemplate.update(INSERT_MATCH_CANDIDATE, params);
+    // Insert into matches_requiring_review table
+    jdbcClient.sql(INSERT_MATCH_REQUIRING_REVIEW)
+        .param(PERSON_UID, incomingPersonId)
+        .param("personLocalId", patientData.personLocalId())
+        .param("personName", patientData.name())
+        .param("personAddTime", patientData.addTime())
+        .param("matchedPersonUid", matchedPersonId)
+        .param("identifiedDate", getCurrentDate())
+        .param(MERGE_GROUP, mergeGroup)
+        .update();
+  }
+
+  private String getPersonIdByMpiIds(String mpiId) {
+    return jdbcClient.sql(SELECT_PERSON_UID_BY_MPI_ID)
+        .param("mpiId", mpiId)
+        .query(String.class)
+        .single();
   }
 
   private void updateStatus(List<String> personIds) {
     if (!personIds.isEmpty()) {
-      MapSqlParameterSource parameters = new MapSqlParameterSource();
-      parameters.addValue("personIds", personIds);
-      namedParameterJdbcTemplate.update(QueryConstants.UPDATE_PROCESSED_PERSONS, parameters);
+      jdbcClient.sql(UPDATE_STATUS_TO_P)
+          .param("personIds", personIds)
+          .update();
     }
   }
 
   private String getCurrentDate() {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-  }
-
-  private PatientNameAndTime getPersonNameAndAddTime(String personId) {
-    return patientRecordService.fetchPersonNameAndAddTime(personId);
   }
 
 }

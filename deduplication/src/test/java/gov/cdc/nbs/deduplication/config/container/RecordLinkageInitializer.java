@@ -19,7 +19,7 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
     final Network network = MsSqlContainerInitializer.network;
 
     recordLinkageContainer = new GenericContainer<>(
-        "ghcr.io/cdcgov/recordlinker:v25.8.0")
+        "ghcr.io/cdcgov/recordlinker:v25.9.0")
         .withExposedPorts(8070)
         .withEnv("PORT", "8070")
         .withNetwork(network)
