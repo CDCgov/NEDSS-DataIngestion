@@ -502,6 +502,7 @@ public class KafkaConsumerService {
             if (validatedELRModel.isEmpty()) {
                 throw new XmlConversionException("Message Not Found in Validated");
             }
+            var rawId = validatedELRModel.get().getRawId();
             List<ReportStatusIdData> statusList = iReportStatusRepository.findByRawMessageId(validatedELRModel.get().getRawId());
             if (statusList!=null && !statusList.isEmpty()) {
                 for(ReportStatusIdData reportStatusIdData:statusList){
@@ -538,7 +539,7 @@ public class KafkaConsumerService {
             }
 
             for(HL7ParsedMessage<OruR1> hl7ParsedMessage:parsedMessageList) {
-                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(messageId, hl7ParsedMessage);
+                String phdcXml = Hl7ToRhapsodysXmlConverter.getInstance().convert(rawId, hl7ParsedMessage);
                 log.debug("phdcXml: {}", phdcXml);
                 NbsInterfaceModel nbsInterfaceModel = nbsRepositoryServiceProvider.saveXmlMessage(messageId, phdcXml, hl7ParsedMessage, dataProcessingApplied);
 
