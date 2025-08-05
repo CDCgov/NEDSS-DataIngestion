@@ -154,7 +154,7 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   }
 
-  private long createMergeGroup() {
+  long createMergeGroup() {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbcClient.sql(INSERT_MATCH_GROUP)
         .update(keyHolder);

@@ -8,10 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.mockito.Mockito.*;
 
 public class SecurityTestUtil {
-
   public static void mockSecurityContext() {
+    mockSecurityContext(100L);
+  }
+
+  public static void mockSecurityContext(long userId) {
     NbsUserDetails mockUserDetails = mock(NbsUserDetails.class);
-    when(mockUserDetails.getId()).thenReturn(100L);
+    when(mockUserDetails.getId()).thenReturn(userId);
 
     Authentication authentication = mock(Authentication.class);
     when(authentication.getPrincipal()).thenReturn(mockUserDetails);
