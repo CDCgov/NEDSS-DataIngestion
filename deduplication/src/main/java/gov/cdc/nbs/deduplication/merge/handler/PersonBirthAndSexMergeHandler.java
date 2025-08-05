@@ -16,6 +16,7 @@ import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.SexAndBirthFieldSource;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -167,6 +168,7 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       INSERT INTO Entity_locator_participation (
         entity_uid,
         locator_uid,
+        version_ctrl_nbr,
         cd,
         class_cd,
         last_chg_time,
@@ -181,6 +183,7 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       (
         :survivorId,
         :locatorId,
+        1,
         'F',
         'PST',
         GETDATE(),
@@ -213,7 +216,6 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       );
       """;
 
-
   static final String UPDATE_BIRTH_CITY = """
       UPDATE Postal_locator
       SET
@@ -235,7 +237,6 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         elp.use_cd = 'BIR'
         AND Entity_uid = :survivorId)
           """;
-
 
   static final String UPDATE_BIRTH_STATE_AND_COUNTY = """
       UPDATE Postal_locator
@@ -391,26 +392,25 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
 
     addAuditInsertEntry("Entity_locator_participation", Map.of(
         "entity_uid", survivorId,
-        "locator_uid", locatorId
-    ));
+        "locator_uid", locatorId));
 
     // Create Postal_locator
     MapSqlParameterSource locatorParams = new MapSqlParameterSource();
-    params.addValue("locatorId", locatorId);
-    params.addValue("userId", currentUser.getId());
+    locatorParams.addValue("locatorId", locatorId);
+    locatorParams.addValue("userId", currentUser.getId());
 
     nbsTemplate.update(INSERT_POSTAL_LOCATOR, locatorParams);
 
     addAuditInsertEntry("Postal_locator", Map.of(
-        "postal_locator_uid", locatorId //NOSONAR
+        "postal_locator_uid", locatorId // NOSONAR
     ));
 
   }
 
   private void addAuditInsertEntry(String tableName, Map<String, Object> data) {
     AuditInsertAction insertAction = new AuditInsertAction(data);
-    RelatedTableAudit relatedTableAudit =
-        new RelatedTableAudit(tableName, List.of(), Collections.singletonList(insertAction));
+    RelatedTableAudit relatedTableAudit = new RelatedTableAudit(tableName, List.of(),
+        Collections.singletonList(insertAction));
     audit.getRelatedTableAudits().add(relatedTableAudit);
   }
 
@@ -420,18 +420,22 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       ensurePostalLocator(survivorId, sourceId);
 
       // fetch current value for audit
-      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE
-          , new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE,
+          new MapSqlParameterSource(SURVIVOR_ID, survivorId));
 
       // update surviving record's 'BIR' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_BIRTH_CITY);
 
       // build audit actions
       List<AuditUpdateAction> updateActions = oldRows.stream()
-          .map(row -> new AuditUpdateAction(
-              Map.of("postal_locator_uid", row.get("postal_locator_uid")),
-              Map.of("city_desc_txt", row.get("city_desc_txt"))
-          ))
+          .map(row -> {
+            Map<String, Object> values = new HashMap<>();
+            values.put("city_desc_txt", row.get("city_desc_txt"));
+
+            return new AuditUpdateAction(
+                Map.of("postal_locator_uid", row.get("postal_locator_uid")),
+                values);
+          })
           .toList();
 
       addAuditUpdateEntry(updateActions);
@@ -444,21 +448,23 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       ensurePostalLocator(survivorId, sourceId);
 
       // fetch current value for audit
-      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE
-          , new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(
+          SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE, new MapSqlParameterSource(SURVIVOR_ID, survivorId));
 
       // update surviving record's 'BIR' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_BIRTH_STATE_AND_COUNTY);
 
       // build audit actions
       List<AuditUpdateAction> updateActions = oldRows.stream()
-          .map(row -> new AuditUpdateAction(
-              Map.of("postal_locator_uid", row.get("postal_locator_uid")),
-              Map.of(
-                  "state_cd", row.get("state_cd"),
-                  "cnty_cd", row.get("cnty_cd")
-              )
-          ))
+          .map(row -> {
+            Map<String, Object> values = new HashMap<>();
+            values.put("state_cd", row.get("state_cd"));
+            values.put("cnty_cd", row.get("cnty_cd"));
+
+            return new AuditUpdateAction(
+                Map.of("postal_locator_uid", row.get("postal_locator_uid")),
+                values);
+          })
           .toList();
 
       addAuditUpdateEntry(updateActions);
@@ -472,19 +478,22 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       ensurePostalLocator(survivorId, sourceId);
 
       // fetch current value for audit
-      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE
-          , new MapSqlParameterSource(SURVIVOR_ID, survivorId));
-
+      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE,
+          new MapSqlParameterSource(SURVIVOR_ID, survivorId));
 
       // update surviving record's 'BIR' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_BIRTH_COUNTRY);
 
       // build audit actions
       List<AuditUpdateAction> updateActions = oldRows.stream()
-          .map(row -> new AuditUpdateAction(
-              Map.of("postal_locator_uid", row.get("postal_locator_uid")),
-              Map.of("cntry_cd", row.get("cntry_cd"))
-          ))
+          .map(row -> {
+            Map<String, Object> values = new HashMap<>();
+            values.put("cntry_cd", row.get("cntry_cd"));
+
+            return new AuditUpdateAction(
+                Map.of("postal_locator_uid", row.get("postal_locator_uid")),
+                values);
+          })
           .toList();
 
       addAuditUpdateEntry(updateActions);
@@ -495,7 +504,6 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     audit.getRelatedTableAudits()
         .add(new RelatedTableAudit("Postal_locator", updateActions, List.of()));
   }
-
 
   private void updateAsOf(String survivorId, String sourceId) {
     if (!survivorId.equals(sourceId)) {

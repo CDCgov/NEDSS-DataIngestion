@@ -45,7 +45,7 @@ class MergeServiceTest {
     StatementSpec mockStatementSpec = Mockito.mock(StatementSpec.class);
 
     when(deduplicationClient.sql(MergeService.MARK_PATIENTS_AS_MERGED)).thenReturn(mockStatementSpec);
-    when(mockStatementSpec.param("matchId", 123L)).thenReturn(mockStatementSpec);
+    when(mockStatementSpec.param("mergeGroup", 123L)).thenReturn(mockStatementSpec);
     when(mockStatementSpec.update()).thenReturn(1); // simulate update success
 
     StatementSpec auditStatementSpec = Mockito.mock(StatementSpec.class);
@@ -64,8 +64,6 @@ class MergeServiceTest {
 
     PatientMergeRequest request = mock(PatientMergeRequest.class);
     when(request.survivingRecord()).thenReturn("999");
-
-
 
     String relatedAuditsJson = "[{\"table\":\"person\",\"action\":\"update\"}]";
     String mergeRequestJson = "{\"survivingRecord\":\"999\"}";

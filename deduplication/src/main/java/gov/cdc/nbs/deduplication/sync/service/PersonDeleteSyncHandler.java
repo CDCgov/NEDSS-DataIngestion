@@ -39,7 +39,7 @@ public class PersonDeleteSyncHandler {
       """;
 
   static final String REMOVE_FROM_POTENTIAL_MERGES = """
-      UPDATE match_candidates
+      UPDATE merge_group_entries
       SET is_merge = 0
       WHERE person_uid = :id
       AND is_merge IS NULL;
@@ -47,24 +47,24 @@ public class PersonDeleteSyncHandler {
 
   // clears any potential merge listings where there are only 1 entry
   static final String CLEAN_UP_POTENTIAL_MERGES = """
-      UPDATE match_candidates
+      UPDATE merge_group_entries
       SET
         is_merge = 0
       WHERE
-        match_id IN (
+        merge_group IN (
           SELECT
-            match_id
+            merge_group
           FROM
             (
               SELECT
-                match_id,
-                count(*) AS null_count
+                merge_group,
+                count(*) as null_count
               FROM
-                match_candidates
+                merge_group_entries
               WHERE
                 is_merge IS NULL
               GROUP BY
-                match_id
+                merge_group
             ) AS counts
           WHERE
             null_count = 1

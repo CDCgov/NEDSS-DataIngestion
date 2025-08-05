@@ -57,7 +57,7 @@ class PersonTableMergeHandlerTest {
 
   private void mockFetchSupersededCandidatesToReturn(String... ids) {
     when(deduplicationTemplate.queryForList(
-        eq(QueryConstants.FETCH_SUPERSEDED_CANDIDATES),
+        eq(PersonTableMergeHandler.FETCH_SUPERSEDED_CANDIDATES),
         any(MapSqlParameterSource.class),
         eq(String.class))).thenReturn(Arrays.asList(ids));
   }
