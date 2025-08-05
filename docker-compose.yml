@@ -129,6 +129,7 @@ services:
       args:
         - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
     container_name: di-mssql
+    platform: linux/amd64
     ports:
       - 2433:1433
     networks:

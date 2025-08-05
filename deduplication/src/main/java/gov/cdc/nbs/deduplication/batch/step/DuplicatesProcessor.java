@@ -42,6 +42,6 @@ public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate
 
       return new MatchCandidate(personUid, possibleMatchList);
     }
-    return new MatchCandidate(personUid, null);
+    return new MatchCandidate(personUid);
   }
 }

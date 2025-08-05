@@ -69,7 +69,7 @@ class DuplicatesProcessorTest {
 
     assertThat(result).isNotNull();
     assertThat(result.personUid()).isEqualTo(personUid);
-    assertThat(result.possibleMatchList()).isNull();
+    assertThat(result.possibleMatchList()).isEmpty();
   }
 
   @Test

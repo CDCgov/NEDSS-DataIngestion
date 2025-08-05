@@ -20,9 +20,9 @@ import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 public class MergeService {
 
   static final String MARK_PATIENTS_AS_MERGED = """
-      UPDATE match_candidates
+      UPDATE merge_group_entries
       SET is_merge = 1
-      WHERE  match_id = :matchId
+      WHERE  merge_group = :mergeGroup
       AND is_merge IS NULL;
       """;
 
@@ -59,21 +59,21 @@ public class MergeService {
   }
 
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.REQUIRED)
-  public void performMerge(Long matchId, PatientMergeRequest request) throws JsonProcessingException {
-    String matchIdStr = matchId.toString();
+  public void performMerge(Long mergeGroup, PatientMergeRequest request) throws JsonProcessingException {
+    String matchGroupStr = mergeGroup.toString();
 
     PatientMergeAudit patientMergeAudit = initPatientMergeAudit(request);
     for (SectionMergeHandler handler : handlers) {
-      handler.handleMerge(matchIdStr, request, patientMergeAudit);
+      handler.handleMerge(matchGroupStr, request, patientMergeAudit);
     }
 
-    markPatientsMerged(matchId);
+    markPatientsMerged(mergeGroup);
     saveAuditToDatabase(patientMergeAudit);
   }
 
-  private void markPatientsMerged(long matchId) {
+  private void markPatientsMerged(long mergeGroup) {
     deduplicationClient.sql(MARK_PATIENTS_AS_MERGED)
-        .param("matchId", matchId)
+        .param("mergeGroup", mergeGroup)
         .update();
   }
 

@@ -33,12 +33,23 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     this.deduplicationTemplate = deduplicationTemplate;
   }
 
+  static final String FETCH_SUPERSEDED_CANDIDATES = """
+      SELECT
+        person_uid
+      FROM
+        merge_group_entries
+      WHERE
+        merge_group = :mergeGroup
+        AND person_uid != :survivorId
+        AND is_merge IS NULL;
+      """;
+
   // Modifications have been performed on the person table entries.
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+  public void handleMerge(String mergeGroup, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     String survivorId = request.survivingRecord();
-    List<String> supersededUids = getSupersededRecords(matchId, survivorId);
+    List<String> supersededUids = getSupersededRecords(mergeGroup, survivorId);
     List<String> involvedPatients = new ArrayList<>();
     involvedPatients.add(survivorId);
     involvedPatients.addAll(supersededUids);
@@ -53,12 +64,12 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     patientMergeAudit.setMergeTimestamp(getCurrentUtcTimestamp());
   }
 
-  List<String> getSupersededRecords(String matchId, String survivorId) {
+  List<String> getSupersededRecords(String mergeGroup, String survivorId) {
     MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("matchId", matchId);
+    params.addValue("mergeGroup", mergeGroup);
     params.addValue("survivorId", survivorId);
     return deduplicationTemplate.queryForList(
-        QueryConstants.FETCH_SUPERSEDED_CANDIDATES,
+        FETCH_SUPERSEDED_CANDIDATES,
         params,
         String.class);
   }
