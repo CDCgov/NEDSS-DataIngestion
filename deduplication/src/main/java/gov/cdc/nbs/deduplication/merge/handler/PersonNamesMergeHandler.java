@@ -108,6 +108,52 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
         AND person_name_seq = :oldSeq
       """;
 
+  static final String INSERT_PERSON_NAME_HIST_FOR_ALL = """
+    INSERT INTO person_name_hist (
+        person_uid, person_name_seq, add_reason_cd, add_time, add_user_id,
+        default_nm_ind, duration_amt, duration_unit_cd, first_nm, first_nm_sndx,
+        from_time, last_chg_reason_cd, last_chg_time, last_chg_user_id,
+        last_nm, last_nm_sndx, last_nm2, last_nm2_sndx, middle_nm, middle_nm2,
+        nm_degree, nm_prefix, nm_suffix, nm_use_cd, record_status_cd,
+        record_status_time, status_cd, status_time, to_time, user_affiliation_txt,
+        as_of_date, version_ctrl_nbr
+    )
+    SELECT
+        pn.*,
+        ISNULL((
+            SELECT MAX(h.version_ctrl_nbr)
+            FROM person_name_hist h
+            WHERE h.person_uid = pn.person_uid
+              AND h.person_name_seq = pn.person_name_seq
+        ), 0) + 1 AS version_ctrl_nbr
+    FROM person_name pn
+    WHERE pn.person_uid = :personUid
+    """;
+
+
+  static final String INSERT_PERSON_NAME_HIST_FOR_SELECTED = """
+    INSERT INTO person_name_hist (
+        person_uid, person_name_seq, add_reason_cd, add_time, add_user_id,
+        default_nm_ind, duration_amt, duration_unit_cd, first_nm, first_nm_sndx,
+        from_time, last_chg_reason_cd, last_chg_time, last_chg_user_id,
+        last_nm, last_nm_sndx, last_nm2, last_nm2_sndx, middle_nm, middle_nm2,
+        nm_degree, nm_prefix, nm_suffix, nm_use_cd, record_status_cd,
+        record_status_time, status_cd, status_time, to_time, user_affiliation_txt,
+        as_of_date, version_ctrl_nbr
+    )
+    SELECT
+        pn.*,
+        ISNULL((
+            SELECT MAX(h.version_ctrl_nbr)
+            FROM person_name_hist h
+            WHERE h.person_uid = pn.person_uid
+              AND h.person_name_seq = pn.person_name_seq
+        ), 0) + 1 AS version_ctrl_nbr
+    FROM person_name pn
+    WHERE pn.person_uid = :personUid
+      AND pn.person_name_seq NOT IN (:sequences)
+    """;
+
   public PersonNamesMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
@@ -143,8 +189,9 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
   }
 
   private List<AuditUpdateAction> performNameInactivation(String survivorId, List<Integer> selectedSequences) {
-    String query = selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE
+    String updateQuery = selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE
         : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
+
     Map<String, Object> params = new HashMap<>();
     params.put("personUid", survivorId);// NOSONAR
     if (!selectedSequences.isEmpty()) {
@@ -154,7 +201,13 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     List<Map<String, Object>> rowsToUpdate = fetchRowsForInactivation(survivorId, selectedSequences);
     List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
 
-    nbsTemplate.update(query, params);
+
+    String insertHistSql = selectedSequences.isEmpty() ? INSERT_PERSON_NAME_HIST_FOR_ALL
+        : INSERT_PERSON_NAME_HIST_FOR_SELECTED;
+    nbsTemplate.update(insertHistSql, params);
+
+
+    nbsTemplate.update(updateQuery, params);
     return auditUpdates;
   }
 

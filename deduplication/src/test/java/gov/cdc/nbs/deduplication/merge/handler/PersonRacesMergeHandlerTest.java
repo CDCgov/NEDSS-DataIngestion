@@ -50,7 +50,9 @@ class PersonRacesMergeHandlerTest {
         new RaceId("1", "A"),
         new RaceId("2", "B")));
 
-    mockSetInactive(100L, "1");
+    mockInsertRaceHistForAll();
+    mockInsertRaceHistForSelected();
+    mockSetInactive();
     mockSelectRaceEntries();
     mockEntryExists();
     mockInsert();
@@ -77,6 +79,15 @@ class PersonRacesMergeHandlerTest {
     when(statementSpec.param(PersonRacesMergeHandler.RACE, "A")).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "Z")).thenReturn(statementSpec);
   }
+
+  private void mockInsertRaceHistForSelected() {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.INSERT_PERSON_RACE_HIST_FOR_SELECTED)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.RACE, "A")).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "Z")).thenReturn(statementSpec);
+  }
+
 
   private void mockInsert() {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
@@ -131,11 +142,17 @@ class PersonRacesMergeHandlerTest {
     when(person2QuerySpec.list()).thenReturn(List.of(new RaceEntry("B", "X")));
   }
 
-  private void mockSetInactive(long userId, String survivorId) {
+  private void mockSetInactive() {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
     when(client.sql(PersonRacesMergeHandler.SET_RACE_ENTRIES_TO_INACTIVE)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonRacesMergeHandler.USER_ID, userId)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, survivorId)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.USER_ID, 100L)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
+  }
+
+  private void mockInsertRaceHistForAll() {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonRacesMergeHandler.INSERT_PERSON_RACE_HIST_FOR_ALL)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
   }
 
 
