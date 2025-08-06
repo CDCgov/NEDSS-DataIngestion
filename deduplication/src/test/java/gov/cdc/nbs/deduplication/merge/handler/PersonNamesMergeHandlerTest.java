@@ -37,7 +37,7 @@ class PersonNamesMergeHandlerTest {
   }
 
   @Test
-  void handleMerge_shouldPerformAllPersonNameRelatedDatabaseOperations() {
+  void handleMerge_shouldPerformMergePersonName_SelectedSurvivingNames() {
     // Surviving person has seq 1 (selected) and seq 2 (not selected)
     // Superseded persons each have seq 1 to move
     List<PatientMergeRequest.NameId> names = Arrays.asList(
@@ -59,6 +59,54 @@ class PersonNamesMergeHandlerTest {
     verifyAuditData(audit);
   }
 
+  @Test
+  void handleMerge_shouldPerformMergePersonName_NoSelectedSurvivingNames() {
+
+    List<PatientMergeRequest.NameId> names = Arrays.asList(
+        new PatientMergeRequest.NameId(SUPERSEDED_PERSON_UID_1, "1"),
+        new PatientMergeRequest.NameId(SUPERSEDED_PERSON_UID_2, "1")
+    );
+
+    PatientMergeRequest request = getPatientMergeRequest(names);
+    PatientMergeAudit audit = new PatientMergeAudit(new ArrayList<>());
+
+    mockMaxSequenceQueryToReturn(2);
+    mockAuditForInactiveAllNames();
+    mockAuditForSupersededNames();
+
+    handler.handleMerge(MATCH_ID, request, audit);
+
+    verifyInactiveAllSurvivingNames();
+    verifySupersededNameMoves();
+    verifyAuditData(audit);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void mockAuditForInactiveAllNames() {
+    when(nbsTemplate.queryForList(
+        eq(PersonNamesMergeHandler.FIND_PERSON_NAMES_FOR_INACTIVATION),
+        any(Map.class)
+    )).thenReturn(List.of(
+        Map.of("person_uid", SURVIVING_PERSON_UID, "person_name_seq", 2, "record_status_cd", "ACTIVE")
+    ));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void verifyInactiveAllSurvivingNames() {
+    ArgumentCaptor<Map<String, Object>> inactiveParamsCaptor = ArgumentCaptor.forClass(Map.class);
+
+    verify(nbsTemplate).update(
+        eq(PersonNamesMergeHandler.UPDATE_ALL_PERSON_NAMES_INACTIVE),
+        inactiveParamsCaptor.capture()
+    );
+
+    verify(nbsTemplate).update(
+        eq(PersonNamesMergeHandler.INSERT_PERSON_NAME_HIST_FOR_ALL),
+        inactiveParamsCaptor.capture()
+    );
+  }
+
+
   @SuppressWarnings("unchecked")
   private void mockMaxSequenceQueryToReturn(int maxSequence) {
     when(nbsTemplate.queryForObject(
@@ -73,6 +121,11 @@ class PersonNamesMergeHandlerTest {
     ArgumentCaptor<Map<String, Object>> inactiveParamsCaptor = ArgumentCaptor.forClass(Map.class);
     verify(nbsTemplate).update(
         eq(PersonNamesMergeHandler.UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE),
+        inactiveParamsCaptor.capture()
+    );
+
+    verify(nbsTemplate).update(
+        eq(PersonNamesMergeHandler.INSERT_PERSON_NAME_HIST_FOR_SELECTED),
         inactiveParamsCaptor.capture()
     );
   }

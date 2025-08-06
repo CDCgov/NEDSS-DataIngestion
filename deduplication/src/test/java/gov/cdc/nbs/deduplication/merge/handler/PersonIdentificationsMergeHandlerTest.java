@@ -41,7 +41,7 @@ class PersonIdentificationsMergeHandlerTest {
   }
 
   @Test
-  void handleMerge_shouldPerformAllPersonIdentificationRelatedDatabaseOperations() {
+  void handleMerge_shouldPerformMergeIdentification_SurvivingSelectedIdentifications() {
     // Surviving person has seq 1 (selected) and seq 2 (not selected)
     // Superseded persons each have seq 1 to move
     List<PatientMergeRequest.IdentificationId> identifications = Arrays.asList(
@@ -63,6 +63,31 @@ class PersonIdentificationsMergeHandlerTest {
     verifySupersededIdentificationsMoves();
     verifyAuditData(audit);
   }
+
+
+  @Test
+  void handleMerge_shouldPerformMergeIdentification_NoSurvivingSelectedIdentifications() {
+    List<PatientMergeRequest.IdentificationId> identifications = Arrays.asList(
+        new PatientMergeRequest.IdentificationId(SUPERSEDED_PERSON_UID_1, "1"),
+        new PatientMergeRequest.IdentificationId(SUPERSEDED_PERSON_UID_2, "1")
+    );
+
+    PatientMergeRequest request = getPatientMergeRequest(identifications);
+    PatientMergeAudit audit = new PatientMergeAudit(new ArrayList<>());
+
+    mockMaxSequenceQueryToReturn(2);
+    mockAuditForAllIdentifications();
+    mockAuditForSupersededIdentifications();
+
+    handler.handleMerge(MATCH_ID, request, audit);
+
+    verifyInactiveAllSurvivingIdentifications();
+    verifySupersededIdentificationsMoves();
+    verifyAuditData(audit);
+  }
+
+
+
 
   @SuppressWarnings("unchecked")
   private void mockMaxSequenceQueryToReturn(int maxSequence) {
@@ -95,12 +120,44 @@ class PersonIdentificationsMergeHandlerTest {
     ));
   }
 
+  @SuppressWarnings("unchecked")
+  private void mockAuditForAllIdentifications() {
+    when(nbsTemplate.queryForList(
+        eq(PersonIdentificationsMergeHandler.FIND_ALL_IDENTIFICATIONS_FOR_AUDIT),
+        any(Map.class)
+    )).thenReturn(List.of(
+        Map.of("entity_uid", SURVIVING_PERSON_UID, "entity_id_seq", 2, "record_status_cd", "ACTIVE")
+    ));
+  }
+
 
   @SuppressWarnings("unchecked")
   private void verifyInactiveSurvivingIdentifications() {
     ArgumentCaptor<Map<String, Object>> inactiveParamsCaptor = ArgumentCaptor.forClass(Map.class);
     verify(nbsTemplate).update(
         eq(PersonIdentificationsMergeHandler.UPDATE_SELECTED_EXCLUDED_IDENTIFICATION_INACTIVE),
+        inactiveParamsCaptor.capture()
+    );
+
+    verify(nbsTemplate).update(
+        eq(PersonIdentificationsMergeHandler.INSERT_ENTITY_ID_HIST_FOR_SELECTED),
+        inactiveParamsCaptor.capture()
+    );
+  }
+
+
+
+  @SuppressWarnings("unchecked")
+  private void verifyInactiveAllSurvivingIdentifications() {
+    ArgumentCaptor<Map<String, Object>> inactiveParamsCaptor = ArgumentCaptor.forClass(Map.class);
+
+    verify(nbsTemplate).update(
+        eq(PersonIdentificationsMergeHandler.UPDATE_ALL_PERSON_IDENTIFICATION_INACTIVE),
+        inactiveParamsCaptor.capture()
+    );
+
+    verify(nbsTemplate).update(
+        eq(PersonIdentificationsMergeHandler.INSERT_ENTITY_ID_HIST_FOR_ALL),
         inactiveParamsCaptor.capture()
     );
   }
