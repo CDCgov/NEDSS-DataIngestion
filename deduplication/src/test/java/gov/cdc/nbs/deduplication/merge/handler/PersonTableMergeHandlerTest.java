@@ -70,7 +70,7 @@ class PersonTableMergeHandlerTest {
   }
 
   private void verifyCopyPersonToHistory() {
-    verify(nbsTemplate).update(eq(QueryConstants.COPY_PERSON_TO_HISTORY), any(MapSqlParameterSource.class));
+    verify(nbsTemplate).update(eq(PersonTableMergeHandler.COPY_PERSON_TO_HISTORY), any(MapSqlParameterSource.class));
   }
 
   private void verifyIncrementPersonVersionNumber() {

@@ -123,6 +123,91 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
         AND entity_id_seq = :seq
       """;
 
+  static final String INSERT_ENTITY_ID_HIST_FOR_ALL = """
+      INSERT INTO entity_id_hist (
+          entity_uid,
+          entity_id_seq,
+          add_reason_cd,
+          add_time,
+          add_user_id,
+          assigning_authority_cd,
+          assigning_authority_desc_txt,
+          duration_amt,
+          duration_unit_cd,
+          effective_from_time,
+          effective_to_time,
+          last_chg_reason_cd,
+          last_chg_time,
+          last_chg_user_id,
+          record_status_cd,
+          record_status_time,
+          root_extension_txt,
+          status_cd,
+          status_time,
+          type_cd,
+          type_desc_txt,
+          user_affiliation_txt,
+          valid_from_time,
+          valid_to_time,
+          as_of_date,
+          assigning_authority_id_type,
+          version_ctrl_nbr
+      )
+      SELECT
+          eid.*,
+          ISNULL((
+              SELECT MAX(h.version_ctrl_nbr)
+              FROM entity_id_hist h
+              WHERE h.entity_uid = eid.entity_uid
+                AND h.entity_id_seq = eid.entity_id_seq
+          ), 0) + 1 AS version_ctrl_nbr
+      FROM entity_id eid
+      WHERE eid.entity_uid = :personUid
+      """;
+
+  static final String INSERT_ENTITY_ID_HIST_FOR_SELECTED = """
+      INSERT INTO entity_id_hist (
+          entity_uid,
+          entity_id_seq,
+          add_reason_cd,
+          add_time,
+          add_user_id,
+          assigning_authority_cd,
+          assigning_authority_desc_txt,
+          duration_amt,
+          duration_unit_cd,
+          effective_from_time,
+          effective_to_time,
+          last_chg_reason_cd,
+          last_chg_time,
+          last_chg_user_id,
+          record_status_cd,
+          record_status_time,
+          root_extension_txt,
+          status_cd,
+          status_time,
+          type_cd,
+          type_desc_txt,
+          user_affiliation_txt,
+          valid_from_time,
+          valid_to_time,
+          as_of_date,
+          assigning_authority_id_type,
+          version_ctrl_nbr
+      )
+      SELECT
+           eid.*,
+          ISNULL((
+              SELECT MAX(h.version_ctrl_nbr)
+              FROM entity_id_hist h
+              WHERE h.entity_uid = eid.entity_uid
+                AND h.entity_id_seq = eid.entity_id_seq
+          ), 0) + 1 AS version_ctrl_nbr
+      FROM entity_id eid
+      WHERE eid.entity_uid = :personUid
+        AND eid.entity_id_seq NOT IN (:sequences)
+      """;
+
   public PersonIdentificationsMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
@@ -185,6 +270,10 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
     }
 
     List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
+
+    String insertHistSql = selectedSequences.isEmpty() ? INSERT_ENTITY_ID_HIST_FOR_ALL
+        : INSERT_ENTITY_ID_HIST_FOR_SELECTED;
+    nbsTemplate.update(insertHistSql, params);
 
     nbsTemplate.update(query, params);
     return auditUpdates;
