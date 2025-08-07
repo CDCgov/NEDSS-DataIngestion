@@ -7,7 +7,12 @@ spring:
   application.name: deduplication
   jackson.serialization.indent-output: true
   kafka.bootstrap-servers: localhost:9092
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+          jwk-set-uri:
   batch:
     job:
       enabled: false
@@ -40,7 +45,7 @@ spring:
 
 nbs:
   security:
-    tokenSecret: O5CaRj8zREImokS6sY9q9csloUnce0AB6TwO3mIyOHiIfydCwj+AYTYJdVUZrvTY/Ecs9irpPtVfqcl2qQWOCQ==
+    tokenSecret:
     tokenIssuer: gov.cdc.nbs
     tokenExpirationMillis: 1800000 # 30 minutes
     oidc:
@@ -57,7 +62,7 @@ nbs:
 deduplication:
   # url for Record Linker API
   recordLinker:
-    url: ${RECORD_LINKER_URL:http://localhost:8070/api/record-linker}
+    url: ${RECORD_LINKER_URL:http://localhost:8070}
   algorithm:
     # should data elements and algorithm updates be pushed to Record Linker API
     updateRecordLinker: ${ALGORITHM_UPDATE_RL:false}
