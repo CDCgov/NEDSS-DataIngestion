@@ -141,15 +141,7 @@ class PatientMatchingServiceTest {
         EdxPatientMatchDto matchDto = patientMatchingService.tryMatchByLocalId(new PersonContainer());
         assertThat(matchDto).isNull();
     }
-
-    @Test
-    void tryMatchByLocalId_noLocalIdNull() throws DataProcessingException {
-        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString(null, null)).thenReturn(null);
-        EdxPatientMatchDto matchDto = patientMatchingService.tryMatchByLocalId(new PersonContainer());
-        assertThat(matchDto).isNull();
-    }
-
-
+    
     @Test
     void tryMatchByLocalId_LocalId() throws DataProcessingException {
         PersonContainer container = new PersonContainer();
