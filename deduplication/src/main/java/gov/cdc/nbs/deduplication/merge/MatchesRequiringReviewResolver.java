@@ -57,15 +57,38 @@ public class MatchesRequiringReviewResolver {
         AND mge.is_merge IS NULL;
                 """;
 
-  MatchesRequireReviewResponse resolve(int page, int size, String sort) {
-    int offset = page * size;
-    Integer total = getMatchCandidateCount();
+    public Long findLatestMergeGroupForPatient(String personUid) {
+      String sql = """
+        SELECT mrr.merge_group
+        FROM matches_requiring_review mrr
+        JOIN merge_group_entries mge
+          ON mge.merge_group = mrr.merge_group
+         AND mge.is_merge IS NULL
+        WHERE mrr.person_uid = :personUid
+        ORDER BY mrr.date_identified DESC
+        OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+    """;
 
-    Sort.Order sortOrder = toOrder(sort);
+      MapSqlParameterSource params = new MapSqlParameterSource()
+              .addValue("personUid", personUid);
 
-    List<MatchRequiringReview> data = fetch(offset, size, sortOrder);
-    return new MatchesRequireReviewResponse(data, page, total);
-  }
+      try {
+        return deduplicationTemplate.queryForObject(sql, params, Long.class);
+      } catch (org.springframework.dao.EmptyResultDataAccessException ex) {
+        // no matching group found
+        return null;
+      }
+    }
+
+    MatchesRequireReviewResponse resolve(int page, int size, String sort) {
+      int offset = page * size;
+      Integer total = getMatchCandidateCount();
+
+      Sort.Order sortOrder = toOrder(sort);
+
+      List<MatchRequiringReview> data = fetch(offset, size, sortOrder);
+      return new MatchesRequireReviewResponse(data, page, total);
+    }
 
   List<MatchRequiringReview> resolveAll(String sort) {
     return fetch(0, 10_000, toOrder(sort));
