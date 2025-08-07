@@ -186,18 +186,18 @@ public class KafkaManagerConsumer {
 
     @Scheduled(fixedDelayString = "${processor.delay_ms:30000}")
     public void processPendingMessages() {
-        logger.debug("BATCH SIZE: {}", pendingMessages.size());
+        logger.debug("Pending Queue Size: {}", pendingMessages.size());
         if (pendingMessages.isEmpty()) return;
 
         if (threadEnabled) {
-            Semaphore concurrencyLimiter = new Semaphore(poolSize); // Same as Hikari max pool size
-
-            while (true) {
+            Semaphore concurrencyLimiter = new Semaphore(poolSize); // match DB pool
+            while (!pendingMessages.isEmpty()) {
                 List<Integer> batch = new ArrayList<>(batchSize);
                 Integer nbs;
                 while (batch.size() < batchSize && (nbs = pendingMessages.poll()) != null) {
                     batch.add(nbs);
                 }
+
                 if (batch.isEmpty()) break;
 
                 concurrencyLimiter.acquireUninterruptibly();
@@ -208,17 +208,16 @@ public class KafkaManagerConsumer {
                                 managerTransactionService.processWithTransactionSeparation(id, false);
                             } catch (Exception e) {
                                 log.error("Error processing NBS {}: {}", id, e.getMessage(), e);
+                                // Requeue once to retry in next run
+                                pendingMessages.offer(id);
                             }
-
                         }
                     } finally {
                         concurrencyLimiter.release();
                     }
                 });
             }
-        }
-        else
-        {
+        } else {
             // Single-threaded fallback
             while (!pendingMessages.isEmpty()) {
                 Integer nbs = pendingMessages.poll();
@@ -230,12 +229,13 @@ public class KafkaManagerConsumer {
                         managerService.handlingWdsAndLab(result, false);
                     }
                 } catch (Exception e) {
-                    log.error("Single-threaded error: {}", e.getMessage(), e);
+                    log.error("Single-threaded error processing NBS {}: {}", nbs, e.getMessage(), e);
+                    // Requeue once for retry
+                    pendingMessages.offer(nbs);
                 }
             }
         }
     }
-
 
 
 }

@@ -115,6 +115,10 @@ public class PatientMatchingService extends PatientMatchingBaseService implement
     if (localId != null) {
       localId = localId.toUpperCase();
     }
+    if (localId == null) {
+      var identifier = getIdentifier(personContainer);
+      localId = identifier != null ? identifier.getFirst() : null;
+    }
 
     EdxPatientMatchDto edxPatientMatchDto = getEdxPatientMatchRepositoryUtil()
         .getEdxPatientMatchOnMatchString(cd, localId);
