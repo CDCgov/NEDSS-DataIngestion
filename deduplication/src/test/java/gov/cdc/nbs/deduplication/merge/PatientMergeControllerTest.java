@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -136,6 +137,37 @@ class PatientMergeControllerTest {
     patientMergeController.getPotentialMatches(0, 25, "name,desc");
 
     verify(matchesRequiringReviewResolver, times(1)).resolve(0, 25, "name,desc");
+  }
+
+  @Test
+  void getMergeQueueStatus_ReturnsExpectedStatus() throws Exception {
+    String personUid = "12345";
+    Long mergeGroupId = 100L;
+
+    when(matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid)).thenReturn(mergeGroupId);
+
+    mockMvc.perform(get("/merge/status/{personUid}", personUid))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.inMergeQueue").value(true))
+            .andExpect(jsonPath("$.mergeGroup").value(mergeGroupId));
+
+    verify(matchesRequiringReviewResolver, times(1)).findLatestMergeGroupForPatient(personUid);
+  }
+
+  @Test
+  void getMergeQueueStatus_ReturnsFalseWhenNoMergeGroup() throws Exception {
+    String personUid = "67890";
+
+    when(matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid)).thenReturn(null);
+
+    mockMvc.perform(get("/merge/status/{personUid}", personUid))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.inMergeQueue").value(false))
+            .andExpect(jsonPath("$.mergeGroup").doesNotExist());
+
+    verify(matchesRequiringReviewResolver, times(1)).findLatestMergeGroupForPatient(personUid);
   }
 
   private String createPatientMergeRequestJson() {

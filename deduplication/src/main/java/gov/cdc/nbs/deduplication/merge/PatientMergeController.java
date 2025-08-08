@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeQueueStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,6 +78,13 @@ public class PatientMergeController {
       @RequestBody PatientMergeRequest mergeRequest,
       @PathVariable("groupId") Long groupId) throws JsonProcessingException {
     mergeService.performMerge(groupId, mergeRequest);
+  }
+
+  @GetMapping("/status/{personUid}")
+  public PatientMergeQueueStatus getMergeQueueStatus(@PathVariable("personUid") String personUid) {
+    Long mergeGroup = matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid);
+    boolean inQueue = mergeGroup != null;
+    return new PatientMergeQueueStatus(inQueue, mergeGroup);
   }
 
   @GetMapping(value = "/export/csv", produces = "text/csv")

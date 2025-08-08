@@ -2,8 +2,10 @@ package gov.cdc.nbs.deduplication.merge;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -177,4 +179,35 @@ class MatchesRequiringReviewResolverTest {
         .isEqualTo("Invalid sort column specified. Valid options are [patient-id, name, created, identified, count]");
   }
 
+  @Test
+  void should_find_latest_merge_group_for_patient() {
+    String personUid = "12345";
+    Long expectedMergeGroup = 100L;
+
+    // mock template call
+    when(deduplicationTemplate.queryForObject(
+            anyString(),
+            any(MapSqlParameterSource.class),
+            eq(Long.class)
+    )).thenReturn(expectedMergeGroup);
+
+    Long result = resolver.findLatestMergeGroupForPatient(personUid);
+
+    assertThat(result).isEqualTo(expectedMergeGroup);
+  }
+
+  @Test
+  void should_return_null_when_no_merge_group_found() {
+    String personUid = "12345";
+
+    when(deduplicationTemplate.queryForObject(
+            anyString(),
+            any(MapSqlParameterSource.class),
+            eq(Long.class)
+    )).thenThrow(new org.springframework.dao.EmptyResultDataAccessException(1));
+
+    Long result = resolver.findLatestMergeGroupForPatient(personUid);
+
+    assertThat(result).isNull();
+  }
 }
