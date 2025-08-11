@@ -60,6 +60,13 @@ public class PatientMergeController {
     return mergeGroupService.getMergeGroup(groupId);
   }
 
+   @GetMapping("/status/{personUid}")
+  public PatientMergeQueueStatus getMergeQueueStatus(@PathVariable("personUid") String personUid) {
+    Long mergeGroup = matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid);
+    boolean inQueue = mergeGroup != null;
+    return new PatientMergeQueueStatus(inQueue, mergeGroup);
+  }
+
   @DeleteMapping("/{groupId}/{personUid}")
   public void markNoMerge(
       @PathVariable("groupId") Long groupId,
@@ -78,13 +85,6 @@ public class PatientMergeController {
       @RequestBody PatientMergeRequest mergeRequest,
       @PathVariable("groupId") Long groupId) throws JsonProcessingException {
     mergeService.performMerge(groupId, mergeRequest);
-  }
-
-  @GetMapping("/status/{personUid}")
-  public PatientMergeQueueStatus getMergeQueueStatus(@PathVariable("personUid") String personUid) {
-    Long mergeGroup = matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid);
-    boolean inQueue = mergeGroup != null;
-    return new PatientMergeQueueStatus(inQueue, mergeGroup);
   }
 
   @GetMapping(value = "/export/csv", produces = "text/csv")
