@@ -77,6 +77,8 @@ class PersonEthnicityMergeHandlerTest {
     // Insert
     mockInsert("2184-0", "123", 100L, "321");
 
+    mockInsertEthnicGroupHist("2155-0", "123");
+
     // Set inactive
     mockSetInactive("2155-0", "123", 100L);
 
@@ -149,6 +151,15 @@ class PersonEthnicityMergeHandlerTest {
     when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId)).thenReturn(statementSpec);
     when(statementSpec.param(PersonEthnicityMergeHandler.USER_ID, userId)).thenReturn(statementSpec);
   }
+
+  private void mockInsertEthnicGroupHist(String expectedEthnicity,String personId) {
+    StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
+    when(client.sql(PersonEthnicityMergeHandler.INSERT_PERSON_ETHNIC_GROUP_HIST_FOR_SELECTED)).thenReturn(
+        statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId)).thenReturn(statementSpec);
+    when(statementSpec.param("spanishOrigins", List.of(expectedEthnicity))).thenReturn(statementSpec);
+  }
+
 
   private void mockFetchOldRows(String personId, String ethnicGroupCd, String recordStatusCd) {
     List<Map<String, Object>> oldRows = List.of(

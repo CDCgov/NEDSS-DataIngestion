@@ -27,6 +27,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   static final String USER_ID = "userId";
   static final String PERSON_UID = "person_uid";
   static final String ETHNIC_GROUP_CD = "ethnic_group_cd";
+  static final String SPANISH_ORIGINS = "spanishOrigins";
 
   static final String UPDATE_PERSON_ETHNIC_GROUP = """
       UPDATE person
@@ -92,7 +93,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
       WHERE
         person_uid = :personId
         AND ethnic_group_cd IN ( :spanishOrigins);
-          """;
+      """;
 
   private static final String SELECT_PERSON_ETHNIC_GROUP_FOR_SPANISH_ORIGIN_FOR_AUDIT = """
       SELECT person_uid, ethnic_group_cd, record_status_cd
@@ -100,6 +101,36 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :personId
         AND ethnic_group_cd IN (:spanishOrigins)
       """;
+
+  static final String INSERT_PERSON_ETHNIC_GROUP_HIST_FOR_SELECTED = """
+      INSERT INTO person_ethnic_group_hist (
+          person_uid,
+          ethnic_group_cd,
+          add_reason_cd,
+          add_time,
+          add_user_id,
+          ethnic_group_desc_txt,
+          last_chg_reason_cd,
+          last_chg_time,
+          last_chg_user_id,
+          record_status_cd,
+          record_status_time,
+          user_affiliation_txt,
+          version_ctrl_nbr
+      )
+      SELECT
+          peg.*,
+          ISNULL((
+              SELECT MAX(h.version_ctrl_nbr)
+              FROM person_ethnic_group_hist h
+              WHERE h.person_uid = peg.person_uid
+                AND h.ethnic_group_cd = peg.ethnic_group_cd
+          ), 0) + 1 AS version_ctrl_nbr
+      FROM person_ethnic_group peg
+      WHERE peg.person_uid = :personId
+        AND peg.ethnic_group_cd IN (:spanishOrigins)
+      """;
+
 
   final JdbcClient client;
   PatientMergeAudit audit;
@@ -192,11 +223,17 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
     Long userId = currentUser.getId();
 
     if (!spanishOrigins.isEmpty()) {
+
+      client.sql(INSERT_PERSON_ETHNIC_GROUP_HIST_FOR_SELECTED)
+          .param(PERSON_ID, personId)
+          .param(SPANISH_ORIGINS, spanishOrigins)
+          .update();
+
       // Perform update
       client.sql(UPDATE_SPANISH_ORIGINS_TO_INACTIVE)
           .param(USER_ID, userId)
           .param(PERSON_ID, personId)
-          .param("spanishOrigins", spanishOrigins)
+          .param(SPANISH_ORIGINS, spanishOrigins)
           .update();
 
       List<Map<String, Object>> oldRows = fetchOldRows(personId, spanishOrigins);
@@ -225,7 +262,7 @@ public class PersonEthnicityMergeHandler implements SectionMergeHandler {
   private List<Map<String, Object>> fetchOldRows(String personId, List<String> spanishOrigins) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue(PERSON_ID, personId);
-    params.addValue("spanishOrigins", spanishOrigins);
+    params.addValue(SPANISH_ORIGINS, spanishOrigins);
     return nbsTemplate.queryForList(SELECT_PERSON_ETHNIC_GROUP_FOR_SPANISH_ORIGIN_FOR_AUDIT, params);
   }
 
