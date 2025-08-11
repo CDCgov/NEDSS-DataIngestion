@@ -217,7 +217,7 @@ dependencies {
 
 dependencyManagement {
     dependencies {
-        dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.7'
+        dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.8'
     }
 }
 
