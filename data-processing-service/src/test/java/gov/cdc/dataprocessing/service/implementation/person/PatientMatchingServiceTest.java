@@ -141,7 +141,7 @@ class PatientMatchingServiceTest {
         EdxPatientMatchDto matchDto = patientMatchingService.tryMatchByLocalId(new PersonContainer());
         assertThat(matchDto).isNull();
     }
-
+    
     @Test
     void tryMatchByLocalId_LocalId() throws DataProcessingException {
         PersonContainer container = new PersonContainer();
@@ -196,6 +196,64 @@ class PatientMatchingServiceTest {
         assertThat(matchDto).isNotNull();
         assertThat(matchDto.getPatientUid()).isEqualTo(1L);
 
+    }
+
+    @Test
+    void tryMatchByLocalId_useIdentifierWhenLocalIdIsNull_butIdentifierIsNull() throws DataProcessingException {
+        // Create a PersonContainer with no localId and no entity identifiers
+        PersonContainer container = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setCd("PAT");
+        container.setThePersonDto(personDto);
+        
+        // No entity identifiers, so getIdentifier will return null or empty list
+        
+        // Mock the repository to return null when called with null localId
+        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString("PAT", null))
+                .thenReturn(null);
+
+        EdxPatientMatchDto matchDto = patientMatchingService.tryMatchByLocalId(container);
+        
+        assertThat(matchDto).isNull();
+        
+        // Verify that the repository was called with null localId
+        verify(edxPatientMatchRepositoryUtil).getEdxPatientMatchOnMatchString("PAT", null);
+    }
+
+    @Test
+    void tryMatchByLocalId_useIdentifierWhenLocalIdIsNull_butIdentifierFirstElementIsEmpty() throws DataProcessingException {
+        // Create a PersonContainer with no localId but with entity identifiers that result in empty first element
+        PersonContainer container = new PersonContainer();
+        PersonDto personDto = new PersonDto();
+        personDto.setCd("PAT");
+        container.setThePersonDto(personDto);
+
+        // Add a person name to ensure getNamesStr returns a value
+        PersonNameDto name = new PersonNameDto();
+        name.setNmUseCd("L");
+        name.setRecordStatusCd("ACTIVE");
+        name.setLastNm("lastName");
+        name.setFirstNm("firstName");
+        container.setThePersonNameDtoCollection(List.of(name));
+
+        // Add an entity identifier that will result in an empty identifier string
+        // (missing required fields will cause the identifier to be empty)
+        EntityIdDto id1 = new EntityIdDto();
+        id1.setStatusCd("A");
+        id1.setRecordStatusCd("ACTIVE");
+        // Missing required fields: rootExtensionTxt, typeCd, assigningAuthorityCd, etc.
+        container.setTheEntityIdDtoCollection(List.of(id1));
+        
+        // Mock the repository to return null when called with null localId
+        when(edxPatientMatchRepositoryUtil.getEdxPatientMatchOnMatchString("PAT", null))
+                .thenReturn(null);
+
+        EdxPatientMatchDto matchDto = patientMatchingService.tryMatchByLocalId(container);
+        
+        assertThat(matchDto).isNull();
+        
+        // Verify that the repository was called with null localId
+        verify(edxPatientMatchRepositoryUtil).getEdxPatientMatchOnMatchString("PAT", null);
     }
 
     @Test

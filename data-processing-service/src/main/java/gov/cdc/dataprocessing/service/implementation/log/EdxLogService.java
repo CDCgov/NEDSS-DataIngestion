@@ -52,10 +52,9 @@ public class EdxLogService implements IEdxLogService {
         Long activityLogId;
         Optional<EdxActivityLog> dbActivityLogOptional = edxActivityLogRepository.findBySourceUid(edxActivityLog.getSourceUid());
         if (dbActivityLogOptional.isPresent()) {
-            EdxActivityLog dbActivityLog = dbActivityLogOptional.get();
-            dbActivityLog.setExceptionTxt(edxActivityLogDto.getExceptionTxt());
-            edxActivityLogRepository.save(dbActivityLog);
-            activityLogId=dbActivityLog.getId();
+            edxActivityLog.setId(dbActivityLogOptional.get().getId());
+            edxActivityLogRepository.save(edxActivityLog);
+            activityLogId= edxActivityLog.getId();
         }else {
             EdxActivityLog edxActivityLogNew = edxActivityLogRepository.save(edxActivityLog);
             activityLogId=edxActivityLogNew.getId();
