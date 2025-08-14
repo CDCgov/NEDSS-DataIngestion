@@ -11,10 +11,12 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.net.URI;
 import java.util.List;
 
+@Profile("dev")
 @Configuration
 public class OpenAPIConfig {
     @Value("${dp-server.host}")
