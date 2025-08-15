@@ -116,19 +116,21 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   }
 
   private String processMatchCandidate(MatchCandidate candidate) {
-    // If the candidate has possible matches
     if (candidate.possibleMatchList() != null && !candidate.possibleMatchList().isEmpty()) {
-      // Get the matched person's uid. Only supports single match
-      String matchedPersonUid = getPersonIdByMpiIds(candidate.possibleMatchList().getFirst());
+      // Find the first possible match that is NOT the same as the candidate
+      var firstValidMatch = candidate.possibleMatchList().stream()
+              .filter(match -> !match.equals(candidate.personUid()))
+              .findFirst()
+              .orElse(null);
 
-      // Add to, or create a new merge group
-      long groupId = ensureMergeGroup(candidate.personUid(), matchedPersonUid);
+      if (firstValidMatch != null) {
+        String matchedPersonUid = getPersonIdByMpiIds(firstValidMatch);
 
-      // Insert into matches_requiring_review
-      insertMatch(candidate.personUid(), matchedPersonUid, groupId);
+        long groupId = ensureMergeGroup(candidate.personUid(), matchedPersonUid);
+        insertMatch(candidate.personUid(), matchedPersonUid, groupId);
+      }
     }
 
-    // return person_uid that was processed so status can be updated
     return candidate.personUid();
   }
 
