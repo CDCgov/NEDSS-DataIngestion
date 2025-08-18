@@ -3,6 +3,7 @@ package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationshipHistory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,9 +13,12 @@ import java.util.List;
 
 import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.ActRelationshipQuery.*;
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
 
 @Component
 public class ActRelationshipJdbcRepository {
+    @Value("${service.timezone}")
+    private String tz = "UTC";
     private final NamedParameterJdbcTemplate jdbcTemplateOdse;
 
     public ActRelationshipJdbcRepository(@Qualifier("odseNamedParameterJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplateOdse) {
@@ -34,6 +38,9 @@ public class ActRelationshipJdbcRepository {
     }
 
     private MapSqlParameterSource buildParams(ActRelationship a) {
+        if(a.getStatusTime()==null){
+            a.setStatusTime(getCurrentTimeStamp(tz));
+        }
         return new MapSqlParameterSource()
                 .addValue(SOURCE_ACT_UID_DB, a.getSourceActUid())
                 .addValue("target_act_uid", a.getTargetActUid())
