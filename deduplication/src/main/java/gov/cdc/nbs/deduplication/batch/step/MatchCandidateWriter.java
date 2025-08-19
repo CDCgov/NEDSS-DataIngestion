@@ -117,23 +117,27 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   private String processMatchCandidate(MatchCandidate candidate) {
     if (candidate.possibleMatchList() != null && !candidate.possibleMatchList().isEmpty()) {
-      // Process each non-self match
-      candidate.possibleMatchList().stream()
-              .filter(match -> !match.equals(candidate.personUid())) // skip self-matches
-              .forEach(match -> {
-                // Resolve the matched person's UID from MPI
-                String matchedPersonUid = getPersonIdByMpiIds(match);
+      // Find the first non-self match
+      String firstValidMatch = candidate.possibleMatchList().stream()
+              .filter(match -> !match.equals(candidate.personUid()))
+              .findFirst()
+              .orElse(null);
 
-                // Skip if somehow the resolved UID is still the candidate itself
-                if (!matchedPersonUid.equals(candidate.personUid())) {
-                  // Add to, or create a merge group
-                  long groupId = ensureMergeGroup(candidate.personUid(), matchedPersonUid);
+      if (firstValidMatch != null) {
+        // Resolve the matched person's UID from MPI
+        String matchedPersonUid = getPersonIdByMpiIds(firstValidMatch);
 
-                  // Insert into matches_requiring_review
-                  insertMatch(candidate.personUid(), matchedPersonUid, groupId);
-                }
-              });
+        // Skip if the resolved UID is still the candidate itself
+        if (!matchedPersonUid.equals(candidate.personUid())) {
+          // Add to, or create a merge group
+          long groupId = ensureMergeGroup(candidate.personUid(), matchedPersonUid);
+
+          // Insert into matches_requiring_review
+          insertMatch(candidate.personUid(), matchedPersonUid, groupId);
+        }
+      }
     }
+
     // Return the processed person UID so status can be updated
     return candidate.personUid();
   }
