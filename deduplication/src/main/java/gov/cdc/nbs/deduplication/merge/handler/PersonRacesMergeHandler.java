@@ -106,7 +106,7 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
                 AND race_cd = :detailedRace
             )
       );
-          """;
+      """;
 
   private static final String SELECT_PERSON_RACE_FOR_AUDIT = """
       SELECT person_uid, race_category_cd, race_cd, record_status_cd
@@ -121,6 +121,71 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         AND race_category_cd = :race
         AND race_cd = :detailedRace
       """;
+
+  static final String INSERT_PERSON_RACE_HIST_FOR_ALL = """
+    INSERT INTO person_race_hist (
+        person_uid,
+        race_cd,
+        add_reason_cd,
+        add_time,
+        add_user_id,
+        last_chg_reason_cd,
+        last_chg_time,
+        last_chg_user_id,
+        race_category_cd,
+        race_desc_txt,
+        record_status_cd,
+        record_status_time,
+        user_affiliation_txt,
+        as_of_date,
+        version_ctrl_nbr
+    )
+    SELECT
+        pr.*,
+        ISNULL((
+            SELECT MAX(h.version_ctrl_nbr)
+            FROM person_race_hist h
+            WHERE h.person_uid = pr.person_uid
+              AND h.race_cd = pr.race_cd
+              AND h.race_category_cd = pr.race_category_cd
+        ), 0) + 1 AS version_ctrl_nbr
+    FROM person_race pr
+    WHERE pr.person_uid = :personId
+    """;
+
+
+  static final String INSERT_PERSON_RACE_HIST_FOR_SELECTED = """
+    INSERT INTO person_race_hist (
+        person_uid,
+        race_cd,
+        add_reason_cd,
+        add_time,
+        add_user_id,
+        last_chg_reason_cd,
+        last_chg_time,
+        last_chg_user_id,
+        race_category_cd,
+        race_desc_txt,
+        record_status_cd,
+        record_status_time,
+        user_affiliation_txt,
+        as_of_date,
+        version_ctrl_nbr
+    )
+    SELECT
+        pr.*,
+        ISNULL((
+            SELECT MAX(h.version_ctrl_nbr)
+            FROM person_race_hist h
+            WHERE h.person_uid = pr.person_uid
+              AND h.race_cd = pr.race_cd
+              AND h.race_category_cd = pr.race_category_cd
+        ), 0) + 1 AS version_ctrl_nbr
+    FROM person_race pr
+    WHERE pr.person_uid = :personId
+      AND pr.race_category_cd = :race
+      AND pr.race_cd = :detailedRace
+    """;
 
   private final JdbcClient client;
 
@@ -174,11 +239,11 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
     List<Map<String, Object>> oldRows = nbsTemplate.queryForList(
         SELECT_PERSON_RACE_FOR_AUDIT, selectParams);
 
-    // Perform update
-    MapSqlParameterSource updateParams = new MapSqlParameterSource();
-    updateParams.addValue(USER_ID, currentUser.getId());
-    updateParams.addValue(PERSON_ID, survivorId);
+    client.sql(INSERT_PERSON_RACE_HIST_FOR_ALL)
+        .param(PERSON_ID, survivorId)
+        .update();
 
+    // Perform update
     client.sql(SET_RACE_ENTRIES_TO_INACTIVE)
         .param(USER_ID, currentUser.getId())
         .param(PERSON_ID, survivorId)
@@ -217,6 +282,14 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
 
     List<Map<String, Object>> oldRows = nbsTemplate.queryForList(
         SELECT_PERSON_RACE_BY_CATEGORY_AND_DETAILED_RACE_FOR_AUDIT, selectParams);
+
+
+    client.sql(INSERT_PERSON_RACE_HIST_FOR_SELECTED)
+        .param(PERSON_ID, survivorId)
+        .param(RACE, raceEntry.race())
+        .param(DETAILED_RACE, raceEntry.detailedRace())
+        .update();
+
 
     // Perform update
     client.sql(UPDATE_EXISTING_RACE_ENTRY)
