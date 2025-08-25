@@ -67,6 +67,37 @@ class ActIdJdbcRepositoryTest {
     }
 
     @Test
+    void testMergeActId_with_statusCd_and_statusTime() {
+        ActId actId = new ActId();
+        actId.setActUid(1L);
+        actId.setActIdSeq(1);
+        actId.setAddReasonCd("reason");
+        actId.setAddTime(Timestamp.from(Instant.now()));
+        actId.setAddUserId(100L);
+        actId.setAssigningAuthorityCd("authCd");
+        actId.setAssigningAuthorityDescTxt("desc");
+        actId.setDurationAmt("10");
+        actId.setDurationUnitCd("days");
+        actId.setLastChgReasonCd("chgReason");
+        actId.setLastChgTime(Timestamp.from(Instant.now()));
+        actId.setLastChgUserId(101L);
+        actId.setRecordStatusCd("active");
+        actId.setRecordStatusTime(Timestamp.from(Instant.now()));
+        actId.setRootExtensionTxt("root");
+        actId.setStatusCd(null);
+        actId.setStatusTime(null);
+        actId.setTypeCd("type");
+        actId.setTypeDescTxt("typeDesc");
+        actId.setUserAffiliationTxt("affiliation");
+        actId.setValidFromTime(Timestamp.from(Instant.now()));
+        actId.setValidToTime(Timestamp.from(Instant.now()));
+
+        repository.mergeActId(actId);
+
+        verify(jdbcTemplateOdse, times(1)).update(eq(MERGE_SQL_ACT_ID), any(MapSqlParameterSource.class));
+    }
+
+    @Test
     void testFindRecordsByActUid_shouldReturnRecords() {
         Long actUid = 1L;
         ActId mockActId = new ActId();
