@@ -103,11 +103,7 @@ public class PostalLocator {
 
     public PostalLocator(PostalLocatorDto postalLocatorDto) {
         this.postalLocatorUid = postalLocatorDto.getPostalLocatorUid();
-        if (postalLocatorDto.getAddReasonCd() == null) {
-            this.addReasonCd = "Add";
-        } else {
-            this.addReasonCd = postalLocatorDto.getAddReasonCd();
-        }
+        this.addReasonCd = postalLocatorDto.getAddReasonCd();
         this.addTime = postalLocatorDto.getAddTime();
         this.addUserId = postalLocatorDto.getAddUserId();
         this.censusBlockCd = postalLocatorDto.getCensusBlockCd();
