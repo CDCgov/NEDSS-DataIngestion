@@ -111,7 +111,7 @@ class RoleServiceTest {
     void saveRole() {
         RoleDto roleDto = getRoleDto();
         roleDto.setItNew(true);
-        var data = new Role(roleDto);
+        var data = new Role(roleDto,"UTC");
         when(roleRepositoryMock.save(data)).thenReturn(data);
         roleService.saveRole(roleDto);
         verify(roleRepositoryMock).save(data);

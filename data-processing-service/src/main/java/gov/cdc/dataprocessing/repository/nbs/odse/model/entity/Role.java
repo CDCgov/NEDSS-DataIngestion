@@ -9,6 +9,8 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 
 @Data
 @Entity
@@ -96,7 +98,8 @@ public class Role {
     public Role() {
 
     }
-    public Role(RoleDto roleDto) {
+    public Role(RoleDto roleDto,String tz) {
+        var timestamp = getCurrentTimeStamp(tz);
         this.subjectEntityUid = roleDto.getSubjectEntityUid();
         this.code = roleDto.getCd();
         this.roleSeq = roleDto.getRoleSeq();

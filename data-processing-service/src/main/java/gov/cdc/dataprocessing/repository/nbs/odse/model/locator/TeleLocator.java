@@ -64,16 +64,16 @@ public class TeleLocator {
     // Add getters and setters as needed
     public TeleLocator(TeleLocatorDto teleLocatorDto) {
         this.teleLocatorUid = teleLocatorDto.getTeleLocatorUid();
-        if (teleLocatorDto.getAddReasonCd() == null) {
-            this.addReasonCd = "Add";
-        } else {
-            this.addReasonCd = teleLocatorDto.getAddReasonCd();
-        }
+        this.addReasonCd = teleLocatorDto.getAddReasonCd();
         this.addTime = teleLocatorDto.getAddTime();
         this.addUserId = teleLocatorDto.getAddUserId();
         this.cntryCd = teleLocatorDto.getCntryCd();
         this.emailAddress = teleLocatorDto.getEmailAddress();
-        this.extensionTxt = teleLocatorDto.getExtensionTxt();
+        if(teleLocatorDto.getExtensionTxt()==null){
+            this.extensionTxt = "0.0";
+        }else{
+            this.extensionTxt = teleLocatorDto.getExtensionTxt();
+        }
         this.lastChgReasonCd = teleLocatorDto.getLastChgReasonCd();
         this.lastChgTime = teleLocatorDto.getLastChgTime();
         this.lastChgUserId = teleLocatorDto.getLastChgUserId();

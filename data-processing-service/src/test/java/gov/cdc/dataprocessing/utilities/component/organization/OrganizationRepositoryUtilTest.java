@@ -187,7 +187,7 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
 
         organizationRepositoryUtil.createOrganization(organizationContainer);
-        verify(roleRepository, times(1)).createRole(new Role(roleDto));
+        verify(roleRepository, times(1)).createRole(new Role(roleDto,"UTC"));
     }
 
     @Test
@@ -267,7 +267,7 @@ class OrganizationRepositoryUtilTest {
         organizationContainer.setTheRoleDTCollection(theRoleDTCollection);
 
         organizationRepositoryUtil.updateOrganization(organizationContainer);
-        verify(roleRepository, times(1)).updateRole(new Role(roleDto));
+        verify(roleRepository, times(1)).updateRole(new Role(roleDto,"UTC"));
     }
 
     @Test

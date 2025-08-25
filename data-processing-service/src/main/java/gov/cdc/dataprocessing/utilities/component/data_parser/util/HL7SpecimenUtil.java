@@ -121,6 +121,7 @@ public class HL7SpecimenUtil {
             matEntityIdDto.setAssigningAuthorityCd(edxLabInformationDto.getSendingFacilityClia());
             matEntityIdDto.setAssigningAuthorityDescTxt(edxLabInformationDto.getSendingFacilityName());
             matEntityIdDto.setRecordStatusCd(EdxELRConstant.ELR_ACTIVE);
+            matEntityIdDto.setStatusCd(EdxELRConstant.ELR_ACTIVE_CD);
             matEntityIdDto.setAsOfDate(edxLabInformationDto.getAddTime());
             matEntityIdDto.setItNew(true);
             matEntityIdDto.setItDirty(false);

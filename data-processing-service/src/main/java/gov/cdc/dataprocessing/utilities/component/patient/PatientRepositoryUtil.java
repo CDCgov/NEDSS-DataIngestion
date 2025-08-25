@@ -501,13 +501,11 @@ public class PatientRepositoryUtil {
                 // Save to MPR
                 var mprRecord = SerializationUtils.clone(dto);
                 mprRecord.setPersonUid(parentUid);
-                mprRecord.setAddReasonCd("Add");
                 var mprPersonRace = new PersonRace(mprRecord, tz);
                 personJdbcRepository.mergePersonRace(mprPersonRace);
 
                 // Save to actual person
                 dto.setPersonUid(personUid);
-                dto.setAddReasonCd("Add");
                 var pPersonRace = new PersonRace(dto, tz);
                 personJdbcRepository.mergePersonRace(pPersonRace);
 
@@ -556,7 +554,6 @@ public class PatientRepositoryUtil {
 
         for (PersonRaceDto dto : personRaceDtos) {
             dto.setPersonUid(personUid);
-            dto.setAddReasonCd("Add");
 
             PersonRace entity = new PersonRace(dto, tz);
 
@@ -640,7 +637,7 @@ public class PatientRepositoryUtil {
         boolean isCreateOp = OPERATION_CREATE.equalsIgnoreCase(operation);
 
         for (RoleDto dto : roleDtos) {
-            Role role = new Role(dto);
+            Role role = new Role(dto,tz);
             if (isCreateOp) {
                 roleJdbcRepository.createRole(role);
             } else {

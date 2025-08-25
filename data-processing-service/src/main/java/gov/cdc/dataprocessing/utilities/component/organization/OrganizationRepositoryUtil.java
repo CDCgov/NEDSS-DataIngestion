@@ -323,7 +323,7 @@ public class OrganizationRepositoryUtil {
     private void createRole(OrganizationContainer ovo, String operation)   {
         ArrayList<RoleDto> roleList = (ArrayList<RoleDto>) ovo.getTheRoleDTCollection();
         for (RoleDto obj : roleList) {
-            var rol = new Role(obj);
+            var rol = new Role(obj,tz);
             if (operation.equalsIgnoreCase(OPERATION_CREATE))
             {
                 roleJdbcRepository.createRole(rol);

@@ -39,7 +39,13 @@ class ActRelationshipJdbcRepositoryTest {
         repository.insertActRelationship(createActRelationship());
         verify(jdbcTemplateOdse).update(eq(INSERT_SQL_ACT_RELATIONSHIP), any(MapSqlParameterSource.class));
     }
-
+    @Test
+    void testInsertActRelationship_null_statusTime() {
+        ActRelationship actRelationship= createActRelationship();
+        actRelationship.setStatusTime(null);
+        repository.insertActRelationship(actRelationship);
+        verify(jdbcTemplateOdse).update(eq(INSERT_SQL_ACT_RELATIONSHIP), any(MapSqlParameterSource.class));
+    }
     @Test
     void testUpdateActRelationship() {
         repository.updateActRelationship(createActRelationship());
