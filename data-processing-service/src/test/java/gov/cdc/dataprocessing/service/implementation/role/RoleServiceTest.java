@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.role;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
@@ -31,6 +32,8 @@ class RoleServiceTest {
     private DataModifierReposJdbc dataModifierReposJdbc;
     @Mock
     private PrepareAssocModelHelper prepareAssocModelHelperMock;
+    @Mock
+    private ServicePropertiesProvider servicePropertiesProvider;
 
     @InjectMocks
     private RoleService roleService;
@@ -38,6 +41,7 @@ class RoleServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(servicePropertiesProvider.getTz()).thenReturn("UTC");
     }
 
     @AfterEach

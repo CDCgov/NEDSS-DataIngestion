@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,13 +27,15 @@ class ActIdJdbcRepositoryTest {
 
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplateOdse;
-
+    @Mock
+    private ServicePropertiesProvider servicePropertiesProvider;
     @InjectMocks
     private ActIdJdbcRepository repository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(servicePropertiesProvider.getTz()).thenReturn("UTC");
     }
 
     @Test
