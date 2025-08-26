@@ -1,8 +1,8 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,12 +17,12 @@ import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTime
 
 @Component
 public class ActIdJdbcRepository {
-    @Value("${service.timezone}")
-    private String tz = "UTC";
     private final NamedParameterJdbcTemplate jdbcTemplateOdse;
+    private final ServicePropertiesProvider servicePropertiesProvider;
 
-    public ActIdJdbcRepository(@Qualifier("odseNamedParameterJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplateOdse) {
+    public ActIdJdbcRepository(@Qualifier("odseNamedParameterJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplateOdse, ServicePropertiesProvider servicePropertiesProvider) {
         this.jdbcTemplateOdse = jdbcTemplateOdse;
+        this.servicePropertiesProvider = servicePropertiesProvider;
     }
 
     public void mergeActId(ActId a) {
@@ -30,7 +30,7 @@ public class ActIdJdbcRepository {
             a.setStatusCd("A");
         }
         if(a.getStatusTime()==null){
-            a.setStatusTime(getCurrentTimeStamp(tz));
+            a.setStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
         }
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(ACT_UID_DB, a.getActUid())
