@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.service.implementation.role;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.entity.Role;
@@ -18,12 +19,14 @@ public class RoleService implements IRoleService {
     private final RoleRepository roleRepository;
     private final PrepareAssocModelHelper prepareAssocModelHelper;
     private final DataModifierReposJdbc dataModifierReposJdbc;
+    private final ServicePropertiesProvider servicePropertiesProvider;
 
     public RoleService(RoleRepository roleRepository,
-                       PrepareAssocModelHelper prepareAssocModelHelper, DataModifierReposJdbc dataModifierReposJdbc) {
+                       PrepareAssocModelHelper prepareAssocModelHelper, DataModifierReposJdbc dataModifierReposJdbc, ServicePropertiesProvider servicePropertiesProvider) {
         this.roleRepository = roleRepository;
         this.prepareAssocModelHelper = prepareAssocModelHelper;
         this.dataModifierReposJdbc = dataModifierReposJdbc;
+        this.servicePropertiesProvider = servicePropertiesProvider;
     }
 
     public Collection<RoleDto> findRoleScopedToPatient(Long uid) {
@@ -59,7 +62,7 @@ public class RoleService implements IRoleService {
 
     public void saveRole(RoleDto roleDto) {
         if (roleDto.isItNew() || roleDto.isItDirty()) {
-            var data = new Role(roleDto);
+            var data = new Role(roleDto,servicePropertiesProvider.getTz());
             roleRepository.save(data);
         }
         else if (roleDto.isItDelete()) {

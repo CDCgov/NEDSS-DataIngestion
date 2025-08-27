@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,13 +27,15 @@ class ActIdJdbcRepositoryTest {
 
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplateOdse;
-
+    @Mock
+    private ServicePropertiesProvider servicePropertiesProvider;
     @InjectMocks
     private ActIdJdbcRepository repository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(servicePropertiesProvider.getTz()).thenReturn("UTC");
     }
 
     @Test
@@ -55,6 +58,37 @@ class ActIdJdbcRepositoryTest {
         actId.setRootExtensionTxt("root");
         actId.setStatusCd("status");
         actId.setStatusTime(Timestamp.from(Instant.now()));
+        actId.setTypeCd("type");
+        actId.setTypeDescTxt("typeDesc");
+        actId.setUserAffiliationTxt("affiliation");
+        actId.setValidFromTime(Timestamp.from(Instant.now()));
+        actId.setValidToTime(Timestamp.from(Instant.now()));
+
+        repository.mergeActId(actId);
+
+        verify(jdbcTemplateOdse, times(1)).update(eq(MERGE_SQL_ACT_ID), any(MapSqlParameterSource.class));
+    }
+
+    @Test
+    void testMergeActId_with_statusCd_and_statusTime() {
+        ActId actId = new ActId();
+        actId.setActUid(1L);
+        actId.setActIdSeq(1);
+        actId.setAddReasonCd("reason");
+        actId.setAddTime(Timestamp.from(Instant.now()));
+        actId.setAddUserId(100L);
+        actId.setAssigningAuthorityCd("authCd");
+        actId.setAssigningAuthorityDescTxt("desc");
+        actId.setDurationAmt("10");
+        actId.setDurationUnitCd("days");
+        actId.setLastChgReasonCd("chgReason");
+        actId.setLastChgTime(Timestamp.from(Instant.now()));
+        actId.setLastChgUserId(101L);
+        actId.setRecordStatusCd("active");
+        actId.setRecordStatusTime(Timestamp.from(Instant.now()));
+        actId.setRootExtensionTxt("root");
+        actId.setStatusCd(null);
+        actId.setStatusTime(null);
         actId.setTypeCd("type");
         actId.setTypeDescTxt("typeDesc");
         actId.setUserAffiliationTxt("affiliation");

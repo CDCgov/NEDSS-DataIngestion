@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationship;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActRelationshipHistory;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +26,15 @@ class ActRelationshipJdbcRepositoryTest {
 
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplateOdse;
-
+    @Mock
+    private ServicePropertiesProvider servicePropertiesProvider;
     @InjectMocks
     private ActRelationshipJdbcRepository repository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(servicePropertiesProvider.getTz()).thenReturn("UTC");
     }
 
     @Test
@@ -39,7 +42,13 @@ class ActRelationshipJdbcRepositoryTest {
         repository.insertActRelationship(createActRelationship());
         verify(jdbcTemplateOdse).update(eq(INSERT_SQL_ACT_RELATIONSHIP), any(MapSqlParameterSource.class));
     }
-
+    @Test
+    void testInsertActRelationship_null_statusTime() {
+        ActRelationship actRelationship= createActRelationship();
+        actRelationship.setStatusTime(null);
+        repository.insertActRelationship(actRelationship);
+        verify(jdbcTemplateOdse).update(eq(INSERT_SQL_ACT_RELATIONSHIP), any(MapSqlParameterSource.class));
+    }
     @Test
     void testUpdateActRelationship() {
         repository.updateActRelationship(createActRelationship());
