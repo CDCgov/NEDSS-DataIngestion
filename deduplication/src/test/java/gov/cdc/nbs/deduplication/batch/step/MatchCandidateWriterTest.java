@@ -1,7 +1,6 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -156,8 +156,8 @@ class MatchCandidateWriterTest {
     MatchCandidate candidate = new MatchCandidate("1234", possibleMatches);
 
     Map<String, String> mpiMap = Map.of(
-            "mpiId1", "4321",
-            "mpiId2", "5678"
+        "mpiId1", "4321",
+        "mpiId2", "5678"
     );
     mockGetPersonIdsMulti(mpiMap);
 
@@ -177,7 +177,8 @@ class MatchCandidateWriterTest {
     // Verify only the first valid non-self match is processed
     verify(jdbcClient, times(1)).sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID); // resolved mpiId1 only
     verify(patientRecordService, times(1)).fetchPersonNameAndAddTime("1234");
-    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW); // inserted for first non-self match
+    verify(jdbcClient, times(1)).sql(
+        MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW); // inserted for first non-self match
   }
 
   @Test
@@ -238,11 +239,13 @@ class MatchCandidateWriterTest {
     when(mqs.single()).thenReturn(includesPerson);
 
     if (!includesPerson) {
+      SecurityTestUtil.mockSecurityContext(220L);
       // Mock insert
       StatementSpec insertSpec = Mockito.mock(StatementSpec.class);
       when(jdbcClient.sql(MatchCandidateWriter.INSERT_MATCH_GROUP_ENTRY)).thenReturn(insertSpec);
       when(insertSpec.param("mergeGroup", mergeGroup)).thenReturn(insertSpec);
       when(insertSpec.param(eq("personUid"), anyString())).thenReturn(insertSpec);
+      when(insertSpec.param(eq("userId"), anyLong())).thenReturn(insertSpec);
     }
   }
 

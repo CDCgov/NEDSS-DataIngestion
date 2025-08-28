@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +23,9 @@ public class MergeService {
 
   static final String MARK_PATIENTS_AS_MERGED = """
       UPDATE merge_group_entries
-      SET is_merge = 1
+      SET is_merge = 1,
+      last_chg_user_id = :userId,
+      last_chg_time = GETDATE()
       WHERE  merge_group = :mergeGroup
       AND is_merge IS NULL;
       """;
@@ -72,8 +76,10 @@ public class MergeService {
   }
 
   private void markPatientsMerged(long mergeGroup) {
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     deduplicationClient.sql(MARK_PATIENTS_AS_MERGED)
         .param("mergeGroup", mergeGroup)
+        .param("userId", currentUser.getId())
         .update();
   }
 

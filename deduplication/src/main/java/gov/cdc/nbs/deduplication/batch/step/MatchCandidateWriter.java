@@ -5,12 +5,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
@@ -62,11 +64,15 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   static final String INSERT_MATCH_GROUP_ENTRY = """
       INSERT INTO merge_group_entries (
         merge_group,
-        person_uid
+        person_uid,
+        last_chg_time,
+        last_chg_user_id
       )
       VALUES (
         :mergeGroup,
-        :personUid
+        :personUid,
+        GETDATE(),
+        :userId
       );
       """;
 
@@ -119,9 +125,9 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
     if (candidate.possibleMatchList() != null && !candidate.possibleMatchList().isEmpty()) {
       // Find the first non-self match
       String firstValidMatch = candidate.possibleMatchList().stream()
-              .filter(match -> !match.equals(candidate.personUid()))
-              .findFirst()
-              .orElse(null);
+          .filter(match -> !match.equals(candidate.personUid()))
+          .findFirst()
+          .orElse(null);
 
       if (firstValidMatch != null) {
         // Resolve the matched person's UID from MPI
@@ -184,9 +190,11 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
         .single();
 
     if (!incomingAlreadyExists) {
+      NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
       jdbcClient.sql(INSERT_MATCH_GROUP_ENTRY)
           .param(MERGE_GROUP, mergeGroup)
           .param(PERSON_UID, personUid)
+          .param("userId", currentUser.getId())
           .update();
     }
   }
