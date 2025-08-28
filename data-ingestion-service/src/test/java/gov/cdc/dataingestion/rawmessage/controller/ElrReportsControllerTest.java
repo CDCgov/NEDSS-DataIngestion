@@ -42,6 +42,7 @@ class ElrReportsControllerTest {
         String messageType = "HL7";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .header("msgType", messageType)
+                        .header("dataSource", "API")
                         .contentType("text/plain")
                         .content(hl7Payload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -53,6 +54,7 @@ class ElrReportsControllerTest {
         rawElrDto.setValidationActive(true);
         rawElrDto.setVersion("1");
         rawElrDto.setCustomMapper("");
+        rawElrDto.setDataSource("API");
         verify(rawELRService).submissionElr(rawElrDto);
 
     }
@@ -63,6 +65,7 @@ class ElrReportsControllerTest {
         String messageType = "HL7-XML";
         mockMvc.perform(MockMvcRequestBuilders.post("/api/elrs")
                         .header("msgType", messageType)
+                        .header("dataSource", "API")
                         .contentType("text/plain")
                         .content(xmlPayload)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
@@ -74,6 +77,7 @@ class ElrReportsControllerTest {
         rawElrDto.setValidationActive(true);
         rawElrDto.setVersion("1");
         rawElrDto.setCustomMapper(null);
+        rawElrDto.setDataSource("API");
 
         verify(rawELRService).submissionElrXml(rawElrDto);
     }

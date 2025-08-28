@@ -162,6 +162,7 @@ public class RawElrService {
         for(String hl7Message : hl7Messages) {
             RawElrModel rawElrModel=convert(rawElrDto);
             rawElrModel.setPayload(hl7Message);
+            rawElrModel.setDataSource(rawElrDto.getDataSource());
             rawElrModels.add(rawElrModel);
         }
         return rawElrModels;
