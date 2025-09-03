@@ -39,7 +39,8 @@ public class SecurityConfig {
             "/api/auth/token",
             "/actuator/health",
             "/actuator/info",
-            "/prometheus"
+            "/actuator/prometheus",
+            "/actuator/prometheus/**"
     };
 
     private static final String[] AUTH_WHITELIST_PROD = {
