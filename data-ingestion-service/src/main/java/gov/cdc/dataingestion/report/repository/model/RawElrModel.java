@@ -1,12 +1,16 @@
 package gov.cdc.dataingestion.report.repository.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "elr_raw")
+@Getter
+@Setter
 /**
  1118 - require constructor complaint
  125 - comment complaint
@@ -26,6 +30,9 @@ public class RawElrModel {
     private String type;
     private String payload;
 
+    @Column(name = "data_source")
+    private String dataSource;
+
     @Column(name = "version")
     private String version;
 
@@ -41,67 +48,4 @@ public class RawElrModel {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getPayload() {
-        return payload;
-    }
-
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-    public Timestamp getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public Timestamp getUpdatedOn() {
-        return updatedOn;
-    }
-
-    public void setUpdatedOn(Timestamp updatedOn) {
-        this.updatedOn = updatedOn;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
 }

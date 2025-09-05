@@ -15,6 +15,7 @@ import lombok.Setter;
 public class RawMessageStatus {
     private String rawMessageId;
 //    private String rawPayload;
+    private String dataSource;
     private String rawCreatedBy;
     private String rawCreatedOn;
     private String rawPipeLineStatus;
