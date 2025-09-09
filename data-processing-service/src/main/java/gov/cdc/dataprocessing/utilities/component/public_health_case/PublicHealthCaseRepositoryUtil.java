@@ -265,8 +265,6 @@ public class PublicHealthCaseRepositoryUtil {
                     + twoDigitYear;
             caseManagementDto.setFieldRecordNumber(fieldRecordNumber);
         }
-
-
     }
 
     private Long insertPublicHealthCase(PublicHealthCaseContainer phcVO) throws DataProcessingException {
