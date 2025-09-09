@@ -65,6 +65,7 @@ public class MatchesRequiringReviewResolver {
           ON mge.merge_group = mrr.merge_group
          AND mge.is_merge IS NULL
         WHERE mrr.person_uid = :personUid
+        OR mrr.matched_person_uid = :personUid
         ORDER BY mrr.date_identified DESC
         OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
     """;
