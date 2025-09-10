@@ -483,7 +483,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         return lst;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S6541"})
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID)   {
         ArrayList<Object> pamAnswerDTCollection;
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
