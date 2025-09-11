@@ -87,3 +87,11 @@ databaseChangeLog:
         - sqlFile:
             path: db/msgoute/tables/update_xml_mapping_v1_1_001.sql
             splitStatements: false
+  - changeSet:
+      id: 12
+      author: liquibase
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/msgoute/tables/update_ecr_phdc_answer_lookup-002.sql
+            splitStatements: false
