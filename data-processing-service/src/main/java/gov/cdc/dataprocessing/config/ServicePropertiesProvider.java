@@ -10,4 +10,7 @@ public class ServicePropertiesProvider {
     @Value("${service.timezone:UTC}")
     private String tz;
 
+    @Value("${nedss.nbs-state-code:13}")
+    private String nbsStateCode;
+
 }

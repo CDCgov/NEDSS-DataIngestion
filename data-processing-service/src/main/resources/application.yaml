@@ -145,6 +145,8 @@ uid:
   min_pool_size: ${UID_MIN_POOL_SIZE:1000}
   use_store_proc: ${UID_USE_STORE_PROC:true}
 
+nedss:
+  nbs-state-code: ${NBS_STATE_CODE:13}
 
 ---
 spring:
