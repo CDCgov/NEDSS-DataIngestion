@@ -72,6 +72,7 @@ public class ReportStatusService {
             msgStatus.getRawInfo().setRawCreatedBy(rawMessageData.get().getCreatedBy());
             msgStatus.getRawInfo().setRawCreatedOn(TimeStampHelper.convertTimestampToString(rawMessageData.get().getCreatedOn()));
             msgStatus.getRawInfo().setRawPipeLineStatus(MSG_STATUS_SUCCESS);
+            msgStatus.getRawInfo().setDataSource(rawMessageData.get().getDataSource());
 
             if (rawMessageData.get().getType().equalsIgnoreCase(HL7_ELR)) {
                 Optional<ValidatedELRModel> validatedMessageData = iValidatedELRRepository.findByRawId(msgStatus.getRawInfo().getRawMessageId());
