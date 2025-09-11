@@ -93,5 +93,5 @@ databaseChangeLog:
       runOnChange: true
       changes:
         - sqlFile:
-            path: db/msgoute/tables/update_ecr_phdc_answer_lookup-002.sql
+            path: db/msgoute/routines/update_ecr_phdc_answer_lookup-002.sql
             splitStatements: false
