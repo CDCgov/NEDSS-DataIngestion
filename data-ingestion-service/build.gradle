@@ -290,9 +290,20 @@ dependencies {
 
 dependencyManagement {
 	dependencies {
-		dependency 'org.apache.tomcat.embed:tomcat-embed-core:10.1.42'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-el:10.1.42'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.42'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.10'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-el:11.0.10'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.10'
+		
+		dependency 'io.netty:netty-codec:4.1.126.Final'
+		dependency 'io.netty:netty-codec-http:4.1.126.Final'
+		dependency 'io.netty:netty-codec-http2:4.1.126.Final'
+		dependency 'io.netty:netty-common:4.1.126.Final'
+		dependency 'io.netty:netty-buffer:4.1.126.Final'
+		dependency 'io.netty:netty-transport:4.1.126.Final'
+		dependency 'io.netty:netty-handler:4.1.126.Final'
+		dependency 'io.netty:netty-resolver:4.1.126.Final'
+		dependency 'io.netty:netty-transport-native-unix-common:4.1.126.Final'
+		dependency 'io.netty:netty-transport-classes-epoll:4.1.126.Final'
 	}
 }
 
