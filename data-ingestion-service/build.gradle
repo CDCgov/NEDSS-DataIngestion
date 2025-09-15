@@ -291,8 +291,6 @@ dependencies {
 dependencyManagement {
 	dependencies {
 		dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.10'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-el:11.0.10'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.10'
 		
 		dependency 'io.netty:netty-codec:4.1.126.Final'
 		dependency 'io.netty:netty-codec-http:4.1.126.Final'
