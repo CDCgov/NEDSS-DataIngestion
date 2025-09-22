@@ -1,5 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
+import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.LocalIdClass;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -52,6 +53,8 @@ public class PublicHealthCaseRepositoryUtil {
     private final ParticipationRepositoryUtil participationRepositoryUtil;
     private final UidPoolManager uidPoolManager;
 
+    private final ServicePropertiesProvider servicePropertiesProvider;
+
     public PublicHealthCaseRepositoryUtil(PublicHealthCaseJdbcRepository publicHealthCaseJdbcRepository,
                                           SupportForPhcJdbcRepository supportForPhcJdbcRepository,
                                           ActJdbcRepository actJdbcRepository,
@@ -67,7 +70,7 @@ public class PublicHealthCaseRepositoryUtil {
                                           ActLocatorParticipationRepositoryUtil actLocatorParticipationRepositoryUtil,
                                           ActRelationshipRepositoryUtil actRelationshipRepositoryUtil,
                                           ParticipationRepositoryUtil participationRepositoryUtil,
-                                          @Lazy UidPoolManager uidPoolManager) {
+                                          @Lazy UidPoolManager uidPoolManager, ServicePropertiesProvider servicePropertiesProvider) {
         this.publicHealthCaseJdbcRepository = publicHealthCaseJdbcRepository;
         this.supportForPhcJdbcRepository = supportForPhcJdbcRepository;
         this.actJdbcRepository = actJdbcRepository;
@@ -84,6 +87,7 @@ public class PublicHealthCaseRepositoryUtil {
         this.actRelationshipRepositoryUtil = actRelationshipRepositoryUtil;
         this.participationRepositoryUtil = participationRepositoryUtil;
         this.uidPoolManager = uidPoolManager;
+        this.servicePropertiesProvider = servicePropertiesProvider;
     }
 
 
@@ -243,7 +247,7 @@ public class PublicHealthCaseRepositoryUtil {
                     .getTime());
             var epicUid = uidPoolManager.getNextUid(LocalIdClass.EPILINK, false);
             String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
-            String lotNum = "NBS_STATE_CODE"
+            String lotNum = servicePropertiesProvider.getNbsStateCode()
                     + epiLinkId.substring(2, epiLinkId.length()-2)
                     + twoDigitYear;
             caseManagementDto.setEpiLinkId(lotNum);
@@ -256,13 +260,11 @@ public class PublicHealthCaseRepositoryUtil {
                     .getTime());
             var epicUid = uidPoolManager.getNextUid(LocalIdClass.EPILINK, false);
             String epiLinkId =  epicUid.getClassTypeUid().getUidPrefixCd() + epicUid.getClassTypeUid().getSeedValueNbr() + epicUid.getClassTypeUid().getUidSuffixCd();
-            String fieldRecordNumber =  "NBS_STATE_CODE"
+            String fieldRecordNumber =  servicePropertiesProvider.getNbsStateCode()
                     + epiLinkId.substring(2, epiLinkId.length()-2)
                     + twoDigitYear;
             caseManagementDto.setFieldRecordNumber(fieldRecordNumber);
         }
-
-
     }
 
     private Long insertPublicHealthCase(PublicHealthCaseContainer phcVO) throws DataProcessingException {
@@ -481,7 +483,7 @@ public class PublicHealthCaseRepositoryUtil {
         }
         return lst;
     }
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776","java:S6541"})
     private Map<Object, Object> getPamAnswerDTMaps(Long publicHealthCaseUID)   {
         ArrayList<Object> pamAnswerDTCollection;
         Map<Object, Object> nbsReturnAnswerMap = new HashMap<>();
