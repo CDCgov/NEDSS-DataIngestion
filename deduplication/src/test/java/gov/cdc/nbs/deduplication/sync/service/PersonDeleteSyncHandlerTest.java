@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -122,12 +123,15 @@ class PersonDeleteSyncHandlerTest {
   }
 
   private void mockCleanPotentialMerges(String id) {
+    SecurityTestUtil.mockSecurityContext(220L);
     StatementSpec spec = Mockito.mock(StatementSpec.class);
     when(deduplicationClient.sql(PersonDeleteSyncHandler.REMOVE_FROM_POTENTIAL_MERGES)).thenReturn(spec);
     when(spec.param("id", id)).thenReturn(spec);
+    when(spec.param("userId", 220L)).thenReturn(spec);
 
     StatementSpec spec2 = Mockito.mock(StatementSpec.class);
     when(deduplicationClient.sql(PersonDeleteSyncHandler.CLEAN_UP_POTENTIAL_MERGES)).thenReturn(spec2);
+    when(spec2.param("userId", 220L)).thenReturn(spec2);
   }
 
   private JsonNode createPayloadNode(String personUid, String personParentUid) {
