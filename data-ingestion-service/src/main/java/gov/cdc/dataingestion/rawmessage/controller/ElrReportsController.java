@@ -74,6 +74,11 @@ public class ElrReportsController {
                             required = false,
                             schema = @Schema(type = "string")),
                     @Parameter(in = ParameterIn.HEADER,
+                            name = "dataSource",
+                            description = "Data origin, for example if data originated from Rhapsody - Rhapsody can be specified for the value. The default value is API",
+                            required = false,
+                            schema = @Schema(type = "string")),
+                    @Parameter(in = ParameterIn.HEADER,
                             name = "customMapper",
                             description = "The optional custom mapper field that find and replaces the text in the ELR message." +
                                     "Multiple values can be sent with a comma-separated string- \"key1=test,key2=newcontent\"",
@@ -83,6 +88,7 @@ public class ElrReportsController {
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/elrs")
     public ResponseEntity<String> save(@RequestBody final String payload, @RequestHeader("msgType") String type,
                                        @RequestHeader(name = "version", defaultValue = "1") String version,
+                                       @RequestHeader(name = "dataSource", defaultValue = "API") String dataSource,
                                        @RequestHeader(name="customMapper", defaultValue = "") String customMapper) throws KafkaProducerException {
         if (type.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required headers should not be null");
@@ -91,6 +97,7 @@ public class ElrReportsController {
         }
 
         RawElrDto rawElrDto = new RawElrDto();
+        rawElrDto.setDataSource(dataSource);
         customMetricsBuilder.incrementMessagesProcessed();
 
         if (type.equalsIgnoreCase(HL7_ELR)) {
