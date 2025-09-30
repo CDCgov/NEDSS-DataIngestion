@@ -57,3 +57,46 @@ sonarqube {
         property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/hl7-parser/build/reports/jacoco/test/jacocoTestReport.xml,${rootDir}/coverage-report/build/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml,${rootDir}/data-ingestion-service/build/customJacocoReportDir/test/jacocoTestReport.xml,${rootDir}/data-processing-service/build/customJacocoReportDir/test/jacocoTestReport.xml"
     }
 }
+
+/**
+ * Loads environment variables from a .env file and applies them 
+ * to all JavaExec and Test tasks in subprojects.
+ */
+def setupEnvironmentVariables() {
+    // Create a global map to store environment variables
+    project.ext.environment = [:]
+
+    def envFile = file(".env")
+    if (envFile.exists()) {
+        println "Loading environment variables from ${envFile.absolutePath}"
+        
+        envFile.eachLine { line ->
+            def trimmedLine = line.trim()
+            if (trimmedLine && !trimmedLine.startsWith("#")) {
+                def parts = trimmedLine.split("=", 2)
+                if (parts.size() == 2) {
+                    project.ext.environment.put(parts[0].trim(), parts[1].trim())
+                }
+            }
+        }
+
+        // Define the configuration closure *once* outside the task configuration.
+        // NOTE: It must access variables via the global 'rootProject.ext.environment'
+        // to work reliably across subprojects.
+        def configureTaskWithEnv = { task ->
+            def vars = rootProject.ext.environment
+            // Ensure we are only configuring the task if the map has data
+            if (!vars.isEmpty()) {
+                task.environment.putAll(vars)
+            }
+        }
+        
+        // Apply the configuration closure to all subprojects
+        subprojects {
+            tasks.withType(JavaExec).configureEach { configureTaskWithEnv(it) }
+            tasks.withType(Test).configureEach{ configureTaskWithEnv(it) }
+        }
+    }
+}
+
+setupEnvironmentVariables()
