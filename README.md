@@ -14,7 +14,7 @@ for building.
 
 Additionally, building the services locally requires **Java 21**.
 
-- [Install Java 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
+- [Install Java 21](https://openjdk.org/install/)
 
 ## Setup
 
