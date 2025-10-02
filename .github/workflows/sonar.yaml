@@ -73,12 +73,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
+    - name: Cache Docker layers
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          # Use branch name for key, falling back to a shared key for initial layers
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
           restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.ref }}
+            ${{ runner.os }}-buildx-main-
             ${{ runner.os }}-buildx-
 
       - name: Build test dataingestion mssql image
@@ -91,6 +94,20 @@ jobs:
           load: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move Buildx cache
+        if: success()
+        run: |
+          # Move the cache created by the build step to the location actions/cache expects
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Save Docker layers cache
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/.buildx-cache
+          # The key must match the primary key used in the restore step
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
 
       - name: Build and analyze
         working-directory: ./
