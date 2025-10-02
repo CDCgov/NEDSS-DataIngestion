@@ -67,13 +67,13 @@ jobs:
 
       - name: Configure Environment Variables
         run: |
-          github_repo_name="$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)"
-          echo "github_repo_name=$github_repo_name" >> $GITHUB_ENV
+          github_repo_name="$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)"
+          echo "github_repo_name=$github_repo_name" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-    - name: Cache Docker layers
+      - name: Cache Docker layers
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
