@@ -318,7 +318,6 @@ jar {
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 
 
-  // Conditionally add dependencies from projects
   dependsOn(':hl7-parser:copyJar')
 
   dependsOn(':cdaschema:copyJar')
