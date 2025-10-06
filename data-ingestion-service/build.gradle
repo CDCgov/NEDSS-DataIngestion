@@ -187,18 +187,11 @@ task jaxb {
 
 compileJava.dependsOn jaxb
 
-if (project != project.rootProject || project.hasProperty('remoteBuild')) {
-  if (!file("${projectDir}/libs/hl7-parser-0.0.1-SNAPSHOT.jar").exists()) {
-	  compileJava.mustRunAfter(":hl7-parser:copyJar")
-    compileJava.dependsOn(":hl7-parser:copyJar")
-  }
+compileJava.mustRunAfter(":hl7-parser:copyJar")
+compileJava.dependsOn(":hl7-parser:copyJar")
 
-  if (!file("${projectDir}/libs/cda-schema.jar").exists()) {
-     compileJava.mustRunAfter(":cdaschema:generateXmlBeans")
-	   compileJava.dependsOn(":cdaschema:copyJar")
-  }
-	
-}
+compileJava.mustRunAfter(":cdaschema:generateXmlBeans")
+compileJava.dependsOn(":cdaschema:copyJar")
 
 
 dependencies {
@@ -325,14 +318,9 @@ jar {
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 
 
-	// Conditionally add dependencies from projects
-  if (findProject(':hl7-parser') && !file("${projectDir}/libs/hl7-parser-0.0.1-SNAPSHOT.jar").exists()) {
-    dependsOn(':hl7-parser:copyJar')
-  }
+  dependsOn(':hl7-parser:copyJar')
 
-  if (findProject(':cdaschema') && !file("${projectDir}/libs/cda-schema.jar").exists()) {
-    dependsOn(':cdaschema:copyJar')
-  }
+  dependsOn(':cdaschema:copyJar')
 }
 
 
