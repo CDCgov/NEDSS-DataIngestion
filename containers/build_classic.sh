@@ -6,7 +6,7 @@ BASE="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 
 CLASSIC_PATH=$BASE/nbs-classic/builder/NEDSSDev
-CLASSIC_VERSION=NBS_6.0.16
+CLASSIC_VERSION=lts/6.0.16
 
 docker compose up di-mssql -d
 
