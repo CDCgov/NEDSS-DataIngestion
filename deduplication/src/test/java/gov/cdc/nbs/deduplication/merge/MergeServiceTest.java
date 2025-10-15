@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.merge;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import gov.cdc.nbs.deduplication.merge.handler.AdminCommentMergeHandler;
 import gov.cdc.nbs.deduplication.merge.handler.PersonTableMergeHandler;
 import gov.cdc.nbs.deduplication.merge.handler.SectionMergeHandler;
@@ -46,6 +47,7 @@ class MergeServiceTest {
 
     when(deduplicationClient.sql(MergeService.MARK_PATIENTS_AS_MERGED)).thenReturn(mockStatementSpec);
     when(mockStatementSpec.param("mergeGroup", 123L)).thenReturn(mockStatementSpec);
+    when(mockStatementSpec.param("userId", 220L)).thenReturn(mockStatementSpec);
     when(mockStatementSpec.update()).thenReturn(1); // simulate update success
 
     StatementSpec auditStatementSpec = Mockito.mock(StatementSpec.class);
@@ -70,6 +72,8 @@ class MergeServiceTest {
 
     // Mock objectMapper serialization
     when(objectMapper.writeValueAsString(any())).thenReturn(relatedAuditsJson, mergeRequestJson);
+
+    SecurityTestUtil.mockSecurityContext(220L);
 
     // Act
     mergeService.performMerge(matchId, request);
