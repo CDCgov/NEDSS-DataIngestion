@@ -2,8 +2,10 @@ package gov.cdc.nbs.deduplication.sync.service;
 
 import java.util.Optional;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -40,7 +42,10 @@ public class PersonDeleteSyncHandler {
 
   static final String REMOVE_FROM_POTENTIAL_MERGES = """
       UPDATE merge_group_entries
-      SET is_merge = 0
+      SET
+        is_merge = 0,
+        last_chg_user_id = :userId,
+        last_chg_time = GETDATE()
       WHERE person_uid = :id
       AND is_merge IS NULL;
       """;
@@ -49,7 +54,9 @@ public class PersonDeleteSyncHandler {
   static final String CLEAN_UP_POTENTIAL_MERGES = """
       UPDATE merge_group_entries
       SET
-        is_merge = 0
+        is_merge = 0,
+        last_chg_user_id = :userId,
+        last_chg_time = GETDATE()
       WHERE
         merge_group IN (
           SELECT
@@ -77,6 +84,8 @@ public class PersonDeleteSyncHandler {
   // We also need to check if this patient was involved in a potential merge. If
   // so remove it
   public void handleDelete(JsonNode payloadNode) {
+    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
     JsonNode afterNode = payloadNode.path("after");
     String personUid = afterNode.get("person_uid").asText();
 
@@ -101,10 +110,12 @@ public class PersonDeleteSyncHandler {
     // ensure the person is removed from any potential merges
     deduplicationClient.sql(REMOVE_FROM_POTENTIAL_MERGES)
         .param("id", personUid)
+        .param("userId", currentUser.getId())
         .update();
 
     // do a clean up of potential merges so no single entries are left
     deduplicationClient.sql(CLEAN_UP_POTENTIAL_MERGES)
+        .param("userId", currentUser.getId())
         .update();
   }
 
