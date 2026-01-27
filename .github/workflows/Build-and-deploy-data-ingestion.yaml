@@ -5,6 +5,7 @@ on:
       - main
       - master
       - rel-**
+      - test-deploy
     paths:
       - "data-ingestion-service/**"
       - "hl7-parser/**"

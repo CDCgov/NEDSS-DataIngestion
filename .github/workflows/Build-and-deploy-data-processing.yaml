@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - master
+      - test-deploy
       - rel-**
     paths:
       - "data-processing-service/**"
