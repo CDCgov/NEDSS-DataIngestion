@@ -38,3 +38,4 @@ WORKDIR /deployment/application
 
 CMD ["java", "-jar", "api.jar"]
 
+
