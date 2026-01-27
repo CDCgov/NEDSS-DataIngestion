@@ -31,4 +31,3 @@ ENV JAVA_XMS=1024m
 ENV JAVA_XMX=2048m
 
 ENTRYPOINT ["sh", "-c", "java -Xms$JAVA_XMS -Xmx$JAVA_XMX -jar data-processing-service.jar"]
-

@@ -31,4 +31,3 @@ COPY --from=builder /usr/src/dataingestion/data-ingestion-service/build/libs/dat
 # Run jar
 ENTRYPOINT ["java", "-jar", "data-ingestion-service.jar"]
 CMD ["java", "-jar", "data-ingestion-service.jar"]
-

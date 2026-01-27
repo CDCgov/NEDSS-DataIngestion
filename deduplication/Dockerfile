@@ -37,5 +37,3 @@ ENV PATH /deployment/runtime/bin:$PATH
 WORKDIR /deployment/application
 
 CMD ["java", "-jar", "api.jar"]
-
-
