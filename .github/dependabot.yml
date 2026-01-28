@@ -22,8 +22,6 @@ updates:
   # Enable version updates for Docker
   - package-ecosystem: "docker"
     directories:
-      - "/containers/db"
-      - "/containers/nbs-classic"
       - "/data-ingestion-service"
       - "/data-processing-service"
       - "/deduplication"
