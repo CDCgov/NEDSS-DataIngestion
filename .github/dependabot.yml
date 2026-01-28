@@ -13,7 +13,7 @@ updates:
       - "/deduplication"
       - "/hl7-parser" 
       - "/karatetest" 
-      - "/phoc-xsd-jaxb"
+      - "/phdc-xsd-jaxb"
       - "/srte-data-service"
     schedule:
       interval: "weekly"
