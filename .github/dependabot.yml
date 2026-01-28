@@ -11,9 +11,9 @@ updates:
       - "/data-ingestion-service"
       - "/data-processing-service"
       - "/deduplication"
-      - "/h17-parser" 
+      - "/hl7-parser" 
       - "/karatetest" 
-      - "/phoc-xsd-jaxb"
+      - "/phdc-xsd-jaxb"
       - "/srte-data-service"
     schedule:
       interval: "weekly"
