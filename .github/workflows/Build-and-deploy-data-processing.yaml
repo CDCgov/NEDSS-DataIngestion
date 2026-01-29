@@ -29,7 +29,7 @@ jobs:
       image_tag: ${{ steps.parse.outputs.image_tag }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Read version from build.gradle and extract suffix
         id: parse
