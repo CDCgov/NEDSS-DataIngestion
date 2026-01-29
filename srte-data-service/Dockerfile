@@ -1,4 +1,4 @@
-FROM amazoncorretto:21 AS builder
+FROM amazoncorretto:25 AS builder
 WORKDIR /usr/src/srtedataservice
 #Copy project config
 COPY gradle gradle
@@ -17,7 +17,7 @@ WORKDIR /usr/src/srtedataservice
 #Build report service along with any required libraries
 RUN ./gradlew :srte-data-service:buildNeeded -x test --no-daemon
 
-FROM amazoncorretto:21
+FROM amazoncorretto:25
 
 COPY --from=builder /usr/src/srtedataservice/srte-data-service/build/libs/srte-data-service*.jar srte-data-service.jar
 
