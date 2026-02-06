@@ -92,7 +92,7 @@ services:
       - dataingestion
 
   debezium:
-    image: debezium/connect:2.4
+    image: debezium/connect:3.0.0.Final
     hostname: debezium
     container_name: debezium
     depends_on:
