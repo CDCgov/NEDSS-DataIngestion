@@ -17,7 +17,7 @@ public class LiquibaseConfig {
     @Value("${spring.liquibase.driver-class-name}")
     private String driverClassName;
 
-    @Value("${spring.liquibase.user}")
+            @Value("${spring.liquibase.user}")
     private String dbUserName;
 
     @Value("${spring.liquibase.password}")
