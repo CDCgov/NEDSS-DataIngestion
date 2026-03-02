@@ -122,7 +122,7 @@ jobs:
             -Dtesting.database.mssql.image=local/di-mssql:latest
 
       - name: Publish Testing Reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: testing
           path: ./**/build/reports
