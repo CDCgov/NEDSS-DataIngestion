@@ -1,11 +1,11 @@
 name: Build and push data-ingestion-service images to ECR
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
       - master
       - rel-**
-      - jg/APP-267
     paths:
       - "data-ingestion-service/**"
       - "hl7-parser/**"
