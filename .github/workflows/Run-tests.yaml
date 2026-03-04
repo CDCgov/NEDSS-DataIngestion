@@ -21,5 +21,8 @@ jobs:
         java-version: 21
         cache: 'gradle'
 
+    - name: Clean deps
+      run: ./gradlew clean
+      
     - name: Run all tests
       run: ./gradlew test
