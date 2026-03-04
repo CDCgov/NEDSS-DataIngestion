@@ -28,3 +28,11 @@ jobs:
 
     - name: Run all tests
       run: ./gradlew clean test
+
+    - name: Publish Testing Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: all-test-reports
+        # The '**' tells GitHub to look in every sub-folder for reports
+        path: "**/build/reports/**"
