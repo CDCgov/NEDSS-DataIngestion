@@ -1,0 +1,21 @@
+name: Build and Deploy nifi image
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - jg/*
+
+jobs:
+  call-build-microservice-container-workflow:
+    permissions:
+      id-token: write
+      contents: read
+      security-events: write
+    uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-other-microservice-container.yaml@main
+    with:
+      microservice_name: nbs7-nifi
+      dockerfile_relative_path: ./cdc-sandbox/nifi
+      environment_classifier: SNAPSHOT
+    secrets:
+      NBS_ACCOUNTID: ${{secrets.NBS_ACCOUNTID}}
