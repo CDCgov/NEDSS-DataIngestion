@@ -5,6 +5,7 @@ on:
       - main
       - master
       - rel-**
+      - jg/APP-267
     paths:
       - "data-processing-service/**"
       - "cdaschema/**"
