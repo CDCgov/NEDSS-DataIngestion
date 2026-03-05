@@ -1,4 +1,7 @@
-name: SonarCloud
+# This workflow is used to perform static code analysis on a gradle build
+
+name: "Sonar Scanner"
+
 on:
   workflow_call:
     secrets:
@@ -17,6 +20,12 @@ on:
       DATABASE_PASSWORD:
         description: "Test database password"
         required: true
+      TOKEN_SECRET:
+        description: "Secret named TOKEN_SECRET that references a default JWT token key"
+        required: true
+      PARAMETER_SECRET:
+        description: "Secret named PARAMETER_SECRET that references a default key for encrypting search parameters"
+        required: true
   pull_request:
     paths:
       - "data-ingestion-service/**"
@@ -29,8 +38,11 @@ on:
 env:
   deployment_env: dev
   accountid: ${{secrets.cdc_nbs_sandbox_shared_services_accountid}}
+  sonar_token: ${{secrets.SONAR_TOKEN}}
   test_database_user: ${{secrets.DATABASE_USER}}
   test_database_password: ${{secrets.DATABASE_PASSWORD}}
+  token_secret: ${{secrets.TOKEN_SECRET}}
+  parameter_secret: ${{secrets.PARAMETER_SECRET}}
 
 jobs:
   pipeline:
@@ -112,10 +124,12 @@ jobs:
       - name: Build and analyze
         working-directory: ./
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ env.passed_github_token }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ env.sonar_token }}
           DATABASE_USER: ${{ env.test_database_user }}
           DATABASE_PASSWORD: ${{ env.test_database_password }}
+          TOKEN_SECRET: ${{ env.token_secret }}
+          PARAMETER_SECRET: ${{ env.parameter_secret }}
         run: |
           ./gradlew build jacocoTestReport sonarqube \
             "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" \
