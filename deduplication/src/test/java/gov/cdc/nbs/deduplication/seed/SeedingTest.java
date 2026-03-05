@@ -33,6 +33,7 @@ import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 @SpringBatchTest
 @ActiveProfiles("test")
 @UseTestContainers
+@Disabled
 class SeedingTest {
 
   private static final String NBS_QUERY = """

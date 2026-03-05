@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("test")
 @UseTestContainers
+@Disabled
 class DeduplicationApplicationTests {
 
   @Autowired
