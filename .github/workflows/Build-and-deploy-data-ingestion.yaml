@@ -6,10 +6,11 @@ on:
       - main
       - master
       - rel-**
-    paths:
-      - "data-ingestion-service/**"
-      - "hl7-parser/**"
-      - "phdc-xsd-jaxb/**"
+      - jg/APP-267
+    # paths:
+    #   - "data-ingestion-service/**"
+    #   - "hl7-parser/**"
+    #   - "phdc-xsd-jaxb/**"
 jobs:
   sonar_scan:
     permissions:
