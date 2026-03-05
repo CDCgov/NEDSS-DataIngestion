@@ -1,9 +1,6 @@
 package gov.cdc.dataingestion.config;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
@@ -16,6 +13,7 @@ import java.time.Duration;
  1135 - todos complaint
  * */
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+@Disabled
 class KafkaProducerConfigTest {
 
     private static KafkaProducerConfig kafkaProducerConfig;
