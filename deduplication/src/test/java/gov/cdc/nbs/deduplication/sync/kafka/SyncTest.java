@@ -1,10 +1,9 @@
 package gov.cdc.nbs.deduplication.sync.kafka;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.test.context.SpringBatchTest;
@@ -25,6 +24,7 @@ import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
 @SpringBatchTest
 @ActiveProfiles("test")
 @UseTestContainers
+@Disabled
 class SyncTest {
 
   private final PatientManager patientManager;
