@@ -1,7 +1,9 @@
 package gov.cdc.dataingestion.config;
 
-import org.junit.jupiter.api.*;
-import org.testcontainers.containers.KafkaContainer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
