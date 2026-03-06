@@ -2,7 +2,6 @@ package gov.cdc.nbs.deduplication;
 
 import gov.cdc.nbs.deduplication.config.DataSourceConfig;
 import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
