@@ -1,16 +1,9 @@
 package gov.cdc.nbs.deduplication.seed;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
@@ -26,11 +19,20 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+
 @SpringBootTest
 @SpringBatchTest
 @ActiveProfiles("test")
 @UseTestContainers
-@Disabled
+@Disabled("Skipping temporarily to get the test workflow passing")
 class SeedingTest {
 
   private static final String NBS_QUERY =
@@ -97,7 +99,7 @@ class SeedingTest {
   @Autowired private ObjectMapper mapper;
 
   @Test
-  @Disabled
+  @Disabled("Skipping temporarily to get the test workflow passing")
   void seedMpiTest(@Autowired @Qualifier("seedJob") Job seedJob) throws Exception {
     // Kick off seeding job
     jobLauncherTestUtils.setJob(seedJob);
