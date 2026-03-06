@@ -6,10 +6,9 @@ on:
       - main
       - master
       - rel-**
-      - jg/APP-267-sonar-part
-    # paths:
-    #   - "data-processing-service/**"
-    #   - "cdaschema/**"
+    paths:
+      - "data-processing-service/**"
+      - "cdaschema/**"
 jobs:
   sonar_scan:
     permissions:
