@@ -52,6 +52,7 @@ jobs:
 
           echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
           echo "Final image tag for build: $image_tag"
+  
   call-build-microservice-container-workflow:
     permissions:
       id-token: write
