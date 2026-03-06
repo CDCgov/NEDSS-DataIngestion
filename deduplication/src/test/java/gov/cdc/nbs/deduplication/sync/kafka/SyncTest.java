@@ -1,15 +1,6 @@
 package gov.cdc.nbs.deduplication.sync.kafka;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.springframework.batch.test.context.SpringBatchTest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
 import gov.cdc.nbs.deduplication.patient.PatientManager;
@@ -19,6 +10,14 @@ import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.sync.service.PersonDeleteSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonInsertSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.springframework.batch.test.context.SpringBatchTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @SpringBatchTest
