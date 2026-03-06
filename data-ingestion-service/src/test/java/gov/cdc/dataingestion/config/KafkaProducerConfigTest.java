@@ -11,7 +11,6 @@ import org.testcontainers.utility.DockerImageName;
  * todos complaint
  */
 @SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
-@Disabled
 class KafkaProducerConfigTest {
 
   private static KafkaProducerConfig kafkaProducerConfig;

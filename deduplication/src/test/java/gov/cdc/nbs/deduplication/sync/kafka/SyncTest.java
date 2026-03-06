@@ -12,7 +12,6 @@ import gov.cdc.nbs.deduplication.sync.service.PersonInsertSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBatchTest
 @ActiveProfiles("test")
 @UseTestContainers
-@Disabled
 class SyncTest {
 
   private final PatientManager patientManager;
@@ -44,7 +42,6 @@ class SyncTest {
   }
 
   @Test
-  @Disabled
   void syncNewPatientTest() {
     // Create a new patient in NBS and add a name
     long patientId = patientManager.createPatient();
@@ -94,7 +91,6 @@ class SyncTest {
   }
 
   @Test
-  @Disabled
   void syncUpdatePatientTest() {
     // Create a new patient in NBS and add a name
     long patientId = patientManager.createPatient();
@@ -184,7 +180,6 @@ class SyncTest {
   }
 
   @Test
-  @Disabled
   void syncDeletePatientTest() {
     // Create a new patient in NBS and add a name
     long patientId = patientManager.createPatient();

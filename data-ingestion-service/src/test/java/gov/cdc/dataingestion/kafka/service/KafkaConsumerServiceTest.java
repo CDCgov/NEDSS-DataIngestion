@@ -64,7 +64,6 @@ import org.testcontainers.utility.DockerImageName;
 @SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
-@Disabled
 class KafkaConsumerServiceTest {
 
   @Mock private KafkaProducerService kafkaProducerService;
