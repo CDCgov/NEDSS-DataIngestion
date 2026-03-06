@@ -66,7 +66,6 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
-@Disabled
 class KafkaConsumerServiceTest {
 
     @Mock
