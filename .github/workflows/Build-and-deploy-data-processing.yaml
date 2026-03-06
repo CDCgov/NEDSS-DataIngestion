@@ -1,6 +1,5 @@
 name: Build and push data-processing-service images to ECR
 on:
-  workflow_dispatch:
   push:
     branches:
       - main

@@ -1,6 +1,5 @@
 name: Build and push data-ingestion-service images to ECR
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -52,7 +51,7 @@ jobs:
 
           echo "image_tag=$image_tag" >> $GITHUB_OUTPUT
           echo "Final image tag for build: $image_tag"
-  
+
   call-build-microservice-container-workflow:
     permissions:
       id-token: write
