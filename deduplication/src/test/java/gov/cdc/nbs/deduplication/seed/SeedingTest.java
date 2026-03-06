@@ -100,7 +100,6 @@ class SeedingTest {
   private ObjectMapper mapper;
 
   @Test
-  @Disabled
   void seedMpiTest(@Autowired @Qualifier("seedJob") Job seedJob) throws Exception {
     // Kick off seeding job
     jobLauncherTestUtils.setJob(seedJob);

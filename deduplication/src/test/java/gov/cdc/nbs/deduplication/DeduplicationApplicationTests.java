@@ -18,7 +18,6 @@ class DeduplicationApplicationTests {
   private DataSourceConfig config;
 
   @Test
-  @Disabled
   void contextLoads() {
     assertThat(config).isNotNull();
   }

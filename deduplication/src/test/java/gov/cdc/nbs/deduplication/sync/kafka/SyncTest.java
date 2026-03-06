@@ -23,7 +23,6 @@ import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
 @SpringBatchTest
 @ActiveProfiles("test")
 @UseTestContainers
-@Disabled
 class SyncTest {
 
   private final PatientManager patientManager;
@@ -43,7 +42,6 @@ class SyncTest {
   }
 
   @Test
-  @Disabled
   void syncNewPatientTest() {
     // Create a new patient in NBS and add a name
     long patientId = patientManager.createPatient();
@@ -92,7 +90,6 @@ class SyncTest {
   }
 
   @Test
-  @Disabled
   void syncUpdatePatientTest() {
     // Create a new patient in NBS and add a name
     long patientId = patientManager.createPatient();
@@ -180,7 +177,6 @@ class SyncTest {
   }
 
   @Test
-  @Disabled
   void syncDeletePatientTest() {
     // Create a new patient in NBS and add a name
     long patientId = patientManager.createPatient();
