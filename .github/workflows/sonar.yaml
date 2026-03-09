@@ -34,7 +34,7 @@ env:
 
 jobs:
   pipeline:
-    name: Build and analyze
+    name: Build, test and analyze
     runs-on: ubuntu-latest
 
     permissions:
@@ -117,12 +117,14 @@ jobs:
           DATABASE_USER: ${{ env.test_database_user }}
           DATABASE_PASSWORD: ${{ env.test_database_password }}
         run: |
-          ./gradlew build jacocoTestReport sonar \
+          ./gradlew build test sonar \
             "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" \
             -Dtesting.database.mssql.image=local/di-mssql:latest
 
       - name: Publish Testing Reports
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: testing
-          path: ./**/build/reports
+          name: all-test-reports
+          # The '**' tells GitHub to look in every sub-folder for reports
+          path: "**/build/reports/**"
