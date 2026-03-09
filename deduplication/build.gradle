@@ -30,6 +30,7 @@ dependencies {
 
   // security
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.security:spring-security-core:6.4.6'
   implementation 'org.springframework.security:spring-security-config:6.5.1'
   implementation 'org.springframework.security:spring-security-web:6.5.1'
   implementation 'org.springframework.security:spring-security-oauth2-resource-server:6.5.1'
