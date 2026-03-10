@@ -7,16 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Jcc {
-    String jobCode;
-    String jobClass;
-    String jobDescriptionText;
-    public Jcc(JCC jcc) {
-        this.jobCode = jcc.getJobCode().getValue();
-        this.jobClass = jcc.getJobClass().getValue();
-        this.jobDescriptionText = jcc.getJobDescriptionText().getValue();
-    }
+  String jobCode;
+  String jobClass;
+  String jobDescriptionText;
 
-    public Jcc() {
+  public Jcc(JCC jcc) {
+    this.jobCode = jcc.getJobCode().getValue();
+    this.jobClass = jcc.getJobClass().getValue();
+    this.jobDescriptionText = jcc.getJobDescriptionText().getValue();
+  }
 
-    }
+  public Jcc() {}
 }

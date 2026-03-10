@@ -7,14 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Cq {
-    String quantity;
-    Ce units = new Ce();
-    public Cq(CQ cq) {
-        this.quantity = cq.getQuantity().getValue();
-        this.units = new Ce(cq.getUnits());
-    }
+  String quantity;
+  Ce units = new Ce();
 
-    public Cq() {
+  public Cq(CQ cq) {
+    this.quantity = cq.getQuantity().getValue();
+    this.units = new Ce(cq.getUnits());
+  }
 
-    }
+  public Cq() {}
 }

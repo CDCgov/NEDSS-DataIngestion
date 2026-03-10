@@ -9,33 +9,28 @@ import gov.cdc.nbs.deduplication.batch.model.MatchResponse;
 import gov.cdc.nbs.deduplication.batch.service.DuplicateCheckService;
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 class DuplicatesProcessorTest {
 
-  @Mock
-  private PatientRecordService patientRecordService;
+  @Mock private PatientRecordService patientRecordService;
 
-  @Mock
-  private DuplicateCheckService recordLinkerService;
+  @Mock private DuplicateCheckService recordLinkerService;
 
-  @InjectMocks
-  private DuplicatesProcessor duplicatesProcessor;
+  @InjectMocks private DuplicatesProcessor duplicatesProcessor;
 
   @Test
   void processReturnsMatchCandidateForPossibleMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson(null, null, null, null,
-        null, null, null, null, null);
+    MpiPerson patientRecord = new MpiPerson(null, null, null, null, null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
     LinkResult linkResult = mock(LinkResult.class);
     List<LinkResult> linkResults = Collections.singletonList(linkResult);
@@ -57,8 +52,7 @@ class DuplicatesProcessorTest {
   @Test
   void processReturnsMatchCandidateWithNullForNoMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson(null, null, null, null,
-        null, null, null, null, null);
+    MpiPerson patientRecord = new MpiPerson(null, null, null, null, null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
 
     when(patientRecordService.fetchMostRecentPatient(personUid)).thenReturn(patientRecord);
@@ -75,8 +69,7 @@ class DuplicatesProcessorTest {
   @Test
   void processReturnsMatchCandidateForMatch() {
     String personUid = "1234";
-    MpiPerson patientRecord = new MpiPerson(null, null, null, null,
-        null, null, null, null, null);
+    MpiPerson patientRecord = new MpiPerson(null, null, null, null, null, null, null, null, null);
     MatchResponse response = mock(MatchResponse.class);
     LinkResult linkResult = mock(LinkResult.class);
     List<LinkResult> linkResults = Collections.singletonList(linkResult);
@@ -94,5 +87,4 @@ class DuplicatesProcessorTest {
     assertThat(result.personUid()).isNotNull();
     assertThat(result.possibleMatchList()).hasSize(1);
   }
-
 }

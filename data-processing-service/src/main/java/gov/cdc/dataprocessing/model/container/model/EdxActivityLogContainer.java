@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class EdxActivityLogContainer {
-    private EDXActivityLogDto edxActivityLogDto=new EDXActivityLogDto();
+  private EDXActivityLogDto edxActivityLogDto = new EDXActivityLogDto();
 }

@@ -4,9 +4,7 @@ import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 
-
 public interface IOrganizationMatchingService {
-    EDXActivityDetailLogDto getMatchingOrganization(
-            OrganizationContainer organizationContainer)
-            throws DataProcessingException;
+  EDXActivityDetailLogDto getMatchingOrganization(OrganizationContainer organizationContainer)
+      throws DataProcessingException;
 }

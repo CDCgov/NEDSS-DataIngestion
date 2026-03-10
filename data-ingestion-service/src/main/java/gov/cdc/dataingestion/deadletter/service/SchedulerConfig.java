@@ -10,19 +10,19 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling
 public class SchedulerConfig {
 
-    @Value("${dlt.scheduler.enabled}")
-    private boolean isSchedulerEnabled;
+  @Value("${dlt.scheduler.enabled}")
+  private boolean isSchedulerEnabled;
 
-    private final ElrDeadLetterService elrDeadLetterService;
+  private final ElrDeadLetterService elrDeadLetterService;
 
-    public SchedulerConfig(ElrDeadLetterService elrDeadLetterService) {
-        this.elrDeadLetterService = elrDeadLetterService;
+  public SchedulerConfig(ElrDeadLetterService elrDeadLetterService) {
+    this.elrDeadLetterService = elrDeadLetterService;
+  }
+
+  @Scheduled(cron = "${dlt.scheduler.cron}")
+  public void scheduleTask() throws KafkaProducerException {
+    if (isSchedulerEnabled) {
+      elrDeadLetterService.processFailedMessagesFromKafka();
     }
-
-    @Scheduled(cron = "${dlt.scheduler.cron}")
-    public void scheduleTask() throws KafkaProducerException {
-        if (isSchedulerEnabled) {
-            elrDeadLetterService.processFailedMessagesFromKafka();
-        }
-    }
+  }
 }

@@ -2,47 +2,44 @@ package gov.cdc.dataingestion.nbs.repository.model.dto;
 
 import gov.cdc.dataingestion.exception.EcrCdaXmlException;
 import gov.cdc.dataingestion.share.helper.EcrXmlModelingHelper;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
 @Setter
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class EcrMsgTreatmentDto {
-    private String trtLocalId;
-    private String trtAuthorId;
-    private String trtCompositeCd;
-    private String trtCommentTxt;
-    private String trtCustomTreatmentTxt;
-    private Integer trtDosageAmt;
-    private String trtDosageUnitCd;
-    private String trtDrugCd;
-    private Integer trtDurationAmt;
-    private String trtDurationUnitCd;
-    private Timestamp trtEffectiveTime;
-    private String trtFrequencyAmtCd;
-    private String trtRouteCd;
-    private Timestamp trtTreatmentDt;
-    private Map<String, Object> dataMap;
-    public void initDataMap() throws EcrCdaXmlException {
-        dataMap = new HashMap<>();
+  private String trtLocalId;
+  private String trtAuthorId;
+  private String trtCompositeCd;
+  private String trtCommentTxt;
+  private String trtCustomTreatmentTxt;
+  private Integer trtDosageAmt;
+  private String trtDosageUnitCd;
+  private String trtDrugCd;
+  private Integer trtDurationAmt;
+  private String trtDurationUnitCd;
+  private Timestamp trtEffectiveTime;
+  private String trtFrequencyAmtCd;
+  private String trtRouteCd;
+  private Timestamp trtTreatmentDt;
+  private Map<String, Object> dataMap;
 
-        Field[] fields = EcrMsgTreatmentDto.class.getDeclaredFields();
-        EcrXmlModelingHelper helper = new EcrXmlModelingHelper();
-        dataMap = helper.setupDataMap(fields, dataMap, this);
-    }
+  public void initDataMap() throws EcrCdaXmlException {
+    dataMap = new HashMap<>();
 
+    Field[] fields = EcrMsgTreatmentDto.class.getDeclaredFields();
+    EcrXmlModelingHelper helper = new EcrXmlModelingHelper();
+    dataMap = helper.setupDataMap(fields, dataMap, this);
+  }
 }

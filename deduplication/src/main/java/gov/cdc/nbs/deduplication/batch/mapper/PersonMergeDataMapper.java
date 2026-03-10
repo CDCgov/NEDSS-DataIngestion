@@ -1,20 +1,8 @@
 package gov.cdc.nbs.deduplication.batch.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.AdminComments;
@@ -27,6 +15,15 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
 
@@ -38,8 +35,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
   }
 
   @Override
-  @Nullable
-  public PersonMergeData mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+  @Nullable public PersonMergeData mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
     String personId = rs.getString("personId");
     String personUid = rs.getString("person_parent_uid");
     String addTime = rs.getString("add_time");
@@ -57,7 +53,8 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     Mortality mortality = mapMortality(rs.getString("mortality"));
 
     // General Patient Information Mapping
-    GeneralPatientInformation generalPatientInformation = mapGeneralPatientInformation(rs.getString("general"));
+    GeneralPatientInformation generalPatientInformation =
+        mapGeneralPatientInformation(rs.getString("general"));
 
     // Investigations Mapping
     List<Investigation> investigations = mapInvestigations(rs.getString("investigations"));
@@ -132,10 +129,11 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new GeneralPatientInformation();
     }
     try {
-      GeneralPatientInformation generalPatientInformation = mapper.readValue(generalInfoString,
-          GeneralPatientInformation.class);
+      GeneralPatientInformation generalPatientInformation =
+          mapper.readValue(generalInfoString, GeneralPatientInformation.class);
 
-      return hasHivAccess ? generalPatientInformation
+      return hasHivAccess
+          ? generalPatientInformation
           : GeneralPatientInformation.restrictStateHivCaseId(generalPatientInformation);
 
     } catch (JsonProcessingException e) {
@@ -148,8 +146,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new ArrayList<>();
     }
     try {
-      return mapper.readValue(investigationString, new TypeReference<List<Investigation>>() {
-      });
+      return mapper.readValue(investigationString, new TypeReference<List<Investigation>>() {});
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient investigations");
     }
@@ -162,10 +159,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
     String investigationId = String.valueOf(investigationMap.get("investigationId"));
     String startedOn = String.valueOf(investigationMap.get("started_on"));
     String condition = String.valueOf(investigationMap.get("condition"));
-    return new Investigation(
-        investigationId,
-        startedOn,
-        condition);
+    return new Investigation(investigationId, startedOn, condition);
   }
 
   List<Address> mapAddresses(String addressString) {
@@ -173,8 +167,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new ArrayList<>();
     }
     try {
-      return mapper.readValue(addressString, new TypeReference<List<Address>>() {
-      });
+      return mapper.readValue(addressString, new TypeReference<List<Address>>() {});
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient addresses");
     }
@@ -185,8 +178,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new ArrayList<>();
     }
     try {
-      return mapper.readValue(phoneString, new TypeReference<List<PhoneEmail>>() {
-      });
+      return mapper.readValue(phoneString, new TypeReference<List<PhoneEmail>>() {});
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient phone and email");
     }
@@ -197,8 +189,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new ArrayList<>();
     }
     try {
-      return mapper.readValue(nameString, new TypeReference<List<Name>>() {
-      });
+      return mapper.readValue(nameString, new TypeReference<List<Name>>() {});
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient names");
     }
@@ -209,8 +200,7 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new ArrayList<>();
     }
     try {
-      return mapper.readValue(identifierString, new TypeReference<List<Identification>>() {
-      });
+      return mapper.readValue(identifierString, new TypeReference<List<Identification>>() {});
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient identification");
     }
@@ -221,11 +211,9 @@ public class PersonMergeDataMapper implements RowMapper<PersonMergeData> {
       return new ArrayList<>();
     }
     try {
-      return mapper.readValue(raceString, new TypeReference<List<Race>>() {
-      });
+      return mapper.readValue(raceString, new TypeReference<List<Race>>() {});
     } catch (JsonProcessingException e) {
       throw new PersonMapException("Failed to parse patient race");
     }
   }
-
 }
