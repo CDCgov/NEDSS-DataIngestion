@@ -8,8 +8,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableCaching
 public class SrteDataServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SrteDataServiceApplication.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(SrteDataServiceApplication.class, args);
+  }
 }

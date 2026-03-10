@@ -7,8 +7,8 @@ import java.nio.file.Paths;
 
 public class TestHelper {
 
-    public static String testFileReading() throws IOException {
-        String path = new File("src/test/resources/xmlData.txt").getAbsolutePath();
-        return Files.readString(Paths.get(path));
-    }
+  public static String testFileReading() throws IOException {
+    String path = new File("src/test/resources/xmlData.txt").getAbsolutePath();
+    return Files.readString(Paths.get(path));
+  }
 }

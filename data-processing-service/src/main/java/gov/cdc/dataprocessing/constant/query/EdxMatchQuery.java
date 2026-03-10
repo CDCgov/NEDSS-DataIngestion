@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class EdxMatchQuery {
-    public static final String MERGE_EDX_PATIENT_MATCH = """
+  public static final String MERGE_EDX_PATIENT_MATCH =
+"""
 MERGE INTO EDX_patient_match AS target
 USING (
     SELECT
@@ -29,7 +30,8 @@ WHEN NOT MATCHED THEN
     );
 """;
 
-    public static final String MERGE_EDX_ENTITY_MATCH = """
+  public static final String MERGE_EDX_ENTITY_MATCH =
+"""
 MERGE INTO EDX_entity_match AS target
 USING (
     SELECT
@@ -56,5 +58,4 @@ WHEN NOT MATCHED THEN
         :matchStringHashcode
     );
 """;
-
 }

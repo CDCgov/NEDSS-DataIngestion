@@ -1,5 +1,7 @@
 package gov.cdc.dataingestion.config;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,35 +11,31 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Configuration
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class KafkaProducerTransactionConfig {
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers = "";
+  @Value("${spring.kafka.bootstrap-servers}")
+  private String bootstrapServers = "";
 
-    @Bean(name = "transactionalProducerFactory")
-    public ProducerFactory<String, String> producerFactory() {
-        final Map<String, Object> config = new HashMap<>();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); // Enable idempotence for transactions
-        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "data-ingest"); // Set a transactional ID
+  @Bean(name = "transactionalProducerFactory")
+  public ProducerFactory<String, String> producerFactory() {
+    final Map<String, Object> config = new HashMap<>();
+    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    config.put(
+        ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); // Enable idempotence for transactions
+    config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "data-ingest"); // Set a transactional ID
 
-        return new DefaultKafkaProducerFactory<>(config);
-    }
+    return new DefaultKafkaProducerFactory<>(config);
+  }
 
-    @Bean(name = "transactionalKafkaTemplate")
-    public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
-    }
+  @Bean(name = "transactionalKafkaTemplate")
+  public KafkaTemplate<String, String> kafkaTemplate() {
+    return new KafkaTemplate<>(producerFactory());
+  }
 }

@@ -1,10 +1,9 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,7 +17,8 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
 
-  static final String UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE = """
+  static final String UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE =
+      """
       UPDATE Entity_locator_participation
       SET record_status_cd = 'INACTIVE',
          last_chg_time = GETDATE()
@@ -27,7 +27,8 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE';
       """;
 
-  static final String INSERT_NEW_PHONE_EMAIL_LOCATORS = """
+  static final String INSERT_NEW_PHONE_EMAIL_LOCATORS =
+      """
       INSERT INTO Entity_locator_participation (
           entity_uid,
           locator_uid,
@@ -87,7 +88,8 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE';
       """;
 
-  static final String FIND_UNSELECTED_PHONE_EMAILS_FOR_AUDIT = """
+  static final String FIND_UNSELECTED_PHONE_EMAILS_FOR_AUDIT =
+      """
       SELECT entity_uid, locator_uid, record_status_cd
       FROM Entity_locator_participation
       WHERE entity_uid = :survivingId
@@ -95,7 +97,8 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE'
       """;
 
-  static final String FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT = """
+  static final String FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT =
+      """
       SELECT locator_uid
       FROM Entity_locator_participation
       WHERE locator_uid IN (:selectedLocators)
@@ -103,13 +106,15 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         AND class_cd = 'TELE'
       """;
 
-  public PersonPhoneEmailMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
+  public PersonPhoneEmailMergeHandler(
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+  public void handleMerge(
+      String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     mergePersonPhoneEmail(request, patientMergeAudit);
   }
 
@@ -118,36 +123,39 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
     List<String> selectedLocators = extractSelectedLocatorIds(request);
 
     if (!selectedLocators.isEmpty()) {
-      List<AuditUpdateAction> updateActions = performUnselectedPhoneEmailInactivation(survivingId, selectedLocators);
-      List<AuditInsertAction> insertActions = performSelectedPhoneEmailCopy(survivingId, selectedLocators);
+      List<AuditUpdateAction> updateActions =
+          performUnselectedPhoneEmailInactivation(survivingId, selectedLocators);
+      List<AuditInsertAction> insertActions =
+          performSelectedPhoneEmailCopy(survivingId, selectedLocators);
 
-      audit.getRelatedTableAudits()
+      audit
+          .getRelatedTableAudits()
           .add(new RelatedTableAudit("Entity_locator_participation", updateActions, insertActions));
     }
   }
 
   private List<String> extractSelectedLocatorIds(PatientMergeRequest request) {
-    return request.phoneEmails().stream()
-        .map(PatientMergeRequest.PhoneEmailId::locatorId)
-        .toList();
+    return request.phoneEmails().stream().map(PatientMergeRequest.PhoneEmailId::locatorId).toList();
   }
 
-  private List<AuditUpdateAction> performUnselectedPhoneEmailInactivation(String survivingId,
-      List<String> selectedLocators) {
-    Map<String, Object> params = Map.of(
-        "survivingId", survivingId, // NOSONAR
-        "selectedLocators", selectedLocators // NOSONAR
-    );
+  private List<AuditUpdateAction> performUnselectedPhoneEmailInactivation(
+      String survivingId, List<String> selectedLocators) {
+    Map<String, Object> params =
+        Map.of(
+            "survivingId", survivingId, // NOSONAR
+            "selectedLocators", selectedLocators // NOSONAR
+            );
 
-    List<Map<String, Object>> rowsToUpdate = fetchUnselectedPhoneEmailsForAudit(survivingId, selectedLocators);
+    List<Map<String, Object>> rowsToUpdate =
+        fetchUnselectedPhoneEmailsForAudit(survivingId, selectedLocators);
     List<AuditUpdateAction> auditUpdates = buildUpdateActions(rowsToUpdate);
 
     nbsTemplate.update(UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE, params);
     return auditUpdates;
   }
 
-  private List<Map<String, Object>> fetchUnselectedPhoneEmailsForAudit(String survivingId,
-      List<String> selectedLocators) {
+  private List<Map<String, Object>> fetchUnselectedPhoneEmailsForAudit(
+      String survivingId, List<String> selectedLocators) {
     return nbsTemplate.queryForList(
         FIND_UNSELECTED_PHONE_EMAILS_FOR_AUDIT,
         Map.of("survivingId", survivingId, "selectedLocators", selectedLocators));
@@ -155,24 +163,31 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
   private List<AuditUpdateAction> buildUpdateActions(List<Map<String, Object>> rows) {
     return rows.stream()
-        .map(row -> {
-          Map<String, Object> values = new HashMap<>();
-          values.put("record_status_cd", row.get("record_status_cd"));
+        .map(
+            row -> {
+              Map<String, Object> values = new HashMap<>();
+              values.put("record_status_cd", row.get("record_status_cd"));
 
-          return new AuditUpdateAction(
-              Map.of("entity_uid", row.get("entity_uid"), "locator_uid", row.get("locator_uid")), // NOSONAR
-              values);
-        })
+              return new AuditUpdateAction(
+                  Map.of(
+                      "entity_uid",
+                      row.get("entity_uid"),
+                      "locator_uid",
+                      row.get("locator_uid")), // NOSONAR
+                  values);
+            })
         .toList();
   }
 
-  private List<AuditInsertAction> performSelectedPhoneEmailCopy(String survivingId, List<String> selectedLocators) {
-    Map<String, Object> params = Map.of(
-        "survivingId", survivingId,
-        "selectedLocators", selectedLocators);
+  private List<AuditInsertAction> performSelectedPhoneEmailCopy(
+      String survivingId, List<String> selectedLocators) {
+    Map<String, Object> params =
+        Map.of(
+            "survivingId", survivingId,
+            "selectedLocators", selectedLocators);
 
-    List<Map<String, Object>> insertedRows = nbsTemplate.queryForList(
-        FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT, params);
+    List<Map<String, Object>> insertedRows =
+        nbsTemplate.queryForList(FIND_SELECTED_PHONE_EMAIL_LOCATORS_FOR_INSERT, params);
 
     List<AuditInsertAction> insertActions = buildInsertActions(survivingId, insertedRows);
 
@@ -180,11 +195,13 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
     return insertActions;
   }
 
-  private List<AuditInsertAction> buildInsertActions(String survivingId, List<Map<String, Object>> insertedRows) {
+  private List<AuditInsertAction> buildInsertActions(
+      String survivingId, List<Map<String, Object>> insertedRows) {
     return insertedRows.stream()
-        .map(row -> new AuditInsertAction(Map.of(
-            "entity_uid", survivingId,
-            "locator_uid", row.get("locator_uid"))))
+        .map(
+            row ->
+                new AuditInsertAction(
+                    Map.of("entity_uid", survivingId, "locator_uid", row.get("locator_uid"))))
         .toList();
   }
 }

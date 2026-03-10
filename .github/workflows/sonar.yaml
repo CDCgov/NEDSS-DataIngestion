@@ -1,4 +1,7 @@
-name: SonarCloud
+# This workflow is used to perform static code analysis on a gradle build
+
+name: "Sonar Scanner"
+
 on:
   workflow_call:
     secrets:
@@ -17,6 +20,12 @@ on:
       DATABASE_PASSWORD:
         description: "Test database password"
         required: true
+      TOKEN_SECRET:
+        description: "Secret named TOKEN_SECRET that references a default JWT token key"
+        required: true
+      PARAMETER_SECRET:
+        description: "Secret named PARAMETER_SECRET that references a default key for encrypting search parameters"
+        required: true
   pull_request:
     paths:
       - "data-ingestion-service/**"
@@ -29,12 +38,15 @@ on:
 env:
   deployment_env: dev
   accountid: ${{secrets.cdc_nbs_sandbox_shared_services_accountid}}
+  sonar_token: ${{secrets.SONAR_TOKEN}}
   test_database_user: ${{secrets.DATABASE_USER}}
   test_database_password: ${{secrets.DATABASE_PASSWORD}}
+  token_secret: ${{secrets.TOKEN_SECRET}}
+  parameter_secret: ${{secrets.PARAMETER_SECRET}}
 
 jobs:
   pipeline:
-    name: Build and analyze
+    name: Build, test and analyze
     runs-on: ubuntu-latest
 
     permissions:
@@ -46,20 +58,20 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 21
           distribution: "zulu" # Alternative distribution options are available
 
       - name: Cache SonarCloud packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Cache Gradle packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
@@ -74,7 +86,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/.buildx-cache
           # Use branch name for key, falling back to a shared key for initial layers
@@ -103,7 +115,7 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Save Docker layers cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: /tmp/.buildx-cache
           # The key must match the primary key used in the restore step
@@ -112,17 +124,21 @@ jobs:
       - name: Build and analyze
         working-directory: ./
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ env.passed_github_token }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ env.sonar_token }}
           DATABASE_USER: ${{ env.test_database_user }}
           DATABASE_PASSWORD: ${{ env.test_database_password }}
+          TOKEN_SECRET: ${{ env.token_secret }}
+          PARAMETER_SECRET: ${{ env.parameter_secret }}
         run: |
-          ./gradlew build jacocoTestReport sonar \
+          ./gradlew build test sonarqube \
             "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" \
             -Dtesting.database.mssql.image=local/di-mssql:latest
 
       - name: Publish Testing Reports
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
-          name: testing
-          path: ./**/build/reports
+          name: all-test-reports
+          # The '**' tells GitHub to look in every sub-folder for reports
+          path: "**/build/reports/**"

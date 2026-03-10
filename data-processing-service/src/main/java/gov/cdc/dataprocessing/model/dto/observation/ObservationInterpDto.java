@@ -7,24 +7,19 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class ObservationInterpDto extends BaseContainer {
 
-    private Long observationUid;
-    private String interpretationCd;
-    private String interpretationDescTxt;
-    boolean _bDirty = false;
-    boolean _bNew = false;
+  private Long observationUid;
+  private String interpretationCd;
+  private String interpretationDescTxt;
+  boolean _bDirty = false;
+  boolean _bNew = false;
 
-    public ObservationInterpDto() {
+  public ObservationInterpDto() {}
 
-    }
-
-    public ObservationInterpDto(ObservationInterp observationInterp) {
-        this.observationUid = observationInterp.getObservationUid();
-        this.interpretationCd = observationInterp.getInterpretationCd();
-        this.interpretationDescTxt = observationInterp.getInterpretationDescTxt();
-    }
-
-
+  public ObservationInterpDto(ObservationInterp observationInterp) {
+    this.observationUid = observationInterp.getObservationUid();
+    this.interpretationCd = observationInterp.getInterpretationCd();
+    this.interpretationDescTxt = observationInterp.getInterpretationDescTxt();
+  }
 }

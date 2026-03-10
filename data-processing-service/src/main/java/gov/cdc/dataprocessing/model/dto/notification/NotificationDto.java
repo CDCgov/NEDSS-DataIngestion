@@ -4,194 +4,189 @@ import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.model.dto.RootDtoInterface;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.notification.Notification;
+import java.sql.Timestamp;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
 @Getter
 @Setter
-
 public class NotificationDto extends BaseContainer implements RootDtoInterface {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private Long notificationUid;
+  private Long notificationUid;
 
-    private String activityDurationAmt;
+  private String activityDurationAmt;
 
-    private String activityDurationUnitCd;
+  private String activityDurationUnitCd;
 
-    private Timestamp activityFromTime;
+  private Timestamp activityFromTime;
 
-    private Timestamp activityToTime;
+  private Timestamp activityToTime;
 
-    private String addReasonCd;
+  private String addReasonCd;
 
-    private Timestamp addTime;
+  private Timestamp addTime;
 
-    private Long addUserId;
+  private Long addUserId;
 
-    private String caseClassCd;
+  private String caseClassCd;
 
-    private String caseConditionCd;
+  private String caseConditionCd;
 
-    private String cd;
+  private String cd;
 
-    private String cdDescTxt;
+  private String cdDescTxt;
 
-    private String confidentialityCd;
+  private String confidentialityCd;
 
-    private String confidentialityDescTxt;
+  private String confidentialityDescTxt;
 
-    private String confirmationMethodCd;
+  private String confirmationMethodCd;
 
-    private String effectiveDurationAmt;
+  private String effectiveDurationAmt;
 
-    private String effectiveDurationUnitCd;
+  private String effectiveDurationUnitCd;
 
-    private Timestamp effectiveFromTime;
+  private Timestamp effectiveFromTime;
 
-    private Timestamp effectiveToTime;
+  private Timestamp effectiveToTime;
 
-    private String jurisdictionCd;
+  private String jurisdictionCd;
 
-    private String lastChgReasonCd;
+  private String lastChgReasonCd;
 
-    private Timestamp lastChgTime;
+  private Timestamp lastChgTime;
 
-    private Long lastChgUserId;
+  private Long lastChgUserId;
 
-    private String localId;
+  private String localId;
 
-    private String messageTxt;
+  private String messageTxt;
 
-    private String methodCd;
+  private String methodCd;
 
-    private String methodDescTxt;
+  private String methodDescTxt;
 
-    private String mmwrWeek;
+  private String mmwrWeek;
 
-    private String mmwrYear;
+  private String mmwrYear;
 
-    private String nedssVersionNbr;
+  private String nedssVersionNbr;
 
-    private String progAreaCd;
+  private String progAreaCd;
 
-    private String reasonCd;
+  private String reasonCd;
 
-    private String reasonDescTxt;
+  private String reasonDescTxt;
 
-    private String recordCount;
+  private String recordCount;
 
-    private String recordStatusCd;
+  private String recordStatusCd;
 
-    private Timestamp recordStatusTime;
+  private Timestamp recordStatusTime;
 
-    private Integer repeatNbr;
+  private Integer repeatNbr;
 
-    private Timestamp rptSentTime;
+  private Timestamp rptSentTime;
 
-    private String rptSourceCd;
+  private String rptSourceCd;
 
-    private String rptSourceTypeCd;
+  private String rptSourceTypeCd;
 
-    private String statusCd;
+  private String statusCd;
 
-    private Timestamp statusTime;
+  private Timestamp statusTime;
 
-    private String txt;
+  private String txt;
 
-    private String userAffiliationTxt;
+  private String userAffiliationTxt;
 
-    private Long programJurisdictionOid;
+  private Long programJurisdictionOid;
 
-    private String sharedInd;
+  private String sharedInd;
 
-    private Integer versionCtrlNbr;
+  private Integer versionCtrlNbr;
 
-    private String autoResendInd;
+  private String autoResendInd;
 
+  private Long exportReceivingFacilityUid;
 
+  private String receiving_system_nm;
 
-    private Long  exportReceivingFacilityUid;
+  private Long nbsInterfaceUid;
 
-    private String receiving_system_nm;
+  private String nndInd;
 
-    private Long nbsInterfaceUid;
+  private String labReportEnableInd;
 
-    private String nndInd;
+  private String vaccineEnableInd;
 
-    private String labReportEnableInd;
+  public String getSuperclass() {
+    this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+    return superClassType;
+  }
 
-    private String vaccineEnableInd;
+  @Override
+  public Long getUid() {
+    return notificationUid;
+  }
 
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
-        return superClassType;
-    }
+  public NotificationDto() {
+    itDirty = false;
+    itNew = true;
+    itDelete = false;
+  }
 
-    @Override
-    public Long getUid() {
-        return notificationUid;
-    }
-
-    public NotificationDto() {
-        itDirty = false;
-        itNew = true;
-        itDelete = false;
-    }
-
-    public NotificationDto(Notification domain) {
-        this.notificationUid = domain.getNotificationUid();
-        this.activityDurationAmt = domain.getActivityDurationAmt();
-        this.activityDurationUnitCd = domain.getActivityDurationUnitCd();
-        this.activityFromTime = domain.getActivityFromTime();
-        this.activityToTime = domain.getActivityToTime();
-        this.addReasonCd = domain.getAddReasonCd();
-        this.addTime = domain.getAddTime();
-        this.addUserId = domain.getAddUserId();
-        this.caseClassCd = domain.getCaseClassCd();
-        this.caseConditionCd = domain.getCaseConditionCd();
-        this.cd = domain.getCd();
-        this.cdDescTxt = domain.getCdDescTxt();
-        this.confidentialityCd = domain.getConfidentialityCd();
-        this.confidentialityDescTxt = domain.getConfidentialityDescTxt();
-        this.confirmationMethodCd = domain.getConfirmationMethodCd();
-        this.effectiveDurationAmt = domain.getEffectiveDurationAmt();
-        this.effectiveDurationUnitCd = domain.getEffectiveDurationUnitCd();
-        this.effectiveFromTime = domain.getEffectiveFromTime();
-        this.effectiveToTime = domain.getEffectiveToTime();
-        this.jurisdictionCd = domain.getJurisdictionCd();
-        this.lastChgReasonCd = domain.getLastChgReasonCd();
-        this.lastChgTime = domain.getLastChgTime();
-        this.lastChgUserId = domain.getLastChgUserId();
-        this.localId = domain.getLocalId();
-        this.messageTxt = domain.getMessageTxt();
-        this.methodCd = domain.getMethodCd();
-        this.methodDescTxt = domain.getMethodDescTxt();
-        this.mmwrWeek = domain.getMmwrWeek();
-        this.mmwrYear = domain.getMmwrYear();
-        this.nedssVersionNbr = domain.getNedssVersionNbr();
-        this.progAreaCd = domain.getProgAreaCd();
-        this.reasonCd = domain.getReasonCd();
-        this.reasonDescTxt = domain.getReasonDescTxt();
-        this.recordCount = domain.getRecordCount();
-        this.recordStatusCd = domain.getRecordStatusCd();
-        this.recordStatusTime = domain.getRecordStatusTime();
-        this.repeatNbr = domain.getRepeatNbr();
-        this.rptSentTime = domain.getRptSentTime();
-        this.rptSourceCd = domain.getRptSourceCd();
-        this.rptSourceTypeCd = domain.getRptSourceTypeCd();
-        this.statusCd = domain.getStatusCd();
-        this.statusTime = domain.getStatusTime();
-        this.txt = domain.getTxt();
-        this.userAffiliationTxt = domain.getUserAffiliationTxt();
-        this.programJurisdictionOid = domain.getProgramJurisdictionOid();
-        this.sharedInd = domain.getSharedInd();
-        this.versionCtrlNbr = domain.getVersionCtrlNbr();
-        this.autoResendInd = domain.getAutoResendInd();
-        this.exportReceivingFacilityUid = domain.getExportReceivingFacilityUid();
-        this.nbsInterfaceUid = domain.getNbsInterfaceUid();
-    }
-
+  public NotificationDto(Notification domain) {
+    this.notificationUid = domain.getNotificationUid();
+    this.activityDurationAmt = domain.getActivityDurationAmt();
+    this.activityDurationUnitCd = domain.getActivityDurationUnitCd();
+    this.activityFromTime = domain.getActivityFromTime();
+    this.activityToTime = domain.getActivityToTime();
+    this.addReasonCd = domain.getAddReasonCd();
+    this.addTime = domain.getAddTime();
+    this.addUserId = domain.getAddUserId();
+    this.caseClassCd = domain.getCaseClassCd();
+    this.caseConditionCd = domain.getCaseConditionCd();
+    this.cd = domain.getCd();
+    this.cdDescTxt = domain.getCdDescTxt();
+    this.confidentialityCd = domain.getConfidentialityCd();
+    this.confidentialityDescTxt = domain.getConfidentialityDescTxt();
+    this.confirmationMethodCd = domain.getConfirmationMethodCd();
+    this.effectiveDurationAmt = domain.getEffectiveDurationAmt();
+    this.effectiveDurationUnitCd = domain.getEffectiveDurationUnitCd();
+    this.effectiveFromTime = domain.getEffectiveFromTime();
+    this.effectiveToTime = domain.getEffectiveToTime();
+    this.jurisdictionCd = domain.getJurisdictionCd();
+    this.lastChgReasonCd = domain.getLastChgReasonCd();
+    this.lastChgTime = domain.getLastChgTime();
+    this.lastChgUserId = domain.getLastChgUserId();
+    this.localId = domain.getLocalId();
+    this.messageTxt = domain.getMessageTxt();
+    this.methodCd = domain.getMethodCd();
+    this.methodDescTxt = domain.getMethodDescTxt();
+    this.mmwrWeek = domain.getMmwrWeek();
+    this.mmwrYear = domain.getMmwrYear();
+    this.nedssVersionNbr = domain.getNedssVersionNbr();
+    this.progAreaCd = domain.getProgAreaCd();
+    this.reasonCd = domain.getReasonCd();
+    this.reasonDescTxt = domain.getReasonDescTxt();
+    this.recordCount = domain.getRecordCount();
+    this.recordStatusCd = domain.getRecordStatusCd();
+    this.recordStatusTime = domain.getRecordStatusTime();
+    this.repeatNbr = domain.getRepeatNbr();
+    this.rptSentTime = domain.getRptSentTime();
+    this.rptSourceCd = domain.getRptSourceCd();
+    this.rptSourceTypeCd = domain.getRptSourceTypeCd();
+    this.statusCd = domain.getStatusCd();
+    this.statusTime = domain.getStatusTime();
+    this.txt = domain.getTxt();
+    this.userAffiliationTxt = domain.getUserAffiliationTxt();
+    this.programJurisdictionOid = domain.getProgramJurisdictionOid();
+    this.sharedInd = domain.getSharedInd();
+    this.versionCtrlNbr = domain.getVersionCtrlNbr();
+    this.autoResendInd = domain.getAutoResendInd();
+    this.exportReceivingFacilityUid = domain.getExportReceivingFacilityUid();
+    this.nbsInterfaceUid = domain.getNbsInterfaceUid();
+  }
 }

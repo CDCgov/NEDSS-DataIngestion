@@ -1,23 +1,20 @@
 package gov.cdc.nbs.deduplication.config.auth.nbs.token;
 
-import java.util.Optional;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 public record NbsToken(String value) {
 
   public static final String NBS_TOKEN_NAME = "nbs_token";
 
-  public void apply(
-      final int expirationInSeconds,
-      final HttpServletResponse response) {
+  public void apply(final int expirationInSeconds, final HttpServletResponse response) {
     Cookie cookie = asCookie();
     cookie.setMaxAge(expirationInSeconds);
     response.addCookie(cookie);
   }
 
-  @SuppressWarnings({ "squid:S3330" })
+  @SuppressWarnings({"squid:S3330"})
   private Cookie asCookie() {
     Cookie cookie = new Cookie(NBS_TOKEN_NAME, value());
     cookie.setPath("/");
@@ -36,5 +33,4 @@ public record NbsToken(String value) {
     }
     return Optional.empty();
   }
-
 }

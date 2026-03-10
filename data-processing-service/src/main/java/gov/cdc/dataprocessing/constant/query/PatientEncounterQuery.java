@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class PatientEncounterQuery {
-    public static final String FIND_BY_ID = """
+  public static final String FIND_BY_ID =
+      """
             SELECT
                 patient_encounter_uid AS patientEncounterUid,
                 activity_duration_amt AS activityDurationAmt,
