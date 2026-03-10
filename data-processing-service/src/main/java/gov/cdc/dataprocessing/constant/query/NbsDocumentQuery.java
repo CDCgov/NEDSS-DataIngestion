@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NbsDocumentQuery {
-    public static String MERGE_NBS_DOC = """
+  public static String MERGE_NBS_DOC =
+      """
             MERGE INTO NBS_document AS target
             USING (
                 SELECT
@@ -36,7 +37,7 @@ public class NbsDocumentQuery {
                     :processing_decision_cd AS processing_decision_cd
             ) AS source
             ON target.nbs_document_uid = source.nbs_document_uid
-            
+
             WHEN MATCHED THEN UPDATE SET
                 doc_payload = source.doc_payload,
                 doc_type_cd = source.doc_type_cd,
@@ -66,7 +67,7 @@ public class NbsDocumentQuery {
                 external_version_ctrl_nbr = source.external_version_ctrl_nbr,
                 processing_decision_txt = source.processing_decision_txt,
                 processing_decision_cd = source.processing_decision_cd
-            
+
             WHEN NOT MATCHED THEN INSERT (
                 nbs_document_uid, doc_payload, doc_type_cd, local_id, record_status_cd, record_status_time,
                 add_user_id, add_time, prog_area_cd, jurisdiction_cd, txt, program_jurisdiction_oid, shared_ind,
@@ -83,9 +84,10 @@ public class NbsDocumentQuery {
             );
             """;
 
-    public static final String MERGE_NBS_DOC_HIST = """
+  public static final String MERGE_NBS_DOC_HIST =
+"""
 MERGE INTO NBS_document_hist AS target
-USING (SELECT 
+USING (SELECT
     :nbsDocumentHistUid AS nbs_document_hist_uid,
     :docPayload AS doc_payload,
     :docTypeCd AS doc_type_cd,
@@ -166,5 +168,4 @@ WHEN NOT MATCHED THEN INSERT (
     source.nbs_document_metadata_uid, source.external_version_ctrl_nbr, source.processing_decision_txt, source.processing_decision_cd
 );
 """;
-
 }

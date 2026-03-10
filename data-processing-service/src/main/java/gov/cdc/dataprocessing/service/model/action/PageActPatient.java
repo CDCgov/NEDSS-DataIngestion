@@ -6,10 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class PageActPatient {
-    Long patientRevisionUid;
-    Long mprUid;
-    PublicHealthCaseDto phcDT;
-
+  Long patientRevisionUid;
+  Long mprUid;
+  PublicHealthCaseDto phcDT;
 }

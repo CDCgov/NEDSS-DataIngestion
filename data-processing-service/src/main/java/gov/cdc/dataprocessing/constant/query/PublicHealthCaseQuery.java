@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class PublicHealthCaseQuery {
-    public static final String INSERT_PHC = """
+  public static final String INSERT_PHC =
+      """
             INSERT INTO Public_health_case (
                  public_health_case_uid,
                  activity_duration_amt,
@@ -175,7 +176,8 @@ public class PublicHealthCaseQuery {
              )
             """;
 
-    public static final String UPDATE_PHC = """
+  public static final String UPDATE_PHC =
+"""
 UPDATE Public_health_case SET
     activity_duration_amt = :activityDurationAmt,
     activity_duration_unit_cd = :activityDurationUnitCd,
@@ -263,8 +265,8 @@ UPDATE Public_health_case SET
 WHERE public_health_case_uid = :publicHealthCaseUid
 """;
 
-
-    public static final String SELECT_PHC_BY_UID = """
+  public static final String SELECT_PHC_BY_UID =
+"""
 SELECT
     public_health_case_uid AS publicHealthCaseUid,
     activity_duration_amt AS activityDurationAmt,
@@ -353,5 +355,4 @@ SELECT
 FROM Public_health_case
 WHERE public_health_case_uid = :publicHealthCaseUid
 """;
-
 }
