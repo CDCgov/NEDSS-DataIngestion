@@ -69,6 +69,7 @@ srte-data-service/.gradle/*
 
 .vscode/
 application-local.yaml
+.tool-versions
 
 containers/builder/NEDSSDev/
 
