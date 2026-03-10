@@ -3,7 +3,6 @@ package gov.cdc.nbs.deduplication.batch.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.List;
 import java.util.UUID;
 

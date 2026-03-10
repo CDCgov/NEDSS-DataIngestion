@@ -1,15 +1,12 @@
 package gov.cdc.nbs.deduplication.patient.mpi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 
 @Component
 public class MpiPatientResolver {
@@ -21,7 +18,8 @@ public class MpiPatientResolver {
     this.client = client;
   }
 
-  private static final String SELECT_PATIENT_QUERY = """
+  private static final String SELECT_PATIENT_QUERY =
+      """
       SELECT TOP 1
         data
       FROM
@@ -31,10 +29,8 @@ public class MpiPatientResolver {
       """;
 
   public MpiPerson resolve(long patientId) {
-    Optional<String> patientJson = client.sql(SELECT_PATIENT_QUERY)
-        .param("id", patientId)
-        .query(String.class)
-        .optional();
+    Optional<String> patientJson =
+        client.sql(SELECT_PATIENT_QUERY).param("id", patientId).query(String.class).optional();
 
     if (patientJson.isPresent()) {
       try {
@@ -46,5 +42,4 @@ public class MpiPatientResolver {
       return null;
     }
   }
-
 }

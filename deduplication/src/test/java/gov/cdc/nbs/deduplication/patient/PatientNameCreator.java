@@ -1,9 +1,8 @@
 package gov.cdc.nbs.deduplication.patient;
 
+import gov.cdc.nbs.deduplication.patient.PatientName.CodedValue;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
-
-import gov.cdc.nbs.deduplication.patient.PatientName.CodedValue;
 
 class PatientNameCreator {
   private final JdbcClient client;
@@ -12,7 +11,8 @@ class PatientNameCreator {
     this.client = client;
   }
 
-  private static final String INSERT_NAME = """
+  private static final String INSERT_NAME =
+      """
       INSERT INTO person_name
       (
         person_uid,
@@ -65,7 +65,8 @@ class PatientNameCreator {
       """;
 
   public void create(long patientId, PatientName name) {
-    client.sql(INSERT_NAME)
+    client
+        .sql(INSERT_NAME)
         .param("id", patientId)
         .param("asOf", name.asof())
         .param("type", getCode(name.type()))
