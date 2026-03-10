@@ -204,7 +204,7 @@ dependencies {
   runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
   // Kafka
-  implementation 'org.springframework.kafka:spring-kafka:3.3.1'
+  implementation 'org.springframework.kafka:spring-kafka:3.3.13'
   implementation 'org.apache.kafka:kafka-clients:3.9.1'
   
   // Swagger / openapi documentation
