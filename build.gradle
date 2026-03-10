@@ -38,9 +38,6 @@ subprojects {
         apply plugin: 'com.diffplug.spotless'
 
         spotless {
-            // limit format enforcement to just the files changed by this feature branch
-            ratchetFrom 'origin/main'
-
             java {
                 targetExclude '**/generated/**/*.java'
                 googleJavaFormat()
