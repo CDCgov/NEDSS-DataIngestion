@@ -1,5 +1,6 @@
 package gov.cdc.nbs.deduplication.batch;
 
+import gov.cdc.nbs.deduplication.batch.step.UnprocessedPersonReader;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -13,8 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import gov.cdc.nbs.deduplication.batch.step.UnprocessedPersonReader;
 
 @Component
 @ConditionalOnProperty(value = "deduplication.batch.schedule.enabled", havingValue = "true")
@@ -39,12 +38,11 @@ public class BatchJobScheduler {
   @Scheduled(cron = "#{@batchJobScheduler.cronSchedule}")
   public void runJob()
       throws JobInstanceAlreadyCompleteException,
-      JobExecutionAlreadyRunningException,
-      JobParametersInvalidException,
-      JobRestartException {
-    JobParameters params = new JobParametersBuilder()
-        .addLong("time", System.currentTimeMillis())
-        .toJobParameters();
+          JobExecutionAlreadyRunningException,
+          JobParametersInvalidException,
+          JobRestartException {
+    JobParameters params =
+        new JobParametersBuilder().addLong("time", System.currentTimeMillis()).toJobParameters();
     personReader.resetPagesRead();
     launcher.run(deduplicationJob, params);
   }

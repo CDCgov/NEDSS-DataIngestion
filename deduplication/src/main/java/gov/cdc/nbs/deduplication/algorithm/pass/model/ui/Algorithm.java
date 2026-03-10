@@ -1,9 +1,8 @@
 package gov.cdc.nbs.deduplication.algorithm.pass.model.ui;
 
-import java.util.List;
-
 import gov.cdc.nbs.deduplication.algorithm.pass.model.BlockingAttribute;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchingAttribute;
+import java.util.List;
 
 public record Algorithm(List<Pass> passes) {
 
@@ -31,10 +30,7 @@ public record Algorithm(List<Pass> passes) {
   }
 
   public record MatchingAttributeEntry(
-      MatchingAttribute attribute,
-      MatchingMethod method,
-      Double threshold) {
-  }
+      MatchingAttribute attribute, MatchingMethod method, Double threshold) {}
 
   public enum MatchingMethod {
     EXACT,

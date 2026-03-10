@@ -3,32 +3,29 @@ package gov.cdc.nbs.deduplication.config.auth.nbs.token;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
-import java.time.Instant;
+
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator.TokenStatus;
+import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator.TokenValidation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator.TokenStatus;
-import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator.TokenValidation;
 
 @ExtendWith(MockitoExtension.class)
 class NbsTokenValidatorTest {
 
-  @Mock
-  private JWTVerifier verifier;
+  @Mock private JWTVerifier verifier;
 
-  @InjectMocks
-  private NbsTokenValidator validator;
+  @InjectMocks private NbsTokenValidator validator;
 
   @Test
   void should_be_valid_auth_header() {
@@ -54,7 +51,7 @@ class NbsTokenValidatorTest {
     // Given a request with a valid nbs_token cookie
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     when(request.getHeader("Authorization")).thenReturn(null);
-    when(request.getCookies()).thenReturn(new Cookie[] { new Cookie("nbs_token", "validtoken") });
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("nbs_token", "validtoken")});
 
     // And a valid token
     DecodedJWT decodedJWT = Mockito.mock(DecodedJWT.class);
@@ -75,7 +72,8 @@ class NbsTokenValidatorTest {
     when(request.getHeader("Authorization")).thenReturn("Bearer expiredToken");
 
     // And an expired token
-    when(verifier.verify("expiredToken")).thenThrow(new TokenExpiredException("expired", Instant.now()));
+    when(verifier.verify("expiredToken"))
+        .thenThrow(new TokenExpiredException("expired", Instant.now()));
 
     // When the request is validated
     TokenValidation validation = validator.validate(request);
@@ -131,5 +129,4 @@ class NbsTokenValidatorTest {
     assertEquals(TokenStatus.UNSET, validation.status());
     assertNull(validation.user());
   }
-
 }

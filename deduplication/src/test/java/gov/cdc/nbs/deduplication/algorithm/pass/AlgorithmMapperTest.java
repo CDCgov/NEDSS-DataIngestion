@@ -3,11 +3,6 @@ package gov.cdc.nbs.deduplication.algorithm.pass;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import gov.cdc.nbs.deduplication.algorithm.dataelements.TestData;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm.AlgorithmContext;
@@ -24,10 +19,13 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingAttributeEntry;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingMethod;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class AlgorithmMapperTest {
 
-  private final AlgorithmMapper mapper = new AlgorithmMapper("nbs",false);
+  private final AlgorithmMapper mapper = new AlgorithmMapper("nbs", false);
 
   @Test
   void should_set_name() {
@@ -71,43 +69,25 @@ class AlgorithmMapperTest {
     AlgorithmContext context = mapper.mapContext(TestData.SPARSE_DATA_ELEMENTS);
 
     assertThat(context.advanced().similarityMeasure()).isEqualTo(SimilarityMeasure.JAROWINKLER);
-    assertThat(context.logOdds()).containsExactly(
-        new LogOdd(MatchingAttribute.FIRST_NAME.toString(), TestData.SPARSE_DATA_ELEMENTS.firstName().logOdds()),
-        new LogOdd(MatchingAttribute.LAST_NAME.toString(), TestData.SPARSE_DATA_ELEMENTS.lastName().logOdds()),
-        new LogOdd(MatchingAttribute.VISA_PASSPORT.toString(), TestData.SPARSE_DATA_ELEMENTS.visaPassport().logOdds()),
-        new LogOdd(MatchingAttribute.WIC_IDENTIFIER.toString(),
-            TestData.SPARSE_DATA_ELEMENTS.wicIdentifier().logOdds()));
+    assertThat(context.logOdds())
+        .containsExactly(
+            new LogOdd(
+                MatchingAttribute.FIRST_NAME.toString(),
+                TestData.SPARSE_DATA_ELEMENTS.firstName().logOdds()),
+            new LogOdd(
+                MatchingAttribute.LAST_NAME.toString(),
+                TestData.SPARSE_DATA_ELEMENTS.lastName().logOdds()),
+            new LogOdd(
+                MatchingAttribute.VISA_PASSPORT.toString(),
+                TestData.SPARSE_DATA_ELEMENTS.visaPassport().logOdds()),
+            new LogOdd(
+                MatchingAttribute.WIC_IDENTIFIER.toString(),
+                TestData.SPARSE_DATA_ELEMENTS.wicIdentifier().logOdds()));
   }
 
   @Test
   void should_map_bounds() {
-    Pass pass = new Pass(
-        1l,
-        "pass name",
-        "pass description",
-        true,
-        List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX),
-        List.of(
-            new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 1.0),
-            new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.6)),
-        6.5,
-        12.0);
-
-    List<Double> bounds = mapper.calculateBounds(pass, TestData.DATA_ELEMENTS);
-    // First name log odds = 9.0
-    // Last name logs odds = 4.0
-    // max log odds = 13.0
-    final double totalLogOdds = TestData.DATA_ELEMENTS.firstName().logOdds()
-        + TestData.DATA_ELEMENTS.lastName().logOdds();
-
-    // Record Linker expects 0.0 -> 1.0 instead of log odds score
-    assertThat(bounds.get(0)).isEqualTo(pass.lowerBound() / totalLogOdds);
-    assertThat(bounds.get(1)).isEqualTo(pass.upperBound() / totalLogOdds);
-  }
-
-  @Test
-  void should_map_pass() {
-    DibbsPass pass = mapper.mapPass(
+    Pass pass =
         new Pass(
             1l,
             "pass name",
@@ -116,21 +96,56 @@ class AlgorithmMapperTest {
             List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX),
             List.of(
                 new MatchingAttributeEntry(MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 1.0),
-                new MatchingAttributeEntry(MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.6)),
+                new MatchingAttributeEntry(
+                    MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.6)),
             6.5,
-            12.0),
-        TestData.DATA_ELEMENTS);
+            12.0);
+
+    List<Double> bounds = mapper.calculateBounds(pass, TestData.DATA_ELEMENTS);
+    // First name log odds = 9.0
+    // Last name logs odds = 4.0
+    // max log odds = 13.0
+    final double totalLogOdds =
+        TestData.DATA_ELEMENTS.firstName().logOdds() + TestData.DATA_ELEMENTS.lastName().logOdds();
+
+    // Record Linker expects 0.0 -> 1.0 instead of log odds score
+    assertThat(bounds.get(0)).isEqualTo(pass.lowerBound() / totalLogOdds);
+    assertThat(bounds.get(1)).isEqualTo(pass.upperBound() / totalLogOdds);
+  }
+
+  @Test
+  void should_map_pass() {
+    DibbsPass pass =
+        mapper.mapPass(
+            new Pass(
+                1l,
+                "pass name",
+                "pass description",
+                true,
+                List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX),
+                List.of(
+                    new MatchingAttributeEntry(
+                        MatchingAttribute.FIRST_NAME, MatchingMethod.EXACT, 1.0),
+                    new MatchingAttributeEntry(
+                        MatchingAttribute.LAST_NAME, MatchingMethod.JAROWINKLER, 0.6)),
+                6.5,
+                12.0),
+            TestData.DATA_ELEMENTS);
     assertThat(pass.label()).isEqualTo("pass name");
-    assertThat(pass.blockingKeys()).isEqualTo(List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX));
+    assertThat(pass.blockingKeys())
+        .isEqualTo(List.of(BlockingAttribute.ADDRESS, BlockingAttribute.SEX));
 
-    assertThat(pass.evaluators()).satisfiesExactly(
-        e1 -> assertThat(e1).isEqualTo(new Evaluator(MatchingAttribute.FIRST_NAME, Func.EXACT, 1.0)),
-        e2 -> assertThat(e2).isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY, 0.6)));
+    assertThat(pass.evaluators())
+        .satisfiesExactly(
+            e1 ->
+                assertThat(e1)
+                    .isEqualTo(new Evaluator(MatchingAttribute.FIRST_NAME, Func.EXACT, 1.0)),
+            e2 ->
+                assertThat(e2)
+                    .isEqualTo(new Evaluator(MatchingAttribute.LAST_NAME, Func.FUZZY, 0.6)));
 
-    assertThat(pass.evaluators().get(0).func())
-        .hasToString("COMPARE_PROBABILISTIC_EXACT_MATCH");
-    assertThat(pass.evaluators().get(1).func())
-        .hasToString("COMPARE_PROBABILISTIC_FUZZY_MATCH");
+    assertThat(pass.evaluators().get(0).func()).hasToString("COMPARE_PROBABILISTIC_EXACT_MATCH");
+    assertThat(pass.evaluators().get(1).func()).hasToString("COMPARE_PROBABILISTIC_FUZZY_MATCH");
 
     assertThat(pass.rule()).isEqualTo(Rule.PROBABILISTIC);
     assertThat(pass.matchWindow()).containsExactly(0.5, .9230769230769231);
@@ -172,20 +187,28 @@ class AlgorithmMapperTest {
   private void validateIdentifications() {
     assertThat(mapper.findDataElement(MatchingAttribute.ACCOUNT_NUMBER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.accountNumber());
-    assertThat(mapper.findDataElement(MatchingAttribute.DRIVERS_LICENSE_NUMBER, TestData.DATA_ELEMENTS))
+    assertThat(
+            mapper.findDataElement(
+                MatchingAttribute.DRIVERS_LICENSE_NUMBER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.driversLicenseNumber());
     assertThat(mapper.findDataElement(MatchingAttribute.MEDICAID_NUMBER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.medicaidNumber());
-    assertThat(mapper.findDataElement(MatchingAttribute.MEDICAL_RECORD_NUMBER, TestData.DATA_ELEMENTS))
+    assertThat(
+            mapper.findDataElement(MatchingAttribute.MEDICAL_RECORD_NUMBER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.medicalRecordNumber());
     assertThat(mapper.findDataElement(MatchingAttribute.MEDICARE_NUMBER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.medicareNumber());
     assertThat(
-        mapper.findDataElement(MatchingAttribute.NATIONAL_UNIQUE_INDIVIDUAL_IDENTIFIER, TestData.DATA_ELEMENTS))
+            mapper.findDataElement(
+                MatchingAttribute.NATIONAL_UNIQUE_INDIVIDUAL_IDENTIFIER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.nationalUniqueIdentifier());
-    assertThat(mapper.findDataElement(MatchingAttribute.PATIENT_EXTERNAL_IDENTIFIER, TestData.DATA_ELEMENTS))
+    assertThat(
+            mapper.findDataElement(
+                MatchingAttribute.PATIENT_EXTERNAL_IDENTIFIER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.patientExternalIdentifier());
-    assertThat(mapper.findDataElement(MatchingAttribute.PATIENT_INTERNAL_IDENTIFIER, TestData.DATA_ELEMENTS))
+    assertThat(
+            mapper.findDataElement(
+                MatchingAttribute.PATIENT_INTERNAL_IDENTIFIER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.patientInternalIdentifier());
     assertThat(mapper.findDataElement(MatchingAttribute.PERSON_NUMBER, TestData.DATA_ELEMENTS))
         .isEqualTo(TestData.DATA_ELEMENTS.personNumber());
@@ -199,9 +222,10 @@ class AlgorithmMapperTest {
 
   @Test
   void should_fail_to_map() {
-    PassModificationException ex = assertThrows(
-        PassModificationException.class,
-        () -> mapper.findDataElement(null, TestData.DATA_ELEMENTS));
+    PassModificationException ex =
+        assertThrows(
+            PassModificationException.class,
+            () -> mapper.findDataElement(null, TestData.DATA_ELEMENTS));
     assertThat(ex.getMessage()).isEqualTo("Invalid MatchingAttribute");
   }
 }

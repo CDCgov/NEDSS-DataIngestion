@@ -10,13 +10,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class PublicHealthCaseFlowContainer {
-    LabResultProxyContainer labResultProxyContainer;
-    EdxLabInformationDto edxLabInformationDto;
-    ObservationDto observationDto;
-    Integer nbsInterfaceId;
-    private WdsTrackerView wdsTrackerView = new WdsTrackerView();
-    private NbsInterfaceModel nbsInterfaceModel;
-
+  LabResultProxyContainer labResultProxyContainer;
+  EdxLabInformationDto edxLabInformationDto;
+  ObservationDto observationDto;
+  Integer nbsInterfaceId;
+  private WdsTrackerView wdsTrackerView = new WdsTrackerView();
+  private NbsInterfaceModel nbsInterfaceModel;
 }

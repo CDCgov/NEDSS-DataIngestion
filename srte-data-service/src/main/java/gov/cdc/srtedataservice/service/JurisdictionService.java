@@ -3,27 +3,24 @@ package gov.cdc.srtedataservice.service;
 import gov.cdc.srtedataservice.repository.nbs.srte.model.JurisdictionCode;
 import gov.cdc.srtedataservice.repository.nbs.srte.repository.JurisdictionCodeRepository;
 import gov.cdc.srtedataservice.service.interfaces.IJurisdictionService;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JurisdictionService implements IJurisdictionService {
-    private final JurisdictionCodeRepository jurisdictionCodeRepository;
+  private final JurisdictionCodeRepository jurisdictionCodeRepository;
 
-    public JurisdictionService(JurisdictionCodeRepository jurisdictionCodeRepository) {
-        this.jurisdictionCodeRepository = jurisdictionCodeRepository;
-    }
+  public JurisdictionService(JurisdictionCodeRepository jurisdictionCodeRepository) {
+    this.jurisdictionCodeRepository = jurisdictionCodeRepository;
+  }
 
-    public List<JurisdictionCode> getJurisdictionCode() {
-        var jusCode = jurisdictionCodeRepository.findAll();
-        if (!jusCode.isEmpty()) {
-            return jusCode;
-        }
-        else
-        {
-            return new ArrayList<>();
-        }
+  public List<JurisdictionCode> getJurisdictionCode() {
+    var jusCode = jurisdictionCodeRepository.findAll();
+    if (!jusCode.isEmpty()) {
+      return jusCode;
+    } else {
+      return new ArrayList<>();
     }
+  }
 }

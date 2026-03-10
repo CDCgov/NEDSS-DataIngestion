@@ -13,50 +13,50 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-
 public class EdxPatientMatchRepositoryUtil {
-    private static final Logger logger = LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class); //NOSONAR
-    private final EdxMatchJdbcRepository edxMatchJdbcRepository;
-    private final EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
-    private final DataModifierReposJdbc dataModifierReposJdbc;
+  private static final Logger logger =
+      LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class); // NOSONAR
+  private final EdxMatchJdbcRepository edxMatchJdbcRepository;
+  private final EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
+  private final DataModifierReposJdbc dataModifierReposJdbc;
 
-    public EdxPatientMatchRepositoryUtil(EdxMatchJdbcRepository edxMatchJdbcRepository,
-                                         EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository,
-                                         DataModifierReposJdbc dataModifierReposJdbc) {
-        this.edxMatchJdbcRepository = edxMatchJdbcRepository;
-        this.edxPatientMatchStoreProcRepository = edxPatientMatchStoreProcRepository;
-        this.dataModifierReposJdbc = dataModifierReposJdbc;
+  public EdxPatientMatchRepositoryUtil(
+      EdxMatchJdbcRepository edxMatchJdbcRepository,
+      EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository,
+      DataModifierReposJdbc dataModifierReposJdbc) {
+    this.edxMatchJdbcRepository = edxMatchJdbcRepository;
+    this.edxPatientMatchStoreProcRepository = edxPatientMatchStoreProcRepository;
+    this.dataModifierReposJdbc = dataModifierReposJdbc;
+  }
+
+  public EdxPatientMatchDto getEdxPatientMatchOnMatchString(String typeCd, String matchString)
+      throws DataProcessingException {
+    if (typeCd == null || matchString == null) {
+      return new EdxPatientMatchDto();
     }
+    return edxPatientMatchStoreProcRepository.getEdxPatientMatch(typeCd, matchString);
+  }
 
-    public EdxPatientMatchDto getEdxPatientMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
-        if (typeCd == null || matchString == null) {
-            return new EdxPatientMatchDto();
-        }
-        return edxPatientMatchStoreProcRepository.getEdxPatientMatch(typeCd, matchString);
-
+  public EdxEntityMatchDto getEdxEntityMatchOnMatchString(String typeCd, String matchString)
+      throws DataProcessingException {
+    if (typeCd == null || matchString == null) {
+      return new EdxEntityMatchDto();
     }
+    return edxPatientMatchStoreProcRepository.getEdxEntityMatch(typeCd, matchString);
+  }
 
-    public EdxEntityMatchDto getEdxEntityMatchOnMatchString(String typeCd, String matchString) throws DataProcessingException {
-        if (typeCd == null || matchString == null) {
-            return new EdxEntityMatchDto();
-        }
-        return edxPatientMatchStoreProcRepository.getEdxEntityMatch(typeCd, matchString);
-    }
+  public void saveEdxEntityMatch(EdxEntityMatchDto edxEntityMatchDto) {
+    EdxEntityMatch model = new EdxEntityMatch(edxEntityMatchDto);
+    edxMatchJdbcRepository.mergeEdxEntityMatch(model);
+  }
 
+  public EdxPatientMatch setEdxPatientMatchDT(EdxPatientMatchDto edxPatientMatchDto) {
+    EdxPatientMatch edxPatientMatch = new EdxPatientMatch(edxPatientMatchDto);
+    edxMatchJdbcRepository.mergeEdxPatientMatch(edxPatientMatch);
+    return edxPatientMatch;
+  }
 
-    public void saveEdxEntityMatch(EdxEntityMatchDto edxEntityMatchDto) {
-        EdxEntityMatch model = new EdxEntityMatch(edxEntityMatchDto);
-        edxMatchJdbcRepository.mergeEdxEntityMatch(model);
-    }
-
-
-    public EdxPatientMatch setEdxPatientMatchDT(EdxPatientMatchDto edxPatientMatchDto) {
-        EdxPatientMatch edxPatientMatch = new EdxPatientMatch(edxPatientMatchDto);
-        edxMatchJdbcRepository.mergeEdxPatientMatch(edxPatientMatch);
-        return edxPatientMatch;
-    }
-
-    public void deleteEdxPatientMatchDTColl(Long patientUid) {
-        dataModifierReposJdbc.deleteByPatientUidAndMatchStringNotLike(patientUid);
-    }
+  public void deleteEdxPatientMatchDTColl(Long patientUid) {
+    dataModifierReposJdbc.deleteByPatientUidAndMatchStringNotLike(patientUid);
+  }
 }
