@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NbsActQuery {
-    public static final String SELECT_NBS_ACT_ENTITIES_BY_ACT_UID = """
+  public static final String SELECT_NBS_ACT_ENTITIES_BY_ACT_UID =
+"""
 SELECT
     nbs_act_entity_uid       AS nbsActEntityUid,
     act_uid                  AS actUid,
@@ -18,9 +19,10 @@ FROM NBS_act_entity
 WHERE act_uid = :uid
 """;
 
-    public static final String MERGE_NBS_ACT_ENTITY = """
+  public static final String MERGE_NBS_ACT_ENTITY =
+"""
 MERGE INTO nbs_act_entity AS target
-USING (SELECT 
+USING (SELECT
            :actUid AS act_uid,
            :addTime AS add_time,
            :addUserId AS add_user_id,
@@ -32,8 +34,8 @@ USING (SELECT
            :recordStatusTime AS record_status_time,
            :typeCd AS type_cd
        ) AS source
-ON target.act_uid = source.act_uid 
-   AND target.entity_uid = source.entity_uid 
+ON target.act_uid = source.act_uid
+   AND target.entity_uid = source.entity_uid
    AND target.type_cd = source.type_cd
 WHEN MATCHED THEN UPDATE SET
     add_time = source.add_time,
@@ -68,16 +70,16 @@ WHEN NOT MATCHED THEN INSERT (
 );
 """;
 
-
-    public static final String DELETE_NBS_ACT_ENTITY_BY_UID = """
+  public static final String DELETE_NBS_ACT_ENTITY_BY_UID =
+"""
 DELETE FROM NBS_act_entity
 WHERE nbs_act_entity_uid = :nbsActEntityUid
 """;
 
-
-    public static final String MERGE_NBS_ACT_ENTITY_HIST = """
+  public static final String MERGE_NBS_ACT_ENTITY_HIST =
+"""
 MERGE INTO nbs_act_entity_hist AS target
-USING (SELECT 
+USING (SELECT
            :nbsActEntityUid AS nbs_act_entity_uid,
            :actUid AS act_uid,
            :addTime AS add_time,

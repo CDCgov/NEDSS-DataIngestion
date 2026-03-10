@@ -5,52 +5,50 @@ import gov.cdc.dataprocessing.model.container.base.BasePamContainer;
 import gov.cdc.dataprocessing.model.dto.nbs.NbsNoteDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
 import gov.cdc.dataprocessing.model.dto.phc.ExportReceivingFacilityDto;
+import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
-
 @Getter
 @Setter
+public class PamProxyContainer extends BaseContainer {
+  private static final long serialVersionUID = 1L;
 
-public class PamProxyContainer  extends BaseContainer {
-    private static final long serialVersionUID = 1L;
+  private PublicHealthCaseContainer publicHealthCaseContainer;
 
-    private PublicHealthCaseContainer publicHealthCaseContainer;
+  private Collection<PersonContainer> thePersonVOCollection;
 
-    private Collection<PersonContainer>  thePersonVOCollection;
+  private BasePamContainer pamVO;
 
-    private BasePamContainer pamVO;
+  private Collection<Object> theVaccinationSummaryVOCollection;
 
-    private Collection<Object>  theVaccinationSummaryVOCollection;
+  private Collection<Object> theNotificationSummaryVOCollection;
 
-    private Collection<Object>  theNotificationSummaryVOCollection;
+  private Collection<Object> theTreatmentSummaryVOCollection;
 
-    private Collection<Object>  theTreatmentSummaryVOCollection;
+  private Collection<Object> theLabReportSummaryVOCollection;
 
-    private Collection<Object>  theLabReportSummaryVOCollection;
+  private Collection<Object> theMorbReportSummaryVOCollection;
 
-    private Collection<Object>  theMorbReportSummaryVOCollection;
+  private Collection<ParticipationDto> theParticipationDTCollection;
 
-    private Collection<ParticipationDto>  theParticipationDTCollection;
+  private Collection<Object> theInvestigationAuditLogSummaryVOCollection;
 
-    private Collection<Object>  theInvestigationAuditLogSummaryVOCollection;
+  private Collection<Object> theOrganizationVOCollection;
 
-    private Collection<Object>  theOrganizationVOCollection;
+  public Collection<Object> theNotificationVOCollection;
+  private boolean associatedNotificationsInd;
 
-    public Collection<Object>  theNotificationVOCollection;
-    private boolean associatedNotificationsInd;
+  private NotificationContainer theNotificationContainer;
 
-    private NotificationContainer theNotificationContainer;
+  public Collection<Object> theDocumentSummaryVOCollection;
+  private boolean isOOSystemInd;
+  private boolean isOOSystemPendInd;
+  private Collection<Object> theCTContactSummaryDTCollection;
 
-    public Collection<Object>  theDocumentSummaryVOCollection;
-    private boolean isOOSystemInd;
-    private boolean isOOSystemPendInd;
-    private Collection<Object> theCTContactSummaryDTCollection;
+  private Collection<Object> nbsAttachmentDTColl;
+  private Collection<NbsNoteDto> nbsNoteDTColl;
 
-    private Collection<Object> nbsAttachmentDTColl;
-    private Collection<NbsNoteDto> nbsNoteDTColl;
-
-    private boolean isUnsavedNote;
-    private ExportReceivingFacilityDto exportReceivingFacilityDto;
+  private boolean isUnsavedNote;
+  private ExportReceivingFacilityDto exportReceivingFacilityDto;
 }

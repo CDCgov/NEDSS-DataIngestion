@@ -1,5 +1,10 @@
 package gov.cdc.dataprocessing.service.implementation.material;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.MaterialContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
@@ -27,277 +32,271 @@ import gov.cdc.dataprocessing.service.implementation.entity.EntityLocatorPartici
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IOdseIdGeneratorWCacheService;
 import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-
 class MaterialServiceTest {
 
-    @InjectMocks
-    MaterialService materialService;
+  @InjectMocks MaterialService materialService;
 
-    @Mock
-    MaterialRepository materialRepository;
+  @Mock MaterialRepository materialRepository;
 
-    @Mock
-    IOdseIdGeneratorWCacheService odseIdGeneratorService;
+  @Mock IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
-    @Mock
-    EntityHelper entityHelper;
+  @Mock EntityHelper entityHelper;
 
-    @Mock
-    EntityIdRepository entityIdRepository;
+  @Mock EntityIdRepository entityIdRepository;
 
-    @Mock
-    EntityLocatorParticipationRepository entityLocatorParticipationRepository;
+  @Mock EntityLocatorParticipationRepository entityLocatorParticipationRepository;
 
-    @Mock
-    EntityLocatorParticipationService entityLocatorParticipationService;
+  @Mock EntityLocatorParticipationService entityLocatorParticipationService;
 
-    @Mock
-    EntityRepository entityRepository;
+  @Mock EntityRepository entityRepository;
 
-    @Mock
-    RoleRepository roleRepository;
+  @Mock RoleRepository roleRepository;
 
-    @Mock
-    ParticipationRepository participationRepository;
+  @Mock ParticipationRepository participationRepository;
 
-    @Mock
-    ManufacturedMaterialRepository manufacturedMaterialRepository;
+  @Mock ManufacturedMaterialRepository manufacturedMaterialRepository;
 
-    @Mock
-    UidPoolManager uidPoolManager;
+  @Mock UidPoolManager uidPoolManager;
 
-    @BeforeEach
-    void setup() throws DataProcessingException {
-        MockitoAnnotations.openMocks(this);
-        var model = new LocalUidModel();
-        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
-        dto.setClassNameCd("TEST");
-        dto.setTypeCd("TEST");
-        dto.setUidPrefixCd("TEST");
-        dto.setUidSuffixCd("TEST");
-        dto.setSeedValueNbr(1L);
-        dto.setCounter(3);
-        dto.setUsedCounter(2);
-        model.setClassTypeUid(dto);
-        model.setGaTypeUid(dto);
-        model.setPrimaryClassName("TEST");
-        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
-    }
+  @BeforeEach
+  void setup() throws DataProcessingException {
+    MockitoAnnotations.openMocks(this);
+    var model = new LocalUidModel();
+    LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+    dto.setClassNameCd("TEST");
+    dto.setTypeCd("TEST");
+    dto.setUidPrefixCd("TEST");
+    dto.setUidSuffixCd("TEST");
+    dto.setSeedValueNbr(1L);
+    dto.setCounter(3);
+    dto.setUsedCounter(2);
+    model.setClassTypeUid(dto);
+    model.setGaTypeUid(dto);
+    model.setPrimaryClassName("TEST");
+    when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
+  }
 
-    @Test
-    void loadMaterialObject() {
-        Long materialUid = 1L;
-        when(materialRepository.findById(materialUid)).thenReturn(Optional.of(getMaterialDto()));
+  @Test
+  void loadMaterialObject() {
+    Long materialUid = 1L;
+    when(materialRepository.findById(materialUid)).thenReturn(Optional.of(getMaterialDto()));
 
-        when(entityIdRepository.findByParentUid(materialUid)).thenReturn(getEntityId());
+    when(entityIdRepository.findByParentUid(materialUid)).thenReturn(getEntityId());
 
-        when(entityLocatorParticipationRepository.findByParentUid(materialUid)).thenReturn(getEntityLocatorPart());
+    when(entityLocatorParticipationRepository.findByParentUid(materialUid))
+        .thenReturn(getEntityLocatorPart());
 
-        when(roleRepository.findByParentUid(materialUid)).thenReturn(Optional.of(getRole()));
+    when(roleRepository.findByParentUid(materialUid)).thenReturn(Optional.of(getRole()));
 
-        when(participationRepository.findByParentUid(materialUid)).thenReturn(Optional.of(getParts()));
+    when(participationRepository.findByParentUid(materialUid)).thenReturn(Optional.of(getParts()));
 
-        when(manufacturedMaterialRepository.findByParentUid(materialUid)).thenReturn(Optional.of(getManMaterials()));
+    when(manufacturedMaterialRepository.findByParentUid(materialUid))
+        .thenReturn(Optional.of(getManMaterials()));
 
-        MaterialContainer result = materialService.loadMaterialObject(materialUid);
+    MaterialContainer result = materialService.loadMaterialObject(materialUid);
 
-        assertEquals(1L, result.getTheMaterialDto().getMaterialUid());
-    }
+    assertEquals(1L, result.getTheMaterialDto().getMaterialUid());
+  }
 
-    private List<ManufacturedMaterial> getManMaterials() {
-        ManufacturedMaterialDto materialDto = new ManufacturedMaterialDto();
-        materialDto.setMaterialUid(1L);
+  private List<ManufacturedMaterial> getManMaterials() {
+    ManufacturedMaterialDto materialDto = new ManufacturedMaterialDto();
+    materialDto.setMaterialUid(1L);
 
-        List<ManufacturedMaterial> manufacturedMaterials = new ArrayList<>();
-        manufacturedMaterials.add(new ManufacturedMaterial(materialDto));
+    List<ManufacturedMaterial> manufacturedMaterials = new ArrayList<>();
+    manufacturedMaterials.add(new ManufacturedMaterial(materialDto));
 
-        return manufacturedMaterials;
-    }
+    return manufacturedMaterials;
+  }
 
-    private List<Participation> getParts() {
-        ParticipationDto part = new ParticipationDto();
-        part.setCd("test participation");
+  private List<Participation> getParts() {
+    ParticipationDto part = new ParticipationDto();
+    part.setCd("test participation");
 
-        List<Participation> participations = new ArrayList<>();
-        participations.add(new Participation(part));
+    List<Participation> participations = new ArrayList<>();
+    participations.add(new Participation(part));
 
-        return participations;
-    }
+    return participations;
+  }
 
-    private List<Role> getRole() {
-        RoleDto roleDto = new RoleDto();
-        roleDto.setCd("test role");
+  private List<Role> getRole() {
+    RoleDto roleDto = new RoleDto();
+    roleDto.setCd("test role");
 
-        List<Role> roles = new ArrayList<>();
-        roles.add(new Role(roleDto,"UTC"));
+    List<Role> roles = new ArrayList<>();
+    roles.add(new Role(roleDto, "UTC"));
 
-        return roles;
-    }
+    return roles;
+  }
 
-    private Optional<List<EntityLocatorParticipation>> getEntityLocatorPart() {
-        EntityLocatorParticipationDto entityLocatorParticipationDto = new EntityLocatorParticipationDto();
-        entityLocatorParticipationDto.setEntityUid(3L);
-        entityLocatorParticipationDto.setAddUserId(123L);
+  private Optional<List<EntityLocatorParticipation>> getEntityLocatorPart() {
+    EntityLocatorParticipationDto entityLocatorParticipationDto =
+        new EntityLocatorParticipationDto();
+    entityLocatorParticipationDto.setEntityUid(3L);
+    entityLocatorParticipationDto.setAddUserId(123L);
 
-        List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
-        entityLocatorParticipations.add(new EntityLocatorParticipation(entityLocatorParticipationDto, "UTC"));
-        return Optional.of(entityLocatorParticipations);
-    }
+    List<EntityLocatorParticipation> entityLocatorParticipations = new ArrayList<>();
+    entityLocatorParticipations.add(
+        new EntityLocatorParticipation(entityLocatorParticipationDto, "UTC"));
+    return Optional.of(entityLocatorParticipations);
+  }
+
+  private Optional<List<EntityId>> getEntityId() {
+    EntityIdDto entityIdDto = new EntityIdDto();
+    entityIdDto.setEntityUid(2L);
+
+    List<EntityId> entityIds = new ArrayList<>();
+
+    entityIds.add(new EntityId(entityIdDto, "UTC"));
+
+    return Optional.of(entityIds);
+  }
 
-    private Optional<List<EntityId>> getEntityId() {
-        EntityIdDto entityIdDto = new EntityIdDto();
-        entityIdDto.setEntityUid(2L);
+  private Material getMaterialDto() {
+    MaterialDto materialDto = new MaterialDto();
+    materialDto.setMaterialUid(1L);
+    materialDto.setDescription("test material");
+    materialDto.setAddUserId(123L);
+    materialDto.setLastChgUserId(123L);
 
-        List<EntityId> entityIds = new ArrayList<>();
+    return new Material(materialDto);
+  }
 
-        entityIds.add(new EntityId(entityIdDto, "UTC"));
+  @Test
+  void saveMaterial() throws DataProcessingException {
+    Long materialUid = 1L;
+    when(materialRepository.findById(materialUid)).thenReturn(Optional.of(getMaterialDto()));
 
-        return Optional.of(entityIds);
-    }
+    when(entityRepository.save(any())).thenReturn(null);
 
-    private Material getMaterialDto() {
-        MaterialDto materialDto = new MaterialDto();
-        materialDto.setMaterialUid(1L);
-        materialDto.setDescription("test material");
-        materialDto.setAddUserId(123L);
-        materialDto.setLastChgUserId(123L);
+    when(entityHelper.iterateRDT(any())).thenReturn(getRoleDto());
 
-        return new Material(materialDto);
-    }
+    when(entityHelper.iterateELPDTForEntityLocatorParticipation(any()))
+        .thenReturn(getEntityLocatorPartDto());
 
-    @Test
-    void saveMaterial() throws DataProcessingException {
-        Long materialUid = 1L;
-        when(materialRepository.findById(materialUid)).thenReturn(Optional.of(getMaterialDto()));
+    doNothing()
+        .when(entityLocatorParticipationService)
+        .updateEntityLocatorParticipation(any(), any());
 
-        when(entityRepository.save(any())).thenReturn(null);
+    when(entityHelper.iteratePDTForParticipation(any())).thenReturn(getPartsDto());
 
-        when(entityHelper.iterateRDT(any())).thenReturn(getRoleDto());
+    Long result = materialService.saveMaterial(getMaterialContainer());
+    assertEquals(1L, result);
+  }
 
-        when(entityHelper.iterateELPDTForEntityLocatorParticipation(any())).thenReturn(getEntityLocatorPartDto());
+  @Test
+  void saveMaterialNew() throws DataProcessingException {
+    Long materialUid = 1L;
+    when(materialRepository.findById(materialUid)).thenReturn(Optional.empty());
 
-        doNothing().when(entityLocatorParticipationService).updateEntityLocatorParticipation(any(), any());
+    when(entityRepository.save(any())).thenReturn(null);
 
-        when(entityHelper.iteratePDTForParticipation(any())).thenReturn(getPartsDto());
+    when(entityHelper.iterateRDT(any())).thenReturn(getRoleDto());
 
-        Long result = materialService.saveMaterial(getMaterialContainer());
-        assertEquals(1L, result);
-    }
+    when(entityHelper.iterateELPDTForEntityLocatorParticipation(any()))
+        .thenReturn(getEntityLocatorPartDto());
 
-    @Test
-    void saveMaterialNew() throws DataProcessingException {
-        Long materialUid = 1L;
-        when(materialRepository.findById(materialUid)).thenReturn(Optional.empty());
+    doNothing()
+        .when(entityLocatorParticipationService)
+        .updateEntityLocatorParticipation(any(), any());
 
-        when(entityRepository.save(any())).thenReturn(null);
+    when(entityHelper.iteratePDTForParticipation(any())).thenReturn(getPartsDto());
 
-        when(entityHelper.iterateRDT(any())).thenReturn(getRoleDto());
+    when(odseIdGeneratorService.getValidLocalUid(any(), eq(true)))
+        .thenReturn(getLocalUidGenerator());
 
-        when(entityHelper.iterateELPDTForEntityLocatorParticipation(any())).thenReturn(getEntityLocatorPartDto());
+    Long result = materialService.saveMaterial(getMaterialContainer());
+    assertEquals(1L, result);
+  }
 
-        doNothing().when(entityLocatorParticipationService).updateEntityLocatorParticipation(any(), any());
+  private LocalUidModel getLocalUidGenerator() {
+    LocalUidModel localUidGenerator = new LocalUidModel();
+    localUidGenerator.setGaTypeUid(new LocalUidGeneratorDto());
+    localUidGenerator.setClassTypeUid(new LocalUidGeneratorDto());
 
-        when(entityHelper.iteratePDTForParticipation(any())).thenReturn(getPartsDto());
+    localUidGenerator.getGaTypeUid().setUidPrefixCd("123");
+    localUidGenerator.getGaTypeUid().setUidPrefixCd("234");
+    localUidGenerator.getGaTypeUid().setTypeCd("type");
+    localUidGenerator.getGaTypeUid().setClassNameCd("class name");
+    localUidGenerator.getGaTypeUid().setSeedValueNbr(1L);
 
-        when(odseIdGeneratorService.getValidLocalUid(any(), eq(true))).thenReturn(getLocalUidGenerator());
+    localUidGenerator.getClassTypeUid().setUidPrefixCd("123");
+    localUidGenerator.getClassTypeUid().setUidPrefixCd("234");
+    localUidGenerator.getClassTypeUid().setTypeCd("type");
+    localUidGenerator.getClassTypeUid().setClassNameCd("class name");
+    localUidGenerator.getClassTypeUid().setSeedValueNbr(1L);
+    return localUidGenerator;
+  }
 
-        Long result = materialService.saveMaterial(getMaterialContainer());
-        assertEquals(1L, result);
-    }
+  private MaterialContainer getMaterialContainer() {
+    MaterialContainer materialContainer = new MaterialContainer();
+    materialContainer.setTheMaterialDto(new MaterialDto(getMaterialDto()));
+    materialContainer.setTheRoleDTCollection(getRoleDto());
+    materialContainer.setTheEntityLocatorParticipationDTCollection(getEntityLocatorPartDto());
+    materialContainer.setTheParticipationDtoCollection(getPartsDto());
+    materialContainer.setTheEntityIdDtoCollection(getEntityIdDto());
+    materialContainer.setTheManufacturedMaterialDtoCollection(getManMaterialsDto());
+    return materialContainer;
+  }
 
-    private LocalUidModel getLocalUidGenerator() {
-        LocalUidModel localUidGenerator = new LocalUidModel();
-        localUidGenerator.setGaTypeUid(new LocalUidGeneratorDto());
-        localUidGenerator.setClassTypeUid(new LocalUidGeneratorDto());
+  private List<ManufacturedMaterialDto> getManMaterialsDto() {
+    ManufacturedMaterialDto materialDto = new ManufacturedMaterialDto();
+    materialDto.setMaterialUid(1L);
+    materialDto.setManufacturedMaterialSeq(123);
 
-        localUidGenerator.getGaTypeUid().setUidPrefixCd("123");
-        localUidGenerator.getGaTypeUid().setUidPrefixCd("234");
-        localUidGenerator.getGaTypeUid().setTypeCd("type");
-        localUidGenerator.getGaTypeUid().setClassNameCd("class name");
-        localUidGenerator.getGaTypeUid().setSeedValueNbr(1L);
+    List<ManufacturedMaterialDto> manufacturedMaterials = new ArrayList<>();
+    manufacturedMaterials.add(materialDto);
 
-        localUidGenerator.getClassTypeUid().setUidPrefixCd("123");
-        localUidGenerator.getClassTypeUid().setUidPrefixCd("234");
-        localUidGenerator.getClassTypeUid().setTypeCd("type");
-        localUidGenerator.getClassTypeUid().setClassNameCd("class name");
-        localUidGenerator.getClassTypeUid().setSeedValueNbr(1L);
-        return localUidGenerator;
-    }
+    return manufacturedMaterials;
+  }
 
-    private MaterialContainer getMaterialContainer() {
-        MaterialContainer materialContainer = new MaterialContainer();
-        materialContainer.setTheMaterialDto(new MaterialDto(getMaterialDto()));
-        materialContainer.setTheRoleDTCollection(getRoleDto());
-        materialContainer.setTheEntityLocatorParticipationDTCollection(getEntityLocatorPartDto());
-        materialContainer.setTheParticipationDtoCollection(getPartsDto());
-        materialContainer.setTheEntityIdDtoCollection(getEntityIdDto());
-        materialContainer.setTheManufacturedMaterialDtoCollection(getManMaterialsDto());
-        return materialContainer;
-    }
+  private List<EntityIdDto> getEntityIdDto() {
+    EntityIdDto entityIdDto = new EntityIdDto();
+    entityIdDto.setEntityUid(2L);
 
-    private List<ManufacturedMaterialDto> getManMaterialsDto() {
-        ManufacturedMaterialDto materialDto = new ManufacturedMaterialDto();
-        materialDto.setMaterialUid(1L);
-        materialDto.setManufacturedMaterialSeq(123);
+    List<EntityIdDto> entityIds = new ArrayList<>();
 
-        List<ManufacturedMaterialDto> manufacturedMaterials = new ArrayList<>();
-        manufacturedMaterials.add(materialDto);
+    entityIds.add(entityIdDto);
 
-        return manufacturedMaterials;
-    }
+    return entityIds;
+  }
 
-    private  List<EntityIdDto> getEntityIdDto() {
-        EntityIdDto entityIdDto = new EntityIdDto();
-        entityIdDto.setEntityUid(2L);
+  private List<EntityLocatorParticipationDto> getEntityLocatorPartDto() {
+    EntityLocatorParticipationDto entityLocatorParticipationDto =
+        new EntityLocatorParticipationDto();
+    entityLocatorParticipationDto.setEntityUid(3L);
+    entityLocatorParticipationDto.setAddUserId(123L);
 
-        List<EntityIdDto> entityIds = new ArrayList<>();
+    List<EntityLocatorParticipationDto> entityLocatorParticipations = new ArrayList<>();
+    entityLocatorParticipations.add(entityLocatorParticipationDto);
+    return entityLocatorParticipations;
+  }
 
-        entityIds.add(entityIdDto);
+  private List<RoleDto> getRoleDto() {
+    RoleDto roleDto = new RoleDto();
+    roleDto.setCd("test role");
 
-        return entityIds;
-    }
+    List<RoleDto> roles = new ArrayList<>();
+    roles.add(roleDto);
 
-    private List<EntityLocatorParticipationDto> getEntityLocatorPartDto() {
-        EntityLocatorParticipationDto entityLocatorParticipationDto = new EntityLocatorParticipationDto();
-        entityLocatorParticipationDto.setEntityUid(3L);
-        entityLocatorParticipationDto.setAddUserId(123L);
+    return roles;
+  }
 
-        List<EntityLocatorParticipationDto> entityLocatorParticipations = new ArrayList<>();
-        entityLocatorParticipations.add(entityLocatorParticipationDto);
-        return entityLocatorParticipations;
-    }
+  private List<ParticipationDto> getPartsDto() {
+    ParticipationDto part = new ParticipationDto();
+    part.setCd("test participation");
 
-    private List<RoleDto> getRoleDto() {
-        RoleDto roleDto = new RoleDto();
-        roleDto.setCd("test role");
+    List<ParticipationDto> participations = new ArrayList<>();
+    participations.add(part);
 
-        List<RoleDto> roles = new ArrayList<>();
-        roles.add(roleDto);
-
-        return roles;
-    }
-
-    private List<ParticipationDto> getPartsDto() {
-        ParticipationDto part = new ParticipationDto();
-        part.setCd("test participation");
-
-        List<ParticipationDto> participations = new ArrayList<>();
-        participations.add(part);
-
-        return participations;
-    }
+    return participations;
+  }
 }
