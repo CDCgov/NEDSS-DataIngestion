@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class EntityGroupQuery {
-    public static final String FIND_BY_UID = """
+  public static final String FIND_BY_UID =
+      """
             SELECT
                 entity_group_uid AS entityGroupUid,
                 add_reason_cd AS addReasonCd,

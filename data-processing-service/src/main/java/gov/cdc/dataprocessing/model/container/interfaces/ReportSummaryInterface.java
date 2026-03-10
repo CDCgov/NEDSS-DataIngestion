@@ -3,19 +3,19 @@ package gov.cdc.dataprocessing.model.container.interfaces;
 import java.sql.Timestamp;
 
 public interface ReportSummaryInterface {
-    boolean getIsTouched();
+  boolean getIsTouched();
 
-    void setItTouched(boolean touched);
+  void setItTouched(boolean touched);
 
-    boolean getIsAssociated();
+  boolean getIsAssociated();
 
-    void setItAssociated(boolean associated);
+  void setItAssociated(boolean associated);
 
-    Long getObservationUid();
+  Long getObservationUid();
 
-    void setObservationUid(Long observationUid);
+  void setObservationUid(Long observationUid);
 
-    Timestamp getActivityFromTime();
+  Timestamp getActivityFromTime();
 
-    void setActivityFromTime(Timestamp aActivityFromTime);
+  void setActivityFromTime(Timestamp aActivityFromTime);
 }

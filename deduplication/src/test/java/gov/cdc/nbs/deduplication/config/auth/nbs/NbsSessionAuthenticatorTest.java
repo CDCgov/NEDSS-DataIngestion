@@ -3,8 +3,9 @@ package gov.cdc.nbs.deduplication.config.auth.nbs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,25 +16,20 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
 class NbsSessionAuthenticatorTest {
 
-  @Mock
-  private JdbcClient client;
+  @Mock private JdbcClient client;
 
-  @InjectMocks
-  private NbsSessionAuthenticator authenticator;
+  @InjectMocks private NbsSessionAuthenticator authenticator;
 
   @Test
   void should_authenticate() {
     // Given a valid request and response
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     Cookie sessionCookie = new Cookie("JSESSIONID", "1234");
-    when(request.getCookies()).thenReturn(new Cookie[] { sessionCookie });
+    when(request.getCookies()).thenReturn(new Cookie[] {sessionCookie});
 
     // mock DB query
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
@@ -52,7 +48,7 @@ class NbsSessionAuthenticatorTest {
     // Given a valid request and response
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     Cookie sessionCookie = new Cookie("JSESSIONID", "1234");
-    when(request.getCookies()).thenReturn(new Cookie[] { sessionCookie });
+    when(request.getCookies()).thenReturn(new Cookie[] {sessionCookie});
 
     // mock DB query
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);

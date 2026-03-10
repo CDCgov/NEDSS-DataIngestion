@@ -1,71 +1,69 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import static gov.cdc.dataprocessing.constant.data_field.*;
+import static gov.cdc.dataprocessing.constant.query.ActIdQuery.MERGE_SQL_ACT_ID;
+import static gov.cdc.dataprocessing.constant.query.ActIdQuery.SELECT_BY_ACT_UID_SQL;
+import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
+
 import gov.cdc.dataprocessing.config.ServicePropertiesProvider;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-import static gov.cdc.dataprocessing.constant.data_field.*;
-import static gov.cdc.dataprocessing.constant.query.ActIdQuery.MERGE_SQL_ACT_ID;
-import static gov.cdc.dataprocessing.constant.query.ActIdQuery.SELECT_BY_ACT_UID_SQL;
-import static gov.cdc.dataprocessing.utilities.time.TimeStampUtil.getCurrentTimeStamp;
-
 @Component
 public class ActIdJdbcRepository {
-    private final NamedParameterJdbcTemplate jdbcTemplateOdse;
-    private final ServicePropertiesProvider servicePropertiesProvider;
+  private final NamedParameterJdbcTemplate jdbcTemplateOdse;
+  private final ServicePropertiesProvider servicePropertiesProvider;
 
-    public ActIdJdbcRepository(@Qualifier("odseNamedParameterJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplateOdse, ServicePropertiesProvider servicePropertiesProvider) {
-        this.jdbcTemplateOdse = jdbcTemplateOdse;
-        this.servicePropertiesProvider = servicePropertiesProvider;
+  public ActIdJdbcRepository(
+      @Qualifier("odseNamedParameterJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplateOdse,
+      ServicePropertiesProvider servicePropertiesProvider) {
+    this.jdbcTemplateOdse = jdbcTemplateOdse;
+    this.servicePropertiesProvider = servicePropertiesProvider;
+  }
+
+  public void mergeActId(ActId a) {
+    if (a.getStatusCd() == null || a.getStatusCd().isEmpty()) {
+      a.setStatusCd("A");
     }
-
-    public void mergeActId(ActId a) {
-        if(a.getStatusCd()==null || a.getStatusCd().isEmpty()){
-            a.setStatusCd("A");
-        }
-        if(a.getStatusTime()==null){
-            a.setStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
-        }
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(ACT_UID_DB, a.getActUid())
-                .addValue("act_id_seq", a.getActIdSeq())
-                .addValue(ADD_REASON_CD_DB, a.getAddReasonCd())
-                .addValue(ADD_TIME_DB, a.getAddTime())
-                .addValue(ADD_USER_ID_DB, a.getAddUserId())
-                .addValue("assigning_authority_cd", a.getAssigningAuthorityCd())
-                .addValue("assigning_authority_desc_txt", a.getAssigningAuthorityDescTxt())
-                .addValue("duration_amt", a.getDurationAmt())
-                .addValue("duration_unit_cd", a.getDurationUnitCd())
-                .addValue(LAST_CHG_REASON_CD_DB, a.getLastChgReasonCd())
-                .addValue(LAST_CHG_TIME_DB, a.getLastChgTime())
-                .addValue(LAST_CHG_USER_ID_DB, a.getLastChgUserId())
-                .addValue(RECORD_STATUS_CD_DB, a.getRecordStatusCd())
-                .addValue(RECORD_STATUS_TIME_DB, a.getRecordStatusTime())
-                .addValue("root_extension_txt", a.getRootExtensionTxt())
-                .addValue(STATUS_CD_DB, a.getStatusCd())
-                .addValue(STATUS_TIME_DB, a.getStatusTime())
-                .addValue("type_cd", a.getTypeCd())
-                .addValue("type_desc_txt", a.getTypeDescTxt())
-                .addValue(USER_AFFILIATION_TXT_DB, a.getUserAffiliationTxt())
-                .addValue("valid_from_time", a.getValidFromTime())
-                .addValue("valid_to_time", a.getValidToTime());
-
-        jdbcTemplateOdse.update(MERGE_SQL_ACT_ID, params);
+    if (a.getStatusTime() == null) {
+      a.setStatusTime(getCurrentTimeStamp(servicePropertiesProvider.getTz()));
     }
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue(ACT_UID_DB, a.getActUid())
+            .addValue("act_id_seq", a.getActIdSeq())
+            .addValue(ADD_REASON_CD_DB, a.getAddReasonCd())
+            .addValue(ADD_TIME_DB, a.getAddTime())
+            .addValue(ADD_USER_ID_DB, a.getAddUserId())
+            .addValue("assigning_authority_cd", a.getAssigningAuthorityCd())
+            .addValue("assigning_authority_desc_txt", a.getAssigningAuthorityDescTxt())
+            .addValue("duration_amt", a.getDurationAmt())
+            .addValue("duration_unit_cd", a.getDurationUnitCd())
+            .addValue(LAST_CHG_REASON_CD_DB, a.getLastChgReasonCd())
+            .addValue(LAST_CHG_TIME_DB, a.getLastChgTime())
+            .addValue(LAST_CHG_USER_ID_DB, a.getLastChgUserId())
+            .addValue(RECORD_STATUS_CD_DB, a.getRecordStatusCd())
+            .addValue(RECORD_STATUS_TIME_DB, a.getRecordStatusTime())
+            .addValue("root_extension_txt", a.getRootExtensionTxt())
+            .addValue(STATUS_CD_DB, a.getStatusCd())
+            .addValue(STATUS_TIME_DB, a.getStatusTime())
+            .addValue("type_cd", a.getTypeCd())
+            .addValue("type_desc_txt", a.getTypeDescTxt())
+            .addValue(USER_AFFILIATION_TXT_DB, a.getUserAffiliationTxt())
+            .addValue("valid_from_time", a.getValidFromTime())
+            .addValue("valid_to_time", a.getValidToTime());
 
-    public List<ActId> findRecordsByActUid(Long actUid) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(ACT_UID_DB, actUid);
-        return jdbcTemplateOdse.query(
-                SELECT_BY_ACT_UID_SQL,
-                params,
-                new BeanPropertyRowMapper<>(ActId.class)
-        );
-    }
+    jdbcTemplateOdse.update(MERGE_SQL_ACT_ID, params);
+  }
+
+  public List<ActId> findRecordsByActUid(Long actUid) {
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue(ACT_UID_DB, actUid);
+    return jdbcTemplateOdse.query(
+        SELECT_BY_ACT_UID_SQL, params, new BeanPropertyRowMapper<>(ActId.class));
+  }
 }

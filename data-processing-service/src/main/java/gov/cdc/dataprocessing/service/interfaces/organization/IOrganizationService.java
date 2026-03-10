@@ -6,5 +6,6 @@ import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.container.model.OrganizationContainer;
 
 public interface IOrganizationService {
-    OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingConsumerException, DataProcessingException;
+  OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer)
+      throws DataProcessingConsumerException, DataProcessingException;
 }
