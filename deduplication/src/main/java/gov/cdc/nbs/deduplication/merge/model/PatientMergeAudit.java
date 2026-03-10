@@ -1,11 +1,10 @@
 package gov.cdc.nbs.deduplication.merge.model;
 
+import java.sql.Timestamp;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.sql.Timestamp;
-import java.util.List;
 
 @Getter
 @Setter

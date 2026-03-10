@@ -7,30 +7,29 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Xon {
-    String organizationName;
-    String organizationNameTypeCode;
-    String idNumber;
-    String checkDigit;
-    String checkDigitScheme;
-    Hd assignAuthority = new Hd();
-    String identifierTypeCode;
-    Hd assignFacility = new Hd();
-    String nameRepresentationCode;
-    String organizationIdentifier;
-    public Xon(XON xon) {
-        this.organizationName = xon.getOrganizationName().getValue();
-        this.organizationNameTypeCode = xon.getOrganizationNameTypeCode().getValue();
-        this.idNumber = xon.getIDNumber().getValue();
-        this.checkDigit = xon.getCheckDigit().getValue();
-        this.checkDigitScheme = xon.getCheckDigitScheme().getValue();
-        this.assignAuthority = new Hd(xon.getAssigningAuthority());
-        this.identifierTypeCode = xon.getIdentifierTypeCode().getValue();
-        this.assignFacility = new Hd(xon.getAssigningFacility());
-        this.nameRepresentationCode = xon.getNameRepresentationCode().getValue();
-        this.organizationIdentifier = xon.getOrganizationIdentifier().getValue();
-    }
+  String organizationName;
+  String organizationNameTypeCode;
+  String idNumber;
+  String checkDigit;
+  String checkDigitScheme;
+  Hd assignAuthority = new Hd();
+  String identifierTypeCode;
+  Hd assignFacility = new Hd();
+  String nameRepresentationCode;
+  String organizationIdentifier;
 
-    public Xon() {
+  public Xon(XON xon) {
+    this.organizationName = xon.getOrganizationName().getValue();
+    this.organizationNameTypeCode = xon.getOrganizationNameTypeCode().getValue();
+    this.idNumber = xon.getIDNumber().getValue();
+    this.checkDigit = xon.getCheckDigit().getValue();
+    this.checkDigitScheme = xon.getCheckDigitScheme().getValue();
+    this.assignAuthority = new Hd(xon.getAssigningAuthority());
+    this.identifierTypeCode = xon.getIdentifierTypeCode().getValue();
+    this.assignFacility = new Hd(xon.getAssigningFacility());
+    this.nameRepresentationCode = xon.getNameRepresentationCode().getValue();
+    this.organizationIdentifier = xon.getOrganizationIdentifier().getValue();
+  }
 
-    }
+  public Xon() {}
 }

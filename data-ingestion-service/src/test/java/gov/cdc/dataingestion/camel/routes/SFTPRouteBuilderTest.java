@@ -1,5 +1,8 @@
 package gov.cdc.dataingestion.camel.routes;
 
+import static org.apache.camel.builder.AdviceWith.adviceWith;
+
+import java.io.File;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -8,99 +11,101 @@ import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
-
-import static org.apache.camel.builder.AdviceWith.adviceWith;
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 class SFTPRouteBuilderTest extends CamelTestSupport {
 
-    @Override
-    protected RouteBuilder createRouteBuilder() {
-        SFTPRouteBuilder sftpRouteBuilder =new SFTPRouteBuilder();
-        ReflectionTestUtils.setField(sftpRouteBuilder, "sftpHost", "test");
-        ReflectionTestUtils.setField(sftpRouteBuilder, "hl7FileExtns", "txt");
-        ReflectionTestUtils.setField(sftpRouteBuilder, "sftpFilePaths", "/test");
-        return sftpRouteBuilder;
-    }
+  @Override
+  protected RouteBuilder createRouteBuilder() {
+    SFTPRouteBuilder sftpRouteBuilder = new SFTPRouteBuilder();
+    ReflectionTestUtils.setField(sftpRouteBuilder, "sftpHost", "test");
+    ReflectionTestUtils.setField(sftpRouteBuilder, "hl7FileExtns", "txt");
+    ReflectionTestUtils.setField(sftpRouteBuilder, "sftpFilePaths", "/test");
+    return sftpRouteBuilder;
+  }
 
-    @Test
-    void testMockEndpoints() throws Exception {
-        RouteDefinition sftpRoute = context.getRouteDefinition("sftpRouteId_1");
-        RouteDefinition routeSftpUnzipFile = context.getRouteDefinition("sftpUnzipFileRouteId_1");
-        RouteDefinition routeSftpReadFromUnzipDir = context.getRouteDefinition("sftpReadFromTextFileDirRouteId_1");
-        RouteDefinition routeSedaProcessFiles = context.getRouteDefinition("sedaProcessFilesRouteId_1");
-        adviceWith(
-                sftpRoute,
-                context,
-                new AdviceWithRouteBuilder() {
-                    @Override
-                    public void configure() {
-                        replaceFromWith("direct:fromSftpRoute");
-                        weaveByToUri("sftp:/*").replace().to("mock:result");
+  @Test
+  void testMockEndpoints() throws Exception {
+    RouteDefinition sftpRoute = context.getRouteDefinition("sftpRouteId_1");
+    RouteDefinition routeSftpUnzipFile = context.getRouteDefinition("sftpUnzipFileRouteId_1");
+    RouteDefinition routeSftpReadFromUnzipDir =
+        context.getRouteDefinition("sftpReadFromTextFileDirRouteId_1");
+    RouteDefinition routeSedaProcessFiles = context.getRouteDefinition("sedaProcessFilesRouteId_1");
+    adviceWith(
+        sftpRoute,
+        context,
+        new AdviceWithRouteBuilder() {
+          @Override
+          public void configure() {
+            replaceFromWith("direct:fromSftpRoute");
+            weaveByToUri("sftp:/*").replace().to("mock:result");
+          }
+        });
+    adviceWith(
+        routeSftpUnzipFile,
+        context,
+        new AdviceWithRouteBuilder() {
+          @Override
+          public void configure() {
+            replaceFromWith("direct:sftpUnzipFileRoute");
+            weaveByToUri("file:files/tempTextFileDir1").replace().to("mock:sftpUnzipFileResult");
+          }
+        });
+    adviceWith(
+        routeSftpReadFromUnzipDir,
+        context,
+        new AdviceWithRouteBuilder() {
+          @Override
+          public void configure() {
+            replaceFromWith("direct:sftpReadFromUnzipDirRoute");
+            weaveByToUri("seda:processfiles_1")
+                .replace()
+                .to("mock:sftpReadFromUnzippedFilesResult");
+          }
+        });
+    adviceWith(
+        routeSedaProcessFiles,
+        context,
+        new AdviceWithRouteBuilder() {
+          @Override
+          public void configure() {
+            replaceFromWith("seda:sedaProcessFilesRoute");
+            weaveAddLast().to("mock:processBodyResult");
+          }
+        });
+    context.start();
 
-                    }
-                });
-        adviceWith(
-                routeSftpUnzipFile,
-                context,
-                new AdviceWithRouteBuilder() {
-                    @Override
-                    public void configure() {
-                        replaceFromWith("direct:sftpUnzipFileRoute");
-                        weaveByToUri("file:files/tempTextFileDir1").replace().to("mock:sftpUnzipFileResult");
-                    }
-                });
-        adviceWith(
-                routeSftpReadFromUnzipDir,
-                context,
-                new AdviceWithRouteBuilder() {
-                    @Override
-                    public void configure()   {
-                        replaceFromWith("direct:sftpReadFromUnzipDirRoute");
-                        weaveByToUri("seda:processfiles_1").replace().to("mock:sftpReadFromUnzippedFilesResult");
-                    }
-                });
-        adviceWith(
-                routeSedaProcessFiles,
-                context,
-                new AdviceWithRouteBuilder() {
-                    @Override
-                    public void configure()   {
-                        replaceFromWith("seda:sedaProcessFilesRoute");
-                        weaveAddLast().to("mock:processBodyResult");
+    // For sftpRouteId
+    MockEndpoint mock = getMockEndpoint("mock:result");
+    mock.expectedMessageCount(1);
+    template.sendBody(
+        "direct:fromSftpRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
+    mock.assertIsSatisfied();
 
-                    }
-                });
-        context.start();
+    // For sftpUnzipFileRouteId
+    MockEndpoint mockSftpUnzipFile = getMockEndpoint("mock:sftpUnzipFileResult");
+    mockSftpUnzipFile.expectedMinimumMessageCount(4);
+    template.sendBody(
+        "direct:sftpUnzipFileRoute", new File("src/test/resources/sftpfiles/hl7testdata.zip"));
+    mockSftpUnzipFile.assertIsSatisfied();
 
-        //For sftpRouteId
-        MockEndpoint mock = getMockEndpoint("mock:result");
-        mock.expectedMessageCount(1);
-        template.sendBody("direct:fromSftpRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
-        mock.assertIsSatisfied();
+    MockEndpoint mockSftpReadFromUnzippedFiles =
+        getMockEndpoint("mock:sftpReadFromUnzippedFilesResult");
+    mockSftpReadFromUnzippedFiles.expectedMessageCount(1);
+    template.sendBody(
+        "direct:sftpReadFromUnzipDirRoute",
+        new File("src/test/resources/sftpfiles/HL7file-test.txt"));
+    mockSftpReadFromUnzippedFiles.assertIsSatisfied();
 
-        //For sftpUnzipFileRouteId
-        MockEndpoint mockSftpUnzipFile = getMockEndpoint("mock:sftpUnzipFileResult");
-        mockSftpUnzipFile.expectedMinimumMessageCount(4);
-        template.sendBody("direct:sftpUnzipFileRoute", new File("src/test/resources/sftpfiles/hl7testdata.zip"));
-        mockSftpUnzipFile.assertIsSatisfied();
-
-        MockEndpoint mockSftpReadFromUnzippedFiles = getMockEndpoint("mock:sftpReadFromUnzippedFilesResult");
-        mockSftpReadFromUnzippedFiles.expectedMessageCount(1);
-        template.sendBody("direct:sftpReadFromUnzipDirRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
-        mockSftpReadFromUnzippedFiles.assertIsSatisfied();
-
-        MockEndpoint mockProcessBody = getMockEndpoint("mock:processBodyResult");
-        mockProcessBody.expectedMessageCount(2);
-        template.sendBody("seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test1.txt"));
-        template.sendBody("seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
-        mockProcessBody.assertIsSatisfied();
-
-    }
+    MockEndpoint mockProcessBody = getMockEndpoint("mock:processBodyResult");
+    mockProcessBody.expectedMessageCount(2);
+    template.sendBody(
+        "seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test1.txt"));
+    template.sendBody(
+        "seda:sedaProcessFilesRoute", new File("src/test/resources/sftpfiles/HL7file-test.txt"));
+    mockProcessBody.assertIsSatisfied();
+  }
 }

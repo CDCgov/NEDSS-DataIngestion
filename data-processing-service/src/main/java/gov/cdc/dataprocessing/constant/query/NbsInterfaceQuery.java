@@ -1,8 +1,9 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NbsInterfaceQuery {
-    public static final String SELECT_NBS_INTERFACE_BY_UID = """
-    SELECT 
+  public static final String SELECT_NBS_INTERFACE_BY_UID =
+"""
+    SELECT
         nbs_interface_uid AS nbsInterfaceUid,
         payload AS payload,
         imp_exp_ind_cd AS impExpIndCd,
@@ -23,5 +24,4 @@ public class NbsInterfaceQuery {
     FROM NBS_interface
     WHERE nbs_interface_uid = :nbsInterfaceUid
 """;
-
 }

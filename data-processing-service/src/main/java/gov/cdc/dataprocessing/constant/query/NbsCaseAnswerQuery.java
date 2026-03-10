@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NbsCaseAnswerQuery {
-    public static final String SELECT_NBS_CASE_ANSWER_BY_ACT_UID = """
+  public static final String SELECT_NBS_CASE_ANSWER_BY_ACT_UID =
+"""
 SELECT
     nbs_case_answer_uid             AS id,
     act_uid                         AS actUid,
@@ -22,5 +23,4 @@ SELECT
 FROM NBS_case_answer
 WHERE act_uid = :uid
 """;
-
 }

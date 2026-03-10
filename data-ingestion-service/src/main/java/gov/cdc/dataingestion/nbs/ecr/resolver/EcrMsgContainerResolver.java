@@ -2,25 +2,25 @@ package gov.cdc.dataingestion.nbs.ecr.resolver;
 
 import gov.cdc.dataingestion.nbs.ecr.resolver.mapper.EcrContainerMapper;
 import gov.cdc.dataingestion.nbs.repository.model.dto.EcrMsgContainerDto;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class EcrMsgContainerResolver {
 
-    private final NamedParameterJdbcTemplate template;
-    private final EcrContainerMapper rowMapper = new EcrContainerMapper();
+  private final NamedParameterJdbcTemplate template;
+  private final EcrContainerMapper rowMapper = new EcrContainerMapper();
 
-    public EcrMsgContainerResolver(@Qualifier("nbsTemplate") NamedParameterJdbcTemplate template) {
-        this.template = template;
-    }
+  public EcrMsgContainerResolver(@Qualifier("nbsTemplate") NamedParameterJdbcTemplate template) {
+    this.template = template;
+  }
 
-    private static final String QUERY = """
+  private static final String QUERY =
+      """
             SELECT
                 TOP (:count) MSG_CONTAINER.MSG_CONTAINER_UID msgContainerUid,
                 INV_LOCAL_ID invLocalId,
@@ -36,10 +36,8 @@ public class EcrMsgContainerResolver {
                 DATA_MIGRATION_STATUS IN (-1,-2);
                                             """;
 
-    public List<EcrMsgContainerDto> resolve(int count) {
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("count", count);
-        return template.query(QUERY, params, rowMapper);
-    }
-
+  public List<EcrMsgContainerDto> resolve(int count) {
+    SqlParameterSource params = new MapSqlParameterSource().addValue("count", count);
+    return template.query(QUERY, params, rowMapper);
+  }
 }

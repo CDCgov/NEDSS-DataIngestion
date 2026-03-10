@@ -7,14 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Mo {
-    String quantity;
-    String denomination;
-    public Mo(MO mo) {
-        this.quantity = mo.getQuantity().getValue();
-        this.denomination = mo.getDenomination().getValue();
-    }
+  String quantity;
+  String denomination;
 
-    public Mo() {
+  public Mo(MO mo) {
+    this.quantity = mo.getQuantity().getValue();
+    this.denomination = mo.getDenomination().getValue();
+  }
 
-    }
+  public Mo() {}
 }

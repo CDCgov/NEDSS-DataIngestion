@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CdaPatientMapper {
-    private POCDMT000040ClinicalDocument1 clinicalDocument;
-    private int patientComponentCounter;
-    private String inv168;
+  private POCDMT000040ClinicalDocument1 clinicalDocument;
+  private int patientComponentCounter;
+  private String inv168;
 }

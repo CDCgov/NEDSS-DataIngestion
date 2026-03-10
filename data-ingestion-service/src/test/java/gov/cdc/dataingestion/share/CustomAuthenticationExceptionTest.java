@@ -1,27 +1,25 @@
 package gov.cdc.dataingestion.share;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 class CustomAuthenticationExceptionTest {
-    @Test
-    void test_exception_custom() {
-        Exception exception = assertThrows(
-                CustomAuthenticationException.class,
-                () -> validateClientId("testId"));
+  @Test
+  void test_exception_custom() {
+    Exception exception =
+        assertThrows(CustomAuthenticationException.class, () -> validateClientId("testId"));
 
-        assertTrue(exception.getMessage().contains("not found"));
-    }
+    assertTrue(exception.getMessage().contains("not found"));
+  }
 
-    String validateClientId(String clientId) throws CustomAuthenticationException {
-        throw new CustomAuthenticationException(clientId + " not found!");
-    }
+  String validateClientId(String clientId) throws CustomAuthenticationException {
+    throw new CustomAuthenticationException(clientId + " not found!");
+  }
 }

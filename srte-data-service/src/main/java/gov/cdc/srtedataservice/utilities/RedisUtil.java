@@ -1,15 +1,15 @@
-//package gov.cdc.srtedataservice.utilities;
+// package gov.cdc.srtedataservice.utilities;
 //
-//import org.springframework.data.redis.core.RedisTemplate;
-//import org.springframework.stereotype.Component;
+// import org.springframework.data.redis.core.RedisTemplate;
+// import org.springframework.stereotype.Component;
 //
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.concurrent.TimeUnit;
+// import java.util.HashMap;
+// import java.util.List;
+// import java.util.Map;
+// import java.util.concurrent.TimeUnit;
 //
-//@Component
-//public class RedisUtil {
+// @Component
+// public class RedisUtil {
 //
 //    final private RedisTemplate<String, Object> redisTemplate;
 //
@@ -52,4 +52,4 @@
 //    public void setExpire(String key, long timeout, TimeUnit unit) {
 //        redisTemplate.expire(key, timeout, unit);
 //    }
-//}
+// }
