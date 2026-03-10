@@ -211,7 +211,7 @@ dependencies {
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
 
   // Database
-  implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+  implementation 'com.microsoft.sqlserver:mssql-jdbc:12.10.2.jre11'
 
   // Hapi HL7 lib
   implementation 'ca.uhn.hapi:hapi-base:2.6.0'
