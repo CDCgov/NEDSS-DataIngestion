@@ -3,13 +3,11 @@ package gov.cdc.nbs.deduplication.seed.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 
 class DeduplicationEntryMapperTest {
 
@@ -31,5 +29,4 @@ class DeduplicationEntryMapperTest {
     assertThat(entry.mpiPatientId()).isEqualTo("patientUuid");
     assertThat(entry.mpiPersonId()).isEqualTo("personUuid");
   }
-
 }

@@ -1,7 +1,6 @@
 package gov.cdc.nbs.deduplication.auth.authentication;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,7 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PermissionResolver {
-  static final String QUERY = """
+  static final String QUERY =
+      """
       select
               (CAST(100000 as bigint) * [jurisdiction].[nbs_uid]) + [program_area].[nbs_uid]  as [oid]
       from     auth_user [user]
@@ -56,7 +56,8 @@ public class PermissionResolver {
   public List<Long> resolve(final String operation, final String object) {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    return client.sql(QUERY)
+    return client
+        .sql(QUERY)
         .param("username", username)
         .param("operation", operation)
         .param("object", object)

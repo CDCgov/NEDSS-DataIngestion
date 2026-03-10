@@ -1,12 +1,11 @@
 package gov.cdc.nbs.deduplication.config.auth.oidc;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
-
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService;
 
 @Component
 @ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "true")

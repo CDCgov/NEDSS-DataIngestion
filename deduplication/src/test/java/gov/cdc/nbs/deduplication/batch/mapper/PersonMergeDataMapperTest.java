@@ -1,7 +1,8 @@
 package gov.cdc.nbs.deduplication.batch.mapper;
 
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.when;
 
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Address;
@@ -13,15 +14,12 @@ import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Name;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.PhoneEmail;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.Race;
 import gov.cdc.nbs.deduplication.batch.model.PersonMergeData.SexAndBirth;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class PersonMergeDataMapperTest {
 
@@ -37,7 +35,8 @@ class PersonMergeDataMapperTest {
   private static final String ETHNIC_GROUP_DESC_TXT = "Hispanic or Latino";
   private static final String SPANISH_ORIGIN = "Central American | Cuban";
 
-  private static final String ADDRESS_STRING = """
+  private static final String ADDRESS_STRING =
+      """
       [
         {
           "id": 10055283,
@@ -67,21 +66,24 @@ class PersonMergeDataMapperTest {
       ]
             """;
 
-  private static final String PHONE_STRING = """
+  private static final String PHONE_STRING =
+      """
       [
           {"phoneNumber": "1234567890"},
           {"phoneNumber": "9876543210"}
       ]
       """;
 
-  private static final String NAME_STRING = """
+  private static final String NAME_STRING =
+      """
       [
           {"first": "John", "last": "Doe"},
           {"first": "Jane", "last": "Smith"}
       ]
       """;
 
-  private static final String IDENTIFIER_STRING = """
+  private static final String IDENTIFIER_STRING =
+      """
       [
            {
             "personUid": "1",
@@ -94,14 +96,16 @@ class PersonMergeDataMapperTest {
        ]
       """;
 
-  private static final String RACE_STRING = """
+  private static final String RACE_STRING =
+      """
       [
           {"personUid": "1234", "raceCode": "2106-3", "race": "white", "detailedRaces": "European | Middle Eastern or North African"},
           {"personUid": "1234", "raceCode": "2028-9", "race": "asian", "detailedRaces": null}
       ]
       """;
 
-  private static final String ETHNICITY_STRING = """
+  private static final String ETHNICITY_STRING =
+      """
       {
       "asOf": "2025-05-30T00:00:00",
       "ethnicity": "Hispanic or Latino",
@@ -110,7 +114,8 @@ class PersonMergeDataMapperTest {
       }
       """;
 
-  private static final String SEX_AND_BIRTH_STRING = """
+  private static final String SEX_AND_BIRTH_STRING =
+      """
         {
         "asOf": "2025-05-27T00:00:00",
         "dateOfBirth": "2025-05-12T00:00:00",
@@ -128,7 +133,8 @@ class PersonMergeDataMapperTest {
       }
       """;
 
-  private static final String MORTALITY_STRING = """
+  private static final String MORTALITY_STRING =
+      """
       {
       "asOf": "2025-05-27T00:00:00",
       "dateOfDeath": "2025-05-11T00:00:00",
@@ -139,7 +145,8 @@ class PersonMergeDataMapperTest {
       "deathCountry": "Afghanistan"
       }
       """;
-  private static final String GENERAL_INFO_STRING = """
+  private static final String GENERAL_INFO_STRING =
+      """
         {
         "asOf": "2025-05-27T00:00:00",
         "maritalStatus": "Annulled",
@@ -154,7 +161,8 @@ class PersonMergeDataMapperTest {
       }
       """;
 
-  private static final String INVESTIGATION_STRING = """
+  private static final String INVESTIGATION_STRING =
+      """
       [
         {
           "id": "CAS10001000GA01",
@@ -272,7 +280,6 @@ class PersonMergeDataMapperTest {
     assertThat(personMergeData.sexAndBirth().birthState()).isEqualTo("Tennessee");
     assertThat(personMergeData.sexAndBirth().birthCounty()).isEqualTo("Some County");
     assertThat(personMergeData.sexAndBirth().birthCountry()).isEqualTo("United States");
-
   }
 
   private void assertMortality(PersonMergeData personMergeData) {
@@ -301,8 +308,10 @@ class PersonMergeDataMapperTest {
   private void assertInvestigations(PersonMergeData personMergeData) {
     assertThat(personMergeData.investigations()).hasSize(2);
     assertThat(personMergeData.investigations().getFirst().id()).isEqualTo("CAS10001000GA01");
-    assertThat(personMergeData.investigations().getFirst().startDate()).isEqualTo("2025-06-05T00:00:00");
-    assertThat(personMergeData.investigations().getFirst().condition()).isEqualTo("2019 Novel Coronavirus");
+    assertThat(personMergeData.investigations().getFirst().startDate())
+        .isEqualTo("2025-06-05T00:00:00");
+    assertThat(personMergeData.investigations().getFirst().condition())
+        .isEqualTo("2019 Novel Coronavirus");
 
     assertThat(personMergeData.investigations().get(1).id()).isEqualTo("CAS10001001GA01");
     assertThat(personMergeData.investigations().get(1).startDate()).isNull();
@@ -327,7 +336,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapNamesException() {
     String nameString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapNames(nameString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapNames(nameString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient names");
   }
 
@@ -341,7 +351,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapAddressException() {
     String addressString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapAddresses(addressString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapAddresses(addressString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient addresses");
   }
 
@@ -355,7 +366,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapPhonesException() {
     String phoneString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapPhones(phoneString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapPhones(phoneString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient phone and email");
   }
 
@@ -369,7 +381,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapIdentificationsException() {
     String identificationString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapIdentifiers(identificationString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapIdentifiers(identificationString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient identification");
   }
 
@@ -383,7 +396,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapRaceException() {
     String raceString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapRaces(raceString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapRaces(raceString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient race");
   }
 
@@ -400,7 +414,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapEthnicityException() {
     String ethnicityString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapEthnicity(ethnicityString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapEthnicity(ethnicityString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient ethnicity");
   }
 
@@ -425,7 +440,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapSexAndBirthException() {
     String sexAndBirthString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapSexAndBirth(sexAndBirthString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapSexAndBirth(sexAndBirthString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient sex and birth");
   }
 
@@ -445,7 +461,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapMortalityException() {
     String mortalityString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class, () -> mapper.mapMortality(mortalityString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapMortality(mortalityString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient mortality");
   }
 
@@ -469,8 +486,9 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapGeneralException() {
     String generalInfoString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class,
-        () -> mapper.mapGeneralPatientInformation(generalInfoString));
+    PersonMapException ex =
+        assertThrows(
+            PersonMapException.class, () -> mapper.mapGeneralPatientInformation(generalInfoString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient general information");
   }
 
@@ -483,8 +501,8 @@ class PersonMergeDataMapperTest {
   @Test
   void testMapInvestigationException() {
     String investigationString = "asdf";
-    PersonMapException ex = assertThrows(PersonMapException.class,
-        () -> mapper.mapInvestigations(investigationString));
+    PersonMapException ex =
+        assertThrows(PersonMapException.class, () -> mapper.mapInvestigations(investigationString));
     assertThat(ex.getMessage()).isEqualTo("Failed to parse patient investigations");
   }
 }

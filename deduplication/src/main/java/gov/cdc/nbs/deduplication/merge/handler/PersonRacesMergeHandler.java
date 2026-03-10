@@ -1,10 +1,11 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.merge.model.*;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -14,9 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
 
 @Component
 @Order(7)
@@ -31,7 +29,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
   static final String RACE_CD = "race_cd";
   static final String RACE_CATEGORY_CD = "race_category_cd";
 
-  static final String SET_RACE_ENTRIES_TO_INACTIVE = """
+  static final String SET_RACE_ENTRIES_TO_INACTIVE =
+      """
       UPDATE person_race
       SET
         record_status_cd = 'INACTIVE',
@@ -42,7 +41,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         person_uid = :personId;
       """;
 
-  static final String SELECT_RACE_ENTRIES = """
+  static final String SELECT_RACE_ENTRIES =
+      """
       SELECT
         race_category_cd as race,
         race_cd as detailedRace
@@ -53,7 +53,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         AND race_category_cd = :race;
       """;
 
-  static final String SELECT_RACE_ENTRY_EXISTS = """
+  static final String SELECT_RACE_ENTRY_EXISTS =
+      """
       SELECT
         count(*)
       FROM
@@ -64,7 +65,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         AND race_cd = :detailedRace;
       """;
 
-  static final String UPDATE_EXISTING_RACE_ENTRY = """
+  static final String UPDATE_EXISTING_RACE_ENTRY =
+      """
       UPDATE person_race
       SET
         record_status_cd = 'ACTIVE'
@@ -74,7 +76,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         AND race_cd = :detailedRace;
       """;
 
-  static final String INSERT_NEW_RACE_ENTRY = """
+  static final String INSERT_NEW_RACE_ENTRY =
+      """
           INSERT INTO person_race (
             person_uid,
             race_category_cd,
@@ -108,13 +111,15 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
       );
       """;
 
-  private static final String SELECT_PERSON_RACE_FOR_AUDIT = """
+  private static final String SELECT_PERSON_RACE_FOR_AUDIT =
+      """
       SELECT person_uid, race_category_cd, race_cd, record_status_cd
       FROM person_race
       WHERE person_uid = :personId
       """;
 
-  private static final String SELECT_PERSON_RACE_BY_CATEGORY_AND_DETAILED_RACE_FOR_AUDIT = """
+  private static final String SELECT_PERSON_RACE_BY_CATEGORY_AND_DETAILED_RACE_FOR_AUDIT =
+      """
       SELECT person_uid, race_category_cd, race_cd, record_status_cd
       FROM person_race
       WHERE person_uid = :personId
@@ -122,7 +127,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         AND race_cd = :detailedRace
       """;
 
-  static final String INSERT_PERSON_RACE_HIST_FOR_ALL = """
+  static final String INSERT_PERSON_RACE_HIST_FOR_ALL =
+      """
     INSERT INTO person_race_hist (
         person_uid,
         race_cd,
@@ -153,8 +159,8 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
     WHERE pr.person_uid = :personId
     """;
 
-
-  static final String INSERT_PERSON_RACE_HIST_FOR_SELECTED = """
+  static final String INSERT_PERSON_RACE_HIST_FOR_SELECTED =
+      """
     INSERT INTO person_race_hist (
         person_uid,
         race_cd,
@@ -193,14 +199,14 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
 
   private PatientMergeAudit audit;
 
-  public PersonRacesMergeHandler(@Qualifier("nbsJdbcClient") JdbcClient client,
+  public PersonRacesMergeHandler(
+      @Qualifier("nbsJdbcClient") JdbcClient client,
       @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.client = client;
     this.nbsTemplate = nbsTemplate;
   }
 
-  public record RaceEntry(String race, String detailedRace) {
-  }
+  public record RaceEntry(String race, String detailedRace) {}
 
   // Merge modifications have been applied to the person races
   @Override
@@ -230,33 +236,34 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
   }
 
   private void setAllEntriesToInactive(String survivorId) {
-    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    NbsUserDetails currentUser =
+        (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     // Fetch current values for audit
     MapSqlParameterSource selectParams = new MapSqlParameterSource();
     selectParams.addValue(PERSON_ID, survivorId);
 
-    List<Map<String, Object>> oldRows = nbsTemplate.queryForList(
-        SELECT_PERSON_RACE_FOR_AUDIT, selectParams);
+    List<Map<String, Object>> oldRows =
+        nbsTemplate.queryForList(SELECT_PERSON_RACE_FOR_AUDIT, selectParams);
 
-    client.sql(INSERT_PERSON_RACE_HIST_FOR_ALL)
-        .param(PERSON_ID, survivorId)
-        .update();
+    client.sql(INSERT_PERSON_RACE_HIST_FOR_ALL).param(PERSON_ID, survivorId).update();
 
     // Perform update
-    client.sql(SET_RACE_ENTRIES_TO_INACTIVE)
+    client
+        .sql(SET_RACE_ENTRIES_TO_INACTIVE)
         .param(USER_ID, currentUser.getId())
         .param(PERSON_ID, survivorId)
         .update();
 
     // Add audit
-    audit.getRelatedTableAudits()
-        .add(new RelatedTableAudit(PERSON_RACE,
-            buildAuditUpdateActions(oldRows), List.of()));
+    audit
+        .getRelatedTableAudits()
+        .add(new RelatedTableAudit(PERSON_RACE, buildAuditUpdateActions(oldRows), List.of()));
   }
 
   private List<RaceEntry> selectRaceEntries(RaceId raceId) {
-    return client.sql(SELECT_RACE_ENTRIES)
+    return client
+        .sql(SELECT_RACE_ENTRIES)
         .param(PERSON_ID, raceId.personUid())
         .param(RACE, raceId.raceCode())
         .query(RaceEntry.class)
@@ -264,12 +271,14 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
   }
 
   private boolean raceEntryExists(String survivorId, RaceEntry raceEntry) {
-    Boolean entryExists = client.sql(SELECT_RACE_ENTRY_EXISTS)
-        .param(PERSON_ID, survivorId)
-        .param(RACE, raceEntry.race())
-        .param(DETAILED_RACE, raceEntry.detailedRace())
-        .query(Boolean.class)
-        .single();
+    Boolean entryExists =
+        client
+            .sql(SELECT_RACE_ENTRY_EXISTS)
+            .param(PERSON_ID, survivorId)
+            .param(RACE, raceEntry.race())
+            .param(DETAILED_RACE, raceEntry.detailedRace())
+            .query(Boolean.class)
+            .single();
     return Boolean.TRUE.equals(entryExists);
   }
 
@@ -280,51 +289,55 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
     selectParams.addValue(RACE, raceEntry.race());
     selectParams.addValue(DETAILED_RACE, raceEntry.detailedRace());
 
-    List<Map<String, Object>> oldRows = nbsTemplate.queryForList(
-        SELECT_PERSON_RACE_BY_CATEGORY_AND_DETAILED_RACE_FOR_AUDIT, selectParams);
+    List<Map<String, Object>> oldRows =
+        nbsTemplate.queryForList(
+            SELECT_PERSON_RACE_BY_CATEGORY_AND_DETAILED_RACE_FOR_AUDIT, selectParams);
 
-
-    client.sql(INSERT_PERSON_RACE_HIST_FOR_SELECTED)
+    client
+        .sql(INSERT_PERSON_RACE_HIST_FOR_SELECTED)
         .param(PERSON_ID, survivorId)
         .param(RACE, raceEntry.race())
         .param(DETAILED_RACE, raceEntry.detailedRace())
         .update();
 
-
     // Perform update
-    client.sql(UPDATE_EXISTING_RACE_ENTRY)
+    client
+        .sql(UPDATE_EXISTING_RACE_ENTRY)
         .param(PERSON_ID, survivorId)
         .param(RACE, raceEntry.race())
         .param(DETAILED_RACE, raceEntry.detailedRace())
         .update();
 
     // Add audit
-    audit.getRelatedTableAudits()
-        .add(new RelatedTableAudit(PERSON_RACE,
-            buildAuditUpdateActions(oldRows), List.of()));
+    audit
+        .getRelatedTableAudits()
+        .add(new RelatedTableAudit(PERSON_RACE, buildAuditUpdateActions(oldRows), List.of()));
   }
 
   private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rows) {
     return rows.stream()
-        .map(row -> {
-          Map<String, Object> values = new HashMap<>();
-          values.put("record_status_cd", row.get("record_status_cd"));
+        .map(
+            row -> {
+              Map<String, Object> values = new HashMap<>();
+              values.put("record_status_cd", row.get("record_status_cd"));
 
-          return new AuditUpdateAction(
-              Map.of(
-                  PERSON_UID, row.get(PERSON_UID),
-                  RACE_CATEGORY_CD, row.get(RACE_CATEGORY_CD),
-                  RACE_CD, row.get(RACE_CD)),
-              values);
-        })
+              return new AuditUpdateAction(
+                  Map.of(
+                      PERSON_UID, row.get(PERSON_UID),
+                      RACE_CATEGORY_CD, row.get(RACE_CATEGORY_CD),
+                      RACE_CD, row.get(RACE_CD)),
+                  values);
+            })
         .toList();
   }
 
   private void inserNewRaceEntry(String survivorId, String sourceId, RaceEntry raceEntry) {
-    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    NbsUserDetails currentUser =
+        (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     // Perform insert
-    client.sql(INSERT_NEW_RACE_ENTRY)
+    client
+        .sql(INSERT_NEW_RACE_ENTRY)
         .param(PERSON_ID, survivorId)
         .param(RACE, raceEntry.race())
         .param(DETAILED_RACE, raceEntry.detailedRace())
@@ -333,15 +346,17 @@ public class PersonRacesMergeHandler implements SectionMergeHandler {
         .update();
 
     // Add audit
-    audit.getRelatedTableAudits()
-        .add(new RelatedTableAudit(
-            PERSON_RACE,
-            List.of(),
-            List.of(new AuditInsertAction(
-                Map.of(
-                    PERSON_UID, survivorId,
-                    RACE_CATEGORY_CD, raceEntry.race(),
-                    RACE_CD, raceEntry.detailedRace())))));
+    audit
+        .getRelatedTableAudits()
+        .add(
+            new RelatedTableAudit(
+                PERSON_RACE,
+                List.of(),
+                List.of(
+                    new AuditInsertAction(
+                        Map.of(
+                            PERSON_UID, survivorId,
+                            RACE_CATEGORY_CD, raceEntry.race(),
+                            RACE_CD, raceEntry.detailedRace())))));
   }
-
 }

@@ -1,12 +1,11 @@
 package gov.cdc.nbs.deduplication.config.auth;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 class IgnoredPathsTest {
 
@@ -82,5 +81,4 @@ class IgnoredPathsTest {
     // Then the expected paths should be returned
     assertThat(paths).contains("/some/path", "/some/other/path");
   }
-
 }
