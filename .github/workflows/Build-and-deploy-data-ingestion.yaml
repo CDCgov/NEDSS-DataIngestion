@@ -60,7 +60,7 @@ jobs:
       security-events: write
     name: Build Container
     needs: extract-version-suffix
-    uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
+    uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@jg/APP-361
     with:
       microservice_name: nbs7-dataingestion-service
       dockerfile_relative_path: -f ./data-ingestion-service/Dockerfile .
