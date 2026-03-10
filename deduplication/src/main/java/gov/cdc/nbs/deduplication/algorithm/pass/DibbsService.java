@@ -1,5 +1,9 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -9,12 +13,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
-import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 
 @Component
 public class DibbsService {
@@ -35,7 +33,8 @@ public class DibbsService {
     this.mapper = mappper;
   }
 
-  static final String QUERY_LABEL_COUNT = """
+  static final String QUERY_LABEL_COUNT =
+      """
       SELECT
           count(id)
       FROM
@@ -44,7 +43,8 @@ public class DibbsService {
           label = :label
           """;
 
-  static final String SET_DEFAULT = """
+  static final String SET_DEFAULT =
+      """
       UPDATE algorithm
       SET
       is_default = CASE
@@ -68,22 +68,21 @@ public class DibbsService {
   }
 
   private boolean algorithmExists(final String label) {
-    SqlParameterSource params = new MapSqlParameterSource()
-        .addValue("label", label);
+    SqlParameterSource params = new MapSqlParameterSource().addValue("label", label);
     Integer count = template.queryForObject(QUERY_LABEL_COUNT, params, Integer.class);
     return count != null && count > 0;
   }
 
   private void setDefault(String label) {
-    SqlParameterSource params = new MapSqlParameterSource()
-        .addValue("label", label);
+    SqlParameterSource params = new MapSqlParameterSource().addValue("label", label);
     template.update(SET_DEFAULT, params);
   }
 
   private void update(DibbsAlgorithm algorithm) {
     try {
       String body = mapper.writeValueAsString(algorithm);
-      client.put()
+      client
+          .put()
           .uri("/algorithm/" + algorithm.label())
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
@@ -98,7 +97,8 @@ public class DibbsService {
   private void create(DibbsAlgorithm algorithm) {
     try {
       String body = mapper.writeValueAsString(algorithm);
-      client.post()
+      client
+          .post()
           .uri("/algorithm")
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
@@ -109,5 +109,4 @@ public class DibbsService {
       throw new PassModificationException("Failed to save Dibbs algorithm");
     }
   }
-
 }

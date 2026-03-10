@@ -1,9 +1,8 @@
 package gov.cdc.srtedataservice.containers;
 
+import java.util.Objects;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
-
-import java.util.Objects;
 
 class NbsDatabaseContainer<S extends MSSQLServerContainer<S>> extends MSSQLServerContainer<S> {
   private static final DockerImageName MS_SQL_SERVER_IMAGE = DockerImageName.parse(IMAGE);
@@ -28,8 +27,7 @@ class NbsDatabaseContainer<S extends MSSQLServerContainer<S>> extends MSSQLServe
 
   @Override
   public boolean equals(final Object other) {
-    if (this == other)
-      return true;
+    if (this == other) return true;
     return other instanceof NbsDatabaseContainer<?> && super.equals(other);
   }
 

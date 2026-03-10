@@ -3,18 +3,8 @@ package gov.cdc.nbs.deduplication.matching.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import gov.cdc.nbs.deduplication.matching.exception.MappingException;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.EntityIdDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PersonDto;
@@ -22,6 +12,14 @@ import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PersonNameDto
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PersonRaceDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.PostalLocatorDto;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest.TeleLocatorDto;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class LinkRequestMapperTest {
 
@@ -34,13 +32,9 @@ class LinkRequestMapperTest {
 
   @Test
   void mapsDoBToProperFormat() {
-    PersonMatchRequest request = new PersonMatchRequest(
-        new PersonDto(new Timestamp(1734118005894L), null, null),
-        null,
-        null,
-        null,
-        null,
-        null);
+    PersonMatchRequest request =
+        new PersonMatchRequest(
+            new PersonDto(new Timestamp(1734118005894L), null, null), null, null, null, null, null);
 
     LinkRequest linkRequest = mapper.map(request);
 
@@ -49,13 +43,14 @@ class LinkRequestMapperTest {
 
   @Test
   void mapsRace() {
-    PersonMatchRequest request = new PersonMatchRequest(
-        null,
-        null,
-        List.of(new PersonRaceDto("raceCategoryCd"), new PersonRaceDto("raceCategoryCd2")),
-        null,
-        null,
-        null);
+    PersonMatchRequest request =
+        new PersonMatchRequest(
+            null,
+            null,
+            List.of(new PersonRaceDto("raceCategoryCd"), new PersonRaceDto("raceCategoryCd2")),
+            null,
+            null,
+            null);
 
     LinkRequest linkRequest = mapper.map(request);
 
@@ -64,13 +59,8 @@ class LinkRequestMapperTest {
 
   @Test
   void mapsSexAndGender() {
-    PersonMatchRequest request = new PersonMatchRequest(
-        new PersonDto(null, "sex", "gender"),
-        null,
-        null,
-        null,
-        null,
-        null);
+    PersonMatchRequest request =
+        new PersonMatchRequest(new PersonDto(null, "sex", "gender"), null, null, null, null, null);
 
     LinkRequest linkRequest = mapper.map(request);
 
@@ -79,21 +69,13 @@ class LinkRequestMapperTest {
 
   @Test
   void toAddress() {
-    List<Address> addresses = mapper.toAddresses(List.of(
-        new PostalLocatorDto(
-            "street1 - 1",
-            "street1 - 2",
-            "city 1",
-            "state 1",
-            "zip 1",
-            "county 1"),
-        new PostalLocatorDto(
-            "street2 - 1",
-            "street2 - 2",
-            "city 2",
-            "state 2",
-            "zip 2",
-            "county 2")));
+    List<Address> addresses =
+        mapper.toAddresses(
+            List.of(
+                new PostalLocatorDto(
+                    "street1 - 1", "street1 - 2", "city 1", "state 1", "zip 1", "county 1"),
+                new PostalLocatorDto(
+                    "street2 - 1", "street2 - 2", "city 2", "state 2", "zip 2", "county 2")));
     assertThat(addresses).hasSize(2);
     // First
     assertThat(addresses.get(0).line()).hasSize(2);
@@ -116,13 +98,11 @@ class LinkRequestMapperTest {
 
   @Test
   void toAddressEmptyString() {
-    List<Address> addresses = mapper.toAddresses(List.of(new PostalLocatorDto(
-        " ",
-        "street1 - 2",
-        "city 1",
-        "state 1",
-        "zip 1",
-        "county 1")));
+    List<Address> addresses =
+        mapper.toAddresses(
+            List.of(
+                new PostalLocatorDto(
+                    " ", "street1 - 2", "city 1", "state 1", "zip 1", "county 1")));
     assertThat(addresses).hasSize(1);
     assertThat(addresses.get(0).line()).hasSize(1);
     assertThat(addresses.get(0).line().get(0)).isEqualTo("street1 - 2");
@@ -136,17 +116,11 @@ class LinkRequestMapperTest {
 
   @Test
   void toName() {
-    List<Name> names = mapper.toNames(List.of(
-        new PersonNameDto(
-            "first1",
-            "middle1",
-            "last1",
-            "suffix1"),
-        new PersonNameDto(
-            "first2",
-            "middle2",
-            "last2",
-            "suffix2")));
+    List<Name> names =
+        mapper.toNames(
+            List.of(
+                new PersonNameDto("first1", "middle1", "last1", "suffix1"),
+                new PersonNameDto("first2", "middle2", "last2", "suffix2")));
 
     assertThat(names).hasSize(2);
     // First
@@ -168,17 +142,11 @@ class LinkRequestMapperTest {
 
   @Test
   void toNameEmptyString() {
-    List<Name> names = mapper.toNames(List.of(
-        new PersonNameDto(
-            " ",
-            "middle1",
-            "last1",
-            "suffix1"),
-        new PersonNameDto(
-            "first2",
-            " ",
-            "last2",
-            " ")));
+    List<Name> names =
+        mapper.toNames(
+            List.of(
+                new PersonNameDto(" ", "middle1", "last1", "suffix1"),
+                new PersonNameDto("first2", " ", "last2", " ")));
 
     assertThat(names).hasSize(2);
     assertThat(names.get(0).given()).hasSize(1);
@@ -199,9 +167,8 @@ class LinkRequestMapperTest {
 
   @Test
   void toTelecom() {
-    List<Telecom> telecoms = mapper.toTelecoms(List.of(
-        new TeleLocatorDto("phone1"),
-        new TeleLocatorDto("phone2")));
+    List<Telecom> telecoms =
+        mapper.toTelecoms(List.of(new TeleLocatorDto("phone1"), new TeleLocatorDto("phone2")));
 
     assertThat(telecoms).hasSize(2);
     assertThat(telecoms.get(0).value()).isEqualTo("phone1");
@@ -216,10 +183,12 @@ class LinkRequestMapperTest {
 
   @Test
   void toIdentifiers() {
-    List<Identifier> identifiers = mapper.toIdentifiers(List.of(
-        new EntityIdDto("SS", "Social Securty Administration", "SSN"),
-        new EntityIdDto("BAD_TYPE!", "Social Securty Administration", "SSN"),
-        new EntityIdDto("DL", "GA", "DriversLicenseNumber")));
+    List<Identifier> identifiers =
+        mapper.toIdentifiers(
+            List.of(
+                new EntityIdDto("SS", "Social Securty Administration", "SSN"),
+                new EntityIdDto("BAD_TYPE!", "Social Securty Administration", "SSN"),
+                new EntityIdDto("DL", "GA", "DriversLicenseNumber")));
 
     assertThat(identifiers).hasSize(2);
     assertThat(identifiers.get(0).authority()).isEqualTo("Social Securty Administration");
@@ -242,5 +211,4 @@ class LinkRequestMapperTest {
     List<Identifier> identifiers = mapper.toIdentifiers(null);
     assertThat(identifiers).isEmpty();
   }
-
 }

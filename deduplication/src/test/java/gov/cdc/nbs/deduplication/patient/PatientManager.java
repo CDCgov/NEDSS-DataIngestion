@@ -27,5 +27,4 @@ public class PatientManager {
   public void markInactive(long patientId) {
     personManager.setInactive(patientId);
   }
-
 }

@@ -4,5 +4,4 @@ public class PersonMapException extends RuntimeException {
   public PersonMapException(String message) {
     super(message);
   }
-
 }

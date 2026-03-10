@@ -4,7 +4,5 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.id_class.OrganizationHis
 import gov.cdc.dataprocessing.repository.nbs.odse.model.organization.OrganizationHist;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-
-
-public interface OrganizationHistRepository extends JpaRepository<OrganizationHist, OrganizationHistId> {
-}
+public interface OrganizationHistRepository
+    extends JpaRepository<OrganizationHist, OrganizationHistId> {}

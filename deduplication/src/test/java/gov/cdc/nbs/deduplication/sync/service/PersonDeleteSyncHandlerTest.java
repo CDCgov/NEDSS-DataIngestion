@@ -5,8 +5,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,21 +21,15 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClient.RequestHeadersUriSpec;
 import org.springframework.web.client.RestClient.ResponseSpec;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({"unchecked", "rawtypes"})
 @ExtendWith(MockitoExtension.class)
 class PersonDeleteSyncHandlerTest {
 
-  @Mock
-  private RestClient recordLinkageClient;
+  @Mock private RestClient recordLinkageClient;
 
-  @Mock
-  private JdbcClient deduplicationClient;
+  @Mock private JdbcClient deduplicationClient;
 
-  @InjectMocks
-  private PersonDeleteSyncHandler deleteHandler;
+  @InjectMocks private PersonDeleteSyncHandler deleteHandler;
 
   @Test
   void should_handle_delete() {
@@ -123,18 +118,24 @@ class PersonDeleteSyncHandlerTest {
 
   private void mockCleanPotentialMerges(String id) {
     StatementSpec spec = Mockito.mock(StatementSpec.class);
-    when(deduplicationClient.sql(PersonDeleteSyncHandler.REMOVE_FROM_POTENTIAL_MERGES)).thenReturn(spec);
+    when(deduplicationClient.sql(PersonDeleteSyncHandler.REMOVE_FROM_POTENTIAL_MERGES))
+        .thenReturn(spec);
     when(spec.param("id", id)).thenReturn(spec);
 
     StatementSpec spec2 = Mockito.mock(StatementSpec.class);
-    when(deduplicationClient.sql(PersonDeleteSyncHandler.CLEAN_UP_POTENTIAL_MERGES)).thenReturn(spec2);
+    when(deduplicationClient.sql(PersonDeleteSyncHandler.CLEAN_UP_POTENTIAL_MERGES))
+        .thenReturn(spec2);
   }
 
   private JsonNode createPayloadNode(String personUid, String personParentUid) {
     JsonNodeFactory factory = JsonNodeFactory.instance;
-    return factory.objectNode()
-        .set("after", factory.objectNode()
-            .put("person_uid", personUid)
-            .put("person_parent_uid", personParentUid));
+    return factory
+        .objectNode()
+        .set(
+            "after",
+            factory
+                .objectNode()
+                .put("person_uid", personUid)
+                .put("person_parent_uid", personParentUid));
   }
 }

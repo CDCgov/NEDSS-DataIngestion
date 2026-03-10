@@ -1,5 +1,9 @@
 package gov.cdc.dataprocessing.utilities.component.public_health_case;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.dataprocessing.model.dto.phc.CaseManagementDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.CaseManagementJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.phc.CaseManagement;
@@ -9,54 +13,50 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.*;
 class CaseManagementRepositoryUtilTest {
 
-    @Mock
-    private CaseManagementJdbcRepository caseManagementRepository;
+  @Mock private CaseManagementJdbcRepository caseManagementRepository;
 
-    @InjectMocks
-    private CaseManagementRepositoryUtil caseManagementRepositoryUtil;
+  @InjectMocks private CaseManagementRepositoryUtil caseManagementRepositoryUtil;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void getCaseManagementPhc_shouldReturnNull_whenRepositoryReturnsEmpty() {
-        Long phcUid = 1L;
-        when(caseManagementRepository.findByPublicHealthCaseUid(phcUid)).thenReturn(null);
+  @Test
+  void getCaseManagementPhc_shouldReturnNull_whenRepositoryReturnsEmpty() {
+    Long phcUid = 1L;
+    when(caseManagementRepository.findByPublicHealthCaseUid(phcUid)).thenReturn(null);
 
-        CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
+    CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
 
-        assertNull(result);
-        verify(caseManagementRepository, times(1)).findByPublicHealthCaseUid(phcUid);
-    }
+    assertNull(result);
+    verify(caseManagementRepository, times(1)).findByPublicHealthCaseUid(phcUid);
+  }
 
-    @Test
-    void getCaseManagementPhc_shouldReturnDto_whenRepositoryReturnsNonEmpty() {
-        Long phcUid = 1L;
-        CaseManagement dto = new CaseManagement();
-        when(caseManagementRepository.findByPublicHealthCaseUid(phcUid)).thenReturn(dto);
+  @Test
+  void getCaseManagementPhc_shouldReturnDto_whenRepositoryReturnsNonEmpty() {
+    Long phcUid = 1L;
+    CaseManagement dto = new CaseManagement();
+    when(caseManagementRepository.findByPublicHealthCaseUid(phcUid)).thenReturn(dto);
 
-        CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
+    CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
 
-        assertNotNull(result);
-        verify(caseManagementRepository, times(1)).findByPublicHealthCaseUid(phcUid);
-    }
+    assertNotNull(result);
+    verify(caseManagementRepository, times(1)).findByPublicHealthCaseUid(phcUid);
+  }
 
-    @Test
-    void getCaseManagementPhc_shouldReturnEmptyDto_whenRepositoryReturnsEmptyDto() {
-        Long phcUid = 1L;
-        when(caseManagementRepository.findByPublicHealthCaseUid(phcUid)).thenReturn(new CaseManagement());
+  @Test
+  void getCaseManagementPhc_shouldReturnEmptyDto_whenRepositoryReturnsEmptyDto() {
+    Long phcUid = 1L;
+    when(caseManagementRepository.findByPublicHealthCaseUid(phcUid))
+        .thenReturn(new CaseManagement());
 
-        CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
+    CaseManagementDto result = caseManagementRepositoryUtil.getCaseManagementPhc(phcUid);
 
-        assertNotNull(result);
-        assertNull(result.getPublicHealthCaseUid());
-        verify(caseManagementRepository, times(1)).findByPublicHealthCaseUid(phcUid);
-    }
+    assertNotNull(result);
+    assertNull(result.getPublicHealthCaseUid());
+    verify(caseManagementRepository, times(1)).findByPublicHealthCaseUid(phcUid);
+  }
 }

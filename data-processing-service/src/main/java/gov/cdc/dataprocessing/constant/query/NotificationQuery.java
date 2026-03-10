@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NotificationQuery {
-    public static final String INSERT_SQL_NOTIFICATION = """
+  public static final String INSERT_SQL_NOTIFICATION =
+"""
     INSERT INTO Notification (
         notification_uid, activity_duration_amt, activity_duration_unit_cd, activity_from_time, activity_to_time,
         add_reason_cd, add_time, add_user_id, case_class_cd, case_condition_cd,
@@ -27,7 +28,8 @@ public class NotificationQuery {
     )
 """;
 
-    public static final String UPDATE_SQL_NOTIFICATION = """ 
+  public static final String UPDATE_SQL_NOTIFICATION =
+      """
     UPDATE Notification SET
     activity_duration_amt = :activity_duration_amt,
     activity_duration_unit_cd = :activity_duration_unit_cd,
@@ -81,7 +83,8 @@ public class NotificationQuery {
     WHERE notification_uid = :notification_uid
     """;
 
-    public static final String SELECT_NOTIFICATION_BY_ID = """
+  public static final String SELECT_NOTIFICATION_BY_ID =
+"""
 SELECT
     notification_uid                  AS notificationUid,
     activity_duration_amt            AS activityDurationAmt,
@@ -136,5 +139,4 @@ SELECT
 FROM Notification
 WHERE notification_uid = :notificationUid
 """;
-
 }
