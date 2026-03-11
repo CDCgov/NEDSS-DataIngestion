@@ -170,7 +170,7 @@ dependencies {
     implementation("com.nimbusds:oauth2-oidc-sdk:11.8")
 
     // Database
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.10.2.jre11'
 
     // Hapi HL7
     implementation 'ca.uhn.hapi:hapi-base:2.6.0'
