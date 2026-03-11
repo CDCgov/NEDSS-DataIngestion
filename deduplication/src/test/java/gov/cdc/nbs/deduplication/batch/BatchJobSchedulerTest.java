@@ -1,10 +1,11 @@
 package gov.cdc.nbs.deduplication.batch;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.cdc.nbs.deduplication.batch.step.UnprocessedPersonReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,22 +16,16 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 
-import gov.cdc.nbs.deduplication.batch.step.UnprocessedPersonReader;
-
 @ExtendWith(MockitoExtension.class)
 class BatchJobSchedulerTest {
 
-  @Mock
-  private TaskExecutorJobLauncher jobLauncher;
+  @Mock private TaskExecutorJobLauncher jobLauncher;
 
-  @Mock
-  private Job deduplicationJob;
+  @Mock private Job deduplicationJob;
 
-  @Mock
-  private UnprocessedPersonReader personReader;
+  @Mock private UnprocessedPersonReader personReader;
 
-  @InjectMocks
-  private BatchJobScheduler batchJobScheduler;
+  @InjectMocks private BatchJobScheduler batchJobScheduler;
 
   @Test
   void runJobTest() throws Exception {

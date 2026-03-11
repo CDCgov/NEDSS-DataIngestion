@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ActRelationshipQuery {
-    public static final String INSERT_SQL_ACT_RELATIONSHIP = """
+  public static final String INSERT_SQL_ACT_RELATIONSHIP =
+"""
     INSERT INTO Act_relationship (
         source_act_uid, target_act_uid, type_cd, add_reason_cd, add_time, add_user_id,
         duration_amt, duration_unit_cd, from_time, last_chg_reason_cd, last_chg_time, last_chg_user_id,
@@ -15,7 +16,8 @@ public class ActRelationshipQuery {
     )
 """;
 
-    public static final String UPDATE_SQL_ACT_RELATIONSHIP = """
+  public static final String UPDATE_SQL_ACT_RELATIONSHIP =
+"""
     UPDATE Act_relationship SET
         add_reason_cd = :add_reason_cd,
         add_time = :add_time,
@@ -41,17 +43,16 @@ public class ActRelationshipQuery {
       AND type_cd = :type_cd
 """;
 
-
-
-
-    public static final String DELETE_SQL_ACT_RELATIONSHIP =  """
+  public static final String DELETE_SQL_ACT_RELATIONSHIP =
+      """
     DELETE FROM Act_relationship
     WHERE source_act_uid = :source_act_uid
       AND target_act_uid = :target_act_uid
       AND type_cd = :type_cd
     """;
 
-    public static final String SELECT_BY_SOURCE_AND_TYPE_CODE = """
+  public static final String SELECT_BY_SOURCE_AND_TYPE_CODE =
+      """
         SELECT
             source_act_uid AS sourceActUid,
             target_act_uid AS targetActUid,
@@ -79,7 +80,8 @@ public class ActRelationshipQuery {
         WHERE source_act_uid = :sourceActUid AND type_cd = :typeCd
         """;
 
-    public static final String SELECT_BY_SOURCE = """
+  public static final String SELECT_BY_SOURCE =
+      """
         SELECT
             source_act_uid AS sourceActUid,
             target_act_uid AS targetActUid,
@@ -107,7 +109,8 @@ public class ActRelationshipQuery {
         WHERE source_act_uid = :sourceActUid
         """;
 
-    public static final String SELECT_BY_TARGET = """
+  public static final String SELECT_BY_TARGET =
+      """
         SELECT
             source_act_uid AS sourceActUid,
             target_act_uid AS targetActUid,
@@ -135,9 +138,8 @@ public class ActRelationshipQuery {
         WHERE target_act_uid = :targetActUid
         """;
 
-
-
-    public static final String CREATE_ACT_RELATIONSHIP_HISTORY = """
+  public static final String CREATE_ACT_RELATIONSHIP_HISTORY =
+      """
         INSERT INTO Act_relationship_hist (
             source_act_uid,
             target_act_uid,
@@ -189,7 +191,8 @@ public class ActRelationshipQuery {
         )
     """;
 
-    public static final String MERGE_ACT_RELATIONSHIP = """
+  public static final String MERGE_ACT_RELATIONSHIP =
+"""
 MERGE INTO Act_relationship AS target
 USING (VALUES (
     :source_act_uid,
@@ -312,5 +315,4 @@ VALUES (
     source.user_affiliation_txt
 );
 """;
-
 }

@@ -9,17 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class InterviewAnswerMultiMapper {
-    private Integer answerGroupCounter;
-    private Integer questionGroupCounter;
-    private Integer sectionCounter;
-    private String questionId;
-    private POCDMT000040Encounter component;
-
+  private Integer answerGroupCounter;
+  private Integer questionGroupCounter;
+  private Integer sectionCounter;
+  private String questionId;
+  private POCDMT000040Encounter component;
 }

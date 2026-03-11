@@ -1,5 +1,7 @@
 package gov.cdc.nbs.deduplication.auth;
 
+import gov.cdc.nbs.deduplication.auth.model.OidcLoginRequest;
+import gov.cdc.nbs.deduplication.auth.model.OidcLoginResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
@@ -10,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
-
-import gov.cdc.nbs.deduplication.auth.model.OidcLoginRequest;
-import gov.cdc.nbs.deduplication.auth.model.OidcLoginResponse;
 
 @RestController
 @RequestMapping("/login")
@@ -42,7 +41,5 @@ public class OidcLoginController {
         .body(formData)
         .retrieve()
         .body(OidcLoginResponse.class);
-
   }
-
 }

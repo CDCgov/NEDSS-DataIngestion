@@ -10,21 +10,21 @@ on:
       - "hl7-parser/**"
       - "phdc-xsd-jaxb/**"
 jobs:
-# APP-145: turned off sonar scan for now until it is fixed (1/8/26)
-#  sonar_scan:
-#    permissions:
-#      id-token: write
-#      contents: read
-#    uses: ./.github/workflows/sonar.yaml
-#    secrets:
-#      CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
-#      PASSED_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-#      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-#      DATABASE_USER: ${{secrets.DATABASE_USER}}
-#      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-
+  sonar_scan:
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/sonar.yaml
+    secrets:
+      CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
+      PASSED_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+      DATABASE_USER: ${{secrets.DATABASE_USER}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+      PARAMETER_SECRET: ${{secrets.PARAMETER_SECRET}}
+      TOKEN_SECRET: ${{secrets.TOKEN_SECRET}}
   extract-version-suffix:
-#    needs: sonar_scan
+    needs: sonar_scan
     name: Extract image tag from version
     runs-on: ubuntu-latest
     outputs:

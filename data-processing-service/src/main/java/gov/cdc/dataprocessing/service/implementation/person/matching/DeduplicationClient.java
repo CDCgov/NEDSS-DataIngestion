@@ -15,5 +15,4 @@ public class DeduplicationClient {
       @Value("${features.modernizedMatching.url}") String modernizedMatchingUrl) {
     return new DeduplicationService(RestClient.builder().baseUrl(modernizedMatchingUrl).build());
   }
-
 }

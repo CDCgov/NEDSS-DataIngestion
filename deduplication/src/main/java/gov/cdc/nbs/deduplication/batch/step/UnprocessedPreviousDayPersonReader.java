@@ -1,25 +1,22 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
-
-import org.springframework.batch.item.database.JdbcPagingItemReader;
-import org.springframework.batch.item.database.PagingQueryProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
+import javax.sql.DataSource;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.springframework.stereotype.Component;
 
 @Component("previousDayReader")
 public class UnprocessedPreviousDayPersonReader extends JdbcPagingItemReader<String> {
 
   public UnprocessedPreviousDayPersonReader(
       @Qualifier("deduplication") DataSource dataSource,
-      @Value("${deduplication.batch.processing.chunk:100}") int chunkSize) throws Exception {
+      @Value("${deduplication.batch.processing.chunk:100}") int chunkSize)
+      throws Exception {
 
     SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
     provider.setDataSource(dataSource);
@@ -40,7 +37,8 @@ public class UnprocessedPreviousDayPersonReader extends JdbcPagingItemReader<Str
 
   private String buildWhereClause() {
     return String.format(
-        "status = 'U' AND person_uid = person_parent_uid AND CAST(person_add_time AS DATE) = '%s'", getPreviousDay());
+        "status = 'U' AND person_uid = person_parent_uid AND CAST(person_add_time AS DATE) = '%s'",
+        getPreviousDay());
   }
 
   private String getPreviousDay() {
@@ -49,4 +47,3 @@ public class UnprocessedPreviousDayPersonReader extends JdbcPagingItemReader<Str
     return previousDay.format(formatter);
   }
 }
-
