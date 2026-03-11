@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NndKafkaContainer {
-    private PublicHealthCaseContainer publicHealthCaseContainer;
-    private EdxLabInformationDto edxLabInformationDto;
+  private PublicHealthCaseContainer publicHealthCaseContainer;
+  private EdxLabInformationDto edxLabInformationDto;
 }

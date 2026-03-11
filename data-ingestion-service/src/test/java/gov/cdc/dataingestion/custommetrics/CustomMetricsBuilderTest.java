@@ -1,121 +1,120 @@
 package gov.cdc.dataingestion.custommetrics;
 
+import static org.mockito.Mockito.*;
+
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.*;
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 class CustomMetricsBuilderTest {
 
-    private MeterRegistry meterRegistryMock;
-    private Counter counterMock;
-    private CustomMetricsBuilder customMetricsBuilder;
+  private MeterRegistry meterRegistryMock;
+  private Counter counterMock;
+  private CustomMetricsBuilder customMetricsBuilder;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        meterRegistryMock = mock(MeterRegistry.class);
-        counterMock = mock(Counter.class);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    meterRegistryMock = mock(MeterRegistry.class);
+    counterMock = mock(Counter.class);
 
-        customMetricsBuilder = new CustomMetricsBuilder(meterRegistryMock);
-    }
+    customMetricsBuilder = new CustomMetricsBuilder(meterRegistryMock);
+  }
 
-    @Test
-    void testIncrementMessagesProcessed() {
-        when(meterRegistryMock.counter("custom_messages_processed")).thenReturn(counterMock);
-        customMetricsBuilder.customMessagesProcessed = counterMock;
+  @Test
+  void testIncrementMessagesProcessed() {
+    when(meterRegistryMock.counter("custom_messages_processed")).thenReturn(counterMock);
+    customMetricsBuilder.customMessagesProcessed = counterMock;
 
-        customMetricsBuilder.incrementMessagesProcessed();
+    customMetricsBuilder.incrementMessagesProcessed();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementMessagesValidated() {
-        when(meterRegistryMock.counter("custom_messages_validated")).thenReturn(counterMock);
-        customMetricsBuilder.customMessagesValidated = counterMock;
+  @Test
+  void testIncrementMessagesValidated() {
+    when(meterRegistryMock.counter("custom_messages_validated")).thenReturn(counterMock);
+    customMetricsBuilder.customMessagesValidated = counterMock;
 
-        customMetricsBuilder.incrementMessagesValidated();
+    customMetricsBuilder.incrementMessagesValidated();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementMessagesValidatedSuccess() {
-        when(meterRegistryMock.counter("custom_messages_validated_success")).thenReturn(counterMock);
-        customMetricsBuilder.customMessagesValidatedSuccess = counterMock;
+  @Test
+  void testIncrementMessagesValidatedSuccess() {
+    when(meterRegistryMock.counter("custom_messages_validated_success")).thenReturn(counterMock);
+    customMetricsBuilder.customMessagesValidatedSuccess = counterMock;
 
-        customMetricsBuilder.incrementMessagesValidatedSuccess();
+    customMetricsBuilder.incrementMessagesValidatedSuccess();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementMessagesValidatedFailure() {
-        when(meterRegistryMock.counter("custom_messages_validated_failure")).thenReturn(counterMock);
-        customMetricsBuilder.customMessagesValidatedFailure = counterMock;
+  @Test
+  void testIncrementMessagesValidatedFailure() {
+    when(meterRegistryMock.counter("custom_messages_validated_failure")).thenReturn(counterMock);
+    customMetricsBuilder.customMessagesValidatedFailure = counterMock;
 
-        customMetricsBuilder.incrementMessagesValidatedFailure();
+    customMetricsBuilder.incrementMessagesValidatedFailure();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementDuplicateHL7Messages() {
-        when(meterRegistryMock.counter("custom_duplicate_hl7_found")).thenReturn(counterMock);
-        customMetricsBuilder.customDuplicateHl7Found = counterMock;
+  @Test
+  void testIncrementDuplicateHL7Messages() {
+    when(meterRegistryMock.counter("custom_duplicate_hl7_found")).thenReturn(counterMock);
+    customMetricsBuilder.customDuplicateHl7Found = counterMock;
 
-        customMetricsBuilder.incrementDuplicateHL7Messages();
+    customMetricsBuilder.incrementDuplicateHL7Messages();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementXmlConversionRequested() {
-        when(meterRegistryMock.counter("custom_xml_conversion_requested")).thenReturn(counterMock);
-        customMetricsBuilder.customXmlConversionRequested = counterMock;
+  @Test
+  void testIncrementXmlConversionRequested() {
+    when(meterRegistryMock.counter("custom_xml_conversion_requested")).thenReturn(counterMock);
+    customMetricsBuilder.customXmlConversionRequested = counterMock;
 
-        customMetricsBuilder.incrementXmlConversionRequested();
+    customMetricsBuilder.incrementXmlConversionRequested();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementXmlConversionRequestedSuccess() {
-        when(meterRegistryMock.counter("custom_xml_converted_success")).thenReturn(counterMock);
-        customMetricsBuilder.customXmlConvertedSuccess = counterMock;
+  @Test
+  void testIncrementXmlConversionRequestedSuccess() {
+    when(meterRegistryMock.counter("custom_xml_converted_success")).thenReturn(counterMock);
+    customMetricsBuilder.customXmlConvertedSuccess = counterMock;
 
-        customMetricsBuilder.incrementXmlConversionRequestedSuccess();
+    customMetricsBuilder.incrementXmlConversionRequestedSuccess();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementXmlConversionRequestedFailure() {
-        when(meterRegistryMock.counter("custom_xml_converted_failure")).thenReturn(counterMock);
-        customMetricsBuilder.customXmlConvertedFailure = counterMock;
+  @Test
+  void testIncrementXmlConversionRequestedFailure() {
+    when(meterRegistryMock.counter("custom_xml_converted_failure")).thenReturn(counterMock);
+    customMetricsBuilder.customXmlConvertedFailure = counterMock;
 
-        customMetricsBuilder.incrementXmlConversionRequestedFailure();
+    customMetricsBuilder.incrementXmlConversionRequestedFailure();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 
-    @Test
-    void testIncrementTokensRequested() {
-        when(meterRegistryMock.counter("custom_tokens_requested")).thenReturn(counterMock);
-        customMetricsBuilder.customTokensRequested = counterMock;
+  @Test
+  void testIncrementTokensRequested() {
+    when(meterRegistryMock.counter("custom_tokens_requested")).thenReturn(counterMock);
+    customMetricsBuilder.customTokensRequested = counterMock;
 
-        customMetricsBuilder.incrementTokensRequested();
+    customMetricsBuilder.incrementTokensRequested();
 
-        verify(counterMock).increment();
-    }
+    verify(counterMock).increment();
+  }
 }

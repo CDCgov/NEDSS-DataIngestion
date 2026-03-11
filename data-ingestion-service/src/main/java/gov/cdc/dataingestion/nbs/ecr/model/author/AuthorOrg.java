@@ -6,15 +6,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AuthorOrg {
-    private String name;
-    private String streetAddress1;
-    private String streetAddress2;
-    private String city;
-    private String county;
-    private String zip;
-    private String state;
-    private String country;
-    private String phone;
-    private String extn;
-    private String orgLocalId;
+  private String name;
+  private String streetAddress1;
+  private String streetAddress2;
+  private String city;
+  private String county;
+  private String zip;
+  private String state;
+  private String country;
+  private String phone;
+  private String extn;
+  private String orgLocalId;
 }

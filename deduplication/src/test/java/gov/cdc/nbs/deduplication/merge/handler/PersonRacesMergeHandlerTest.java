@@ -5,12 +5,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
+import gov.cdc.nbs.deduplication.merge.handler.PersonRacesMergeHandler.RaceEntry;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import gov.cdc.nbs.deduplication.SecurityTestUtil;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -23,22 +25,16 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
-import gov.cdc.nbs.deduplication.merge.handler.PersonRacesMergeHandler.RaceEntry;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.RaceId;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class PersonRacesMergeHandlerTest {
 
-  @Mock
-  private JdbcClient client;
+  @Mock private JdbcClient client;
 
-  @Mock
-  private NamedParameterJdbcTemplate nbsTemplate;
+  @Mock private NamedParameterJdbcTemplate nbsTemplate;
 
-  @InjectMocks
-  private PersonRacesMergeHandler mergeHandler;
+  @InjectMocks private PersonRacesMergeHandler mergeHandler;
 
   @Test
   void should_merge_race() {
@@ -46,9 +42,7 @@ class PersonRacesMergeHandlerTest {
     SecurityTestUtil.mockSecurityContext();
     PatientMergeRequest request = Mockito.mock(PatientMergeRequest.class);
     when(request.survivingRecord()).thenReturn("1");
-    when(request.races()).thenReturn(List.of(
-        new RaceId("1", "A"),
-        new RaceId("2", "B")));
+    when(request.races()).thenReturn(List.of(new RaceId("1", "A"), new RaceId("2", "B")));
 
     mockInsertRaceHistForAll();
     mockInsertRaceHistForSelected();
@@ -82,12 +76,12 @@ class PersonRacesMergeHandlerTest {
 
   private void mockInsertRaceHistForSelected() {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonRacesMergeHandler.INSERT_PERSON_RACE_HIST_FOR_SELECTED)).thenReturn(statementSpec);
+    when(client.sql(PersonRacesMergeHandler.INSERT_PERSON_RACE_HIST_FOR_SELECTED))
+        .thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.RACE, "A")).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.DETAILED_RACE, "Z")).thenReturn(statementSpec);
   }
-
 
   private void mockInsert() {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
@@ -144,31 +138,34 @@ class PersonRacesMergeHandlerTest {
 
   private void mockSetInactive() {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonRacesMergeHandler.SET_RACE_ENTRIES_TO_INACTIVE)).thenReturn(statementSpec);
+    when(client.sql(PersonRacesMergeHandler.SET_RACE_ENTRIES_TO_INACTIVE))
+        .thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.USER_ID, 100L)).thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
   }
 
   private void mockInsertRaceHistForAll() {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonRacesMergeHandler.INSERT_PERSON_RACE_HIST_FOR_ALL)).thenReturn(statementSpec);
+    when(client.sql(PersonRacesMergeHandler.INSERT_PERSON_RACE_HIST_FOR_ALL))
+        .thenReturn(statementSpec);
     when(statementSpec.param(PersonRacesMergeHandler.PERSON_ID, "1")).thenReturn(statementSpec);
   }
 
-
-  private void mockFetchOldRows(String personId, String raceCategoryCd, String raceCd, String recordStatusCd) {
-    List<Map<String, Object>> oldRows = List.of(
-        Map.of(
-            PersonRacesMergeHandler.PERSON_UID, personId,
-            PersonRacesMergeHandler.RACE_CATEGORY_CD, raceCategoryCd,
-            PersonRacesMergeHandler.RACE_CD, raceCd,
-            "record_status_cd", recordStatusCd
-        )
-    );
+  private void mockFetchOldRows(
+      String personId, String raceCategoryCd, String raceCd, String recordStatusCd) {
+    List<Map<String, Object>> oldRows =
+        List.of(
+            Map.of(
+                PersonRacesMergeHandler.PERSON_UID,
+                personId,
+                PersonRacesMergeHandler.RACE_CATEGORY_CD,
+                raceCategoryCd,
+                PersonRacesMergeHandler.RACE_CD,
+                raceCd,
+                "record_status_cd",
+                recordStatusCd));
 
     when(nbsTemplate.queryForList(anyString(), ArgumentMatchers.<SqlParameterSource>any()))
         .thenReturn(oldRows);
   }
-
-
 }

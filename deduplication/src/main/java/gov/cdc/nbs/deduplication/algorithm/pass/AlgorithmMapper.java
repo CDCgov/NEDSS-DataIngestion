@@ -1,8 +1,5 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
-import java.util.Arrays;
-import java.util.List;
-
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements.DataElement;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
@@ -19,6 +16,8 @@ import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchingAttribute;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.MatchingMethod;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
+import java.util.Arrays;
+import java.util.List;
 
 public class AlgorithmMapper {
   private final String algorithmName;
@@ -36,59 +35,52 @@ public class AlgorithmMapper {
         "Algorithm used by NBS",
         false, // updated to true after initial insert
         mapContext(dataElements),
-        algorithm.passes()
-            .stream()
+        algorithm.passes().stream()
             .filter(Pass::active)
             .map(p -> mapPass(p, dataElements))
             .toList());
   }
 
   AlgorithmContext mapContext(DataElements dataElements) {
-    List<LogOdd> logOdds = Arrays.stream(MatchingAttribute.values())
-        .map(a -> {
-          DataElement dataElement = findDataElement(a, dataElements);
-          return new LogOdd(a.toString(), dataElement != null ? dataElement.logOdds() : null);
-        })
-        .filter(lo -> lo.value() != null)
-        .toList();
+    List<LogOdd> logOdds =
+        Arrays.stream(MatchingAttribute.values())
+            .map(
+                a -> {
+                  DataElement dataElement = findDataElement(a, dataElements);
+                  return new LogOdd(
+                      a.toString(), dataElement != null ? dataElement.logOdds() : null);
+                })
+            .filter(lo -> lo.value() != null)
+            .toList();
 
     return new AlgorithmContext(
-        includeMultipleMatches,
-        logOdds,
-        new Advanced(
-            SimilarityMeasure.JAROWINKLER,
-            0.0,
-            0.0));
+        includeMultipleMatches, logOdds, new Advanced(SimilarityMeasure.JAROWINKLER, 0.0, 0.0));
   }
 
   DibbsPass mapPass(Pass pass, DataElements dataElements) {
-    List<Evaluator> evaluators = pass.matchingCriteria()
-        .stream()
-        .map(m -> new Evaluator(
-            m.attribute(),
-            m.method().equals(MatchingMethod.EXACT) ? Func.EXACT : Func.FUZZY,
-            m.threshold()))
-        .toList();
+    List<Evaluator> evaluators =
+        pass.matchingCriteria().stream()
+            .map(
+                m ->
+                    new Evaluator(
+                        m.attribute(),
+                        m.method().equals(MatchingMethod.EXACT) ? Func.EXACT : Func.FUZZY,
+                        m.threshold()))
+            .toList();
 
     List<Double> bounds = calculateBounds(pass, dataElements);
 
     return new DibbsPass(
-        pass.name(),
-        pass.blockingCriteria(),
-        evaluators,
-        Rule.PROBABILISTIC,
-        bounds);
+        pass.name(), pass.blockingCriteria(), evaluators, Rule.PROBABILISTIC, bounds);
   }
 
   // Convert the the lower and upper bound from UI format (0 -> total log odds) to
   // the format expected by RL (0.00 -> 1.00)
-  List<Double> calculateBounds(
-      Pass pass,
-      DataElements dataElements) {
-    final double totalLogOdds = pass.matchingCriteria()
-        .stream()
-        .mapToDouble(a -> findDataElement(a.attribute(), dataElements).logOdds())
-        .sum();
+  List<Double> calculateBounds(Pass pass, DataElements dataElements) {
+    final double totalLogOdds =
+        pass.matchingCriteria().stream()
+            .mapToDouble(a -> findDataElement(a.attribute(), dataElements).logOdds())
+            .sum();
 
     final double lowerBound = pass.lowerBound() / totalLogOdds;
     final double upperBound = pass.upperBound() / totalLogOdds;

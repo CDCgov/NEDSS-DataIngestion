@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ActLocatorParticipationQuery {
-    public static final String INSERT_SQL_ACT_LOCATOR_PAT = """
+  public static final String INSERT_SQL_ACT_LOCATOR_PAT =
+      """
         INSERT INTO Act_locator_participation (
             act_uid, locator_uid, add_reason_cd, add_time, add_user_id,
             duration_amt, duration_unit_cd, from_time, last_chg_reason_cd, last_chg_time,
@@ -15,7 +16,8 @@ public class ActLocatorParticipationQuery {
         )
         """;
 
-    public static final String UPDATE_SQL_ACT_LOCATOR_PAT = """
+  public static final String UPDATE_SQL_ACT_LOCATOR_PAT =
+      """
         UPDATE Act_locator_participation SET
             act_uid = :act_uid,
             locator_uid = :locator_uid,
@@ -39,7 +41,8 @@ public class ActLocatorParticipationQuery {
         WHERE entity_uid = :entity_uid
         """;
 
-    public static final String SELECT_BY_ACT_UID = """
+  public static final String SELECT_BY_ACT_UID =
+      """
         SELECT
             entity_uid AS entityUid,
             act_uid AS actUid,
@@ -65,8 +68,8 @@ public class ActLocatorParticipationQuery {
         WHERE act_uid = :act_uid
         """;
 
-
-    public static final String MERGE_ACT_LOCATOR = """
+  public static final String MERGE_ACT_LOCATOR =
+      """
             MERGE INTO Act_locator_participation AS target
             USING (SELECT
                        :entity_uid AS entity_uid,
@@ -91,7 +94,7 @@ public class ActLocatorParticipationQuery {
                        :user_affiliation_txt AS user_affiliation_txt
                    ) AS source
             ON target.entity_uid = source.entity_uid
-            
+
             WHEN MATCHED THEN
                 UPDATE SET
                     act_uid = source.act_uid,
@@ -113,7 +116,7 @@ public class ActLocatorParticipationQuery {
                     type_cd = source.type_cd,
                     type_desc_txt = source.type_desc_txt,
                     user_affiliation_txt = source.user_affiliation_txt
-            
+
             WHEN NOT MATCHED THEN
                 INSERT (
                     entity_uid, act_uid, locator_uid, add_reason_cd, add_time, add_user_id,
@@ -128,5 +131,4 @@ public class ActLocatorParticipationQuery {
                     source.type_cd, source.type_desc_txt, source.user_affiliation_txt
                 );
             """;
-
 }

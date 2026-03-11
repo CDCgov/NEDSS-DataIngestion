@@ -1,5 +1,9 @@
 package gov.cdc.dataprocessing.service.implementation.manager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import gov.cdc.dataprocessing.cache.OdseCache;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.service.implementation.uid_generator.UidPoolManager;
@@ -7,93 +11,83 @@ import gov.cdc.dataprocessing.service.interfaces.auth_user.IAuthUserService;
 import gov.cdc.dataprocessing.service.interfaces.lookup_data.ILookupService;
 import gov.cdc.dataprocessing.service.model.auth_user.AuthUserProfileInfo;
 import gov.cdc.dataprocessing.utilities.component.sql.QueryHelper;
+import java.util.TreeMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.TreeMap;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 class SchedulerServiceTest {
 
-    @Mock
-    private IAuthUserService authUserService;
+  @Mock private IAuthUserService authUserService;
 
-    @Mock
-    private QueryHelper queryHelper;
+  @Mock private QueryHelper queryHelper;
 
-    @Mock
-    private ILookupService lookupService;
+  @Mock private ILookupService lookupService;
 
-    @Mock
-    private UidPoolManager uidPoolManager;
+  @Mock private UidPoolManager uidPoolManager;
 
-    @InjectMocks
-    private SchedulerService schedulerService;
+  @InjectMocks private SchedulerService schedulerService;
 
-    private static final String TEST_USER = "test-user";
+  private static final String TEST_USER = "test-user";
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
 
-        // Inject @Value field manually for unit test
-        try {
-            var field = SchedulerService.class.getDeclaredField("nbsUser");
-            field.setAccessible(true);
-            field.set(schedulerService, TEST_USER);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    // Inject @Value field manually for unit test
+    try {
+      var field = SchedulerService.class.getDeclaredField("nbsUser");
+      field.setAccessible(true);
+      field.set(schedulerService, TEST_USER);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Test
-    void testPopulateAuthUser_setsGlobalAuthUser() throws DataProcessingException {
-        AuthUserProfileInfo mockProfile = new AuthUserProfileInfo();
-        when(authUserService.getAuthUserInfo(TEST_USER)).thenReturn(mockProfile);
+  @Test
+  void testPopulateAuthUser_setsGlobalAuthUser() throws DataProcessingException {
+    AuthUserProfileInfo mockProfile = new AuthUserProfileInfo();
+    when(authUserService.getAuthUserInfo(TEST_USER)).thenReturn(mockProfile);
 
-        schedulerService.populateAuthUser();
+    schedulerService.populateAuthUser();
 
-        verify(authUserService).getAuthUserInfo(TEST_USER);
-    }
+    verify(authUserService).getAuthUserInfo(TEST_USER);
+  }
 
-    @Test
-    void testPopulateHashPAJList_setsCacheValues() throws DataProcessingException {
-        String ownerHash = "hashed-owner-values";
-        String guestHash = "hashed-guest-values";
+  @Test
+  void testPopulateHashPAJList_setsCacheValues() throws DataProcessingException {
+    String ownerHash = "hashed-owner-values";
+    String guestHash = "hashed-guest-values";
 
-        when(queryHelper.getHashedPAJList(false)).thenReturn(ownerHash);
-        when(queryHelper.getHashedPAJList(true)).thenReturn(guestHash);
+    when(queryHelper.getHashedPAJList(false)).thenReturn(ownerHash);
+    when(queryHelper.getHashedPAJList(true)).thenReturn(guestHash);
 
-        schedulerService.populateHashPAJList();
+    schedulerService.populateHashPAJList();
 
-        assertEquals(ownerHash, OdseCache.OWNER_LIST_HASHED_PA_J);
-        assertEquals(guestHash, OdseCache.GUEST_LIST_HASHED_PA_J);
-        verify(queryHelper).getHashedPAJList(false);
-        verify(queryHelper).getHashedPAJList(true);
-    }
+    assertEquals(ownerHash, OdseCache.OWNER_LIST_HASHED_PA_J);
+    assertEquals(guestHash, OdseCache.GUEST_LIST_HASHED_PA_J);
+    verify(queryHelper).getHashedPAJList(false);
+    verify(queryHelper).getHashedPAJList(true);
+  }
 
-    @Test
-    void testPopulateDMBQuestionMap_setsCacheMap() {
-        TreeMap<Object, Object> mockTreeMap = new TreeMap<>();
-        mockTreeMap.put("key1", "value1");
+  @Test
+  void testPopulateDMBQuestionMap_setsCacheMap() {
+    TreeMap<Object, Object> mockTreeMap = new TreeMap<>();
+    mockTreeMap.put("key1", "value1");
 
-        when(lookupService.getDMBQuestionMapAfterPublish()).thenReturn(mockTreeMap);
+    when(lookupService.getDMBQuestionMapAfterPublish()).thenReturn(mockTreeMap);
 
-        schedulerService.populateDMBQuestionMap();
+    schedulerService.populateDMBQuestionMap();
 
-        assertEquals(mockTreeMap, OdseCache.DMB_QUESTION_MAP);
-        verify(lookupService).getDMBQuestionMapAfterPublish();
-    }
+    assertEquals(mockTreeMap, OdseCache.DMB_QUESTION_MAP);
+    verify(lookupService).getDMBQuestionMapAfterPublish();
+  }
 
-    @Test
-    void testRefillUid_callsPeriodicRefill() {
-        schedulerService.refillUid();
-        verify(uidPoolManager).periodicRefill();
-    }
+  @Test
+  void testRefillUid_callsPeriodicRefill() {
+    schedulerService.refillUid();
+    verify(uidPoolManager).periodicRefill();
+  }
 }

@@ -6,15 +6,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,27 +27,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse.MatchRequiringReview;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 @ExtendWith(MockitoExtension.class)
 class PatientMergeControllerTest {
 
-  @Mock
-  private MergeGroupService mergeGroupService;
+  @Mock private MergeGroupService mergeGroupService;
 
-  @Mock
-  private MatchesRequiringReviewResolver matchesRequiringReviewResolver;
+  @Mock private MatchesRequiringReviewResolver matchesRequiringReviewResolver;
 
-  @Mock
-  MergeService mergeService;
+  @Mock MergeService mergeService;
 
-  @Mock
-  private PdfBuilder pdfBuilder;
+  @Mock private PdfBuilder pdfBuilder;
 
-  @InjectMocks
-  private PatientMergeController patientMergeController;
+  @InjectMocks private PatientMergeController patientMergeController;
 
   private MockMvc mockMvc;
 
@@ -59,9 +52,11 @@ class PatientMergeControllerTest {
     Long matchId = 123L;
     String requestBody = createPatientMergeRequestJson();
 
-    mockMvc.perform(post("/merge/{matchId}", matchId)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(requestBody))
+    mockMvc
+        .perform(
+            post("/merge/{matchId}", matchId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
         .andExpect(status().isOk());
 
     verify(mergeService).performMerge(eq(matchId), any(PatientMergeRequest.class));
@@ -69,44 +64,68 @@ class PatientMergeControllerTest {
 
   @Test
   void testExportMatchesAsPDF() throws Exception {
-    List<MatchRequiringReview> mockMatches = List.of(
-        new MatchRequiringReview(1l, "111122", "444", "john smith", "1990-01-01", "2000-01-01", 2),
-        new MatchRequiringReview(2l, "111133", " 333", "Andrew James", "1990-02-02", "2000-02-02", 4));
+    List<MatchRequiringReview> mockMatches =
+        List.of(
+            new MatchRequiringReview(
+                1l, "111122", "444", "john smith", "1990-01-01", "2000-01-01", 2),
+            new MatchRequiringReview(
+                2l, "111133", " 333", "Andrew James", "1990-02-02", "2000-02-02", 4));
 
-    when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
+    when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT))
+        .thenReturn(mockMatches);
 
     // verify the interaction and status
-    mockMvc.perform(get("/merge/export/pdf"))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/merge/export/pdf")).andExpect(status().isOk());
 
     verify(matchesRequiringReviewResolver).resolveAll(PatientMergeController.DEFAULT_SORT);
-    verify(pdfBuilder).build(
-        any(HttpServletResponse.class),
-        eq(mockMatches),
-        anyString(), // timestampForFilename
-        anyString() // timestampForFooter
-    );
+    verify(pdfBuilder)
+        .build(
+            any(HttpServletResponse.class),
+            eq(mockMatches),
+            anyString(), // timestampForFilename
+            anyString() // timestampForFooter
+            );
   }
 
   @Test
   void testExportMatchesAsCSV() throws Exception {
-    List<MatchRequiringReview> mockMatches = List.of(
-        new MatchRequiringReview(1l, "111122", "444", "John Smith", "2023-01-01T10:00:00Z", "2023-01-05T15:00:00Z", 2),
-        new MatchRequiringReview(2l, "111133", "333", "Andrew James", "2023-02-02T11:00:00Z", "2023-02-06T16:30:00Z",
-            4));
+    List<MatchRequiringReview> mockMatches =
+        List.of(
+            new MatchRequiringReview(
+                1l,
+                "111122",
+                "444",
+                "John Smith",
+                "2023-01-01T10:00:00Z",
+                "2023-01-05T15:00:00Z",
+                2),
+            new MatchRequiringReview(
+                2l,
+                "111133",
+                "333",
+                "Andrew James",
+                "2023-02-02T11:00:00Z",
+                "2023-02-06T16:30:00Z",
+                4));
 
-    when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT)).thenReturn(mockMatches);
+    when(matchesRequiringReviewResolver.resolveAll(PatientMergeController.DEFAULT_SORT))
+        .thenReturn(mockMatches);
     when(pdfBuilder.formatDateTime("2023-01-01T10:00:00Z")).thenReturn("01/01/2023 10:00 AM");
     when(pdfBuilder.formatDateTime("2023-01-05T15:00:00Z")).thenReturn("01/05/2023 03:00 PM");
     when(pdfBuilder.formatDateTime("2023-02-02T11:00:00Z")).thenReturn("02/02/2023 11:00 AM");
     when(pdfBuilder.formatDateTime("2023-02-06T16:30:00Z")).thenReturn("02/06/2023 04:30 PM");
 
-    mockMvc.perform(get("/merge/export/csv"))
+    mockMvc
+        .perform(get("/merge/export/csv"))
         .andExpect(status().isOk())
         .andExpect(header().string("Content-Type", "text/csv"))
-        .andExpect(header().string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
-        .andExpect(content().string(
-            """
+        .andExpect(
+            header()
+                .string("Content-Disposition", "attachment; filename=matches_requiring_review.csv"))
+        .andExpect(
+            content()
+                .string(
+                    """
                 Patient ID,Person Name,Date Created,Date Identified,Number of Matching Records
                 "444","John Smith","01/01/2023 10:00 AM","01/05/2023 03:00 PM",2
                 "333","Andrew James","02/02/2023 11:00 AM","02/06/2023 04:30 PM",4
@@ -144,13 +163,15 @@ class PatientMergeControllerTest {
     String personUid = "12345";
     Long mergeGroupId = 100L;
 
-    when(matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid)).thenReturn(mergeGroupId);
+    when(matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid))
+        .thenReturn(mergeGroupId);
 
-    mockMvc.perform(get("/merge/status/{personUid}", personUid))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.inMergeQueue").value(true))
-            .andExpect(jsonPath("$.mergeGroup").value(mergeGroupId));
+    mockMvc
+        .perform(get("/merge/status/{personUid}", personUid))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.inMergeQueue").value(true))
+        .andExpect(jsonPath("$.mergeGroup").value(mergeGroupId));
 
     verify(matchesRequiringReviewResolver, times(1)).findLatestMergeGroupForPatient(personUid);
   }
@@ -161,11 +182,12 @@ class PatientMergeControllerTest {
 
     when(matchesRequiringReviewResolver.findLatestMergeGroupForPatient(personUid)).thenReturn(null);
 
-    mockMvc.perform(get("/merge/status/{personUid}", personUid))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.inMergeQueue").value(false))
-            .andExpect(jsonPath("$.mergeGroup").doesNotExist());
+    mockMvc
+        .perform(get("/merge/status/{personUid}", personUid))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.inMergeQueue").value(false))
+        .andExpect(jsonPath("$.mergeGroup").doesNotExist());
 
     verify(matchesRequiringReviewResolver, times(1)).findLatestMergeGroupForPatient(personUid);
   }
@@ -183,5 +205,4 @@ class PatientMergeControllerTest {
         }
         """;
   }
-
 }

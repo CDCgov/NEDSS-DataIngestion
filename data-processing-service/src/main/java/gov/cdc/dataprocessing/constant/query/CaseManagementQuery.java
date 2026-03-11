@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class CaseManagementQuery {
-    public static final String SELECT_CASE_MANAGEMENT_BY_PH_CASE_UID = """
+  public static final String SELECT_CASE_MANAGEMENT_BY_PH_CASE_UID =
+"""
     SELECT
         case_management_uid AS caseManagementUid,
         public_health_case_uid AS publicHealthCaseUid,
@@ -55,7 +56,8 @@ public class CaseManagementQuery {
     WHERE public_health_case_uid = :publicHealthCaseUid
 """;
 
-    public static final String MERGE_CASE_MANAGEMENT = """
+  public static final String MERGE_CASE_MANAGEMENT =
+"""
 MERGE INTO case_management AS target
 USING (
     SELECT
@@ -255,5 +257,4 @@ WHEN NOT MATCHED THEN INSERT (
     source.case_review_status_date
 );
 """;
-
 }
