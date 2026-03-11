@@ -12,39 +12,41 @@ import org.springframework.stereotype.Service;
 
 @Service
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
-public class CdaLookUpService  implements ICdaLookUpService {
-    private IEcrLookUpRepository ecrLookUpRepository;
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
+public class CdaLookUpService implements ICdaLookUpService {
+  private IEcrLookUpRepository ecrLookUpRepository;
 
-    @Autowired
-    public CdaLookUpService(IEcrLookUpRepository ecrLookUpRepository) {
-        this.ecrLookUpRepository = ecrLookUpRepository;
-    }
+  @Autowired
+  public CdaLookUpService(IEcrLookUpRepository ecrLookUpRepository) {
+    this.ecrLookUpRepository = ecrLookUpRepository;
+  }
 
+  public ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value)
+      throws EcrCdaXmlException {
+    return this.ecrLookUpRepository.fetchConstantLookUpByCriteriaWithColumn(column, value);
+  }
 
-    public ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException {
-        return this.ecrLookUpRepository.fetchConstantLookUpByCriteriaWithColumn(column, value);
-    }
+  public PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(
+      String questionIdentifier, String ansFromCode) throws EcrCdaXmlException {
+    return this.ecrLookUpRepository.fetchPhdcAnswerByCriteriaForTranslationCode(
+        questionIdentifier, ansFromCode);
+  }
 
-    public PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(String questionIdentifier, String ansFromCode) throws EcrCdaXmlException {
-        return this.ecrLookUpRepository.fetchPhdcAnswerByCriteriaForTranslationCode(questionIdentifier, ansFromCode);
-    }
+  public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteria(String questionIdentifier)
+      throws EcrCdaXmlException {
+    return this.ecrLookUpRepository.fetchPhdcQuestionByCriteria(questionIdentifier);
+  }
 
-    public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteria(String questionIdentifier) throws EcrCdaXmlException {
-        return this.ecrLookUpRepository.fetchPhdcQuestionByCriteria(questionIdentifier);
-    }
+  public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value)
+      throws EcrCdaXmlException {
+    return this.ecrLookUpRepository.fetchPhdcQuestionByCriteriaWithColumn(column, value);
+  }
 
-    public PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException {
-        return this.ecrLookUpRepository.fetchPhdcQuestionByCriteriaWithColumn(column, value);
-    }
-
-    public QuestionIdentifierMapDto fetchQuestionIdentifierMapByCriteriaByCriteria(String columNm, String value) throws EcrCdaXmlException {
-        return this.ecrLookUpRepository.fetchQuestionIdentifierMapByCriteriaByCriteria(columNm, value);
-    }
-
+  public QuestionIdentifierMapDto fetchQuestionIdentifierMapByCriteriaByCriteria(
+      String columNm, String value) throws EcrCdaXmlException {
+    return this.ecrLookUpRepository.fetchQuestionIdentifierMapByCriteriaByCriteria(columNm, value);
+  }
 }

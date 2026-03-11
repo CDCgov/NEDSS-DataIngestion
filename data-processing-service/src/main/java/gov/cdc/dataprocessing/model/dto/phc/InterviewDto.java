@@ -2,62 +2,57 @@ package gov.cdc.dataprocessing.model.dto.phc;
 
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
+import java.sql.Timestamp;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
 @Getter
 @Setter
-
 public class InterviewDto extends BaseContainer {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
+  private Long interviewUid;
 
-    private Long interviewUid;
+  private String intervieweeRoleCd;
 
-    private String intervieweeRoleCd;
+  private Timestamp interviewDate;
 
-    private Timestamp interviewDate;
+  private String interviewTypeCd;
 
-    private String interviewTypeCd;
+  private String interviewStatusCd;
 
-    private String interviewStatusCd;
+  private String interviewLocCd;
 
-    private String interviewLocCd;
+  private Timestamp addTime;
 
-    private Timestamp addTime;
+  private Long addUserId;
 
-    private Long addUserId;
+  private Timestamp lastChgTime;
 
-    private Timestamp lastChgTime;
+  private Long lastChgUserId;
 
-    private Long lastChgUserId;
+  private String localId;
 
-    private String localId;
+  private String recordStatusCd;
 
-    private String recordStatusCd;
+  private Timestamp recordStatusTime;
 
-    private Timestamp recordStatusTime;
+  private Integer versionCtrlNbr;
 
-    private Integer versionCtrlNbr;
+  private String addUserName;
 
+  private String lastChgUserName;
 
+  private boolean associated;
 
-    private String addUserName;
+  public InterviewDto() {
+    itDirty = false;
+    itNew = true;
+    itDelete = false;
+  }
 
-    private String lastChgUserName;
-
-    private boolean associated;
-
-    public InterviewDto() {
-        itDirty = false;
-        itNew = true;
-        itDelete = false;
-    }
-
-    public String getSuperclass() {
-        this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
-        return superClassType;
-    }
+  public String getSuperclass() {
+    this.superClassType = NEDSSConstant.CLASSTYPE_ACT;
+    return superClassType;
+  }
 }

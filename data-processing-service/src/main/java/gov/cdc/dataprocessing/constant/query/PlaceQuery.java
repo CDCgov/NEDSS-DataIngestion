@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class PlaceQuery {
-    public static final String FIND_BY_ID = """
+  public static final String FIND_BY_ID =
+      """
             SELECT
                 place_uid AS placeUid,
                 add_reason_cd AS addReasonCd,
@@ -37,6 +38,6 @@ public class PlaceQuery {
                 version_ctrl_nbr AS versionCtrlNbr
             FROM Place
             WHERE place_uid = :placeUid
-            
+
             """;
 }

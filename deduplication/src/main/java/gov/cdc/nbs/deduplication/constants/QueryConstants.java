@@ -2,29 +2,32 @@ package gov.cdc.nbs.deduplication.constants;
 
 public class QueryConstants {
 
-  private QueryConstants() {
-  }
+  private QueryConstants() {}
 
-  public static final String NBS_MPI_QUERY = """
+  public static final String NBS_MPI_QUERY =
+      """
       INSERT INTO nbs_mpi_mapping
         (person_uid, person_parent_uid, mpi_patient, mpi_person, status,person_add_time)
       VALUES
         (:person_uid, :person_parent_uid, :mpi_patient, :mpi_person, :status ,:person_add_time);
       """;
 
-  public static final String MPI_PERSON_ID_QUERY = """
+  public static final String MPI_PERSON_ID_QUERY =
+      """
       SELECT mpi_person
       FROM nbs_mpi_mapping
       WHERE person_uid = :personId
       """;
 
-  public static final String MPI_PATIENT_ID_QUERY = """
+  public static final String MPI_PATIENT_ID_QUERY =
+      """
       SELECT mpi_patient
       FROM nbs_mpi_mapping
       WHERE person_uid =  :personId
       """;
 
-  public static final String PERSON_RECORDS_BY_PARENT_IDS = """
+  public static final String PERSON_RECORDS_BY_PARENT_IDS =
+      """
       SELECT
           p.person_uid external_id,
           p.person_parent_uid,
@@ -125,7 +128,8 @@ public class QueryConstants {
           AND p.record_status_cd = 'ACTIVE';
       """;
 
-  public static final String INSERT_PERSON_MERGE_RECORD = """
+  public static final String INSERT_PERSON_MERGE_RECORD =
+      """
       INSERT INTO PERSON_MERGE (
           SURVIVING_PERSON_UID,
           superced_person_uid,
@@ -151,14 +155,16 @@ public class QueryConstants {
       )
       """;
 
-  public static final String CHILD_IDS_BY_PARENT_PERSON_IDS = """
+  public static final String CHILD_IDS_BY_PARENT_PERSON_IDS =
+      """
       SELECT person_uid
       FROM person
       WHERE person_parent_uid IN (:parentPersonIds)
       AND person_uid != person_parent_uid
       """;
 
-  public static final String MPI_PATIENT_EXISTS_CHECK = """
+  public static final String MPI_PATIENT_EXISTS_CHECK =
+      """
       SELECT CASE WHEN EXISTS (
             SELECT 1
             FROM nbs_mpi_mapping
@@ -166,32 +172,36 @@ public class QueryConstants {
         ) THEN 1 ELSE 0 END
       """;
 
-  public static final String LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR = """
+  public static final String LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR =
+      """
       UPDATE person
       SET person_parent_uid = :survivorId
       WHERE person_uid IN (:supersededChildIds)
       """;
 
-  public static final String MARK_SUPERSEDED_RECORDS = """
+  public static final String MARK_SUPERSEDED_RECORDS =
+      """
       UPDATE person
       SET record_status_cd = 'SUPERCEDED'
       WHERE person_uid IN (:supersededPersonIds)
       """;
 
-  public static final String UPDATE_LAST_CHANGE_TIME_FOR_PATIENTS = """
+  public static final String UPDATE_LAST_CHANGE_TIME_FOR_PATIENTS =
+      """
       UPDATE person
       SET last_chg_time = :lastChgTime
       WHERE person_uid IN (:involvedPatients)
       """;
 
-
-  public static final String INCREMENT_PERSON_VERSION_NUMBER = """
+  public static final String INCREMENT_PERSON_VERSION_NUMBER =
+      """
       UPDATE person
       SET version_ctrl_nbr = version_ctrl_nbr + 1
       WHERE person_uid IN (:involvedPatients);
       """;
 
-  public static final String UPDATE_PERSON_ADMIN_COMMENT_FROM_SOURCE = """
+  public static final String UPDATE_PERSON_ADMIN_COMMENT_FROM_SOURCE =
+      """
       UPDATE person
       SET
           description = (SELECT description FROM person WHERE person_uid =:adminSourcePersonUid),
@@ -199,5 +209,4 @@ public class QueryConstants {
       WHERE
           person_uid = :survivorId;
       """;
-
 }

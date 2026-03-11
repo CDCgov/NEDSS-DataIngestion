@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class EntityQuery {
-    public static final String INSERT_SQL_ENTITY_ID = """
+  public static final String INSERT_SQL_ENTITY_ID =
+"""
 INSERT INTO Entity_id (
     entity_uid, entity_id_seq, add_reason_cd, add_time, add_user_id,
     assigning_authority_cd, assigning_authority_desc_txt, duration_amt, duration_unit_cd,
@@ -19,8 +20,8 @@ INSERT INTO Entity_id (
 )
 """;
 
-
-    public static final String INSERT_SQL_ENTITY = """
+  public static final String INSERT_SQL_ENTITY =
+"""
 INSERT INTO Entity (
     entity_uid, class_cd
 ) VALUES (
@@ -28,8 +29,8 @@ INSERT INTO Entity (
 )
 """;
 
-
-    public static final String SELECT_ENTITY_ID_BY_ENTITY_ID = """
+  public static final String SELECT_ENTITY_ID_BY_ENTITY_ID =
+      """
             SELECT
                 entity_uid AS entityUid,
                 entity_id_seq AS entityIdSeq,
@@ -59,10 +60,11 @@ INSERT INTO Entity (
                 assigning_authority_id_type AS assigningAuthorityIdType
             FROM Entity_id
             WHERE entity_uid = :entity_uid
-            
+
             """;
 
-    public static final String SELECT_ENTITY_ID_BY_ENTITY_ID_ACTIVE = """
+  public static final String SELECT_ENTITY_ID_BY_ENTITY_ID_ACTIVE =
+      """
             SELECT
                 entity_uid AS entityUid,
                 entity_id_seq AS entityIdSeq,
@@ -95,13 +97,15 @@ INSERT INTO Entity (
             AND record_status_cd = 'ACTIVE'
             """;
 
-    public static final String UPDATE_ENTITY_BY_ID = """
+  public static final String UPDATE_ENTITY_BY_ID =
+      """
     UPDATE Entity
     SET class_cd = :classCd
     WHERE entity_uid = :entityUid
     """;
 
-    public static final String MERGE_ENTITY_ID = """
+  public static final String MERGE_ENTITY_ID =
+"""
 MERGE INTO Entity_id AS target
 USING (VALUES (
     :entityUid, :entityIdSeq, :addReasonCode, :addTime, :addUserId, :assigningAuthorityCode,
@@ -160,5 +164,4 @@ WHEN NOT MATCHED THEN INSERT (
     source.as_of_date, source.assigning_authority_id_type
 );
 """;
-
 }

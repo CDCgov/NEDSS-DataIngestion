@@ -6,11 +6,10 @@ import gov.cdc.nbs.deduplication.batch.model.MatchResponse;
 import gov.cdc.nbs.deduplication.batch.service.DuplicateCheckService;
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate> {
@@ -35,10 +34,11 @@ public class DuplicatesProcessor implements ItemProcessor<String, MatchCandidate
     // We do not auto merge exact matches as part of the batch prcoessing of
     // existing records
     if (MatchResponse.Prediction.NO_MATCH != response.prediction()) {
-      List<String> possibleMatchList = response.results().stream()
-          .map(LinkResult::personReferenceId)
-          .map(UUID::toString)
-          .toList();
+      List<String> possibleMatchList =
+          response.results().stream()
+              .map(LinkResult::personReferenceId)
+              .map(UUID::toString)
+              .toList();
 
       return new MatchCandidate(personUid, possibleMatchList);
     }

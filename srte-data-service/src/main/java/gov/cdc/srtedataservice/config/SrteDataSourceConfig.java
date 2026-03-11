@@ -1,6 +1,8 @@
 package gov.cdc.srtedataservice.config;
 
 import jakarta.persistence.EntityManagerFactory;
+import java.util.HashMap;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -14,65 +16,59 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.sql.DataSource;
-import java.util.HashMap;
-
-
-
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "srteEntityManagerFactory",
-        transactionManagerRef = "srteTransactionManager",
-        basePackages = {
-                "gov.cdc.srtedataservice.repository.nbs.srte",
-        }
-)
+    entityManagerFactoryRef = "srteEntityManagerFactory",
+    transactionManagerRef = "srteTransactionManager",
+    basePackages = {
+      "gov.cdc.srtedataservice.repository.nbs.srte",
+    })
 @SuppressWarnings("java:S3740")
 public class SrteDataSourceConfig {
-    @Value("${spring.datasource.driverClassName}")
-    private String driverClassName;
+  @Value("${spring.datasource.driverClassName}")
+  private String driverClassName;
 
-    @Value("${spring.datasource.srte.url}")
-    private String dbUrl;
+  @Value("${spring.datasource.srte.url}")
+  private String dbUrl;
 
-    @Value("${spring.datasource.username}")
-    private String dbUserName;
+  @Value("${spring.datasource.username}")
+  private String dbUserName;
 
-    @Value("${spring.datasource.password}")
-    private String dbUserPassword;
+  @Value("${spring.datasource.password}")
+  private String dbUserPassword;
 
-    @Bean(name = "srteDataSource")
-    public DataSource srteDataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+  @Bean(name = "srteDataSource")
+  public DataSource srteDataSource() {
+    DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
 
-        dataSourceBuilder.driverClassName(driverClassName);
-        dataSourceBuilder.url(dbUrl);
-        dataSourceBuilder.username(dbUserName);
-        dataSourceBuilder.password(dbUserPassword);
+    dataSourceBuilder.driverClassName(driverClassName);
+    dataSourceBuilder.url(dbUrl);
+    dataSourceBuilder.username(dbUserName);
+    dataSourceBuilder.password(dbUserPassword);
 
-        return dataSourceBuilder.build();
-    }
+    return dataSourceBuilder.build();
+  }
 
-    @Bean(name = "srteEntityManagerFactoryBuilder")
-    public EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder() {
-        return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
-    }
+  @Bean(name = "srteEntityManagerFactoryBuilder")
+  public EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder() {
+    return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
+  }
 
-    @Bean(name = "srteEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean srteEntityManagerFactory(
-            EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder,
-            @Qualifier("srteDataSource") DataSource srteDataSource ) {
-        return srteEntityManagerFactoryBuilder
-                .dataSource(srteDataSource)
-                .packages("gov.cdc.srtedataservice.repository.nbs.srte.model")
-                .persistenceUnit("srte")
-                .build();
-    }
+  @Bean(name = "srteEntityManagerFactory")
+  public LocalContainerEntityManagerFactoryBean srteEntityManagerFactory(
+      EntityManagerFactoryBuilder srteEntityManagerFactoryBuilder,
+      @Qualifier("srteDataSource") DataSource srteDataSource) {
+    return srteEntityManagerFactoryBuilder
+        .dataSource(srteDataSource)
+        .packages("gov.cdc.srtedataservice.repository.nbs.srte.model")
+        .persistenceUnit("srte")
+        .build();
+  }
 
-    @Bean(name = "srteTransactionManager")
-    public PlatformTransactionManager srteTransactionManager(
-            @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory ) {
-        return new JpaTransactionManager(srteEntityManagerFactory);
-    }
+  @Bean(name = "srteTransactionManager")
+  public PlatformTransactionManager srteTransactionManager(
+      @Qualifier("srteEntityManagerFactory") EntityManagerFactory srteEntityManagerFactory) {
+    return new JpaTransactionManager(srteEntityManagerFactory);
+  }
 }

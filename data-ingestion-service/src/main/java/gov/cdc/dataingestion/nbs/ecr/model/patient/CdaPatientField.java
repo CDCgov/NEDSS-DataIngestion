@@ -7,44 +7,39 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CdaPatientField {
-    public CdaPatientField(POCDMT000040ClinicalDocument1 clinicalDocument,
-                           int phoneCounter)
-    {
-        this.phoneCounter = phoneCounter;
-        this.clinicalDocument = clinicalDocument;
-    }
+  public CdaPatientField(POCDMT000040ClinicalDocument1 clinicalDocument, int phoneCounter) {
+    this.phoneCounter = phoneCounter;
+    this.clinicalDocument = clinicalDocument;
+  }
 
-    public CdaPatientField()
-    {
-        // Default
-    }
+  public CdaPatientField() {
+    // Default
+  }
 
-    private int patientIdentifier;
-    private String address1;
-    private String address2;
-    private int k;
-    private int patientComponentCounter;
+  private int patientIdentifier;
+  private String address1;
+  private String address2;
+  private int k;
+  private int patientComponentCounter;
 
-    private POCDMT000040ClinicalDocument1 clinicalDocument;
+  private POCDMT000040ClinicalDocument1 clinicalDocument;
 
-    private String workPhoneExt;
-    private String homePhoneNumber;
-    private String wpNumber;
-    private String phoneCountryCode;
-    private String cellNumber;
-    private String ptPrefix;
-    private String ptFirstName;
-    private String ptMiddleName;
-    private String ptLastName;
-    private String ptSuffix;
+  private String workPhoneExt;
+  private String homePhoneNumber;
+  private String wpNumber;
+  private String phoneCountryCode;
+  private String cellNumber;
+  private String ptPrefix;
+  private String ptFirstName;
+  private String ptMiddleName;
+  private String ptLastName;
+  private String ptSuffix;
 
-    private String email;
-    private String urlAddress;
-    private String phoneAsDateTime;
+  private String email;
+  private String urlAddress;
+  private String phoneAsDateTime;
 
-    private String inv168;
+  private String inv168;
 
-    private int phoneCounter;
-
-
+  private int phoneCounter;
 }

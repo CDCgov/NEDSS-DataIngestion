@@ -1,17 +1,15 @@
 package gov.cdc.nbs.deduplication.sync.kafka;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import gov.cdc.nbs.deduplication.sync.service.PersonDeleteSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonInsertSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -49,12 +47,17 @@ public class KafkaConsumerService {
       }
 
     } catch (Exception e) {
-      log.error("Error while processing message from topic: {}: {}", "test.NBS_ODSE.dbo.Person", message, e);
+      log.error(
+          "Error while processing message from topic: {}: {}",
+          "test.NBS_ODSE.dbo.Person",
+          message,
+          e);
       throw new SyncProcessException(e.getMessage());
     }
   }
 
-  private void handlePersonOperation(String operation, JsonNode payloadNode) throws JsonProcessingException {
+  private void handlePersonOperation(String operation, JsonNode payloadNode)
+      throws JsonProcessingException {
     if ("c".equals(operation)) {
       insertHandler.handleInsert(payloadNode); // c for adding a new row
     } else if ("u".equals(operation)) { // u for update
@@ -67,5 +70,4 @@ public class KafkaConsumerService {
       }
     }
   }
-
 }
