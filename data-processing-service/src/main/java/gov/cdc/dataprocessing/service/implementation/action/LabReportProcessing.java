@@ -8,37 +8,35 @@ import gov.cdc.dataprocessing.service.interfaces.observation.IObservationService
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class LabReportProcessing implements ILabReportProcessing {
-    private final IObservationService observationService;
+  private final IObservationService observationService;
 
-    public LabReportProcessing(IObservationService observationService) {
-        this.observationService = observationService;
-    }
+  public LabReportProcessing(IObservationService observationService) {
+    this.observationService = observationService;
+  }
 
-    public String markAsReviewedHandler(Long observationUid, EdxLabInformationDto edxLabInformationDT) throws DataProcessingException {
-        String markAsReviewedFlag = "";
-        try {
+  public String markAsReviewedHandler(Long observationUid, EdxLabInformationDto edxLabInformationDT)
+      throws DataProcessingException {
+    String markAsReviewedFlag = "";
+    try {
 
-            if(edxLabInformationDT.getAssociatedPublicHealthCaseUid()==null || edxLabInformationDT.getAssociatedPublicHealthCaseUid() <0){
-                boolean returnValue = observationService.processObservation(observationUid);
-                if (returnValue) {
-                    markAsReviewedFlag = "PROCESSED";
-                }
-                else {
-                    markAsReviewedFlag = "UNPROCESSED";
-                }
-            }else {
-                var investigationUid = edxLabInformationDT.getAssociatedPublicHealthCaseUid();
-                observationService.setLabInvAssociation(observationUid, investigationUid);
-            }
-        }catch(Exception ex){
-            edxLabInformationDT.setLabIsMarkedAsReviewed(false);
-            edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_12);
-            throw new DataProcessingException(EdxELRConstant.ELR_MASTER_MSG_ID_12, ex);
+      if (edxLabInformationDT.getAssociatedPublicHealthCaseUid() == null
+          || edxLabInformationDT.getAssociatedPublicHealthCaseUid() < 0) {
+        boolean returnValue = observationService.processObservation(observationUid);
+        if (returnValue) {
+          markAsReviewedFlag = "PROCESSED";
+        } else {
+          markAsReviewedFlag = "UNPROCESSED";
         }
-        return markAsReviewedFlag;
-
+      } else {
+        var investigationUid = edxLabInformationDT.getAssociatedPublicHealthCaseUid();
+        observationService.setLabInvAssociation(observationUid, investigationUid);
+      }
+    } catch (Exception ex) {
+      edxLabInformationDT.setLabIsMarkedAsReviewed(false);
+      edxLabInformationDT.setErrorText(EdxELRConstant.ELR_MASTER_LOG_ID_12);
+      throw new DataProcessingException(EdxELRConstant.ELR_MASTER_MSG_ID_12, ex);
     }
-
+    return markAsReviewedFlag;
+  }
 }

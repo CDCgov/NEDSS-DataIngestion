@@ -8,10 +8,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IEdxActivityParentLogRepository extends JpaRepository<EdxActivityLog, Long> {
-    @Query(value = """
+  @Query(
+      value =
+          """
             select top 1 * from EDX_activity_log
-            where source_uid = :nbsSourceId 
+            where source_uid = :nbsSourceId
             """,
-            nativeQuery = true)
-    EdxActivityLog getParentEdxActivity(@Param("nbsSourceId") Long sourceId);
+      nativeQuery = true)
+  EdxActivityLog getParentEdxActivity(@Param("nbsSourceId") Long sourceId);
 }

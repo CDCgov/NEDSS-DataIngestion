@@ -1,14 +1,7 @@
 package gov.cdc.nbs.deduplication.config.auth.nbs;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator;
@@ -19,11 +12,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Optional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A {@code OncePerRequestFilter} that ensures that incoming requests have a
- * valid 'Authentication' header, nbs_token,
- * or JSESSIONID. An unauthorized user will be redirected to `/nbs/timeout`/
+ * A {@code OncePerRequestFilter} that ensures that incoming requests have a valid 'Authentication'
+ * header, nbs_token, or JSESSIONID. An unauthorized user will be redirected to `/nbs/timeout`/
  */
 public class NbsAuthenticationFilter extends OncePerRequestFilter {
 
@@ -79,7 +76,8 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
   }
 
   // Checks if the JSESSIONID is valid, if so, apply authentication
-  void attemptSessionAuthentication(final HttpServletRequest incoming, final HttpServletResponse response) {
+  void attemptSessionAuthentication(
+      final HttpServletRequest incoming, final HttpServletResponse response) {
     Optional<String> user = sessionAuthenticator.authenticate(incoming);
     if (user.isPresent()) {
       issueAuthentication(user.get(), response);
@@ -90,9 +88,7 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
 
   // Sets the security context authentication. Adds the NbsToken to the response.
   // Adds the NbsUserCookie to the response
-  private void issueAuthentication(
-      final String user,
-      final HttpServletResponse response) {
+  private void issueAuthentication(final String user, final HttpServletResponse response) {
     Authentication auth = this.userService.authenticateByUsername(user);
 
     SecurityContextHolder.getContext().setAuthentication(auth);
@@ -106,7 +102,7 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
     token.apply(securityProperties.getTokenExpirationSeconds(), response);
   }
 
-  @SuppressWarnings({ "squid:S2092", "squid:S3330" })
+  @SuppressWarnings({"squid:S2092", "squid:S3330"})
   private void addNbsUserCookie(final String user, final HttpServletResponse response) {
     Cookie cookie = new Cookie("nbs_user", user);
     cookie.setPath("/");
@@ -116,5 +112,4 @@ public class NbsAuthenticationFilter extends OncePerRequestFilter {
 
     response.addCookie(cookie);
   }
-
 }

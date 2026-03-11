@@ -7,13 +7,18 @@ import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.PhdcQuestionLookUpD
 import gov.cdc.dataingestion.nbs.repository.model.dto.lookup.QuestionIdentifierMapDto;
 
 public interface ICdaLookUpService {
-    ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException;
-    PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(String questionIdentifier, String ansFromCode) throws EcrCdaXmlException;
+  ConstantLookUpDto fetchConstantLookUpByCriteriaWithColumn(String column, String value)
+      throws EcrCdaXmlException;
 
-    PhdcQuestionLookUpDto fetchPhdcQuestionByCriteria(String questionIdentifier) throws EcrCdaXmlException;
+  PhdcAnswerLookUpDto fetchPhdcAnswerByCriteriaForTranslationCode(
+      String questionIdentifier, String ansFromCode) throws EcrCdaXmlException;
 
-    PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value) throws EcrCdaXmlException;
+  PhdcQuestionLookUpDto fetchPhdcQuestionByCriteria(String questionIdentifier)
+      throws EcrCdaXmlException;
 
-    QuestionIdentifierMapDto fetchQuestionIdentifierMapByCriteriaByCriteria(String columNm, String value) throws EcrCdaXmlException;
+  PhdcQuestionLookUpDto fetchPhdcQuestionByCriteriaWithColumn(String column, String value)
+      throws EcrCdaXmlException;
 
+  QuestionIdentifierMapDto fetchQuestionIdentifierMapByCriteriaByCriteria(
+      String columNm, String value) throws EcrCdaXmlException;
 }

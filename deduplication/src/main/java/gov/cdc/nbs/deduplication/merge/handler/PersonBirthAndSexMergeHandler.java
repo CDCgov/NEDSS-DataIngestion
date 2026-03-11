@@ -1,6 +1,14 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
+import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
 import gov.cdc.nbs.deduplication.merge.model.*;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.SexAndBirthFieldSource;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -10,23 +18,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
-import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
-import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest.SexAndBirthFieldSource;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Component
 @Order(8)
 public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
   private static final String SURVIVOR_ID = "survivorId";
   private static final String SOURCE_ID = "sourceId";
 
-  static final String UPDATE_PERSON_AS_OF_SEX = """
+  static final String UPDATE_PERSON_AS_OF_SEX =
+      """
       UPDATE person
       SET as_of_date_sex = (
           SELECT as_of_date_sex
@@ -38,7 +37,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_BIRTH_TIME = """
+  static final String UPDATE_PERSON_BIRTH_TIME =
+      """
       UPDATE person
       SET birth_time = (
           SELECT birth_time
@@ -50,7 +50,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_ADDITIONAL_GENDER = """
+  static final String UPDATE_PERSON_ADDITIONAL_GENDER =
+      """
       UPDATE person
       SET additional_gender_cd = (
           SELECT additional_gender_cd
@@ -62,7 +63,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_BIRTH_ORDER = """
+  static final String UPDATE_PERSON_BIRTH_ORDER =
+      """
       UPDATE person
       SET birth_order_nbr = (
           SELECT birth_order_nbr
@@ -74,7 +76,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_CURRENT_SEX_CD = """
+  static final String UPDATE_PERSON_CURRENT_SEX_CD =
+      """
       UPDATE person
       SET curr_sex_cd = (
           SELECT curr_sex_cd
@@ -86,7 +89,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_SEX_UNKNOWN_CD = """
+  static final String UPDATE_PERSON_SEX_UNKNOWN_CD =
+      """
       UPDATE person
       SET sex_unk_reason_cd = (
           SELECT sex_unk_reason_cd
@@ -98,7 +102,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_TRANSGENDER_CD = """
+  static final String UPDATE_PERSON_TRANSGENDER_CD =
+      """
       UPDATE person
       SET preferred_gender_cd = (
           SELECT preferred_gender_cd
@@ -110,7 +115,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_BIRTH_GENDER_CD = """
+  static final String UPDATE_PERSON_BIRTH_GENDER_CD =
+      """
       UPDATE person
       SET birth_gender_cd = (
           SELECT birth_gender_cd
@@ -122,7 +128,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_MULTIPLE_BIRTH_IND = """
+  static final String UPDATE_PERSON_MULTIPLE_BIRTH_IND =
+      """
       UPDATE person
       SET multiple_birth_ind = (
           SELECT multiple_birth_ind
@@ -137,7 +144,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
   // Returns 0 if the survivorId already has a birth locator entry
   // Returns 1 if the survivorId does not have a birth locator and the sourceId
   // does
-  static final String SHOULD_CREATE_POSTAL_LOCATOR = """
+  static final String SHOULD_CREATE_POSTAL_LOCATOR =
+      """
       SELECT
         CASE
           WHEN (
@@ -164,7 +172,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         END AS isMissingElp;
       """;
 
-  static final String INSERT_ENTITY_LOCATOR_PARTICIPATION = """
+  static final String INSERT_ENTITY_LOCATOR_PARTICIPATION =
+      """
       INSERT INTO Entity_locator_participation (
         entity_uid,
         locator_uid,
@@ -197,7 +206,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       );
           """;
 
-  static final String INSERT_POSTAL_LOCATOR = """
+  static final String INSERT_POSTAL_LOCATOR =
+      """
       INSERT INTO Postal_locator (
         postal_locator_uid,
         add_time,
@@ -216,7 +226,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       );
       """;
 
-  static final String UPDATE_BIRTH_CITY = """
+  static final String UPDATE_BIRTH_CITY =
+      """
       UPDATE Postal_locator
       SET
         city_desc_txt = (
@@ -238,7 +249,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         AND Entity_uid = :survivorId)
           """;
 
-  static final String UPDATE_BIRTH_STATE_AND_COUNTY = """
+  static final String UPDATE_BIRTH_STATE_AND_COUNTY =
+      """
       UPDATE Postal_locator
       SET
         state_cd = (
@@ -270,7 +282,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         AND Entity_uid = :survivorId)
           """;
 
-  static final String UPDATE_BIRTH_COUNTRY = """
+  static final String UPDATE_BIRTH_COUNTRY =
+      """
       UPDATE Postal_locator
       SET
         cntry_cd = (
@@ -292,7 +305,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
         AND Entity_uid = :survivorId)
           """;
 
-  static final String SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE = """
+  static final String SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE =
+      """
           SELECT postal_locator_uid, city_desc_txt
           FROM Postal_locator
           WHERE postal_locator_uid = (
@@ -302,7 +316,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
           )
       """;
 
-  static final String SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE = """
+  static final String SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE =
+      """
           SELECT postal_locator_uid, state_cd, cnty_cd
           FROM Postal_locator
           WHERE postal_locator_uid = (
@@ -312,7 +327,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
           )
       """;
 
-  static final String SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE = """
+  static final String SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE =
+      """
           SELECT postal_locator_uid, cntry_cd
           FROM Postal_locator
           WHERE postal_locator_uid = (
@@ -342,7 +358,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     mergePersonBirthAndSex(request.survivingRecord(), request.sexAndBirth());
   }
 
-  private void mergePersonBirthAndSex(String survivorId, PatientMergeRequest.SexAndBirthFieldSource fieldSource) {
+  private void mergePersonBirthAndSex(
+      String survivorId, PatientMergeRequest.SexAndBirthFieldSource fieldSource) {
     updateAsOf(survivorId, fieldSource.asOf());
     updateDateOfBirth(survivorId, fieldSource.dateOfBirth());
     updateAdditionalGender(survivorId, fieldSource.additionalGender());
@@ -372,7 +389,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue(SURVIVOR_ID, survivorId);
     params.addValue(SOURCE_ID, sourceId);
-    Boolean shouldCreate = nbsTemplate.queryForObject(SHOULD_CREATE_POSTAL_LOCATOR, params, Boolean.class);
+    Boolean shouldCreate =
+        nbsTemplate.queryForObject(SHOULD_CREATE_POSTAL_LOCATOR, params, Boolean.class);
     if (Boolean.TRUE.equals(shouldCreate)) {
       createBirthLocator(survivorId);
     }
@@ -380,7 +398,8 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
 
   private void createBirthLocator(String survivorId) {
     long locatorId = idGenerator.getNextValidId(EntityType.NBS).id();
-    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    NbsUserDetails currentUser =
+        (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     // Create Entity_locator_participation
     MapSqlParameterSource params = new MapSqlParameterSource();
@@ -390,9 +409,11 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(INSERT_ENTITY_LOCATOR_PARTICIPATION, params);
 
-    addAuditInsertEntry("Entity_locator_participation", Map.of(
-        "entity_uid", survivorId,
-        "locator_uid", locatorId));
+    addAuditInsertEntry(
+        "Entity_locator_participation",
+        Map.of(
+            "entity_uid", survivorId,
+            "locator_uid", locatorId));
 
     // Create Postal_locator
     MapSqlParameterSource locatorParams = new MapSqlParameterSource();
@@ -401,16 +422,17 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
 
     nbsTemplate.update(INSERT_POSTAL_LOCATOR, locatorParams);
 
-    addAuditInsertEntry("Postal_locator", Map.of(
-        "postal_locator_uid", locatorId // NOSONAR
-    ));
-
+    addAuditInsertEntry(
+        "Postal_locator",
+        Map.of(
+            "postal_locator_uid", locatorId // NOSONAR
+            ));
   }
 
   private void addAuditInsertEntry(String tableName, Map<String, Object> data) {
     AuditInsertAction insertAction = new AuditInsertAction(data);
-    RelatedTableAudit relatedTableAudit = new RelatedTableAudit(tableName, List.of(),
-        Collections.singletonList(insertAction));
+    RelatedTableAudit relatedTableAudit =
+        new RelatedTableAudit(tableName, List.of(), Collections.singletonList(insertAction));
     audit.getRelatedTableAudits().add(relatedTableAudit);
   }
 
@@ -420,23 +442,26 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       ensurePostalLocator(survivorId, sourceId);
 
       // fetch current value for audit
-      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE,
-          new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+      List<Map<String, Object>> oldRows =
+          nbsTemplate.queryForList(
+              SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE,
+              new MapSqlParameterSource(SURVIVOR_ID, survivorId));
 
       // update surviving record's 'BIR' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_BIRTH_CITY);
 
       // build audit actions
-      List<AuditUpdateAction> updateActions = oldRows.stream()
-          .map(row -> {
-            Map<String, Object> values = new HashMap<>();
-            values.put("city_desc_txt", row.get("city_desc_txt"));
+      List<AuditUpdateAction> updateActions =
+          oldRows.stream()
+              .map(
+                  row -> {
+                    Map<String, Object> values = new HashMap<>();
+                    values.put("city_desc_txt", row.get("city_desc_txt"));
 
-            return new AuditUpdateAction(
-                Map.of("postal_locator_uid", row.get("postal_locator_uid")),
-                values);
-          })
-          .toList();
+                    return new AuditUpdateAction(
+                        Map.of("postal_locator_uid", row.get("postal_locator_uid")), values);
+                  })
+              .toList();
 
       addAuditUpdateEntry(updateActions);
     }
@@ -448,27 +473,29 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       ensurePostalLocator(survivorId, sourceId);
 
       // fetch current value for audit
-      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(
-          SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE, new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+      List<Map<String, Object>> oldRows =
+          nbsTemplate.queryForList(
+              SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE,
+              new MapSqlParameterSource(SURVIVOR_ID, survivorId));
 
       // update surviving record's 'BIR' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_BIRTH_STATE_AND_COUNTY);
 
       // build audit actions
-      List<AuditUpdateAction> updateActions = oldRows.stream()
-          .map(row -> {
-            Map<String, Object> values = new HashMap<>();
-            values.put("state_cd", row.get("state_cd"));
-            values.put("cnty_cd", row.get("cnty_cd"));
+      List<AuditUpdateAction> updateActions =
+          oldRows.stream()
+              .map(
+                  row -> {
+                    Map<String, Object> values = new HashMap<>();
+                    values.put("state_cd", row.get("state_cd"));
+                    values.put("cnty_cd", row.get("cnty_cd"));
 
-            return new AuditUpdateAction(
-                Map.of("postal_locator_uid", row.get("postal_locator_uid")),
-                values);
-          })
-          .toList();
+                    return new AuditUpdateAction(
+                        Map.of("postal_locator_uid", row.get("postal_locator_uid")), values);
+                  })
+              .toList();
 
       addAuditUpdateEntry(updateActions);
-
     }
   }
 
@@ -478,30 +505,34 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
       ensurePostalLocator(survivorId, sourceId);
 
       // fetch current value for audit
-      List<Map<String, Object>> oldRows = nbsTemplate.queryForList(SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE,
-          new MapSqlParameterSource(SURVIVOR_ID, survivorId));
+      List<Map<String, Object>> oldRows =
+          nbsTemplate.queryForList(
+              SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE,
+              new MapSqlParameterSource(SURVIVOR_ID, survivorId));
 
       // update surviving record's 'BIR' postal_locator to selected value
       updatePersonField(survivorId, sourceId, UPDATE_BIRTH_COUNTRY);
 
       // build audit actions
-      List<AuditUpdateAction> updateActions = oldRows.stream()
-          .map(row -> {
-            Map<String, Object> values = new HashMap<>();
-            values.put("cntry_cd", row.get("cntry_cd"));
+      List<AuditUpdateAction> updateActions =
+          oldRows.stream()
+              .map(
+                  row -> {
+                    Map<String, Object> values = new HashMap<>();
+                    values.put("cntry_cd", row.get("cntry_cd"));
 
-            return new AuditUpdateAction(
-                Map.of("postal_locator_uid", row.get("postal_locator_uid")),
-                values);
-          })
-          .toList();
+                    return new AuditUpdateAction(
+                        Map.of("postal_locator_uid", row.get("postal_locator_uid")), values);
+                  })
+              .toList();
 
       addAuditUpdateEntry(updateActions);
     }
   }
 
   private void addAuditUpdateEntry(List<AuditUpdateAction> updateActions) {
-    audit.getRelatedTableAudits()
+    audit
+        .getRelatedTableAudits()
         .add(new RelatedTableAudit("Postal_locator", updateActions, List.of()));
   }
 
@@ -555,5 +586,4 @@ public class PersonBirthAndSexMergeHandler implements SectionMergeHandler {
     params.addValue(SOURCE_ID, sourceId);
     nbsTemplate.update(sqlQuery, params);
   }
-
 }

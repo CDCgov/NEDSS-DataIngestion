@@ -1,5 +1,11 @@
 package gov.cdc.nbs.deduplication.matching;
 
+import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
+import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
+import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
+import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
+import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
+import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -8,17 +14,11 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import gov.cdc.nbs.deduplication.matching.mapper.LinkRequestMapper;
-import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
-import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
-import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
-import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
-import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
-
 @Service
 public class MatchService {
 
-  static final String FIND_NBS_PERSON_QUERY = """
+  static final String FIND_NBS_PERSON_QUERY =
+      """
       SELECT TOP 1
         person_parent_uid
       FROM
@@ -59,7 +59,6 @@ public class MatchService {
     } else {
       return new MatchResponse(null, MatchType.NONE);
     }
-
   }
 
   private MatchResponse handleExactMatch(LinkResponse linkResponse) {
@@ -69,7 +68,8 @@ public class MatchService {
   }
 
   private LinkResponse sendMatchRequest(LinkRequest linkRequest) {
-    return recordLinkageClient.post()
+    return recordLinkageClient
+        .post()
         .uri("/match")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
@@ -79,9 +79,7 @@ public class MatchService {
   }
 
   private Long findNbsPersonParentId(String mpiPerson) {
-    SqlParameterSource parameters = new MapSqlParameterSource()
-        .addValue("mpi_person", mpiPerson);
+    SqlParameterSource parameters = new MapSqlParameterSource().addValue("mpi_person", mpiPerson);
     return template.queryForObject(FIND_NBS_PERSON_QUERY, parameters, Long.class);
   }
-
 }

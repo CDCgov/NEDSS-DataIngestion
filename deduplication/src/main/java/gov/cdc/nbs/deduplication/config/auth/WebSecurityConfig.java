@@ -22,22 +22,21 @@ public class WebSecurityConfig {
       final AuthenticationConfiguration.AuthenticationConfigurer authenticationConfigurer,
       final IgnoredPaths ignoredPaths)
       throws Exception {
-    return authenticationConfigurer.configure(withStandardSecurity(http, ignoredPaths))
-        .build();
+    return authenticationConfigurer.configure(withStandardSecurity(http, ignoredPaths)).build();
   }
 
   @SuppressWarnings("java:S4502")
   private HttpSecurity withStandardSecurity(
-      final HttpSecurity http,
-      final IgnoredPaths ignoredPaths) throws Exception {
-    return http
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(requests -> requests.requestMatchers(ignoredPaths.paths()).permitAll())
+      final HttpSecurity http, final IgnoredPaths ignoredPaths) throws Exception {
+    return http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            requests -> requests.requestMatchers(ignoredPaths.paths()).permitAll())
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(
-            exceptions -> exceptions.defaultAuthenticationEntryPointFor(
-                new NBSSessionAuthenticationEntryPoint(),
-                AnyRequestMatcher.INSTANCE));
+            exceptions ->
+                exceptions.defaultAuthenticationEntryPointFor(
+                    new NBSSessionAuthenticationEntryPoint(), AnyRequestMatcher.INSTANCE));
   }
 }

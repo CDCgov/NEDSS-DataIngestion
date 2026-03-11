@@ -2,16 +2,18 @@ package gov.cdc.nbs.deduplication.config.auth.nbs.token;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
 import jakarta.servlet.http.Cookie;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 class NbsTokenTest {
 
   @Test
   void should_resolve() {
-    Cookie[] cookies = new Cookie[] { new Cookie("some_Cookie", "some value"), new Cookie("nbs_token", "tokenValue") };
+    Cookie[] cookies =
+        new Cookie[] {
+          new Cookie("some_Cookie", "some value"), new Cookie("nbs_token", "tokenValue")
+        };
 
     Optional<NbsToken> token = NbsToken.resolve(cookies);
     assertThat(token).isPresent();
@@ -20,7 +22,7 @@ class NbsTokenTest {
 
   @Test
   void should_not_resolve_missing() {
-    Cookie[] cookies = new Cookie[] { new Cookie("some_Cookie", "some value") };
+    Cookie[] cookies = new Cookie[] {new Cookie("some_Cookie", "some value")};
 
     Optional<NbsToken> token = NbsToken.resolve(cookies);
     assertThat(token).isEmpty();
@@ -41,5 +43,4 @@ class NbsTokenTest {
     Optional<NbsToken> token = NbsToken.resolve(cookies);
     assertThat(token).isEmpty();
   }
-
 }
