@@ -3,21 +3,19 @@ package gov.cdc.nbs.deduplication.seed.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
-
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 import gov.cdc.nbs.deduplication.seed.model.NbsAddress;
 import gov.cdc.nbs.deduplication.seed.model.NbsName;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 
 class MpiPersonMapperTest {
 
@@ -25,7 +23,8 @@ class MpiPersonMapperTest {
 
   @Test
   void testMap() throws SQLException {
-    final String ADDRESS_STRING = """
+    final String ADDRESS_STRING =
+        """
                 [
           {
             "street": "123 Main st",
@@ -43,13 +42,16 @@ class MpiPersonMapperTest {
           }
         ]
                 """;
-    final String NAME_STRING = """
+    final String NAME_STRING =
+        """
         [{"lastNm":"last","firstNm":"first"},{"lastNm":"last","middleNm":"middle","firstNm":"first","nmSuffix":"ESQ"}]
         """;
-    final String PHONE_STRING = """
+    final String PHONE_STRING =
+        """
         [{"value":"1224443"},{"value":"1234567890"}]
         """;
-    final String IDENTIFIER_STRING = """
+    final String IDENTIFIER_STRING =
+        """
         [{"type":"DL","value":"1234567","authority":"TN"},{"type":"SS","value":"99999999999","authority":"SSA"},{"type":"BAD_TYPE","value":"1234","authority":"BAD"}]
         """;
     final String RACE_STRING = "2106-3";
@@ -86,7 +88,8 @@ class MpiPersonMapperTest {
 
   @Test
   void testMapAddress() {
-    final String ADDRESS_STRING = """
+    final String ADDRESS_STRING =
+        """
                 [
           {
             "street": "123 Main st",
@@ -123,7 +126,8 @@ class MpiPersonMapperTest {
 
   @Test
   void testMapAddress2() {
-    final String ADDRESS_STRING = """
+    final String ADDRESS_STRING =
+        """
         """;
     List<Address> addresses = mapper.mapAddresses(ADDRESS_STRING);
     assertThat(addresses).isEmpty();
@@ -144,13 +148,8 @@ class MpiPersonMapperTest {
 
   @Test
   void testAddress2() {
-    Address address = mapper.asAddress(new NbsAddress(
-        "street1",
-        "street2",
-        "city",
-        "state",
-        "zip",
-        "county"));
+    Address address =
+        mapper.asAddress(new NbsAddress("street1", "street2", "city", "state", "zip", "county"));
 
     assertThat(address.line()).hasSize(2);
     assertThat(address.line().get(0)).isEqualTo("street1");
@@ -163,7 +162,8 @@ class MpiPersonMapperTest {
 
   @Test
   void mapNames() {
-    final String NAME_STRING = """
+    final String NAME_STRING =
+        """
         [{"lastNm":"last","firstNm":"first"},{"lastNm":"last","middleNm":"middle","firstNm":"first","nmSuffix":"ESQ"}]
         """;
     List<Name> names = mapper.mapNames(NAME_STRING);
@@ -180,7 +180,8 @@ class MpiPersonMapperTest {
 
   @Test
   void mapNames3() {
-    final String NAME_STRING = """
+    final String NAME_STRING =
+        """
         """;
     List<Name> names = mapper.mapNames(NAME_STRING);
     assertThat(names).isEmpty();
@@ -232,7 +233,8 @@ class MpiPersonMapperTest {
 
   @Test
   void testPhone() {
-    final String PHONE_STRING = """
+    final String PHONE_STRING =
+        """
         [{"value":"1224443"},{"value":"1234567890"}]
         """;
     List<Telecom> phones = mapper.mapPhones(PHONE_STRING);
@@ -243,7 +245,8 @@ class MpiPersonMapperTest {
 
   @Test
   void testPhone2() {
-    final String PHONE_STRING = """
+    final String PHONE_STRING =
+        """
         """;
     List<Telecom> phones = mapper.mapPhones(PHONE_STRING);
     assertThat(phones).isEmpty();
@@ -257,17 +260,20 @@ class MpiPersonMapperTest {
   }
 
   @ParameterizedTest
-  @CsvSource(value = {
-      "null,''",
-      " ,''",
-      "banana,''",
-      "1002-5,AMERICAN_INDIAN",
-      "2028-9,ASIAN",
-      "2054-5,BLACK",
-      "2076-8,HAWAIIAN",
-      "2106-3,WHITE",
-      "2131-1,OTHER",
-      "U,UNKNOWN" }, nullValues = { "null" })
+  @CsvSource(
+      value = {
+        "null,''",
+        " ,''",
+        "banana,''",
+        "1002-5,AMERICAN_INDIAN",
+        "2028-9,ASIAN",
+        "2054-5,BLACK",
+        "2076-8,HAWAIIAN",
+        "2106-3,WHITE",
+        "2131-1,OTHER",
+        "U,UNKNOWN"
+      },
+      nullValues = {"null"})
   void testRace(String input, String expected) {
     List<String> race = mapper.mapRace(input);
 
@@ -277,7 +283,4 @@ class MpiPersonMapperTest {
       assertThat(race).containsExactly(expected);
     }
   }
-
-
-
 }

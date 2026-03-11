@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ReferralDocQuery {
-    public static final String FIND_BY_ID = """
+  public static final String FIND_BY_ID =
+"""
 SELECT
     referral_uid AS referralUid,
     activity_duration_amt AS activityDurationAmt,

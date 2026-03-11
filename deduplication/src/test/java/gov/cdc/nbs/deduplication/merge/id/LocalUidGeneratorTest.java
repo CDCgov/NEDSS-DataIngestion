@@ -5,8 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,17 +17,13 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
 
-import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
-
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class LocalUidGeneratorTest {
 
-  @Mock
-  private JdbcClient client;
+  @Mock private JdbcClient client;
 
-  @InjectMocks
-  private LocalUidGenerator idGenerator;
+  @InjectMocks private LocalUidGenerator idGenerator;
 
   @Test
   void should_return_nbs_id() {
@@ -84,5 +80,4 @@ class LocalUidGeneratorTest {
     verify(client, times(0)).sql(LocalUidGenerator.QUERY_BY_NBS_TYPE_CD);
     verify(client, times(0)).sql(LocalUidGenerator.INCREMENT_BY_NBS_TYPE_CD);
   }
-
 }

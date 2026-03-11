@@ -1,5 +1,11 @@
 package gov.cdc.dataprocessing.utilities.component.nbs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.model.NbsDocumentContainer;
@@ -23,103 +29,100 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 class NbsDocumentRepositoryUtilTest {
-    @Mock
-    private CustomRepository customRepository;
-    @Mock
-    private PatientRepositoryUtil patientRepositoryUtil;
-    @Mock
-    private ParticipationRepositoryUtil participationRepositoryUtil;
-    @Mock
-    private PrepareAssocModelHelper prepareAssocModelHelper;
-    @Mock
-    private NbsDocumentJdbcRepository nbsDocumentRepository;
+  @Mock private CustomRepository customRepository;
+  @Mock private PatientRepositoryUtil patientRepositoryUtil;
+  @Mock private ParticipationRepositoryUtil participationRepositoryUtil;
+  @Mock private PrepareAssocModelHelper prepareAssocModelHelper;
+  @Mock private NbsDocumentJdbcRepository nbsDocumentRepository;
 
-    @InjectMocks
-    private NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil;
-    @Mock
-    AuthUtil authUtil;
+  @InjectMocks private NbsDocumentRepositoryUtil nbsDocumentRepositoryUtil;
+  @Mock AuthUtil authUtil;
 
-    @Mock
-    private NBSDocumentDto nbsDocumentDto;
+  @Mock private NBSDocumentDto nbsDocumentDto;
 
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
+    AuthUser user = new AuthUser();
+    user.setAuthUserUid(1L);
+    user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
+    userInfo.setAuthUser(user);
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
-        AuthUser user = new AuthUser();
-        user.setAuthUserUid(1L);
-        user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
-        userInfo.setAuthUser(user);
+    authUtil.setGlobalAuthUser(userInfo);
+  }
 
-        authUtil.setGlobalAuthUser(userInfo);
-    }
+  @AfterEach
+  void tearDown() {
+    Mockito.reset(
+        customRepository,
+        patientRepositoryUtil,
+        participationRepositoryUtil,
+        prepareAssocModelHelper,
+        nbsDocumentRepository,
+        authUtil);
+  }
 
-    @AfterEach
-    void tearDown() {
-        Mockito.reset(customRepository, patientRepositoryUtil,participationRepositoryUtil, prepareAssocModelHelper,
-                nbsDocumentRepository,authUtil);
-    }
+  @Test
+  void getNBSDocumentWithoutActRelationship_Test() throws DataProcessingException {
+    Long uid = 10L;
+    when(customRepository.getNbsDocument(uid)).thenReturn(new NbsDocumentContainer());
+    when(patientRepositoryUtil.loadPerson(any())).thenReturn(new PersonContainer());
+    when(participationRepositoryUtil.getParticipation(any(), any()))
+        .thenReturn(new ParticipationDto());
 
-    @Test
-    void getNBSDocumentWithoutActRelationship_Test() throws DataProcessingException {
-        Long uid = 10L;
-        when(customRepository.getNbsDocument(uid)).thenReturn(new NbsDocumentContainer());
-        when(patientRepositoryUtil.loadPerson(any())).thenReturn(new PersonContainer());
-        when(participationRepositoryUtil.getParticipation(any(), any())).thenReturn(new ParticipationDto());
+    var res = nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(uid);
 
-        var res = nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(uid);
+    assertNotNull(res);
+  }
 
-        assertNotNull(res);
-    }
+  @Test
+  void getNBSDocumentWithoutActRelationship_Test_2() throws DataProcessingException {
+    Long uid = 10L;
+    when(customRepository.getNbsDocument(uid)).thenReturn(new NbsDocumentContainer());
+    when(patientRepositoryUtil.loadPerson(any())).thenReturn(new PersonContainer());
+    when(participationRepositoryUtil.getParticipation(any(), any()))
+        .thenThrow(new RuntimeException("TEST"));
 
-    @Test
-    void getNBSDocumentWithoutActRelationship_Test_2() throws DataProcessingException {
-        Long uid = 10L;
-        when(customRepository.getNbsDocument(uid)).thenReturn(new NbsDocumentContainer());
-        when(patientRepositoryUtil.loadPerson(any())).thenReturn(new PersonContainer());
-        when(participationRepositoryUtil.getParticipation(any(), any())).thenThrow(new RuntimeException("TEST"));
+    RuntimeException thrown =
+        assertThrows(
+            RuntimeException.class,
+            () -> {
+              nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(uid);
+            });
+    assertNotNull(thrown);
+  }
 
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            nbsDocumentRepositoryUtil.getNBSDocumentWithoutActRelationship(uid);
-        });
-        assertNotNull(thrown);
-    }
+  @Test
+  void updateDocumentWithOutthePatient_Test() throws DataProcessingException {
+    NbsDocumentContainer doc = new NbsDocumentContainer();
+    doc.getNbsDocumentDT().setNbsDocumentMetadataUid(10L);
+    doc.getNbsDocumentDT().setRecordStatusCd(NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE);
+    doc.setFromSecurityQueue(true);
+    when(customRepository.getNbsDocument(any())).thenReturn(new NbsDocumentContainer());
 
-    @Test
-    void updateDocumentWithOutthePatient_Test() throws DataProcessingException {
-        NbsDocumentContainer doc = new NbsDocumentContainer();
-        doc.getNbsDocumentDT().setNbsDocumentMetadataUid(10L);
-        doc.getNbsDocumentDT().setRecordStatusCd( NEDSSConstant.RECORD_STATUS_LOGICAL_DELETE);
-        doc.setFromSecurityQueue(true);
-        when(customRepository.getNbsDocument(any())).thenReturn(new NbsDocumentContainer());
+    var docDto = new NBSDocumentDto();
+    docDto.setDocPayload("TEST");
+    docDto.setPhdcDocDerived("TEST");
+    when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any()))
+        .thenThrow(new RuntimeException("TEST"));
 
-        var docDto = new NBSDocumentDto();
-        docDto.setDocPayload("TEST");
-        docDto.setPhdcDocDerived("TEST");
-        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenThrow(new RuntimeException("TEST"));
+    RuntimeException thrown =
+        assertThrows(
+            RuntimeException.class,
+            () -> {
+              nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(doc);
+            });
+    assertNotNull(thrown);
+  }
 
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            nbsDocumentRepositoryUtil.updateDocumentWithOutthePatient(doc);
-        });
-        assertNotNull(thrown);
+  @Test
+  void testInsertNBSDocumentHist() {
+    // Act
+    nbsDocumentRepositoryUtil.insertNBSDocumentHist(nbsDocumentDto);
 
-    }
-
-
-    @Test
-    void testInsertNBSDocumentHist() {
-        // Act
-        nbsDocumentRepositoryUtil.insertNBSDocumentHist(nbsDocumentDto);
-
-        // Assert
-        verify(nbsDocumentRepository).mergeNbsDocumentHist(any(NbsDocumentHist.class));
-    }
+    // Assert
+    verify(nbsDocumentRepository).mergeNbsDocumentHist(any(NbsDocumentHist.class));
+  }
 }

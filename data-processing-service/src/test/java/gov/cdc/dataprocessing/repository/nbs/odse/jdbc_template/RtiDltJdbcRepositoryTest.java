@@ -1,6 +1,14 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.dataprocessing.repository.nbs.msgoute.model.RtiDlt;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,216 +19,200 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 @SuppressWarnings("java:S5976")
 class RtiDltJdbcRepositoryTest {
 
-    @Mock
-    private NamedParameterJdbcTemplate jdbcTemplate;
+  @Mock private NamedParameterJdbcTemplate jdbcTemplate;
 
-    @InjectMocks
-    private RtiDltJdbcRepository repository;
+  @InjectMocks private RtiDltJdbcRepository repository;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  void setup() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void testFindById_WhenExists_ReturnsRtiDlt() {
-        // Arrange
-        String id = "test-uuid";
-        RtiDlt expected = new RtiDlt();
-        expected.setId(id);
-        expected.setNbsInterfaceId(123L);
-        expected.setStatus("SUCCESS");
-        expected.setPayload("somePayload");
-        expected.setStackTrace("none");
-        expected.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusHours(1)));
-        expected.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+  @Test
+  void testFindById_WhenExists_ReturnsRtiDlt() {
+    // Arrange
+    String id = "test-uuid";
+    RtiDlt expected = new RtiDlt();
+    expected.setId(id);
+    expected.setNbsInterfaceId(123L);
+    expected.setStatus("SUCCESS");
+    expected.setPayload("somePayload");
+    expected.setStackTrace("none");
+    expected.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusHours(1)));
+    expected.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
 
-        when(jdbcTemplate.queryForObject(
-                eq("SELECT * FROM dbo.rti_dlt WHERE id = :id"),
-                eq(Map.of("id", id)),
-                any(RowMapper.class)
-        )).thenReturn(expected);
+    when(jdbcTemplate.queryForObject(
+            eq("SELECT * FROM dbo.rti_dlt WHERE id = :id"),
+            eq(Map.of("id", id)),
+            any(RowMapper.class)))
+        .thenReturn(expected);
 
-        // Act
-        RtiDlt result = repository.findById(id);
+    // Act
+    RtiDlt result = repository.findById(id);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("SUCCESS", result.getStatus());
-        assertEquals(123L, result.getNbsInterfaceId());
-    }
+    // Assert
+    assertNotNull(result);
+    assertEquals("SUCCESS", result.getStatus());
+    assertEquals(123L, result.getNbsInterfaceId());
+  }
 
-    @Test
-    void testFindById_WhenNotFound_ReturnsNull() {
-        // Arrange
-        String id = "missing-id";
-        when(jdbcTemplate.queryForObject(
-                anyString(),
-                any(Map.class),
-                any(RowMapper.class)
-        )).thenThrow(new EmptyResultDataAccessException(1));
+  @Test
+  void testFindById_WhenNotFound_ReturnsNull() {
+    // Arrange
+    String id = "missing-id";
+    when(jdbcTemplate.queryForObject(anyString(), any(Map.class), any(RowMapper.class)))
+        .thenThrow(new EmptyResultDataAccessException(1));
 
-        // Act
-        RtiDlt result = repository.findById(id);
+    // Act
+    RtiDlt result = repository.findById(id);
 
-        // Assert
-        assertNull(result);
-    }
+    // Assert
+    assertNull(result);
+  }
 
-    @Test
-    void testUpsert_PerformsUpdate() {
-        // Arrange
-        RtiDlt rti = new RtiDlt();
-        rti.setId("id-123");
-        rti.setNbsInterfaceId(99L);
-        rti.setStatus("OK");
-        rti.setStackTrace("trace");
-        rti.setPayload("payload");
-        rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
-        rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+  @Test
+  void testUpsert_PerformsUpdate() {
+    // Arrange
+    RtiDlt rti = new RtiDlt();
+    rti.setId("id-123");
+    rti.setNbsInterfaceId(99L);
+    rti.setStatus("OK");
+    rti.setStackTrace("trace");
+    rti.setPayload("payload");
+    rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+    rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
 
-        // Act
-        repository.upsert(rti);
+    // Act
+    repository.upsert(rti);
 
-        // Assert
-        verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
-    }
+    // Assert
+    verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
+  }
 
+  @Test
+  void testUpsert_PerformsUpdateNoId() {
+    // Arrange
+    RtiDlt rti = new RtiDlt();
+    rti.setId(null);
+    rti.setNbsInterfaceId(99L);
+    rti.setStatus("OK");
+    rti.setStackTrace("trace");
+    rti.setPayload("payload");
+    rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+    rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
 
-    @Test
-    void testUpsert_PerformsUpdateNoId() {
-        // Arrange
-        RtiDlt rti = new RtiDlt();
-        rti.setId(null);
-        rti.setNbsInterfaceId(99L);
-        rti.setStatus("OK");
-        rti.setStackTrace("trace");
-        rti.setPayload("payload");
-        rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
-        rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+    // Act
+    repository.upsert(rti);
 
-        // Act
-        repository.upsert(rti);
+    // Assert
+    verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
+  }
 
-        // Assert
-        verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
-    }
+  @Test
+  void testUpsert_PerformsUpdateIdEmpty() {
+    // Arrange
+    RtiDlt rti = new RtiDlt();
+    rti.setId("");
+    rti.setNbsInterfaceId(99L);
+    rti.setStatus("OK");
+    rti.setStackTrace("trace");
+    rti.setPayload("payload");
+    rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+    rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
 
+    // Act
+    repository.upsert(rti);
 
-    @Test
-    void testUpsert_PerformsUpdateIdEmpty() {
-        // Arrange
-        RtiDlt rti = new RtiDlt();
-        rti.setId("");
-        rti.setNbsInterfaceId(99L);
-        rti.setStatus("OK");
-        rti.setStackTrace("trace");
-        rti.setPayload("payload");
-        rti.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
-        rti.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+    // Assert
+    verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
+  }
 
-        // Act
-        repository.upsert(rti);
+  @Test
+  void testMapRow_ReturnsValidRtiDlt() throws Exception {
+    // Arrange
+    ResultSet rs = mock(ResultSet.class);
+    when(rs.getString("id")).thenReturn("uuid-1234");
+    when(rs.getLong("nbs_interface_id")).thenReturn(101L);
+    when(rs.getString("status")).thenReturn("FAILED");
+    when(rs.getString("stack_trace")).thenReturn("stacktrace here");
+    when(rs.getString("payload")).thenReturn("{json}");
 
-        // Assert
-        verify(jdbcTemplate).update(anyString(), any(MapSqlParameterSource.class));
-    }
+    RtiDltJdbcRepository blah = new RtiDltJdbcRepository(null); // jdbcTemplate not needed here
 
-    @Test
-    void testMapRow_ReturnsValidRtiDlt() throws Exception {
-        // Arrange
-        ResultSet rs = mock(ResultSet.class);
-        when(rs.getString("id")).thenReturn("uuid-1234");
-        when(rs.getLong("nbs_interface_id")).thenReturn(101L);
-        when(rs.getString("status")).thenReturn("FAILED");
-        when(rs.getString("stack_trace")).thenReturn("stacktrace here");
-        when(rs.getString("payload")).thenReturn("{json}");
+    // Act
+    RtiDlt result = blah.mapRow(rs, 0);
 
-        RtiDltJdbcRepository blah = new RtiDltJdbcRepository(null); // jdbcTemplate not needed here
+    // Assert
+    assertNotNull(result);
+    assertEquals("uuid-1234", result.getId());
+    assertEquals(101L, result.getNbsInterfaceId());
+    assertEquals("FAILED", result.getStatus());
+    assertEquals("stacktrace here", result.getStackTrace());
+    assertEquals("{json}", result.getPayload());
+  }
 
-        // Act
-        RtiDlt result = blah.mapRow(rs, 0);
+  @Test
+  void testFindByNbsInterfaceId_WhenFound_ReturnsList() {
+    Long interfaceId = 123L;
+    RtiDlt dlt1 = new RtiDlt();
+    dlt1.setId("id1");
+    RtiDlt dlt2 = new RtiDlt();
+    dlt2.setId("id2");
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("uuid-1234", result.getId());
-        assertEquals(101L, result.getNbsInterfaceId());
-        assertEquals("FAILED", result.getStatus());
-        assertEquals("stacktrace here", result.getStackTrace());
-        assertEquals("{json}", result.getPayload());
-    }
+    String expectedSql =
+        "SELECT * FROM dbo.rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
 
-    @Test
-    void testFindByNbsInterfaceId_WhenFound_ReturnsList() {
-        Long interfaceId = 123L;
-        RtiDlt dlt1 = new RtiDlt();
-        dlt1.setId("id1");
-        RtiDlt dlt2 = new RtiDlt();
-        dlt2.setId("id2");
+    when(jdbcTemplate.query(eq(expectedSql), eq(Map.of("id", interfaceId)), any(RowMapper.class)))
+        .thenReturn(List.of(dlt1, dlt2));
 
-        String expectedSql = "SELECT * FROM dbo.rti_dlt WHERE nbs_interface_id = :id ORDER BY created_on DESC";
+    List<RtiDlt> result = repository.findByNbsInterfaceId(interfaceId);
 
-        when(jdbcTemplate.query(eq(expectedSql), eq(Map.of("id", interfaceId)), any(RowMapper.class)))
-                .thenReturn(List.of(dlt1, dlt2));
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    assertEquals("id1", result.get(0).getId());
+    assertEquals("id2", result.get(1).getId());
+  }
 
-        List<RtiDlt> result = repository.findByNbsInterfaceId(interfaceId);
+  @Test
+  void testFindByNbsInterfaceId_WhenNotFound_ReturnsEmptyList() {
+    Long interfaceId = 999L;
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("id1", result.get(0).getId());
-        assertEquals("id2", result.get(1).getId());
-    }
+    when(jdbcTemplate.query(anyString(), any(Map.class), any(RowMapper.class)))
+        .thenThrow(new EmptyResultDataAccessException(1));
 
-    @Test
-    void testFindByNbsInterfaceId_WhenNotFound_ReturnsEmptyList() {
-        Long interfaceId = 999L;
+    List<RtiDlt> result = repository.findByNbsInterfaceId(interfaceId);
 
-        when(jdbcTemplate.query(anyString(), any(Map.class), any(RowMapper.class)))
-                .thenThrow(new EmptyResultDataAccessException(1));
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
 
-        List<RtiDlt> result = repository.findByNbsInterfaceId(interfaceId);
+  @Test
+  void testFindByUnSuccessStatus_WhenFound_ReturnsList() {
+    RtiDlt dlt = new RtiDlt();
+    dlt.setId("unsuccess-id");
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
+    String expectedSql = "SELECT * FROM rti_dlt WHERE status != 'SUCCESS' ORDER BY created_on DESC";
 
-    @Test
-    void testFindByUnSuccessStatus_WhenFound_ReturnsList() {
-        RtiDlt dlt = new RtiDlt();
-        dlt.setId("unsuccess-id");
+    when(jdbcTemplate.query(eq(expectedSql), any(RowMapper.class))).thenReturn(List.of(dlt));
 
-        String expectedSql = "SELECT * FROM rti_dlt WHERE status != 'SUCCESS' ORDER BY created_on DESC";
+    List<RtiDlt> result = repository.findByUnSuccessStatus();
 
-        when(jdbcTemplate.query(eq(expectedSql), any(RowMapper.class)))
-                .thenReturn(List.of(dlt));
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals("unsuccess-id", result.get(0).getId());
+  }
 
-        List<RtiDlt> result = repository.findByUnSuccessStatus();
+  @Test
+  void testFindByUnSuccessStatus_WhenNone_ReturnsEmptyList() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+        .thenThrow(new EmptyResultDataAccessException(1));
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("unsuccess-id", result.get(0).getId());
-    }
+    List<RtiDlt> result = repository.findByUnSuccessStatus();
 
-    @Test
-    void testFindByUnSuccessStatus_WhenNone_ReturnsEmptyList() {
-        when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
-                .thenThrow(new EmptyResultDataAccessException(1));
-
-        List<RtiDlt> result = repository.findByUnSuccessStatus();
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
 }

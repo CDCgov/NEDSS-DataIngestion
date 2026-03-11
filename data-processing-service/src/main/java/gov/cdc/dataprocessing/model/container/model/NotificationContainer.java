@@ -7,22 +7,20 @@ import gov.cdc.dataprocessing.model.dto.act.ActivityLocatorParticipationDto;
 import gov.cdc.dataprocessing.model.dto.notification.NotificationDto;
 import gov.cdc.dataprocessing.model.dto.notification.UpdatedNotificationDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
-
 @Setter
 @Getter
-
 public class NotificationContainer extends BaseContainer {
-    private static final long serialVersionUID = 1L;
-    private NotificationDto theNotificationDT = new NotificationDto();
-    private UpdatedNotificationDto theUpdatedNotificationDto = null;
+  private static final long serialVersionUID = 1L;
+  private NotificationDto theNotificationDT = new NotificationDto();
+  private UpdatedNotificationDto theUpdatedNotificationDto = null;
 
-    public Collection<ActivityLocatorParticipationDto> theActivityLocatorParticipationDTCollection;
-    public Collection<ActIdDto> theActIdDTCollection;
+  public Collection<ActivityLocatorParticipationDto> theActivityLocatorParticipationDTCollection;
+  public Collection<ActIdDto> theActIdDTCollection;
 
-    public Collection<ActRelationshipDto> theActRelationshipDTCollection;
-    public Collection<ParticipationDto> theParticipationDTCollection;
+  public Collection<ActRelationshipDto> theActRelationshipDTCollection;
+  public Collection<ParticipationDto> theParticipationDTCollection;
 }

@@ -7,43 +7,32 @@ import gov.cdc.dataprocessing.model.dto.entity.RoleDto;
 import gov.cdc.dataprocessing.model.dto.material.ManufacturedMaterialDto;
 import gov.cdc.dataprocessing.model.dto.material.MaterialDto;
 import gov.cdc.dataprocessing.model.dto.participation.ParticipationDto;
+import java.util.ArrayList;
+import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 @Getter
 @Setter
+public class MaterialContainer extends BaseContainer {
 
-public class MaterialContainer extends BaseContainer
-{
+  /** Data Table of Value Object */
+  private MaterialDto theMaterialDto = new MaterialDto();
 
+  /** Related Locators */
+  private Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDTCollection;
 
-    /**
-     * Data Table of Value Object
-     */
-    private MaterialDto theMaterialDto = new MaterialDto();
+  /** Other Related Entities */
+  private Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
 
-    /**
-     * Related Locators
-     */
-    private Collection<EntityLocatorParticipationDto> theEntityLocatorParticipationDTCollection;
+  /** collections for role and participation object association added by John Park */
+  public Collection<ParticipationDto> theParticipationDtoCollection;
 
-    /**
-     * Other Related Entities
-     */
-    private Collection<EntityIdDto> theEntityIdDtoCollection = new ArrayList<>();
+  public Collection<RoleDto> theRoleDTCollection;
+  private Collection<ManufacturedMaterialDto> theManufacturedMaterialDtoCollection;
 
-    /**
-     * collections for role and participation object association added by John Park
-     */
-    public Collection<ParticipationDto> theParticipationDtoCollection;
-    public Collection<RoleDto> theRoleDTCollection;
-    private Collection<ManufacturedMaterialDto> theManufacturedMaterialDtoCollection;
-
-    public MaterialContainer() {
-         itDirty = false;
-            itNew = true;
-    }
+  public MaterialContainer() {
+    itDirty = false;
+    itNew = true;
+  }
 }

@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.5'
+	id 'org.springframework.boot' version '3.5.11'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
@@ -204,19 +204,19 @@ dependencies {
   runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
   // Kafka
-  implementation 'org.springframework.kafka:spring-kafka:3.3.1'
+  implementation 'org.springframework.kafka:spring-kafka:3.3.13'
   implementation 'org.apache.kafka:kafka-clients:3.9.1'
   
   // Swagger / openapi documentation
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
 
   // Database
-  implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+  implementation 'com.microsoft.sqlserver:mssql-jdbc:12.10.2.jre11'
 
   // Hapi HL7 lib
-  implementation 'ca.uhn.hapi:hapi-base:2.3'
-  implementation 'ca.uhn.hapi:hapi-structures-v251:2.3'
-  implementation 'ca.uhn.hapi:hapi-structures-v231:2.3'
+  implementation 'ca.uhn.hapi:hapi-base:2.6.0'
+  implementation 'ca.uhn.hapi:hapi-structures-v251:2.6.0'
+  implementation 'ca.uhn.hapi:hapi-structures-v231:2.6.0'
 
   // Logging  
   implementation 'org.slf4j:slf4j-api:2.0.16'
@@ -227,13 +227,13 @@ dependencies {
   implementation 'io.micrometer:micrometer-registry-prometheus:1.15.0-M2'
 
   // Apache camel
-  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.11.0'
-  implementation 'org.apache.camel:camel-ftp:4.11.0'
-  implementation 'org.apache.camel:camel-aws2-s3:4.11.0'
-  implementation 'org.apache.camel:camel-endpointdsl:4.11.0'
-  implementation 'org.apache.camel.springboot:camel-file-starter:4.11.0'
-  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.11.0'
-  implementation 'org.apache.camel:camel-xml-jaxb:4.11.0'
+  implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.17.0'
+  implementation 'org.apache.camel:camel-ftp:4.17.0'
+  implementation 'org.apache.camel:camel-aws2-s3:4.17.0'
+  implementation 'org.apache.camel:camel-endpointdsl:4.17.0'
+  implementation 'org.apache.camel.springboot:camel-file-starter:4.17.0'
+  implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.17.0'
+  implementation 'org.apache.camel:camel-xml-jaxb:4.17.0'
 
   // Lombok annotations
   compileOnly 'org.projectlombok:lombok:1.18.34'
@@ -248,9 +248,9 @@ dependencies {
   implementation 'com.google.code.gson:gson:2.11.0'
   implementation 'com.zaxxer:HikariCP:5.1.0'
   implementation 'org.apache.xmlbeans:xmlbeans:3.1.0'
-  implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
-  implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
-  implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.1'
+  implementation 'com.fasterxml.jackson.core:jackson-core:2.21.1'
+  implementation 'com.fasterxml.jackson.core:jackson-annotations:2.21'
   implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
   implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
   runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
@@ -283,9 +283,9 @@ dependencies {
 
 dependencyManagement {
 	dependencies {
-		dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.10'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-el:11.0.10'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.10'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.11'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-el:11.0.11'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.11'
 		
 		dependency 'io.netty:netty-codec:4.1.126.Final'
 		dependency 'io.netty:netty-codec-http:4.1.126.Final'
