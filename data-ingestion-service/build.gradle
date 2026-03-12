@@ -205,7 +205,7 @@ dependencies {
 
   // Kafka
   implementation 'org.springframework.kafka:spring-kafka:3.3.13'
-  implementation 'org.apache.kafka:kafka-clients:3.9.1'
+  implementation 'org.apache.kafka:kafka-clients:3.9.2'
   
   // Swagger / openapi documentation
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
