@@ -14,7 +14,6 @@ updates:
       - "/hl7-parser" 
       - "/karatetest" 
       - "/phdc-xsd-jaxb"
-      - "/srte-data-service"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 2
@@ -28,7 +27,6 @@ updates:
       - "/data-ingestion-service"
       - "/data-processing-service"
       - "/deduplication"
-      - "/srte-data-service"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 2
