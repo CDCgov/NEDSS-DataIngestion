@@ -7,23 +7,23 @@ Following this guide will set up a fully functioning local development environme
       ```bash
       ./containers/build_classic.sh
       ```
-2. Start Keycloak, Kafka, SRTE data cache, and database container
+1. Start Keycloak, Kafka, and database container
       ```bash
-      docker compose up di-keycloak broker zookeeper di-mssql srte-data-service -d
+      docker compose up di-keycloak broker zookeeper di-mssql -d
       ```
-3. Start data-ingestion-service with gradle. Allows remote debugging using port `19040`
+1. Start data-ingestion-service with gradle. Allows remote debugging using port `19040`
       ```bash
       ./gradlew data-ingestion-service:bootRun
       ```
-4. Start data-processing-service with gradle. Allows remote debugging using port `19041`
+1. Start data-processing-service with gradle. Allows remote debugging using port `19041`
       ```bash
       ./gradlew data-processing-service:bootRun
       ```
-5. Optional: Start [Record Linkage service](https://github.com/CDCgov/RecordLinker)
+1. **Optional**: Start [Record Linkage service](https://github.com/CDCgov/RecordLinker)
       ```bash
       docker compose up di-record-linker -d
       ```
-6. Optional: Start deduplication service with gradle. Allows remote debugging using port `19042` (Note: Sync and Record Linker communcation are feature flagged off by default)
+1. **Optional**: Start deduplication service with gradle. Allows remote debugging using port `19042` (Note: Sync and Record Linker communcation are feature flagged off by default)
       ```bash
       ./gradlew deduplication:bootRun
       ```
@@ -50,9 +50,6 @@ NBS_DBUSER=sa
 NBS_DBPASSWORD=fake.fake.fake.1234
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
 KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
-RC_URL=srte-data-service
-RC_CLIENT_ID=di-keycloak-client
-RC_CLIENT_SECRET=OhBq1ar96aep8cnirHwkCNfgsO9yybZI
 
 DB_URI=mssql+pyodbc://sa:fake.fake.fake.1234@di-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
 ```
@@ -93,18 +90,6 @@ features:
   modernizedMatching:
     enabled: true
     url: http://localhost:8083/api/deduplication/
-
-cache:
-  clientId: di-keycloak-client
-  secret: OhBq1ar96aep8cnirHwkCNfgsO9yybZI
-  token: http://localhost:8084/data/api/auth/token
-  srte:
-    cacheString: http://localhost:8084/data/srte/cache/string
-    cacheContain: http://localhost:8084/data/srte/cache/contain
-    cacheObject: http://localhost:8084/data/srte/cache/object
-  odse:
-    localId: http://localhost:8084/data/odse/localId
-
 ```
 
 #### deduplication/src/main/resources/application-local.yaml
