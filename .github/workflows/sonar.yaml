@@ -20,12 +20,6 @@ on:
       DATABASE_PASSWORD:
         description: "Test database password"
         required: true
-      TOKEN_SECRET:
-        description: "Secret named TOKEN_SECRET that references a default JWT token key"
-        required: true
-      PARAMETER_SECRET:
-        description: "Secret named PARAMETER_SECRET that references a default key for encrypting search parameters"
-        required: true
   pull_request:
     paths:
       - "data-ingestion-service/**"
@@ -41,8 +35,6 @@ env:
   sonar_token: ${{secrets.SONAR_TOKEN}}
   test_database_user: ${{secrets.DATABASE_USER}}
   test_database_password: ${{secrets.DATABASE_PASSWORD}}
-  token_secret: ${{secrets.TOKEN_SECRET}}
-  parameter_secret: ${{secrets.PARAMETER_SECRET}}
 
 jobs:
   pipeline:
@@ -53,7 +45,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
@@ -128,8 +120,6 @@ jobs:
           SONAR_TOKEN: ${{ env.sonar_token }}
           DATABASE_USER: ${{ env.test_database_user }}
           DATABASE_PASSWORD: ${{ env.test_database_password }}
-          TOKEN_SECRET: ${{ env.token_secret }}
-          PARAMETER_SECRET: ${{ env.parameter_secret }}
         run: |
           ./gradlew build test sonarqube \
             "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" \
