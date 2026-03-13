@@ -58,7 +58,7 @@ services:
       - dataingestion
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
+    image: confluentinc/cp-zookeeper:7.9.1
     hostname: zookeeper
     container_name: zookeeper
     ports:
