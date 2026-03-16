@@ -3,7 +3,7 @@ Following this guide will set up a fully functioning local development environme
 
 ### Building
 1. Provide the necessary [configurations](#configuration)
-1. Optional: Build and deploy NBS 6 Wildfly docker container (requires ability to git clone [NEDSSDev](https://github.com/cdcent/))
+1. **Optional**: Build and deploy NBS 6 Wildfly docker container (requires ability to git clone [NEDSSDev](https://github.com/cdcent/))
       ```bash
       ./containers/build_classic.sh
       ```
