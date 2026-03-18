@@ -252,7 +252,7 @@ dependencies {
   implementation 'com.fasterxml.jackson.core:jackson-core:2.21.1'
   implementation 'com.fasterxml.jackson.core:jackson-annotations:2.21'
   implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
-  implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+  implementation 'org.hibernate.validator:hibernate-validator:9.1.0.Final'
   runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
   runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.8'
   jaxb 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
