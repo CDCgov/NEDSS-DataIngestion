@@ -233,7 +233,7 @@ dependencies {
   implementation 'org.apache.camel:camel-endpointdsl:4.18.0'
   implementation 'org.apache.camel.springboot:camel-file-starter:4.18.0'
   implementation 'org.apache.camel.springboot:camel-zipfile-starter:4.18.0'
-  implementation 'org.apache.camel:camel-xml-jaxb:4.18.0'
+  implementation 'org.apache.camel:camel-xml-jaxb:4.18.0' 
 
   // Lombok annotations
   compileOnly 'org.projectlombok:lombok:1.18.34'
