@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       microservice_name:
-        description: "Microservice name matching your repository (ex. data-processing-service)."
+        description: "Microservice name matching your repository (ex. nbs7-data-processing-service)."
         required: true
         type: string
-        default: <microservicename>
+        default: "nbs7-data-processing-service"
       dockerfile_relative_path:
         description: "Relative path of your dockerfile, may include -f flag (ex. ./apps/<microservice>/Dockerfile)."
         required: true
@@ -21,20 +21,20 @@ on:
         required: true
         type: string
         default: SNAPSHOT
-      values_file_with_path:
-        description: What is the path to the helm chart in NBS helm chart repository? (ex. charts/data-processing-service/values-int1.yaml)
-        type: string
-        default: "charts/<microservice>/<values_filename.yaml>"
+#      values_file_with_path:
+#        description: What is the path to the helm chart in NBS helm chart repository? (ex. charts/data-processing-service/values.yaml)
+#        type: string
+#        default: "charts/data-processing-service/values.yaml"
       build-new-container:
         description: "Check the box to create a new container tagged based on the environment_classifier."
         required: true
         default: false
         type: boolean
-      update_helm_chart:
-        description: "Do you want to update the specified helm chart"
-        required: true
-        default: true
-        type: boolean
+#      update_helm_chart:
+#        description: "Do you want to update the specified helm chart"
+#        required: true
+#        default: true
+#        type: boolean
 
 jobs:
   call-build-microservice-container-workflow:
