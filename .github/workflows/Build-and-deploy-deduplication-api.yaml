@@ -5,8 +5,9 @@ on:
    branches:
      - main
      - rel-**
-   paths:
-     - "deduplication/**"
+     - jg/re-enable-deduplication-api-deploy-workflow
+  #  paths:
+  #    - "deduplication/**"
 
 jobs:
  sonar_scan:
