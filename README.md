@@ -162,3 +162,25 @@ For Helm Chart and EKS configuration, please refer to this
     DI_SFTP_ELR_FILE_EXTNS=value - Comma separted list of file extensions (ex: txt,hl7)
     DI_PHCR_IMPORTER_VERSION=value - 1 for classic phcrImporter batch job, 2 for RTI
     DI_SFTP_FILEPATHS=value - Comma separted list of file extensions (ex: /ELRFiles,/ELRFiles/lab-1,/ELRFiles/lab-2)
+
+# HL7 Bulk Ingestion Script
+
+A Zsh-based utility for macOS to bulk-upload HL7 lab reports to the NBS Ingestion API. This script automates the process of iterating through thousands of files, handling authentication, capturing API-generated GUIDs, and archiving successfully processed reports.
+## Features
+- **Location:** `docs/elr_upload_bulk.sh`
+- **Named Arguments:** Uses standard flags for source, destination, and secrets.
+- **Return Value:** Stops execution immediately if a 200 OK is not returned to prevent data mismatches or token expiration issues.
+- **Automatic Archiving:** Moves files from the source to the destination only upon a successful API response.
+- **GUID Capturing:** Extracts and prints the unique identifier returned by the API for each message.
+
+## Usage
+
+```shell
+./elr_upload_bulk.sh -s <source_dir> -d <dest_dir> -t <token> -c <client_secret>
+```
+| Flag | Description |
+| -----| ----------- |
+| -s | Path to the directory containing your .hl7 or .txt files. |
+| -d | Path to the directory where successfully uploaded files will be moved. |
+| -t | Your current Authorization Bearer Token (JWT). |
+| -c | The clientsecret provided by the API provider. |
