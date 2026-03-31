@@ -1,20 +1,20 @@
-#!/bin/zsh
-
+#!/usr/bin/env bash
 
 usage() {
-    echo "Usage: $0 -s <source_dir> -d <dest_dir> -t <token> -c <client_secret>"
+    echo "Usage: $0 -s <source_dir> -d <dest_dir> -u <url> -t <token> -c <client_secret>"
     echo "  -s : Path to the source folder containing HL7 files"
     echo "  -d : Path to the destination folder for processed files"
+    echo "  -u : The API Endpoint URL"
     echo "  -t : Authorization Bearer Token"
     echo "  -c : Client Secret"
     exit 1
 }
 
-# Get any inputs
-while getopts "s:d:t:c:" opt; do
+while getopts "s:d:u:t:c:" opt; do
     case $opt in
         s) SOURCE_DIR="$OPTARG" ;;
         d) DEST_DIR="$OPTARG" ;;
+        u) API_URL="$OPTARG" ;;
         t) AUTH_TOKEN="$OPTARG" ;;
         c) CLIENT_SECRET="$OPTARG" ;;
         *) usage ;;
@@ -22,13 +22,13 @@ while getopts "s:d:t:c:" opt; do
 done
 
 # Check if all required variables are set
-if [[ -z "$SOURCE_DIR" || -z "$DEST_DIR" || -z "$AUTH_TOKEN" || -z "$CLIENT_SECRET" ]]; then
+if [[ -z "$SOURCE_DIR" || -z "$DEST_DIR" || -z "$API_URL" || -z "$AUTH_TOKEN" || -z "$CLIENT_SECRET" ]]; then
     usage
 fi
 
 # Validation checks
 if [ ! -d "$SOURCE_DIR" ]; then
-    echo "Error: Source directory $SOURCE_DIR not found."
+    echo "Error: Source directory '$SOURCE_DIR' not found."
     exit 1
 fi
 
@@ -38,21 +38,28 @@ if [ ! -d "$DEST_DIR" ]; then
 fi
 
 # Get file list
-files=($(find "$SOURCE_DIR" -maxdepth 1 -type f))
-total_files=${#files[@]}
-count=0
+files=("$SOURCE_DIR"/*)
+total_files=0
+for f in "${files[@]}"; do [ -f "$f" ] && ((total_files++)); done
 
+if [ "$total_files" -eq 0 ]; then
+    echo "No files found in $SOURCE_DIR"
+    exit 0
+fi
+count=0
 echo "Starting upload: $total_files files found."
 echo "----------------------------------------------------------"
 
 for file in "${files[@]}"; do
+    [ -f "$file" ] || continue
+
     ((count++))
     filename=$(basename "$file")
 
-    response_file=$(mktemp)
-    
+    response_file=$(mktemp 2>/dev/null || mktemp -t 'elr')
+
     http_code=$(curl --request POST \
-      --url https://data.nbsdemo.com/ingestion/api/elrs \
+      --url "$API_URL" \
       --header "authorization: Bearer $AUTH_TOKEN" \
       --header 'clientid: di-keycloak-client' \
       --header "clientsecret: $CLIENT_SECRET" \

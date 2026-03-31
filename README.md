@@ -165,22 +165,35 @@ For Helm Chart and EKS configuration, please refer to this
 
 # HL7 Bulk Ingestion Script
 
-A Zsh-based utility for macOS to bulk-upload HL7 lab reports to the NBS Ingestion API. This script automates the process of iterating through thousands of files, handling authentication, capturing API-generated GUIDs, and archiving successfully processed reports.
+A bash utility to bulk-upload HL7 lab reports to the NBS Ingestion API. This script automates the process of iterating 
+through thousands of files, handling authentication, capturing API-generated GUIDs, and archiving successfully processed
+reports.
 ## Features
 - **Location:** `docs/elr_upload_bulk.sh`
+- **Cross-Platform:** Runs on macOS and Linux. Runs on Windows via Git Bash.
 - **Named Arguments:** Uses standard flags for source, destination, and secrets.
-- **Return Value:** Stops execution immediately if a 200 OK is not returned to prevent data mismatches or token expiration issues.
+- **Return Value:** Stops execution immediately if a 200 OK is not returned to prevent data mismatches or token 
+expiration issues.
 - **Automatic Archiving:** Moves files from the source to the destination only upon a successful API response.
 - **GUID Capturing:** Extracts and prints the unique identifier returned by the API for each message.
 
 ## Usage
 
+### Parameters
+| Flag | Description                                                              |
+| -----|--------------------------------------------------------------------------|
+| -s | Path to the directory containing your .hl7 or .txt files.                |
+| -d | Path to the directory where successfully uploaded files will be moved.   |
+| -u | The full API endpoint  |
+| -t | Your current Authorization Bearer Token (JWT).                           |
+| -c | The clientsecret provided by the API provider.                           |
+
+### Example
 ```shell
-./elr_upload_bulk.sh -s <source_dir> -d <dest_dir> -t <token> -c <client_secret>
+./elr_upload_bulk.sh \
+  -s ./inbox \
+  -d ./archive \
+  -u "https://data.nbsdemo.com/ingestion/api/elrs" \
+  -t "aiouAGGWShioioj..." \
+  -c "aiDakl..."
 ```
-| Flag | Description |
-| -----| ----------- |
-| -s | Path to the directory containing your .hl7 or .txt files. |
-| -d | Path to the directory where successfully uploaded files will be moved. |
-| -t | Your current Authorization Bearer Token (JWT). |
-| -c | The clientsecret provided by the API provider. |
