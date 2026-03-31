@@ -20,17 +20,10 @@ on:
       DATABASE_PASSWORD:
         description: "Test database password"
         required: true
-      TOKEN_SECRET:
-        description: "Secret named TOKEN_SECRET that references a default JWT token key"
-        required: true
-      PARAMETER_SECRET:
-        description: "Secret named PARAMETER_SECRET that references a default key for encrypting search parameters"
-        required: true
   pull_request:
     paths:
       - "data-ingestion-service/**"
       - "data-processing-service/**"
-      - "srte-data-service/**"
       - "hl7-parser/**"
       - "cdaschema/**"
       - "deduplication/**"
@@ -41,8 +34,6 @@ env:
   sonar_token: ${{secrets.SONAR_TOKEN}}
   test_database_user: ${{secrets.DATABASE_USER}}
   test_database_password: ${{secrets.DATABASE_PASSWORD}}
-  token_secret: ${{secrets.TOKEN_SECRET}}
-  parameter_secret: ${{secrets.PARAMETER_SECRET}}
 
 jobs:
   pipeline:
@@ -83,7 +74,7 @@ jobs:
           echo "github_repo_name=$github_repo_name" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Cache Docker layers
         uses: actions/cache@v5
@@ -128,8 +119,6 @@ jobs:
           SONAR_TOKEN: ${{ env.sonar_token }}
           DATABASE_USER: ${{ env.test_database_user }}
           DATABASE_PASSWORD: ${{ env.test_database_password }}
-          TOKEN_SECRET: ${{ env.token_secret }}
-          PARAMETER_SECRET: ${{ env.parameter_secret }}
         run: |
           ./gradlew build test sonarqube \
             "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" \
