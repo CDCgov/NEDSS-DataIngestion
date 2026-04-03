@@ -647,8 +647,7 @@ public class KafkaConsumerService {
             hl7ValidatedModel, validatedTopic, 0, dataProcessingEnable);
         break;
       case KafkaHeaderValue.MESSAGE_TYPE_CSV:
-        // TODO: implement csv validation, this is not in the scope of data ingestion at the moment
-        // //NOSONAR
+        // TODO: implement csv validation, not in scope of data ingestion at the moment //NOSONAR
         break;
       default:
         break;
