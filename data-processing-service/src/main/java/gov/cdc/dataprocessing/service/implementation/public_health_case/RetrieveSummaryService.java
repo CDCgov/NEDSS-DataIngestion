@@ -129,7 +129,7 @@ public class RetrieveSummaryService implements IRetrieveSummaryService {
     return theNotificationSummaryVOCollection;
   }
 
-  @SuppressWarnings("java:S3776")
+  @SuppressWarnings({"java:S3776", "java:S6541"})
   protected Collection<Object> notificationSummaryOnInvestigationProcessingNotificationCol(
       Collection<Object> theNotificationSummaryVOCollection,
       NotificationSummaryContainer notificationSummaryVO,
