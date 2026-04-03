@@ -13,6 +13,7 @@ public class Specimen {
   @SuppressWarnings("java:S1700")
   gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen specimen =
       new gov.cdc.dataingestion.hl7.helper.model.hl7.group.order.specimen.Specimen();
+
   List<ObservationResult> observationResult = new ArrayList<>();
 
   public Specimen() {}

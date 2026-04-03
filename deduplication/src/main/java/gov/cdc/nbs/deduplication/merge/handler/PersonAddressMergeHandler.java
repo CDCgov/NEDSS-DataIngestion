@@ -207,7 +207,11 @@ public class PersonAddressMergeHandler implements SectionMergeHandler {
         .map(
             row ->
                 new AuditInsertAction(
-                    Map.of(ENTITY_UID_FIELD, survivingId, LOCATOR_UID_FIELD, row.get(LOCATOR_UID_FIELD))))
+                    Map.of(
+                        ENTITY_UID_FIELD,
+                        survivingId,
+                        LOCATOR_UID_FIELD,
+                        row.get(LOCATOR_UID_FIELD))))
         .toList();
   }
 }
