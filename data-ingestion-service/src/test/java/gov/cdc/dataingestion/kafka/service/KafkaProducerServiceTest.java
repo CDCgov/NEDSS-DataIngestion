@@ -39,9 +39,6 @@ class KafkaProducerServiceTest {
 
   @InjectMocks private KafkaProducerService kafkaProducerService;
 
-  @BeforeEach
-  void setUp() {}
-
   @Test
   void testSendMessageFromController() throws KafkaProducerException {
     String msg = "test message";

@@ -15,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ObservationMatchStoredProcRepository {
+  @SuppressWarnings("java:S1068")
   private static final Logger logger =
-      LoggerFactory.getLogger(ObservationMatchStoredProcRepository.class); // NOSONAR
+      LoggerFactory.getLogger(ObservationMatchStoredProcRepository.class);
 
   @PersistenceContext(unitName = "nbsEntityManagerFactory") // Specify the persistence unit name
   private EntityManager entityManager;

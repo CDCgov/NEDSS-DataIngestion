@@ -27,8 +27,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProviderMatchingBaseService extends MatchingBaseService {
+  @SuppressWarnings("java:S1068")
   private static final Logger logger =
-      LoggerFactory.getLogger(ProviderMatchingBaseService.class); // NOSONAR
+      LoggerFactory.getLogger(ProviderMatchingBaseService.class);
 
   public ProviderMatchingBaseService(
       EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,

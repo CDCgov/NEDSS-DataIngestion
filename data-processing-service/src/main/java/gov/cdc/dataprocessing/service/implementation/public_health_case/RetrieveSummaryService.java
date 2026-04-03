@@ -22,8 +22,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RetrieveSummaryService implements IRetrieveSummaryService {
+  @SuppressWarnings("java:S1068")
   private static final Logger logger =
-      LoggerFactory.getLogger(RetrieveSummaryService.class); // NOSONAR
+      LoggerFactory.getLogger(RetrieveSummaryService.class);
 
   private final QueryHelper queryHelper;
   private final CustomRepository customRepository;

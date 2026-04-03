@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
+  private static final String ENTITY_UID_FIELD = "entity_uid";
+  private static final String LOCATOR_UID_FIELD = "locator_uid";
 
   static final String UPDATE_UN_SELECTED_PHONE_EMAIL_INACTIVE =
       """
@@ -170,10 +172,10 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
 
               return new AuditUpdateAction(
                   Map.of(
-                      "entity_uid",
-                      row.get("entity_uid"),
-                      "locator_uid",
-                      row.get("locator_uid")), // NOSONAR
+                      ENTITY_UID_FIELD,
+                      row.get(ENTITY_UID_FIELD),
+                      LOCATOR_UID_FIELD,
+                      row.get(LOCATOR_UID_FIELD)),
                   values);
             })
         .toList();
@@ -201,7 +203,7 @@ public class PersonPhoneEmailMergeHandler implements SectionMergeHandler {
         .map(
             row ->
                 new AuditInsertAction(
-                    Map.of("entity_uid", survivingId, "locator_uid", row.get("locator_uid"))))
+                    Map.of(ENTITY_UID_FIELD, survivingId, LOCATOR_UID_FIELD, row.get(LOCATOR_UID_FIELD))))
         .toList();
   }
 }

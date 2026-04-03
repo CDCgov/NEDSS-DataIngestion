@@ -14,8 +14,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EdxPatientMatchRepositoryUtil {
+  @SuppressWarnings("java:S1068")
   private static final Logger logger =
-      LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class); // NOSONAR
+      LoggerFactory.getLogger(EdxPatientMatchRepositoryUtil.class);
   private final EdxMatchJdbcRepository edxMatchJdbcRepository;
   private final EdxPatientMatchStoredProcRepository edxPatientMatchStoreProcRepository;
   private final DataModifierReposJdbc dataModifierReposJdbc;
