@@ -31,6 +31,9 @@ public class LiquibaseConfig {
   @Bean
   public DataSource dataingestDataSource(
       @Qualifier("dataingestLiquibaseProperties") LiquibaseProperties props) {
+    System.out.println("dbUserName: %s".formatted(dbUserName));
+    System.out.println("dbUserPassword: %s".formatted(dbUserPassword));
+    System.out.println("dbUri: %s".formatted(props.getUrl()));
     return DataSourceBuilder.create()
         .url(props.getUrl())
         .username(dbUserName)

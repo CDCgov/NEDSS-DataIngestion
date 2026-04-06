@@ -10,15 +10,14 @@ services:
         condition: service_started
       di-keycloak:
         condition: service_started
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     container_name: data-ingestion-service
     env_file:
       - dataingestion.env
     environment:
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
-    networks:
-      - dataingestion
+
   data-processing-service:
     build:
       context: ./
@@ -30,15 +29,13 @@ services:
         condition: service_started
       di-keycloak:
         condition: service_started
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     container_name: data-processing-service
     env_file:
       - dataingestion.env
     environment:
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
-    networks:
-      - dataingestion
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
@@ -49,8 +46,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - dataingestion
 
   broker:
     image: confluentinc/cp-kafka:7.3.0
@@ -71,8 +66,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-    networks:
-      - dataingestion
 
   debezium:
     image: debezium/connect:2.4
@@ -102,60 +95,53 @@ services:
       STATUS_STORAGE_REPLICATION_FACTOR: 1
     volumes:
       - ./containers/debezium/plugins:/kafka/connect
-    networks:
-      - dataingestion
 
-  di-mssql:
-    build:
-      context: ./containers/db
-#      dockerfile: Dockerfile_windows
-      args:
-        - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
-    container_name: di-mssql
+  nbs-mssql:
+    image: ${DB_IMAGE:-ghcr.io/cdcent/nedssdb:latest}
     platform: linux/amd64
+    container_name: di-mssql
     ports:
       - 2433:1433
-    networks:
-      - dataingestion
+    environment:
+      - DATABASE_VERSION=${DB_VERSION:-6.0.18.1}
+      - RUN_SEEDING=true
+      - DATABASE_PASSWORD=${NBS_DBPASSWORD:-PizzaIsGood33!}
+    env_file:
+      - dataingestion.env
     healthcheck:
-      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
-      interval: 5s
+      test: ["CMD-SHELL", "test -f /tmp/db_ready"]
+      interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 10
 
   di-keycloak:
     container_name: di-keycloak
     image: quay.io/keycloak/keycloak:latest
     ports:
-      - "8100:8080"
+      - "8101:8080"
     volumes:
       - ./containers/keycloak/imports:/opt/keycloak/data/import
     env_file:
       - dataingestion.env
     entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
-    networks:
-      - dataingestion
 
   di-wildfly:
-    build: ./containers/nbs-classic
-    image: nbs-classic:6.0.16
+    image: ${WILDFLY_IMAGE:-ghcr.io/cdcent/nedssdev:${DB_VERSION:-6.0.18.1}}
+    platform: linux/amd64
     container_name: di-wildfly
     depends_on:
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     ports:
-      - "9991:9990"
-      - "7002:7001"
-      - "8788:8787"
-    networks:
-      - dataingestion
+      - 7002:7001
+      - 8788:8787
+      - 9991:9990
 
   di-record-linker:
     image: ghcr.io/cdcgov/recordlinker:v25.10.0
     container_name: di-record-linker
     depends_on:
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     ports:
       - "8070:8070"
@@ -164,10 +150,3 @@ services:
     environment:
       PORT: 8070
       API_ROOT_PATH: '/api/record-linker'
-    networks:
-      - dataingestion
-
-networks:
-  dataingestion:
-    name: dataingestion
-    driver: bridge
