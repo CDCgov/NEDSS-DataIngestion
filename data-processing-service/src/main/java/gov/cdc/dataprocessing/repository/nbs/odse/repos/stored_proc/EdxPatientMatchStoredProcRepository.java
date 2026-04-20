@@ -10,80 +10,86 @@ import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Repository;
 
 @Repository
-
 public class EdxPatientMatchStoredProcRepository {
-    @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
-    private EntityManager entityManager;
+  @PersistenceContext(unitName = "odseEntityManagerFactory") // Specify the persistence unit name
+  private EntityManager entityManager;
 
-//    @Transactional
-    public EdxPatientMatchDto getEdxPatientMatch(String typeCd, String matchString) throws DataProcessingException {
-        EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
+  //    @Transactional
+  public EdxPatientMatchDto getEdxPatientMatch(String typeCd, String matchString)
+      throws DataProcessingException {
+    EdxPatientMatchDto edxPatientMatchDto = new EdxPatientMatchDto();
 
-        try {
+    try {
 
-            StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("GetEdxPatientMatch_SP");
+      StoredProcedureQuery storedProcedure =
+          entityManager.createStoredProcedureQuery("GetEdxPatientMatch_SP");
 
-            // Register the parameters
-            storedProcedure.registerStoredProcedureParameter("type_cd", String.class, ParameterMode.IN);
-            storedProcedure.registerStoredProcedureParameter("match_string", String.class, ParameterMode.IN);
-            storedProcedure.registerStoredProcedureParameter("Patient_uid", Long.class, ParameterMode.OUT);
-            storedProcedure.registerStoredProcedureParameter("match_string_hashcode", Long.class, ParameterMode.OUT);
+      // Register the parameters
+      storedProcedure.registerStoredProcedureParameter("type_cd", String.class, ParameterMode.IN);
+      storedProcedure.registerStoredProcedureParameter(
+          "match_string", String.class, ParameterMode.IN);
+      storedProcedure.registerStoredProcedureParameter(
+          "Patient_uid", Long.class, ParameterMode.OUT);
+      storedProcedure.registerStoredProcedureParameter(
+          "match_string_hashcode", Long.class, ParameterMode.OUT);
 
-            // Set the parameter values
-            storedProcedure.setParameter("type_cd", typeCd);
-            storedProcedure.setParameter("match_string", matchString);
+      // Set the parameter values
+      storedProcedure.setParameter("type_cd", typeCd);
+      storedProcedure.setParameter("match_string", matchString);
 
-            // Execute the stored procedure
-            storedProcedure.execute();
+      // Execute the stored procedure
+      storedProcedure.execute();
 
-            // Get the output parameters
-            Long patientUid = (Long) storedProcedure.getOutputParameterValue("Patient_uid");
-            Long matchStringHashcode = (Long) storedProcedure.getOutputParameterValue("match_string_hashcode");
+      // Get the output parameters
+      Long patientUid = (Long) storedProcedure.getOutputParameterValue("Patient_uid");
+      Long matchStringHashcode =
+          (Long) storedProcedure.getOutputParameterValue("match_string_hashcode");
 
-            // Do something with the output parameters
-            edxPatientMatchDto.setPatientUid(patientUid);
-            edxPatientMatchDto.setMatchStringHashCode(matchStringHashcode);
-            edxPatientMatchDto.setTypeCd(typeCd);
-            edxPatientMatchDto.setMatchString(matchString);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-        return edxPatientMatchDto;
-
+      // Do something with the output parameters
+      edxPatientMatchDto.setPatientUid(patientUid);
+      edxPatientMatchDto.setMatchStringHashCode(matchStringHashcode);
+      edxPatientMatchDto.setTypeCd(typeCd);
+      edxPatientMatchDto.setMatchString(matchString);
+    } catch (Exception e) {
+      throw new DataProcessingException(e.getMessage(), e);
     }
+    return edxPatientMatchDto;
+  }
 
+  //    @Transactional
+  public EdxEntityMatchDto getEdxEntityMatch(String typeCd, String matchString)
+      throws DataProcessingException {
+    EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
 
-//    @Transactional
-    public EdxEntityMatchDto getEdxEntityMatch(String typeCd, String matchString) throws DataProcessingException {
-        EdxEntityMatchDto edxEntityMatchDto = new EdxEntityMatchDto();
+    try {
 
-        try {
+      StoredProcedureQuery storedProcedure =
+          entityManager.createStoredProcedureQuery("GETEDXENTITYMATCH_SP");
 
-            StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("GETEDXENTITYMATCH_SP");
+      // Register the parameters
+      storedProcedure.registerStoredProcedureParameter(
+          "in_type_cd", String.class, ParameterMode.IN);
+      storedProcedure.registerStoredProcedureParameter(
+          "in_match_string", String.class, ParameterMode.IN);
+      storedProcedure.registerStoredProcedureParameter(
+          "out_entity_uid", Long.class, ParameterMode.OUT);
 
-            // Register the parameters
-            storedProcedure.registerStoredProcedureParameter("in_type_cd", String.class, ParameterMode.IN);
-            storedProcedure.registerStoredProcedureParameter("in_match_string", String.class, ParameterMode.IN);
-            storedProcedure.registerStoredProcedureParameter("out_entity_uid", Long.class, ParameterMode.OUT);
+      // Set the parameter values
+      storedProcedure.setParameter("in_type_cd", typeCd);
+      storedProcedure.setParameter("in_match_string", matchString);
 
-            // Set the parameter values
-            storedProcedure.setParameter("in_type_cd", typeCd);
-            storedProcedure.setParameter("in_match_string", matchString);
+      // Execute the stored procedure
+      storedProcedure.execute();
 
-            // Execute the stored procedure
-            storedProcedure.execute();
+      // Get the output parameters
+      Long uid = (Long) storedProcedure.getOutputParameterValue("out_entity_uid");
 
-            // Get the output parameters
-            Long uid = (Long) storedProcedure.getOutputParameterValue("out_entity_uid");
-
-
-            edxEntityMatchDto.setEntityUid(uid);
-            edxEntityMatchDto.setTypeCd(typeCd);
-            edxEntityMatchDto.setMatchString(matchString);
-        } catch (Exception e) {
-            throw new DataProcessingException(e.getMessage(), e);
-        }
-        return edxEntityMatchDto;
-
+      edxEntityMatchDto.setEntityUid(uid);
+      edxEntityMatchDto.setTypeCd(typeCd);
+      edxEntityMatchDto.setMatchString(matchString);
+    } catch (Exception e) {
+      throw new DataProcessingException(e.getMessage(), e);
     }
+    return edxEntityMatchDto;
+  }
 }

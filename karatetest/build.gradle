@@ -25,11 +25,11 @@ dependencies {
     implementation group: 'org.apache.maven.surefire', name: 'surefire-report-parser', version: '3.0.0-M5'
     implementation group: 'org.apache.maven.plugins', name: 'maven-surefire-plugin', version: '3.0.0-M5'
     implementation group: 'org.apache.maven.plugins', name: 'maven-compiler-plugin', version: '3.8.1'
-    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.3.1'
+    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.9.2'
     implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: '3.3.1'
     implementation 'org.slf4j:slf4j-api:1.7.32'
     implementation 'org.slf4j:slf4j-simple:1.7.32'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.1'
     testImplementation('com.github.javafaker:javafaker:1.0.2') {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }

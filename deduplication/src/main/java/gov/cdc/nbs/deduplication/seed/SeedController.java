@@ -30,14 +30,15 @@ public class SeedController {
   }
 
   @PostMapping
-  public void startSeed() throws JobExecutionAlreadyRunningException,
-      JobRestartException,
-      JobInstanceAlreadyCompleteException,
-      JobParametersInvalidException {
-    JobParameters parameters = new JobParametersBuilder()
-        .addLong("startTime", System.currentTimeMillis())
-        .toJobParameters();
+  public void startSeed()
+      throws JobExecutionAlreadyRunningException,
+          JobRestartException,
+          JobInstanceAlreadyCompleteException,
+          JobParametersInvalidException {
+    JobParameters parameters =
+        new JobParametersBuilder()
+            .addLong("startTime", System.currentTimeMillis())
+            .toJobParameters();
     launcher.run(seedJob, parameters);
   }
-
 }

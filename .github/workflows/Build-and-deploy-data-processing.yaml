@@ -1,35 +1,34 @@
 name: Build and push data-processing-service images to ECR
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - master
       - rel-**
     paths:
       - "data-processing-service/**"
       - "cdaschema/**"
 jobs:
-# APP-145: turned off sonar scan for now until it is fixed (1/8/26)
-#  sonar_scan:
-#    permissions:
-#      id-token: write
-#      contents: read
-#    uses: ./.github/workflows/sonar.yaml
-#    secrets:
-#      CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
-#      PASSED_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-#      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-#      DATABASE_USER: ${{secrets.DATABASE_USER}}
-#      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+  sonar_scan:
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/sonar.yaml
+    secrets:
+      CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID: ${{secrets.CDC_NBS_SANDBOX_SHARED_SERVICES_ACCOUNTID}}
+      PASSED_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+      DATABASE_USER: ${{secrets.DATABASE_USER}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
   extract-version-suffix:
     name: Extract image tag from version
-#    needs: sonar_scan
+    needs: sonar_scan
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.parse.outputs.image_tag }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Read version from build.gradle and extract suffix
         id: parse
@@ -64,4 +63,3 @@ jobs:
       java_version: "21"
     secrets:
       NBS_ACCOUNTID: ${{secrets.NBS_ACCOUNTID}}
-

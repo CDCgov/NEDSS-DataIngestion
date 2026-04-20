@@ -12,29 +12,30 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-
 public class EdxEventProcessRepositoryUtil {
-    private final EdxEventProcessJdbcRepository edxEventProcessJdbcRepository;
-    private final ActRepositoryUtil actRepositoryUtil;
-    private final UidPoolManager uidPoolManager;
-    public EdxEventProcessRepositoryUtil(
-                                         EdxEventProcessJdbcRepository edxEventProcessJdbcRepository,
-                                         ActRepositoryUtil actRepositoryUtil,
-                                         @Lazy UidPoolManager uidPoolManager) {
-        this.edxEventProcessJdbcRepository = edxEventProcessJdbcRepository;
-        this.actRepositoryUtil = actRepositoryUtil;
-        this.uidPoolManager = uidPoolManager;
-    }
+  private final EdxEventProcessJdbcRepository edxEventProcessJdbcRepository;
+  private final ActRepositoryUtil actRepositoryUtil;
+  private final UidPoolManager uidPoolManager;
 
-    public void insertEventProcess(EDXEventProcessDto edxEventProcessDto) throws DataProcessingException {
-        var uidObj = uidPoolManager.getNextUid(LocalIdClass.NBS_DOCUMENT, false);
-        var uid = uidObj.getClassTypeUid().getSeedValueNbr();
+  public EdxEventProcessRepositoryUtil(
+      EdxEventProcessJdbcRepository edxEventProcessJdbcRepository,
+      ActRepositoryUtil actRepositoryUtil,
+      @Lazy UidPoolManager uidPoolManager) {
+    this.edxEventProcessJdbcRepository = edxEventProcessJdbcRepository;
+    this.actRepositoryUtil = actRepositoryUtil;
+    this.uidPoolManager = uidPoolManager;
+  }
 
-        actRepositoryUtil.insertActivityId(uid, edxEventProcessDto.getDocEventTypeCd(),  NEDSSConstant.EVENT_MOOD_CODE );
+  public void insertEventProcess(EDXEventProcessDto edxEventProcessDto)
+      throws DataProcessingException {
+    var uidObj = uidPoolManager.getNextUid(LocalIdClass.NBS_DOCUMENT, false);
+    var uid = uidObj.getClassTypeUid().getSeedValueNbr();
 
+    actRepositoryUtil.insertActivityId(
+        uid, edxEventProcessDto.getDocEventTypeCd(), NEDSSConstant.EVENT_MOOD_CODE);
 
-        EdxEventProcess data = new EdxEventProcess(edxEventProcessDto);
-        data.setNbsEventUid(uid);
-        edxEventProcessJdbcRepository.mergeEdxEventProcess(data);
-    }
+    EdxEventProcess data = new EdxEventProcess(edxEventProcessDto);
+    data.setNbsEventUid(uid);
+    edxEventProcessJdbcRepository.mergeEdxEventProcess(data);
+  }
 }

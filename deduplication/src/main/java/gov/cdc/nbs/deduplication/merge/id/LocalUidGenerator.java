@@ -13,7 +13,8 @@ public class LocalUidGenerator {
     this.client = client;
   }
 
-  static final String QUERY_BY_NBS_TYPE_CD = """
+  static final String QUERY_BY_NBS_TYPE_CD =
+      """
       SELECT
         seed_value_nbr as 'id',
         UID_prefix_cd as 'prefix',
@@ -24,7 +25,8 @@ public class LocalUidGenerator {
         type_cd = 'NBS';
         """;
 
-  static final String INCREMENT_BY_NBS_TYPE_CD = """
+  static final String INCREMENT_BY_NBS_TYPE_CD =
+      """
       UPDATE Local_UID_generator
       SET
         seed_value_nbr = seed_value_nbr + 1
@@ -32,7 +34,8 @@ public class LocalUidGenerator {
         type_cd = 'NBS';
       """;
 
-  static final String QUERY_BY_ID = """
+  static final String QUERY_BY_ID =
+      """
       SELECT
         seed_value_nbr as 'id',
         UID_prefix_cd as 'prefix',
@@ -43,7 +46,8 @@ public class LocalUidGenerator {
         class_name_cd = :classCd;
       """;
 
-  static final String INCREMENT_BY_ID = """
+  static final String INCREMENT_BY_ID =
+      """
       UPDATE Local_UID_generator
       SET
         seed_value_nbr = seed_value_nbr + 1
@@ -60,32 +64,28 @@ public class LocalUidGenerator {
     if (EntityType.NBS.equals(type)) {
       // The 'NBS' type has a varying class_name_cd depending on the jurisdiction,
       // but it has a consistent and unique type_cd
-      GeneratedId id = client.sql(QUERY_BY_NBS_TYPE_CD)
-          .query(GeneratedId.class)
-          .optional()
-          .orElseThrow();
+      GeneratedId id =
+          client.sql(QUERY_BY_NBS_TYPE_CD).query(GeneratedId.class).optional().orElseThrow();
 
       client.sql(INCREMENT_BY_NBS_TYPE_CD).update();
       return id;
     } else {
-      GeneratedId id = client.sql(QUERY_BY_ID)
-          .param("classCd", type.toString())
-          .query(GeneratedId.class)
-          .optional()
-          .orElseThrow();
+      GeneratedId id =
+          client
+              .sql(QUERY_BY_ID)
+              .param("classCd", type.toString())
+              .query(GeneratedId.class)
+              .optional()
+              .orElseThrow();
 
-      client.sql(INCREMENT_BY_ID)
-          .param("classCd", type.toString())
-          .update();
+      client.sql(INCREMENT_BY_ID).param("classCd", type.toString()).update();
       return id;
     }
-
   }
 
   /**
-   * Matches the class_name_cd column of the Local_UID_generator table, other than
-   * the NBS entry. Which references the
-   * type_cd column as the class_name_cd for type NBS is dynamic based on the
+   * Matches the class_name_cd column of the Local_UID_generator table, other than the NBS entry.
+   * Which references the type_cd column as the class_name_cd for type NBS is dynamic based on the
    * jurisdiction
    */
   public enum EntityType {

@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import java.util.ArrayList;
 import java.util.List;
-
-import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,29 +21,21 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClient.RequestBodySpec;
 import org.springframework.web.client.RestClient.RequestBodyUriSpec;
 import org.springframework.web.client.RestClient.ResponseSpec;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.client.RestClientException;
-
 
 @ExtendWith(MockitoExtension.class)
 class SeedWriterTest {
 
-  @Mock
-  private RestClient restClient;
+  @Mock private RestClient restClient;
 
-  @Mock
-  private RequestBodyUriSpec uriSpec;
+  @Mock private RequestBodyUriSpec uriSpec;
 
-  @Mock
-  private RequestBodySpec bodySpec;
+  @Mock private RequestBodySpec bodySpec;
 
-  @Mock
-  private ResponseSpec response;
+  @Mock private ResponseSpec response;
 
   private final ObjectMapper mapper = new ObjectMapper();
   JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
-
 
   @Test
   void initializes() {
@@ -61,7 +53,6 @@ class SeedWriterTest {
     when(bodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(bodySpec);
     when(bodySpec.body(Mockito.anyString())).thenReturn(bodySpec);
     when(bodySpec.retrieve()).thenReturn(response);
-
 
     List<NbsPerson> nbsPersons = new ArrayList<>();
     nbsPersons.add(new NbsPerson("100", "1"));
@@ -87,5 +78,4 @@ class SeedWriterTest {
     Exception exception = assertThrows(RuntimeException.class, () -> writer.write(chunk));
     assertEquals("Failed to seed cluster to MPI", exception.getMessage());
   }
-
 }
