@@ -1,4 +1,4 @@
-FROM amazoncorretto:25 as builder
+FROM amazoncorretto:21 as builder
 # try patching system for security fixes
 RUN yum update -y && yum clean all
 
@@ -18,7 +18,7 @@ WORKDIR /usr/src/dataprocessing
 #Build report service along with any required libraries
 RUN ./gradlew :data-processing-service:buildNeeded -x test --no-daemon
 
-FROM amazoncorretto:25
+FROM amazoncorretto:21
 # try patching system for security fixes
 RUN yum update -y && yum clean all
 
