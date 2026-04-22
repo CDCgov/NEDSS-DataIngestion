@@ -3,7 +3,7 @@ Following this guide will set up a fully functioning local development environme
 
 ### Building
 1. Provide the necessary [configurations](#configuration)
-1. **Optional**: Build and deploy NBS 6 Wildfly docker container (requires ability to git clone [NEDSSDev](https://github.com/cdcent/))
+1. **Optional**: Build and deploy NBS 6 Wildfly docker container
       ```bash
       ./containers/build_classic.sh
       ```
@@ -61,7 +61,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8100/realms/NBS
+          issuer-uri: http://localhost:8101/realms/NBS
   datasource:
     username: sa
     password: fake.fake.fake.1234
