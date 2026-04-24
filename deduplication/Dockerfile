@@ -1,4 +1,4 @@
-FROM gradle:9-jdk21 AS builder
+FROM gradle:9-jdk21 AS builder 
 
 # Copy required sources
 COPY deduplication /usr/src/nbs/deduplication
