@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
+  private static final String ENTITY_UID_FIELD = "entity_uid";
+  private static final String ENTITY_ID_SEQ_FIELD = "entity_id_seq";
 
   static final String UPDATE_ALL_PERSON_IDENTIFICATION_INACTIVE =
       """
@@ -303,10 +305,10 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
 
               return new AuditUpdateAction(
                   Map.of(
-                      "entity_uid",
-                      row.get("entity_uid"),
-                      "entity_id_seq",
-                      row.get("entity_id_seq")), // NOSONAR
+                      ENTITY_UID_FIELD,
+                      row.get(ENTITY_UID_FIELD),
+                      ENTITY_ID_SEQ_FIELD,
+                      row.get(ENTITY_ID_SEQ_FIELD)),
                   values);
             })
         .toList();
@@ -367,8 +369,8 @@ public class PersonIdentificationsMergeHandler implements SectionMergeHandler {
   private AuditInsertAction buildAuditInsertAction(String survivingId, int newSeq) {
     return new AuditInsertAction(
         Map.of(
-            "entity_uid", survivingId,
-            "entity_id_seq", newSeq));
+            ENTITY_UID_FIELD, survivingId,
+            ENTITY_ID_SEQ_FIELD, newSeq));
   }
 
   private int getMaxSequenceForPerson(String personUid) {
