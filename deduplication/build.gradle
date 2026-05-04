@@ -30,7 +30,7 @@ dependencies {
 
   // security
   implementation 'org.springframework.boot:spring-boot-starter-security'
-  implementation 'org.springframework.security:spring-security-config:7.0.5' 
+  implementation 'org.springframework.security:spring-security-config:7.0.5'
   implementation 'org.springframework.security:spring-security-web:7.0.5'
   implementation 'org.springframework.security:spring-security-oauth2-resource-server:7.0.5'
   implementation 'org.springframework.security:spring-security-oauth2-jose:7.0.5'
