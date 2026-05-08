@@ -243,7 +243,7 @@ dependencies {
 
 
   // Misc
-  implementation 'org.yaml:snakeyaml:2.6'
+  implementation 'org.yaml:snakeyaml:2.6' 
   implementation 'org.apache.commons:commons-lang3:3.17.0'
   implementation 'com.google.code.gson:gson:2.13.2'
   implementation 'com.zaxxer:HikariCP:5.1.0'
