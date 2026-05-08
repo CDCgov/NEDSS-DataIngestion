@@ -208,7 +208,7 @@ dependencies {
 
     // Testing    
     testImplementation('org.junit.jupiter:junit-jupiter')
-    testImplementation 'org.springframework.kafka:spring-kafka-test:3.1.0'
+    testImplementation 'org.springframework.kafka:spring-kafka-test:4.0.5'
     testImplementation('org.junit.jupiter:junit-jupiter:5.9.2')
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
