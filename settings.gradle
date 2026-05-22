@@ -17,4 +17,3 @@ include 'data-processing-service'
 
 include 'deduplication'
 
-// noop
