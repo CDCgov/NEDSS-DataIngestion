@@ -165,7 +165,7 @@ dependencies {
     implementation 'org.apache.kafka:kafka-clients:3.9.2'
 
     // Swagger - openapi
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
     implementation("org.apache.httpcomponents.core5:httpcore5:5.4.2")
     implementation("com.nimbusds:oauth2-oidc-sdk:11.8")
 
