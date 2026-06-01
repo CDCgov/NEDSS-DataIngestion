@@ -1,6 +1,7 @@
 name: Build and push data-ingestion-service images to ECR
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches:
       - main
@@ -57,11 +58,12 @@ jobs:
       security-events: write
     name: Build Container
     needs: extract-version-suffix
-    uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@main
+    uses: CDCgov/NEDSS-Workflows/.github/workflows/Build-gradle-microservice-container.yaml@cm/octopus
     with:
       microservice_name: nbs7-dataingestion-service
       dockerfile_relative_path: -f ./data-ingestion-service/Dockerfile .
       environment_classifier: ${{ needs.extract-version-suffix.outputs.image_tag }}
       java_version: "21"
+      create_octopus_release: true
     secrets:
       NBS_ACCOUNTID: ${{secrets.NBS_ACCOUNTID}}
