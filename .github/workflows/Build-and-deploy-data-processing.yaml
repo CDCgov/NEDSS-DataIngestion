@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - rel-**
+      - alpha-trigger/**
     paths:
       - "data-processing-service/**"
       - "cdaschema/**"
@@ -61,5 +62,6 @@ jobs:
       dockerfile_relative_path: -f ./data-processing-service/Dockerfile .
       environment_classifier: ${{ needs.extract-version-suffix.outputs.image_tag }}
       java_version: "21"
+      create_octopus_release: true
     secrets:
       NBS_ACCOUNTID: ${{secrets.NBS_ACCOUNTID}}

@@ -86,3 +86,4 @@ test {
         systemProperty "testing.database.mssql.image", System.getProperty("testing.database.mssql.image")
     }
 }
+

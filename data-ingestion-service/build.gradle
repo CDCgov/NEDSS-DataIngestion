@@ -343,3 +343,4 @@ sonarqube {
 				" **/report/repository/model/**, **/config/**, **/model/**, **/jaxb/**, **/TimeMetricsBuilder.java"
 	}
 }
+
