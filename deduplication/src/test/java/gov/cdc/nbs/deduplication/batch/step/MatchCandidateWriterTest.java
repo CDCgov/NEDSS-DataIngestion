@@ -6,9 +6,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import java.time.LocalDateTime;
 import java.util.*;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,22 +25,15 @@ import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
 import org.springframework.jdbc.support.KeyHolder;
 
-import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
-import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
-
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class MatchCandidateWriterTest {
 
-  @Mock
-  private JdbcClient jdbcClient;
+  @Mock private JdbcClient jdbcClient;
 
-  @Mock
-  private PatientRecordService patientRecordService;
+  @Mock private PatientRecordService patientRecordService;
 
-  @InjectMocks
-  private MatchCandidateWriter writer;
+  @InjectMocks private MatchCandidateWriter writer;
 
   @Test
   void writesChunkWithNullPossibleMatches() {
@@ -90,7 +85,8 @@ class MatchCandidateWriterTest {
     mockEnsureGroupContainsPerson(true, 1l);
 
     LocalDateTime addTime = LocalDateTime.now();
-    PatientNameAndTime patientNameAndTime = new PatientNameAndTime("localId", "Smith, John", addTime);
+    PatientNameAndTime patientNameAndTime =
+        new PatientNameAndTime("localId", "Smith, John", addTime);
     when(patientRecordService.fetchPersonNameAndAddTime("1234")).thenReturn(patientNameAndTime);
     mockInsert("1234", patientNameAndTime, "4321", 1l);
 
@@ -124,7 +120,8 @@ class MatchCandidateWriterTest {
     mockEnsureGroupContainsPerson(false, 1l);
 
     LocalDateTime addTime = LocalDateTime.now();
-    PatientNameAndTime patientNameAndTime = new PatientNameAndTime("localId", "Smith, John", addTime);
+    PatientNameAndTime patientNameAndTime =
+        new PatientNameAndTime("localId", "Smith, John", addTime);
     when(patientRecordService.fetchPersonNameAndAddTime("1234")).thenReturn(patientNameAndTime);
     mockInsert("1234", patientNameAndTime, "4321", 1l);
 
@@ -155,10 +152,10 @@ class MatchCandidateWriterTest {
     List<String> possibleMatches = List.of("1234", "mpiId1", "mpiId2"); // first is self
     MatchCandidate candidate = new MatchCandidate("1234", possibleMatches);
 
-    Map<String, String> mpiMap = Map.of(
+    Map<String, String> mpiMap =
+        Map.of(
             "mpiId1", "4321",
-            "mpiId2", "5678"
-    );
+            "mpiId2", "5678");
     mockGetPersonIdsMulti(mpiMap);
 
     mockExistingMergeGroup(null, "4321");
@@ -175,9 +172,13 @@ class MatchCandidateWriterTest {
     writer.write(new Chunk<>(List.of(candidate)));
 
     // Verify only the first valid non-self match is processed
-    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID); // resolved mpiId1 only
+    verify(jdbcClient, times(1))
+        .sql(MatchCandidateWriter.SELECT_PERSON_UID_BY_MPI_ID); // resolved mpiId1 only
     verify(patientRecordService, times(1)).fetchPersonNameAndAddTime("1234");
-    verify(jdbcClient, times(1)).sql(MatchCandidateWriter.INSERT_MATCH_REQUIRING_REVIEW); // inserted for first non-self match
+    verify(jdbcClient, times(1))
+        .sql(
+            MatchCandidateWriter
+                .INSERT_MATCH_REQUIRING_REVIEW); // inserted for first non-self match
   }
 
   @Test
@@ -206,24 +207,27 @@ class MatchCandidateWriterTest {
 
     // Allow param() chaining and record the last mpiId parameter
     final List<String> lastParam = new ArrayList<>();
-    when(spec.param(eq("mpiId"), anyString())).thenAnswer(invocation -> {
-      String mpiId = invocation.getArgument(1);
-      lastParam.clear();
-      lastParam.add(mpiId);
-      return spec; // for chaining
-    });
+    when(spec.param(eq("mpiId"), anyString()))
+        .thenAnswer(
+            invocation -> {
+              String mpiId = invocation.getArgument(1);
+              lastParam.clear();
+              lastParam.add(mpiId);
+              return spec; // for chaining
+            });
 
     // Mock query(String.class) returning a MappedQuerySpec
     MappedQuerySpec<String> mqs = Mockito.mock(MappedQuerySpec.class);
     when(spec.query(String.class)).thenReturn(mqs);
 
     // Return the correct person UID based on the last mpiId parameter
-    when(mqs.single()).thenAnswer(invocation -> {
-      String mpiId = lastParam.get(0);
-      return mpiToPersonUid.get(mpiId);
-    });
+    when(mqs.single())
+        .thenAnswer(
+            invocation -> {
+              String mpiId = lastParam.get(0);
+              return mpiToPersonUid.get(mpiId);
+            });
   }
-
 
   private void mockEnsureGroupContainsPerson(boolean includesPerson, long mergeGroup) {
     // Mock check if person already exists
@@ -250,13 +254,15 @@ class MatchCandidateWriterTest {
     StatementSpec spec = Mockito.mock(StatementSpec.class);
     when(jdbcClient.sql(MatchCandidateWriter.INSERT_MATCH_GROUP)).thenReturn(spec);
 
-    when(spec.update(Mockito.any(KeyHolder.class))).thenAnswer(new Answer<Integer>() {
-      public Integer answer(InvocationOnMock invocation) {
-        KeyHolder kh = invocation.getArgument(0);
-        kh.getKeyList().add(Collections.singletonMap("GENERATED_KEY", groupId));
-        return 1;
-      }
-    });
+    when(spec.update(Mockito.any(KeyHolder.class)))
+        .thenAnswer(
+            new Answer<Integer>() {
+              public Integer answer(InvocationOnMock invocation) {
+                KeyHolder kh = invocation.getArgument(0);
+                kh.getKeyList().add(Collections.singletonMap("GENERATED_KEY", groupId));
+                return 1;
+              }
+            });
   }
 
   private void mockExistingMergeGroup(Long mergeGroup, String personUid) {
@@ -306,7 +312,5 @@ class MatchCandidateWriterTest {
     StatementSpec spec = Mockito.mock(StatementSpec.class);
     when(jdbcClient.sql(MatchCandidateWriter.UPDATE_STATUS_TO_P)).thenReturn(spec);
     when(spec.param("personIds", personIds)).thenReturn(spec);
-
   }
-
 }

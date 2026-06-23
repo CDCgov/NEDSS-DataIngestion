@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.person;
 
+import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
+
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.constant.enums.MsgType;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -14,138 +16,154 @@ import gov.cdc.dataprocessing.utilities.component.entity.EntityHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.patient.EdxPatientMatchRepositoryUtil;
 import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static gov.cdc.dataprocessing.constant.elr.NEDSSConstant.PHCR_IMPORT_SRT;
+import org.springframework.stereotype.Service;
 
 @Service
+public class ProviderMatchingService extends ProviderMatchingBaseService
+    implements IProviderMatchingService {
 
-public class ProviderMatchingService extends ProviderMatchingBaseService implements IProviderMatchingService {
+  public ProviderMatchingService(
+      EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
+      EntityHelper entityHelper,
+      PatientRepositoryUtil patientRepositoryUtil,
+      CachingValueDpDpService cachingValueDpService,
+      PrepareAssocModelHelper prepareAssocModelHelper) {
+    super(
+        edxPatientMatchRepositoryUtil,
+        entityHelper,
+        patientRepositoryUtil,
+        cachingValueDpService,
+        prepareAssocModelHelper);
+  }
 
-    public ProviderMatchingService(
-            EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
-            EntityHelper entityHelper,
-            PatientRepositoryUtil patientRepositoryUtil,
-            CachingValueDpDpService cachingValueDpService,
-            PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
+  @SuppressWarnings("java:S2259")
+  public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer)
+      throws DataProcessingException {
+    Long entityUid = personContainer.getThePersonDto().getPersonUid();
+    List<EdxEntityMatchDto> matchesToPersist = new ArrayList<>();
+    EDXActivityDetailLogDto logDto = createLogDtoTemplate();
+
+    String localId = normalize(getLocalId(personContainer));
+    if (attemptMatch(localId, personContainer, matchesToPersist, logDto)) return logDto;
+
+    List<String> identifiers = getIdentifier(personContainer);
+    if (identifiers != null) {
+      for (String identifier : identifiers) {
+        if (attemptMatch(normalize(identifier), personContainer, matchesToPersist, logDto))
+          return logDto;
+      }
     }
 
-    @SuppressWarnings("java:S2259")
-    public EDXActivityDetailLogDto getMatchingProvider(PersonContainer personContainer) throws DataProcessingException {
-        Long entityUid = personContainer.getThePersonDto().getPersonUid();
-        List<EdxEntityMatchDto> matchesToPersist = new ArrayList<>();
-        EDXActivityDetailLogDto logDto = createLogDtoTemplate();
+    String nameAddr1 = normalize(nameAddressStreetOneProvider(personContainer));
+    if (attemptMatch(nameAddr1, personContainer, matchesToPersist, logDto)) return logDto;
 
-        String localId = normalize(getLocalId(personContainer));
-        if (attemptMatch(localId, personContainer, matchesToPersist, logDto)) return logDto;
+    String phone = normalize(telePhoneTxtProvider(personContainer));
+    if (attemptMatch(phone, personContainer, matchesToPersist, logDto)) return logDto;
 
-        List<String> identifiers = getIdentifier(personContainer);
-        if (identifiers != null) {
-            for (String identifier : identifiers) {
-                if (attemptMatch(normalize(identifier), personContainer, matchesToPersist, logDto)) return logDto;
-            }
-        }
-
-        String nameAddr1 = normalize(nameAddressStreetOneProvider(personContainer));
-        if (attemptMatch(nameAddr1, personContainer, matchesToPersist, logDto)) return logDto;
-
-        String phone = normalize(telePhoneTxtProvider(personContainer));
-        if (attemptMatch(phone, personContainer, matchesToPersist, logDto)) return logDto;
-
-        // Create provider if not found
-        if (NEDSSConstant.PRV.equals(personContainer.getThePersonDto().getCd())) {
-            entityUid = processingProvider(personContainer, "PROVIDER", NEDSSConstant.PRV_CR);
-        }
-
-        if (nameAddr1 != null) {
-            persistMatchIfNotNull(nameAddr1, nameAddr1.hashCode(), entityUid, personContainer);
-        }
-        if (phone != null) {
-            persistMatchIfNotNull(phone, phone.hashCode(), entityUid, personContainer);
-        }
-
-        for (EdxEntityMatchDto dto : matchesToPersist) {
-            dto.setEntityUid(entityUid);
-            persistIfNoRole(dto, personContainer);
-        }
-
-        return buildLogDto(logDto, entityUid, "Provider not found. New Provider created with person uid : ");
+    // Create provider if not found
+    if (NEDSSConstant.PRV.equals(personContainer.getThePersonDto().getCd())) {
+      entityUid = processingProvider(personContainer, "PROVIDER", NEDSSConstant.PRV_CR);
     }
 
-    boolean attemptMatch(String matchString, PersonContainer container, List<EdxEntityMatchDto> matches, EDXActivityDetailLogDto logDto) throws DataProcessingException {
-        if (matchString == null) return false;
-
-        EdxEntityMatchDto matchedDto = getEdxPatientMatchRepositoryUtil().getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, matchString);
-        if (matchedDto != null && matchedDto.getEntityUid() != null) {
-            logMatch(logDto, matchedDto.getEntityUid());
-            if (container.getRole() == null) {
-                persistIfNoRole(createMatchDto(matchString, matchString.hashCode()), container, matchedDto.getEntityUid());
-            }
-            return true;
-        }
-
-        matches.add(createMatchDto(matchString, matchString.hashCode()));
-        return false;
+    if (nameAddr1 != null) {
+      persistMatchIfNotNull(nameAddr1, nameAddr1.hashCode(), entityUid, personContainer);
+    }
+    if (phone != null) {
+      persistMatchIfNotNull(phone, phone.hashCode(), entityUid, personContainer);
     }
 
-    protected void persistMatchIfNotNull(String matchString, int hashCode, Long entityUid, PersonContainer container)  {
-        if (matchString != null) {
-            EdxEntityMatchDto dto = createMatchDto(matchString, hashCode);
-            dto.setEntityUid(entityUid);
-            persistIfNoRole(dto, container);
-        }
+    for (EdxEntityMatchDto dto : matchesToPersist) {
+      dto.setEntityUid(entityUid);
+      persistIfNoRole(dto, personContainer);
     }
 
-    protected void persistIfNoRole(EdxEntityMatchDto dto, PersonContainer container)  {
-        if (container.getRole() == null) {
-            getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(dto);
-        }
+    return buildLogDto(
+        logDto, entityUid, "Provider not found. New Provider created with person uid : ");
+  }
+
+  boolean attemptMatch(
+      String matchString,
+      PersonContainer container,
+      List<EdxEntityMatchDto> matches,
+      EDXActivityDetailLogDto logDto)
+      throws DataProcessingException {
+    if (matchString == null) return false;
+
+    EdxEntityMatchDto matchedDto =
+        getEdxPatientMatchRepositoryUtil()
+            .getEdxEntityMatchOnMatchString(NEDSSConstant.PRV, matchString);
+    if (matchedDto != null && matchedDto.getEntityUid() != null) {
+      logMatch(logDto, matchedDto.getEntityUid());
+      if (container.getRole() == null) {
+        persistIfNoRole(
+            createMatchDto(matchString, matchString.hashCode()),
+            container,
+            matchedDto.getEntityUid());
+      }
+      return true;
     }
 
-    protected void persistIfNoRole(EdxEntityMatchDto dto, PersonContainer container, Long entityUid)  {
-        dto.setEntityUid(entityUid);
-        persistIfNoRole(dto, container);
+    matches.add(createMatchDto(matchString, matchString.hashCode()));
+    return false;
+  }
+
+  protected void persistMatchIfNotNull(
+      String matchString, int hashCode, Long entityUid, PersonContainer container) {
+    if (matchString != null) {
+      EdxEntityMatchDto dto = createMatchDto(matchString, hashCode);
+      dto.setEntityUid(entityUid);
+      persistIfNoRole(dto, container);
     }
+  }
 
-    private EdxEntityMatchDto createMatchDto(String matchString, int hashCode) {
-        EdxEntityMatchDto dto = new EdxEntityMatchDto();
-        dto.setTypeCd(NEDSSConstant.PRV);
-        dto.setMatchString(matchString);
-        dto.setMatchStringHashCode((long) hashCode);
-        return dto;
+  protected void persistIfNoRole(EdxEntityMatchDto dto, PersonContainer container) {
+    if (container.getRole() == null) {
+      getEdxPatientMatchRepositoryUtil().saveEdxEntityMatch(dto);
     }
+  }
 
-    private void logMatch(EDXActivityDetailLogDto logDto, Long entityUid) {
-        logDto.setRecordId(String.valueOf(entityUid));
-        logDto.setComment("Provider entity found with entity uid : " + entityUid);
-        logDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-    }
+  protected void persistIfNoRole(EdxEntityMatchDto dto, PersonContainer container, Long entityUid) {
+    dto.setEntityUid(entityUid);
+    persistIfNoRole(dto, container);
+  }
 
-    private EDXActivityDetailLogDto buildLogDto(EDXActivityDetailLogDto logDto, Long entityUid, String message) {
-        logDto.setRecordId(String.valueOf(entityUid));
-        logDto.setComment(message + entityUid);
-        logDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
-        return logDto;
-    }
+  private EdxEntityMatchDto createMatchDto(String matchString, int hashCode) {
+    EdxEntityMatchDto dto = new EdxEntityMatchDto();
+    dto.setTypeCd(NEDSSConstant.PRV);
+    dto.setMatchString(matchString);
+    dto.setMatchStringHashCode((long) hashCode);
+    return dto;
+  }
 
-    private EDXActivityDetailLogDto createLogDtoTemplate() {
-        EDXActivityDetailLogDto dto = new EDXActivityDetailLogDto();
-        dto.setRecordType(String.valueOf(MsgType.Provider));
-        dto.setRecordName(PHCR_IMPORT_SRT);
-        return dto;
-    }
+  private void logMatch(EDXActivityDetailLogDto logDto, Long entityUid) {
+    logDto.setRecordId(String.valueOf(entityUid));
+    logDto.setComment("Provider entity found with entity uid : " + entityUid);
+    logDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+  }
 
-    private String normalize(String input) {
-        return (input != null) ? input.toUpperCase() : null;
-    }
+  private EDXActivityDetailLogDto buildLogDto(
+      EDXActivityDetailLogDto logDto, Long entityUid, String message) {
+    logDto.setRecordId(String.valueOf(entityUid));
+    logDto.setComment(message + entityUid);
+    logDto.setLogType(String.valueOf(EdxRuleAlgorothmManagerDto.STATUS_VAL.Success));
+    return logDto;
+  }
 
+  private EDXActivityDetailLogDto createLogDtoTemplate() {
+    EDXActivityDetailLogDto dto = new EDXActivityDetailLogDto();
+    dto.setRecordType(String.valueOf(MsgType.Provider));
+    dto.setRecordName(PHCR_IMPORT_SRT);
+    return dto;
+  }
 
-    public Long setProvider(PersonContainer personContainer, String businessTriggerCd) throws DataProcessingException {
-       return processingProvider(personContainer,  "",  businessTriggerCd) ;
-    }
+  private String normalize(String input) {
+    return (input != null) ? input.toUpperCase() : null;
+  }
 
+  public Long setProvider(PersonContainer personContainer, String businessTriggerCd)
+      throws DataProcessingException {
+    return processingProvider(personContainer, "", businessTriggerCd);
+  }
 }

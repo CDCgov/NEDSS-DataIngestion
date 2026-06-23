@@ -1,11 +1,19 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.nbs.deduplication.SecurityTestUtil;
 import gov.cdc.nbs.deduplication.merge.id.GeneratedId;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator;
 import gov.cdc.nbs.deduplication.merge.id.LocalUidGenerator.EntityType;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,28 +22,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class PersonBirthAndSexMergeHandlerTest {
 
-  @Mock
-  private NamedParameterJdbcTemplate nbsTemplate;
+  @Mock private NamedParameterJdbcTemplate nbsTemplate;
 
-  @Mock
-  private LocalUidGenerator idGenerator;
+  @Mock private LocalUidGenerator idGenerator;
 
   private PersonBirthAndSexMergeHandler handler;
 
-  @Mock
-  private PatientMergeRequest mockRequest;
+  @Mock private PatientMergeRequest mockRequest;
 
   private static final String SURVIVOR_ID = "survivorId";
   private static final String SOURCE_ID = "supersededId";
@@ -49,13 +45,23 @@ class PersonBirthAndSexMergeHandlerTest {
   void setUp() {
     handler = new PersonBirthAndSexMergeHandler(nbsTemplate, idGenerator);
 
-    fieldSourceWithDiffIds = new PatientMergeRequest.SexAndBirthFieldSource(
-        SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID,
-        SOURCE_ID, SOURCE_ID, SOURCE_ID);
+    fieldSourceWithDiffIds =
+        new PatientMergeRequest.SexAndBirthFieldSource(
+            SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID, SOURCE_ID,
+            SOURCE_ID, SOURCE_ID);
 
-    fieldSourceWithSameIds = new PatientMergeRequest.SexAndBirthFieldSource(
-        SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID,
-        SURVIVOR_ID, SURVIVOR_ID, SURVIVOR_ID);
+    fieldSourceWithSameIds =
+        new PatientMergeRequest.SexAndBirthFieldSource(
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID,
+            SURVIVOR_ID);
 
     audit = new PatientMergeAudit(new ArrayList<>());
   }
@@ -68,7 +74,6 @@ class PersonBirthAndSexMergeHandlerTest {
     handler.handleMerge("matchId", mockRequest, audit);
 
     verify(nbsTemplate, times(12)).update(anyString(), any(MapSqlParameterSource.class));
-
   }
 
   @Test
@@ -86,12 +91,13 @@ class PersonBirthAndSexMergeHandlerTest {
     when(mockRequest.survivingRecord()).thenReturn(SURVIVOR_ID);
     when(mockRequest.sexAndBirth()).thenReturn(fieldSourceWithDiffIds);
     when(nbsTemplate.queryForObject(
-        eq(PersonBirthAndSexMergeHandler.SHOULD_CREATE_POSTAL_LOCATOR),
-        any(MapSqlParameterSource.class),
-        eq(Boolean.class)))
+            eq(PersonBirthAndSexMergeHandler.SHOULD_CREATE_POSTAL_LOCATOR),
+            any(MapSqlParameterSource.class),
+            eq(Boolean.class)))
         .thenReturn(true);
 
-    when(idGenerator.getNextValidId(EntityType.NBS)).thenReturn(new GeneratedId(14L, "prefix", "suffix"));
+    when(idGenerator.getNextValidId(EntityType.NBS))
+        .thenReturn(new GeneratedId(14L, "prefix", "suffix"));
     SecurityTestUtil.mockSecurityContext();
 
     handler.handleMerge("matchId", mockRequest, audit);
@@ -105,9 +111,9 @@ class PersonBirthAndSexMergeHandlerTest {
     when(mockRequest.sexAndBirth()).thenReturn(fieldSourceWithDiffIds);
 
     when(nbsTemplate.queryForObject(
-        eq(PersonBirthAndSexMergeHandler.SHOULD_CREATE_POSTAL_LOCATOR),
-        any(MapSqlParameterSource.class),
-        eq(Boolean.class)))
+            eq(PersonBirthAndSexMergeHandler.SHOULD_CREATE_POSTAL_LOCATOR),
+            any(MapSqlParameterSource.class),
+            eq(Boolean.class)))
         .thenReturn(true);
 
     when(idGenerator.getNextValidId(EntityType.NBS))
@@ -129,29 +135,31 @@ class PersonBirthAndSexMergeHandlerTest {
     countryRow.put("postal_locator_uid", 102L);
     countryRow.put("cntry_cd", "USA");
 
-    when(nbsTemplate.queryForList(eq(PersonBirthAndSexMergeHandler.SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE),
-        any(MapSqlParameterSource.class)))
+    when(nbsTemplate.queryForList(
+            eq(PersonBirthAndSexMergeHandler.SELECT_BIRTH_CITY_FOR_AUDIT_BEFORE_UPDATE),
+            any(MapSqlParameterSource.class)))
         .thenReturn(List.of(cityRow));
 
     when(nbsTemplate.queryForList(
-        eq(PersonBirthAndSexMergeHandler.SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE),
-        any(MapSqlParameterSource.class)))
+            eq(PersonBirthAndSexMergeHandler.SELECT_BIRTH_STATE_AND_COUNTY_FOR_AUDIT_BEFORE_UPDATE),
+            any(MapSqlParameterSource.class)))
         .thenReturn(List.of(stateCountyRow));
 
-    when(nbsTemplate.queryForList(eq(PersonBirthAndSexMergeHandler.SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE),
-        any(MapSqlParameterSource.class)))
+    when(nbsTemplate.queryForList(
+            eq(PersonBirthAndSexMergeHandler.SELECT_BIRTH_COUNTRY_FOR_AUDIT_BEFORE_UPDATE),
+            any(MapSqlParameterSource.class)))
         .thenReturn(List.of(countryRow));
 
     handler.handleMerge("matchId", mockRequest, audit);
 
     assertTrue(
         audit.getRelatedTableAudits().stream()
-            .anyMatch(r -> r.tableName().equals("Postal_locator") && !r.updates().isEmpty())
-    );
+            .anyMatch(r -> r.tableName().equals("Postal_locator") && !r.updates().isEmpty()));
     assertTrue(
         audit.getRelatedTableAudits().stream()
-            .anyMatch(r -> r.tableName().equals("Entity_locator_participation") && !r.inserts().isEmpty())
-    );
+            .anyMatch(
+                r ->
+                    r.tableName().equals("Entity_locator_participation")
+                        && !r.inserts().isEmpty()));
   }
-
 }

@@ -9,8 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CdaOrganizationMapper {
-    private POCDMT000040Section clinicalSection;
-    private int performerComponentCounter;
-    private int componentCounter;
-    private int performerSectionCounter;
+  private POCDMT000040Section clinicalSection;
+  private int performerComponentCounter;
+  private int componentCounter;
+  private int performerSectionCounter;
 }

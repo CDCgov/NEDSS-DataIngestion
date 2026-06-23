@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ConfirmationMethodQuery {
-    public static final String SELECT_CONFIRMATION_METHOD_BY_UID = """
+  public static final String SELECT_CONFIRMATION_METHOD_BY_UID =
+"""
     SELECT
         public_health_case_uid AS publicHealthCaseUid,
         confirmation_method_cd AS confirmationMethodCd,
@@ -11,7 +12,8 @@ public class ConfirmationMethodQuery {
     WHERE public_health_case_uid = :uid
 """;
 
-    public static final String MERGE_CONFIRMATION_METHOD = """
+  public static final String MERGE_CONFIRMATION_METHOD =
+      """
             MERGE INTO Confirmation_method AS target
             USING (VALUES (:publicHealthCaseUid, :confirmationMethodCd, :confirmationMethodDescTxt, :confirmationMethodTime)) AS source
                    (public_health_case_uid, confirmation_method_cd, confirmation_method_desc_txt, confirmation_method_time)
@@ -34,6 +36,6 @@ public class ConfirmationMethodQuery {
                     source.confirmation_method_desc_txt,
                     source.confirmation_method_time
                 );
-            
+
             """;
 }

@@ -9,16 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class CdaProviderMapper {
-    private POCDMT000040Section clinicalSection;
-    private int performerComponentCounter;
-    private int componentCounter;
-    private int performerSectionCounter;
-    private String inv168;
+  private POCDMT000040Section clinicalSection;
+  private int performerComponentCounter;
+  private int componentCounter;
+  private int performerSectionCounter;
+  private String inv168;
 }

@@ -1,7 +1,9 @@
 package gov.cdc.nbs.deduplication.seed.step;
 
+import gov.cdc.nbs.deduplication.seed.mapper.NbsPersonMapper;
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
+import java.util.Collections;
 import javax.sql.DataSource;
-
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.PagingQueryProvider;
@@ -11,11 +13,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import gov.cdc.nbs.deduplication.seed.mapper.NbsPersonMapper;
-import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
-
-import java.util.Collections;
-
 @Component
 public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
@@ -23,12 +20,13 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
   private final NamedParameterJdbcTemplate mpiNamedJdbcTemplate;
   private final DataSource dataSource;
 
-  private static final String LAST_SEEDED_PERSON_QUERY = "SELECT MAX(external_person_id) FROM mpi_patient";
+  private static final String LAST_SEEDED_PERSON_QUERY =
+      "SELECT MAX(external_person_id) FROM mpi_patient";
 
   public PersonReader(
       @Qualifier("nbs") DataSource dataSource,
-      @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate mpiNamedJdbcTemplate
-  ) throws Exception {
+      @Qualifier("mpiNamedTemplate") NamedParameterJdbcTemplate mpiNamedJdbcTemplate)
+      throws Exception {
 
     this.mpiNamedJdbcTemplate = mpiNamedJdbcTemplate;
     String whereClause = buildWhereClause(null);
@@ -72,7 +70,8 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
   }
 
   private String buildWhereClause(Long lastProcessedId) {
-    String baseClause = "WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT'";
+    String baseClause =
+        "WHERE person_uid = person_parent_uid AND record_status_cd = 'ACTIVE' AND cd = 'PAT'";
     if (lastProcessedId != null && lastProcessedId > 0) {
       return baseClause + " AND person_uid > " + lastProcessedId;
     }
@@ -81,8 +80,8 @@ public class PersonReader extends JdbcPagingItemReader<NbsPerson> {
 
   private Long getLastSeededPersonId() {
     try {
-      return mpiNamedJdbcTemplate.queryForObject(LAST_SEEDED_PERSON_QUERY,
-          Collections.emptyMap(), Long.class);
+      return mpiNamedJdbcTemplate.queryForObject(
+          LAST_SEEDED_PERSON_QUERY, Collections.emptyMap(), Long.class);
     } catch (EmptyResultDataAccessException e) {
       return null; // If table is empty, return null
     }

@@ -5,12 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class TestCodedValue {
 
-    private String testCode;
-    private String testCodeDesc;
-    private String resultCode;
-    private String resultCodeDesc;
-
+  private String testCode;
+  private String testCodeDesc;
+  private String resultCode;
+  private String resultCodeDesc;
 }

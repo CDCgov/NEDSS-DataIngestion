@@ -12,43 +12,38 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_type.OruR1;
 
 public class HL7Helper {
 
-    private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
+  private IHL7Parser parser = new HL7Parser(new DefaultHapiContext());
 
-    /**
-     * HL7 string validator, replacing "\n" by "\r"
-     * */
-    public String hl7StringFormat(String message) throws DiHL7Exception {
-        return parser.hl7MessageStringFormat(message);
-    }
+  /** HL7 string validator, replacing "\n" by "\r" */
+  public String hl7StringFormat(String message) throws DiHL7Exception {
+    return parser.hl7MessageStringFormat(message);
+  }
 
-    /**
-     * Parser to be updated
-     * */
-    public HL7ParsedMessage<OruR1> hl7StringParser(String message) throws DiHL7Exception {
-        message = parser.processFhsMessage(message);
-        return parser.hl7StringParser(message);
-    }
+  /** Parser to be updated */
+  public HL7ParsedMessage<OruR1> hl7StringParser(String message) throws DiHL7Exception {
+    message = parser.processFhsMessage(message);
+    return parser.hl7StringParser(message);
+  }
 
-    public ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7StringParser231(String message) throws DiHL7Exception {
-        return parser.hl7v231StringParser(message);
-    }
+  public ca.uhn.hl7v2.model.v231.message.ORU_R01 hl7StringParser231(String message)
+      throws DiHL7Exception {
+    return parser.hl7v231StringParser(message);
+  }
 
-    public HL7ParsedMessage<OruR1> convert231To251(String message) throws DiHL7Exception {
-        return parser.convert231To251(message, null);
-    }
+  public HL7ParsedMessage<OruR1> convert231To251(String message) throws DiHL7Exception {
+    return parser.convert231To251(message, null);
+  }
 
+  public String hl7Validation(String message) throws DiHL7Exception {
+    message = parser.processFhsMessage(message);
+    return parser.hl7ORUValidation(message);
+  }
 
-    public String hl7Validation(String message) throws DiHL7Exception{
-        message = parser.processFhsMessage(message);
-        return parser.hl7ORUValidation(message);
-    }
+  public String hl7ProcessingFhs(String message) {
+    return parser.processFhsMessage(message);
+  }
 
-    public String hl7ProcessingFhs(String message) {
-        return parser.processFhsMessage(message);
-    }
-
-    public String processFhsMessage(String message)  {
-        return parser.processFhsMessage(message);
-    }
-
+  public String processFhsMessage(String message) {
+    return parser.processFhsMessage(message);
+  }
 }

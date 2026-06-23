@@ -8,7 +8,6 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -39,6 +38,5 @@ public record PersonMatchRequest(
             .filter(Objects::nonNull)
             .toList(),
         personContainer.getTheEntityIdDtoCollection());
-
   }
 }

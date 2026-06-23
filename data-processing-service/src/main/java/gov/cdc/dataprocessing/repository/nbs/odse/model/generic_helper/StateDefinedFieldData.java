@@ -4,39 +4,37 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "state_defined_field_data")
-
 public class StateDefinedFieldData {
 
-    @Id
-    @Column(name = "ldf_uid")
-    private Long ldfUid;
+  @Id
+  @Column(name = "ldf_uid")
+  private Long ldfUid;
 
-    @Column(name = "business_object_uid")
-    private Long businessObjectUid;
+  @Column(name = "business_object_uid")
+  private Long businessObjectUid;
 
-    @Column(name = "add_time")
-    private Date addTime;
+  @Column(name = "add_time")
+  private Date addTime;
 
-    @Column(name = "business_object_nm", nullable = false)
-    private String businessObjectName;
+  @Column(name = "business_object_nm", nullable = false)
+  private String businessObjectName;
 
-    @Column(name = "last_chg_time")
-    private Date lastChangeTime;
+  @Column(name = "last_chg_time")
+  private Date lastChangeTime;
 
-    @Column(name = "ldf_value", length = 2000)
-    private String ldfValue;
+  @Column(name = "ldf_value", length = 2000)
+  private String ldfValue;
 
-    @Column(name = "version_ctrl_nbr")
-    private Short versionControlNumber;
+  @Column(name = "version_ctrl_nbr")
+  private Short versionControlNumber;
 
-    // Constructors, getters, and setters (if needed)
+  // Constructors, getters, and setters (if needed)
 }

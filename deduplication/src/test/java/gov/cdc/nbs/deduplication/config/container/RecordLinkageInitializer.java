@@ -6,7 +6,8 @@ import org.springframework.lang.NonNull;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 
-class RecordLinkageInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+class RecordLinkageInitializer
+    implements ApplicationContextInitializer<ConfigurableApplicationContext> {
   private static GenericContainer<?> recordLinkageContainer;
 
   @Override
@@ -18,26 +19,26 @@ class RecordLinkageInitializer implements ApplicationContextInitializer<Configur
 
     final Network network = MsSqlContainerInitializer.network;
 
-    recordLinkageContainer = new GenericContainer<>(
-        "ghcr.io/cdcgov/recordlinker:v25.9.0")
-        .withExposedPorts(8070)
-        .withEnv("PORT", "8070")
-        .withNetwork(network)
-        .dependsOn(MsSqlContainerInitializer.container)
-        .withNetworkAliases("recordLinkage");
+    recordLinkageContainer =
+        new GenericContainer<>("ghcr.io/cdcgov/recordlinker:v25.9.0")
+            .withExposedPorts(8070)
+            .withEnv("PORT", "8070")
+            .withNetwork(network)
+            .dependsOn(MsSqlContainerInitializer.container)
+            .withNetworkAliases("recordLinkage");
 
     String username = System.getProperty("spring.datasource.mpi.username");
     String password = System.getProperty("spring.datasource.mpi.password");
-    final String dbUri = String.format(
-        "mssql+pyodbc://%s:%s@mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes",
-        username,
-        password);
+    final String dbUri =
+        String.format(
+            "mssql+pyodbc://%s:%s@mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes",
+            username, password);
 
     recordLinkageContainer.addEnv("DB_URI", dbUri);
     recordLinkageContainer.addEnv("API_ROOT_PATH", "/api/record-linker");
     recordLinkageContainer.start();
-    System.setProperty("deduplication.recordLinker.url",
+    System.setProperty(
+        "deduplication.recordLinker.url",
         "http://localhost:" + recordLinkageContainer.getMappedPort(8070) + "/api/record-linker");
-
   }
 }

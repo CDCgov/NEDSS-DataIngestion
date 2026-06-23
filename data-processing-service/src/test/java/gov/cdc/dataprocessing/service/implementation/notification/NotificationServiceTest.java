@@ -1,5 +1,11 @@
 package gov.cdc.dataprocessing.service.implementation.notification;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
@@ -16,6 +22,9 @@ import gov.cdc.dataprocessing.utilities.component.act.ActRelationshipRepositoryU
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PropertyUtil;
 import gov.cdc.dataprocessing.utilities.component.notification.NotificationRepositoryUtil;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,234 +32,233 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-
 class NotificationServiceTest {
 
-    @InjectMocks
-    NotificationService notificationService;
+  @InjectMocks NotificationService notificationService;
 
-    @Mock
-    NotificationRepository notificationRepository;
+  @Mock NotificationRepository notificationRepository;
 
-    @Mock
-    PropertyUtil propertyUtil;
+  @Mock PropertyUtil propertyUtil;
 
-    @Mock
-    PrepareAssocModelHelper prepareAssocModelHelper;
+  @Mock PrepareAssocModelHelper prepareAssocModelHelper;
 
-    @Mock
-    NotificationRepositoryUtil notificationRepositoryUtil;
+  @Mock NotificationRepositoryUtil notificationRepositoryUtil;
 
-    @Mock
-    ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
+  @Mock ActRelationshipRepositoryUtil actRelationshipRepositoryUtil;
 
-    @Mock
-    IUidService iUidService;
+  @Mock IUidService iUidService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void getNotificationById() {
-        Long uid = 1L;
-        Notification notification = getNotification();
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
-        assertEquals(notification.getNotificationUid(), notificationService.getNotificationById(uid).getNotificationUid());
-    }
+  @Test
+  void getNotificationById() {
+    Long uid = 1L;
+    Notification notification = getNotification();
+    when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
+    assertEquals(
+        notification.getNotificationUid(),
+        notificationService.getNotificationById(uid).getNotificationUid());
+  }
 
-    @Test
-    void getNotificationByIdNull() {
-        Long uid = 1L;
-        when(notificationRepository.findById(uid)).thenReturn(Optional.empty());
-        assertEquals(null, notificationService.getNotificationById(uid));
-    }
+  @Test
+  void getNotificationByIdNull() {
+    Long uid = 1L;
+    when(notificationRepository.findById(uid)).thenReturn(Optional.empty());
+    assertEquals(null, notificationService.getNotificationById(uid));
+  }
 
-    private Notification getNotification() {
-        Notification notification = new Notification();
-        notification.setNotificationUid(1L);
-        return notification;
-    }
+  private Notification getNotification() {
+    Notification notification = new Notification();
+    notification.setNotificationUid(1L);
+    return notification;
+  }
 
-    @Test
-    void saveNotification() {
-        NotificationContainer notificationContainer = getNotificationContainer();
+  @Test
+  void saveNotification() {
+    NotificationContainer notificationContainer = getNotificationContainer();
 
-        when(notificationRepository.save(Mockito.any())).thenReturn(null);
+    when(notificationRepository.save(Mockito.any())).thenReturn(null);
 
-        Long result = notificationService.saveNotification(notificationContainer);
-        assertEquals(1l, result);
-    }
+    Long result = notificationService.saveNotification(notificationContainer);
+    assertEquals(1l, result);
+  }
 
-    private NotificationDto getNotificationDto() {
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setNotificationUid(1L);
-        notificationDto.setItNew(true);
-        notificationDto.setItDirty(true);
+  private NotificationDto getNotificationDto() {
+    NotificationDto notificationDto = new NotificationDto();
+    notificationDto.setNotificationUid(1L);
+    notificationDto.setItNew(true);
+    notificationDto.setItDirty(true);
 
-        return notificationDto;
-    }
+    return notificationDto;
+  }
 
-    private NotificationDto getNotificationDtoDirty() {
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setNotificationUid(1L);
-        notificationDto.setItNew(false);
-        notificationDto.setItDirty(true);
+  private NotificationDto getNotificationDtoDirty() {
+    NotificationDto notificationDto = new NotificationDto();
+    notificationDto.setNotificationUid(1L);
+    notificationDto.setItNew(false);
+    notificationDto.setItDirty(true);
 
-        return notificationDto;
-    }
+    return notificationDto;
+  }
 
-    private NotificationContainer getNotificationContainer() {
-        NotificationContainer notificationContainer = new NotificationContainer();
+  private NotificationContainer getNotificationContainer() {
+    NotificationContainer notificationContainer = new NotificationContainer();
 
-        notificationContainer.setTheNotificationDT(getNotificationDto());
-        notificationContainer.setItNew(true);
+    notificationContainer.setTheNotificationDT(getNotificationDto());
+    notificationContainer.setItNew(true);
 
-        return notificationContainer;
-    }
+    return notificationContainer;
+  }
 
-    private NotificationContainer getNotificationContainerDirty() {
-        NotificationContainer notificationContainer = new NotificationContainer();
+  private NotificationContainer getNotificationContainerDirty() {
+    NotificationContainer notificationContainer = new NotificationContainer();
 
-        notificationContainer.setTheNotificationDT(getNotificationDtoDirty());
-        notificationContainer.setItNew(false);
-        notificationContainer.setItDirty(true);
+    notificationContainer.setTheNotificationDT(getNotificationDtoDirty());
+    notificationContainer.setItNew(false);
+    notificationContainer.setItDirty(true);
 
-        return notificationContainer;
-    }
+    return notificationContainer;
+  }
 
-    private PublicHealthCaseContainer getPublicHealthContainer() {
-        PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
+  private PublicHealthCaseContainer getPublicHealthContainer() {
+    PublicHealthCaseContainer publicHealthCaseContainer = new PublicHealthCaseContainer();
 
-        PublicHealthCaseDto publicHealthCase = new PublicHealthCaseDto();
+    PublicHealthCaseDto publicHealthCase = new PublicHealthCaseDto();
 
-        publicHealthCase.setProgAreaCd("test prog area");
-        publicHealthCase.setJurisdictionCd("test jurisdiction");
-        publicHealthCase.setSharedInd("test shared ind");
+    publicHealthCase.setProgAreaCd("test prog area");
+    publicHealthCase.setJurisdictionCd("test jurisdiction");
+    publicHealthCase.setSharedInd("test shared ind");
 
-        publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCase);
+    publicHealthCaseContainer.setThePublicHealthCaseDto(publicHealthCase);
 
-        return publicHealthCaseContainer;
-    }
+    return publicHealthCaseContainer;
+  }
 
-    private NotificationProxyContainer getNotificationProxy() {
-        NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
-        notificationProxyContainer.setTheNotificationContainer(getNotificationContainer());
-        notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
-        return  notificationProxyContainer;
-    }
+  private NotificationProxyContainer getNotificationProxy() {
+    NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
+    notificationProxyContainer.setTheNotificationContainer(getNotificationContainer());
+    notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
+    return notificationProxyContainer;
+  }
 
-    private NotificationProxyContainer getNotificationProxyDirty() {
-        NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
-        notificationProxyContainer.setTheNotificationContainer(getNotificationContainerDirty());
-        notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
-        return  notificationProxyContainer;
-    }
+  private NotificationProxyContainer getNotificationProxyDirty() {
+    NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
+    notificationProxyContainer.setTheNotificationContainer(getNotificationContainerDirty());
+    notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
+    return notificationProxyContainer;
+  }
 
-    private NotificationProxyContainer getNotificationProxyNull() {
-        NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
-        notificationProxyContainer.setTheNotificationContainer(null);
-        notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
-        return  notificationProxyContainer;
-    }
+  private NotificationProxyContainer getNotificationProxyNull() {
+    NotificationProxyContainer notificationProxyContainer = new NotificationProxyContainer();
+    notificationProxyContainer.setTheNotificationContainer(null);
+    notificationProxyContainer.setThePublicHealthCaseContainer(getPublicHealthContainer());
+    return notificationProxyContainer;
+  }
 
-    @Test
-    void checkForExistingNotification() throws DataProcessingException {
-        BaseContainer labResultProxyContainer = getLabProxyContainer();
-        when(notificationRepository.getCountOfExistingNotifications(1L, NEDSSConstant.CLASS_CD_OBS)).thenReturn(1L);
+  @Test
+  void checkForExistingNotification() throws DataProcessingException {
+    BaseContainer labResultProxyContainer = getLabProxyContainer();
+    when(notificationRepository.getCountOfExistingNotifications(1L, NEDSSConstant.CLASS_CD_OBS))
+        .thenReturn(1L);
 
-        boolean result = notificationService.checkForExistingNotification(labResultProxyContainer);
-        assertEquals(true, result);
-    }
+    boolean result = notificationService.checkForExistingNotification(labResultProxyContainer);
+    assertEquals(true, result);
+  }
 
-    @Test
-    void checkForExistingNotificationFalse() throws DataProcessingException {
-        BaseContainer labResultProxyContainer = getLabProxyContainer();
-        when(notificationRepository.getCountOfExistingNotifications(1L, NEDSSConstant.CLASS_CD_OBS)).thenReturn(0L);
+  @Test
+  void checkForExistingNotificationFalse() throws DataProcessingException {
+    BaseContainer labResultProxyContainer = getLabProxyContainer();
+    when(notificationRepository.getCountOfExistingNotifications(1L, NEDSSConstant.CLASS_CD_OBS))
+        .thenReturn(0L);
 
-        boolean result = notificationService.checkForExistingNotification(labResultProxyContainer);
-        assertEquals(false, result);
-    }
+    boolean result = notificationService.checkForExistingNotification(labResultProxyContainer);
+    assertEquals(false, result);
+  }
 
-    @Test
-    void checkForExistingNotificationException() {
-        BaseContainer baseContainer = new BaseContainer();
+  @Test
+  void checkForExistingNotificationException() {
+    BaseContainer baseContainer = new BaseContainer();
 
-        assertThrows(DataProcessingException.class, () -> notificationService.checkForExistingNotification(baseContainer));
-    }
+    assertThrows(
+        DataProcessingException.class,
+        () -> notificationService.checkForExistingNotification(baseContainer));
+  }
 
-    private BaseContainer getLabProxyContainer() {
-        LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
-        labResultProxyContainer.setLabClia("test lab clia");
-        labResultProxyContainer.setManualLab(false);
-        labResultProxyContainer.setAssociatedInvInd(true);
-        labResultProxyContainer.setAssociatedNotificationInd(true);
-        labResultProxyContainer.setSendingFacilityUid(1L);
-        labResultProxyContainer.setCaseSupervisor("case supervisor");
-        labResultProxyContainer.setConversionHasModified(true);
-        labResultProxyContainer.setFieldSupervisor("test field supervisor");
-        labResultProxyContainer.setTheObservationContainerCollection(getObservations());
-        return labResultProxyContainer;
-    }
+  private BaseContainer getLabProxyContainer() {
+    LabResultProxyContainer labResultProxyContainer = new LabResultProxyContainer();
+    labResultProxyContainer.setLabClia("test lab clia");
+    labResultProxyContainer.setManualLab(false);
+    labResultProxyContainer.setAssociatedInvInd(true);
+    labResultProxyContainer.setAssociatedNotificationInd(true);
+    labResultProxyContainer.setSendingFacilityUid(1L);
+    labResultProxyContainer.setCaseSupervisor("case supervisor");
+    labResultProxyContainer.setConversionHasModified(true);
+    labResultProxyContainer.setFieldSupervisor("test field supervisor");
+    labResultProxyContainer.setTheObservationContainerCollection(getObservations());
+    return labResultProxyContainer;
+  }
 
-    private Collection<ObservationContainer> getObservations() {
-        Collection<ObservationContainer> obs = new ArrayList<>();
-        ObservationContainer observationContainer = new ObservationContainer();
-        Observation observation = new Observation();
-        observation.setObservationUid(1L);
-        observation.setObsDomainCdSt1(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD);
-        observation.setCtrlCdDisplayForm(NEDSSConstant.LAB_REPORT);
+  private Collection<ObservationContainer> getObservations() {
+    Collection<ObservationContainer> obs = new ArrayList<>();
+    ObservationContainer observationContainer = new ObservationContainer();
+    Observation observation = new Observation();
+    observation.setObservationUid(1L);
+    observation.setObsDomainCdSt1(NEDSSConstant.ORDERED_TEST_OBS_DOMAIN_CD);
+    observation.setCtrlCdDisplayForm(NEDSSConstant.LAB_REPORT);
 
-        ObservationDto observationDto = new ObservationDto(observation);
-        observationContainer.setTheObservationDto(observationDto);
-        obs.add(observationContainer);
-        return obs;
-    }
+    ObservationDto observationDto = new ObservationDto(observation);
+    observationContainer.setTheObservationDto(observationDto);
+    obs.add(observationContainer);
+    return obs;
+  }
 
-    @Test
-    void setNotificationProxyIsNull() {
-        assertThrows(DataProcessingException.class, () -> notificationService.setNotificationProxy(null));
-    }
+  @Test
+  void setNotificationProxyIsNull() {
+    assertThrows(
+        DataProcessingException.class, () -> notificationService.setNotificationProxy(null));
+  }
 
-    @Test void setNotificationProxy() throws DataProcessingException {
-        when(propertyUtil.isHIVProgramArea(any())).thenReturn(true);
+  @Test
+  void setNotificationProxy() throws DataProcessingException {
+    when(propertyUtil.isHIVProgramArea(any())).thenReturn(true);
 
-        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(getNotificationDto());
+    when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any()))
+        .thenReturn(getNotificationDto());
 
-        when(notificationRepositoryUtil.setNotification(any())).thenReturn(1L);
+    when(notificationRepositoryUtil.setNotification(any())).thenReturn(1L);
 
-        when(iUidService.setFalseToNewForNotification(any(), any(), any())).thenReturn(new ActRelationshipDto());
+    when(iUidService.setFalseToNewForNotification(any(), any(), any()))
+        .thenReturn(new ActRelationshipDto());
 
-        doNothing().when(actRelationshipRepositoryUtil).storeActRelationship(any());
+    doNothing().when(actRelationshipRepositoryUtil).storeActRelationship(any());
 
-        assertEquals(1L, notificationService.setNotificationProxy(getNotificationProxy()));
-    }
+    assertEquals(1L, notificationService.setNotificationProxy(getNotificationProxy()));
+  }
 
-    @Test void setNotificationProxyDirty() throws DataProcessingException {
-        when(propertyUtil.isHIVProgramArea(any())).thenReturn(true);
+  @Test
+  void setNotificationProxyDirty() throws DataProcessingException {
+    when(propertyUtil.isHIVProgramArea(any())).thenReturn(true);
 
-        when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any())).thenReturn(getNotificationDto());
+    when(prepareAssocModelHelper.prepareVO(any(), any(), any(), any(), any(), any()))
+        .thenReturn(getNotificationDto());
 
-        when(notificationRepositoryUtil.setNotification(any())).thenReturn(1L);
+    when(notificationRepositoryUtil.setNotification(any())).thenReturn(1L);
 
-        when(iUidService.setFalseToNewForNotification(any(), any(), any())).thenReturn(new ActRelationshipDto());
+    when(iUidService.setFalseToNewForNotification(any(), any(), any()))
+        .thenReturn(new ActRelationshipDto());
 
-        doNothing().when(actRelationshipRepositoryUtil).storeActRelationship(any());
+    doNothing().when(actRelationshipRepositoryUtil).storeActRelationship(any());
 
-        assertEquals(1L, notificationService.setNotificationProxy(getNotificationProxyDirty()));
-    }
+    assertEquals(1L, notificationService.setNotificationProxy(getNotificationProxyDirty()));
+  }
 
-    @Test void setNotificationProxyNull() {
-        assertThrows(DataProcessingException.class, () -> notificationService.setNotificationProxy(getNotificationProxyNull()));
-    }
+  @Test
+  void setNotificationProxyNull() {
+    assertThrows(
+        DataProcessingException.class,
+        () -> notificationService.setNotificationProxy(getNotificationProxyNull()));
+  }
 }

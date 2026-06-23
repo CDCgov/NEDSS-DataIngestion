@@ -5,36 +5,32 @@ import gov.cdc.dataingestion.hl7.helper.model.hl7.message_group.PatientResult;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.ContinuationPointer;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.MessageHeader;
 import gov.cdc.dataingestion.hl7.helper.model.hl7.message_segment.SoftwareSegment;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 public class OruR1 {
-    MessageHeader messageHeader = new MessageHeader();
-    List<SoftwareSegment> softwareSegment =new ArrayList<>();
-    List<PatientResult> patientResult = new ArrayList<>();
-    ContinuationPointer continuationPointer = new ContinuationPointer();
+  MessageHeader messageHeader = new MessageHeader();
+  List<SoftwareSegment> softwareSegment = new ArrayList<>();
+  List<PatientResult> patientResult = new ArrayList<>();
+  ContinuationPointer continuationPointer = new ContinuationPointer();
 
-    public OruR1(ca.uhn.hl7v2.model.v251.message.ORU_R01 oruR01) throws HL7Exception {
+  public OruR1(ca.uhn.hl7v2.model.v251.message.ORU_R01 oruR01) throws HL7Exception {
 
-        this.messageHeader = new MessageHeader(oruR01.getMSH());
-        this.softwareSegment = new ArrayList<>();
-        for(var item : oruR01.getSFTAll()) {
-            this.softwareSegment.add(new SoftwareSegment(item));
-        }
-        this.patientResult = new ArrayList<>();
-        for(var item : oruR01.getPATIENT_RESULTAll()) {
-            this.patientResult.add(new PatientResult(item));
-        }
-        this.continuationPointer = new ContinuationPointer(oruR01.getDSC());
-
+    this.messageHeader = new MessageHeader(oruR01.getMSH());
+    this.softwareSegment = new ArrayList<>();
+    for (var item : oruR01.getSFTAll()) {
+      this.softwareSegment.add(new SoftwareSegment(item));
     }
-
-    public OruR1() {
-
+    this.patientResult = new ArrayList<>();
+    for (var item : oruR01.getPATIENT_RESULTAll()) {
+      this.patientResult.add(new PatientResult(item));
     }
+    this.continuationPointer = new ContinuationPointer(oruR01.getDSC());
+  }
+
+  public OruR1() {}
 }

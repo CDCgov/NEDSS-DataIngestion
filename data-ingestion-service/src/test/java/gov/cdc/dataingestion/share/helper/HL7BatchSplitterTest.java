@@ -1,16 +1,16 @@
 package gov.cdc.dataingestion.share.helper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class HL7BatchSplitterTest {
 
-    String hl7BatchMsg = """
+  String hl7BatchMsg =
+      """
             FHS|^~\\\\&|TEST|LABCORP-CORP|IHIE|IHIE|20120703094005||||||
             BHS|^~\\\\&|TEST|LABCORP-CORP|IHIE|IHIE|20120703094005||||||
             MSH|^~\\\\&|HL7 Generator-batch-0618^^|CVS Health FL3486POCT ORANGE PARK^20D2030000^CLIA|ALDOH^OID^ISO|AL^OID^ISO|202504231141||ORU^R01^ORU_R01|20250423114190|P|2.5.1
@@ -30,7 +30,8 @@ class HL7BatchSplitterTest {
             BTS|2|Batch Message Count
             FTS|1|End of batch file
             """;
-    String hl7MsgNoBatch = """
+  String hl7MsgNoBatch =
+      """
             MSH|^~\\\\&|HL7 Generator-batch-0618^^|CVS Health FL3486POCT ORANGE PARK^20D2030000^CLIA|ALDOH^OID^ISO|AL^OID^ISO|202504231141||ORU^R01^ORU_R01|20250423114190|P|2.5.1
                     PID|1|621458572^^^CVS Health FL3486POCT ORANGE PARK&20D2030000&CLIA|621458572^^^CVS Health FL3486POCT ORANGE PARK&20D2030000&CLIA^SS||Nichols^Leon^SIM_TEST^^^^||198212110000|O||1482-9^Huron Potawatomi^SIM_TEST|4903 Brian Loaf^^Tonyahaven^HI^30342||296-641-5615^^^^|^^^LeonNichols90@hotmail.com^||T^SIM_TEST^^^^|||844-25-8173
                     PV1||N
@@ -39,19 +40,21 @@ class HL7BatchSplitterTest {
                     OBX|1|NM|77190-7^Hepatitis B virus core and surface Ab and surface Ag panel - Serum^LN||90|mL|||||F||||||||202504231141
                     SPM|1|5569177&LABCORP&20D0649525&^8678383&CVS Health FL3486POCT ORANGE PARK&20D2030000&CLIA||SER^Serum^HL70487^TSMI^Tissue small intestine Tissue ulcer^SCT^2.5.1^Serum|||TSMI^TSMI^TG|||||90^ML|||||202504231141^202504281141|202504231141|||
             """;
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
-    @Test
-    void splitHL7Batch_multiELRs() {
-        List<String> result= HL7BatchSplitter.splitHL7Batch(hl7BatchMsg);
-        assertEquals(2, result.size());
-    }
-    @Test
-    void splitHL7Batch_singleELR() {
-        List<String> result= HL7BatchSplitter.splitHL7Batch(hl7MsgNoBatch);
-        assertEquals(1, result.size());
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
+
+  @Test
+  void splitHL7Batch_multiELRs() {
+    List<String> result = HL7BatchSplitter.splitHL7Batch(hl7BatchMsg);
+    assertEquals(2, result.size());
+  }
+
+  @Test
+  void splitHL7Batch_singleELR() {
+    List<String> result = HL7BatchSplitter.splitHL7Batch(hl7MsgNoBatch);
+    assertEquals(1, result.size());
+  }
 }

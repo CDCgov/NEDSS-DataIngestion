@@ -2,10 +2,10 @@ package gov.cdc.nbs.deduplication.batch.service;
 
 class PatientQueries {
 
-  private PatientQueries() {
-  }
+  private PatientQueries() {}
 
-  static final String PERSONS_MERGE_DATA_BY_PERSON_IDS = """
+  static final String PERSONS_MERGE_DATA_BY_PERSON_IDS =
+      """
       WITH id_settings(prefix, suffix,initial) as   (
         select
           generator.UID_prefix_cd     as prefix,
@@ -453,7 +453,8 @@ class PatientQueries {
           ORDER BY p.add_time asc;
         """;
 
-  static final String PERSON_RECORD_BY_PARENT_ID = """
+  static final String PERSON_RECORD_BY_PARENT_ID =
+      """
       SELECT
           p.person_uid external_id,
           p.person_parent_uid,
@@ -558,7 +559,8 @@ class PatientQueries {
       ORDER BY p.last_chg_time DESC
       """;
 
-  static final String PERSON_RECORD_BY_PERSON_ID = """
+  static final String PERSON_RECORD_BY_PERSON_ID =
+      """
       SELECT
           p.person_uid external_id,
           p.person_parent_uid,
@@ -659,7 +661,8 @@ class PatientQueries {
           AND p.record_status_cd = 'ACTIVE';
       """;
 
-  static final String PERSON_RECORDS_BY_PERSON_IDS = """
+  static final String PERSON_RECORDS_BY_PERSON_IDS =
+      """
       SELECT
           p.person_uid external_id,
           p.person_parent_uid,
@@ -764,7 +767,8 @@ class PatientQueries {
           p.add_time ASC;
       """;
 
-  static final String FETCH_PATIENT_ADD_TIME_QUERY = """
+  static final String FETCH_PATIENT_ADD_TIME_QUERY =
+      """
       SELECT
           p.person_uid,
           p.add_time
@@ -774,7 +778,8 @@ class PatientQueries {
           p.person_uid IN (:ids)
       """;
 
-  static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY = """
+  static final String FIND_NBS_ADD_TIME_AND_NAME_QUERY =
+      """
       WITH
         id_settings (prefix, suffix, initial) AS (
           SELECT

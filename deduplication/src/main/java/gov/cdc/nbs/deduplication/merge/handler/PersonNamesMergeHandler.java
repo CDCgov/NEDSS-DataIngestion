@@ -1,13 +1,12 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.merge.model.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import gov.cdc.nbs.deduplication.merge.model.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -20,15 +19,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersonNamesMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
+  private static final String PERSON_UID_FIELD = "person_uid";
+  private static final String PERSON_NAME_SEQ_FIELD = "person_name_seq";
 
-  static final String UPDATE_ALL_PERSON_NAMES_INACTIVE = """
+  static final String UPDATE_ALL_PERSON_NAMES_INACTIVE =
+      """
       UPDATE person_name
       SET record_status_cd = 'INACTIVE',
           last_chg_time = GETDATE()
       WHERE person_uid = :personUid
       """;
 
-  static final String UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE = """
+  static final String UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE =
+      """
       UPDATE person_name
       SET record_status_cd = 'INACTIVE',
           last_chg_time = GETDATE()
@@ -36,13 +39,15 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
         AND person_name_seq NOT IN (:sequences)
       """;
 
-  static final String FIND_MAX_SEQUENCE_PERSON_NAME = """
+  static final String FIND_MAX_SEQUENCE_PERSON_NAME =
+      """
       SELECT MAX(person_name_seq)
       FROM person_name
       WHERE person_uid = :personUid
       """;
 
-  static final String COPY_PERSON_NAME_TO_SURVIVING = """
+  static final String COPY_PERSON_NAME_TO_SURVIVING =
+      """
       INSERT INTO person_name (
           person_uid, person_name_seq, add_reason_cd, add_time, add_user_id,
           default_nm_ind, duration_amt, duration_unit_cd, first_nm, first_nm_sndx,
@@ -88,27 +93,31 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
         AND person_name_seq = :oldSeq
       """;
 
-  static final String FIND_PERSON_NAMES_FOR_INACTIVATION = """
+  static final String FIND_PERSON_NAMES_FOR_INACTIVATION =
+      """
       SELECT person_uid, person_name_seq, record_status_cd
       FROM person_name
       WHERE person_uid = :personUid
       """;
 
-  static final String FIND_EXCLUDED_PERSON_NAMES_FOR_INACTIVATION = """
+  static final String FIND_EXCLUDED_PERSON_NAMES_FOR_INACTIVATION =
+      """
       SELECT person_uid, person_name_seq, record_status_cd
       FROM person_name
       WHERE person_uid = :personUid
         AND person_name_seq NOT IN (:sequences)
       """;
 
-  static final String FIND_SUPERSEDED_NAMES_FOR_AUDIT = """
+  static final String FIND_SUPERSEDED_NAMES_FOR_AUDIT =
+      """
       SELECT person_uid, person_name_seq
       FROM person_name
       WHERE person_uid = :supersededUid
         AND person_name_seq = :oldSeq
       """;
 
-  static final String INSERT_PERSON_NAME_HIST_FOR_ALL = """
+  static final String INSERT_PERSON_NAME_HIST_FOR_ALL =
+      """
     INSERT INTO person_name_hist (
         person_uid, person_name_seq, add_reason_cd, add_time, add_user_id,
         default_nm_ind, duration_amt, duration_unit_cd, first_nm, first_nm_sndx,
@@ -130,8 +139,8 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     WHERE pn.person_uid = :personUid
     """;
 
-
-  static final String INSERT_PERSON_NAME_HIST_FOR_SELECTED = """
+  static final String INSERT_PERSON_NAME_HIST_FOR_SELECTED =
+      """
     INSERT INTO person_name_hist (
         person_uid, person_name_seq, add_reason_cd, add_time, add_user_id,
         default_nm_ind, duration_amt, duration_unit_cd, first_nm, first_nm_sndx,
@@ -154,17 +163,20 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
       AND pn.person_name_seq NOT IN (:sequences)
     """;
 
-  public PersonNamesMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
+  public PersonNamesMergeHandler(
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+  public void handleMerge(
+      String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     mergePersonNames(request.survivingRecord(), request.names(), patientMergeAudit);
   }
 
-  private void mergePersonNames(String survivorId, List<PatientMergeRequest.NameId> names, PatientMergeAudit audit) {
+  private void mergePersonNames(
+      String survivorId, List<PatientMergeRequest.NameId> names, PatientMergeAudit audit) {
     List<Integer> survivingSequences = new ArrayList<>();
     Map<String, List<Integer>> supersededNames = new HashMap<>();
 
@@ -173,49 +185,60 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
     List<AuditUpdateAction> updateActions = performNameInactivation(survivorId, survivingSequences);
     List<AuditInsertAction> insertActions = performNameCopyToSurvivor(survivorId, supersededNames);
 
-    audit.getRelatedTableAudits().add(new RelatedTableAudit("person_name", updateActions, insertActions));
+    audit
+        .getRelatedTableAudits()
+        .add(new RelatedTableAudit("person_name", updateActions, insertActions));
   }
 
-  private void categorizeNames(String survivorId, List<PatientMergeRequest.NameId> names,
-      List<Integer> survivingSequences, Map<String, List<Integer>> supersededNames) {
-    names.forEach(name -> {
-      if (name.personUid().equals(survivorId)) {
-        survivingSequences.add(Integer.parseInt(name.sequence()));
-      } else {
-        supersededNames.computeIfAbsent(name.personUid(), k -> new ArrayList<>())
-            .add(Integer.parseInt(name.sequence()));
-      }
-    });
+  private void categorizeNames(
+      String survivorId,
+      List<PatientMergeRequest.NameId> names,
+      List<Integer> survivingSequences,
+      Map<String, List<Integer>> supersededNames) {
+    names.forEach(
+        name -> {
+          if (name.personUid().equals(survivorId)) {
+            survivingSequences.add(Integer.parseInt(name.sequence()));
+          } else {
+            supersededNames
+                .computeIfAbsent(name.personUid(), k -> new ArrayList<>())
+                .add(Integer.parseInt(name.sequence()));
+          }
+        });
   }
 
-  private List<AuditUpdateAction> performNameInactivation(String survivorId, List<Integer> selectedSequences) {
-    String updateQuery = selectedSequences.isEmpty() ? UPDATE_ALL_PERSON_NAMES_INACTIVE
-        : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
+  private List<AuditUpdateAction> performNameInactivation(
+      String survivorId, List<Integer> selectedSequences) {
+    String updateQuery =
+        selectedSequences.isEmpty()
+            ? UPDATE_ALL_PERSON_NAMES_INACTIVE
+            : UPDATE_SELECTED_EXCLUDED_NAMES_INACTIVE;
 
     Map<String, Object> params = new HashMap<>();
-    params.put("personUid", survivorId);// NOSONAR
+    params.put("personUid", survivorId); // NOSONAR
     if (!selectedSequences.isEmpty()) {
       params.put("sequences", selectedSequences);
     }
 
-    List<Map<String, Object>> rowsToUpdate = fetchRowsForInactivation(survivorId, selectedSequences);
+    List<Map<String, Object>> rowsToUpdate =
+        fetchRowsForInactivation(survivorId, selectedSequences);
     List<AuditUpdateAction> auditUpdates = buildAuditUpdateActions(rowsToUpdate);
 
-
-    String insertHistSql = selectedSequences.isEmpty() ? INSERT_PERSON_NAME_HIST_FOR_ALL
-        : INSERT_PERSON_NAME_HIST_FOR_SELECTED;
+    String insertHistSql =
+        selectedSequences.isEmpty()
+            ? INSERT_PERSON_NAME_HIST_FOR_ALL
+            : INSERT_PERSON_NAME_HIST_FOR_SELECTED;
     nbsTemplate.update(insertHistSql, params);
-
 
     nbsTemplate.update(updateQuery, params);
     return auditUpdates;
   }
 
-  private List<Map<String, Object>> fetchRowsForInactivation(String survivorId, List<Integer> selectedSequences) {
+  private List<Map<String, Object>> fetchRowsForInactivation(
+      String survivorId, List<Integer> selectedSequences) {
     if (selectedSequences.isEmpty()) {
       return nbsTemplate.queryForList(
-          FIND_PERSON_NAMES_FOR_INACTIVATION,
-          Collections.singletonMap("personUid", survivorId));
+          FIND_PERSON_NAMES_FOR_INACTIVATION, Collections.singletonMap("personUid", survivorId));
     }
 
     return nbsTemplate.queryForList(
@@ -225,46 +248,53 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
 
   private List<AuditUpdateAction> buildAuditUpdateActions(List<Map<String, Object>> rowsToUpdate) {
     return rowsToUpdate.stream()
-        .map(row -> {
-          Map<String, Object> values = new HashMap<>();
-          values.put("record_status_cd", row.get("record_status_cd"));
+        .map(
+            row -> {
+              Map<String, Object> values = new HashMap<>();
+              values.put("record_status_cd", row.get("record_status_cd"));
 
-          return new AuditUpdateAction(
-              Map.of("person_uid", row.get("person_uid"), "person_name_seq", row.get("person_name_seq")), // NOSONAR
-              values);
-        })
+              return new AuditUpdateAction(
+                  Map.of(
+                      PERSON_UID_FIELD,
+                      row.get(PERSON_UID_FIELD),
+                      PERSON_NAME_SEQ_FIELD,
+                      row.get(PERSON_NAME_SEQ_FIELD)),
+                  values);
+            })
         .toList();
   }
 
-  private List<AuditInsertAction> performNameCopyToSurvivor(String survivorId,
-      Map<String, List<Integer>> supersededNames) {
+  private List<AuditInsertAction> performNameCopyToSurvivor(
+      String survivorId, Map<String, List<Integer>> supersededNames) {
 
     AtomicInteger maxSeq = new AtomicInteger(getMaxSequenceForPerson(survivorId));
     List<AuditInsertAction> insertActions = new ArrayList<>();
 
-    supersededNames.forEach((supersededUid, sequences) -> {
-      for (Integer oldSeq : sequences) {
-        int newSeq = maxSeq.incrementAndGet();
+    supersededNames.forEach(
+        (supersededUid, sequences) -> {
+          for (Integer oldSeq : sequences) {
+            int newSeq = maxSeq.incrementAndGet();
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("supersededUid", supersededUid);
-        params.put("oldSeq", oldSeq);
+            Map<String, Object> params = new HashMap<>();
+            params.put("supersededUid", supersededUid);
+            params.put("oldSeq", oldSeq);
 
-        List<Map<String, Object>> rowsToInsert = nbsTemplate.queryForList(
-            FIND_SUPERSEDED_NAMES_FOR_AUDIT, params);
+            List<Map<String, Object>> rowsToInsert =
+                nbsTemplate.queryForList(FIND_SUPERSEDED_NAMES_FOR_AUDIT, params);
 
-        if (!rowsToInsert.isEmpty()) {
-          insertActions.add(buildAuditInsertAction(survivorId, newSeq));
-        }
+            if (!rowsToInsert.isEmpty()) {
+              insertActions.add(buildAuditInsertAction(survivorId, newSeq));
+            }
 
-        copyPersonNameToSurvivor(survivorId, supersededUid, oldSeq, newSeq);
-      }
-    });
+            copyPersonNameToSurvivor(survivorId, supersededUid, oldSeq, newSeq);
+          }
+        });
 
     return insertActions;
   }
 
-  private void copyPersonNameToSurvivor(String survivorId, String supersededUid, Integer oldSeq, int newSeq) {
+  private void copyPersonNameToSurvivor(
+      String survivorId, String supersededUid, Integer oldSeq, int newSeq) {
     Map<String, Object> params = new HashMap<>();
     params.put("survivingId", survivorId);
     params.put("supersededUid", supersededUid);
@@ -275,16 +305,18 @@ public class PersonNamesMergeHandler implements SectionMergeHandler {
   }
 
   private AuditInsertAction buildAuditInsertAction(String survivorId, int newSeq) {
-    return new AuditInsertAction(Map.of(
-        "person_uid", survivorId,
-        "person_name_seq", newSeq));
+    return new AuditInsertAction(
+        Map.of(
+            PERSON_UID_FIELD, survivorId,
+            PERSON_NAME_SEQ_FIELD, newSeq));
   }
 
   private int getMaxSequenceForPerson(String personUid) {
-    Integer maxSequence = nbsTemplate.queryForObject(
-        FIND_MAX_SEQUENCE_PERSON_NAME,
-        Collections.singletonMap("personUid", personUid),
-        Integer.class);
+    Integer maxSequence =
+        nbsTemplate.queryForObject(
+            FIND_MAX_SEQUENCE_PERSON_NAME,
+            Collections.singletonMap("personUid", personUid),
+            Integer.class);
     return maxSequence == null ? 0 : maxSequence;
   }
 }

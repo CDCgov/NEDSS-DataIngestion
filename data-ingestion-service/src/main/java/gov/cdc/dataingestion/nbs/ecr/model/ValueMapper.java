@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ValueMapper {
-    private String colName;
-    private String value;
+  private String colName;
+  private String value;
 }

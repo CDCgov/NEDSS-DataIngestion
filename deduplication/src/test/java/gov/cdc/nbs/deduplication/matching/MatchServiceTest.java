@@ -3,6 +3,11 @@ package gov.cdc.nbs.deduplication.matching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
+import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
+import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
+import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
+import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,29 +23,18 @@ import org.springframework.web.client.RestClient.RequestBodySpec;
 import org.springframework.web.client.RestClient.RequestBodyUriSpec;
 import org.springframework.web.client.RestClient.ResponseSpec;
 
-import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
-import gov.cdc.nbs.deduplication.matching.model.LinkResponse;
-import gov.cdc.nbs.deduplication.matching.model.MatchResponse;
-import gov.cdc.nbs.deduplication.matching.model.MatchResponse.MatchType;
-import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
-
 @ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
 
-  @Mock
-  private RestClient restClient;
+  @Mock private RestClient restClient;
 
-  @Mock
-  private RequestBodyUriSpec uriSpec;
+  @Mock private RequestBodyUriSpec uriSpec;
 
-  @Mock
-  private RequestBodySpec bodySpec;
+  @Mock private RequestBodySpec bodySpec;
 
-  @Mock
-  private ResponseSpec responseSpec;
+  @Mock private ResponseSpec responseSpec;
 
-  @Mock
-  private NamedParameterJdbcTemplate template;
+  @Mock private NamedParameterJdbcTemplate template;
 
   private MatchService matchService;
 
@@ -51,19 +45,10 @@ class MatchServiceTest {
 
   @Test
   void testNoMatchFound() {
-    PersonMatchRequest matchRequest = new PersonMatchRequest(
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
+    PersonMatchRequest matchRequest = new PersonMatchRequest(null, null, null, null, null, null);
 
-    mockClientMatchCall(new LinkResponse(
-        "patientReferenceId",
-        "personReferenceId",
-        "no_match",
-        null));
+    mockClientMatchCall(
+        new LinkResponse("patientReferenceId", "personReferenceId", "no_match", null));
 
     MatchResponse response = matchService.match(matchRequest);
 
@@ -73,25 +58,13 @@ class MatchServiceTest {
 
   @Test
   void testMatchFound() {
-    PersonMatchRequest matchRequest = new PersonMatchRequest(
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
+    PersonMatchRequest matchRequest = new PersonMatchRequest(null, null, null, null, null, null);
 
-    mockClientMatchCall(new LinkResponse(
-        "patientReferenceId",
-        "personReferenceId",
-        "certain",
-        null));
+    mockClientMatchCall(
+        new LinkResponse("patientReferenceId", "personReferenceId", "certain", null));
 
     ArgumentCaptor<SqlParameterSource> captor = ArgumentCaptor.forClass(SqlParameterSource.class);
-    when(template.queryForObject(
-        Mockito.anyString(),
-        captor.capture(),
-        Mockito.eq(Long.class)))
+    when(template.queryForObject(Mockito.anyString(), captor.capture(), Mockito.eq(Long.class)))
         .thenReturn(99L);
 
     MatchResponse response = matchService.match(matchRequest);
@@ -104,19 +77,10 @@ class MatchServiceTest {
 
   @Test
   void testPossibleMatchFound() {
-    PersonMatchRequest matchRequest = new PersonMatchRequest(
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
+    PersonMatchRequest matchRequest = new PersonMatchRequest(null, null, null, null, null, null);
 
-    mockClientMatchCall(new LinkResponse(
-        "patientReferenceId",
-        "personReferenceId",
-        "possible",
-        null));
+    mockClientMatchCall(
+        new LinkResponse("patientReferenceId", "personReferenceId", "possible", null));
 
     MatchResponse response = matchService.match(matchRequest);
 
@@ -126,13 +90,7 @@ class MatchServiceTest {
 
   @Test
   void testNullResponse() {
-    PersonMatchRequest matchRequest = new PersonMatchRequest(
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
+    PersonMatchRequest matchRequest = new PersonMatchRequest(null, null, null, null, null, null);
 
     mockClientMatchCall(null);
     MatchResponse response = matchService.match(matchRequest);
@@ -150,5 +108,4 @@ class MatchServiceTest {
     when(bodySpec.retrieve()).thenReturn(responseSpec);
     when(responseSpec.body(LinkResponse.class)).thenReturn(response);
   }
-
 }

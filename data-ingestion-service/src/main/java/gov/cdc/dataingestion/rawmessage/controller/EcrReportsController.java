@@ -24,64 +24,69 @@ import org.springframework.web.server.ResponseStatusException;
 @SecurityRequirement(name = "bearer-key")
 @Tag(name = "ECR Ingestion", description = "ECR Ingestion API")
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class EcrReportsController {
 
-    private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
+  private NbsRepositoryServiceProvider nbsRepositoryServiceProvider;
 
-    @Autowired
-    public EcrReportsController(NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
-        this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
+  @Autowired
+  public EcrReportsController(NbsRepositoryServiceProvider nbsRepositoryServiceProvider) {
+    this.nbsRepositoryServiceProvider = nbsRepositoryServiceProvider;
+  }
+
+  @Operation(
+      summary = "Submit an ECR document to Data Ingestion Service",
+      parameters = {
+        @Parameter(
+            in = ParameterIn.HEADER,
+            name = "clientid",
+            description = "The Client Id",
+            required = true,
+            schema = @Schema(type = "string")),
+        @Parameter(
+            in = ParameterIn.HEADER,
+            name = "clientsecret",
+            description = "The Client Secret",
+            required = true,
+            schema = @Schema(type = "string"))
+      })
+  @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs")
+  public ResponseEntity<Integer> saveIncomingEcr(
+      @RequestBody final String payload,
+      @RequestHeader("systemNm") String systemNm,
+      @RequestHeader("origDocTypeEicr") String origDocTypeEicr,
+      @RequestHeader(value = "origDocTypeRR", required = false) String origDocTypeRR) {
+    try {
+      String eicrXml = extractXmlContent(payload, "<eICRXML>", "</eICRXML>");
+      String rrXml = extractXmlContent(payload, "<RRXML>", "</RRXML>");
+
+      NbsInterfaceModel nbsInterfaceModel;
+      if (rrXml.equalsIgnoreCase("null") || rrXml.isEmpty() || rrXml.isBlank()) {
+        nbsInterfaceModel =
+            nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(
+                eicrXml, systemNm, origDocTypeEicr);
+      } else {
+        nbsInterfaceModel =
+            nbsRepositoryServiceProvider.saveIncomingEcrMessageWithRR(
+                eicrXml, systemNm, origDocTypeEicr, rrXml, origDocTypeRR);
+      }
+      return ResponseEntity.ok(nbsInterfaceModel.getNbsInterfaceUid());
+    } catch (Exception e) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Something went wrong while parsing the payload", e);
     }
+  }
 
-    @Operation(
-            summary = "Submit an ECR document to Data Ingestion Service",
-            parameters = {
-                    @Parameter(in = ParameterIn.HEADER,
-                            name = "clientid",
-                            description = "The Client Id",
-                            required = true,
-                            schema = @Schema(type = "string")),
-                    @Parameter(in = ParameterIn.HEADER,
-                            name = "clientsecret",
-                            description = "The Client Secret",
-                            required = true,
-                            schema = @Schema(type = "string"))}
-    )
-
-    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, path = "/api/ecrs")
-    public ResponseEntity<Integer> saveIncomingEcr(@RequestBody final String payload,
-                                                   @RequestHeader("systemNm") String systemNm,
-                                                   @RequestHeader("origDocTypeEicr") String origDocTypeEicr,
-                                                   @RequestHeader(value = "origDocTypeRR", required = false) String origDocTypeRR) {
-        try {
-            String eicrXml = extractXmlContent(payload, "<eICRXML>", "</eICRXML>");
-            String rrXml = extractXmlContent(payload, "<RRXML>", "</RRXML>");
-
-            NbsInterfaceModel nbsInterfaceModel;
-            if(rrXml.equalsIgnoreCase("null") || rrXml.isEmpty() || rrXml.isBlank()) {
-                nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithoutRR(eicrXml, systemNm, origDocTypeEicr);
-            }
-            else {
-                nbsInterfaceModel = nbsRepositoryServiceProvider.saveIncomingEcrMessageWithRR(eicrXml, systemNm, origDocTypeEicr, rrXml, origDocTypeRR);
-            }
-            return ResponseEntity.ok(nbsInterfaceModel.getNbsInterfaceUid());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong while parsing the payload", e);
-        }
+  private String extractXmlContent(String textInput, String startTag, String endTag) {
+    int startIndex = textInput.indexOf(startTag) + startTag.length();
+    int endIndex = textInput.indexOf(endTag, startIndex);
+    if (startIndex < 0 || endIndex < 0 || startIndex >= endIndex) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Malformed XML content: missing or incorrect tags");
     }
-
-    private String extractXmlContent(String textInput, String startTag, String endTag) {
-        int startIndex = textInput.indexOf(startTag) + startTag.length();
-        int endIndex = textInput.indexOf(endTag, startIndex);
-        if (startIndex < 0 || endIndex < 0 || startIndex >= endIndex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed XML content: missing or incorrect tags");
-        }
-        return textInput.substring(startIndex, endIndex).trim();
-    }
+    return textInput.substring(startIndex, endIndex).trim();
+  }
 }

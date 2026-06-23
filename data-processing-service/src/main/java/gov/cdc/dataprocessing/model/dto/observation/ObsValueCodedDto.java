@@ -2,75 +2,68 @@ package gov.cdc.dataprocessing.model.dto.observation;
 
 import gov.cdc.dataprocessing.model.container.base.BaseContainer;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.observation.ObsValueCoded;
+import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
-
 @Getter
 @Setter
+public class ObsValueCodedDto extends BaseContainer {
 
-public class ObsValueCodedDto extends BaseContainer
-{
+  private Long observationUid;
 
-    private Long observationUid;
+  private String altCd;
 
-    private String altCd;
+  private String altCdDescTxt;
 
-    private String altCdDescTxt;
+  private String altCdSystemCd;
 
-    private String altCdSystemCd;
+  private String altCdSystemDescTxt;
 
-    private String altCdSystemDescTxt;
+  private String code;
 
-    private String code;
+  private String codeDerivedInd;
 
-    private String codeDerivedInd;
+  private String codeSystemCd;
 
-    private String codeSystemCd;
+  private String codeSystemDescTxt;
 
-    private String codeSystemDescTxt;
+  private String codeVersion;
 
-    private String codeVersion;
+  private String displayName;
 
-    private String displayName;
+  private String originalTxt;
 
-    private String originalTxt;
+  private String progAreaCd = null;
 
-    private String progAreaCd = null;
+  private String jurisdictionCd = null;
 
-    private String jurisdictionCd = null;
+  private Long programJurisdictionOid = null;
 
-    private Long programJurisdictionOid = null;
+  private String sharedInd = null;
 
-    private String sharedInd = null;
+  private Collection<Object> theObsValueCodedModDTCollection;
 
+  private String searchResultRT;
 
-    private Collection<Object> theObsValueCodedModDTCollection;
+  private String cdSystemCdRT;
 
-    private String searchResultRT;
+  private String hiddenCd;
 
-    private String cdSystemCdRT;
+  public ObsValueCodedDto() {}
 
-    private String hiddenCd;
-
-    public ObsValueCodedDto() {
-
-    }
-
-    public ObsValueCodedDto(ObsValueCoded obsValueCoded) {
-        this.observationUid = obsValueCoded.getObservationUid();
-        this.altCd = obsValueCoded.getAltCd();
-        this.altCdDescTxt = obsValueCoded.getAltCdDescTxt();
-        this.altCdSystemCd = obsValueCoded.getAltCdSystemCd();
-        this.altCdSystemDescTxt = obsValueCoded.getAltCdSystemDescTxt();
-        this.code = obsValueCoded.getCode();
-        this.codeDerivedInd = obsValueCoded.getCodeDerivedInd();
-        this.codeSystemCd = obsValueCoded.getCodeSystemCd();
-        this.codeSystemDescTxt = obsValueCoded.getCodeSystemDescTxt();
-        this.codeVersion = obsValueCoded.getCodeVersion();
-        this.displayName = obsValueCoded.getDisplayName();
-        this.originalTxt = obsValueCoded.getOriginalTxt();
-    }
+  public ObsValueCodedDto(ObsValueCoded obsValueCoded) {
+    this.observationUid = obsValueCoded.getObservationUid();
+    this.altCd = obsValueCoded.getAltCd();
+    this.altCdDescTxt = obsValueCoded.getAltCdDescTxt();
+    this.altCdSystemCd = obsValueCoded.getAltCdSystemCd();
+    this.altCdSystemDescTxt = obsValueCoded.getAltCdSystemDescTxt();
+    this.code = obsValueCoded.getCode();
+    this.codeDerivedInd = obsValueCoded.getCodeDerivedInd();
+    this.codeSystemCd = obsValueCoded.getCodeSystemCd();
+    this.codeSystemDescTxt = obsValueCoded.getCodeSystemDescTxt();
+    this.codeVersion = obsValueCoded.getCodeVersion();
+    this.displayName = obsValueCoded.getDisplayName();
+    this.originalTxt = obsValueCoded.getOriginalTxt();
+  }
 }
-

@@ -7,6 +7,4 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-
-public class ConditionCode extends BaseConditionCode {
-}
+public class ConditionCode extends BaseConditionCode {}

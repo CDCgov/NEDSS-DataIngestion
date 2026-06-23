@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NonPersonLivingSubjectQuery {
-    public static final String FIND_BY_ID = """
+  public static final String FIND_BY_ID =
+      """
         SELECT
             non_person_uid AS nonPersonUid,
             add_reason_cd AS addReasonCd,

@@ -11,26 +11,30 @@ class PersonManager {
     this.client = client;
   }
 
-  private static final String SELECT_NEXT_ID = """
+  private static final String SELECT_NEXT_ID =
+      """
       SELECT seed_value_nbr
       FROM local_UID_generator id
       WHERE id.class_name_cd = 'PERSON';
       """;
 
-  private static final String INCREMENT_ID = """
+  private static final String INCREMENT_ID =
+      """
       UPDATE local_UID_generator
         SET seed_value_nbr = seed_value_nbr + 1
       WHERE class_name_cd = 'PERSON';
       """;
 
-  private static final String INSERT_ENTITY = """
+  private static final String INSERT_ENTITY =
+      """
       INSERT INTO Entity
         (entity_uid, class_cd)
       VALUES
         (:id, 'PSN');
       """;
 
-  private static final String INSERT_PERSON = """
+  private static final String INSERT_PERSON =
+      """
       INSERT INTO person
         (
           person_uid,
@@ -67,7 +71,8 @@ class PersonManager {
       )
       """;
 
-  private static final String SET_INACTIVE = """
+  private static final String SET_INACTIVE =
+      """
       UPDATE person
       SET
         record_status_cd = 'INACTIVE',
@@ -88,9 +93,7 @@ class PersonManager {
   }
 
   public void setInactive(long patientId) {
-    client.sql(SET_INACTIVE)
-        .param("id", patientId)
-        .update();
+    client.sql(SET_INACTIVE).param("id", patientId).update();
   }
 
   private Long getNextId() {
@@ -100,15 +103,10 @@ class PersonManager {
   }
 
   private void insertEntity(long id) {
-    client.sql(INSERT_ENTITY)
-        .param("id", id)
-        .update();
+    client.sql(INSERT_ENTITY).param("id", id).update();
   }
 
   private void insertPatient(long id) {
-    client.sql(INSERT_PERSON)
-        .param("id", id)
-        .param("localId", "PSN" + id + "GA01")
-        .update();
+    client.sql(INSERT_PERSON).param("id", id).param("localId", "PSN" + id + "GA01").update();
   }
 }

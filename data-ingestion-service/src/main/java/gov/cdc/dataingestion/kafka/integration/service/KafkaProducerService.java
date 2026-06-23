@@ -7,186 +7,247 @@ import gov.cdc.dataingestion.constant.enums.EnumKafkaOperation;
 import gov.cdc.dataingestion.exception.ConversionPrepareException;
 import gov.cdc.dataingestion.exception.KafkaProducerException;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.stereotype.Service;
 
 @Service
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class KafkaProducerService {
-    private static final String PREFIX_MSG_PREP = "PREP_";
-    private static final String PREFIX_MSG_XML = "XML_";
-    private static final String PREFIX_MSG_FHIR = "FHIR_";
-    private static final String PREFIX_MSG_VALID = "VALID_";
-    private static final String PREFIX_MSG_HL7 = "HL7_";
+  private static final String PREFIX_MSG_PREP = "PREP_";
+  private static final String PREFIX_MSG_XML = "XML_";
+  private static final String PREFIX_MSG_FHIR = "FHIR_";
+  private static final String PREFIX_MSG_VALID = "VALID_";
+  private static final String PREFIX_MSG_HL7 = "HL7_";
 
+  private final KafkaTemplate<String, String> kafkaTemplate;
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+  public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
+    this.kafkaTemplate = kafkaTemplate;
+  }
 
-    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
+  public void sendMessageFromController(
+      String msg,
+      String topic,
+      String msgType,
+      Integer dltOccurrence,
+      Boolean validationActive,
+      String version)
+      throws KafkaProducerException {
+    String uniqueID = msgType + "_" + UUID.randomUUID();
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, validationActive.toString().getBytes());
+
+    boolean dataProcessingApplied = version.equals("2");
+    prodRecord
+        .headers()
+        .add(
+            KafkaHeaderValue.DATA_PROCESSING_ENABLE,
+            Boolean.toString(dataProcessingApplied).getBytes());
+
+    sendMessage(prodRecord);
+  }
+
+  public void sendElrXmlMessageFromController(
+      String msgId,
+      String topic,
+      String msgType,
+      Integer dltOccurrence,
+      String payload,
+      String version)
+      throws KafkaProducerException {
+    String uniqueID = msgType + "_" + msgId;
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, payload);
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+
+    boolean dataProcessingApplied = version.equals("2");
+    prodRecord
+        .headers()
+        .add(
+            KafkaHeaderValue.DATA_PROCESSING_ENABLE,
+            Boolean.toString(dataProcessingApplied).getBytes());
+
+    sendMessage(prodRecord);
+  }
+
+  public void sendMessageFromDltController(
+      String msg, String topic, String msgType, Integer dltOccurrence)
+      throws KafkaProducerException {
+    String uniqueID = msgType + "_" + UUID.randomUUID();
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.REINJECTION.name().getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, "true".getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, "false".getBytes());
+    sendMessage(prodRecord);
+  }
+
+  /**
+   * @deprecated This method is deprecated and will be removed in a future release.
+   */
+  @Deprecated
+  @SuppressWarnings("java:S1133")
+  public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType)
+      throws KafkaProducerException {
+    String uniqueID = msgType + "_" + UUID.randomUUID();
+    Gson gson = new Gson();
+    String json = gson.toJson(msg);
+
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, json);
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
+    sendMessage(prodRecord);
+  }
+
+  public void sendMessageAfterValidatingMessage(
+      ValidatedELRModel msg, String topic, Integer dltOccurrence, String dataProcessingEnable)
+      throws KafkaProducerException {
+    String uniqueID = PREFIX_MSG_VALID + msg.getMessageType() + "_" + UUID.randomUUID();
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, msg.getId());
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msg.getMessageType().getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, msg.getMessageVersion().getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, dataProcessingEnable.getBytes());
+
+    sendMessage(prodRecord);
+  }
+
+  @SuppressWarnings({"java:S6880"})
+  public void sendMessagePreparationTopic(
+      ValidatedELRModel msg,
+      String topic,
+      TopicPreparationType topicType,
+      Integer dltOccurrence,
+      String dataProcessingEnable)
+      throws ConversionPrepareException, KafkaProducerException {
+
+    String uniqueId;
+    if (topicType == TopicPreparationType.XML) {
+      uniqueId = PREFIX_MSG_PREP + PREFIX_MSG_XML + msg.getMessageType() + "_" + UUID.randomUUID();
+    } else if (topicType == TopicPreparationType.FHIR) {
+      uniqueId = PREFIX_MSG_PREP + PREFIX_MSG_FHIR + msg.getMessageType() + "_" + UUID.randomUUID();
+    } else {
+      throw new ConversionPrepareException("Unsupported Topic");
     }
+    sendMessageHelper(
+        topic,
+        dltOccurrence,
+        uniqueId,
+        msg.getId(),
+        msg.getMessageType(),
+        msg.getMessageVersion(),
+        dataProcessingEnable);
+  }
 
-    public void sendMessageFromController(String msg,
-                                          String topic,
-                                          String msgType,
-                                          Integer dltOccurrence,
-                                          Boolean validationActive,
-                                          String version) throws KafkaProducerException {
-        String uniqueID = msgType + "_" + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, validationActive.toString().getBytes());
+  private void sendMessageHelper(
+      String topic,
+      Integer dltOccurrence,
+      String uniqueId,
+      String messageOriginId,
+      String messageType,
+      String messageVersion,
+      String dataProcessingEnable)
+      throws KafkaProducerException {
+    var prodRecord = new ProducerRecord<>(topic, uniqueId, messageOriginId);
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, messageType.getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, messageVersion.getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, dataProcessingEnable.getBytes());
 
-        boolean dataProcessingApplied = version.equals("2");
-        prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, Boolean.toString(dataProcessingApplied).getBytes());
+    sendMessage(prodRecord);
+  }
 
-        sendMessage(prodRecord);
+  public void sendMessageDlt(
+      String msgShort,
+      String msg,
+      String topic,
+      Integer dltOccurrence,
+      String stackTrace,
+      String originalTopic)
+      throws KafkaProducerException {
+    String uniqueID = "DLT_" + UUID.randomUUID();
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord.headers().add(KafkaHeaders.EXCEPTION_STACKTRACE, stackTrace.getBytes());
+    prodRecord.headers().add(KafkaHeaders.EXCEPTION_MESSAGE, msgShort.getBytes());
+    prodRecord.headers().add(KafkaHeaders.ORIGINAL_TOPIC, originalTopic.getBytes());
+    sendMessage(prodRecord);
+  }
+
+  public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence)
+      throws KafkaProducerException {
+    String uniqueID = PREFIX_MSG_XML + UUID.randomUUID();
+    var prodRecord = new ProducerRecord<>(topic, uniqueID, xmlMsg);
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+    prodRecord.headers().add(KafkaHeaderValue.DATA_TYPE, "ELR".getBytes());
+    sendMessage(prodRecord);
+  }
+
+  public void sendMessageAfterCheckingDuplicateHL7(
+      ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence)
+      throws KafkaProducerException {
+    String uniqueID = PREFIX_MSG_HL7 + UUID.randomUUID();
+    var prodRecord = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
+    prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
+    prodRecord
+        .headers()
+        .add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
+    sendMessage(prodRecord);
+  }
+
+  private void sendMessage(ProducerRecord<String, String> prodRecord)
+      throws KafkaProducerException {
+    try {
+      kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new KafkaProducerException(
+          "Thread was interrupted while sending Kafka message to topic: "
+              + prodRecord.topic()
+              + " with UUID: "
+              + prodRecord.value());
+    } catch (TimeoutException | ExecutionException e) {
+      throw new KafkaProducerException(
+          "Failed publishing message to kafka topic: "
+              + prodRecord.topic()
+              + " with UUID: "
+              + prodRecord.value());
     }
-
-    public void sendElrXmlMessageFromController(String msgId,
-                                          String topic,
-                                          String msgType,
-                                          Integer dltOccurrence,
-                                          String payload, String version) throws KafkaProducerException {
-        String uniqueID = msgType + "_" + msgId;
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, payload);
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-
-        boolean dataProcessingApplied = version.equals("2");
-        prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, Boolean.toString(dataProcessingApplied).getBytes());
-
-        sendMessage(prodRecord);
-    }
-
-    public void sendMessageFromDltController(
-            String msg, String topic, String msgType, Integer dltOccurrence) throws KafkaProducerException {
-        String uniqueID = msgType + "_" + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.REINJECTION.name().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VALIDATION_ACTIVE, "true".getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, "false".getBytes());
-        sendMessage(prodRecord);
-    }
-
-
-    /**
-     * @deprecated This method is deprecated and will be removed in a future release.
-     */
-    @Deprecated
-    @SuppressWarnings("java:S1133")
-    public void sendMessageFromCSVController(List<List<String>> msg, String topic, String msgType) throws KafkaProducerException {
-        String uniqueID = msgType + "_" + UUID.randomUUID();
-        Gson gson = new Gson();
-        String json = gson.toJson(msg);
-
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, json);
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msgType.getBytes());
-        sendMessage(prodRecord);
-    }
-
-    public void sendMessageAfterValidatingMessage(ValidatedELRModel msg, String topic, Integer dltOccurrence, String dataProcessingEnable) throws KafkaProducerException {
-        String uniqueID =  PREFIX_MSG_VALID + msg.getMessageType() + "_" + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, msg.getId());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, msg.getMessageType().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, msg.getMessageVersion().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, dataProcessingEnable.getBytes());
-
-        sendMessage(prodRecord);
-    }
-    @SuppressWarnings({"java:S6880"})
-    public void sendMessagePreparationTopic(ValidatedELRModel msg, String topic, TopicPreparationType topicType, Integer dltOccurrence, String dataProcessingEnable) throws ConversionPrepareException, KafkaProducerException {
-
-        String uniqueId;
-        if (topicType == TopicPreparationType.XML) {
-            uniqueId =  PREFIX_MSG_PREP + PREFIX_MSG_XML + msg.getMessageType() + "_" + UUID.randomUUID();
-        }
-        else if (topicType == TopicPreparationType.FHIR) {
-            uniqueId =  PREFIX_MSG_PREP +  PREFIX_MSG_FHIR + msg.getMessageType() + "_" + UUID.randomUUID();
-        }
-        else {
-            throw new ConversionPrepareException("Unsupported Topic");
-        }
-        sendMessageHelper(topic, dltOccurrence, uniqueId, msg.getId(), msg.getMessageType(), msg.getMessageVersion(), dataProcessingEnable);
-    }
-
-
-
-    private void sendMessageHelper(String topic, Integer dltOccurrence, String uniqueId,
-                                   String messageOriginId, String messageType, String messageVersion,
-                                   String dataProcessingEnable) throws KafkaProducerException {
-        var prodRecord = new ProducerRecord<>(topic, uniqueId, messageOriginId);
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_TYPE, messageType.getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_VERSION, messageVersion.getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DATA_PROCESSING_ENABLE, dataProcessingEnable.getBytes());
-
-        sendMessage(prodRecord);
-    }
-
-    public void sendMessageDlt(String msgShort, String msg, String topic, Integer dltOccurrence,
-                               String stackTrace, String originalTopic) throws KafkaProducerException {
-        String uniqueID = "DLT_" + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, msg);
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaders.EXCEPTION_STACKTRACE, stackTrace.getBytes());
-        prodRecord.headers().add(KafkaHeaders.EXCEPTION_MESSAGE, msgShort.getBytes());
-        prodRecord.headers().add(KafkaHeaders.ORIGINAL_TOPIC, originalTopic.getBytes());
-        sendMessage(prodRecord);
-    }
-
-
-
-    public void sendMessageAfterConvertedToXml(String xmlMsg, String topic, Integer dltOccurrence) throws KafkaProducerException {
-        String uniqueID = PREFIX_MSG_XML + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(topic, uniqueID, xmlMsg);
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.DATA_TYPE, "ELR".getBytes());
-        sendMessage(prodRecord);
-    }
-
-    public void sendMessageAfterCheckingDuplicateHL7(ValidatedELRModel msg, String validatedElrDuplicateTopic, Integer dltOccurrence) throws KafkaProducerException {
-        String uniqueID = PREFIX_MSG_HL7 + UUID.randomUUID();
-        var prodRecord = new ProducerRecord<>(validatedElrDuplicateTopic, uniqueID, msg.getRawId());
-        prodRecord.headers().add(KafkaHeaderValue.DLT_OCCURRENCE, dltOccurrence.toString().getBytes());
-        prodRecord.headers().add(KafkaHeaderValue.MESSAGE_OPERATION, EnumKafkaOperation.INJECTION.name().getBytes());
-        sendMessage(prodRecord);
-    }
-
-    private void sendMessage(ProducerRecord<String, String> prodRecord) throws KafkaProducerException {
-        try {
-            kafkaTemplate.send(prodRecord).get(3, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new KafkaProducerException("Thread was interrupted while sending Kafka message to topic: "
-                    + prodRecord.topic() + " with UUID: " + prodRecord.value());
-        }
-        catch (TimeoutException | ExecutionException e) {
-            throw new KafkaProducerException("Failed publishing message to kafka topic: " + prodRecord.topic() + " with UUID: " + prodRecord.value());
-        }
-    }
-
+  }
 }

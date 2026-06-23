@@ -13,31 +13,26 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 @SuppressWarnings("java:S2187")
-class AdvancedCriteriaTest
-{
-    @InjectMocks
-    private AdvancedCriteria advancedCriteria;
-    @Mock
-    AuthUtil authUtil;
+class AdvancedCriteriaTest {
+  @InjectMocks private AdvancedCriteria advancedCriteria;
+  @Mock AuthUtil authUtil;
 
-    @Mock
-    Algorithm algorithm;
+  @Mock Algorithm algorithm;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
-        AuthUser user = new AuthUser();
-        user.setAuthUserUid(1L);
-        user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
-        userInfo.setAuthUser(user);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
+    AuthUser user = new AuthUser();
+    user.setAuthUserUid(1L);
+    user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
+    userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
-    }
+    authUtil.setGlobalAuthUser(userInfo);
+  }
 
-    @AfterEach
-    void tearDown() {
-        Mockito.reset(authUtil, algorithm);
-    }
-
+  @AfterEach
+  void tearDown() {
+    Mockito.reset(authUtil, algorithm);
+  }
 }

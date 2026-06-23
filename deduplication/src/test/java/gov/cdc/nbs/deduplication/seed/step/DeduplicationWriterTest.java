@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
+import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,19 +20,14 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
-
 @ExtendWith(MockitoExtension.class)
 class DeduplicationWriterTest {
 
-  @Mock
-  private NamedParameterJdbcTemplate template;
+  @Mock private NamedParameterJdbcTemplate template;
 
-  @Mock
-  PatientRecordService patientRecordService;
+  @Mock PatientRecordService patientRecordService;
 
-  @InjectMocks
-  private DeduplicationWriter writer;
+  @InjectMocks private DeduplicationWriter writer;
 
   @Test
   void initializes() {
@@ -48,9 +43,11 @@ class DeduplicationWriterTest {
     var chunk = new Chunk<DeduplicationEntry>(entries);
 
     writer.write(chunk);
-    verify(template, times(1)).batchUpdate(Mockito.anyString(), Mockito.any(SqlParameterSource[].class));
+    verify(template, times(1))
+        .batchUpdate(Mockito.anyString(), Mockito.any(SqlParameterSource[].class));
 
-    ArgumentCaptor<SqlParameterSource[]> captor = ArgumentCaptor.forClass(SqlParameterSource[].class);
+    ArgumentCaptor<SqlParameterSource[]> captor =
+        ArgumentCaptor.forClass(SqlParameterSource[].class);
     verify(template).batchUpdate(Mockito.anyString(), captor.capture());
 
     assertThat(captor.getValue()).hasSize(2);
@@ -71,12 +68,8 @@ class DeduplicationWriterTest {
   @Test
   void createsParameterSource() {
     LocalDateTime now = LocalDateTime.now();
-    DeduplicationEntry entry = new DeduplicationEntry(
-        1l,
-        2l,
-        "mpiPatient1",
-        "mpiPerson1");
-    SqlParameterSource source = writer.createParameterSource(entry,now);
+    DeduplicationEntry entry = new DeduplicationEntry(1l, 2l, "mpiPatient1", "mpiPerson1");
+    SqlParameterSource source = writer.createParameterSource(entry, now);
 
     assertThat(source.getValue("person_uid")).isEqualTo(entry.nbsPersonId());
     assertThat(source.getValue("person_parent_uid")).isEqualTo(entry.nbsPersonParentId());

@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AttributeMapper {
-    private String attribute1;
-    private String attribute2;
+  private String attribute1;
+  private String attribute2;
 }

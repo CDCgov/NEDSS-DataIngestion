@@ -1,5 +1,10 @@
 package gov.cdc.dataprocessing.service.implementation.action;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
 import gov.cdc.dataprocessing.exception.DataProcessingException;
@@ -16,92 +21,81 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 class LabReportProcessingTest {
-    @Mock
-    private IObservationService observationService;
-    @InjectMocks
-    private LabReportProcessing labReportProcessing;
-    @Mock
-    AuthUtil authUtil;
+  @Mock private IObservationService observationService;
+  @InjectMocks private LabReportProcessing labReportProcessing;
+  @Mock AuthUtil authUtil;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
-        AuthUser user = new AuthUser();
-        user.setAuthUserUid(1L);
-        user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
-        userInfo.setAuthUser(user);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    AuthUserProfileInfo userInfo = new AuthUserProfileInfo();
+    AuthUser user = new AuthUser();
+    user.setAuthUserUid(1L);
+    user.setUserType(NEDSSConstant.SEC_USERTYPE_EXTERNAL);
+    userInfo.setAuthUser(user);
 
-        authUtil.setGlobalAuthUser(userInfo);
-    }
+    authUtil.setGlobalAuthUser(userInfo);
+  }
 
-    @AfterEach
-    void tearDown() {
-        Mockito.reset(observationService, authUtil);
-    }
+  @AfterEach
+  void tearDown() {
+    Mockito.reset(observationService, authUtil);
+  }
 
-    @Test
-    void markAsReviewedHandler_Success_Processed() throws DataProcessingException {
-        long uid = 10L;
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-        edxLabInformationDto.setAssociatedPublicHealthCaseUid(null);
+  @Test
+  void markAsReviewedHandler_Success_Processed() throws DataProcessingException {
+    long uid = 10L;
+    EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+    edxLabInformationDto.setAssociatedPublicHealthCaseUid(null);
 
-        when(observationService.processObservation(10L))
-                .thenReturn(true);
+    when(observationService.processObservation(10L)).thenReturn(true);
 
-        var test = labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
+    var test = labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
 
-        assertEquals("PROCESSED", test);
-    }
+    assertEquals("PROCESSED", test);
+  }
 
-    @Test
-    void markAsReviewedHandler_Success_UnProcessed() throws DataProcessingException {
-        long uid = 10L;
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-        edxLabInformationDto.setAssociatedPublicHealthCaseUid(-1L);
+  @Test
+  void markAsReviewedHandler_Success_UnProcessed() throws DataProcessingException {
+    long uid = 10L;
+    EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+    edxLabInformationDto.setAssociatedPublicHealthCaseUid(-1L);
 
-        when(observationService.processObservation(10L))
-                .thenReturn(false);
+    when(observationService.processObservation(10L)).thenReturn(false);
 
-        var test = labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
+    var test = labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
 
-        assertEquals("UNPROCESSED", test);
-    }
+    assertEquals("UNPROCESSED", test);
+  }
 
-    @Test
-    void markAsReviewedHandler_Success_Assoc() throws DataProcessingException {
-        long uid = 10L;
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-        edxLabInformationDto.setAssociatedPublicHealthCaseUid(0L);
+  @Test
+  void markAsReviewedHandler_Success_Assoc() throws DataProcessingException {
+    long uid = 10L;
+    EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+    edxLabInformationDto.setAssociatedPublicHealthCaseUid(0L);
 
-        var test = labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
+    var test = labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
 
-        assertEquals("", test);
-        verify(observationService, times(1)).setLabInvAssociation(eq(10L), any());
+    assertEquals("", test);
+    verify(observationService, times(1)).setLabInvAssociation(eq(10L), any());
+  }
 
-    }
+  @Test
+  void markAsReviewedHandler_Exception() throws DataProcessingException {
+    long uid = 10L;
+    EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
+    edxLabInformationDto.setAssociatedPublicHealthCaseUid(-1L);
 
+    when(observationService.processObservation(10L)).thenThrow(new RuntimeException("TEST"));
 
-    @Test
-    void markAsReviewedHandler_Exception() throws DataProcessingException {
-        long uid = 10L;
-        EdxLabInformationDto edxLabInformationDto = new EdxLabInformationDto();
-        edxLabInformationDto.setAssociatedPublicHealthCaseUid(-1L);
+    DataProcessingException thrown =
+        assertThrows(
+            DataProcessingException.class,
+            () -> {
+              labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
+            });
 
-        when(observationService.processObservation(10L))
-                .thenThrow(new RuntimeException("TEST"));
-
-
-        DataProcessingException thrown = assertThrows(DataProcessingException.class, () -> {
-            labReportProcessing.markAsReviewedHandler(uid, edxLabInformationDto);
-        });
-
-        assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_12, thrown.getMessage());
-    }
+    assertEquals(EdxELRConstant.ELR_MASTER_MSG_ID_12, thrown.getMessage());
+  }
 }

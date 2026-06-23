@@ -7,14 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Ri {
-    String repeatPattern;
-    String explicitTimeInterval;
-    public Ri(RI ri) {
-        this.repeatPattern = ri.getRepeatPattern().getValue();
-        this.explicitTimeInterval = ri.getExplicitTimeInterval().getValue();
-    }
+  String repeatPattern;
+  String explicitTimeInterval;
 
-    public Ri() {
+  public Ri(RI ri) {
+    this.repeatPattern = ri.getRepeatPattern().getValue();
+    this.explicitTimeInterval = ri.getExplicitTimeInterval().getValue();
+  }
 
-    }
+  public Ri() {}
 }

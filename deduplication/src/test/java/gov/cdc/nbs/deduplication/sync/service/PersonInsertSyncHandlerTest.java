@@ -7,14 +7,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
 import gov.cdc.nbs.deduplication.sync.model.MpiPatientResponse;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -26,41 +27,26 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.client.RestClient;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-
 @ExtendWith(MockitoExtension.class)
 class PersonInsertSyncHandlerTest {
 
-  @Mock
-  private ObjectMapper objectMapper;
+  @Mock private ObjectMapper objectMapper;
 
-  @Mock
-  private RestClient recordLinkageClient;
+  @Mock private RestClient recordLinkageClient;
 
-  @Mock
-  private NamedParameterJdbcTemplate deduplicationTemplate;
+  @Mock private NamedParameterJdbcTemplate deduplicationTemplate;
 
+  @Mock private PatientRecordService patientRecordService;
 
-  @Mock
-  private PatientRecordService patientRecordService;
+  @Mock private RestClient.RequestBodyUriSpec requestBodyUriSpec;
 
-  @Mock
-  private RestClient.RequestBodyUriSpec requestBodyUriSpec;
+  @Mock private RestClient.RequestBodyUriSpec requestBodyUriSpec2;
 
-  @Mock
-  private RestClient.RequestBodyUriSpec requestBodyUriSpec2;
+  @Mock private RestClient.RequestBodySpec requestBodySpec;
 
-  @Mock
-  private RestClient.RequestBodySpec requestBodySpec;
+  @Mock private RestClient.ResponseSpec responseSpec;
 
-  @Mock
-  private RestClient.ResponseSpec responseSpec;
-
-  @InjectMocks
-  private PersonInsertSyncHandler personInsertSyncHandler;
-
+  @InjectMocks private PersonInsertSyncHandler personInsertSyncHandler;
 
   @Test
   void testHandleInsert_PersonExists_DoNothing() throws JsonProcessingException {
@@ -110,7 +96,8 @@ class PersonInsertSyncHandlerTest {
   }
 
   @Test
-  void testHandleInsert_PatientDoesNotExist_ParentExists_InsertNewPatient() throws JsonProcessingException {
+  void testHandleInsert_PatientDoesNotExist_ParentExists_InsertNewPatient()
+      throws JsonProcessingException {
     String personUid = "5678";
     String parentId = "1234";
 
@@ -134,7 +121,8 @@ class PersonInsertSyncHandlerTest {
   }
 
   @Test
-  void testHandleInsert_PatientDoesNotExist_ParentDoesNotExist_InsertParentAndPatient() throws JsonProcessingException {
+  void testHandleInsert_PatientDoesNotExist_ParentDoesNotExist_InsertParentAndPatient()
+      throws JsonProcessingException {
     String personUid = "5678";
     String parentId = "1234";
     JsonNode payloadNode = createPayloadNode(personUid, parentId);
@@ -169,7 +157,8 @@ class PersonInsertSyncHandlerTest {
   }
 
   // Mocking Methods
-  private void mockSeedApiAndPatientApi(MpiResponse parentMpiResponse, MpiPatientResponse patientMpiResponse) {
+  private void mockSeedApiAndPatientApi(
+      MpiResponse parentMpiResponse, MpiPatientResponse patientMpiResponse) {
     // Mock Person creation (seed API call)
     when(recordLinkageClient.post()).thenReturn(requestBodyUriSpec);
     when(requestBodyUriSpec.uri("/seed")).thenReturn(requestBodySpec);
@@ -184,8 +173,8 @@ class PersonInsertSyncHandlerTest {
     RestClient.ResponseSpec responseSpec2 = mock(RestClient.ResponseSpec.class);
 
     when(recordLinkageClient.post())
-        .thenReturn(requestBodyUriSpec)    // First call for Person
-        .thenReturn(requestBodyUriSpec2);  // Second call for patient
+        .thenReturn(requestBodyUriSpec) // First call for Person
+        .thenReturn(requestBodyUriSpec2); // Second call for patient
 
     when(requestBodyUriSpec2.uri("/patient")).thenReturn(requestBodySpec2);
     when(requestBodySpec2.contentType(MediaType.APPLICATION_JSON)).thenReturn(requestBodySpec2);
@@ -207,12 +196,13 @@ class PersonInsertSyncHandlerTest {
 
   private void mockDoesPatientExistInMpi(String personId, boolean exists) {
     when(deduplicationTemplate.queryForObject(
-        eq(QueryConstants.MPI_PATIENT_EXISTS_CHECK),
-        argThat((MapSqlParameterSource source) -> {
-          Object value = source.getValue("personId");
-          return value != null && personId.equals(value.toString());
-        }),
-        eq(Boolean.class)))
+            eq(QueryConstants.MPI_PATIENT_EXISTS_CHECK),
+            argThat(
+                (MapSqlParameterSource source) -> {
+                  Object value = source.getValue("personId");
+                  return value != null && personId.equals(value.toString());
+                }),
+            eq(Boolean.class)))
         .thenReturn(exists);
   }
 
@@ -232,19 +222,21 @@ class PersonInsertSyncHandlerTest {
 
   private void mockFindPersonReferenceId(String personId, String personReferenceId) {
     when(deduplicationTemplate.queryForObject(
-        eq(QueryConstants.MPI_PERSON_ID_QUERY),
-        argThat((SqlParameterSource parameterSource) -> {
-          String actualPersonId = (String) parameterSource.getValue("personId");
-          return personId.equals(actualPersonId);
-        }),
-        eq(String.class))).thenReturn(personReferenceId);
+            eq(QueryConstants.MPI_PERSON_ID_QUERY),
+            argThat(
+                (SqlParameterSource parameterSource) -> {
+                  String actualPersonId = (String) parameterSource.getValue("personId");
+                  return personId.equals(actualPersonId);
+                }),
+            eq(String.class)))
+        .thenReturn(personReferenceId);
   }
 
   private void mockLinkNbsToMpi(int times) {
-    when(deduplicationTemplate.update(eq(QueryConstants.NBS_MPI_QUERY), any(SqlParameterSource.class)))
+    when(deduplicationTemplate.update(
+            eq(QueryConstants.NBS_MPI_QUERY), any(SqlParameterSource.class)))
         .thenReturn(times);
   }
-
 
   private void mockObjectMapperWriteValueAsString(String json) throws JsonProcessingException {
     when(objectMapper.writeValueAsString(any())).thenReturn(json);
@@ -257,7 +249,6 @@ class PersonInsertSyncHandlerTest {
 
   // Verification Methods
 
-
   private void verifyRestClientCalls(String uri) {
     verify(recordLinkageClient).post();
     verify(requestBodyUriSpec).uri(uri);
@@ -267,26 +258,30 @@ class PersonInsertSyncHandlerTest {
     verify(requestBodySpec).retrieve();
     if (uri.equals("/seed")) {
       verify(responseSpec).body(MpiResponse.class);
-    } else {// "/patient"
+    } else { // "/patient"
       verify(responseSpec).body(MpiPatientResponse.class);
     }
   }
 
   private void verifyLinkNbsToMpi(VerificationMode mode) {
-    ArgumentCaptor<SqlParameterSource> parameterSourceCaptor = ArgumentCaptor.forClass(SqlParameterSource.class);
-    verify(deduplicationTemplate, mode).update(
-        eq(QueryConstants.NBS_MPI_QUERY),
-        parameterSourceCaptor.capture());
+    ArgumentCaptor<SqlParameterSource> parameterSourceCaptor =
+        ArgumentCaptor.forClass(SqlParameterSource.class);
+    verify(deduplicationTemplate, mode)
+        .update(eq(QueryConstants.NBS_MPI_QUERY), parameterSourceCaptor.capture());
   }
 
   // Helper Methods
 
   private JsonNode createPayloadNode(String personUid, String personParentUid) {
     JsonNodeFactory factory = JsonNodeFactory.instance;
-    return factory.objectNode()
-        .set("after", factory.objectNode()
-            .put("person_uid", personUid)
-            .put("person_parent_uid", personParentUid));
+    return factory
+        .objectNode()
+        .set(
+            "after",
+            factory
+                .objectNode()
+                .put("person_uid", personUid)
+                .put("person_parent_uid", personParentUid));
   }
 
   private MpiPerson createMockMpiPerson(String personUid, String parentId) {
@@ -300,15 +295,14 @@ class PersonInsertSyncHandlerTest {
         Collections.emptyList(), // telecom
         Collections.singletonList("race"),
         Collections.emptyList() // identifiers
-    );
+        );
   }
 
   private MpiResponse createMockMpiResponse() {
-    List<MpiResponse.Patient> patients = List.of(
-        new MpiResponse.Patient("patient_ref_1", "1234"));
+    List<MpiResponse.Patient> patients = List.of(new MpiResponse.Patient("patient_ref_1", "1234"));
 
-    List<MpiResponse.Person> persons = List.of(
-        new MpiResponse.Person("person_ref_1", "1234", patients));
+    List<MpiResponse.Person> persons =
+        List.of(new MpiResponse.Person("person_ref_1", "1234", patients));
 
     return new MpiResponse(persons);
   }
@@ -347,5 +341,4 @@ class PersonInsertSyncHandlerTest {
          }
         """;
   }
-
 }

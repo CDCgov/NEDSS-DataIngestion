@@ -2,13 +2,11 @@ package gov.cdc.nbs.deduplication.config.auth;
 
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class NBSSessionAuthenticationEntryPointTest {
 

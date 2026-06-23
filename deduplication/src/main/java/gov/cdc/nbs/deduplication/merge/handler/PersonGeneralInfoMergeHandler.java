@@ -1,6 +1,7 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
 import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -9,13 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
-
 @Component
 @Order(10)
 public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
 
-  static final String UPDATE_PERSON_GENERAL_AS_OF = """
+  static final String UPDATE_PERSON_GENERAL_AS_OF =
+      """
       UPDATE person
          SET as_of_date_general = (
              SELECT as_of_date_general
@@ -27,7 +27,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_MARITAL_STATUS_CD = """
+  static final String UPDATE_PERSON_MARITAL_STATUS_CD =
+      """
       UPDATE person
          SET marital_status_cd = (
              SELECT marital_status_cd
@@ -39,7 +40,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_MOTHERS_MAIDEN_NAME = """
+  static final String UPDATE_PERSON_MOTHERS_MAIDEN_NAME =
+      """
       UPDATE person
          SET mothers_maiden_nm = (
              SELECT mothers_maiden_nm
@@ -51,7 +53,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_NUMBER_OF_ADULTS = """
+  static final String UPDATE_PERSON_NUMBER_OF_ADULTS =
+      """
       UPDATE person
          SET adults_in_house_nbr = (
              SELECT adults_in_house_nbr
@@ -63,7 +66,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_NUMBER_OF_CHILDREN = """
+  static final String UPDATE_PERSON_NUMBER_OF_CHILDREN =
+      """
       UPDATE person
          SET children_in_house_nbr = (
              SELECT children_in_house_nbr
@@ -75,7 +79,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_OCCUPATION_CD = """
+  static final String UPDATE_PERSON_OCCUPATION_CD =
+      """
       UPDATE person
          SET occupation_cd = (
              SELECT occupation_cd
@@ -87,7 +92,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_EDUCATION_LEVEL_CD = """
+  static final String UPDATE_PERSON_EDUCATION_LEVEL_CD =
+      """
       UPDATE person
          SET education_level_cd = (
              SELECT education_level_cd
@@ -99,7 +105,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_PRIMARY_LANGUAGE_CD = """
+  static final String UPDATE_PERSON_PRIMARY_LANGUAGE_CD =
+      """
       UPDATE person
          SET prim_lang_cd = (
              SELECT prim_lang_cd
@@ -111,7 +118,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_SPEAKS_ENGLISH_CD = """
+  static final String UPDATE_PERSON_SPEAKS_ENGLISH_CD =
+      """
       UPDATE person
          SET speaks_english_cd = (
              SELECT speaks_english_cd
@@ -123,7 +131,8 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
        WHERE person_uid = :survivorId
       """;
 
-  static final String UPDATE_PERSON_STATE_HIV_CASE_ID = """
+  static final String UPDATE_PERSON_STATE_HIV_CASE_ID =
+      """
       UPDATE person
          SET ehars_id = (
              SELECT ehars_id
@@ -137,17 +146,20 @@ public class PersonGeneralInfoMergeHandler implements SectionMergeHandler {
 
   private final NamedParameterJdbcTemplate nbsTemplate;
 
-  public PersonGeneralInfoMergeHandler(@Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
+  public PersonGeneralInfoMergeHandler(
+      @Qualifier("nbsNamedTemplate") NamedParameterJdbcTemplate nbsTemplate) {
     this.nbsTemplate = nbsTemplate;
   }
 
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+  public void handleMerge(
+      String matchId, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     mergePersonGeneralInfo(request.survivingRecord(), request.generalInfo());
   }
 
-  private void mergePersonGeneralInfo(String survivorId, PatientMergeRequest.GeneralInfoFieldSource fieldSource) {
+  private void mergePersonGeneralInfo(
+      String survivorId, PatientMergeRequest.GeneralInfoFieldSource fieldSource) {
     updateAsOf(survivorId, fieldSource.asOf());
     updateMaritalStatus(survivorId, fieldSource.maritalStatus());
     updateMothersMaidenName(survivorId, fieldSource.mothersMaidenName());

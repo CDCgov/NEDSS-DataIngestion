@@ -1,8 +1,7 @@
 package gov.cdc.nbs.deduplication.config.auth.nbs.token;
 
-import java.util.Optional;
-
 import jakarta.servlet.http.Cookie;
+import java.util.Optional;
 
 public record NbsSessionToken(String jSessionId) {
 
@@ -29,5 +28,4 @@ public record NbsSessionToken(String jSessionId) {
     }
     return Optional.empty();
   }
-
 }

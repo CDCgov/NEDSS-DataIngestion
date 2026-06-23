@@ -7,10 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 public class ServicePropertiesProvider {
-    @Value("${service.timezone:UTC}")
-    private String tz;
+  @Value("${service.timezone:UTC}")
+  private String tz;
 
-    @Value("${nedss.nbs-state-code:13}")
-    private String nbsStateCode;
-
+  @Value("${nedss.nbs-state-code:13}")
+  private String nbsStateCode;
 }

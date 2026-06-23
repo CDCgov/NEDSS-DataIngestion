@@ -1,15 +1,5 @@
 package gov.cdc.nbs.deduplication.merge;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.springframework.stereotype.Component;
-
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -22,19 +12,30 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
-
 import gov.cdc.nbs.deduplication.batch.model.MatchesRequireReviewResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import java.awt.Color;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.stream.Stream;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PdfBuilder {
 
-  public void build(HttpServletResponse response,
-                    List<MatchesRequireReviewResponse.MatchRequiringReview> matches, String timestampForFilename,
-                    String timestampForFooter) throws IOException {
+  public void build(
+      HttpServletResponse response,
+      List<MatchesRequireReviewResponse.MatchRequiringReview> matches,
+      String timestampForFilename,
+      String timestampForFooter)
+      throws IOException {
     response.setContentType("application/pdf");
-    response.setHeader("Content-Disposition",
-            "attachment; filename=matches_requiring_review_" + timestampForFilename + ".pdf");
+    response.setHeader(
+        "Content-Disposition",
+        "attachment; filename=matches_requiring_review_" + timestampForFilename + ".pdf");
 
     try (Document document = new Document(PageSize.A4)) {
       PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
@@ -51,10 +52,16 @@ public class PdfBuilder {
       PdfPTable table = new PdfPTable(5);
       table.setWidthPercentage(100);
       table.setSpacingBefore(10f);
-      table.setWidths(new float[]{2f, 3f, 2.5f, 2.5f, 3.5f});
+      table.setWidths(new float[] {2f, 3f, 2.5f, 2.5f, 3.5f});
 
-      Stream.of("Patient ID", "Person Name", "Date Created", "Date Identified", "Number of Matching Records")
-              .forEach(header -> {
+      Stream.of(
+              "Patient ID",
+              "Person Name",
+              "Date Created",
+              "Date Identified",
+              "Number of Matching Records")
+          .forEach(
+              header -> {
                 PdfPCell cell = new PdfPCell(new Phrase(header, tableFont));
                 cell.setBackgroundColor(Color.LIGHT_GRAY);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -85,7 +92,8 @@ public class PdfBuilder {
 
   public String formatDateTime(String rawDateTime) {
     DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a");
-    List<DateTimeFormatter> inputFormatters = List.of(
+    List<DateTimeFormatter> inputFormatters =
+        List.of(
             DateTimeFormatter.ISO_LOCAL_DATE_TIME,
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
 
@@ -110,16 +118,17 @@ public class PdfBuilder {
     @Override
     public void onEndPage(PdfWriter writer, Document document) {
       Font footerFont = new Font(Font.HELVETICA, 8, Font.ITALIC, Color.GRAY);
-      Phrase footer = new Phrase("Generated on: " + timestamp + " | Page " + writer.getPageNumber(), footerFont);
+      Phrase footer =
+          new Phrase(
+              "Generated on: " + timestamp + " | Page " + writer.getPageNumber(), footerFont);
 
       ColumnText.showTextAligned(
-              writer.getDirectContent(),
-              Element.ALIGN_LEFT,
-              footer,
-              document.leftMargin(),
-              document.bottomMargin() - 10,
-              0);
+          writer.getDirectContent(),
+          Element.ALIGN_LEFT,
+          footer,
+          document.leftMargin(),
+          document.bottomMargin() - 10,
+          0);
     }
   }
 }
-

@@ -5,11 +5,12 @@ import gov.cdc.dataprocessing.model.container.model.LabResultProxyContainer;
 import gov.cdc.dataprocessing.model.dto.lab_result.EdxLabInformationDto;
 import gov.cdc.dataprocessing.model.dto.observation.ObservationDto;
 
-
 public interface IObservationMatchingService {
-    void processMatchedProxyVO(LabResultProxyContainer labResultProxyVO,
-                               LabResultProxyContainer matchedlabResultProxyVO,
-                               EdxLabInformationDto edxLabInformationDT);
-    ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto) throws DataProcessingException;
+  void processMatchedProxyVO(
+      LabResultProxyContainer labResultProxyVO,
+      LabResultProxyContainer matchedlabResultProxyVO,
+      EdxLabInformationDto edxLabInformationDT);
 
+  ObservationDto checkingMatchingObservation(EdxLabInformationDto edxLabInformationDto)
+      throws DataProcessingException;
 }

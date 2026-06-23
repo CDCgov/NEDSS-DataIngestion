@@ -1,11 +1,10 @@
 package gov.cdc.nbs.deduplication.algorithm.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MapperConfig {
@@ -16,5 +15,4 @@ public class MapperConfig {
         .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
         .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
   }
-
 }

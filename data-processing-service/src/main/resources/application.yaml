@@ -26,13 +26,6 @@ management:
       exposure:
         include: "health,info"
 
-cache:
-  clientId: ${RC_CLIENT_ID}
-  secret: ${RC_CLIENT_SECRET}
-  token: ${RC_URL}${RC_EP_TOKEN:/data/api/auth/token}
-  odse:
-    localId: ${RC_URL}${EP_CACHE_LOCALID:/data/odse/localId}
-
 features:
   modernizedMatching:
     enabled: ${MODERNIZED_MATCHING_ENABLED:false}

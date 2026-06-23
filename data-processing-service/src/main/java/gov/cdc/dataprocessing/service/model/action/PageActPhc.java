@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class PageActPhc {
-    Long falsePublicHealthCaseUid;
-    Long actualUid;
-    Long phcUid;
+  Long falsePublicHealthCaseUid;
+  Long actualUid;
+  Long phcUid;
 }

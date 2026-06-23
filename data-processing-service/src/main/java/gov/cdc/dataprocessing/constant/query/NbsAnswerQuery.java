@@ -1,9 +1,10 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NbsAnswerQuery {
-    public static final String MERGE_NBS_ANSWER = """
+  public static final String MERGE_NBS_ANSWER =
+"""
 MERGE INTO nbs_answer AS target
-USING (SELECT 
+USING (SELECT
            :nbsAnswerUid AS nbs_answer_uid,
            :actUid AS act_uid,
            :answerTxt AS answer_txt,
@@ -59,8 +60,8 @@ WHEN NOT MATCHED THEN INSERT (
 );
 """;
 
-
-    public static final String SELECT_NBS_ANSWER_BY_ACT_UID = """
+  public static final String SELECT_NBS_ANSWER_BY_ACT_UID =
+"""
 SELECT
     nbs_answer_uid AS nbsAnswerUid,
     act_uid AS actUid,
@@ -78,14 +79,16 @@ FROM nbs_answer
 WHERE act_uid = :uid
 """;
 
-    public static final String DELETE_NBS_ANSWER_BY_UID = """
+  public static final String DELETE_NBS_ANSWER_BY_UID =
+"""
 DELETE FROM nbs_answer
 WHERE nbs_answer_uid = :nbsAnswerUid
 """;
 
-    public static final String MERGE_NBS_ANSWER_HIST = """
+  public static final String MERGE_NBS_ANSWER_HIST =
+"""
 MERGE INTO nbs_answer_hist AS target
-USING (SELECT 
+USING (SELECT
            :nbsAnswerUid AS nbs_answer_uid,
            :actUid AS act_uid,
            :answerTxt AS answer_txt,
@@ -140,5 +143,4 @@ WHEN NOT MATCHED THEN INSERT (
     source.last_chg_user_id
 );
 """;
-
 }

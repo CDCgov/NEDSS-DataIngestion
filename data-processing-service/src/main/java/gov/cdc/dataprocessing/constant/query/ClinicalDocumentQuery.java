@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ClinicalDocumentQuery {
-    public static final String FIND_BY_ID = """
+  public static final String FIND_BY_ID =
+      """
         SELECT
             clinical_document_uid AS clinicalDocumentUid,
             activity_duration_amt AS activityDurationAmt,

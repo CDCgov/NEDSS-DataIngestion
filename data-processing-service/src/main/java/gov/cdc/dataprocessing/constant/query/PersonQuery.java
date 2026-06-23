@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class PersonQuery {
-    public static final String INSERT_SQL_PERSON = """
+  public static final String INSERT_SQL_PERSON =
+"""
     INSERT INTO Person (
         person_uid, version_ctrl_nbr, add_reason_cd, add_time, add_user_id,
         administrative_gender_cd, age_calc, age_calc_time, age_calc_unit_cd, age_category_cd,
@@ -49,7 +50,8 @@ public class PersonQuery {
     )
 """;
 
-    public static final String INSERT_SQL_PERSON_NAME = """
+  public static final String INSERT_SQL_PERSON_NAME =
+"""
 INSERT INTO Person_name (
     person_uid, person_name_seq, add_reason_cd, add_time, add_user_id, default_nm_ind,
     duration_amt, duration_unit_cd, first_nm, first_nm_sndx, from_time, last_chg_reason_cd,
@@ -65,7 +67,8 @@ INSERT INTO Person_name (
 )
 """;
 
-    public static final String INSERT_SQL_PERSON_RACE = """
+  public static final String INSERT_SQL_PERSON_RACE =
+"""
 INSERT INTO Person_race (
     person_uid, race_cd, add_reason_cd, add_time, add_user_id,
     last_chg_reason_cd, last_chg_time, last_chg_user_id, race_category_cd,
@@ -79,7 +82,8 @@ INSERT INTO Person_race (
 )
 """;
 
-    public static final String INSERT_SQL_PERSON_ETHNIC = """
+  public static final String INSERT_SQL_PERSON_ETHNIC =
+"""
 INSERT INTO Person_ethnic_group (
     person_uid, ethnic_group_cd, add_reason_cd, add_time, add_user_id,
     ethnic_group_desc_txt, last_chg_reason_cd, last_chg_time, last_chg_user_id,
@@ -91,8 +95,8 @@ INSERT INTO Person_ethnic_group (
 )
 """;
 
-
-    public static final String INSERT_SQL_ROLE = """
+  public static final String INSERT_SQL_ROLE =
+"""
 INSERT INTO Role (
     subject_entity_uid, cd, role_seq, add_reason_cd, add_time, add_user_id,
     cd_desc_txt, effective_duration_amt, effective_duration_unit_cd, effective_from_time,
@@ -108,7 +112,8 @@ INSERT INTO Role (
 )
 """;
 
-    public static final String SELECT_ROLE_BY_SUBJECT_ENTITY_UID = """
+  public static final String SELECT_ROLE_BY_SUBJECT_ENTITY_UID =
+      """
             SELECT
                 subject_entity_uid AS subjectEntityUid,
                 cd AS code,
@@ -136,10 +141,11 @@ INSERT INTO Role (
                 user_affiliation_txt AS userAffiliationText
             FROM Role
             WHERE subject_entity_uid = :subject_entity_uid
-            
+
             """;
 
-    public static final String SELECT_PERSON_BY_PARENT_UID =  """
+  public static final String SELECT_PERSON_BY_PARENT_UID =
+      """
         SELECT
             person_uid AS personUid,
             version_ctrl_nbr AS versionCtrlNbr,
@@ -251,7 +257,8 @@ INSERT INTO Role (
         WHERE person_parent_uid = :person_parent_uid
     """;
 
-    public static final String SELECT_PERSON_BY_PERSON_UID = """
+  public static final String SELECT_PERSON_BY_PERSON_UID =
+      """
         SELECT
             person_uid AS personUid,
             version_ctrl_nbr AS versionCtrlNbr,
@@ -363,7 +370,8 @@ INSERT INTO Role (
         WHERE person_uid = :person_uid
     """;
 
-    public static final String SELECT_PERSON_NAME_BY_PERSON_UID = """
+  public static final String SELECT_PERSON_NAME_BY_PERSON_UID =
+      """
         SELECT
             person_uid AS personUid,
             person_name_seq AS personNameSeq,
@@ -400,7 +408,8 @@ INSERT INTO Role (
         WHERE person_uid = :person_uid
     """;
 
-    public static final String SELECT_PERSON_RACE_BY_PERSON_UID = """
+  public static final String SELECT_PERSON_RACE_BY_PERSON_UID =
+      """
         SELECT
             person_uid AS personUid,
             race_cd AS raceCd,
@@ -420,7 +429,8 @@ INSERT INTO Role (
         WHERE person_uid = :person_uid
     """;
 
-    public static final String SELECT_PERSON_ETHNIC_BY_PERSON_UID = """
+  public static final String SELECT_PERSON_ETHNIC_BY_PERSON_UID =
+      """
         SELECT
             person_uid AS personUid,
             ethnic_group_cd AS ethnicGroupCd,
@@ -438,7 +448,8 @@ INSERT INTO Role (
         WHERE person_uid = :person_uid
     """;
 
-    public static final String UPDATE_ROLE_BY_UID_AND_SEQ = """
+  public static final String UPDATE_ROLE_BY_UID_AND_SEQ =
+"""
 UPDATE Role SET
     cd = :code,
     add_reason_cd = :addReasonCode,
@@ -465,7 +476,8 @@ UPDATE Role SET
 WHERE subject_entity_uid = :subjectEntityUid AND role_seq = :roleSeq
 """;
 
-    public static final String SELECT_ACTIVE_ROLES_BY_ENTITY_UID = """
+  public static final String SELECT_ACTIVE_ROLES_BY_ENTITY_UID =
+"""
 SELECT
     subject_entity_uid      AS subjectEntityUid,
     cd                      AS code,
@@ -495,7 +507,8 @@ FROM Role
 WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
 """;
 
-    public static final String UPDATE_PERSON = """
+  public static final String UPDATE_PERSON =
+      """
             UPDATE Person
             SET
                 version_ctrl_nbr = :version_ctrl_nbr,
@@ -607,9 +620,9 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
                 person_uid = :person_uid
             """;
 
-
-    public static final String SELECT_BY_UID = """
-    SELECT 
+  public static final String SELECT_BY_UID =
+"""
+    SELECT
         person_uid AS personUid,
         version_ctrl_nbr AS versionCtrlNbr,
         add_reason_cd AS addReasonCd,
@@ -720,15 +733,15 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
     WHERE person_uid = :personUid
 """;
 
-
-    public static final String MERGE_PERSON_NAME = """
+  public static final String MERGE_PERSON_NAME =
+"""
     MERGE INTO Person_name AS target
-    USING (SELECT 
+    USING (SELECT
                :personUid AS person_uid,
                :personNameSeq AS person_name_seq
           ) AS source
     ON (target.person_uid = source.person_uid AND target.person_name_seq = source.person_name_seq)
-    WHEN MATCHED THEN 
+    WHEN MATCHED THEN
         UPDATE SET
             add_reason_cd = :addReasonCd,
             add_time = :addTime,
@@ -828,8 +841,9 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
         );
 """;
 
-    public static final String SELECT_BY_PERSON_UID_ORDER_BY_SEQ_DESC = """
-    SELECT 
+  public static final String SELECT_BY_PERSON_UID_ORDER_BY_SEQ_DESC =
+"""
+    SELECT
         person_uid AS personUid,
         person_name_seq AS personNameSeq,
         add_reason_cd AS addReasonCd,
@@ -866,8 +880,8 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
     ORDER BY person_name_seq DESC
 """;
 
-
-    public static final String MERGE_PERSON_RACE = """
+  public static final String MERGE_PERSON_RACE =
+      """
             MERGE INTO Person_race AS target
             USING (
                 SELECT
@@ -875,7 +889,7 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
                     :raceCd AS race_cd
             ) AS source
             ON target.person_uid = source.person_uid AND target.race_cd = source.race_cd
-            
+
             WHEN MATCHED THEN
                 UPDATE SET
                     add_reason_cd = :addReasonCd,
@@ -890,7 +904,7 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
                     record_status_time = :recordStatusTime,
                     user_affiliation_txt = :userAffiliationTxt,
                     as_of_date = :asOfDate
-            
+
             WHEN NOT MATCHED THEN
                 INSERT (
                     person_uid,
@@ -926,7 +940,8 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
                 );
             """;
 
-    public static final String FIND_PERSON_RACE_BY_UID = """
+  public static final String FIND_PERSON_RACE_BY_UID =
+      """
             SELECT
                 person_uid AS personUid,
                 race_cd AS raceCd,
@@ -946,7 +961,8 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
             WHERE person_uid = :parentUid
     """;
 
-    public static final String MERGE_PERSON_ETHNIC_GROUP = """
+  public static final String MERGE_PERSON_ETHNIC_GROUP =
+"""
     MERGE INTO Person_ethnic_group AS target
     USING (SELECT
                :personUid AS person_uid,
@@ -995,5 +1011,4 @@ WHERE subject_entity_uid = :subjectEntityUid AND status_cd = 'A'
             :userAffiliationTxt
         );
 """;
-
 }

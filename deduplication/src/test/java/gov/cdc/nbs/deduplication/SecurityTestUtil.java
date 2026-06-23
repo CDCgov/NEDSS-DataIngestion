@@ -1,11 +1,11 @@
 package gov.cdc.nbs.deduplication;
 
+import static org.mockito.Mockito.*;
+
 import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import static org.mockito.Mockito.*;
 
 public class SecurityTestUtil {
   public static void mockSecurityContext() {

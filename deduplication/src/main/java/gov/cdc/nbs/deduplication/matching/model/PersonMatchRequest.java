@@ -1,9 +1,8 @@
 package gov.cdc.nbs.deduplication.matching.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.sql.Timestamp;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PersonMatchRequest(
@@ -15,23 +14,13 @@ public record PersonMatchRequest(
     List<EntityIdDto> identifications) {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record PersonDto(
-      Timestamp birthTime,
-      String currSexCd,
-      String additionalGenderCd) {
-  }
+  public record PersonDto(Timestamp birthTime, String currSexCd, String additionalGenderCd) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record PersonNameDto(
-      String firstNm,
-      String middleNm,
-      String lastNm,
-      String nmSuffix) {
-  }
+  public record PersonNameDto(String firstNm, String middleNm, String lastNm, String nmSuffix) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record PersonRaceDto(String raceCategoryCd) {
-  }
+  public record PersonRaceDto(String raceCategoryCd) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record PostalLocatorDto(
@@ -40,17 +29,11 @@ public record PersonMatchRequest(
       String cityDescTxt,
       String stateCd,
       String zipCd,
-      String cntyCd) {
-  }
+      String cntyCd) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record TeleLocatorDto(String phoneNbrTxt) {
-  }
+  public record TeleLocatorDto(String phoneNbrTxt) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record EntityIdDto(
-      String typeCd,
-      String assigningAuthorityCd,
-      String rootExtensionTxt) {
-  }
+  public record EntityIdDto(String typeCd, String assigningAuthorityCd, String rootExtensionTxt) {}
 }

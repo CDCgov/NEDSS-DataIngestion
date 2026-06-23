@@ -7,17 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Sad {
-    String streetMailingAddress;
-    String streetName;
-    String dwellingNumber;
+  String streetMailingAddress;
+  String streetName;
+  String dwellingNumber;
 
-    public Sad(SAD sad) {
-        this.streetMailingAddress = sad.getStreetOrMailingAddress().getValue();
-        this.streetName = sad.getStreetName().getValue();
-        this.dwellingNumber = sad.getDwellingNumber().getValue();
-    }
+  public Sad(SAD sad) {
+    this.streetMailingAddress = sad.getStreetOrMailingAddress().getValue();
+    this.streetName = sad.getStreetName().getValue();
+    this.dwellingNumber = sad.getDwellingNumber().getValue();
+  }
 
-    public Sad() {
-
-    }
+  public Sad() {}
 }

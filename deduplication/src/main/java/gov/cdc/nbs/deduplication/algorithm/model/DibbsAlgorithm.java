@@ -1,11 +1,9 @@
 package gov.cdc.nbs.deduplication.algorithm.model;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import gov.cdc.nbs.deduplication.algorithm.pass.model.BlockingAttribute;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.MatchingAttribute;
+import java.util.List;
 
 public record DibbsAlgorithm(
     String label,
@@ -18,14 +16,12 @@ public record DibbsAlgorithm(
       @JsonProperty("include_multiple_matches") boolean includeMultipleMatches,
       @JsonProperty("log_odds") List<LogOdd> logOdds,
       Advanced advanced) {
-    public record LogOdd(String feature, Double value) {
-    }
+    public record LogOdd(String feature, Double value) {}
 
     public record Advanced(
         @JsonProperty("fuzzy_match_measure") SimilarityMeasure similarityMeasure,
         @JsonProperty("max_missing_allowed_proportion") Double missingAllowedProportion,
-        @JsonProperty("missing_field_points_proportion") Double missingPointsProportion) {
-    }
+        @JsonProperty("missing_field_points_proportion") Double missingPointsProportion) {}
   }
 
   public record DibbsPass(
@@ -33,14 +29,12 @@ public record DibbsAlgorithm(
       @JsonProperty("blocking_keys") List<BlockingAttribute> blockingKeys,
       List<Evaluator> evaluators,
       Rule rule,
-      @JsonProperty("possible_match_window") List<Double> matchWindow) {
-  }
+      @JsonProperty("possible_match_window") List<Double> matchWindow) {}
 
   public record Evaluator(
       MatchingAttribute feature,
       Func func,
-      @JsonProperty("fuzzy_match_threshold") Double threshold) {
-  }
+      @JsonProperty("fuzzy_match_threshold") Double threshold) {}
 
   public enum SimilarityMeasure {
     JAROWINKLER("JaroWinkler");
@@ -70,7 +64,6 @@ public record DibbsAlgorithm(
     public String toString() {
       return value;
     }
-
   }
 
   public enum Func {
@@ -87,7 +80,5 @@ public record DibbsAlgorithm(
     public String toString() {
       return value;
     }
-
   }
-
 }

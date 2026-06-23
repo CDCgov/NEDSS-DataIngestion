@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class CodeValueQuery {
-    public static final String SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_NM = """
+  public static final String SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_NM =
+"""
 SELECT
     code_set_nm AS codeSetNm,
     code AS code,
@@ -35,7 +36,8 @@ FROM dbo.Code_value_general
 WHERE UPPER(code_set_nm) = :codeSetNm
 """;
 
-    public static final String SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_NM_ORDERED = """
+  public static final String SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_NM_ORDERED =
+"""
 SELECT
     code_set_nm AS codeSetNm,
     code AS code,
@@ -70,7 +72,8 @@ WHERE UPPER(code_set_nm) = :codeSetNm
 ORDER BY concept_order_nbr, code_short_desc_txt
 """;
 
-    public static final String SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_AND_CODE = """
+  public static final String SELECT_CODE_VALUE_GENERAL_BY_CODE_SET_AND_CODE =
+"""
 SELECT
     code_set_nm AS codeSetNm,
     code AS code,
@@ -104,5 +107,4 @@ FROM dbo.Code_value_general
 WHERE code_set_nm = :codeSetNm
 AND code = :code
 """;
-
 }

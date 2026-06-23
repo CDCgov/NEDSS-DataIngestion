@@ -11,36 +11,39 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class KafkaPublicHealthCaseConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
+  private static final Logger logger =
+      LoggerFactory.getLogger(KafkaPublicHealthCaseConsumer.class); // NOSONAR
 
-    private final IManagerService managerService;
-    private final IAuthUserService authUserService;
+  private final IManagerService managerService;
+  private final IAuthUserService authUserService;
 
+  @Value("${nbs.user}")
+  private String nbsUser = "";
 
-    @Value("${nbs.user}")
-    private String nbsUser = "";
+  public KafkaPublicHealthCaseConsumer(
+      IManagerService managerService, IAuthUserService authUserService) {
 
-    public KafkaPublicHealthCaseConsumer(
-            IManagerService managerService, IAuthUserService authUserService) {
+    this.managerService = managerService;
+    this.authUserService = authUserService;
+  }
 
-        this.managerService = managerService;
-        this.authUserService = authUserService;
-
-    }
-
-//    @KafkaListener(
-//            topics = "${kafka.topic.elr_health_case}",
-//            containerFactory = "kafkaListenerContainerFactoryStep2"
-//    )
-//    public void handleMessageForPublicHealthCase(String message, Acknowledgment acknowledgment) {
-//        try {
-//            var profile = authUserService.getAuthUserInfo(nbsUser);
-//            AuthUtil.setGlobalAuthUser(profile);
-//            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message, PublicHealthCaseFlowContainer.class);
-//            managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
-//            acknowledgment.acknowledge();
-//        } catch (Exception e) {
-//            logger.error("KafkaPublicHealthCaseConsumer.handleMessageForPublicHealthCase: {}", e.getMessage());
-//        }
-//    }
+  //    @KafkaListener(
+  //            topics = "${kafka.topic.elr_health_case}",
+  //            containerFactory = "kafkaListenerContainerFactoryStep2"
+  //    )
+  //    public void handleMessageForPublicHealthCase(String message, Acknowledgment acknowledgment)
+  // {
+  //        try {
+  //            var profile = authUserService.getAuthUserInfo(nbsUser);
+  //            AuthUtil.setGlobalAuthUser(profile);
+  //            PublicHealthCaseFlowContainer publicHealthCaseFlowContainer = GSON.fromJson(message,
+  // PublicHealthCaseFlowContainer.class);
+  //
+  // managerService.initiatingInvestigationAndPublicHealthCase(publicHealthCaseFlowContainer);
+  //            acknowledgment.acknowledge();
+  //        } catch (Exception e) {
+  //            logger.error("KafkaPublicHealthCaseConsumer.handleMessageForPublicHealthCase: {}",
+  // e.getMessage());
+  //        }
+  //    }
 }

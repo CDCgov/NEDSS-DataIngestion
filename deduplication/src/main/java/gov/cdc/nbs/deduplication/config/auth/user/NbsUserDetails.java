@@ -1,8 +1,8 @@
 package gov.cdc.nbs.deduplication.config.auth.user;
 
+import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Set;
 
 public class NbsUserDetails implements UserDetails {
   private final Long id;

@@ -5,18 +5,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.IgnoredPaths;
+import gov.cdc.nbs.deduplication.config.auth.nbs.NbsTokenConfiguration.SecurityProperties;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsToken;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenCreator;
 import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsTokenValidator;
@@ -27,30 +17,31 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class NbsAuthenticationFilterTest {
 
-  @Mock
-  private NbsTokenValidator tokenValidator;
+  @Mock private NbsTokenValidator tokenValidator;
 
-  @Mock
-  private NbsUserDetailsService userService;
+  @Mock private NbsUserDetailsService userService;
 
-  @Mock
-  private NbsTokenCreator tokenCreator;
+  @Mock private NbsTokenCreator tokenCreator;
 
-  @Mock
-  private SecurityProperties securityProperties;
+  @Mock private SecurityProperties securityProperties;
 
-  @Mock
-  private NbsSessionAuthenticator sessionAuthenticator;
+  @Mock private NbsSessionAuthenticator sessionAuthenticator;
 
-  @Mock
-  private IgnoredPaths ignoredPaths;
+  @Mock private IgnoredPaths ignoredPaths;
 
-  @InjectMocks
-  private NbsAuthenticationFilter filter;
+  @InjectMocks private NbsAuthenticationFilter filter;
 
   @Test
   void should_authenticate_with_token() throws ServletException, IOException {
@@ -61,7 +52,8 @@ class NbsAuthenticationFilterTest {
     when(tokenCreator.forUser("user")).thenReturn(new NbsToken("tokenValue"));
     when(securityProperties.getTokenExpirationSeconds()).thenReturn(100);
 
-    when(tokenValidator.validate(request)).thenReturn(new TokenValidation(TokenStatus.VALID, "user"));
+    when(tokenValidator.validate(request))
+        .thenReturn(new TokenValidation(TokenStatus.VALID, "user"));
 
     // Act
     filter.doFilterInternal(request, response, chain);
@@ -77,7 +69,8 @@ class NbsAuthenticationFilterTest {
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-    when(tokenValidator.validate(request)).thenReturn(new TokenValidation(TokenStatus.EXPIRED, "user"));
+    when(tokenValidator.validate(request))
+        .thenReturn(new TokenValidation(TokenStatus.EXPIRED, "user"));
     when(tokenCreator.forUser("sessionUser")).thenReturn(new NbsToken("tokenValue"));
     when(securityProperties.getTokenExpirationSeconds()).thenReturn(100);
 
@@ -97,7 +90,8 @@ class NbsAuthenticationFilterTest {
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-    when(tokenValidator.validate(request)).thenReturn(new TokenValidation(TokenStatus.UNSET, "user"));
+    when(tokenValidator.validate(request))
+        .thenReturn(new TokenValidation(TokenStatus.UNSET, "user"));
     when(tokenCreator.forUser("sessionUser")).thenReturn(new NbsToken("tokenValue"));
     when(securityProperties.getTokenExpirationSeconds()).thenReturn(100);
 
@@ -117,7 +111,8 @@ class NbsAuthenticationFilterTest {
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-    when(tokenValidator.validate(request)).thenReturn(new TokenValidation(TokenStatus.UNSET, "user"));
+    when(tokenValidator.validate(request))
+        .thenReturn(new TokenValidation(TokenStatus.UNSET, "user"));
     when(sessionAuthenticator.authenticate(request)).thenReturn(Optional.empty());
 
     // Act
@@ -135,7 +130,8 @@ class NbsAuthenticationFilterTest {
     HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
     HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-    when(tokenValidator.validate(request)).thenReturn(new TokenValidation(TokenStatus.INVALID, "user"));
+    when(tokenValidator.validate(request))
+        .thenReturn(new TokenValidation(TokenStatus.INVALID, "user"));
 
     // Act
     filter.doFilterInternal(request, response, chain);
@@ -152,5 +148,4 @@ class NbsAuthenticationFilterTest {
     when(ignoredPaths.ignored(request)).thenReturn(false);
     assertThat(filter.shouldNotFilter(request)).isFalse();
   }
-
 }

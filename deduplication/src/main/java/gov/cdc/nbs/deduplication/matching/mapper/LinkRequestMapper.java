@@ -1,11 +1,5 @@
 package gov.cdc.nbs.deduplication.matching.mapper;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Stream;
-
-import org.apache.logging.log4j.util.Strings;
-
 import gov.cdc.nbs.deduplication.matching.exception.MappingException;
 import gov.cdc.nbs.deduplication.matching.model.LinkRequest;
 import gov.cdc.nbs.deduplication.matching.model.PersonMatchRequest;
@@ -18,6 +12,10 @@ import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Stream;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,7 +33,8 @@ public class LinkRequestMapper {
 
     List<String> race = null;
     if (request.races() != null && !request.races().isEmpty()) {
-      race = request.races().stream().map(PersonMatchRequest.PersonRaceDto::raceCategoryCd).toList();
+      race =
+          request.races().stream().map(PersonMatchRequest.PersonRaceDto::raceCategoryCd).toList();
     }
 
     String sex = null;
@@ -43,70 +42,57 @@ public class LinkRequestMapper {
       sex = request.personDto().currSexCd();
     }
 
-    return new LinkRequest(new MpiPerson(
-        null,
-        null,
-        birthDate,
-        sex,
-        toAddresses(request.postalLocators()),
-        toNames(request.names()),
-        toTelecoms(request.teleLocators()),
-        race,
-        toIdentifiers(request.identifications())));
+    return new LinkRequest(
+        new MpiPerson(
+            null,
+            null,
+            birthDate,
+            sex,
+            toAddresses(request.postalLocators()),
+            toNames(request.names()),
+            toTelecoms(request.teleLocators()),
+            race,
+            toIdentifiers(request.identifications())));
   }
 
   List<Address> toAddresses(List<PostalLocatorDto> postalLocators) {
-    return Optional.ofNullable(postalLocators)
-        .orElseGet(ArrayList::new)
-        .stream()
-        .map(pl -> new Address(
-            Stream.of(
-                pl.streetAddr1(),
-                pl.streetAddr2())
-                .filter(Strings::isNotBlank)
-                .toList(),
-            pl.cityDescTxt(),
-            pl.stateCd(),
-            pl.zipCd(),
-            pl.cntyCd()))
+    return Optional.ofNullable(postalLocators).orElseGet(ArrayList::new).stream()
+        .map(
+            pl ->
+                new Address(
+                    Stream.of(pl.streetAddr1(), pl.streetAddr2())
+                        .filter(Strings::isNotBlank)
+                        .toList(),
+                    pl.cityDescTxt(),
+                    pl.stateCd(),
+                    pl.zipCd(),
+                    pl.cntyCd()))
         .filter(Objects::nonNull)
         .toList();
   }
 
   List<Name> toNames(List<PersonNameDto> nameDtos) {
-    return Optional.ofNullable(nameDtos)
-        .orElseGet(ArrayList::new)
-        .stream()
-        .map(n -> new Name(
-            Stream.of(
-                n.firstNm(),
-                n.middleNm())
-                .filter(Strings::isNotBlank)
-                .toList(),
-            n.lastNm(),
-            Stream.of(
-                n.nmSuffix())
-                .filter(Strings::isNotBlank)
-                .toList()))
+    return Optional.ofNullable(nameDtos).orElseGet(ArrayList::new).stream()
+        .map(
+            n ->
+                new Name(
+                    Stream.of(n.firstNm(), n.middleNm()).filter(Strings::isNotBlank).toList(),
+                    n.lastNm(),
+                    Stream.of(n.nmSuffix()).filter(Strings::isNotBlank).toList()))
         .toList();
   }
 
   List<Telecom> toTelecoms(List<TeleLocatorDto> teleLocatorDtos) {
-    return Optional.ofNullable(teleLocatorDtos)
-        .orElseGet(ArrayList::new)
-        .stream()
+    return Optional.ofNullable(teleLocatorDtos).orElseGet(ArrayList::new).stream()
         .map(n -> new Telecom(n.phoneNbrTxt()))
         .toList();
   }
 
   List<Identifier> toIdentifiers(List<EntityIdDto> identifications) {
-    return Optional.ofNullable(identifications)
-        .orElseGet(ArrayList::new)
-        .stream()
-        .filter(id -> id != null && MpiPerson.Identifier.SUPPORTED_IDENTIFIERS.contains(id.typeCd()))
+    return Optional.ofNullable(identifications).orElseGet(ArrayList::new).stream()
+        .filter(
+            id -> id != null && MpiPerson.Identifier.SUPPORTED_IDENTIFIERS.contains(id.typeCd()))
         .map(id -> new Identifier(id.typeCd(), id.rootExtensionTxt(), id.assigningAuthorityCd()))
         .toList();
-
   }
-
 }

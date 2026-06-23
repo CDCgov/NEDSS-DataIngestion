@@ -1,18 +1,20 @@
 package gov.cdc.nbs.deduplication.config.auth.nbs.token;
 
-import java.util.Optional;
-import java.util.function.Predicate;
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
+import java.util.function.Predicate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(
+    value = "nbs.security.oidc.enabled",
+    havingValue = "false",
+    matchIfMissing = true)
 public class NbsTokenValidator {
   private static final String AUTHORIZATION = "Authorization";
   private static final String BEARER = "Bearer ";
@@ -26,8 +28,8 @@ public class NbsTokenValidator {
   // Check for an `Authorization` header or nbs_token cookie, return the status of
   // the token
   public TokenValidation validate(final HttpServletRequest request) {
-    Optional<String> token = resolveTokenFromAuth(request)
-        .or(() -> resolveTokenFromCookie(request));
+    Optional<String> token =
+        resolveTokenFromAuth(request).or(() -> resolveTokenFromCookie(request));
 
     if (token.isPresent()) {
       try {
@@ -72,5 +74,4 @@ public class NbsTokenValidator {
     INVALID,
     UNSET
   }
-
 }

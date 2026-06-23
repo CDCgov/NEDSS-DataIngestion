@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ActIdQuery {
-    public static final String MERGE_SQL_ACT_ID = """
+  public static final String MERGE_SQL_ACT_ID =
+      """
         MERGE INTO Act_id AS target
         USING (SELECT :act_uid AS act_uid, :act_id_seq AS act_id_seq) AS source
             ON target.act_uid = source.act_uid AND target.act_id_seq = source.act_id_seq
@@ -35,7 +36,8 @@ public class ActIdQuery {
         );
         """;
 
-    public static final String SELECT_BY_ACT_UID_SQL = """
+  public static final String SELECT_BY_ACT_UID_SQL =
+      """
     SELECT
         act_uid AS actUid,
         act_id_seq AS actIdSeq,
@@ -62,5 +64,4 @@ public class ActIdQuery {
     FROM Act_id
     WHERE act_uid = :act_uid
     """;
-
 }

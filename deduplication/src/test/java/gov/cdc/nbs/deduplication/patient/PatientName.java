@@ -39,7 +39,6 @@ public record PatientName(
     public String code() {
       return code;
     }
-
   }
 
   public enum Prefix implements CodedValue {
@@ -71,7 +70,6 @@ public record PatientName(
     public String code() {
       return code;
     }
-
   }
 
   public enum Suffix implements CodedValue {
@@ -93,7 +91,6 @@ public record PatientName(
     public String code() {
       return code;
     }
-
   }
 
   public enum Degree implements CodedValue {
@@ -136,7 +133,5 @@ public record PatientName(
     public String code() {
       return code;
     }
-
   }
-
 }

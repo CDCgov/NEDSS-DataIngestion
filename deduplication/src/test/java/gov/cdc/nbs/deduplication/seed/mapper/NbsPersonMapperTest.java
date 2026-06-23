@@ -3,13 +3,11 @@ package gov.cdc.nbs.deduplication.seed.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
 
 class NbsPersonMapperTest {
   NbsPersonMapper mapper = new NbsPersonMapper();
@@ -25,7 +23,5 @@ class NbsPersonMapperTest {
     assertThat(entry).isNotNull();
     assertThat(entry.personUid()).isEqualTo("1");
     assertThat(entry.personParentUid()).isEqualTo("2");
-
   }
-
 }

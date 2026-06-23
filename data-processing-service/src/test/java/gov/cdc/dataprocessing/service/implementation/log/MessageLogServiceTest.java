@@ -1,71 +1,72 @@
 package gov.cdc.dataprocessing.service.implementation.log;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.dataprocessing.model.dto.log.MessageLogDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.log.MessageLog;
 import gov.cdc.dataprocessing.repository.nbs.odse.repos.log.MessageLogRepository;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 class MessageLogServiceTest {
 
-    @InjectMocks
-    private MessageLogService messageLogService;
+  @InjectMocks private MessageLogService messageLogService;
 
-    @Mock
-    private MessageLogRepository messageLogRepository;
+  @Mock private MessageLogRepository messageLogRepository;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void testSaveMessageLogSuccess()  {
-        Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
-        MessageLogDto messageLogDto = new MessageLogDto();
-        messageLogDtoCollection.add(messageLogDto);
+  @Test
+  void testSaveMessageLogSuccess() {
+    Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
+    MessageLogDto messageLogDto = new MessageLogDto();
+    messageLogDtoCollection.add(messageLogDto);
 
-        messageLogService.saveMessageLog(messageLogDtoCollection);
+    messageLogService.saveMessageLog(messageLogDtoCollection);
 
-        verify(messageLogRepository, times(1)).save(any(MessageLog.class));
-    }
+    verify(messageLogRepository, times(1)).save(any(MessageLog.class));
+  }
 
-    @Test
-    void testSaveMessageLogNullCollection()  {
-        messageLogService.saveMessageLog(null);
+  @Test
+  void testSaveMessageLogNullCollection() {
+    messageLogService.saveMessageLog(null);
 
-        verify(messageLogRepository, times(0)).save(any(MessageLog.class));
-    }
+    verify(messageLogRepository, times(0)).save(any(MessageLog.class));
+  }
 
-    @Test
-    void testSaveMessageLogException() {
-        Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
-        MessageLogDto messageLogDto = new MessageLogDto();
-        messageLogDtoCollection.add(messageLogDto);
+  @Test
+  void testSaveMessageLogException() {
+    Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
+    MessageLogDto messageLogDto = new MessageLogDto();
+    messageLogDtoCollection.add(messageLogDto);
 
-        doThrow(new RuntimeException("Test Exception")).when(messageLogRepository).save(any(MessageLog.class));
+    doThrow(new RuntimeException("Test Exception"))
+        .when(messageLogRepository)
+        .save(any(MessageLog.class));
 
-        assertThrows(RuntimeException.class, () -> {
-            messageLogService.saveMessageLog(messageLogDtoCollection);
+    assertThrows(
+        RuntimeException.class,
+        () -> {
+          messageLogService.saveMessageLog(messageLogDtoCollection);
         });
-    }
+  }
 
-    @Test
-    void testSaveMessageLogEmptyCollection()  {
-        Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
+  @Test
+  void testSaveMessageLogEmptyCollection() {
+    Collection<MessageLogDto> messageLogDtoCollection = new ArrayList<>();
 
-        messageLogService.saveMessageLog(messageLogDtoCollection);
+    messageLogService.saveMessageLog(messageLogDtoCollection);
 
-        verify(messageLogRepository, times(0)).save(any(MessageLog.class));
-    }
+    verify(messageLogRepository, times(0)).save(any(MessageLog.class));
+  }
 }

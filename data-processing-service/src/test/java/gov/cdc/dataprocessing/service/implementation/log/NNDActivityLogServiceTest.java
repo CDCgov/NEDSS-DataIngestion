@@ -1,5 +1,10 @@
 package gov.cdc.dataprocessing.service.implementation.log;
 
+import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.dataprocessing.exception.DataProcessingException;
 import gov.cdc.dataprocessing.model.dto.log.NNDActivityLogDto;
 import gov.cdc.dataprocessing.model.dto.uid.LocalUidGeneratorDto;
@@ -14,84 +19,71 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static gov.cdc.dataprocessing.constant.enums.LocalIdClass.NND_METADATA;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
-
 class NNDActivityLogServiceTest {
 
-    @InjectMocks
-    private NNDActivityLogService nndActivityLogService;
+  @InjectMocks private NNDActivityLogService nndActivityLogService;
 
-    @Mock
-    private NNDActivityLogRepository nndActivityLogRepository;
+  @Mock private NNDActivityLogRepository nndActivityLogRepository;
 
-    @Mock
-    private IOdseIdGeneratorWCacheService odseIdGeneratorService;
+  @Mock private IOdseIdGeneratorWCacheService odseIdGeneratorService;
 
-    @Mock
-    private UidPoolManager uidPoolManager;
+  @Mock private UidPoolManager uidPoolManager;
 
+  @BeforeEach
+  void setUp() throws DataProcessingException {
+    MockitoAnnotations.openMocks(this);
+    var model = new LocalUidModel();
+    LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
+    dto.setClassNameCd("TEST");
+    dto.setTypeCd("TEST");
+    dto.setUidPrefixCd("TEST");
+    dto.setUidSuffixCd("TEST");
+    dto.setSeedValueNbr(1L);
+    dto.setCounter(3);
+    dto.setUsedCounter(2);
+    model.setClassTypeUid(dto);
+    model.setGaTypeUid(dto);
+    model.setPrimaryClassName("TEST");
+    when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
+  }
 
-    @BeforeEach
-    void setUp() throws DataProcessingException {
-        MockitoAnnotations.openMocks(this);
-        var model = new LocalUidModel();
-        LocalUidGeneratorDto dto = new LocalUidGeneratorDto();
-        dto.setClassNameCd("TEST");
-        dto.setTypeCd("TEST");
-        dto.setUidPrefixCd("TEST");
-        dto.setUidSuffixCd("TEST");
-        dto.setSeedValueNbr(1L);
-        dto.setCounter(3);
-        dto.setUsedCounter(2);
-        model.setClassTypeUid(dto);
-        model.setGaTypeUid(dto);
-        model.setPrimaryClassName("TEST");
-        when(uidPoolManager.getNextUid(any(), anyBoolean())).thenReturn(model);
-    }
+  @Test
+  void testSaveNddActivityLogWithNewUid() throws DataProcessingException {
+    NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
+    var id = new LocalUidModel();
+    id.setGaTypeUid(new LocalUidGeneratorDto());
+    id.setClassTypeUid(new LocalUidGeneratorDto());
+    id.getClassTypeUid().setClassNameCd("CLASS");
+    id.getClassTypeUid().setTypeCd("TYPE");
+    id.getClassTypeUid().setUidSuffixCd("SUF");
+    id.getClassTypeUid().setUidPrefixCd("PRE");
+    id.getClassTypeUid().setSeedValueNbr(1L);
 
-    @Test
-    void testSaveNddActivityLogWithNewUid() throws DataProcessingException {
-        NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
-        var id = new LocalUidModel();
-        id .setGaTypeUid(new LocalUidGeneratorDto());
-        id .setClassTypeUid(new LocalUidGeneratorDto());
-        id.getClassTypeUid().setClassNameCd("CLASS");
-        id.getClassTypeUid().setTypeCd("TYPE");
-        id.getClassTypeUid().setUidSuffixCd("SUF");
-        id.getClassTypeUid().setUidPrefixCd("PRE");
-        id.getClassTypeUid().setSeedValueNbr(1L);
+    id.getGaTypeUid().setClassNameCd("CLASS");
+    id.getGaTypeUid().setTypeCd("TYPE");
+    id.getGaTypeUid().setUidSuffixCd("SUF");
+    id.getGaTypeUid().setUidPrefixCd("PRE");
+    id.getGaTypeUid().setSeedValueNbr(1L);
+    when(odseIdGeneratorService.getValidLocalUid(eq(NND_METADATA), anyBoolean())).thenReturn(id);
 
-        id.getGaTypeUid().setClassNameCd("CLASS");
-        id.getGaTypeUid().setTypeCd("TYPE");
-        id.getGaTypeUid().setUidSuffixCd("SUF");
-        id.getGaTypeUid().setUidPrefixCd("PRE");
-        id.getGaTypeUid().setSeedValueNbr(1L);
-        when(odseIdGeneratorService.getValidLocalUid(eq(NND_METADATA), anyBoolean())).thenReturn(id);
+    nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
 
-        nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
+    assertNotNull(nndActivityLogDto.getNndActivityLogUid());
+    assertEquals("AUTO_RESEND_ERROR", nndActivityLogDto.getRecordStatusCd());
+    assertEquals("E", nndActivityLogDto.getStatusCd());
+    verify(nndActivityLogRepository, times(1)).save(any(NNDActivityLog.class));
+  }
 
-        assertNotNull(nndActivityLogDto.getNndActivityLogUid());
-        assertEquals("AUTO_RESEND_ERROR", nndActivityLogDto.getRecordStatusCd());
-        assertEquals("E", nndActivityLogDto.getStatusCd());
-        verify(nndActivityLogRepository, times(1)).save(any(NNDActivityLog.class));
-    }
+  @Test
+  void testSaveNddActivityLogWithExistingUid() throws DataProcessingException {
+    NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
+    nndActivityLogDto.setNndActivityLogUid(2L);
 
-    @Test
-    void testSaveNddActivityLogWithExistingUid() throws DataProcessingException {
-        NNDActivityLogDto nndActivityLogDto = new NNDActivityLogDto();
-        nndActivityLogDto.setNndActivityLogUid(2L);
+    nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
 
-        nndActivityLogService.saveNddActivityLog(nndActivityLogDto);
-
-        assertEquals(2L, nndActivityLogDto.getNndActivityLogUid());
-        assertEquals("AUTO_RESEND_ERROR", nndActivityLogDto.getRecordStatusCd());
-        assertEquals("E", nndActivityLogDto.getStatusCd());
-        verify(nndActivityLogRepository, times(1)).save(any(NNDActivityLog.class));
-    }
-
-
-
+    assertEquals(2L, nndActivityLogDto.getNndActivityLogUid());
+    assertEquals("AUTO_RESEND_ERROR", nndActivityLogDto.getRecordStatusCd());
+    assertEquals("E", nndActivityLogDto.getStatusCd());
+    verify(nndActivityLogRepository, times(1)).save(any(NNDActivityLog.class));
+  }
 }

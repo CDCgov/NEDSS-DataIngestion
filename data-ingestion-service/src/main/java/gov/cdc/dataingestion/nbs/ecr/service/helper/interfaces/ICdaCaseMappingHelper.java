@@ -6,9 +6,12 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.nedss.phdc.cda.POCDMT000040ClinicalDocument1;
 
 public interface ICdaCaseMappingHelper {
-    CdaCaseMapper mapToCaseTop(EcrSelectedRecord input, POCDMT000040ClinicalDocument1 clinicalDocument,
-                                      int componentCounter, int clinicalCounter, int componentCaseCounter,
-                                      String inv168) throws EcrCdaXmlException;
-
-
+  CdaCaseMapper mapToCaseTop(
+      EcrSelectedRecord input,
+      POCDMT000040ClinicalDocument1 clinicalDocument,
+      int componentCounter,
+      int clinicalCounter,
+      int componentCaseCounter,
+      String inv168)
+      throws EcrCdaXmlException;
 }

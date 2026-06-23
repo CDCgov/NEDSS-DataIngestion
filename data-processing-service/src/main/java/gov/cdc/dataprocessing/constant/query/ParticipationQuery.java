@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class ParticipationQuery {
-    public static final String SELECT_PARTICIPATION_BY_ACT_UID = """
+  public static final String SELECT_PARTICIPATION_BY_ACT_UID =
+      """
         SELECT
             subject_entity_uid AS subjectEntityUid,
             act_uid AS actUid,
@@ -32,8 +33,9 @@ public class ParticipationQuery {
         WHERE act_uid = :act_uid
         """;
 
-    // DO top, this mainly use by Organization
-    public static final String  SELECT_PARTICIPATION_BY_SUBJECT_ENTITY_ID = """
+  // DO top, this mainly use by Organization
+  public static final String SELECT_PARTICIPATION_BY_SUBJECT_ENTITY_ID =
+      """
         SELECT
         TOP(1)
             subject_entity_uid AS subjectEntityUid,
@@ -65,7 +67,8 @@ public class ParticipationQuery {
         WHERE subject_entity_uid = :subjectEntityUid
     """;
 
-    public static final String  SELECT_PARTICIPATION_BY_SUBJECT_ENTITY_ID_LIST = """
+  public static final String SELECT_PARTICIPATION_BY_SUBJECT_ENTITY_ID_LIST =
+      """
         SELECT
             subject_entity_uid AS subjectEntityUid,
             act_uid AS actUid,
@@ -96,8 +99,8 @@ public class ParticipationQuery {
         WHERE subject_entity_uid = :subjectEntityUid
     """;
 
-
-    public static final String  SELECT_PARTICIPATION_BY_SUBJECT_ENTITY_ID_AND_ACT_UID = """
+  public static final String SELECT_PARTICIPATION_BY_SUBJECT_ENTITY_ID_AND_ACT_UID =
+      """
         SELECT
             subject_entity_uid AS subjectEntityUid,
             act_uid AS actUid,
@@ -129,7 +132,8 @@ public class ParticipationQuery {
           AND act_uid = :actUid
     """;
 
-    public static final String INSERT_PARTICIPATION = """
+  public static final String INSERT_PARTICIPATION =
+"""
 INSERT INTO Participation (
     subject_entity_uid,
     act_uid,
@@ -185,7 +189,8 @@ INSERT INTO Participation (
 )
 """;
 
-    public static final String UPDATE_PARTICIPATION = """
+  public static final String UPDATE_PARTICIPATION =
+"""
 UPDATE Participation SET
     act_class_cd = :actClassCode,
     add_reason_cd = :addReasonCode,
@@ -214,16 +219,18 @@ WHERE subject_entity_uid = :subjectEntityUid
   AND type_cd = :typeCode
 """;
 
-    public static final String DELETE_PARTICIPATION = """
+  public static final String DELETE_PARTICIPATION =
+"""
 DELETE FROM Participation
 WHERE subject_entity_uid = :subjectEntityUid
   AND act_uid = :actUid
   AND type_cd = :typeCode
 """;
 
-    public static final String MERGE_PARTICIPATION_HIST = """
+  public static final String MERGE_PARTICIPATION_HIST =
+"""
 MERGE INTO Participation_hist AS target
-USING (SELECT 
+USING (SELECT
            :subjectEntityUid AS subject_entity_uid,
            :actUid AS act_uid,
            :typeCd AS type_cd,
@@ -315,7 +322,4 @@ WHEN NOT MATCHED THEN
         :userAffiliationTxt
     );
 """;
-
-
-
 }

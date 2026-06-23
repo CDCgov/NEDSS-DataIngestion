@@ -2,17 +2,8 @@ package gov.cdc.nbs.deduplication.seed.mapper;
 
 import static java.util.Map.entry;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Address;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Identifier;
@@ -20,23 +11,29 @@ import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Name;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson.Telecom;
 import gov.cdc.nbs.deduplication.seed.model.NbsAddress;
 import gov.cdc.nbs.deduplication.seed.model.NbsName;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 public class MpiPersonMapper implements RowMapper<MpiPerson> {
 
-  private static final Map<String, String> RACE_MAP = Map.ofEntries(
-      entry("1002-5", "AMERICAN_INDIAN"),
-      entry("2028-9", "ASIAN"),
-      entry("2054-5", "BLACK"),
-      entry("2076-8", "HAWAIIAN"),
-      entry("2106-3", "WHITE"),
-      entry("2131-1", "OTHER"),
-      entry("U", "UNKNOWN"));
+  private static final Map<String, String> RACE_MAP =
+      Map.ofEntries(
+          entry("1002-5", "AMERICAN_INDIAN"),
+          entry("2028-9", "ASIAN"),
+          entry("2054-5", "BLACK"),
+          entry("2076-8", "HAWAIIAN"),
+          entry("2106-3", "WHITE"),
+          entry("2131-1", "OTHER"),
+          entry("U", "UNKNOWN"));
 
   private final ObjectMapper mapper = new ObjectMapper();
 
   @Override
-  @Nullable
-  public MpiPerson mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+  @Nullable public MpiPerson mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
     List<Address> addresses = mapAddresses(rs.getString("address"));
 
     List<Name> names = mapNames(rs.getString("name"));
@@ -71,10 +68,7 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
   }
 
   List<Address> mapAddresses(String addressString) {
-    return tryParse(
-        addressString,
-        new TypeReference<List<NbsAddress>>() {
-        })
+    return tryParse(addressString, new TypeReference<List<NbsAddress>>() {})
         .orElseGet(() -> new ArrayList<>())
         .stream()
         .map(this::asAddress)
@@ -93,19 +87,11 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
     if (address.street2() != null) {
       lines.add(address.street2());
     }
-    return new Address(
-        lines,
-        address.city(),
-        address.state(),
-        address.zip(),
-        address.county());
+    return new Address(lines, address.city(), address.state(), address.zip(), address.county());
   }
 
   List<Name> mapNames(String nameString) {
-    return tryParse(
-        nameString,
-        new TypeReference<List<NbsName>>() {
-        })
+    return tryParse(nameString, new TypeReference<List<NbsName>>() {})
         .orElseGet(() -> new ArrayList<>())
         .stream()
         .map(this::asName)
@@ -138,17 +124,12 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
   }
 
   List<Telecom> mapPhones(String phoneString) {
-    return tryParse(
-        phoneString,
-        new TypeReference<List<Telecom>>() {
-        }).orElseGet(() -> new ArrayList<>());
+    return tryParse(phoneString, new TypeReference<List<Telecom>>() {})
+        .orElseGet(() -> new ArrayList<>());
   }
 
   List<Identifier> mapIdentifiers(String identifierString) {
-    return tryParse(
-        identifierString,
-        new TypeReference<List<Identifier>>() {
-        })
+    return tryParse(identifierString, new TypeReference<List<Identifier>>() {})
         .orElseGet(() -> new ArrayList<>())
         .stream()
         .filter(i -> i != null && MpiPerson.Identifier.SUPPORTED_IDENTIFIERS.contains(i.type()))
@@ -160,9 +141,8 @@ public class MpiPersonMapper implements RowMapper<MpiPerson> {
     if (raceString == null || raceString.isBlank()) {
       return Collections.emptyList();
     }
-    return RACE_MAP.get(raceString) != null ?
-        Collections.singletonList(RACE_MAP.get(raceString)) :
-        Collections.emptyList();
+    return RACE_MAP.get(raceString) != null
+        ? Collections.singletonList(RACE_MAP.get(raceString))
+        : Collections.emptyList();
   }
-
 }

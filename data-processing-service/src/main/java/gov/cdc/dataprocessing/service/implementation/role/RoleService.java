@@ -8,80 +8,81 @@ import gov.cdc.dataprocessing.repository.nbs.odse.repos.role.RoleRepository;
 import gov.cdc.dataprocessing.service.interfaces.role.IRoleService;
 import gov.cdc.dataprocessing.utilities.component.generic_helper.PrepareAssocModelHelper;
 import gov.cdc.dataprocessing.utilities.component.jdbc.DataModifierReposJdbc;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import org.springframework.stereotype.Service;
 
 @Service
-
 public class RoleService implements IRoleService {
-    private final RoleRepository roleRepository;
-    private final PrepareAssocModelHelper prepareAssocModelHelper;
-    private final DataModifierReposJdbc dataModifierReposJdbc;
-    private final ServicePropertiesProvider servicePropertiesProvider;
+  private final RoleRepository roleRepository;
+  private final PrepareAssocModelHelper prepareAssocModelHelper;
+  private final DataModifierReposJdbc dataModifierReposJdbc;
+  private final ServicePropertiesProvider servicePropertiesProvider;
 
-    public RoleService(RoleRepository roleRepository,
-                       PrepareAssocModelHelper prepareAssocModelHelper, DataModifierReposJdbc dataModifierReposJdbc, ServicePropertiesProvider servicePropertiesProvider) {
-        this.roleRepository = roleRepository;
-        this.prepareAssocModelHelper = prepareAssocModelHelper;
-        this.dataModifierReposJdbc = dataModifierReposJdbc;
-        this.servicePropertiesProvider = servicePropertiesProvider;
+  public RoleService(
+      RoleRepository roleRepository,
+      PrepareAssocModelHelper prepareAssocModelHelper,
+      DataModifierReposJdbc dataModifierReposJdbc,
+      ServicePropertiesProvider servicePropertiesProvider) {
+    this.roleRepository = roleRepository;
+    this.prepareAssocModelHelper = prepareAssocModelHelper;
+    this.dataModifierReposJdbc = dataModifierReposJdbc;
+    this.servicePropertiesProvider = servicePropertiesProvider;
+  }
+
+  public Collection<RoleDto> findRoleScopedToPatient(Long uid) {
+    Collection<RoleDto> roleDtoCollection = new ArrayList<>();
+    var result = roleRepository.findRoleScopedToPatient(uid);
+    if (result.isPresent()) {
+      for (var item : result.get()) {
+        var elem = new RoleDto(item);
+        elem.setItNew(false);
+        elem.setItDirty(false);
+
+        roleDtoCollection.add(elem);
+      }
     }
 
-    public Collection<RoleDto> findRoleScopedToPatient(Long uid) {
-        Collection<RoleDto> roleDtoCollection = new ArrayList<>();
-        var result = roleRepository.findRoleScopedToPatient(uid);
-        if (result.isPresent()) {
-            for(var item: result.get()) {
-                var elem = new RoleDto(item);
-                elem.setItNew(false);
-                elem.setItDirty(false);
+    return roleDtoCollection;
+  }
 
-                roleDtoCollection.add(elem);
-            }
-        }
+  public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
+    if (roleDTColl == null || roleDTColl.isEmpty()) return;
 
-        return roleDtoCollection;
+    for (RoleDto roleDT : roleDTColl) {
+      if (roleDT == null) {
+        continue;
+      }
+
+      roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
+      this.saveRole(roleDT);
     }
+  }
 
-    public void storeRoleDTCollection(Collection<RoleDto> roleDTColl) throws DataProcessingException {
-        if(roleDTColl == null || roleDTColl.isEmpty()) return;
-
-        for (RoleDto roleDT : roleDTColl) {
-            if (roleDT == null) {
-                continue;
-            }
-
-            roleDT = prepareAssocModelHelper.prepareAssocDTForRole(roleDT);
-            this.saveRole(roleDT);
-        }
+  public void saveRole(RoleDto roleDto) {
+    if (roleDto.isItNew() || roleDto.isItDirty()) {
+      var data = new Role(roleDto, servicePropertiesProvider.getTz());
+      roleRepository.save(data);
+    } else if (roleDto.isItDelete()) {
+      removeRole(roleDto);
     }
+  }
 
+  public Integer loadCountBySubjectCdComb(RoleDto roleDto) {
+    var result =
+        roleRepository.loadCountBySubjectCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd());
+    return result.orElse(0);
+  }
 
+  public Integer loadCountBySubjectScpingCdComb(RoleDto roleDto) {
+    var result =
+        roleRepository.loadCountBySubjectScpingCdComb(
+            roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getScopingEntityUid());
+    return result.orElse(0);
+  }
 
-    public void saveRole(RoleDto roleDto) {
-        if (roleDto.isItNew() || roleDto.isItDirty()) {
-            var data = new Role(roleDto,servicePropertiesProvider.getTz());
-            roleRepository.save(data);
-        }
-        else if (roleDto.isItDelete()) {
-            removeRole(roleDto);
-        }
-    }
-
-    public Integer loadCountBySubjectCdComb(RoleDto roleDto) {
-        var result = roleRepository.loadCountBySubjectCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd());
-        return result.orElse(0);
-    }
-
-    public Integer loadCountBySubjectScpingCdComb(RoleDto roleDto) {
-        var result = roleRepository.loadCountBySubjectScpingCdComb(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getScopingEntityUid());
-        return result.orElse(0);
-    }
-
-    private void removeRole(RoleDto roleDto) {
-        dataModifierReposJdbc.deleteRoleByPk(roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
-    }
-
+  private void removeRole(RoleDto roleDto) {
+    dataModifierReposJdbc.deleteRoleByPk(
+        roleDto.getSubjectEntityUid(), roleDto.getCd(), roleDto.getRoleSeq());
+  }
 }

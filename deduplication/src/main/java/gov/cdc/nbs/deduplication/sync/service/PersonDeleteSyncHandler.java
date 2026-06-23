@@ -1,13 +1,11 @@
 package gov.cdc.nbs.deduplication.sync.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
 public class PersonDeleteSyncHandler {
@@ -22,7 +20,8 @@ public class PersonDeleteSyncHandler {
     this.deduplicationClient = deduplicationClient;
   }
 
-  static final String LOOKUP_MPI_PATIENT = """
+  static final String LOOKUP_MPI_PATIENT =
+      """
       SELECT
         mpi_patient
       FROM
@@ -31,14 +30,16 @@ public class PersonDeleteSyncHandler {
         person_uid = :id;
       """;
 
-  static final String DELETE_MPI_MAPPING = """
+  static final String DELETE_MPI_MAPPING =
+      """
       DELETE FROM
         nbs_mpi_mapping
       WHERE
         person_uid = :id;
       """;
 
-  static final String REMOVE_FROM_POTENTIAL_MERGES = """
+  static final String REMOVE_FROM_POTENTIAL_MERGES =
+      """
       UPDATE merge_group_entries
       SET is_merge = 0
       WHERE person_uid = :id
@@ -46,7 +47,8 @@ public class PersonDeleteSyncHandler {
       """;
 
   // clears any potential merge listings where there are only 1 entry
-  static final String CLEAN_UP_POTENTIAL_MERGES = """
+  static final String CLEAN_UP_POTENTIAL_MERGES =
+      """
       UPDATE merge_group_entries
       SET
         is_merge = 0
@@ -80,32 +82,25 @@ public class PersonDeleteSyncHandler {
     JsonNode afterNode = payloadNode.path("after");
     String personUid = afterNode.get("person_uid").asText();
 
-    Optional<String> mpiUuid = deduplicationClient.sql(LOOKUP_MPI_PATIENT)
-        .param("id", personUid)
-        .query(String.class)
-        .optional();
+    Optional<String> mpiUuid =
+        deduplicationClient
+            .sql(LOOKUP_MPI_PATIENT)
+            .param("id", personUid)
+            .query(String.class)
+            .optional();
 
     // the entry is in the nbs_mpi_mapping table. Remove it from the MPI and then
     // remove it from the lookup table
     if (mpiUuid.isPresent()) {
-      recordLinkageClient.delete()
-          .uri("/patient/" + mpiUuid.get())
-          .retrieve()
-          .toBodilessEntity();
+      recordLinkageClient.delete().uri("/patient/" + mpiUuid.get()).retrieve().toBodilessEntity();
 
-      deduplicationClient.sql(DELETE_MPI_MAPPING)
-          .param("id", personUid)
-          .update();
+      deduplicationClient.sql(DELETE_MPI_MAPPING).param("id", personUid).update();
     }
 
     // ensure the person is removed from any potential merges
-    deduplicationClient.sql(REMOVE_FROM_POTENTIAL_MERGES)
-        .param("id", personUid)
-        .update();
+    deduplicationClient.sql(REMOVE_FROM_POTENTIAL_MERGES).param("id", personUid).update();
 
     // do a clean up of potential merges so no single entries are left
-    deduplicationClient.sql(CLEAN_UP_POTENTIAL_MERGES)
-        .update();
+    deduplicationClient.sql(CLEAN_UP_POTENTIAL_MERGES).update();
   }
-
 }

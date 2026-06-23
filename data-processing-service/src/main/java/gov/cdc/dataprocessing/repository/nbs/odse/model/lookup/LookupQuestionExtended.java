@@ -7,11 +7,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-
 public class LookupQuestionExtended extends LookupQuestion {
-    private String fromAnsCodeSystemCd;
-    private String toAnsCodeSystemCd;
-    private Long lookupAnswerUid;
-    private String fromAnswerCode;
-    private String toAnswerCode;
+  private String fromAnsCodeSystemCd;
+  private String toAnsCodeSystemCd;
+  private Long lookupAnswerUid;
+  private String fromAnswerCode;
+  private String toAnswerCode;
 }

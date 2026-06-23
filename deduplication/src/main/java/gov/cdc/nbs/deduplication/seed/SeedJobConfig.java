@@ -1,5 +1,11 @@
 package gov.cdc.nbs.deduplication.seed;
 
+import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
+import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
+import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
+import gov.cdc.nbs.deduplication.seed.step.MpiReader;
+import gov.cdc.nbs.deduplication.seed.step.PersonReader;
+import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -10,13 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import gov.cdc.nbs.deduplication.seed.model.DeduplicationEntry;
-import gov.cdc.nbs.deduplication.seed.model.NbsPerson;
-import gov.cdc.nbs.deduplication.seed.step.SeedWriter;
-import gov.cdc.nbs.deduplication.seed.step.DeduplicationWriter;
-import gov.cdc.nbs.deduplication.seed.step.MpiReader;
-import gov.cdc.nbs.deduplication.seed.step.PersonReader;
 
 @Configuration
 public class SeedJobConfig {
@@ -45,9 +44,7 @@ public class SeedJobConfig {
   }
 
   @Bean("readNbsWriteToMpi")
-  public Step step1(
-      JobRepository jobRepository,
-      PlatformTransactionManager transactionManager) {
+  public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
     return new StepBuilder("readNbsWriteToMpi", jobRepository)
         .<NbsPerson, NbsPerson>chunk(step1ChunkSize, transactionManager)
         .reader(personReader)
@@ -67,13 +64,10 @@ public class SeedJobConfig {
   }
 
   @Bean("seedJob")
-  public Job seedJob(JobRepository jobRepository,
+  public Job seedJob(
+      JobRepository jobRepository,
       @Qualifier("readNbsWriteToMpi") Step step1,
       @Qualifier("readMpiWriteDeduplication") Step step2) {
-    return new JobBuilder("Seed MPI", jobRepository)
-        .start(step1)
-        .next(step2)
-        .build();
+    return new JobBuilder("Seed MPI", jobRepository).start(step1).next(step2).build();
   }
-
 }

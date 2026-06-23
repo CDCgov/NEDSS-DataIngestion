@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       microservice_name:
-        description: "Microservice name matching your repository (ex. data-ingestion-service)."
+        description: "Microservice name matching your repository (ex. nbs7-dataingestion-service)."
         required: true
         type: string
-        default: <microservicename>
+        default: "nbs7-dataingestion-service"
       dockerfile_relative_path:
         description: "Relative path of your dockerfile, may include -f flag (ex. ./apps/<microservice>/Dockerfile)."
         required: true
@@ -21,20 +21,20 @@ on:
         required: true
         type: string
         default: SNAPSHOT
-      values_file_with_path:
-        description: What is the path to the helm chart in NBS helm chart repository? (ex. charts/dataingestion-service/values-int1.yaml)
-        type: string
-        default: "charts/<microservice>/<values_filename.yaml>"
+#      values_file_with_path:
+#        description: What is the path to the helm chart in NBS helm chart repository? (ex. charts/dataingestion-service/values.yaml)
+#        type: string
+#        default: "charts/dataingestion-service/values.yaml"
       build-new-container:
         description: "Check the box to create a new container tagged based on the environment_classifier."
         required: true
         default: false
         type: boolean
-      update_helm_chart:
-        description: "Do you want to update the specified helm chart"
-        required: true
-        default: true
-        type: boolean
+#      update_helm_chart:
+#        description: "Do you want to update the specified helm chart"
+#        required: true
+#        default: true
+#        type: boolean
 
 permissions:
   id-token: write
@@ -61,18 +61,18 @@ jobs:
       GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
       HELM_TOKEN: ${{secrets.HELM_TOKEN}}
 
-  call-update-helm:
-    permissions:
-      id-token: write
-      contents: write      
-      pull-requests: write
-    needs: call-build-microservice-container-workflow
-    uses: CDCgov/NEDSS-Workflows/.github/workflows/Update-helm-charts.yaml@main
-    with:
-      microservice_name: ${{inputs.microservice_name}}
-      values_file_with_path: ${{inputs.values_file_with_path}}
-      new_image_tag: ${{ needs.call-build-microservice-container-workflow.outputs.output_image_tag }}
-    secrets:
-      GIT_USER_EMAIL: ${{secrets.GIT_USER_EMAIL}}
-      GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
-      HELM_TOKEN: ${{secrets.HELM_TOKEN}}
+#  call-update-helm:
+#    permissions:
+#      id-token: write
+#      contents: write
+#      pull-requests: write
+#    needs: call-build-microservice-container-workflow
+#    uses: CDCgov/NEDSS-Workflows/.github/workflows/Update-helm-charts.yaml@main
+#    with:
+#      microservice_name: ${{inputs.microservice_name}}
+#      values_file_with_path: ${{inputs.values_file_with_path}}
+#      new_image_tag: ${{ needs.call-build-microservice-container-workflow.outputs.output_image_tag }}
+#    secrets:
+#      GIT_USER_EMAIL: ${{secrets.GIT_USER_EMAIL}}
+#      GIT_USER_NAME: ${{secrets.GIT_USER_NAME}}
+#      HELM_TOKEN: ${{secrets.HELM_TOKEN}}

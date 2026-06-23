@@ -13,7 +13,8 @@ import org.springframework.web.client.RestClient;
 class OidcRestClientConfig {
 
   @Bean("oidcRestClient")
-  public RestClient oidcRestClient(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String uri) {
+  public RestClient oidcRestClient(
+      @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String uri) {
     return RestClient.builder().baseUrl(uri + "/protocol/openid-connect/token").build();
   }
 }

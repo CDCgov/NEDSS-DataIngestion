@@ -1,20 +1,22 @@
 package gov.cdc.nbs.deduplication.config.auth.nbs;
 
+import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsSessionToken;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-import gov.cdc.nbs.deduplication.config.auth.nbs.token.NbsSessionToken;
-import jakarta.servlet.http.HttpServletRequest;
-
 @Configuration
-@ConditionalOnProperty(value = "nbs.security.oidc.enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(
+    value = "nbs.security.oidc.enabled",
+    havingValue = "false",
+    matchIfMissing = true)
 public class NbsSessionAuthenticator {
 
-  static final String SELECT_USER_BY_SESSION = """
+  static final String SELECT_USER_BY_SESSION =
+      """
       SELECT TOP 1
         au.user_id
       FROM
@@ -50,7 +52,8 @@ public class NbsSessionAuthenticator {
   // Attempts to lookup a user Id from the provided session Id where the user is
   // currently logged in
   private Optional<String> findUserBySession(String sessionId) {
-    return client.sql(SELECT_USER_BY_SESSION)
+    return client
+        .sql(SELECT_USER_BY_SESSION)
         .param("sessionId", sessionId)
         .query(String.class)
         .optional();

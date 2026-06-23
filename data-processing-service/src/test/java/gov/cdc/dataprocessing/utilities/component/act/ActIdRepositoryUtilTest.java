@@ -1,86 +1,83 @@
 package gov.cdc.dataprocessing.utilities.component.act;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import gov.cdc.dataprocessing.model.dto.act.ActIdDto;
 import gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template.ActIdJdbcRepository;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.act.ActId;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 class ActIdRepositoryUtilTest {
-    @InjectMocks
-    private ActIdRepositoryUtil actIdRepositoryUtil;
+  @InjectMocks private ActIdRepositoryUtil actIdRepositoryUtil;
 
-    @Mock
-    private ActIdJdbcRepository actIdRepository;
+  @Mock private ActIdJdbcRepository actIdRepository;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
+
+  @Test
+  void testGetActIdCollection() {
+    Long actUid = 1L;
+    List<ActId> actIds = new ArrayList<>();
+    ActId actId = new ActId();
+    actIds.add(actId);
+    when(actIdRepository.findRecordsByActUid(actUid)).thenReturn(actIds);
+
+    Collection<ActIdDto> result = actIdRepositoryUtil.getActIdCollection(actUid);
+
+    assertEquals(1, result.size());
+    for (ActIdDto dto : result) {
+      assertFalse(dto.isItNew());
+      assertFalse(dto.isItDirty());
     }
+    verify(actIdRepository, times(1)).findRecordsByActUid(actUid);
+  }
 
-    @Test
-    void testGetActIdCollection() {
-        Long actUid = 1L;
-        List<ActId> actIds = new ArrayList<>();
-        ActId actId = new ActId();
-        actIds.add(actId);
-        when(actIdRepository.findRecordsByActUid(actUid)).thenReturn(actIds);
+  @Test
+  void testGetActIdCollectionEmpty() {
+    Long actUid = 1L;
+    when(actIdRepository.findRecordsByActUid(actUid)).thenReturn(new ArrayList<>());
 
-        Collection<ActIdDto> result = actIdRepositoryUtil.getActIdCollection(actUid);
+    Collection<ActIdDto> result = actIdRepositoryUtil.getActIdCollection(actUid);
 
-        assertEquals(1, result.size());
-        for (ActIdDto dto : result) {
-            assertFalse(dto.isItNew());
-            assertFalse(dto.isItDirty());
-        }
-        verify(actIdRepository, times(1)).findRecordsByActUid(actUid);
+    assertTrue(result.isEmpty());
+    verify(actIdRepository, times(1)).findRecordsByActUid(actUid);
+  }
+
+  @Test
+  void testInsertActIdCollection() {
+    Long uid = 1L;
+    Collection<ActIdDto> actIdDtoCollection = new ArrayList<>();
+    ActIdDto actIdDto = new ActIdDto();
+    actIdDtoCollection.add(actIdDto);
+
+    actIdRepositoryUtil.insertActIdCollection(uid, actIdDtoCollection);
+
+    verify(actIdRepository, times(1)).mergeActId(any(ActId.class));
+    for (ActIdDto dto : actIdDtoCollection) {
+      assertFalse(dto.isItDirty());
+      assertFalse(dto.isItNew());
+      assertFalse(dto.isItDelete());
     }
+  }
 
-    @Test
-    void testGetActIdCollectionEmpty() {
-        Long actUid = 1L;
-        when(actIdRepository.findRecordsByActUid(actUid)).thenReturn(new ArrayList<>());
+  @Test
+  void testInsertActIdCollectionEmpty() {
+    Long uid = 1L;
+    Collection<ActIdDto> actIdDtoCollection = new ArrayList<>();
 
-        Collection<ActIdDto> result = actIdRepositoryUtil.getActIdCollection(actUid);
+    actIdRepositoryUtil.insertActIdCollection(uid, actIdDtoCollection);
 
-        assertTrue(result.isEmpty());
-        verify(actIdRepository, times(1)).findRecordsByActUid(actUid);
-    }
-
-    @Test
-    void testInsertActIdCollection() {
-        Long uid = 1L;
-        Collection<ActIdDto> actIdDtoCollection = new ArrayList<>();
-        ActIdDto actIdDto = new ActIdDto();
-        actIdDtoCollection.add(actIdDto);
-
-        actIdRepositoryUtil.insertActIdCollection(uid, actIdDtoCollection);
-
-        verify(actIdRepository, times(1)).mergeActId(any(ActId.class));
-        for (ActIdDto dto : actIdDtoCollection) {
-            assertFalse(dto.isItDirty());
-            assertFalse(dto.isItNew());
-            assertFalse(dto.isItDelete());
-        }
-    }
-
-    @Test
-    void testInsertActIdCollectionEmpty() {
-        Long uid = 1L;
-        Collection<ActIdDto> actIdDtoCollection = new ArrayList<>();
-
-        actIdRepositoryUtil.insertActIdCollection(uid, actIdDtoCollection);
-
-        verify(actIdRepository, times(0)).mergeActId(any(ActId.class));
-    }
+    verify(actIdRepository, times(0)).mergeActId(any(ActId.class));
+  }
 }

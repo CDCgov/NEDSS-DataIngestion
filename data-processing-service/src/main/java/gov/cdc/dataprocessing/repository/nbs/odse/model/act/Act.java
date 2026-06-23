@@ -9,19 +9,16 @@ import lombok.Data;
 @Entity
 @Table(name = "Act")
 @Data
-
 public class Act {
-    @Id
-    @Column(name = "act_uid")
-    private Long actUid;
+  @Id
+  @Column(name = "act_uid")
+  private Long actUid;
 
-    @Column(name = "class_cd")
-    private String classCode;
+  @Column(name = "class_cd")
+  private String classCode;
 
-    @Column(name = "mood_cd")
-    private String moodCode;
+  @Column(name = "mood_cd")
+  private String moodCode;
 
-    public Act() {
-
-    }
+  public Act() {}
 }

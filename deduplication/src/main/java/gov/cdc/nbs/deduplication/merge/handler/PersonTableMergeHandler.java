@@ -1,12 +1,13 @@
 package gov.cdc.nbs.deduplication.merge.handler;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetails;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,9 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @Component
 @Order(1)
@@ -33,7 +31,8 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     this.deduplicationTemplate = deduplicationTemplate;
   }
 
-  public static final String FETCH_SUPERSEDED_CANDIDATES = """
+  public static final String FETCH_SUPERSEDED_CANDIDATES =
+      """
       SELECT
         person_uid
       FROM
@@ -44,7 +43,8 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
         AND is_merge IS NULL;
       """;
 
-  public static final String COPY_PERSON_TO_HISTORY = """
+  public static final String COPY_PERSON_TO_HISTORY =
+      """
         INSERT INTO person_hist (
           person_uid,
           version_ctrl_nbr,
@@ -264,11 +264,11 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
       WHERE person_uid IN (:involvedPatients)
       """;
 
-
   // Modifications have been performed on the person table entries.
   @Override
   @Transactional(transactionManager = "nbsTransactionManager", propagation = Propagation.MANDATORY)
-  public void handleMerge(String mergeGroup, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
+  public void handleMerge(
+      String mergeGroup, PatientMergeRequest request, PatientMergeAudit patientMergeAudit) {
     String survivorId = request.survivingRecord();
     List<String> supersededUids = getSupersededRecords(mergeGroup, survivorId);
     List<String> involvedPatients = new ArrayList<>();
@@ -289,10 +289,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("mergeGroup", mergeGroup);
     params.addValue("survivorId", survivorId);
-    return deduplicationTemplate.queryForList(
-        FETCH_SUPERSEDED_CANDIDATES,
-        params,
-        String.class);
+    return deduplicationTemplate.queryForList(FETCH_SUPERSEDED_CANDIDATES, params, String.class);
   }
 
   private void createHistoryEntries(List<String> involvedPatients) {
@@ -302,21 +299,18 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
 
   private void savePersonCopyToPersonHist(List<String> involvedPatients) {
     MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("involvedPatients", involvedPatients);// NOSONAR
-    nbsTemplate.update(
-        COPY_PERSON_TO_HISTORY,
-        params);
+    params.addValue("involvedPatients", involvedPatients); // NOSONAR
+    nbsTemplate.update(COPY_PERSON_TO_HISTORY, params);
   }
 
   private void increasePersonVersionNbr(List<String> involvedPatients) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("involvedPatients", involvedPatients);
-    nbsTemplate.update(
-        QueryConstants.INCREMENT_PERSON_VERSION_NUMBER,
-        params);
+    nbsTemplate.update(QueryConstants.INCREMENT_PERSON_VERSION_NUMBER, params);
   }
 
-  private void linkSupersededChildIdsToSurvivingMpr(String survivorUid, List<String> supersededPersonIds) {
+  private void linkSupersededChildIdsToSurvivingMpr(
+      String survivorUid, List<String> supersededPersonIds) {
     List<String> childIds = getChildIdsOfTheSupersededPerson(supersededPersonIds);
     if (!childIds.isEmpty()) {
       updateParentIdForChildIds(survivorUid, childIds);
@@ -334,9 +328,7 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("survivorId", survivorId);
     params.addValue("supersededChildIds", supersededChildIds);
-    nbsTemplate.update(
-        QueryConstants.LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR,
-        params);
+    nbsTemplate.update(QueryConstants.LINK_SUPERSEDED_CHILD_IDS_TO_SURVIVOR, params);
   }
 
   private void markSupersededRecords(List<String> supersededPersonIds) {
@@ -352,18 +344,22 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
     nbsTemplate.update(QueryConstants.UPDATE_LAST_CHANGE_TIME_FOR_PATIENTS, parameters);
   }
 
-  private void saveSupersededPersonMergeDetails(String survivorPersonId, List<String> supersededPersonIds) {
-    NbsUserDetails currentUser = (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    MapSqlParameterSource[] batchParameters = supersededPersonIds.stream()
-        .map(supersededPersonId -> {
-          MapSqlParameterSource parameters = new MapSqlParameterSource();
-          parameters.addValue("survivorPersonId", survivorPersonId);
-          parameters.addValue("supersededPersonId", supersededPersonId);
-          parameters.addValue("mergeTime", Timestamp.from(Instant.now()));
-          parameters.addValue("mergeUserId", currentUser.getId());
-          return parameters;
-        })
-        .toArray(MapSqlParameterSource[]::new);
+  private void saveSupersededPersonMergeDetails(
+      String survivorPersonId, List<String> supersededPersonIds) {
+    NbsUserDetails currentUser =
+        (NbsUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    MapSqlParameterSource[] batchParameters =
+        supersededPersonIds.stream()
+            .map(
+                supersededPersonId -> {
+                  MapSqlParameterSource parameters = new MapSqlParameterSource();
+                  parameters.addValue("survivorPersonId", survivorPersonId);
+                  parameters.addValue("supersededPersonId", supersededPersonId);
+                  parameters.addValue("mergeTime", Timestamp.from(Instant.now()));
+                  parameters.addValue("mergeUserId", currentUser.getId());
+                  return parameters;
+                })
+            .toArray(MapSqlParameterSource[]::new);
 
     nbsTemplate.batchUpdate(QueryConstants.INSERT_PERSON_MERGE_RECORD, batchParameters);
   }
@@ -371,5 +367,4 @@ public class PersonTableMergeHandler implements SectionMergeHandler {
   public static Timestamp getCurrentUtcTimestamp() {
     return Timestamp.from(Instant.now());
   }
-
 }

@@ -14,6 +14,5 @@ public record LinkResponse(
       Double rms, // relative match strength 0 - 1
       Double mmt, // minimum match threshold 0 - 1
       Double cmt, // certain match threshold 0 - 1
-      String match_grade) {
-  }
+      String match_grade) {}
 }

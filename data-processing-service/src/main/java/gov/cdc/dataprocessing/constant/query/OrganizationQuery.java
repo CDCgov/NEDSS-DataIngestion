@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class OrganizationQuery {
-    public static final String INSERT_ORGANIZATION = """
+  public static final String INSERT_ORGANIZATION =
+"""
 INSERT INTO Organization (
     organization_uid, add_reason_cd, add_time, add_user_id, cd, cd_desc_txt, description,
     duration_amt, duration_unit_cd, from_time, last_chg_reason_cd, last_chg_time, last_chg_user_id,
@@ -19,7 +20,8 @@ INSERT INTO Organization (
 )
 """;
 
-    public static final String UPDATE_ORGANIZATION = """
+  public static final String UPDATE_ORGANIZATION =
+"""
 UPDATE Organization SET
     add_reason_cd = :addReasonCode,
     add_time = :addTime,
@@ -59,7 +61,8 @@ UPDATE Organization SET
 WHERE organization_uid = :organizationUid
 """;
 
-    public static final String SELECT_ORGANIZATION_BY_ID = """
+  public static final String SELECT_ORGANIZATION_BY_ID =
+"""
 SELECT
     organization_uid              AS organizationUid,
     add_reason_cd                AS addReasonCode,
@@ -100,6 +103,4 @@ SELECT
 FROM Organization
 WHERE organization_uid = :organizationUid
 """;
-
-
 }

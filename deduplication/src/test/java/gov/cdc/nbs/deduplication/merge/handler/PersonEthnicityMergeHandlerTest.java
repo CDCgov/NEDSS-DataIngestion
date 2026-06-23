@@ -6,12 +6,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
+import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import gov.cdc.nbs.deduplication.SecurityTestUtil;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeAudit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -24,20 +24,15 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
-import gov.cdc.nbs.deduplication.merge.model.PatientMergeRequest;
 
 @ExtendWith(MockitoExtension.class)
 class PersonEthnicityMergeHandlerTest {
 
-  @Mock
-  private JdbcClient client;
+  @Mock private JdbcClient client;
 
-  @Mock
-  private NamedParameterJdbcTemplate nbsTemplate;
+  @Mock private NamedParameterJdbcTemplate nbsTemplate;
 
-
-  @InjectMocks
-  private PersonEthnicityMergeHandler mergeHandler;
+  @InjectMocks private PersonEthnicityMergeHandler mergeHandler;
 
   @Test
   void should_not_act_survivor_equals_source() {
@@ -65,11 +60,7 @@ class PersonEthnicityMergeHandlerTest {
 
     mockUpdatePerson("123", "321");
     // Surviving and source spanish origins
-    mockGetSpanishOrigins(
-        "123",
-        List.of("2148-5", "2155-0"),
-        "321",
-        List.of("2148-5", "2184-0"));
+    mockGetSpanishOrigins("123", List.of("2148-5", "2155-0"), "321", List.of("2148-5", "2184-0"));
 
     // Current user
     SecurityTestUtil.mockSecurityContext();
@@ -101,13 +92,14 @@ class PersonEthnicityMergeHandlerTest {
     verify(client).sql(PersonEthnicityMergeHandler.UPDATE_SPANISH_ORIGINS_TO_INACTIVE);
   }
 
-
-
   private void mockUpdatePerson(String survivor, String source) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonEthnicityMergeHandler.UPDATE_PERSON_ETHNIC_GROUP)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.SURVIVOR_ID, survivor)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.SOURCE_ID, source)).thenReturn(statementSpec);
+    when(client.sql(PersonEthnicityMergeHandler.UPDATE_PERSON_ETHNIC_GROUP))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.SURVIVOR_ID, survivor))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.SOURCE_ID, source))
+        .thenReturn(statementSpec);
   }
 
   @SuppressWarnings("unchecked")
@@ -117,13 +109,16 @@ class PersonEthnicityMergeHandlerTest {
       String sourceId,
       List<String> sourceSpanishOrigins) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonEthnicityMergeHandler.SELECT_SPANISH_ORIGIN_LIST)).thenReturn(statementSpec);
+    when(client.sql(PersonEthnicityMergeHandler.SELECT_SPANISH_ORIGIN_LIST))
+        .thenReturn(statementSpec);
 
     StatementSpec survivingStatement = Mockito.mock(StatementSpec.class);
-    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, survivingId)).thenReturn(survivingStatement);
+    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, survivingId))
+        .thenReturn(survivingStatement);
 
     StatementSpec sourceStatement = Mockito.mock(StatementSpec.class);
-    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, sourceId)).thenReturn(sourceStatement);
+    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, sourceId))
+        .thenReturn(sourceStatement);
 
     MappedQuerySpec<String> survivingQuery = Mockito.mock(MappedQuerySpec.class);
     when(survivingStatement.query(String.class)).thenReturn(survivingQuery);
@@ -134,44 +129,52 @@ class PersonEthnicityMergeHandlerTest {
     when(sourceQuery.list()).thenReturn(sourceSpanishOrigins);
   }
 
-
   private void mockInsert(String expectedEthnicity, String personId, long userId, String sourceId) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
     when(client.sql(PersonEthnicityMergeHandler.INSERT_SPANISH_ORIGIN)).thenReturn(statementSpec);
     when(statementSpec.param("spanishOrigin", expectedEthnicity)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.USER_ID, userId)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.SOURCE_ID, sourceId)).thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.USER_ID, userId))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.SOURCE_ID, sourceId))
+        .thenReturn(statementSpec);
   }
 
   private void mockSetInactive(String expectedEthnicity, String personId, long userId) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonEthnicityMergeHandler.UPDATE_SPANISH_ORIGINS_TO_INACTIVE)).thenReturn(statementSpec);
-    when(statementSpec.param("spanishOrigins", List.of(expectedEthnicity))).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId)).thenReturn(statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.USER_ID, userId)).thenReturn(statementSpec);
+    when(client.sql(PersonEthnicityMergeHandler.UPDATE_SPANISH_ORIGINS_TO_INACTIVE))
+        .thenReturn(statementSpec);
+    when(statementSpec.param("spanishOrigins", List.of(expectedEthnicity)))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.USER_ID, userId))
+        .thenReturn(statementSpec);
   }
 
-  private void mockInsertEthnicGroupHist(String expectedEthnicity,String personId) {
+  private void mockInsertEthnicGroupHist(String expectedEthnicity, String personId) {
     StatementSpec statementSpec = Mockito.mock(StatementSpec.class);
-    when(client.sql(PersonEthnicityMergeHandler.INSERT_PERSON_ETHNIC_GROUP_HIST_FOR_SELECTED)).thenReturn(
-        statementSpec);
-    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId)).thenReturn(statementSpec);
-    when(statementSpec.param("spanishOrigins", List.of(expectedEthnicity))).thenReturn(statementSpec);
+    when(client.sql(PersonEthnicityMergeHandler.INSERT_PERSON_ETHNIC_GROUP_HIST_FOR_SELECTED))
+        .thenReturn(statementSpec);
+    when(statementSpec.param(PersonEthnicityMergeHandler.PERSON_ID, personId))
+        .thenReturn(statementSpec);
+    when(statementSpec.param("spanishOrigins", List.of(expectedEthnicity)))
+        .thenReturn(statementSpec);
   }
-
 
   private void mockFetchOldRows(String personId, String ethnicGroupCd, String recordStatusCd) {
-    List<Map<String, Object>> oldRows = List.of(
-        Map.of(
-            PersonEthnicityMergeHandler.PERSON_UID, personId,
-            PersonEthnicityMergeHandler.ETHNIC_GROUP_CD, ethnicGroupCd,
-            "record_status_cd", recordStatusCd
-        )
-    );
+    List<Map<String, Object>> oldRows =
+        List.of(
+            Map.of(
+                PersonEthnicityMergeHandler.PERSON_UID,
+                personId,
+                PersonEthnicityMergeHandler.ETHNIC_GROUP_CD,
+                ethnicGroupCd,
+                "record_status_cd",
+                recordStatusCd));
 
     when(nbsTemplate.queryForList(anyString(), ArgumentMatchers.<SqlParameterSource>any()))
         .thenReturn(oldRows);
   }
-
 }

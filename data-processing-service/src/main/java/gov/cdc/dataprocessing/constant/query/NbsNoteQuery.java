@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class NbsNoteQuery {
-    public static final String MERGE_NBS_NOTE = """
+  public static final String MERGE_NBS_NOTE =
+"""
 MERGE INTO NBS_note AS target
 USING (VALUES (
     :nbs_note_uid, :note_parent_uid, :record_status_cd, :record_status_time,
@@ -34,5 +35,4 @@ WHEN NOT MATCHED THEN INSERT (
     source.note, source.private_ind_cd, source.type_cd
 );
 """;
-
 }

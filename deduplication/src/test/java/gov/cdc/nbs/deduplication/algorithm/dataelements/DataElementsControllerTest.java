@@ -5,43 +5,39 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
+import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
-import gov.cdc.nbs.deduplication.algorithm.pass.PassService;
-
 @ExtendWith(MockitoExtension.class)
 class DataElementsControllerTest {
 
-    @Mock
-    private DataElementsService service;
+  @Mock private DataElementsService service;
 
-    @Mock
-    private PassService passService;
+  @Mock private PassService passService;
 
-    @InjectMocks
-    private DataElementsController controller;
+  @InjectMocks private DataElementsController controller;
 
-    @Test
-    void returns_current_config() {
-        when(service.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
-        DataElements actual = controller.get();
+  @Test
+  void returns_current_config() {
+    when(service.getCurrentDataElements()).thenReturn(TestData.DATA_ELEMENTS);
+    DataElements actual = controller.get();
 
-        assertThat(actual).isEqualTo(TestData.DATA_ELEMENTS);
-        verify(service, times(1)).getCurrentDataElements();
-    }
+    assertThat(actual).isEqualTo(TestData.DATA_ELEMENTS);
+    verify(service, times(1)).getCurrentDataElements();
+  }
 
-    @Test
-    void saves_config() {
-        when(service.save(null)).thenReturn(TestData.DATA_ELEMENTS);
-        DataElements actual = controller.save(null);
+  @Test
+  void saves_config() {
+    when(service.save(null)).thenReturn(TestData.DATA_ELEMENTS);
+    DataElements actual = controller.save(null);
 
-        assertThat(actual).isEqualTo(TestData.DATA_ELEMENTS);
-        verify(service, times(1)).save(null);
-        verify(passService, times(1)).saveDibbsAlgorithm();
-    }
+    assertThat(actual).isEqualTo(TestData.DATA_ELEMENTS);
+    verify(service, times(1)).save(null);
+    verify(passService, times(1)).saveDibbsAlgorithm();
+  }
 }

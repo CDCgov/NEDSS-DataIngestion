@@ -5,8 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-
-
-public interface EdxEntityMatchRepository  extends JpaRepository<EdxEntityMatch, Long> {
-
-}
+public interface EdxEntityMatchRepository extends JpaRepository<EdxEntityMatch, Long> {}

@@ -1,20 +1,5 @@
 package gov.cdc.nbs.deduplication.sync.service;
 
-import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-import gov.cdc.nbs.deduplication.constants.QueryConstants;
-import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
-import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.web.client.RestClient;
-
-import java.util.Collections;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -22,41 +7,43 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
+import gov.cdc.nbs.deduplication.constants.QueryConstants;
+import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
+import gov.cdc.nbs.deduplication.seed.model.MpiResponse;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.web.client.RestClient;
 
 @ExtendWith(MockitoExtension.class)
 class PersonUpdateSyncHandlerTest {
 
-  @Mock
-  private ObjectMapper objectMapper;
+  @Mock private ObjectMapper objectMapper;
+
+  @Mock private RestClient recordLinkageClient;
 
   @Mock
-  private RestClient recordLinkageClient;
+  @Qualifier("deduplicationNamedTemplate") private NamedParameterJdbcTemplate deduplicationTemplate;
 
-  @Mock
-  @Qualifier("deduplicationNamedTemplate")
-  private NamedParameterJdbcTemplate deduplicationTemplate;
+  @Mock private PatientRecordService patientRecordService;
 
-  @Mock
-  private PatientRecordService patientRecordService;
+  @Mock private RestClient.RequestBodyUriSpec requestBodyUriSpec;
 
-  @Mock
-  private RestClient.RequestBodyUriSpec requestBodyUriSpec;
+  @Mock private RestClient.RequestBodySpec requestBodySpec;
 
-  @Mock
-  private RestClient.RequestBodySpec requestBodySpec;
+  @Mock private RestClient.ResponseSpec responseSpec;
 
-  @Mock
-  private RestClient.ResponseSpec responseSpec;
+  @Mock private PersonInsertSyncHandler personInsertSyncHandler;
 
-  @Mock
-  private PersonInsertSyncHandler personInsertSyncHandler;
-
-  @InjectMocks
-  private PersonUpdateSyncHandler personUpdateSyncHandler;
-
+  @InjectMocks private PersonUpdateSyncHandler personUpdateSyncHandler;
 
   @Test
   void testHandleUpdate_patientExists_isPatient_updateExisting() throws JsonProcessingException {
@@ -90,13 +77,13 @@ class PersonUpdateSyncHandlerTest {
     verify(personInsertSyncHandler, never()).insertParentAndPatient(any());
   }
 
-
   @Test
-  void testHandleUpdate_patientDoesNotExists_isPerson_insertNewPerson() throws JsonProcessingException {
+  void testHandleUpdate_patientDoesNotExists_isPerson_insertNewPerson()
+      throws JsonProcessingException {
     String personUid = "100";
 
-    MpiPerson mpiPerson = createMockMpiPerson(personUid, personUid);//isPerson
-    notExist(personUid);// Patient does NOT exist
+    MpiPerson mpiPerson = createMockMpiPerson(personUid, personUid); // isPerson
+    notExist(personUid); // Patient does NOT exist
     mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
 
     runHandleUpdate(personUid);
@@ -104,12 +91,13 @@ class PersonUpdateSyncHandlerTest {
   }
 
   @Test
-  void testHandleUpdate_patientDoesNotExists_isPatient_parentExists_insertNewPatient() throws JsonProcessingException {
+  void testHandleUpdate_patientDoesNotExists_isPatient_parentExists_insertNewPatient()
+      throws JsonProcessingException {
     String personUid = "101";
     String parentUid = "100";
 
     MpiPerson mpiPerson = createMockMpiPerson(personUid, parentUid);
-    notExist(personUid);// Patient does NOT exist
+    notExist(personUid); // Patient does NOT exist
     exist(parentUid); // parent exists
     mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
 
@@ -132,15 +120,14 @@ class PersonUpdateSyncHandlerTest {
     verifyInsertParentAndPatientWasCalled(mpiPerson);
   }
 
-
   private void runHandleUpdate(String personUid) throws JsonProcessingException {
     JsonNode payloadNode = createPayloadNode(personUid);
     personUpdateSyncHandler.handleUpdate(payloadNode);
   }
 
-
   // Mocking Methods
-  private void setupCommonMocksForPatientExists(String personUid, MpiPerson mpiPerson) throws JsonProcessingException {
+  private void setupCommonMocksForPatientExists(String personUid, MpiPerson mpiPerson)
+      throws JsonProcessingException {
     mockDoesPatientExistInMpi(personUid, true); // Patient exists
     mockPatientRecordServiceFetchPersonRecord(personUid, mpiPerson);
     mockPatchPatientApi();
@@ -157,12 +144,13 @@ class PersonUpdateSyncHandlerTest {
 
   private void mockDoesPatientExistInMpi(String personId, boolean exists) {
     when(deduplicationTemplate.queryForObject(
-        eq(QueryConstants.MPI_PATIENT_EXISTS_CHECK),
-        argThat((MapSqlParameterSource source) -> {
-          Object value = source.getValue("personId");
-          return value != null && personId.equals(value.toString());
-        }),
-        eq(Boolean.class)))
+            eq(QueryConstants.MPI_PATIENT_EXISTS_CHECK),
+            argThat(
+                (MapSqlParameterSource source) -> {
+                  Object value = source.getValue("personId");
+                  return value != null && personId.equals(value.toString());
+                }),
+            eq(Boolean.class)))
         .thenReturn(exists);
   }
 
@@ -206,7 +194,8 @@ class PersonUpdateSyncHandlerTest {
     verifyNoMoreInteractions(personInsertSyncHandler);
   }
 
-  private void verifyInsertParentAndPatientWasCalled(MpiPerson mpiPerson) throws JsonProcessingException {
+  private void verifyInsertParentAndPatientWasCalled(MpiPerson mpiPerson)
+      throws JsonProcessingException {
     verify(personInsertSyncHandler).insertParentAndPatient(mpiPerson);
     verifyNoMoreInteractions(personInsertSyncHandler);
   }
@@ -233,9 +222,7 @@ class PersonUpdateSyncHandlerTest {
 
   private JsonNode createPayloadNode(String personUid) {
     JsonNodeFactory factory = JsonNodeFactory.instance;
-    return factory.objectNode()
-        .set("after", factory.objectNode()
-            .put("person_uid", personUid));
+    return factory.objectNode().set("after", factory.objectNode().put("person_uid", personUid));
   }
 
   private MpiPerson createMockMpiPerson(String externalId, String parentId) {
@@ -248,9 +235,6 @@ class PersonUpdateSyncHandlerTest {
         Collections.emptyList(),
         Collections.emptyList(),
         Collections.singletonList("race"),
-        Collections.emptyList()
-    );
+        Collections.emptyList());
   }
-
-
 }

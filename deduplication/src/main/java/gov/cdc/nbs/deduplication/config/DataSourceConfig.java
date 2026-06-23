@@ -1,7 +1,6 @@
 package gov.cdc.nbs.deduplication.config;
 
 import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,9 +26,7 @@ public class DataSourceConfig {
   @Bean("deduplication")
   @ConfigurationProperties("spring.datasource.deduplication")
   public DataSource deduplicationDataSource() {
-    return deduplicationProperties()
-        .initializeDataSourceBuilder()
-        .build();
+    return deduplicationProperties().initializeDataSourceBuilder().build();
   }
 
   @Primary
@@ -46,7 +43,8 @@ public class DataSourceConfig {
   }
 
   @Bean("deduplicationJdbcClient")
-  public JdbcClient deduplicationJdbcClient(@Qualifier("deduplication") DataSource deduplicationDataSource) {
+  public JdbcClient deduplicationJdbcClient(
+      @Qualifier("deduplication") DataSource deduplicationDataSource) {
     return JdbcClient.create(deduplicationDataSource);
   }
 
@@ -60,9 +58,7 @@ public class DataSourceConfig {
   @Bean("nbs")
   @ConfigurationProperties("spring.datasource.nbs")
   public DataSource nbsDataSource() {
-    return nbsProperties()
-        .initializeDataSourceBuilder()
-        .build();
+    return nbsProperties().initializeDataSourceBuilder().build();
   }
 
   @Bean("nbsTemplate")
@@ -96,9 +92,7 @@ public class DataSourceConfig {
   @Bean("mpi")
   @ConfigurationProperties("spring.datasource.mpi")
   public DataSource mpiDataSource() {
-    return mpiProperties()
-        .initializeDataSourceBuilder()
-        .build();
+    return mpiProperties().initializeDataSourceBuilder().build();
   }
 
   @Bean("mpiTemplate")
@@ -116,5 +110,4 @@ public class DataSourceConfig {
   public JdbcClient mpiJdbcClient(@Qualifier("mpi") DataSource mpiDataSource) {
     return JdbcClient.create(mpiDataSource);
   }
-
 }

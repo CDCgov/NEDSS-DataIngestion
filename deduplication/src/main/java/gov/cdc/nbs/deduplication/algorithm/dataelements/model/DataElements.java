@@ -29,9 +29,7 @@ public record DataElements(
     DataElement personNumber,
     DataElement socialSecurity,
     DataElement visaPassport,
-    DataElement wicIdentifier
-
-) {
+    DataElement wicIdentifier) {
 
   public DataElements() {
     this(
@@ -63,16 +61,10 @@ public record DataElements(
         new DataElement());
   }
 
-  public record DataElement(
-      boolean active,
-      Double oddsRatio,
-      Double logOdds) {
+  public record DataElement(boolean active, Double oddsRatio, Double logOdds) {
 
     public DataElement() {
-      this(
-          false,
-          null,
-          null);
+      this(false, null, null);
     }
   }
 }

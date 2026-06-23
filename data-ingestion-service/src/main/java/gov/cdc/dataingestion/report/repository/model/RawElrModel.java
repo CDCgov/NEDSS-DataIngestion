@@ -1,107 +1,108 @@
 package gov.cdc.dataingestion.report.repository.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
-
 import java.sql.Timestamp;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "elr_raw")
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class RawElrModel {
 
-    @Id
-    @GenericGenerator(name = "generator", strategy = "guid", parameters = {})
-    @GeneratedValue(generator = "generator")
-    @Column(name = "id" , columnDefinition="uniqueidentifier")
-    private String id;
+  @Id
+  @GenericGenerator(
+      name = "generator",
+      strategy = "guid",
+      parameters = {})
+  @GeneratedValue(generator = "generator")
+  @Column(name = "id", columnDefinition = "uniqueidentifier")
+  private String id;
 
-    @Column(name = "message_type")
-    private String type;
-    private String payload;
+  @Column(name = "message_type")
+  private String type;
 
-    @Column(name = "version")
-    private String version;
+  private String payload;
 
-    @Column(name = "created_on")
-    private Timestamp createdOn;
+  @Column(name = "version")
+  private String version;
 
-    @Column(name = "updated_on")
-    private Timestamp updatedOn;
+  @Column(name = "created_on")
+  private Timestamp createdOn;
 
-    @Column(name = "created_by")
-    private String createdBy;
+  @Column(name = "updated_on")
+  private Timestamp updatedOn;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
+  @Column(name = "created_by")
+  private String createdBy;
 
-    public String getId() {
-        return id;
-    }
+  @Column(name = "updated_by")
+  private String updatedBy;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getPayload() {
-        return payload;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
+  public String getPayload() {
+    return payload;
+  }
 
-    public Timestamp getCreatedOn() {
-        return createdOn;
-    }
+  public void setPayload(String payload) {
+    this.payload = payload;
+  }
 
-    public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
-    }
+  public Timestamp getCreatedOn() {
+    return createdOn;
+  }
 
-    public Timestamp getUpdatedOn() {
-        return updatedOn;
-    }
+  public void setCreatedOn(Timestamp createdOn) {
+    this.createdOn = createdOn;
+  }
 
-    public void setUpdatedOn(Timestamp updatedOn) {
-        this.updatedOn = updatedOn;
-    }
+  public Timestamp getUpdatedOn() {
+    return updatedOn;
+  }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
+  public void setUpdatedOn(Timestamp updatedOn) {
+    this.updatedOn = updatedOn;
+  }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
+  public String getUpdatedBy() {
+    return updatedBy;
+  }
 
-    public String getVersion() {
-        return version;
-    }
+  public void setUpdatedBy(String updatedBy) {
+    this.updatedBy = updatedBy;
+  }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
 }

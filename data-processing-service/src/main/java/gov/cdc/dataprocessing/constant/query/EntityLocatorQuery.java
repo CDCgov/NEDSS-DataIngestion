@@ -1,7 +1,8 @@
 package gov.cdc.dataprocessing.constant.query;
 
 public class EntityLocatorQuery {
-    public static final String INSERT_SQL_PHYSICAL_LOCATOR = """
+  public static final String INSERT_SQL_PHYSICAL_LOCATOR =
+"""
 INSERT INTO Physical_locator (
     physical_locator_uid, add_reason_cd, add_time, add_user_id,
     image_txt, last_chg_reason_cd, last_chg_time, last_chg_user_id,
@@ -13,7 +14,8 @@ INSERT INTO Physical_locator (
 )
 """;
 
-    public static final String INSERT_SQL_POSTAL_LOCATOR = """
+  public static final String INSERT_SQL_POSTAL_LOCATOR =
+"""
 INSERT INTO Postal_locator (
     postal_locator_uid, add_reason_cd, add_time, add_user_id,
     census_block_cd, census_minor_civil_division_cd, census_track_cd,
@@ -33,7 +35,8 @@ INSERT INTO Postal_locator (
 )
 """;
 
-    public static final String INSERT_SQL_TELE_LOCATOR = """
+  public static final String INSERT_SQL_TELE_LOCATOR =
+"""
 INSERT INTO Tele_locator (
     tele_locator_uid, add_reason_cd, add_time, add_user_id,
     cntry_cd, email_address, extension_txt, last_chg_reason_cd,
@@ -47,7 +50,8 @@ INSERT INTO Tele_locator (
 )
 """;
 
-    public static final String INSERT_SQL_ENTITY_LOCATOR_PARTICIPATION = """
+  public static final String INSERT_SQL_ENTITY_LOCATOR_PARTICIPATION =
+"""
 INSERT INTO Entity_locator_participation (
     entity_uid, locator_uid, version_ctrl_nbr, add_reason_cd, add_time, add_user_id,
     cd, cd_desc_txt, class_cd, duration_amt, duration_unit_cd, from_time,
@@ -63,7 +67,8 @@ INSERT INTO Entity_locator_participation (
 )
 """;
 
-    public static final String SELECT_ENTITY_LOCATOR_PARTICIPATIONS_BY_ENTITY_UID = """
+  public static final String SELECT_ENTITY_LOCATOR_PARTICIPATIONS_BY_ENTITY_UID =
+      """
             SELECT
                 entity_uid AS entityUid,
                 locator_uid AS locatorUid,
@@ -94,7 +99,8 @@ INSERT INTO Entity_locator_participation (
             WHERE entity_uid = :entity_uid
             """;
 
-    public static final String UPDATE_ENTITY_LOCATOR_PARTICIPATION = """
+  public static final String UPDATE_ENTITY_LOCATOR_PARTICIPATION =
+"""
 UPDATE Entity_locator_participation
 SET
     add_reason_cd = :addReasonCd,
@@ -123,8 +129,8 @@ SET
 WHERE entity_uid = :entityUid AND locator_uid = :locatorUid
 """;
 
-
-    public static final String SELECT_ENTITY_LOCATOR_BY_ENTITY_UID = """
+  public static final String SELECT_ENTITY_LOCATOR_BY_ENTITY_UID =
+"""
 SELECT
     entity_uid              AS entityUid,
     locator_uid             AS locatorUid,
@@ -155,7 +161,8 @@ FROM Entity_locator_participation
 WHERE entity_uid = :entityUid
 """;
 
-    public static final String UPDATE_TELE_LOCATOR = """
+  public static final String UPDATE_TELE_LOCATOR =
+"""
 UPDATE Tele_locator SET
     add_reason_cd = :addReasonCd,
     add_time = :addTime,
@@ -174,7 +181,8 @@ UPDATE Tele_locator SET
 WHERE tele_locator_uid = :teleLocatorUid
 """;
 
-    public static final String SELECT_TELE_LOCATOR_BY_UIDS = """
+  public static final String SELECT_TELE_LOCATOR_BY_UIDS =
+"""
 SELECT
     tele_locator_uid       AS teleLocatorUid,
     add_reason_cd          AS addReasonCd,
@@ -195,7 +203,8 @@ FROM Tele_locator
 WHERE tele_locator_uid IN (:uids)
 """;
 
-    public static final String UPDATE_POSTAL_LOCATOR = """
+  public static final String UPDATE_POSTAL_LOCATOR =
+"""
 UPDATE Postal_locator SET
     add_reason_cd = :addReasonCd,
     add_time = :addTime,
@@ -227,7 +236,8 @@ UPDATE Postal_locator SET
 WHERE postal_locator_uid = :postalLocatorUid
 """;
 
-    public static final String SELECT_POSTAL_LOCATOR_BY_UIDS = """
+  public static final String SELECT_POSTAL_LOCATOR_BY_UIDS =
+"""
 SELECT
     postal_locator_uid             AS postalLocatorUid,
     add_reason_cd                  AS addReasonCd,
@@ -261,7 +271,8 @@ FROM Postal_locator
 WHERE postal_locator_uid IN (:uids)
 """;
 
-    public static final String SELECT_PHYSICAL_LOCATOR_BY_UIDS = """
+  public static final String SELECT_PHYSICAL_LOCATOR_BY_UIDS =
+"""
 SELECT
     physical_locator_uid       AS physicalLocatorUid,
     add_reason_cd              AS addReasonCd,
@@ -279,7 +290,8 @@ FROM Physical_locator
 WHERE physical_locator_uid IN (:uids)
 """;
 
-    public static final String UPDATE_PHYSICAL_LOCATOR = """
+  public static final String UPDATE_PHYSICAL_LOCATOR =
+"""
 UPDATE Physical_locator SET
     add_reason_cd = :addReasonCd,
     add_time = :addTime,
@@ -294,7 +306,4 @@ UPDATE Physical_locator SET
     user_affiliation_txt = :userAffiliationTxt
 WHERE physical_locator_uid = :physicalLocatorUid
 """;
-
-
-
 }

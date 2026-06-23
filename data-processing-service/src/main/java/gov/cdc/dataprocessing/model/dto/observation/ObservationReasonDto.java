@@ -7,36 +7,31 @@ import lombok.Setter;
 
 @Getter
 @Setter
+public class ObservationReasonDto extends BaseContainer {
 
-public class ObservationReasonDto extends BaseContainer
-{
+  private Long observationUid;
 
-    private Long observationUid;
+  private String reasonCd;
 
-    private String reasonCd;
+  private String reasonDescTxt;
 
-    private String reasonDescTxt;
+  private String progAreaCd = null;
 
-    private String progAreaCd = null;
+  private String jurisdictionCd = null;
 
-    private String jurisdictionCd = null;
+  private Long programJurisdictionOid = null;
 
-    private Long programJurisdictionOid = null;
+  private String sharedInd = null;
 
-    private String sharedInd = null;
+  public ObservationReasonDto() {
+    itDirty = false;
+    itNew = true;
+    itDelete = false;
+  }
 
-
-
-    public ObservationReasonDto() {
-        itDirty = false;
-        itNew = true;
-        itDelete = false;
-    }
-
-    public ObservationReasonDto(ObservationReason observationReason) {
-        this.observationUid = observationReason.getObservationUid();
-        this.reasonCd = observationReason.getReasonCd();
-        this.reasonDescTxt = observationReason.getReasonDescTxt();
-    }
-
+  public ObservationReasonDto(ObservationReason observationReason) {
+    this.observationUid = observationReason.getObservationUid();
+    this.reasonCd = observationReason.getReasonCd();
+    this.reasonDescTxt = observationReason.getReasonDescTxt();
+  }
 }

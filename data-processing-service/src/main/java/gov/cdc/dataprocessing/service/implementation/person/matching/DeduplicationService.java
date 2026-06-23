@@ -12,7 +12,8 @@ public class DeduplicationService {
   }
 
   public MatchResponse match(PersonMatchRequest request) {
-    return restClient.post()
+    return restClient
+        .post()
         .uri("/match")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
@@ -20,5 +21,4 @@ public class DeduplicationService {
         .retrieve()
         .body(MatchResponse.class);
   }
-
 }

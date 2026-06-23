@@ -1,19 +1,7 @@
 package gov.cdc.nbs.deduplication.algorithm.pass;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import gov.cdc.nbs.deduplication.algorithm.dataelements.DataElementsService;
 import gov.cdc.nbs.deduplication.algorithm.dataelements.model.DataElements;
 import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
@@ -21,6 +9,15 @@ import gov.cdc.nbs.deduplication.algorithm.pass.exception.AlgorithmException;
 import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm;
 import gov.cdc.nbs.deduplication.algorithm.pass.model.ui.Algorithm.Pass;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PassService {
@@ -32,7 +29,7 @@ public class PassService {
   @Value("${deduplication.algorithm.allowMultipleMatches:false}")
   private boolean allowMultipleMatches;
 
-  private final AlgorithmMapper algorithmMapper = new AlgorithmMapper("nbs",allowMultipleMatches);
+  private final AlgorithmMapper algorithmMapper = new AlgorithmMapper("nbs", allowMultipleMatches);
 
   public PassService(
       @Qualifier("deduplicationNamedTemplate") final NamedParameterJdbcTemplate template,
@@ -45,13 +42,15 @@ public class PassService {
     this.mapper = mapper;
   }
 
-  static final String SELECT_CURRENT_CONFIG = """
+  static final String SELECT_CURRENT_CONFIG =
+      """
       SELECT TOP 1 configuration
       FROM match_configuration
       ORDER BY add_time DESC
       """;
 
-  static final String INSERT_CONFIG = """
+  static final String INSERT_CONFIG =
+      """
       INSERT INTO match_configuration (configuration)
       VALUES (:configuration)
       """;
@@ -59,7 +58,8 @@ public class PassService {
   // retrieves the active algorithm from the deduplication database.
   // If none is present, return an empty Algorithm
   public Algorithm getCurrentAlgorithm() {
-    List<String> results = template.getJdbcTemplate().queryForList(SELECT_CURRENT_CONFIG, String.class);
+    List<String> results =
+        template.getJdbcTemplate().queryForList(SELECT_CURRENT_CONFIG, String.class);
     if (results.isEmpty()) {
       return new Algorithm(new ArrayList<>());
     } else {
@@ -77,11 +77,11 @@ public class PassService {
     Algorithm configuration = getCurrentAlgorithm();
 
     // get current max pass Id
-    long maxPassId = configuration.passes()
-        .stream()
-        .max(Comparator.comparing(Pass::id))
-        .map(Pass::id)
-        .orElse(0l);
+    long maxPassId =
+        configuration.passes().stream()
+            .max(Comparator.comparing(Pass::id))
+            .map(Pass::id)
+            .orElse(0l);
 
     // set id of new pass
     Pass withId = new Pass(maxPassId + 1, pass);
@@ -145,8 +145,8 @@ public class PassService {
 
     try {
       String stringValue = mapper.writeValueAsString(algorithm);
-      SqlParameterSource params = new MapSqlParameterSource()
-          .addValue("configuration", stringValue);
+      SqlParameterSource params =
+          new MapSqlParameterSource().addValue("configuration", stringValue);
       template.update(INSERT_CONFIG, params);
 
     } catch (JsonProcessingException e) {
@@ -164,5 +164,4 @@ public class PassService {
     DibbsAlgorithm dibbsAlgorithm = algorithmMapper.map(algorithm, dataElements);
     dibbsService.save(dibbsAlgorithm);
   }
-
 }

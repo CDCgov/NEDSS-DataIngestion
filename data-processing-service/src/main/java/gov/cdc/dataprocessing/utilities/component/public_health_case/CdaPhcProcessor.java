@@ -6,26 +6,22 @@ import gov.cdc.dataprocessing.model.dto.phc.PublicHealthCaseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @SuppressWarnings("java:S1118")
 public class CdaPhcProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(CdaPhcProcessor.class); //NOSONAR
+  private static final Logger logger = LoggerFactory.getLogger(CdaPhcProcessor.class); // NOSONAR
 
-    public static void setStandardNBSCaseAnswerVals(PublicHealthCaseDto phcDT,
-                                                    NbsCaseAnswerDto nbsCaseAnswerDT)   {
-            nbsCaseAnswerDT.setActUid(phcDT.getPublicHealthCaseUid());
-            nbsCaseAnswerDT.setAddTime(phcDT.getAddTime());
-            nbsCaseAnswerDT.setLastChgTime(phcDT.getLastChgTime());
-            nbsCaseAnswerDT.setAddUserId(phcDT.getAddUserId());
-            nbsCaseAnswerDT.setLastChgUserId(phcDT.getLastChgUserId());
-            nbsCaseAnswerDT.setRecordStatusCd(NEDSSConstant.OPEN_INVESTIGATION);
-            if (nbsCaseAnswerDT.getSeqNbr() != null && nbsCaseAnswerDT.getSeqNbr() < 0)
-            {
-                nbsCaseAnswerDT.setSeqNbr(0);
-            }
-            nbsCaseAnswerDT.setRecordStatusTime(phcDT.getRecordStatusTime());
-            nbsCaseAnswerDT.setItNew(true);
-
+  public static void setStandardNBSCaseAnswerVals(
+      PublicHealthCaseDto phcDT, NbsCaseAnswerDto nbsCaseAnswerDT) {
+    nbsCaseAnswerDT.setActUid(phcDT.getPublicHealthCaseUid());
+    nbsCaseAnswerDT.setAddTime(phcDT.getAddTime());
+    nbsCaseAnswerDT.setLastChgTime(phcDT.getLastChgTime());
+    nbsCaseAnswerDT.setAddUserId(phcDT.getAddUserId());
+    nbsCaseAnswerDT.setLastChgUserId(phcDT.getLastChgUserId());
+    nbsCaseAnswerDT.setRecordStatusCd(NEDSSConstant.OPEN_INVESTIGATION);
+    if (nbsCaseAnswerDT.getSeqNbr() != null && nbsCaseAnswerDT.getSeqNbr() < 0) {
+      nbsCaseAnswerDT.setSeqNbr(0);
     }
-
+    nbsCaseAnswerDT.setRecordStatusTime(phcDT.getRecordStatusTime());
+    nbsCaseAnswerDT.setItNew(true);
+  }
 }

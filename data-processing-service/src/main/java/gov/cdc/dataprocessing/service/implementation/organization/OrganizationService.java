@@ -8,59 +8,63 @@ import gov.cdc.dataprocessing.model.dto.log.EDXActivityDetailLogDto;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationMatchingService;
 import gov.cdc.dataprocessing.service.interfaces.organization.IOrganizationService;
 import gov.cdc.dataprocessing.service.interfaces.uid_generator.IUidService;
+import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-
 @Service
 @Slf4j
-
 public class OrganizationService implements IOrganizationService {
 
-    private final IOrganizationMatchingService iOrganizationMatchingService;
+  private final IOrganizationMatchingService iOrganizationMatchingService;
 
-    private final IUidService uidService;
+  private final IUidService uidService;
 
-    public OrganizationService(IOrganizationMatchingService iOrganizationMatchingService,
-                               IUidService uidService) {
-        this.iOrganizationMatchingService = iOrganizationMatchingService;
-        this.uidService = uidService;
-    }
-    @SuppressWarnings("java:S3776")
-    public OrganizationContainer processingOrganization(LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
+  public OrganizationService(
+      IOrganizationMatchingService iOrganizationMatchingService, IUidService uidService) {
+    this.iOrganizationMatchingService = iOrganizationMatchingService;
+    this.uidService = uidService;
+  }
 
-        OrganizationContainer orderingFacilityVO = null;
-        Collection<OrganizationContainer> orgColl = labResultProxyContainer.getTheOrganizationContainerCollection();
-        if (orgColl != null && !orgColl.isEmpty()) {
-            for (OrganizationContainer organizationContainer : orgColl) {
+  @SuppressWarnings("java:S3776")
+  public OrganizationContainer processingOrganization(
+      LabResultProxyContainer labResultProxyContainer) throws DataProcessingException {
 
-                long orgUid;
-                if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD) && labResultProxyContainer.getSendingFacilityUid() != null) {
-                    orgUid = labResultProxyContainer.getSendingFacilityUid();
-                }
-                else
-                {
-                    EDXActivityDetailLogDto eDXActivityDetailLogDto = iOrganizationMatchingService.getMatchingOrganization(organizationContainer);
-                    orgUid = Long.parseLong(eDXActivityDetailLogDto.getRecordId());
-                }
-                Long falseUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
-                //match found!!!!
-                if (orgUid > 0) {
-                    uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, orgUid);
-                    organizationContainer.setItNew(false);
-                    organizationContainer.setItDirty(false);
-                    organizationContainer.getTheOrganizationDto().setItNew(false);
-                    organizationContainer.getTheOrganizationDto().setItDirty(false);
-                }
-                if (organizationContainer.getRole() != null && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
-                    orderingFacilityVO = organizationContainer;
-                }
+    OrganizationContainer orderingFacilityVO = null;
+    Collection<OrganizationContainer> orgColl =
+        labResultProxyContainer.getTheOrganizationContainerCollection();
+    if (orgColl != null && !orgColl.isEmpty()) {
+      for (OrganizationContainer organizationContainer : orgColl) {
 
-                organizationContainer.getTheOrganizationDto().setOrganizationUid(orgUid);
-            }
+        long orgUid;
+        if (organizationContainer.getRole() != null
+            && organizationContainer
+                .getRole()
+                .equalsIgnoreCase(EdxELRConstant.ELR_SENDING_FACILITY_CD)
+            && labResultProxyContainer.getSendingFacilityUid() != null) {
+          orgUid = labResultProxyContainer.getSendingFacilityUid();
+        } else {
+          EDXActivityDetailLogDto eDXActivityDetailLogDto =
+              iOrganizationMatchingService.getMatchingOrganization(organizationContainer);
+          orgUid = Long.parseLong(eDXActivityDetailLogDto.getRecordId());
         }
-        return orderingFacilityVO;
-    }
+        Long falseUid = organizationContainer.getTheOrganizationDto().getOrganizationUid();
+        // match found!!!!
+        if (orgUid > 0) {
+          uidService.setFalseToNewPersonAndOrganization(labResultProxyContainer, falseUid, orgUid);
+          organizationContainer.setItNew(false);
+          organizationContainer.setItDirty(false);
+          organizationContainer.getTheOrganizationDto().setItNew(false);
+          organizationContainer.getTheOrganizationDto().setItDirty(false);
+        }
+        if (organizationContainer.getRole() != null
+            && organizationContainer.getRole().equalsIgnoreCase(EdxELRConstant.ELR_OP_CD)) {
+          orderingFacilityVO = organizationContainer;
+        }
 
+        organizationContainer.getTheOrganizationDto().setOrganizationUid(orgUid);
+      }
+    }
+    return orderingFacilityVO;
+  }
 }

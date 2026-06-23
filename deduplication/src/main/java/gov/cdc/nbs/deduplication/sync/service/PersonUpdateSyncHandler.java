@@ -3,7 +3,6 @@ package gov.cdc.nbs.deduplication.sync.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import gov.cdc.nbs.deduplication.constants.QueryConstants;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
@@ -19,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class PersonUpdateSyncHandler {
-
 
   private final ObjectMapper objectMapper;
   private final RestClient recordLinkageClient;
@@ -47,7 +45,6 @@ public class PersonUpdateSyncHandler {
     handleUpdateExistingPatient(mpiPerson);
   }
 
-
   private void handleUpdateExistingPatient(MpiPerson mpiPerson) throws JsonProcessingException {
     boolean patientExists = doesPatientExistInMpi(mpiPerson.external_id());
     boolean isPerson = isPersonRecord(mpiPerson);
@@ -57,7 +54,7 @@ public class PersonUpdateSyncHandler {
     } else {
       if (isPerson) {
         insertNewPerson(mpiPerson);
-      } else {//patient
+      } else { // patient
         boolean parentExists = doesPatientExistInMpi(mpiPerson.parent_id());
         if (parentExists) {
           insertNewPatient(mpiPerson);
@@ -69,11 +66,11 @@ public class PersonUpdateSyncHandler {
   }
 
   private boolean doesPatientExistInMpi(String personId) {
-    return Boolean.TRUE.equals(deduplicationTemplate.queryForObject(
-        QueryConstants.MPI_PATIENT_EXISTS_CHECK,
-        new MapSqlParameterSource("personId", personId),//NOSONAR
-        Boolean.class
-    ));
+    return Boolean.TRUE.equals(
+        deduplicationTemplate.queryForObject(
+            QueryConstants.MPI_PATIENT_EXISTS_CHECK,
+            new MapSqlParameterSource("personId", personId), // NOSONAR
+            Boolean.class));
   }
 
   private boolean isPersonRecord(MpiPerson mpiPerson) {
@@ -92,16 +89,17 @@ public class PersonUpdateSyncHandler {
     personInsertSyncHandler.insertParentAndPatient(patient);
   }
 
-
   private void updateExistingPatient(MpiPerson mpiPerson) throws JsonProcessingException {
     String personReferenceId = getPersonReferenceIdByParentId(mpiPerson.parent_id());
     String patientReferenceId = getPatientReferenceIdByPersonId(mpiPerson.external_id());
     PatientUpdateRequest request = new PatientUpdateRequest(personReferenceId, mpiPerson);
     String requestJson = objectMapper.writeValueAsString(request);
-    String uri = UriComponentsBuilder.fromUriString("/patient/{patient_reference_id}")
-        .buildAndExpand(patientReferenceId)
-        .toUriString();
-    recordLinkageClient.patch()
+    String uri =
+        UriComponentsBuilder.fromUriString("/patient/{patient_reference_id}")
+            .buildAndExpand(patientReferenceId)
+            .toUriString();
+    recordLinkageClient
+        .patch()
         .uri(uri)
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
@@ -110,18 +108,17 @@ public class PersonUpdateSyncHandler {
         .body(MpiResponse.class);
   }
 
-
-
   private String getPersonReferenceIdByParentId(String personId) {
-    return deduplicationTemplate.queryForObject(QueryConstants.MPI_PERSON_ID_QUERY,
+    return deduplicationTemplate.queryForObject(
+        QueryConstants.MPI_PERSON_ID_QUERY,
         new MapSqlParameterSource("personId", personId),
         String.class);
   }
 
   private String getPatientReferenceIdByPersonId(String personId) {
-    return deduplicationTemplate.queryForObject(QueryConstants.MPI_PATIENT_ID_QUERY,
+    return deduplicationTemplate.queryForObject(
+        QueryConstants.MPI_PATIENT_ID_QUERY,
         new MapSqlParameterSource("personId", personId),
         String.class);
   }
-
 }

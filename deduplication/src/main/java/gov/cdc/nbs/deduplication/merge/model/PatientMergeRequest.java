@@ -15,26 +15,15 @@ public record PatientMergeRequest(
     MortalityFieldSource mortality,
     GeneralInfoFieldSource generalInfo) {
 
-  public record NameId(
-      String personUid,
-      String sequence) {
-  }
+  public record NameId(String personUid, String sequence) {}
 
-  public record AddressId(String locatorId) {
-  }
+  public record AddressId(String locatorId) {}
 
-  public record PhoneEmailId(String locatorId) {
-  }
+  public record PhoneEmailId(String locatorId) {}
 
-  public record IdentificationId(
-      String personUid,
-      String sequence) {
-  }
+  public record IdentificationId(String personUid, String sequence) {}
 
-  public record RaceId(
-      String personUid,
-      String raceCode) {
-  }
+  public record RaceId(String personUid, String raceCode) {}
 
   public record SexAndBirthFieldSource(
       String asOf,
@@ -46,8 +35,7 @@ public record PatientMergeRequest(
       String multipleBirth, // birth order depends on multiple birth
       String birthCity,
       String birthState, // birth county depends on birth state
-      String birthCountry) {
-  }
+      String birthCountry) {}
 
   public record MortalityFieldSource(
       String asOf,
@@ -55,8 +43,7 @@ public record PatientMergeRequest(
       String dateOfDeath,
       String deathCity,
       String deathState, // death county depends on death state
-      String deathCountry) {
-  }
+      String deathCountry) {}
 
   public record GeneralInfoFieldSource(
       String asOf,
@@ -68,7 +55,5 @@ public record PatientMergeRequest(
       String educationLevel,
       String primaryLanguage,
       String speaksEnglish,
-      String stateHivCaseId) {
-  }
-
+      String stateHivCaseId) {}
 }

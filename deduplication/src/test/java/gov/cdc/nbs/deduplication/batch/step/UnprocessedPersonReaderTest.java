@@ -7,9 +7,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
 import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -19,15 +17,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class UnprocessedPersonReaderTest {
 
-  @Mock
-  private DataSource dataSource;
+  @Mock private DataSource dataSource;
 
-  @Mock
-  private Connection connection;
+  @Mock private Connection connection;
 
-  @Mock
-  private DatabaseMetaData metadata;
-
+  @Mock private DatabaseMetaData metadata;
 
   @Test
   void initializesReader() throws Exception {
@@ -48,7 +42,7 @@ class UnprocessedPersonReaderTest {
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
     when(connection.createStatement()).thenReturn(stmt);
     when(stmt.executeQuery(
-        "SELECT TOP 1 person_uid FROM nbs_mpi_mapping WHERE status = 'U' AND person_uid=person_parent_uid ORDER BY person_uid ASC"))
+            "SELECT TOP 1 person_uid FROM nbs_mpi_mapping WHERE status = 'U' AND person_uid=person_parent_uid ORDER BY person_uid ASC"))
         .thenReturn(resultSet);
 
     final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 1, 2);
@@ -75,7 +69,7 @@ class UnprocessedPersonReaderTest {
     when(metadata.getDatabaseProductName()).thenReturn("sql server");
     when(connection.createStatement()).thenReturn(stmt);
     when(stmt.executeQuery(
-        "SELECT TOP 1 person_uid FROM nbs_mpi_mapping WHERE status = 'U' AND person_uid=person_parent_uid ORDER BY person_uid ASC"))
+            "SELECT TOP 1 person_uid FROM nbs_mpi_mapping WHERE status = 'U' AND person_uid=person_parent_uid ORDER BY person_uid ASC"))
         .thenReturn(resultSet);
 
     final UnprocessedPersonReader reader = new UnprocessedPersonReader(dataSource, 1, 2);

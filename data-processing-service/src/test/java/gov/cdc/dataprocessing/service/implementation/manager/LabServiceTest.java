@@ -1,5 +1,7 @@
-
 package gov.cdc.dataprocessing.service.implementation.manager;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import gov.cdc.dataprocessing.constant.elr.EdxELRConstant;
 import gov.cdc.dataprocessing.constant.elr.NEDSSConstant;
@@ -21,115 +23,113 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 class LabServiceTest {
 
-    @Mock
-    private IPageService pageService;
-    @Mock
-    private IPamService pamService;
-    @Mock
-    private ILabReportProcessing labReportProcessing;
-    @Mock
-    private IInvestigationNotificationService investigationNotificationService;
+  @Mock private IPageService pageService;
+  @Mock private IPamService pamService;
+  @Mock private ILabReportProcessing labReportProcessing;
+  @Mock private IInvestigationNotificationService investigationNotificationService;
 
-    @InjectMocks
-    private LabService labService;
+  @InjectMocks private LabService labService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void testHandlePageContainer() throws DataProcessingException {
-        PageActProxyContainer pageAct = new PageActProxyContainer();
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        edxDto.setRootObserbationUid(123L);
-        when(pageService.setPageProxyWithAutoAssoc(NEDSSConstant.CASE, pageAct, 123L, NEDSSConstant.LABRESULT_CODE, null)).thenReturn(1L);
-        Long result = labService.handlePageContainer(pageAct, edxDto);
-        assertEquals(1L, result);
-    }
+  @Test
+  void testHandlePageContainer() throws DataProcessingException {
+    PageActProxyContainer pageAct = new PageActProxyContainer();
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    edxDto.setRootObserbationUid(123L);
+    when(pageService.setPageProxyWithAutoAssoc(
+            NEDSSConstant.CASE, pageAct, 123L, NEDSSConstant.LABRESULT_CODE, null))
+        .thenReturn(1L);
+    Long result = labService.handlePageContainer(pageAct, edxDto);
+    assertEquals(1L, result);
+  }
 
-    @Test
-    void testHandlePamContainer() throws DataProcessingException {
-        PamProxyContainer pamProxy = new PamProxyContainer();
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        edxDto.setRootObserbationUid(321L);
-        when(pamService.setPamProxyWithAutoAssoc(pamProxy, 321L, NEDSSConstant.LABRESULT_CODE)).thenReturn(2L);
-        Long result = labService.handlePamContainer(pamProxy, edxDto);
-        assertEquals(2L, result);
-    }
+  @Test
+  void testHandlePamContainer() throws DataProcessingException {
+    PamProxyContainer pamProxy = new PamProxyContainer();
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    edxDto.setRootObserbationUid(321L);
+    when(pamService.setPamProxyWithAutoAssoc(pamProxy, 321L, NEDSSConstant.LABRESULT_CODE))
+        .thenReturn(2L);
+    Long result = labService.handlePamContainer(pamProxy, edxDto);
+    assertEquals(2L, result);
+  }
 
-    @Test
-    void testHandleMarkAsReviewedWithAssociatedPhcUid() throws DataProcessingException {
-        ObservationDto obsDto = new ObservationDto();
-        obsDto.setObservationUid(101L);
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        edxDto.setAssociatedPublicHealthCaseUid(202L);
-        labService.handleMarkAsReviewed(obsDto, edxDto);
-        assertEquals(202L, edxDto.getPublicHealthCaseUid());
-        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_21, edxDto.getErrorText());
-        assertTrue(edxDto.isLabAssociatedToInv());
-    }
+  @Test
+  void testHandleMarkAsReviewedWithAssociatedPhcUid() throws DataProcessingException {
+    ObservationDto obsDto = new ObservationDto();
+    obsDto.setObservationUid(101L);
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    edxDto.setAssociatedPublicHealthCaseUid(202L);
+    labService.handleMarkAsReviewed(obsDto, edxDto);
+    assertEquals(202L, edxDto.getPublicHealthCaseUid());
+    assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_21, edxDto.getErrorText());
+    assertTrue(edxDto.isLabAssociatedToInv());
+  }
 
-    @Test
-    void testHandleMarkAsReviewedWithoutAssociatedPhcUid() throws DataProcessingException {
-        ObservationDto obsDto = new ObservationDto();
-        obsDto.setObservationUid(103L);
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        labService.handleMarkAsReviewed(obsDto, edxDto);
-        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_11, edxDto.getErrorText());
-    }
+  @Test
+  void testHandleMarkAsReviewedWithoutAssociatedPhcUid() throws DataProcessingException {
+    ObservationDto obsDto = new ObservationDto();
+    obsDto.setObservationUid(103L);
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    labService.handleMarkAsReviewed(obsDto, edxDto);
+    assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_11, edxDto.getErrorText());
+  }
 
-    @Test
-    void testHandleNndNotificationSuccess() throws DataProcessingException {
-        PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        edxDto.setNndComment("test");
-        edxDto.setEdxActivityLogDto(new EDXActivityLogDto());
-        EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
-        logDto.setLogType("Success");
-        logDto.setComment("ok");
+  @Test
+  void testHandleNndNotificationSuccess() throws DataProcessingException {
+    PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    edxDto.setNndComment("test");
+    edxDto.setEdxActivityLogDto(new EDXActivityLogDto());
+    EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
+    logDto.setLogType("Success");
+    logDto.setComment("ok");
 
-        when(investigationNotificationService.sendNotification(phc, "test")).thenReturn(logDto);
+    when(investigationNotificationService.sendNotification(phc, "test")).thenReturn(logDto);
 
-        labService.handleNndNotification(phc, edxDto);
-        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_6, edxDto.getErrorText());
-    }
+    labService.handleNndNotification(phc, edxDto);
+    assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_6, edxDto.getErrorText());
+  }
 
-    @Test
-    void testHandleNndNotificationFailureWithMissingFields() throws DataProcessingException {
-        PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        edxDto.setNndComment("fail");
-        edxDto.setEdxActivityLogDto(new EDXActivityLogDto());
-        EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
-        logDto.setLogType("Failure");
-        logDto.setComment("Missing noti required fields");
+  @Test
+  void testHandleNndNotificationFailureWithMissingFields() throws DataProcessingException {
+    PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    edxDto.setNndComment("fail");
+    edxDto.setEdxActivityLogDto(new EDXActivityLogDto());
+    EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
+    logDto.setLogType("Failure");
+    logDto.setComment("Missing noti required fields");
 
-        when(investigationNotificationService.sendNotification(phc, "fail")).thenReturn(logDto);
+    when(investigationNotificationService.sendNotification(phc, "fail")).thenReturn(logDto);
 
-        DataProcessingException ex = assertThrows(DataProcessingException.class, () -> labService.handleNndNotification(phc, edxDto));
-        assertTrue(ex.getMessage().contains("MISSING NOTI REQUIRED"));
-        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_10, edxDto.getErrorText());
-    }
+    DataProcessingException ex =
+        assertThrows(
+            DataProcessingException.class, () -> labService.handleNndNotification(phc, edxDto));
+    assertTrue(ex.getMessage().contains("MISSING NOTI REQUIRED"));
+    assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_10, edxDto.getErrorText());
+  }
 
-    @Test
-    void testHandleNndNotificationFailureGeneral() throws DataProcessingException {
-        PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
-        EdxLabInformationDto edxDto = new EdxLabInformationDto();
-        edxDto.setNndComment("error");
-        edxDto.setEdxActivityLogDto(new EDXActivityLogDto());
-        EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
-        logDto.setLogType("Failure");
-        logDto.setComment("Something else");
+  @Test
+  void testHandleNndNotificationFailureGeneral() throws DataProcessingException {
+    PublicHealthCaseContainer phc = new PublicHealthCaseContainer();
+    EdxLabInformationDto edxDto = new EdxLabInformationDto();
+    edxDto.setNndComment("error");
+    edxDto.setEdxActivityLogDto(new EDXActivityLogDto());
+    EDXActivityDetailLogDto logDto = new EDXActivityDetailLogDto();
+    logDto.setLogType("Failure");
+    logDto.setComment("Something else");
 
-        when(investigationNotificationService.sendNotification(phc, "error")).thenReturn(logDto);
+    when(investigationNotificationService.sendNotification(phc, "error")).thenReturn(logDto);
 
-        assertThrows(DataProcessingException.class, () -> labService.handleNndNotification(phc, edxDto));
-        assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_10, edxDto.getErrorText());
-    }
+    assertThrows(
+        DataProcessingException.class, () -> labService.handleNndNotification(phc, edxDto));
+    assertEquals(EdxELRConstant.ELR_MASTER_LOG_ID_10, edxDto.getErrorText());
+  }
 }

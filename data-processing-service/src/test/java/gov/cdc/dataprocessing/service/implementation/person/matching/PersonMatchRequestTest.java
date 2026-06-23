@@ -1,5 +1,7 @@
 package gov.cdc.dataprocessing.service.implementation.person.matching;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.model.dto.entity.EntityIdDto;
 import gov.cdc.dataprocessing.model.dto.entity.EntityLocatorParticipationDto;
@@ -8,13 +10,10 @@ import gov.cdc.dataprocessing.model.dto.locator.TeleLocatorDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonNameDto;
 import gov.cdc.dataprocessing.model.dto.person.PersonRaceDto;
-import org.junit.jupiter.api.Test;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class PersonMatchRequestTest {
 
@@ -166,7 +165,6 @@ class PersonMatchRequestTest {
 
     TeleLocatorDto dto2 = List.copyOf(request.teleLocators()).get(1);
     assertThat(dto2.getPhoneNbrTxt()).isEqualTo("phone2");
-
   }
 
   @Test

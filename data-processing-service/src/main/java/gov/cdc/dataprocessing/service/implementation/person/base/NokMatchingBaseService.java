@@ -8,15 +8,19 @@ import gov.cdc.dataprocessing.utilities.component.patient.PatientRepositoryUtil;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class NokMatchingBaseService extends PatientMatchingBaseService {
 
-    public NokMatchingBaseService(EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
-                                  EntityHelper entityHelper, PatientRepositoryUtil patientRepositoryUtil,
-                                  CachingValueDpDpService cachingValueDpService,
-                                  PrepareAssocModelHelper prepareAssocModelHelper) {
-        super(edxPatientMatchRepositoryUtil, entityHelper, patientRepositoryUtil, cachingValueDpService, prepareAssocModelHelper);
-    }
-
-
+  public NokMatchingBaseService(
+      EdxPatientMatchRepositoryUtil edxPatientMatchRepositoryUtil,
+      EntityHelper entityHelper,
+      PatientRepositoryUtil patientRepositoryUtil,
+      CachingValueDpDpService cachingValueDpService,
+      PrepareAssocModelHelper prepareAssocModelHelper) {
+    super(
+        edxPatientMatchRepositoryUtil,
+        entityHelper,
+        patientRepositoryUtil,
+        cachingValueDpService,
+        prepareAssocModelHelper);
+  }
 }

@@ -6,8 +6,11 @@ import gov.cdc.dataingestion.nbs.repository.model.dao.EcrSelectedRecord;
 import gov.cdc.nedss.phdc.cda.POCDMT000040Section;
 
 public interface ICdaPlaceMappingHelper {
-    CdaPlaceMapper mapToPlaceTop(EcrSelectedRecord input,
-                                 int performerComponentCounter, int componentCounter,
-                                 int performerSectionCounter,
-                                 POCDMT000040Section section) throws EcrCdaXmlException;
+  CdaPlaceMapper mapToPlaceTop(
+      EcrSelectedRecord input,
+      int performerComponentCounter,
+      int componentCounter,
+      int performerSectionCounter,
+      POCDMT000040Section section)
+      throws EcrCdaXmlException;
 }

@@ -1,10 +1,13 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
+import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
+import gov.cdc.nbs.deduplication.batch.step.exception.MergeGroupInsertException;
+import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,11 +15,6 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-
-import gov.cdc.nbs.deduplication.batch.model.MatchCandidate;
-import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-import gov.cdc.nbs.deduplication.batch.step.exception.MergeGroupInsertException;
-import gov.cdc.nbs.deduplication.merge.model.PatientNameAndTime;
 
 @Component
 public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
@@ -33,7 +31,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
     this.patientRecordService = patientRecordService;
   }
 
-  static final String FIND_MATCH_GROUP_CONTAINING_TARGET = """
+  static final String FIND_MATCH_GROUP_CONTAINING_TARGET =
+      """
       SELECT
         TOP 1 merge_group
       FROM
@@ -43,7 +42,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
         AND is_merge IS NULL
       """;
 
-  static final String DOES_GROUP_INCLUDES_PERSON_UID = """
+  static final String DOES_GROUP_INCLUDES_PERSON_UID =
+      """
       SELECT CASE WHEN EXISTS (
             SELECT 1
             FROM merge_group_entries
@@ -52,14 +52,16 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
         ) THEN 1 ELSE 0 END
       """;
 
-  static final String INSERT_MATCH_GROUP = """
+  static final String INSERT_MATCH_GROUP =
+      """
       INSERT INTO
         merge_group (add_time)
       VALUES
         (getDate());
       """;
 
-  static final String INSERT_MATCH_GROUP_ENTRY = """
+  static final String INSERT_MATCH_GROUP_ENTRY =
+      """
       INSERT INTO merge_group_entries (
         merge_group,
         person_uid
@@ -70,7 +72,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
       );
       """;
 
-  static final String INSERT_MATCH_REQUIRING_REVIEW = """
+  static final String INSERT_MATCH_REQUIRING_REVIEW =
+      """
       INSERT INTO
         matches_requiring_review (
         person_uid,
@@ -92,14 +95,16 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
         );
       """;
 
-  static final String SELECT_PERSON_UID_BY_MPI_ID = """
+  static final String SELECT_PERSON_UID_BY_MPI_ID =
+      """
           SELECT TOP 1 person_uid
           FROM nbs_mpi_mapping
           WHERE mpi_person IN (:mpiId)
           AND person_uid = person_parent_uid
       """;
 
-  static final String UPDATE_STATUS_TO_P = """
+  static final String UPDATE_STATUS_TO_P =
+      """
       UPDATE nbs_mpi_mapping
       SET status = 'P'
       WHERE person_uid IN (:personIds)
@@ -107,10 +112,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   @Override
   public void write(Chunk<? extends MatchCandidate> chunk) {
-    List<String> processedPersonIds = chunk.getItems()
-        .stream()
-        .map(this::processMatchCandidate)
-        .toList();
+    List<String> processedPersonIds =
+        chunk.getItems().stream().map(this::processMatchCandidate).toList();
 
     updateStatus(processedPersonIds);
   }
@@ -118,7 +121,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   private String processMatchCandidate(MatchCandidate candidate) {
     if (candidate.possibleMatchList() != null && !candidate.possibleMatchList().isEmpty()) {
       // Find the first non-self match
-      String firstValidMatch = candidate.possibleMatchList().stream()
+      String firstValidMatch =
+          candidate.possibleMatchList().stream()
               .filter(match -> !match.equals(candidate.personUid()))
               .findFirst()
               .orElse(null);
@@ -144,10 +148,12 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   private long ensureMergeGroup(String incomingPersonUid, String matchedPersonUid) {
     // Check if a group already exists with the matched person
-    Optional<Long> existingGroup = jdbcClient.sql(FIND_MATCH_GROUP_CONTAINING_TARGET)
-        .param(PERSON_UID, matchedPersonUid)
-        .query(Long.class)
-        .optional();
+    Optional<Long> existingGroup =
+        jdbcClient
+            .sql(FIND_MATCH_GROUP_CONTAINING_TARGET)
+            .param(PERSON_UID, matchedPersonUid)
+            .query(Long.class)
+            .optional();
 
     if (existingGroup.isPresent()) {
       // If so, ensure the incoming personUid is included in that group
@@ -161,13 +167,11 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
       ensurePersonInGroup(groupId, matchedPersonUid);
       return groupId;
     }
-
   }
 
   long createMergeGroup() {
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbcClient.sql(INSERT_MATCH_GROUP)
-        .update(keyHolder);
+    jdbcClient.sql(INSERT_MATCH_GROUP).update(keyHolder);
 
     Number groupId = keyHolder.getKey();
     if (groupId == null) {
@@ -177,14 +181,17 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   }
 
   private void ensurePersonInGroup(long mergeGroup, String personUid) {
-    boolean incomingAlreadyExists = jdbcClient.sql(DOES_GROUP_INCLUDES_PERSON_UID)
-        .param(PERSON_UID, personUid)
-        .param(MERGE_GROUP, mergeGroup)
-        .query(Boolean.class)
-        .single();
+    boolean incomingAlreadyExists =
+        jdbcClient
+            .sql(DOES_GROUP_INCLUDES_PERSON_UID)
+            .param(PERSON_UID, personUid)
+            .param(MERGE_GROUP, mergeGroup)
+            .query(Boolean.class)
+            .single();
 
     if (!incomingAlreadyExists) {
-      jdbcClient.sql(INSERT_MATCH_GROUP_ENTRY)
+      jdbcClient
+          .sql(INSERT_MATCH_GROUP_ENTRY)
           .param(MERGE_GROUP, mergeGroup)
           .param(PERSON_UID, personUid)
           .update();
@@ -193,10 +200,12 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   private void insertMatch(String incomingPersonId, String matchedPersonId, long mergeGroup) {
     // Get the incoming records name, add time, and local Id
-    PatientNameAndTime patientData = patientRecordService.fetchPersonNameAndAddTime(incomingPersonId);
+    PatientNameAndTime patientData =
+        patientRecordService.fetchPersonNameAndAddTime(incomingPersonId);
 
     // Insert into matches_requiring_review table
-    jdbcClient.sql(INSERT_MATCH_REQUIRING_REVIEW)
+    jdbcClient
+        .sql(INSERT_MATCH_REQUIRING_REVIEW)
         .param(PERSON_UID, incomingPersonId)
         .param("personLocalId", patientData.personLocalId())
         .param("personName", patientData.name())
@@ -208,7 +217,8 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
   }
 
   private String getPersonIdByMpiIds(String mpiId) {
-    return jdbcClient.sql(SELECT_PERSON_UID_BY_MPI_ID)
+    return jdbcClient
+        .sql(SELECT_PERSON_UID_BY_MPI_ID)
         .param("mpiId", mpiId)
         .query(String.class)
         .single();
@@ -216,14 +226,11 @@ public class MatchCandidateWriter implements ItemWriter<MatchCandidate> {
 
   private void updateStatus(List<String> personIds) {
     if (!personIds.isEmpty()) {
-      jdbcClient.sql(UPDATE_STATUS_TO_P)
-          .param("personIds", personIds)
-          .update();
+      jdbcClient.sql(UPDATE_STATUS_TO_P).param("personIds", personIds).update();
     }
   }
 
   private String getCurrentDate() {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
   }
-
 }

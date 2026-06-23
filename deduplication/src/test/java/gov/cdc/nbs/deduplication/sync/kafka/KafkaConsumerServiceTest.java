@@ -1,10 +1,15 @@
 package gov.cdc.nbs.deduplication.sync.kafka;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import gov.cdc.nbs.deduplication.sync.service.PersonDeleteSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonInsertSyncHandler;
 import gov.cdc.nbs.deduplication.sync.service.PersonUpdateSyncHandler;
@@ -12,23 +17,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class KafkaConsumerServiceTest {
 
-  @Mock
-  private PersonInsertSyncHandler insertHandler;
+  @Mock private PersonInsertSyncHandler insertHandler;
 
-  @Mock
-  private PersonUpdateSyncHandler updateHandler;
+  @Mock private PersonUpdateSyncHandler updateHandler;
 
-  @Mock
-  private PersonDeleteSyncHandler deleteHandler;
+  @Mock private PersonDeleteSyncHandler deleteHandler;
 
   private KafkaConsumerService kafkaConsumerService;
   private ObjectMapper objectMapper;
@@ -50,7 +46,8 @@ class KafkaConsumerServiceTest {
   @Test
   void testConsumePersonMessage_CreateOperation() throws Exception {
     // c for adding a new row and PAT for patient
-    String message = """
+    String message =
+        """
         {
           "payload": {
             "op": "c",
@@ -73,7 +70,8 @@ class KafkaConsumerServiceTest {
   @Test
   void testConsumePersonMessage_UpdateOperation() throws Exception {
     // u for updating a row and PAT for patient
-    String message = """
+    String message =
+        """
         {
           "payload": {
             "op": "u",
@@ -96,7 +94,8 @@ class KafkaConsumerServiceTest {
   @Test
   void testConsumePersonMessage_UpdateInactiveOperation() throws Exception {
     // u for updating a row and PAT for patient
-    String message = """
+    String message =
+        """
         {
           "payload": {
             "op": "u",
@@ -119,7 +118,8 @@ class KafkaConsumerServiceTest {
   @Test
   void testConsumePersonMessage_otherOperation() throws Exception {
     // d for delete row and PAT for patient
-    String message = """
+    String message =
+        """
         {
           "payload": {
             "op": "d",
@@ -139,7 +139,8 @@ class KafkaConsumerServiceTest {
   @Test
   void testConsumePersonMessage_create_nonPatient() throws Exception {
     // c for create and PRV for provider
-    String message = """
+    String message =
+        """
         {
           "payload": {
             "op": "c",
@@ -159,7 +160,8 @@ class KafkaConsumerServiceTest {
   @Test
   void testConsumePersonMessage_ExceptionHandling() throws Exception {
     // c for adding a new row
-    String message = """
+    String message =
+        """
         {
           "payload": {
             "op": "c",
@@ -171,14 +173,18 @@ class KafkaConsumerServiceTest {
         """;
     JsonNode payloadNode = objectMapper.readTree(message).path("payload");
     doThrow(new RuntimeException("Test exception")).when(insertHandler).handleInsert(payloadNode);
-    assertThrows(SyncProcessException.class, () -> kafkaConsumerService.consumePersonMessage(message));
+    assertThrows(
+        SyncProcessException.class, () -> kafkaConsumerService.consumePersonMessage(message));
 
     // Verify that error logging is called when an exception occurs
-    boolean logFound = listAppender.list
-        .stream()
-        .anyMatch(loggingEvent -> loggingEvent.getMessage().contains("Error while processing message from topic:"));
+    boolean logFound =
+        listAppender.list.stream()
+            .anyMatch(
+                loggingEvent ->
+                    loggingEvent
+                        .getMessage()
+                        .contains("Error while processing message from topic:"));
 
     assertTrue(logFound);
   }
-
 }

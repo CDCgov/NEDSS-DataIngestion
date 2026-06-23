@@ -7,16 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Dln {
-    String licenseNumber;
-    String issuedStateCountry;
-    String expirationDate;
-    public Dln(DLN dln) {
-        licenseNumber = dln.getLicenseNumber().getValue();
-        issuedStateCountry = dln.getIssuingStateProvinceCountry().getValue();
-        expirationDate = dln.getExpirationDate().getValue();
-    }
+  String licenseNumber;
+  String issuedStateCountry;
+  String expirationDate;
 
-    public Dln() {
+  public Dln(DLN dln) {
+    licenseNumber = dln.getLicenseNumber().getValue();
+    issuedStateCountry = dln.getIssuingStateProvinceCountry().getValue();
+    expirationDate = dln.getExpirationDate().getValue();
+  }
 
-    }
+  public Dln() {}
 }

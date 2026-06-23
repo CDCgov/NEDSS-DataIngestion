@@ -6,18 +6,20 @@ import gov.cdc.dataprocessing.service.interfaces.stored_proc.IMsgOutEStoredProcS
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class MsgOutEStoredProcService implements IMsgOutEStoredProcService {
 
-    private final StoredProcRepository storedProcRepository;
+  private final StoredProcRepository storedProcRepository;
 
-    public MsgOutEStoredProcService(StoredProcRepository storedProcRepository) {
-        this.storedProcRepository = storedProcRepository;
-    }
+  public MsgOutEStoredProcService(StoredProcRepository storedProcRepository) {
+    this.storedProcRepository = storedProcRepository;
+  }
 
-    public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) {
-        storedProcRepository.updateSpecimenCollDateSP(edxLabInformationDto.getNbsInterfaceUid(),
-                edxLabInformationDto.getRootObservationContainer().getTheObservationDto().getEffectiveFromTime()
-        );
-    }
+  public void callUpdateSpecimenCollDateSP(EdxLabInformationDto edxLabInformationDto) {
+    storedProcRepository.updateSpecimenCollDateSP(
+        edxLabInformationDto.getNbsInterfaceUid(),
+        edxLabInformationDto
+            .getRootObservationContainer()
+            .getTheObservationDto()
+            .getEffectiveFromTime());
+  }
 }

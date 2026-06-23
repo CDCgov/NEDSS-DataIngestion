@@ -9,45 +9,43 @@ import lombok.Setter;
 @Getter
 @Setter
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class Psn {
-    String firstName;
-    String prefix;
-    String lastName;
-    String suffix;
-    String degree;
-    String address1;
-    String address2;
-    String city;
-    String county;
-    String country;
-    String state;
-    String zip;
-    String telephone;
-    String extn;
-    String email;
-    POCDMT000040Participant2 out;
+  String firstName;
+  String prefix;
+  String lastName;
+  String suffix;
+  String degree;
+  String address1;
+  String address2;
+  String city;
+  String county;
+  String country;
+  String state;
+  String zip;
+  String telephone;
+  String extn;
+  String email;
+  POCDMT000040Participant2 out;
 
-    String localId;
-    String authFirstName;
-    String authLastName;
-    String authSuffix;
-    String authDegree;
-    String authAddress1;
-    String authAddress2;
-    String authCity;
-    String authCounty;
-    String authState;
-    String authZip;
-    String authCountry;
-    String authTelephone;
-    String authExtn;
-    String authEmail;
-    String authPrefix;
-    String authLocalId;
+  String localId;
+  String authFirstName;
+  String authLastName;
+  String authSuffix;
+  String authDegree;
+  String authAddress1;
+  String authAddress2;
+  String authCity;
+  String authCounty;
+  String authState;
+  String authZip;
+  String authCountry;
+  String authTelephone;
+  String authExtn;
+  String authEmail;
+  String authPrefix;
+  String authLocalId;
 }

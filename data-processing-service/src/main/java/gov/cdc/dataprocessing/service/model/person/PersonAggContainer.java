@@ -6,8 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class PersonAggContainer {
-    PersonContainer personContainer;
-    PersonContainer providerContainer;
+  PersonContainer personContainer;
+  PersonContainer providerContainer;
 }

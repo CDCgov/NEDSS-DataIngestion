@@ -18,22 +18,12 @@ public record PersonMergeData(
     List<Identification> identifications,
     List<Race> races) {
 
-  public record AdminComments(
-      String date,
-      String comment) {
-  }
+  public record AdminComments(String date, String comment) {}
 
   public record Ethnicity(
-      String asOf,
-      String ethnicity,
-      String reasonUnknown,
-      String spanishOrigin) {
+      String asOf, String ethnicity, String reasonUnknown, String spanishOrigin) {
     public Ethnicity() {
-      this(
-          null,
-          null,
-          null,
-          null);
+      this(null, null, null, null);
     }
   }
 
@@ -52,20 +42,7 @@ public record PersonMergeData(
       String birthCounty,
       String birthCountry) {
     public SexAndBirth() {
-      this(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null);
+      this(null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
   }
 
@@ -78,14 +55,7 @@ public record PersonMergeData(
       String deathCounty,
       String deathCountry) {
     public Mortality() {
-      this(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null);
+      this(null, null, null, null, null, null, null);
     }
   }
 
@@ -102,17 +72,7 @@ public record PersonMergeData(
       String stateHivCaseId) {
 
     public GeneralPatientInformation() {
-      this(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null);
+      this(null, null, null, null, null, null, null, null, null, null);
     }
 
     public static GeneralPatientInformation restrictStateHivCaseId(
@@ -131,11 +91,7 @@ public record PersonMergeData(
     }
   }
 
-  public record Investigation(
-      String id,
-      String startDate,
-      String condition) {
-  }
+  public record Investigation(String id, String startDate, String condition) {}
 
   public record Address(
       String id,
@@ -150,8 +106,7 @@ public record PersonMergeData(
       String county,
       String censusTract,
       String country,
-      String comments) {
-  }
+      String comments) {}
 
   public record PhoneEmail(
       String id,
@@ -163,8 +118,7 @@ public record PersonMergeData(
       String extension,
       String email,
       String url,
-      String comments) {
-  }
+      String comments) {}
 
   public record Name(
       String personUid,
@@ -178,8 +132,7 @@ public record PersonMergeData(
       String last,
       String secondLast,
       String suffix,
-      String degree) {
-  }
+      String degree) {}
 
   public record Identification(
       String personUid,
@@ -187,14 +140,8 @@ public record PersonMergeData(
       String asOf,
       String type,
       String assigningAuthority,
-      String value) {
-  }
+      String value) {}
 
   public record Race(
-      String personUid,
-      String raceCode,
-      String asOf,
-      String race,
-      String detailedRaces) {
-  }
+      String personUid, String raceCode, String asOf, String race, String detailedRaces) {}
 }

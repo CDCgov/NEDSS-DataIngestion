@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService.UserInformation;
 import java.util.Optional;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,17 +22,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import gov.cdc.nbs.deduplication.config.auth.user.NbsUserDetailsService.UserInformation;
-
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
 class NbsUserDetailsServiceTest {
 
-  @Mock
-  private JdbcClient client;
+  @Mock private JdbcClient client;
 
-  @InjectMocks
-  private NbsUserDetailsService userDetailsService;
+  @InjectMocks private NbsUserDetailsService userDetailsService;
 
   @Test
   void should_authenticate() {
@@ -44,22 +40,15 @@ class NbsUserDetailsServiceTest {
     when(statementSpec.param("userName", "user")).thenReturn(statementSpec);
     when(statementSpec.query(UserInformation.class)).thenReturn(querySpec);
     when(querySpec.optional())
-        .thenReturn(
-            Optional.of(
-                new UserInformation(
-                    13,
-                    "John",
-                    "Bobby",
-                    "user",
-                    true)));
+        .thenReturn(Optional.of(new UserInformation(13, "John", "Bobby", "user", true)));
 
     // Mock db authorities query
     StatementSpec authorityStatementSpec = Mockito.mock(StatementSpec.class);
     MappedQuerySpec<GrantedAuthority> authorityQuerySpec = Mockito.mock(MappedQuerySpec.class);
-    when(client.sql(NbsUserDetailsService.SELECT_GRANTED_AUTHORITIES)).thenReturn(authorityStatementSpec);
+    when(client.sql(NbsUserDetailsService.SELECT_GRANTED_AUTHORITIES))
+        .thenReturn(authorityStatementSpec);
     when(authorityStatementSpec.param("identifier", 13L)).thenReturn(authorityStatementSpec);
-    when(authorityStatementSpec.query(Mockito.any(RowMapper.class)))
-        .thenReturn(authorityQuerySpec);
+    when(authorityStatementSpec.query(Mockito.any(RowMapper.class))).thenReturn(authorityQuerySpec);
     when(authorityQuerySpec.set()).thenReturn(Set.of(new SimpleGrantedAuthority("FIND-PATIENT")));
 
     // Act
@@ -92,9 +81,10 @@ class NbsUserDetailsServiceTest {
     when(statementSpec.query(UserInformation.class)).thenReturn(querySpec);
     when(querySpec.optional()).thenReturn(Optional.empty());
 
-    UsernameNotFoundException ex = assertThrows(UsernameNotFoundException.class,
-        () -> userDetailsService.authenticateByUsername("user"));
+    UsernameNotFoundException ex =
+        assertThrows(
+            UsernameNotFoundException.class,
+            () -> userDetailsService.authenticateByUsername("user"));
     assertThat(ex.getMessage()).isEqualTo("Username not found");
   }
-
 }

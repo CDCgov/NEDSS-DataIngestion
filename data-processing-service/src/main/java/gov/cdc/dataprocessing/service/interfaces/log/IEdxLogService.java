@@ -9,12 +9,15 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.log.EdxActivityDetailLog
 
 public interface IEdxLogService {
 
-    EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto) throws EdxLogException;
+  EdxActivityDetailLog saveEdxActivityDetailLog(EDXActivityDetailLogDto detailLogDto)
+      throws EdxLogException;
 
-    void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) throws EdxLogException;
+  void saveEdxActivityLogs(EDXActivityLogDto edxActivityLogDto) throws EdxLogException;
 
-    void updateActivityLogDT(NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto);
+  void updateActivityLogDT(
+      NbsInterfaceModel nbsInterfaceModel, EdxLabInformationDto edxLabInformationDto);
 
-    void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
-    void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
+  void addActivityDetailLogs(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
+
+  void addActivityDetailLogsForWDS(EdxLabInformationDto edxLabInformationDto, String detailedMsg);
 }

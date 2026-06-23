@@ -8,8 +8,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
+import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
 import java.util.ArrayList;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -19,44 +23,34 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import gov.cdc.nbs.deduplication.algorithm.model.DibbsAlgorithm;
-import gov.cdc.nbs.deduplication.algorithm.pass.exception.PassModificationException;
-
 class DibbsServiceTest {
 
   private RestClient client = Mockito.mock(RestClient.class);
 
   private NamedParameterJdbcTemplate template = Mockito.mock(NamedParameterJdbcTemplate.class);
 
-  private ObjectMapper mapper = new ObjectMapper()
-      .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+  private ObjectMapper mapper =
+      new ObjectMapper().enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
 
   private DibbsService service = new DibbsService(client, template, true, mapper);
 
-  private final DibbsAlgorithm algorithm = new DibbsAlgorithm(
-      "testLabel",
-      "testDescription",
-      false,
-      null,
-      new ArrayList<>());
+  private final DibbsAlgorithm algorithm =
+      new DibbsAlgorithm("testLabel", "testDescription", false, null, new ArrayList<>());
 
   @Test
   void should_save_new_algorithm() throws JsonProcessingException {
     // mock
     when(template.queryForObject(
-        eq(DibbsService.QUERY_LABEL_COUNT),
-        Mockito.any(MapSqlParameterSource.class),
-        eq(Integer.class)))
+            eq(DibbsService.QUERY_LABEL_COUNT),
+            Mockito.any(MapSqlParameterSource.class),
+            eq(Integer.class)))
         .thenReturn(0);
 
     String expectedBody = mapper.writeValueAsString(algorithm);
     mockCreateCall(expectedBody, false);
 
-    ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
+    ArgumentCaptor<MapSqlParameterSource> captor =
+        ArgumentCaptor.forClass(MapSqlParameterSource.class);
     when(template.update(eq(DibbsService.SET_DEFAULT), captor.capture())).thenReturn(1);
 
     // act
@@ -73,16 +67,17 @@ class DibbsServiceTest {
   void should_throw_exception_save_fails() throws JsonProcessingException {
     // mock
     when(template.queryForObject(
-        eq(DibbsService.QUERY_LABEL_COUNT),
-        Mockito.any(MapSqlParameterSource.class),
-        eq(Integer.class)))
+            eq(DibbsService.QUERY_LABEL_COUNT),
+            Mockito.any(MapSqlParameterSource.class),
+            eq(Integer.class)))
         .thenReturn(null);
 
     String expectedBody = mapper.writeValueAsString(algorithm);
     mockCreateCall(expectedBody, true);
 
     // act
-    PassModificationException ex = assertThrows(PassModificationException.class, () -> service.save(algorithm));
+    PassModificationException ex =
+        assertThrows(PassModificationException.class, () -> service.save(algorithm));
 
     // verify api was called
     assertThat(ex.getMessage()).isEqualTo("Failed to save Dibbs algorithm");
@@ -92,15 +87,16 @@ class DibbsServiceTest {
   void should_update_algorithm() throws JsonProcessingException {
     // mock
     when(template.queryForObject(
-        eq(DibbsService.QUERY_LABEL_COUNT),
-        Mockito.any(MapSqlParameterSource.class),
-        eq(Integer.class)))
+            eq(DibbsService.QUERY_LABEL_COUNT),
+            Mockito.any(MapSqlParameterSource.class),
+            eq(Integer.class)))
         .thenReturn(1);
 
     String expectedBody = mapper.writeValueAsString(algorithm);
     mockUpdateCall(algorithm.label(), expectedBody, false);
 
-    ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
+    ArgumentCaptor<MapSqlParameterSource> captor =
+        ArgumentCaptor.forClass(MapSqlParameterSource.class);
     when(template.update(eq(DibbsService.SET_DEFAULT), captor.capture())).thenReturn(1);
 
     // act
@@ -118,16 +114,17 @@ class DibbsServiceTest {
   void should_throw_exception_update_fails() throws JsonProcessingException {
     // mock
     when(template.queryForObject(
-        eq(DibbsService.QUERY_LABEL_COUNT),
-        Mockito.any(MapSqlParameterSource.class),
-        eq(Integer.class)))
+            eq(DibbsService.QUERY_LABEL_COUNT),
+            Mockito.any(MapSqlParameterSource.class),
+            eq(Integer.class)))
         .thenReturn(1);
 
     String expectedBody = mapper.writeValueAsString(algorithm);
     mockUpdateCall(algorithm.label(), expectedBody, true);
 
     // act
-    PassModificationException ex = assertThrows(PassModificationException.class, () -> service.save(algorithm));
+    PassModificationException ex =
+        assertThrows(PassModificationException.class, () -> service.save(algorithm));
 
     // verify api was called
     assertThat(ex.getMessage()).isEqualTo("Failed to update Dibbs algorithm");

@@ -1,9 +1,7 @@
 package gov.cdc.nbs.deduplication.batch.step;
 
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.sql.DataSource;
-
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
@@ -20,7 +18,8 @@ public class UnprocessedPersonReader extends JdbcPagingItemReader<String> {
   public UnprocessedPersonReader(
       @Qualifier("deduplication") DataSource dataSource,
       @Value("${deduplication.batch.processing.chunk:100}") int chunkSize,
-      @Value("${deduplication.batch.processing.total:10000}") int totalToProcess) throws Exception {
+      @Value("${deduplication.batch.processing.total:10000}") int totalToProcess)
+      throws Exception {
 
     this.pageLimit = totalToProcess / chunkSize;
 

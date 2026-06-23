@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,11 +20,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @ExtendWith(MockitoExtension.class)
 class PermissionResolverTest {
 
-  @Mock
-  private JdbcClient jdbcClient;
+  @Mock private JdbcClient jdbcClient;
 
-  @InjectMocks
-  private PermissionResolver resolver;
+  @InjectMocks private PermissionResolver resolver;
 
   @Test
   void should_resolve_permissions() {

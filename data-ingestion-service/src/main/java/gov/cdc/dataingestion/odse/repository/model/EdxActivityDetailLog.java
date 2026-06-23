@@ -13,35 +13,27 @@ import lombok.Setter;
 @Entity
 @Table(name = "EDX_activity_detail_log")
 /**
- 1118 - require constructor complaint
- 125 - comment complaint
- 6126 - String block complaint
- 1135 - todos complaint
- * */
-@SuppressWarnings({"java:S1118","java:S125", "java:S6126", "java:S1135"})
+ * 1118 - require constructor complaint 125 - comment complaint 6126 - String block complaint 1135 -
+ * todos complaint
+ */
+@SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class EdxActivityDetailLog {
-    @Id
-    @Column(name = "edx_activity_detail_log_uid", nullable = false)
-    private Long id;
+  @Id
+  @Column(name = "edx_activity_detail_log_uid", nullable = false)
+  private Long id;
 
-    @Size(max = 256)
-    @Column(name = "record_id", length = 256)
-    private String recordId;
+  @Size(max = 256) @Column(name = "record_id", length = 256)
+  private String recordId;
 
-    @Size(max = 50)
-    @Column(name = "record_type", length = 50)
-    private String recordType;
+  @Size(max = 50) @Column(name = "record_type", length = 50)
+  private String recordType;
 
-    @Size(max = 250)
-    @Column(name = "record_nm", length = 250)
-    private String recordNm;
+  @Size(max = 250) @Column(name = "record_nm", length = 250)
+  private String recordNm;
 
-    @Size(max = 50)
-    @Column(name = "log_type", length = 50)
-    private String logType;
+  @Size(max = 50) @Column(name = "log_type", length = 50)
+  private String logType;
 
-    @Size(max = 2000)
-    @Column(name = "log_comment", length = 2000)
-    private String logComment;
-
+  @Size(max = 2000) @Column(name = "log_comment", length = 2000)
+  private String logComment;
 }

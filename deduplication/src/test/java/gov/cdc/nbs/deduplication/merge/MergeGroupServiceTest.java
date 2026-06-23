@@ -5,9 +5,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import gov.cdc.nbs.deduplication.SecurityTestUtil;
+import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
+import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,22 +20,15 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.JdbcClient.MappedQuerySpec;
 import org.springframework.jdbc.core.simple.JdbcClient.StatementSpec;
 
-import gov.cdc.nbs.deduplication.SecurityTestUtil;
-import gov.cdc.nbs.deduplication.batch.model.PersonMergeData;
-import gov.cdc.nbs.deduplication.batch.service.PatientRecordService;
-
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class MergeGroupServiceTest {
 
-  @Mock
-  private JdbcClient jdbcClient;
+  @Mock private JdbcClient jdbcClient;
 
-  @Mock
-  private PatientRecordService patientRecordService;
+  @Mock private PatientRecordService patientRecordService;
 
-  @InjectMocks
-  private MergeGroupService mergeGroupService;
+  @InjectMocks private MergeGroupService mergeGroupService;
 
   @Test
   void testNoMerge() {
@@ -93,5 +88,4 @@ class MergeGroupServiceTest {
     verify(patientRecordService, times(1)).fetchPersonsMergeData(personIds);
     assertThat(response).isEqualTo(pmd);
   }
-
 }

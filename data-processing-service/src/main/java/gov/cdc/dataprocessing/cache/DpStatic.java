@@ -3,18 +3,19 @@ package gov.cdc.dataprocessing.cache;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DpStatic {
-    private DpStatic() {}
-    private static final AtomicBoolean uuidPoolInitialized = new AtomicBoolean(false);
+  private DpStatic() {}
 
-    public static boolean isUuidPoolInitialized() {
-        return uuidPoolInitialized.get();
-    }
+  private static final AtomicBoolean uuidPoolInitialized = new AtomicBoolean(false);
 
-    public static void setUuidPoolInitialized(boolean value) {
-        uuidPoolInitialized.set(value);
-    }
+  public static boolean isUuidPoolInitialized() {
+    return uuidPoolInitialized.get();
+  }
 
-    public static boolean compareAndSetUuidPoolInitialized(boolean expected, boolean newValue) {
-        return uuidPoolInitialized.compareAndSet(expected, newValue);
-    }
+  public static void setUuidPoolInitialized(boolean value) {
+    uuidPoolInitialized.set(value);
+  }
+
+  public static boolean compareAndSetUuidPoolInitialized(boolean expected, boolean newValue) {
+    return uuidPoolInitialized.compareAndSet(expected, newValue);
+  }
 }

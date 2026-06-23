@@ -8,12 +8,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class MergeExceptionHandler {
 
-  @ExceptionHandler({
-      MergeListException.class })
+  @ExceptionHandler({MergeListException.class})
   public ResponseEntity<ExceptionMessage> handleBadRequestExceptions(Exception e) {
     return new ResponseEntity<>(new ExceptionMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
-  record ExceptionMessage(String message) {
-  }
+  record ExceptionMessage(String message) {}
 }

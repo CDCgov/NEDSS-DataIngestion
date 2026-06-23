@@ -1,5 +1,8 @@
 package gov.cdc.dataprocessing.service.implementation.person.matching;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import gov.cdc.dataprocessing.model.container.model.PersonContainer;
 import gov.cdc.dataprocessing.service.implementation.person.matching.MatchResponse.MatchType;
 import org.junit.jupiter.api.Test;
@@ -14,26 +17,18 @@ import org.springframework.web.client.RestClient.RequestBodySpec;
 import org.springframework.web.client.RestClient.RequestBodyUriSpec;
 import org.springframework.web.client.RestClient.ResponseSpec;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class DeduplicationServiceTest {
 
-  @Mock
-  private RestClient restClient;
+  @Mock private RestClient restClient;
 
-  @Mock
-  private RequestBodyUriSpec uriSpec;
+  @Mock private RequestBodyUriSpec uriSpec;
 
-  @Mock
-  private RequestBodySpec bodySpec;
+  @Mock private RequestBodySpec bodySpec;
 
-  @Mock
-  private ResponseSpec response;
+  @Mock private ResponseSpec response;
 
-  @InjectMocks
-  private DeduplicationService service;
+  @InjectMocks private DeduplicationService service;
 
   @Test
   void shouldCallMatch() {
@@ -48,7 +43,5 @@ class DeduplicationServiceTest {
     MatchResponse matchResponse = service.match(new PersonMatchRequest(new PersonContainer()));
     assertThat(matchResponse.match()).isEqualTo(1L);
     assertThat(matchResponse.matchType()).isEqualTo(MatchType.EXACT);
-
   }
-
 }

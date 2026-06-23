@@ -2,7 +2,6 @@ package gov.cdc.nbs.deduplication.config.auth.user;
 
 import java.util.Optional;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,7 +20,8 @@ public class NbsUserDetailsService implements UserDetailsService {
     this.client = client;
   }
 
-  static final String SELECT_USER_INFORMATION = """
+  static final String SELECT_USER_INFORMATION =
+      """
       SELECT
         nedss_entry_id AS 'identifier',
         user_first_nm AS 'first',
@@ -37,7 +37,8 @@ public class NbsUserDetailsService implements UserDetailsService {
         USER_ID = :userName;
       """;
 
-  static final String SELECT_GRANTED_AUTHORITIES = """
+  static final String SELECT_GRANTED_AUTHORITIES =
+      """
       SELECT
         grantedAuthority
       FROM
@@ -81,10 +82,7 @@ public class NbsUserDetailsService implements UserDetailsService {
 
   public PreAuthenticatedAuthenticationToken authenticateByUsername(final String username) {
     NbsUserDetails userDetails = loadUserByUsername(username);
-    return new PreAuthenticatedAuthenticationToken(
-        userDetails,
-        null,
-        userDetails.getAuthorities());
+    return new PreAuthenticatedAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
 
   @Override
@@ -94,7 +92,8 @@ public class NbsUserDetailsService implements UserDetailsService {
   }
 
   private Optional<NbsUserDetails> findNbsUser(final String userName) {
-    return client.sql(SELECT_USER_INFORMATION)
+    return client
+        .sql(SELECT_USER_INFORMATION)
         .param("userName", userName)
         .query(UserInformation.class)
         .optional()
@@ -102,7 +101,8 @@ public class NbsUserDetailsService implements UserDetailsService {
   }
 
   private Set<GrantedAuthority> findGrantedAuthorities(final long identifier) {
-    return client.sql(SELECT_GRANTED_AUTHORITIES)
+    return client
+        .sql(SELECT_GRANTED_AUTHORITIES)
         .param("identifier", identifier)
         .query((rs, rowNum) -> (GrantedAuthority) new SimpleGrantedAuthority(rs.getString(1)))
         .set();
@@ -121,10 +121,5 @@ public class NbsUserDetailsService implements UserDetailsService {
   }
 
   record UserInformation(
-      long identifier,
-      String first,
-      String last,
-      String username,
-      boolean enabled) {
-  }
+      long identifier, String first, String last, String username, boolean enabled) {}
 }
