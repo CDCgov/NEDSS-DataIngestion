@@ -1,3 +1,4 @@
+#noop to trigger sonar
 name: Build and push data-ingestion-service images to ECR
 on:
   workflow_dispatch:
