@@ -114,13 +114,11 @@ IF NOT EXISTS(
     END
 GO
 
--- IF NOT EXISTS (
---   SELECT 1 
---     FROM sys.columns 
---     WHERE object_id = OBJECT_ID('NBS_MSGOUTE.dbo.NBS_interface') 
---       AND name = 'original_payload_RR'
--- )
--- ALTER TABLE NBS_MSGOUTE.dbo.NBS_interface
---   ADD original_payload_RR TEXT,
---   original_doc_type_cd_RR varchar(100);
--- GO
+IF COL_LENGTH('NBS_MSGOUTE.dbo.NBS_interface', 'original_payload_RR') IS NULL
+ALTER TABLE NBS_MSGOUTE.dbo.NBS_interface
+  ADD original_payload_RR TEXT;
+GO
+
+ALTER TABLE NBS_MSGOUTE.dbo.NBS_interface
+  ALTER COLUMN original_doc_type_cd_RR varchar(100)
+GO
