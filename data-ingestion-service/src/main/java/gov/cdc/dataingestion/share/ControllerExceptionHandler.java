@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion.share;
 
+import gov.cdc.dataingestion.reportstatus.exception.ElrNotFoundException;
 import gov.cdc.dataingestion.share.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  */
 @SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
+
+  @ExceptionHandler({ElrNotFoundException.class})
+  public ResponseEntity<ExceptionResponse> handleStatusException(ElrNotFoundException ex) {
+    return new ResponseEntity<>(new ExceptionResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+  }
+
   @ExceptionHandler({Exception.class, ResponseStatusException.class})
   public ResponseEntity<ErrorResponse> handleException(Exception ex) {
     ErrorResponse errorResponse = new ErrorResponse();
@@ -31,4 +38,6 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
+
+  private record ExceptionResponse(String message) {}
 }

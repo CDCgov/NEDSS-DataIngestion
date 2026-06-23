@@ -12,7 +12,10 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
+import gov.cdc.dataingestion.reportstatus.exception.ElrNotFoundException;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus.Detail;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
@@ -222,28 +225,46 @@ public class ReportStatusService {
     }
   }
 
-  public List<String> getStatusForReport(String id) {
-    List<String> statusList = new ArrayList<>();
+  public ElrStatus getStatusForReport(UUID uuid) {
+    // Get all IDs that are associated with the provided UUID. This is typcially a
+    // single ID but if splitting (obrSplitting or hl7BatchSplitting) is enabled it
+    // could be multiple
+    List<ReportStatusIdData> idList = iReportStatusRepository.findByRawMessageId(uuid.toString());
 
-    List<ReportStatusIdData> elrStatusIdList = iReportStatusRepository.findByRawMessageId(id);
-    if (elrStatusIdList.isEmpty()) {
-      String status =
-          "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
-      statusList.add(status);
+    if (idList.isEmpty()) {
+      throw new ElrNotFoundException();
     }
-    for (ReportStatusIdData reportStatusIdData : elrStatusIdList) {
-      Optional<NbsInterfaceModel> nbsInterfaceModel =
-          nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.getNbsInterfaceUid());
-      if (nbsInterfaceModel.isPresent()) {
-        statusList.add(
-            "NBS Inerface Id:"
-                + reportStatusIdData.getNbsInterfaceUid()
-                + " Status:"
-                + nbsInterfaceModel.get().getRecordStatusCd());
-      } else {
-        statusList.add("Couldn't find status for the requested UUID.");
-      }
-    }
-    return statusList;
+
+    // For each ID, fetch the row from the NBS_Interface table and convert to a Detail object
+    List<Detail> details = idList.stream().map(this::toDetail).toList();
+
+    // To determine the overall status, pick the status from the details based on
+    // the following priority list
+    List<String> statusPriorty =
+        List.of(
+            "RTI_SUCCESS",
+            "RTI_QUEUED",
+            "QUEUED",
+            "RTI_PENDING",
+            "RTI_FAILURE_STEP_1",
+            "RTI_FAILURE_STEP_2",
+            "RTI_FAILURE_STEP_3");
+    String derivedStatus =
+        details.stream()
+            .map(Detail::status)
+            .max(Comparator.comparingInt(statusPriorty::indexOf))
+            .orElseGet(() -> "Failed to determine status. Please see details");
+
+    return new ElrStatus(uuid, derivedStatus, details);
+  }
+
+  private Detail toDetail(ReportStatusIdData id) {
+    String status =
+        nbsInterfaceRepository
+            .findByNbsInterfaceUid(id.getNbsInterfaceUid())
+            .map(NbsInterfaceModel::getRecordStatusCd)
+            .orElse("Couldn't find status for the requested UUID.");
+
+    return new Detail(id.getNbsInterfaceUid(), status);
   }
 }
