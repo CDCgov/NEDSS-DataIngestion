@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public record ElrStatus(UUID id, String status, List<Detail> details) {
 
-  public record Detail(long messageId, String status) {}
+  public record Detail(Integer messageId, String status) {}
 }

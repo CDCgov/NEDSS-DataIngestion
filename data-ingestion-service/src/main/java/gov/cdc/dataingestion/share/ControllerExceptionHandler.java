@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler({ElrNotFoundException.class})
-  public ResponseEntity<ExceptionResponse> handleStatusException(ElrNotFoundException ex) {
+  public ResponseEntity<ExceptionResponse> handleElrNotFoundException(ElrNotFoundException ex) {
     return new ResponseEntity<>(new ExceptionResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
   }
 
@@ -39,5 +39,5 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  private record ExceptionResponse(String message) {}
+  record ExceptionResponse(String message) {}
 }

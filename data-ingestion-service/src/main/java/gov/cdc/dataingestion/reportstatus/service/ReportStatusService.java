@@ -239,7 +239,7 @@ public class ReportStatusService {
     List<Detail> details = idList.stream().map(this::toDetail).toList();
 
     // To determine the overall status, pick the status from the details based on
-    // the following priority list
+    // the following priority list (higher index, higher priority)
     List<String> statusPriorty =
         List.of(
             "RTI_SUCCESS",
@@ -249,11 +249,12 @@ public class ReportStatusService {
             "RTI_FAILURE_STEP_1",
             "RTI_FAILURE_STEP_2",
             "RTI_FAILURE_STEP_3");
+
     String derivedStatus =
         details.stream()
             .map(Detail::status)
             .max(Comparator.comparingInt(statusPriorty::indexOf))
-            .orElseGet(() -> "Failed to determine status. Please see details");
+            .orElse("Couldn't find status for the requested UUID.");
 
     return new ElrStatus(uuid, derivedStatus, details);
   }
@@ -263,7 +264,7 @@ public class ReportStatusService {
         nbsInterfaceRepository
             .findByNbsInterfaceUid(id.getNbsInterfaceUid())
             .map(NbsInterfaceModel::getRecordStatusCd)
-            .orElse("Couldn't find status for the requested UUID.");
+            .orElse("Failed to find an entry in the nbs_interface table");
 
     return new Detail(id.getNbsInterfaceUid(), status);
   }
