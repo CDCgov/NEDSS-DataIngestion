@@ -73,45 +73,6 @@ jobs:
           github_repo_name="$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)"
           echo "github_repo_name=$github_repo_name" >> "$GITHUB_ENV"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Cache Docker layers
-        uses: actions/cache@v5
-        with:
-          path: /tmp/.buildx-cache
-          # Use branch name for key, falling back to a shared key for initial layers
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-${{ github.ref }}
-            ${{ runner.os }}-buildx-main-
-            ${{ runner.os }}-buildx-
-
-      - name: Build test dataingestion mssql image
-        uses: docker/build-push-action@v7
-        with:
-          context: ./containers/db
-          tags: local/di-mssql:latest
-          build-args: |
-            DATABASE_PASSWORD=fake.fake.fake.1234
-          load: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Move Buildx cache
-        if: success()
-        run: |
-          # Move the cache created by the build step to the location actions/cache expects
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      - name: Save Docker layers cache
-        uses: actions/cache/save@v5
-        with:
-          path: /tmp/.buildx-cache
-          # The key must match the primary key used in the restore step
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
-
       - name: Build and analyze
         working-directory: ./
         env:
@@ -121,8 +82,7 @@ jobs:
           DATABASE_PASSWORD: ${{ env.test_database_password }}
         run: |
           ./gradlew build test sonarqube \
-            "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g" \
-            -Dtesting.database.mssql.image=local/di-mssql:latest
+            "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g"
 
       - name: Publish Testing Reports
         if: always()

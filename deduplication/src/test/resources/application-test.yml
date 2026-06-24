@@ -1,14 +1,21 @@
-testing.database:
-  mssql:
-    image: dataingestion-di-mssql
-    username: ${DATABASE_USER:sa}
-    password: ${DATABASE_PASSWORD:fake.fake.fake.1234}
-
 spring:
   batch:
     jdbc:
       initialize-schema: always
   autoconfigure.exclude: org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+  datasource:
+    deduplication:
+      url: jdbc:sqlserver://localhost:2433;databaseName=deduplication;encrypt=true;trustServerCertificate=true;loginTimeout=3;
+      username: sa
+      password: fake.fake.fake.1234
+    nbs:
+      url: jdbc:sqlserver://localhost:2433;databaseName=NBS_ODSE;encrypt=true;trustServerCertificate=true;loginTimeout=3;
+      username: sa
+      password: fake.fake.fake.1234
+    mpi:
+      url: jdbc:sqlserver://localhost:2433;databaseName=mpi;encrypt=true;trustServerCertificate=true;loginTimeout=3;
+      username: sa
+      password: fake.fake.fake.1234
 
 nbs:
   security:
@@ -27,5 +34,6 @@ nbs:
         - /login
 
 deduplication:
+  recordLinker.url: http://localhost:8070/api/record-linker
   seed:
     deduplicationInsertSize: 10 # how many records to insert into deduplication db at a time

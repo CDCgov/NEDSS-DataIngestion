@@ -12,6 +12,5 @@ import org.springframework.test.context.ContextConfiguration;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@ContextConfiguration(
-    initializers = {MsSqlContainerInitializer.class, RecordLinkageInitializer.class})
+@ContextConfiguration(initializers = {ComposeContainerInitializer.class})
 public @interface UseTestContainers {}
