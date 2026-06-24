@@ -12,10 +12,12 @@ services:
         condition: service_started
       nbs-mssql:
         condition: service_healthy
-    env_file:
-      - dataingestion.env
     environment:
+      DI_AUTH_URI: http://di-keycloak:8080/realms/NBS
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+      NBS_DBSERVER: nbs-mssql:1433
+      NBS_DBUSER: ${NBS_DBUSER:-sa}
+      NBS_DBPASSWORD: ${NBS_DBPASSWORD:-fake.fake.fake.1234}
     networks:
       - dataingestion
   data-processing-service:
@@ -31,10 +33,12 @@ services:
         condition: service_started
       nbs-mssql:
         condition: service_healthy
-    env_file:
-      - dataingestion.env
     environment:
+      DI_AUTH_URI: http://di-keycloak:8080/realms/NBS
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+      NBS_DBSERVER: nbs-mssql:1433
+      NBS_DBUSER: ${NBS_DBUSER:-sa}
+      NBS_DBPASSWORD: ${NBS_DBPASSWORD:-fake.fake.fake.1234}
     networks:
       - dataingestion
 
@@ -119,8 +123,8 @@ services:
     volumes:
       - ./containers/keycloak/imports:/opt/keycloak/data/import
     environment:
-      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD:-fake.fake.fake.1234}
       - KC_HOSTNAME=http://localhost:8100
       - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
     entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
