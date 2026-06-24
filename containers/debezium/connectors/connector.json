@@ -2,7 +2,7 @@
   "name": "nbs-cdc-test",
   "config": {
     "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
-    "database.hostname": "di-mssql",
+    "database.hostname": "nbs-mssql",
     "database.port": "1433",
     "database.user": "sa",
     "database.password": "fake.fake.fake.1234",

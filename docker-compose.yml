@@ -10,7 +10,7 @@ services:
         condition: service_started
       di-keycloak:
         condition: service_started
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     container_name: data-ingestion-service
     env_file:
@@ -30,7 +30,7 @@ services:
         condition: service_started
       di-keycloak:
         condition: service_started
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     container_name: data-processing-service
     env_file:
@@ -105,24 +105,18 @@ services:
     networks:
       - dataingestion
 
-  di-mssql:
-    build:
-      context: ./containers/db
-#      dockerfile: Dockerfile_windows
-      args:
-        - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
-    container_name: di-mssql
+  nbs-mssql:
+    image: ghcr.io/cdcent/nedssdb:latest
     platform: linux/amd64
+    environment:
+      - DATABASE_VERSION=6.0.18.1
+      - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
+    volumes:
+      - ./containers/db/initialize:/docker-entrypoint-initdb.d/
     ports:
       - 2433:1433
     networks:
       - dataingestion
-    healthcheck:
-      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
   di-keycloak:
     container_name: di-keycloak
@@ -131,22 +125,23 @@ services:
       - "8100:8080"
     volumes:
       - ./containers/keycloak/imports:/opt/keycloak/data/import
-    env_file:
-      - dataingestion.env
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
+      - KC_HOSTNAME=http://localhost:8100
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
     entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
     networks:
       - dataingestion
 
-  di-wildfly:
-    build: ./containers/nbs-classic
-    image: nbs-classic:6.0.16
-    container_name: di-wildfly
+  wildfly:
+    image: ghcr.io/cdcent/nedssdev:6.0.18.1
     depends_on:
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     ports:
       - "9991:9990"
-      - "7002:7001"
+      - "7003:7001"
       - "8788:8787"
     networks:
       - dataingestion
@@ -155,7 +150,7 @@ services:
     image: ghcr.io/cdcgov/recordlinker:v25.10.0
     container_name: di-record-linker
     depends_on:
-      di-mssql:
+      nbs-mssql:
         condition: service_healthy
     ports:
       - "8070:8070"

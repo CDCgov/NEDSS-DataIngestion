@@ -2,7 +2,7 @@
 
 ## Starting debezium
 
-The docker container is pre-configured to connect to the di-mssql database and kafka broker.
+The docker container is pre-configured to connect to the nbs-mssql database and kafka broker.
 
 ```bash
 docker compose up debezium -d

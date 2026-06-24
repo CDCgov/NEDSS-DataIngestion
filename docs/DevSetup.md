@@ -3,13 +3,9 @@ Following this guide will set up a fully functioning local development environme
 
 ### Building
 1. Provide the necessary [configurations](#configuration)
-1. **Optional**: Build and deploy NBS 6 Wildfly docker container (requires ability to git clone [NEDSSDev](https://github.com/cdcent/))
+2. Start Keycloak, Kafka, SRTE data cache, and database container
       ```bash
-      ./containers/build_classic.sh
-      ```
-1. Start Keycloak, Kafka, and database container
-      ```bash
-      docker compose up di-keycloak broker zookeeper di-mssql -d
+      docker compose up di-keycloak broker zookeeper nbs-mssql -d
       ```
 1. Start data-ingestion-service with gradle. Allows remote debugging using port `19040`
       ```bash
@@ -19,11 +15,15 @@ Following this guide will set up a fully functioning local development environme
       ```bash
       ./gradlew data-processing-service:bootRun
       ```
-1. **Optional**: Start [Record Linkage service](https://github.com/CDCgov/RecordLinker)
+5. Optional: Start NBS 6 Wildfly docker container
+      ```bash
+      docker compose up wildfly -d
+      ```
+6. Optional: Start [Record Linkage service](https://github.com/CDCgov/RecordLinker)
       ```bash
       docker compose up di-record-linker -d
       ```
-1. **Optional**: Start deduplication service with gradle. Allows remote debugging using port `19042` (Note: Sync and Record Linker communcation are feature flagged off by default)
+7. Optional: Start deduplication service with gradle. Allows remote debugging using port `19042` (Note: Sync and Record Linker communcation are feature flagged off by default)
       ```bash
       ./gradlew deduplication:bootRun
       ```
@@ -45,13 +45,13 @@ The docker compose file supports pulling information from a `.dataingestion.env`
 DI_AUTH_URI=http://di-keycloak:8080/realms/NBS
 RTI_CACHE_AUTH_URI=http://di-keycloak:8080/realms/NBS
 
-NBS_DBSERVER=di-mssql:1433
+NBS_DBSERVER=nbs-mssql:1433
 NBS_DBUSER=sa
 NBS_DBPASSWORD=fake.fake.fake.1234
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
 KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
 
-DB_URI=mssql+pyodbc://sa:fake.fake.fake.1234@di-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
+DB_URI=mssql+pyodbc://sa:fake.fake.fake.1234@nbs-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
 ```
 
 #### data-ingestion-service/src/main/resources/application-local.yaml
