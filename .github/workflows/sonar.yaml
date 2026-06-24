@@ -14,12 +14,6 @@ on:
       SONAR_TOKEN:
         description: "Secret named SONAR_TOKEN that references the sonar token secret corresponding to the project in sonarcloud."
         required: true
-      DATABASE_USER:
-        description: "Test database username"
-        required: true
-      DATABASE_PASSWORD:
-        description: "Test database password"
-        required: true
   pull_request:
     paths:
       - "data-ingestion-service/**"
@@ -32,8 +26,6 @@ env:
   deployment_env: dev
   accountid: ${{secrets.cdc_nbs_sandbox_shared_services_accountid}}
   sonar_token: ${{secrets.SONAR_TOKEN}}
-  test_database_user: ${{secrets.DATABASE_USER}}
-  test_database_password: ${{secrets.DATABASE_PASSWORD}}
 
 jobs:
   pipeline:
@@ -78,8 +70,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.passed_github_token }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ env.sonar_token }}
-          DATABASE_USER: ${{ env.test_database_user }}
-          DATABASE_PASSWORD: ${{ env.test_database_password }}
         run: |
           ./gradlew build test sonarqube \
             "-Dorg.gradle.jvmargs=-Xms512m -Xmx4g -XX:MaxMetaspaceSize=1g"

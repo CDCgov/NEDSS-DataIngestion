@@ -104,7 +104,6 @@ services:
     image: ghcr.io/cdcent/nedssdb:latest
     platform: linux/amd64
     environment:
-      - DATABASE_VERSION=6.0.18.1
       - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
     volumes:
       - ./containers/db/initialize:/docker-entrypoint-initdb.d/

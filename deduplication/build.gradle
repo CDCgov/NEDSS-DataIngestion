@@ -62,8 +62,7 @@ dependencies {
 
   // test containers
   testImplementation 'org.testcontainers:junit-jupiter'
-  testImplementation 'org.testcontainers:mssqlserver'
-  testImplementation 'org.testcontainers:postgresql'
+  testImplementation 'org.testcontainers:testcontainers'
 }
 
 bootRun {
