@@ -14,8 +14,8 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.11'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.5.15'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'jacoco'
     id "org.sonarqube" version "4.2.1.3168"
@@ -61,10 +61,7 @@ bootRun {
         enabled = true
         server = true
         suspend = false
-        port = java.util.Optional.ofNullable(findProperty('debug.port'))
-                .map(Object::toString)
-                .map(Integer::parseInt)
-                .orElse(19041)
+        port = 19041
     }
 }
 
@@ -161,11 +158,11 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine'
 
     // Kafka    
-    implementation 'org.springframework.kafka:spring-kafka:3.3.13'
+    implementation 'org.springframework.kafka:spring-kafka:3.3.16'
     implementation 'org.apache.kafka:kafka-clients:3.9.2'
 
     // Swagger - openapi
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17'
     implementation("org.apache.httpcomponents.core5:httpcore5:5.4.2")
     implementation("com.nimbusds:oauth2-oidc-sdk:11.8")
 
