@@ -34,13 +34,13 @@ touch .env
 $EDITOR .env
 ```
 
-For running the services, you will need to create a `dataingestion.env` file with
+For running the services, you will need to create a `.env` file with
 environment variables required by the services.  You can copy the provided sample
 file and update the values as needed.
 
 ```bash
-> cp dataingestion.env.sample dataingestion.env
-> $EDITOR dataingestion.env
+> cp .env.sample .env
+> $EDITOR .env
 ```
 
 Getting all of the services up and running in Docker Compose requires some additional

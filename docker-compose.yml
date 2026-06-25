@@ -12,11 +12,12 @@ services:
         condition: service_started
       nbs-mssql:
         condition: service_healthy
-    container_name: data-ingestion-service
-    env_file:
-      - dataingestion.env
     environment:
+      DI_AUTH_URI: http://di-keycloak:8080/realms/NBS
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+      NBS_DBSERVER: nbs-mssql:1433
+      NBS_DBUSER: ${NBS_DBUSER:-sa}
+      NBS_DBPASSWORD: ${NBS_DBPASSWORD:-fake.fake.fake.1234}
     networks:
       - dataingestion
   data-processing-service:
@@ -32,18 +33,18 @@ services:
         condition: service_started
       nbs-mssql:
         condition: service_healthy
-    container_name: data-processing-service
-    env_file:
-      - dataingestion.env
     environment:
+      DI_AUTH_URI: http://di-keycloak:8080/realms/NBS
       SPRING_KAFKA_BOOTSTRAPSERVERS: broker:29092
+      NBS_DBSERVER: nbs-mssql:1433
+      NBS_DBUSER: ${NBS_DBUSER:-sa}
+      NBS_DBPASSWORD: ${NBS_DBPASSWORD:-fake.fake.fake.1234}
     networks:
       - dataingestion
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     hostname: zookeeper
-    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -55,7 +56,6 @@ services:
   broker:
     image: confluentinc/cp-kafka:7.3.0
     hostname: broker
-    container_name: broker
     depends_on:
       - zookeeper
     ports:
@@ -77,7 +77,6 @@ services:
   debezium:
     image: debezium/connect:2.4
     hostname: debezium
-    container_name: debezium
     depends_on:
       - broker
       - zookeeper
@@ -109,7 +108,6 @@ services:
     image: ghcr.io/cdcent/nedssdb:latest
     platform: linux/amd64
     environment:
-      - DATABASE_VERSION=6.0.18.1
       - DATABASE_PASSWORD=${NBS_DBPASSWORD:-fake.fake.fake.1234}
     volumes:
       - ./containers/db/initialize:/docker-entrypoint-initdb.d/
@@ -119,15 +117,14 @@ services:
       - dataingestion
 
   di-keycloak:
-    container_name: di-keycloak
     image: quay.io/keycloak/keycloak:latest
     ports:
       - "8100:8080"
     volumes:
       - ./containers/keycloak/imports:/opt/keycloak/data/import
     environment:
-      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=fake.fake.fake.1234
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD:-fake.fake.fake.1234}
       - KC_HOSTNAME=http://localhost:8100
       - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
     entrypoint: "/opt/keycloak/bin/kc.sh start-dev --import-realm"
@@ -148,17 +145,15 @@ services:
 
   di-record-linker:
     image: ghcr.io/cdcgov/recordlinker:v25.10.0
-    container_name: di-record-linker
     depends_on:
       nbs-mssql:
         condition: service_healthy
     ports:
       - "8070:8070"
-    env_file:
-      - dataingestion.env
     environment:
       PORT: 8070
       API_ROOT_PATH: '/api/record-linker'
+      DB_URI: mssql+pyodbc://sa:${NBS_DBPASSWORD:-fake.fake.fake.1234}@nbs-mssql:1433/mpi?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
     networks:
       - dataingestion
 

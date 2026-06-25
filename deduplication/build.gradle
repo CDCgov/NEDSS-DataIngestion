@@ -46,7 +46,7 @@ dependencies {
   runtimeOnly 'org.postgresql:postgresql'
 
   // swagger
-  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17'
 
    //kafka
   implementation 'org.springframework.kafka:spring-kafka'
@@ -62,8 +62,7 @@ dependencies {
 
   // test containers
   testImplementation 'org.testcontainers:junit-jupiter'
-  testImplementation 'org.testcontainers:mssqlserver'
-  testImplementation 'org.testcontainers:postgresql'
+  testImplementation 'org.testcontainers:testcontainers'
 }
 
 bootRun {
@@ -79,10 +78,4 @@ bootRun {
 
 tasks.named('test') {
   useJUnitPlatform()
-}
-
-test {
-    if (System.getProperty("testing.database.mssql.image") != null) {
-        systemProperty "testing.database.mssql.image", System.getProperty("testing.database.mssql.image")
-    }
 }
