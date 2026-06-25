@@ -11,7 +11,6 @@ import gov.cdc.nbs.deduplication.config.container.UseTestContainers;
 import gov.cdc.nbs.deduplication.seed.model.MpiPerson;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -30,7 +29,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBatchTest
 @ActiveProfiles("test")
 @UseTestContainers
-@Disabled("Skipping temporarily to get the test workflow passing")
 class SeedingTest {
 
   private static final String NBS_QUERY =
@@ -97,7 +95,6 @@ class SeedingTest {
   @Autowired private ObjectMapper mapper;
 
   @Test
-  @Disabled("Skipping temporarily to get the test workflow passing")
   void seedMpiTest(@Autowired @Qualifier("seedJob") Job seedJob) throws Exception {
     // Kick off seeding job
     jobLauncherTestUtils.setJob(seedJob);
