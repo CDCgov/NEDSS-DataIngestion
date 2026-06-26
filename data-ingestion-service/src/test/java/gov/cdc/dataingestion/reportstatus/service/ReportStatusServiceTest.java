@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.reportstatus.service;
 
 import static gov.cdc.dataingestion.share.helper.TimeStampHelper.getCurrentTimeStamp;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,9 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
+import gov.cdc.dataingestion.reportstatus.exception.ElrNotFoundException;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus.Detail;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
@@ -23,9 +27,14 @@ import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -45,14 +54,10 @@ class ReportStatusServiceTest {
   @Mock private IElrDeadLetterRepository iElrDeadLetterRepository;
   @Mock private IEdxActivityLogRepository iEdxActivityLogRepository;
   @InjectMocks private ReportStatusService reportStatusServiceMock;
-  private ReportStatusIdData reportStatusIdData;
-  private NbsInterfaceModel nbsInterfaceModel;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    reportStatusIdData = new ReportStatusIdData();
-    nbsInterfaceModel = new NbsInterfaceModel();
   }
 
   @AfterEach
@@ -272,75 +277,98 @@ class ReportStatusServiceTest {
   }
 
   @Test
-  void testGetStatusForReportSuccessForValidData() {
-    String id = "test_uuid_from_user";
-    reportStatusIdData.setNbsInterfaceUid(1234);
-    nbsInterfaceModel.setRecordStatusCd("Success");
+  void test_no_records_found() {
+    // given an id that returns no records
+    UUID id = UUID.randomUUID();
+    when(iReportStatusRepositoryMock.findByRawMessageId(id.toString())).thenReturn(List.of());
 
-    List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
-    rptStatusIdDataList.add(reportStatusIdData);
+    // when get report status is called
+    ElrNotFoundException ex =
+        assertThrows(
+            ElrNotFoundException.class, () -> reportStatusServiceMock.getStatusForReport(id));
 
-    when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
-    when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234))
-        .thenReturn(Optional.of(nbsInterfaceModel));
-
-    List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
-    // Actual value - 'NBS Inerface Id:1234 Status:Success'
-    assertTrue(statusList.get(0).endsWith("Success"));
+    // then an ElrNotFoundException is thrown
+    assertThat(ex.getMessage())
+        .isEqualTo(
+            "Provided UUID is not present in the database. The provided UUID is either invalid or the message failed validation.");
   }
 
   @Test
-  void testGetStatusForReportEmptyReportIdData() {
-    String id = "test_uuid_from_user_does_not_exist";
+  void test_no_nbs_interface_entry_exists() {
+    // given an id that returns an entry in the elr_record_status_id table but no entries in the
+    // nbs_interface table exist
+    UUID id = UUID.randomUUID();
+    // elr_record_status_id table setup
+    List<ReportStatusIdData> recordStatusIdTableEntries = new ArrayList<>();
+    ReportStatusIdData recordStatusIdEntry = new ReportStatusIdData();
+    recordStatusIdEntry.setRawMessageId(id.toString());
+    recordStatusIdEntry.setNbsInterfaceUid(123);
+    recordStatusIdTableEntries.add(recordStatusIdEntry);
+    when(iReportStatusRepositoryMock.findByRawMessageId(id.toString()))
+        .thenReturn(recordStatusIdTableEntries);
 
-    when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(List.of());
+    // empty nbs_interface table
+    when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(123)).thenReturn(Optional.empty());
 
-    List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
-    assertEquals(
-        "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.",
-        statusList.get(0));
+    // when get report status is called
+    ElrStatus status = reportStatusServiceMock.getStatusForReport(id);
+
+    // then the overall status reflects the missing entry
+    assertThat(status.status()).isEqualTo("Failed to find an entry in the nbs_interface table");
+    assertThat(status.id()).isEqualTo(id);
+    assertThat(status.details()).hasSize(1);
+    // and the detailed status reflects the missing entry
+    Detail detail = status.details().get(0);
+    assertThat(detail.messageId()).isEqualTo(123);
+    assertThat(detail.status()).isEqualTo("Failed to find an entry in the nbs_interface table");
   }
 
-  @Test
-  void testGetStatusForReportEmptyNbsInterfaceData() {
-    String id = "test_uuid_from_user";
-
-    List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
-    rptStatusIdDataList.add(reportStatusIdData);
-
-    when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
-    when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234)).thenReturn(Optional.empty());
-
-    List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
-    assertEquals("Couldn't find status for the requested UUID.", statusList.get(0));
+  private static Stream<Arguments> provideStatus() {
+    // A CSV of status' present in the nbs_interface table and the expected derived status
+    return Stream.of(
+        Arguments.of("ODD_VALUE,RTI_SUCCESS,RTI_QUEUED", "RTI_QUEUED"),
+        Arguments.of("RTI_SUCCESS,RTI_QUEUED", "RTI_QUEUED"),
+        Arguments.of("RTI_QUEUED,QUEUED", "QUEUED"),
+        Arguments.of("QUEUED,RTI_PENDING", "RTI_PENDING"),
+        Arguments.of("RTI_PENDING,RTI_FAILURE_STEP_1", "RTI_FAILURE_STEP_1"),
+        Arguments.of("RTI_FAILURE_STEP_1,RTI_FAILURE_STEP_2", "RTI_FAILURE_STEP_2"),
+        Arguments.of("RTI_FAILURE_STEP_2,RTI_FAILURE_STEP_3", "RTI_FAILURE_STEP_3"),
+        Arguments.of("ODD_VALUE", "ODD_VALUE"));
   }
 
-  @Test
-  void testDummyGetStatusForReportSuccessModelCoverage() {
-    String id = "test_uuid_from_user";
-    reportStatusIdData.setNbsInterfaceUid(1234);
-    nbsInterfaceModel.setRecordStatusCd("Success");
+  @ParameterizedTest
+  @MethodSource("provideStatus")
+  void test_overall_derived_status(String statusCsv, String expectedStatus) {
+    // given an id that returns multiple entries in the elr_record_status_id with valid
+    // nbs_interface entries with the specified status
+    UUID id = UUID.randomUUID();
+    List<ReportStatusIdData> recordStatusIdTableEntries = new ArrayList<>();
+    int interfaceId = 1;
+    for (String status : statusCsv.split(",")) {
+      // elr_record_status_entry
+      ReportStatusIdData recordStatusIdEntry = new ReportStatusIdData();
+      recordStatusIdEntry.setRawMessageId(id.toString());
+      recordStatusIdEntry.setNbsInterfaceUid(interfaceId);
+      recordStatusIdTableEntries.add(recordStatusIdEntry);
+      recordStatusIdTableEntries.add(recordStatusIdEntry);
 
-    // These setters are added to increase the line coverage for model class
-    reportStatusIdData.setId("test_uuid");
-    reportStatusIdData.setRawMessageId(id);
-    reportStatusIdData.setCreatedBy("junit_test");
-    reportStatusIdData.setUpdatedBy("junit_test");
-    List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
-    rptStatusIdDataList.add(reportStatusIdData);
+      // associated nbs_interface entry
+      NbsInterfaceModel nbsModel = new NbsInterfaceModel();
+      nbsModel.setNbsInterfaceUid(interfaceId);
+      nbsModel.setRecordStatusCd(status);
+      when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(interfaceId))
+          .thenReturn(Optional.of(nbsModel));
 
-    when(iReportStatusRepositoryMock.findByRawMessageId(id)).thenReturn(rptStatusIdDataList);
-    when(nbsInterfaceRepositoryMock.findByNbsInterfaceUid(1234))
-        .thenReturn(Optional.of(nbsInterfaceModel));
+      interfaceId++;
+    }
+    when(iReportStatusRepositoryMock.findByRawMessageId(id.toString()))
+        .thenReturn(recordStatusIdTableEntries);
 
-    List<String> statusList = reportStatusServiceMock.getStatusForReport(id);
-    assertTrue(statusList.get(0).endsWith("Success"));
+    // when get report status is called
+    ElrStatus status = reportStatusServiceMock.getStatusForReport(id);
 
-    // The following asserts are added to increase the line coverage for model class
-    assertEquals("test_uuid", reportStatusIdData.getId());
-    assertEquals(id, reportStatusIdData.getRawMessageId());
-    assertEquals("junit_test", reportStatusIdData.getCreatedBy());
-    assertEquals("junit_test", reportStatusIdData.getUpdatedBy());
+    // then the correct overall status is derived
+    assertThat(status.status()).isEqualTo(expectedStatus);
   }
 
   @Test
@@ -366,7 +394,7 @@ class ReportStatusServiceTest {
     List<ReportStatusIdData> rptStatusIdDataList = new ArrayList<>();
     rptStatusIdDataList.add(reportStatusIdModel);
 
-    List<EdxActivityDetailLog> edxActivityLogList = new ArrayList();
+    List<EdxActivityDetailLog> edxActivityLogList = new ArrayList<>();
     EdxActivityDetailLog edxActivityLogModelProjection = mock(EdxActivityDetailLog.class);
     when(edxActivityLogModelProjection.getLogComment()).thenReturn("Test activity log");
     when(edxActivityLogModelProjection.getLogType()).thenReturn("Test log type");

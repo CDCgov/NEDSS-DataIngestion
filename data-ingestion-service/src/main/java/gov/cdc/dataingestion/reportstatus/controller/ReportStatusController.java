@@ -1,7 +1,6 @@
 package gov.cdc.dataingestion.reportstatus.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.service.ReportStatusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,10 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class ReportStatusController {
-  private static Logger logger = LoggerFactory.getLogger(ReportStatusController.class);
 
   private final ReportStatusService reportStatusService;
 
@@ -56,23 +51,8 @@ public class ReportStatusController {
             schema = @Schema(type = "string"))
       })
   @GetMapping("/api/elrs/status/{elr-id}")
-  public ResponseEntity<String> getReportStatus(@PathVariable("elr-id") String elrId)
-      throws JsonProcessingException {
-    // Sanitize elrId (ensure it's alphanumeric or whatever format you expect)
-    String sanitizedElrId = StringUtils.replaceChars(elrId, "[]{}()", "");
-
-    if (sanitizedElrId == null || sanitizedElrId.isEmpty() || !isValidUUID(sanitizedElrId)) {
-      logger.error("Invalid 'UUID' parameter provided.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Invalid 'UUID' parameter provided.");
-    }
-
-    List<String> statusList = reportStatusService.getStatusForReport(sanitizedElrId);
-
-    statusList.addFirst("id:" + sanitizedElrId);
-
-    ObjectMapper mapper = new ObjectMapper();
-    return ResponseEntity.ok(mapper.writeValueAsString(statusList));
+  public ElrStatus getReportStatus(@PathVariable("elr-id") UUID elrId) {
+    return reportStatusService.getStatusForReport(elrId);
   }
 
   @Operation(
@@ -105,10 +85,5 @@ public class ReportStatusController {
     List<MessageStatus> unmodifiableStatusList = List.copyOf(statusList);
 
     return ResponseEntity.ok(unmodifiableStatusList);
-  }
-
-  private boolean isValidUUID(String id) {
-    String regex = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
-    return id.matches(regex);
   }
 }
