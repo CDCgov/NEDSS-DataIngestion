@@ -12,14 +12,25 @@ import gov.cdc.dataingestion.odse.repository.model.EdxActivityDetailLog;
 import gov.cdc.dataingestion.odse.repository.model.EdxActivityLog;
 import gov.cdc.dataingestion.report.repository.IRawElrRepository;
 import gov.cdc.dataingestion.report.repository.model.RawElrModel;
+import gov.cdc.dataingestion.reportstatus.exception.ElrNotFoundException;
 import gov.cdc.dataingestion.reportstatus.model.DltMessageStatus;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus;
+import gov.cdc.dataingestion.reportstatus.model.ElrStatus.Detail;
 import gov.cdc.dataingestion.reportstatus.model.MessageStatus;
 import gov.cdc.dataingestion.reportstatus.model.ReportStatusIdData;
 import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.share.helper.TimeStampHelper;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +40,7 @@ import org.springframework.stereotype.Service;
  */
 @SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class ReportStatusService {
+  private static final Logger LOG = LoggerFactory.getLogger(ReportStatusService.class);
   private final IReportStatusRepository iReportStatusRepository;
   private final IEdxActivityParentLogRepository iEdxActivityParentLogRepository;
   private final NbsInterfaceRepository nbsInterfaceRepository;
@@ -222,28 +234,53 @@ public class ReportStatusService {
     }
   }
 
-  public List<String> getStatusForReport(String id) {
-    List<String> statusList = new ArrayList<>();
+  public ElrStatus getStatusForReport(UUID uuid) {
+    // Get all IDs that are associated with the provided UUID. This is typcially a
+    // single ID but if splitting (obrSplitting or hl7BatchSplitting) is enabled it
+    // could be multiple
+    List<ReportStatusIdData> idList = iReportStatusRepository.findByRawMessageId(uuid.toString());
 
-    List<ReportStatusIdData> elrStatusIdList = iReportStatusRepository.findByRawMessageId(id);
-    if (elrStatusIdList.isEmpty()) {
-      String status =
-          "Provided UUID is not present in the database. Either provided an invalid UUID or the injected message failed validation.";
-      statusList.add(status);
+    if (idList.isEmpty()) {
+      throw new ElrNotFoundException();
     }
-    for (ReportStatusIdData reportStatusIdData : elrStatusIdList) {
-      Optional<NbsInterfaceModel> nbsInterfaceModel =
-          nbsInterfaceRepository.findByNbsInterfaceUid(reportStatusIdData.getNbsInterfaceUid());
-      if (nbsInterfaceModel.isPresent()) {
-        statusList.add(
-            "NBS Inerface Id:"
-                + reportStatusIdData.getNbsInterfaceUid()
-                + " Status:"
-                + nbsInterfaceModel.get().getRecordStatusCd());
-      } else {
-        statusList.add("Couldn't find status for the requested UUID.");
-      }
-    }
-    return statusList;
+
+    // For each ID, fetch the row from the NBS_Interface table and convert to a Detail object
+    List<Detail> details = idList.stream().map(this::toDetail).toList();
+
+    // To determine the overall status, pick the status from the details based on
+    // the following priority list (higher index, higher priority)
+    List<String> statusPriorty =
+        List.of(
+            "RTI_SUCCESS",
+            "RTI_QUEUED",
+            "QUEUED",
+            "RTI_PENDING",
+            "RTI_FAILURE_STEP_1",
+            "RTI_FAILURE_STEP_2",
+            "RTI_FAILURE_STEP_3");
+
+    List<String> statusList = details.stream().map(Detail::status).toList();
+
+    // Log any statuses that are encountered that are not in the priorty list
+    statusList.stream()
+        .filter(s -> !statusPriorty.contains(s))
+        .forEach(s -> LOG.warn("Unsupported ELR status encountered: '{}'", s));
+
+    String derivedStatus =
+        statusList.stream()
+            .max(Comparator.comparingInt(statusPriorty::indexOf))
+            .orElse("Couldn't find status for the requested UUID.");
+
+    return new ElrStatus(uuid, derivedStatus, details);
+  }
+
+  private Detail toDetail(ReportStatusIdData id) {
+    String status =
+        nbsInterfaceRepository
+            .findByNbsInterfaceUid(id.getNbsInterfaceUid())
+            .map(NbsInterfaceModel::getRecordStatusCd)
+            .orElse("Failed to find an entry in the nbs_interface table");
+
+    return new Detail(id.getNbsInterfaceUid(), status);
   }
 }
