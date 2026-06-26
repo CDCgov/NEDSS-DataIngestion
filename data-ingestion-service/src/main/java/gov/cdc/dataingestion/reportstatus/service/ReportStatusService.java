@@ -22,7 +22,15 @@ import gov.cdc.dataingestion.reportstatus.repository.IReportStatusRepository;
 import gov.cdc.dataingestion.share.helper.TimeStampHelper;
 import gov.cdc.dataingestion.validation.repository.IValidatedELRRepository;
 import gov.cdc.dataingestion.validation.repository.model.ValidatedELRModel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,6 +40,7 @@ import org.springframework.stereotype.Service;
  */
 @SuppressWarnings({"java:S1118", "java:S125", "java:S6126", "java:S1135"})
 public class ReportStatusService {
+  private static final Logger LOG = LoggerFactory.getLogger(ReportStatusService.class);
   private final IReportStatusRepository iReportStatusRepository;
   private final IEdxActivityParentLogRepository iEdxActivityParentLogRepository;
   private final NbsInterfaceRepository nbsInterfaceRepository;
@@ -250,9 +259,15 @@ public class ReportStatusService {
             "RTI_FAILURE_STEP_2",
             "RTI_FAILURE_STEP_3");
 
+    List<String> statusList = details.stream().map(Detail::status).toList();
+
+    // Log any statuses that are encountered that are not in the priorty list
+    statusList.stream()
+        .filter(s -> !statusPriorty.contains(s))
+        .forEach(s -> LOG.warn("Unsupported ELR status encountered: '{}'", s));
+
     String derivedStatus =
-        details.stream()
-            .map(Detail::status)
+        statusList.stream()
             .max(Comparator.comparingInt(statusPriorty::indexOf))
             .orElse("Couldn't find status for the requested UUID.");
 

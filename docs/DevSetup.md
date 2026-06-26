@@ -87,7 +87,7 @@ spring:
 
 features:
   modernizedMatching:
-    enabled: true
+    enabled: false
     url: http://localhost:8083/api/deduplication/
 ```
 
