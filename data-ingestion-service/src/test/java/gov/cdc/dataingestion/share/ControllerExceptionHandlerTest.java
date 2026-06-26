@@ -1,5 +1,9 @@
 package gov.cdc.dataingestion.share;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import gov.cdc.dataingestion.reportstatus.exception.ElrNotFoundException;
+import gov.cdc.dataingestion.share.ControllerExceptionHandler.ExceptionResponse;
 import gov.cdc.dataingestion.share.model.ErrorResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,5 +41,14 @@ class ControllerExceptionHandlerTest {
         HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse.getStatusCode());
     Assertions.assertEquals("An internal server error occurred.", errorResponse.getMessage());
     Assertions.assertEquals(exception.getMessage(), errorResponse.getDetails());
+  }
+
+  @Test
+  void returns_404_for_elrNotFoundException() {
+    ElrNotFoundException ex = new ElrNotFoundException();
+    ResponseEntity<ExceptionResponse> response = handler.handleElrNotFoundException(ex);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody().message()).isEqualTo(ex.getMessage());
   }
 }
