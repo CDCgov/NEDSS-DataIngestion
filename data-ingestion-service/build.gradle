@@ -278,14 +278,6 @@ dependencies {
   implementation files('libs/cda-schema.jar')
 }
 
-dependencyManagement {
-	dependencies {
-		dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.11'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-el:11.0.11'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.11'
-	}
-}
-
 test {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
