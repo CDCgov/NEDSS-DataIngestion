@@ -212,16 +212,6 @@ dependencies {
     testImplementation(platform('org.junit:junit-bom:6.0.3'))
 }
 
-dependencyManagement {
-    dependencies {
-        dependency 'org.apache.tomcat.embed:tomcat-embed-core:11.0.11'
-        dependency 'org.apache.tomcat.embed:tomcat-embed-el:11.0.11'
-        dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.11'
-
-    }
-}
-
-
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
     jacoco {
