@@ -2,18 +2,21 @@ package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
 import static gov.cdc.dataprocessing.constant.data_field.*;
 import static gov.cdc.dataprocessing.constant.query.NbsDocumentQuery.*;
-import static gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate.RELEASE_VERSION_RECEIVED_TIME_ENABLED;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
 import gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NbsDocumentJdbcRepository {
   private final OdseNameParamJdbcTemplate jdbcTemplateOdse;
+
+  @Value("${nedss.nbs-release-version-received-time}")
+  public final String nbsReleaseVersionReceivedTime = "6.0.19.1";
 
   public NbsDocumentJdbcRepository(
       @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse) {
@@ -56,7 +59,7 @@ public class NbsDocumentJdbcRepository {
     String nbsReleaseVersion = jdbcTemplateOdse.getNbsReleaseVersion();
 
     if (nbsReleaseVersion != null
-        && jdbcTemplateOdse.compareVersionToRelease(RELEASE_VERSION_RECEIVED_TIME_ENABLED) >= 0) {
+        && jdbcTemplateOdse.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0) {
       params.addValue("received_time", doc.getReceivedTime());
       jdbcTemplateOdse.update(MERGE_NBS_DOC_6_0_19_1, params);
     }
@@ -102,7 +105,7 @@ public class NbsDocumentJdbcRepository {
     String nbsReleaseVersion = jdbcTemplateOdse.getNbsReleaseVersion();
 
     if (nbsReleaseVersion != null
-        && jdbcTemplateOdse.compareVersionToRelease(RELEASE_VERSION_RECEIVED_TIME_ENABLED) >= 0) {
+        && jdbcTemplateOdse.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0) {
       params.addValue("received_time", hist.getReceivedTime());
       jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST_6_0_19_1, params);
     }
