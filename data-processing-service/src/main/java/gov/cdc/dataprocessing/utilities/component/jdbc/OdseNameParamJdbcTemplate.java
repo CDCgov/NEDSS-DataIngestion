@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
   @Getter private String nbsReleaseVersion;
 
+  // This is not an IP address. It is a version number.
   public static final String RELEASE_VERSION_RECEIVED_TIME_ENABLED = "6.0.19.1";
 
   public OdseNameParamJdbcTemplate(@Qualifier("odseDataSource") DataSource dataSource) {
@@ -21,9 +22,9 @@ public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
 
   @PostConstruct
   public void afterPropertiesSet() throws Exception {
-    if (getJdbcOperations() instanceof InitializingBean) {
+    if (getJdbcOperations() instanceof InitializingBean initializingBean) {
       // make sure DataSource is ready
-      ((InitializingBean) getJdbcOperations()).afterPropertiesSet();
+      initializingBean.afterPropertiesSet();
     }
     setNbsReleaseVersion();
   }
