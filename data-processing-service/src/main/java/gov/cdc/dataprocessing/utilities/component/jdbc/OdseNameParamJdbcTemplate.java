@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 import lombok.Getter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
 
   public static final String RELEASE_VERSION_RECEIVED_TIME_ENABLED = "6.0.19.1";
 
-  public OdseNameParamJdbcTemplate(DataSource dataSource) {
+  public OdseNameParamJdbcTemplate(@Qualifier("odseDataSource") DataSource dataSource) {
     super(dataSource);
   }
 
