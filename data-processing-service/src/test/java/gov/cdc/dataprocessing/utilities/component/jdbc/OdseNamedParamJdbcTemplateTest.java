@@ -13,7 +13,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
-public class OdseNamedParamJdbcTemplateTest {
+class OdseNamedParamJdbcTemplateTest {
   @Test
   void setsReleaseVersion_whenQueryReturnsValue() throws Exception {
     JdbcOperations jdbcOps =
