@@ -1,22 +1,22 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.jdbc_template;
 
 import static gov.cdc.dataprocessing.constant.data_field.*;
-import static gov.cdc.dataprocessing.constant.query.NbsDocumentQuery.MERGE_NBS_DOC;
-import static gov.cdc.dataprocessing.constant.query.NbsDocumentQuery.MERGE_NBS_DOC_HIST;
+import static gov.cdc.dataprocessing.constant.query.NbsDocumentQuery.*;
+import static gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate.RELEASE_VERSION_RECEIVED_TIME_ENABLED;
 
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
+import gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NbsDocumentJdbcRepository {
-  private final NamedParameterJdbcTemplate jdbcTemplateOdse;
+  private final OdseNameParamJdbcTemplate jdbcTemplateOdse;
 
   public NbsDocumentJdbcRepository(
-      @Qualifier("odseNamedParameterJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplateOdse) {
+      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse) {
     this.jdbcTemplateOdse = jdbcTemplateOdse;
   }
 
@@ -52,6 +52,14 @@ public class NbsDocumentJdbcRepository {
             .addValue("external_version_ctrl_nbr", doc.getExternalVersionCtrlNbr())
             .addValue("processing_decision_txt", doc.getProcessingDecisionTxt())
             .addValue("processing_decision_cd", doc.getProcessingDecisionCd());
+
+    String nbsReleaseVersion = jdbcTemplateOdse.getNbsReleaseVersion();
+
+    if (nbsReleaseVersion != null
+        && jdbcTemplateOdse.compareVersionToRelease(RELEASE_VERSION_RECEIVED_TIME_ENABLED) >= 0) {
+      params.addValue("received_time", doc.getReceivedTime());
+      jdbcTemplateOdse.update(MERGE_NBS_DOC_6_0_19_1, params);
+    }
 
     jdbcTemplateOdse.update(MERGE_NBS_DOC, params);
   }
@@ -90,6 +98,14 @@ public class NbsDocumentJdbcRepository {
             .addValue("external_version_ctrl_nbr", hist.getExternalVersionCtrlNbr())
             .addValue("processing_decision_txt", hist.getProcessingDecisionTxt())
             .addValue("processing_decision_cd", hist.getProcessingDecisionCd());
+
+    String nbsReleaseVersion = jdbcTemplateOdse.getNbsReleaseVersion();
+
+    if (nbsReleaseVersion != null
+        && jdbcTemplateOdse.compareVersionToRelease(RELEASE_VERSION_RECEIVED_TIME_ENABLED) >= 0) {
+      params.addValue("received_time", hist.getReceivedTime());
+      jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST_6_0_19_1, params);
+    }
 
     jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST, params);
   }

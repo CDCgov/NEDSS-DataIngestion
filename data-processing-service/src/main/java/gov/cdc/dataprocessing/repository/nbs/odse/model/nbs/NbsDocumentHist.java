@@ -1,6 +1,7 @@
 package gov.cdc.dataprocessing.repository.nbs.odse.model.nbs;
 
 import gov.cdc.dataprocessing.model.dto.nbs.NBSDocumentDto;
+import gov.cdc.dataprocessing.utilities.time.TimeStampUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -106,6 +107,9 @@ public class NbsDocumentHist {
   @Column(name = "processing_decision_cd")
   private String processingDecisionCd;
 
+  @Column(name = "received_time")
+  private String receivedTime;
+
   public NbsDocumentHist() {}
 
   public NbsDocumentHist(NBSDocumentDto documentDto) {
@@ -139,5 +143,6 @@ public class NbsDocumentHist {
     this.externalVersionCtrlNbr = documentDto.getExternalVersionCtrlNbr();
     this.processingDecisionTxt = documentDto.getProcessingDecisiontxt();
     this.processingDecisionCd = documentDto.getProcessingDecisionCd();
+    this.receivedTime = TimeStampUtil.convertTimestampToString("UTC");
   }
 }
