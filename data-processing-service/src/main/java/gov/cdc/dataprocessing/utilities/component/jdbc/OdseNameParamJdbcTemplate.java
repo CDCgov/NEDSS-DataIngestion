@@ -3,6 +3,8 @@ package gov.cdc.dataprocessing.utilities.component.jdbc;
 import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
+  private static final Logger log = LoggerFactory.getLogger(OdseNameParamJdbcTemplate.class);
+
   @Getter private String nbsReleaseVersion;
 
   public OdseNameParamJdbcTemplate(@Qualifier("odseDataSource") DataSource dataSource) {
@@ -34,6 +38,7 @@ public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
     } catch (EmptyResultDataAccessException e) {
       this.nbsReleaseVersion = null;
     }
+    log.info("NBS_Release Version detected: {}", this.nbsReleaseVersion);
   }
 
   /*

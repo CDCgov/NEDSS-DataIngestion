@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class NbsDocumentJdbcRepository {
   private final OdseNameParamJdbcTemplate jdbcTemplateOdse;
-
-  @Value("${nedss.nbs-release-version-received-time}")
-  public final String nbsReleaseVersionReceivedTime = "6.0.19.1";
+  private final String nbsReleaseVersionReceivedTime;
 
   public NbsDocumentJdbcRepository(
-      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse) {
+      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse,
+      @Value("${nedss.nbs-release-version-received-time}") String nbsReleaseVersionReceivedTime) {
     this.jdbcTemplateOdse = jdbcTemplateOdse;
+    this.nbsReleaseVersionReceivedTime = nbsReleaseVersionReceivedTime;
   }
 
   public void mergeNbsDocument(NbsDocument doc) {
