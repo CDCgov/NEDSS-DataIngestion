@@ -18,7 +18,7 @@ public class NbsDocumentJdbcRepository {
 
   public NbsDocumentJdbcRepository(
       @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse,
-      @Value("${nedss.nbs-release-version-received-time}") String nbsReleaseVersionReceivedTime) {
+      @Value("${nedss.nbs-release-version-doc-received-time}") String nbsReleaseVersionReceivedTime) {
     this.jdbcTemplateOdse = jdbcTemplateOdse;
     this.nbsReleaseVersionReceivedTime = nbsReleaseVersionReceivedTime;
   }
@@ -62,9 +62,9 @@ public class NbsDocumentJdbcRepository {
         && jdbcTemplateOdse.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0) {
       params.addValue("received_time", doc.getReceivedTime());
       jdbcTemplateOdse.update(MERGE_NBS_DOC_6_0_19_1, params);
+    } else {
+        jdbcTemplateOdse.update(MERGE_NBS_DOC, params);
     }
-
-    jdbcTemplateOdse.update(MERGE_NBS_DOC, params);
   }
 
   public void mergeNbsDocumentHist(NbsDocumentHist hist) {
@@ -108,8 +108,8 @@ public class NbsDocumentJdbcRepository {
         && jdbcTemplateOdse.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0) {
       params.addValue("received_time", hist.getReceivedTime());
       jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST_6_0_19_1, params);
+    } else {
+        jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST, params);
     }
-
-    jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST, params);
   }
 }
