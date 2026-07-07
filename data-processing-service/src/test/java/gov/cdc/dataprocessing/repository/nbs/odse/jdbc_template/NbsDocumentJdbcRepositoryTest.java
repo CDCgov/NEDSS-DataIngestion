@@ -26,6 +26,7 @@ class NbsDocumentJdbcRepositoryTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
+    when(jdbcTemplateOdse.getNbsReleaseVersion()).thenReturn("6.0.18.1");
   }
 
   @Test
@@ -139,7 +140,7 @@ class NbsDocumentJdbcRepositoryTest {
     doc.setExternalVersionCtrlNbr(2);
     doc.setProcessingDecisionTxt("decision");
     doc.setProcessingDecisionCd("procCd");
-    doc.setReceivedTime(TimeStampUtil.convertTimestampToString("UTC"));
+    doc.setReceivedTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
     when(jdbcTemplateOdse.getNbsReleaseVersion()).thenReturn("6.0.19.1");
 
@@ -183,7 +184,7 @@ class NbsDocumentJdbcRepositoryTest {
     hist.setExternalVersionCtrlNbr(2);
     hist.setProcessingDecisionTxt("decision");
     hist.setProcessingDecisionCd("procCd");
-    hist.setReceivedTime(TimeStampUtil.convertTimestampToString("UTC"));
+    hist.setReceivedTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
     when(jdbcTemplateOdse.getNbsReleaseVersion()).thenReturn("6.0.19.1");
 
@@ -225,7 +226,7 @@ class NbsDocumentJdbcRepositoryTest {
     doc.setExternalVersionCtrlNbr(2);
     doc.setProcessingDecisionTxt("decision");
     doc.setProcessingDecisionCd("procCd");
-    doc.setReceivedTime(TimeStampUtil.convertTimestampToString("UTC"));
+    doc.setReceivedTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
     when(jdbcTemplateOdse.getNbsReleaseVersion()).thenReturn("7.0.12.1");
 
@@ -269,7 +270,7 @@ class NbsDocumentJdbcRepositoryTest {
     hist.setExternalVersionCtrlNbr(2);
     hist.setProcessingDecisionTxt("decision");
     hist.setProcessingDecisionCd("procCd");
-    hist.setReceivedTime(TimeStampUtil.convertTimestampToString("UTC"));
+    hist.setReceivedTime(TimeStampUtil.getCurrentTimeStamp("UTC"));
 
     when(jdbcTemplateOdse.getNbsReleaseVersion()).thenReturn("7.0.12.1");
 

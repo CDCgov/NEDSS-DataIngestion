@@ -185,3 +185,5 @@ features:
     enabled: ${OBR_SPLITTING_ENABLED:false}
   hl7BatchSplitting:
     enabled: ${HL7_BATCH_SPLITTING_ENABLED:false}
+nedss:
+  nbs-release-version-doc-received-time: 6.0.19.1

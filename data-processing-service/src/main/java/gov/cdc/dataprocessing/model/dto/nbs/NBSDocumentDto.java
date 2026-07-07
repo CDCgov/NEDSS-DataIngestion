@@ -59,6 +59,7 @@ public class NBSDocumentDto extends BaseContainer implements RootDtoInterface {
   private String processingDecisionCd;
   private String processingDecisiontxt;
   private Timestamp effectiveTime;
+  private Timestamp receivedTime;
 
   public NBSDocumentDto() {
     itDirty = false;
