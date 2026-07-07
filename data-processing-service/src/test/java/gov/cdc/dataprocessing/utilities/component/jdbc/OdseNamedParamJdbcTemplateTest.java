@@ -126,7 +126,7 @@ class OdseNamedParamJdbcTemplateTest {
 
     DataSource ds = mock(DataSource.class);
 
-    OdseNameParamJdbcTemplate template =
+    OdseNameParamJdbcTemplate template1 =
         new OdseNameParamJdbcTemplate(ds) {
           @Override
           public JdbcOperations getJdbcOperations() {
@@ -134,13 +134,13 @@ class OdseNamedParamJdbcTemplateTest {
           }
         };
 
-    template.afterPropertiesSet();
+    template1.afterPropertiesSet();
 
     Throwable illegalArgumentException =
         assertThrows(
             IllegalArgumentException.class,
             () -> {
-              throw new IllegalArgumentException("The input version cannot be null.");
+              template1.compareVersionToRelease(null);
             });
 
     assertEquals("The input version cannot be null.", illegalArgumentException.getMessage());
@@ -152,7 +152,7 @@ class OdseNamedParamJdbcTemplateTest {
 
     ds = mock(DataSource.class);
 
-    template =
+    OdseNameParamJdbcTemplate template2 =
         new OdseNameParamJdbcTemplate(ds) {
           @Override
           public JdbcOperations getJdbcOperations() {
@@ -160,14 +160,13 @@ class OdseNamedParamJdbcTemplateTest {
           }
         };
 
-    template.afterPropertiesSet();
+    template2.afterPropertiesSet();
 
     Throwable illegalStateException =
         assertThrows(
             IllegalStateException.class,
             () -> {
-              throw new IllegalStateException(
-                  "NBS Release Version was not detected. Version comparison cannot be performed. Check the NBS_Release table.");
+              template2.compareVersionToRelease("6.0.18.0");
             });
 
     assertEquals(
