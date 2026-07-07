@@ -47,7 +47,15 @@ public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
       1 -> CODE_BASE version is older
       0 -> input version is the same
   */
-  public int compareVersionToRelease(String inputVersion) {
+  public int compareVersionToRelease(String inputVersion)
+      throws IllegalArgumentException, IllegalStateException {
+    if (inputVersion == null) {
+      throw new IllegalArgumentException("The input version cannot be null.");
+    } else if (this.nbsReleaseVersion == null) {
+      throw new IllegalStateException(
+          "NBS Release Version was not detected. Version comparison cannot be performed. Check the NBS_Release table.");
+    }
+
     String[] levels1 = inputVersion.split("\\.");
     String[] levels2 = this.nbsReleaseVersion.split("\\.");
 

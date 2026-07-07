@@ -1,7 +1,6 @@
 package gov.cdc.dataprocessing.utilities.component.jdbc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -116,5 +115,63 @@ class OdseNamedParamJdbcTemplateTest {
     result = template.compareVersionToRelease(inputVersion);
 
     assertEquals(1, result);
+  }
+
+  @Test
+  void testCompareVersionToRelease_NullVersionValuesRaiseException() throws Exception {
+    // Input version is null while release version detected successfully
+    JdbcOperations jdbcOps1 =
+        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
+    when(jdbcOps1.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.19.1");
+
+    DataSource ds = mock(DataSource.class);
+
+    OdseNameParamJdbcTemplate template =
+        new OdseNameParamJdbcTemplate(ds) {
+          @Override
+          public JdbcOperations getJdbcOperations() {
+            return jdbcOps1;
+          }
+        };
+
+    template.afterPropertiesSet();
+
+    Throwable illegalArgumentException =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              throw new IllegalArgumentException("The input version cannot be null.");
+            });
+
+    assertEquals("The input version cannot be null.", illegalArgumentException.getMessage());
+
+    // Input version is NOT null while release version was not detected
+    JdbcOperations jdbcOps2 =
+        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
+    when(jdbcOps2.queryForObject(anyString(), eq(String.class))).thenReturn(null);
+
+    ds = mock(DataSource.class);
+
+    template =
+        new OdseNameParamJdbcTemplate(ds) {
+          @Override
+          public JdbcOperations getJdbcOperations() {
+            return jdbcOps2;
+          }
+        };
+
+    template.afterPropertiesSet();
+
+    Throwable illegalStateException =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              throw new IllegalStateException(
+                  "NBS Release Version was not detected. Version comparison cannot be performed. Check the NBS_Release table.");
+            });
+
+    assertEquals(
+        "NBS Release Version was not detected. Version comparison cannot be performed. Check the NBS_Release table.",
+        illegalStateException.getMessage());
   }
 }
