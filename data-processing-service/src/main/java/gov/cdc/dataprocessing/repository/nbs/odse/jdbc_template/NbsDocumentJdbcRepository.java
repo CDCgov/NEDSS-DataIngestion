@@ -7,21 +7,16 @@ import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocument;
 import gov.cdc.dataprocessing.repository.nbs.odse.model.nbs.NbsDocumentHist;
 import gov.cdc.dataprocessing.utilities.component.jdbc.OdseNameParamJdbcTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NbsDocumentJdbcRepository {
   private final OdseNameParamJdbcTemplate jdbcTemplateOdse;
-  private final String nbsReleaseVersionReceivedTime;
 
   public NbsDocumentJdbcRepository(
-      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse,
-      @Value("${nedss.nbs-release-version-doc-received-time}")
-          String nbsReleaseVersionReceivedTime) {
+      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate jdbcTemplateOdse) {
     this.jdbcTemplateOdse = jdbcTemplateOdse;
-    this.nbsReleaseVersionReceivedTime = nbsReleaseVersionReceivedTime;
   }
 
   public void mergeNbsDocument(NbsDocument doc) {
@@ -57,10 +52,7 @@ public class NbsDocumentJdbcRepository {
             .addValue("processing_decision_txt", doc.getProcessingDecisionTxt())
             .addValue("processing_decision_cd", doc.getProcessingDecisionCd());
 
-    String nbsReleaseVersion = jdbcTemplateOdse.getNbsReleaseVersion();
-
-    if (nbsReleaseVersion != null
-        && jdbcTemplateOdse.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0) {
+    if (jdbcTemplateOdse.isNbsDocReceivedTimeEnabled()) {
       params.addValue("received_time", doc.getReceivedTime());
       jdbcTemplateOdse.update(MERGE_NBS_DOC_6_0_19_1, params);
     } else {
@@ -103,10 +95,7 @@ public class NbsDocumentJdbcRepository {
             .addValue("processing_decision_txt", hist.getProcessingDecisionTxt())
             .addValue("processing_decision_cd", hist.getProcessingDecisionCd());
 
-    String nbsReleaseVersion = jdbcTemplateOdse.getNbsReleaseVersion();
-
-    if (nbsReleaseVersion != null
-        && jdbcTemplateOdse.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0) {
+    if (jdbcTemplateOdse.isNbsDocReceivedTimeEnabled()) {
       params.addValue("received_time", hist.getReceivedTime());
       jdbcTemplateOdse.update(MERGE_NBS_DOC_HIST_6_0_19_1, params);
     } else {

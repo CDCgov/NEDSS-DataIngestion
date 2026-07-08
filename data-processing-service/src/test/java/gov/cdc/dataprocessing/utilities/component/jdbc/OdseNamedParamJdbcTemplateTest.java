@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
@@ -12,12 +11,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
-class OdseNamedParamJdbcTemplateTest {
+class OdseNameParamJdbcTemplateTest {
+
   @Test
-  void setsReleaseVersion_whenQueryReturnsValue() throws Exception {
+  void enablesWhenQueryReturnsOne() throws Exception {
     JdbcOperations jdbcOps =
         mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.19.1");
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(1);
 
     DataSource ds = mock(DataSource.class);
 
@@ -32,14 +32,38 @@ class OdseNamedParamJdbcTemplateTest {
     template.afterPropertiesSet();
 
     verify((InitializingBean) jdbcOps).afterPropertiesSet();
-    assertEquals("6.0.19.1", template.getNbsReleaseVersion());
+    verify(jdbcOps).queryForObject(anyString(), eq(Integer.class));
+    assertTrue(template.isNbsDocReceivedTimeEnabled());
   }
 
   @Test
-  void leavesReleaseVersionNull_whenQueryReturnsEmpty() throws Exception {
+  void disablesWhenQueryReturnsZero() throws Exception {
     JdbcOperations jdbcOps =
         mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps.queryForObject(anyString(), eq(String.class)))
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(0);
+
+    DataSource ds = mock(DataSource.class);
+
+    OdseNameParamJdbcTemplate template =
+        new OdseNameParamJdbcTemplate(ds) {
+          @Override
+          public JdbcOperations getJdbcOperations() {
+            return jdbcOps;
+          }
+        };
+
+    template.afterPropertiesSet();
+
+    verify((InitializingBean) jdbcOps).afterPropertiesSet();
+    verify(jdbcOps).queryForObject(anyString(), eq(Integer.class));
+    assertFalse(template.isNbsDocReceivedTimeEnabled());
+  }
+
+  @Test
+  void setsFalseWhenQueryThrowsEmptyResult() throws Exception {
+    JdbcOperations jdbcOps =
+        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class)))
         .thenThrow(new EmptyResultDataAccessException(1));
 
     DataSource ds = mock(DataSource.class);
@@ -52,17 +76,19 @@ class OdseNamedParamJdbcTemplateTest {
           }
         };
 
+    // should not throw; exception is handled internally and flag set to false
     template.afterPropertiesSet();
 
     verify((InitializingBean) jdbcOps).afterPropertiesSet();
-    assertNull(template.getNbsReleaseVersion());
+    verify(jdbcOps).queryForObject(anyString(), eq(Integer.class));
+    assertFalse(template.isNbsDocReceivedTimeEnabled());
   }
 
   @Test
-  void testCompareVersionToRelease() throws Exception {
+  void setsFalseWhenQueryReturnsNull() throws Exception {
     JdbcOperations jdbcOps =
         mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.19.1");
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(null);
 
     DataSource ds = mock(DataSource.class);
 
@@ -74,103 +100,12 @@ class OdseNamedParamJdbcTemplateTest {
           }
         };
 
+    // null leads to NullPointerException inside implementation which is caught; result should be
+    // false
     template.afterPropertiesSet();
 
-    // same version
-    String inputVersion = "6.0.19.1";
-    int result = template.compareVersionToRelease(inputVersion);
-
-    assertEquals(0, result);
-
-    // newer version
-    inputVersion = "6.0.19.2";
-    result = template.compareVersionToRelease(inputVersion);
-
-    assertEquals(1, result);
-
-    // newer version
-    inputVersion = "7.0.13.1";
-    result = template.compareVersionToRelease(inputVersion);
-
-    assertEquals(1, result);
-
-    // older version
-    inputVersion = "6.0.17.1";
-    result = template.compareVersionToRelease(inputVersion);
-
-    assertEquals(-1, result);
-
-    // shorter version
-    inputVersion = "6.0.18";
-    result = template.compareVersionToRelease(inputVersion);
-
-    assertEquals(-1, result);
-
-    // release version detected is shorter
-    when(jdbcOps.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.19");
-
-    template.afterPropertiesSet();
-
-    inputVersion = "6.0.19.1";
-    result = template.compareVersionToRelease(inputVersion);
-
-    assertEquals(1, result);
-  }
-
-  @Test
-  void testCompareVersionToRelease_NullVersionValuesRaiseException() throws Exception {
-    // Input version is null while release version detected successfully
-    JdbcOperations jdbcOps1 =
-        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps1.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.19.1");
-
-    DataSource ds = mock(DataSource.class);
-
-    OdseNameParamJdbcTemplate template1 =
-        new OdseNameParamJdbcTemplate(ds) {
-          @Override
-          public JdbcOperations getJdbcOperations() {
-            return jdbcOps1;
-          }
-        };
-
-    template1.afterPropertiesSet();
-
-    Throwable illegalArgumentException =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> {
-              template1.compareVersionToRelease(null);
-            });
-
-    assertEquals("The input version cannot be null.", illegalArgumentException.getMessage());
-
-    // Input version is NOT null while release version was not detected
-    JdbcOperations jdbcOps2 =
-        mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps2.queryForObject(anyString(), eq(String.class))).thenReturn(null);
-
-    ds = mock(DataSource.class);
-
-    OdseNameParamJdbcTemplate template2 =
-        new OdseNameParamJdbcTemplate(ds) {
-          @Override
-          public JdbcOperations getJdbcOperations() {
-            return jdbcOps2;
-          }
-        };
-
-    template2.afterPropertiesSet();
-
-    Throwable illegalStateException =
-        assertThrows(
-            IllegalStateException.class,
-            () -> {
-              template2.compareVersionToRelease("6.0.18.0");
-            });
-
-    assertEquals(
-        "NBS Release Version was not detected. Version comparison cannot be performed. Check the NBS_Release table.",
-        illegalStateException.getMessage());
+    verify((InitializingBean) jdbcOps).afterPropertiesSet();
+    verify(jdbcOps).queryForObject(anyString(), eq(Integer.class));
+    assertFalse(template.isNbsDocReceivedTimeEnabled());
   }
 }

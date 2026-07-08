@@ -41,15 +41,13 @@ class CustomRepositoryImplTest {
     MockitoAnnotations.openMocks(this);
     customRepositoryImpl.entityManager = entityManager;
     // for most tests - modify for individual tests that need nbsReleaseVersion to be 6.0.19.1+
-    ReflectionTestUtils.setField(
-        customRepositoryImpl, "nbsReleaseVersionReceivedTime", nbsReleaseVersionReceivedTime);
-
+    // set up the query result
     JdbcOperations jdbcOps =
         mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.18.1");
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(0);
 
     DataSource ds = mock(DataSource.class);
-
+    // init the template with the mocked jdbc ops
     odseNameParamJdbcTemplate =
         new OdseNameParamJdbcTemplate(ds) {
           @Override
@@ -58,8 +56,10 @@ class CustomRepositoryImplTest {
           }
         };
 
+    // call the post construct method so the mocked jdbc query is executed
     odseNameParamJdbcTemplate.afterPropertiesSet();
 
+    // inject the template into customRepositoryImpl
     ReflectionTestUtils.setField(
         customRepositoryImpl, "odseNameParamJdbcTemplate", odseNameParamJdbcTemplate);
   }
@@ -1158,7 +1158,7 @@ class CustomRepositoryImplTest {
     // modified odse jdbc template for testing 6.0.19.1 condition
     JdbcOperations jdbcOps =
         mock(JdbcOperations.class, withSettings().extraInterfaces(InitializingBean.class));
-    when(jdbcOps.queryForObject(anyString(), eq(String.class))).thenReturn("6.0.19.1");
+    when(jdbcOps.queryForObject(anyString(), eq(Integer.class))).thenReturn(1);
 
     DataSource ds = mock(DataSource.class);
 

@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -39,8 +38,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 
   public CustomRepositoryImpl(
       PublicHealthCaseStoredProcRepository publicHealthCaseStoredProcRepository,
-      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate odseNameParamJdbcTemplate,
-      ) {
+      @Qualifier("odseNamedParameterJdbcTemplate") OdseNameParamJdbcTemplate odseNameParamJdbcTemplate) {
     this.publicHealthCaseStoredProcRepository = publicHealthCaseStoredProcRepository;
     this.odseNameParamJdbcTemplate = odseNameParamJdbcTemplate;
   }
@@ -619,11 +617,8 @@ public class CustomRepositoryImpl implements CustomRepository {
 
   public NbsDocumentContainer getNbsDocument(Long nbsUid) throws DataProcessingException {
     Query query;
-    boolean includeReceivedTime =
-        odseNameParamJdbcTemplate.compareVersionToRelease(nbsReleaseVersionReceivedTime) >= 0;
-    if (includeReceivedTime) {
+    if (odseNameParamJdbcTemplate.isNbsDocReceivedTimeEnabled()) {
       query = entityManager.createNativeQuery(GET_NBS_DOCUMENT_6_0_19_1);
-      includeReceivedTime = true;
     } else {
       query = entityManager.createNativeQuery(GET_NBS_DOCUMENT);
     }
@@ -676,7 +671,7 @@ public class CustomRepositoryImpl implements CustomRepository {
         */
         container.setLastChgTime(parseValue(item[++i], Timestamp.class));
 
-        if (includeReceivedTime) {
+        if (odseNameParamJdbcTemplate.isNbsDocReceivedTimeEnabled()) {
           container.setReceivedTime(parseValue(item[++i], Timestamp.class));
         }
 
