@@ -32,16 +32,7 @@ public class OdseNameParamJdbcTemplate extends NamedParameterJdbcTemplate {
 
   private void setNbsReleaseVersion() {
     String sql =
-        "IF EXISTS (\n"
-            + "    SELECT 1 \n"
-            + "    FROM NBS_ODSE.INFORMATION_SCHEMA.COLUMNS \n"
-            + "    WHERE TABLE_SCHEMA = 'dbo' \n"
-            + "      AND TABLE_NAME = 'NBS_Document' \n"
-            + "      AND COLUMN_NAME = 'received_time'\n"
-            + ") \n"
-            + "    SELECT 1 AS column_exists \n"
-            + "ELSE \n"
-            + "    SELECT 0 AS column_exists;";
+            "IF EXISTS ( SELECT 1 FROM NBS_ODSE.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'NBS_Document' AND COLUMN_NAME = 'received_time') SELECT 1 AS column_exists ELSE SELECT 0 AS column_exists;";
     try {
       this.isNbsDocReceivedTimeEnabled =
           getJdbcOperations().queryForObject(sql, Integer.class) == 1;

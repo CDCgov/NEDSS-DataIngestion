@@ -34,8 +34,6 @@ class CustomRepositoryImplTest {
 
   @InjectMocks private CustomRepositoryImpl customRepositoryImpl;
 
-  private String nbsReleaseVersionReceivedTime = "6.0.19.1";
-
   @BeforeEach
   void setUp() throws Exception {
     MockitoAnnotations.openMocks(this);
