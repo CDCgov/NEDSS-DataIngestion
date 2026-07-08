@@ -140,7 +140,6 @@ uid:
 
 nedss:
   nbs-state-code: ${NBS_STATE_CODE:13}
-  nbs-release-version-doc-received-time: 6.0.19.1
 
 ---
 spring:

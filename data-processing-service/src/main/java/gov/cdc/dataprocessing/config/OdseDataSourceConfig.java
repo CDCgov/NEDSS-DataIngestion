@@ -109,9 +109,7 @@ public class OdseDataSourceConfig {
 
   @Bean(name = "odseNamedParameterJdbcTemplate")
   public OdseNameParamJdbcTemplate odseNamedParameterJdbcTemplate(
-      @Qualifier("odseDataSource") DataSource dataSource,
-      @Value("${nedss.nbs-release-version-doc-received-time}")
-          String nbsReleaseVersionReceivedTime) {
+      @Qualifier("odseDataSource") DataSource dataSource) {
     return new OdseNameParamJdbcTemplate(dataSource);
   }
 }
